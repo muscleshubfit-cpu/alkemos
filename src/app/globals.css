@@ -463,6 +463,13 @@
    the bar is parsed for returning users — this rule then hides it pre-paint
    (no flash); React unmounts it after hydration. */
 html[data-mhe-consent-ok] .mhe-cookie-bar { display: none !important; }
+/* PHASE 137b: kill the banner's ::before marble texture. The 5%-opacity
+   overlay is invisible on a consent bar, but it made the banner an
+   IMAGE-paint LCP candidate chained behind CSS-var discovery (Lighthouse
+   lcp-breakdown: resourceLoadDelay 877ms observed → 5.3s simulated on 4G,
+   STILL the /blog LCP even after the SSR fix). Without it the banner's
+   LCP entry is its text, which paints with FCP. */
+html .mhe-cookie-bar::before { content: none; }
 
 /* EVO floating bubble — mission §5 (dark mode: 2px glow ring var(--ai)) */
 .evo-bubble-ring { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
