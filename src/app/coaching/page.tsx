@@ -333,11 +333,14 @@ export default function CoachingPage() {
             <Reveal delay={200}>
               <div className="mt-10 flex flex-col items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element -- local fixed asset (helmet mark, decorative) */}
+                {/* PHASE 137: loading=lazy (kills the React Float auto-preload
+                    of this artwork on the critical path). */}
                 <img
                   src="/images/brand/mark-helmet.png"
                   alt=""
                   width={56}
                   height={56}
+                  loading="lazy"
                   className="h-14 w-14 object-contain"
                   aria-hidden="true"
                 />

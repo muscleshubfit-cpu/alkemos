@@ -1131,11 +1131,16 @@ export function LandingView() {
                       <th className="p-2.5 text-center font-semibold md:p-4" style={{ color: "var(--text)" }}>
                         <span className="inline-flex items-center gap-1.5">
                           {/* eslint-disable-next-line @next/next/no-img-element -- local fixed asset (helmet mark, 16px decorative) */}
+                          {/* PHASE 137: loading=lazy — this 16px below-fold icon
+                              had NO lazy attr, so React Float SSR auto-preloaded
+                              the 216KB original on the homepage critical path
+                              (Lighthouse: mark-helmet.png in Early Hints). */}
                           <img
                             src="/images/brand/mark-helmet.png"
                             alt=""
                             width={16}
                             height={16}
+                            loading="lazy"
                             className="h-4 w-4 object-contain"
                             aria-hidden="true"
                           />

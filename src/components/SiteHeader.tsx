@@ -380,8 +380,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                 light="/images/brand/logo-navbar-light.png"
                 dark="/images/brand/logo-navbar-dark.png"
                 alt="Alkemos"
-                width={373}
-                height={120}
+                /* PHASE 137: artwork optimized 66/52KB -> 7/6KB (same aspect:
+                    373x120 -> 224x72 light, 284x120 -> 170x72 dark; attrs
+                    now mirror the LIGHT variant's intrinsic size). */
+                width={224}
+                height={72}
                 eager
                 className="h-9 w-auto object-contain"
               />
@@ -475,8 +478,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                 light="/images/brand/logo-navbar-light.png"
                 dark="/images/brand/logo-navbar-dark.png"
                 alt="Alkemos"
-                width={373}
-                height={120}
+                /* PHASE 137: artwork optimized 66/52KB -> 7/6KB (same aspect:
+                    373x120 -> 224x72 light, 284x120 -> 170x72 dark; attrs
+                    now mirror the LIGHT variant's intrinsic size). */
+                width={224}
+                height={72}
                 eager
                 className="h-9 w-auto object-contain"
               />

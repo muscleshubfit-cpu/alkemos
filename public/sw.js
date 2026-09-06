@@ -4,6 +4,11 @@
 // IMPORTANT: navigation requests (HTML pages) are ALWAYS served network-only
 // and NEVER cached, so users always see the latest deployed version.
 //
+// v6 (Phase 137 — deep speed audit): version bump — wipes the v5 Cache
+// Storage so repeat visitors drop the pre-optimization artwork copies
+// (helmet 216→6KB, navbar logos 66/52→7/6KB, evo-card backdrops 81/96→6KB).
+// Caching strategy is UNCHANGED (network-first for non-hashed assets).
+//
 // v5 (Phase 136 — speed variance fix): version bump only — wipes the v4
 // Cache Storage so repeat visitors drop the pre-compression icon/artwork
 // copies (icons went 42→10KB, evo-card 126→81KB). Caching strategy is
@@ -19,7 +24,7 @@
 // content-hashed /_next/static/* chunks stay cache-first (immutable by
 // construction).
 
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = `alkemos-${CACHE_VERSION}`;
 const APP_SHELL = [
   "/manifest.json",

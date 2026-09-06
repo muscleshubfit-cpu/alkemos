@@ -293,8 +293,21 @@ export default async function RootLayout({
         <a href="#main-content-skip" className="sr-only-focusable">
           Skip to content
         </a>
+        {/* PHASE 137 (deep speed audit 2026-09-07): consent pre-paint script.
+            CookieConsent is now SSR-rendered VISIBLE (it used to mount after
+            hydration — Lighthouse flagged the late-painted banner as THE LCP
+            element on /blog at 7.9s). Returning users with a stored consent
+            get html[data-mhe-consent-ok] stamped HERE, before this point in
+            the DOM is parsed, so globals.css hides the bar pre-paint — zero
+            flash, zero late LCP, and the bar paints with FCP for cold visits. */}
+        <script
+          id="alkemos-consent-init"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('mhe_cookie_consent');if(s){var d=JSON.parse(s);if(d&&typeof d.timestamp==='number'&&Date.now()-d.timestamp<31536000000){document.documentElement.setAttribute('data-mhe-consent-ok','1');return;}}}catch(e){}})();`,
+          }}
+        />
         <ReferralCookieChecker />
-        <CookieConsent />
+        <CookieConsent initialLang={lang} />
         <I18nProvider urlLocale={lang}>
           <AuthProvider>
             {/* COACH ATTRIBUTION (0033) — claims a coach-signup cookie for

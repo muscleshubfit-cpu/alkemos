@@ -456,6 +456,14 @@
 [data-theme="dark"] .theme-img-light { display: none; }
 [data-theme="dark"] .theme-img-dark { display: block; }
 
+/* PHASE 137 (deep speed audit): cookie banner SSR-first-paint. The bar is
+   server-rendered visible so it paints WITH first paint (Lighthouse had it
+   as the /blog LCP element at 7.9s when it mounted post-hydration). The
+   layout's alkemos-consent-init inline script stamps this attribute BEFORE
+   the bar is parsed for returning users — this rule then hides it pre-paint
+   (no flash); React unmounts it after hydration. */
+html[data-mhe-consent-ok] .mhe-cookie-bar { display: none !important; }
+
 /* EVO floating bubble — mission §5 (dark mode: 2px glow ring var(--ai)) */
 .evo-bubble-ring { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 [data-theme="dark"] .evo-bubble-ring {

@@ -10,6 +10,15 @@ import { useState, useEffect, useRef } from "react";
  * Calls gtag to update consent mode for AdSense.
  *
  * AdSense will only serve personalized ads if consent is granted.
+ *
+ * PHASE 137 (2026-09-07, deep speed audit): SSR-FIRST-PAINT. This banner
+ * used to mount only AFTER hydration (show=false → useEffect → setShow(true)),
+ * so for every cold-consent visitor (and Googlebot/PSI) a large text block
+ * painted LAST — on /blog Lighthouse identified it as THE LCP element at
+ * 7.9s. Now the banner is server-rendered visible (show=true initial), a
+ * pre-paint inline script in layout.tsx stamps html[data-mhe-consent-ok]
+ * for returning users and globals.css hides the bar instantly (no flash,
+ * no late LCP). The useEffect still reconciles state post-hydration.
  */
 
 const CONSENT_KEY = "mhe_cookie_consent";
@@ -29,13 +38,22 @@ function updateConsent(granted: boolean) {
   } catch {}
 }
 
-export function CookieConsent() {
-  const [show, setShow] = useState(false);
-  const [lang, setLang] = useState<"ar" | "en">("en");
+export function CookieConsent({
+  initialLang = "en",
+}: {
+  /** SSR-known locale (root layout resolves it) — keeps server and client
+   * markup identical so the banner hydrates without a language flash. */
+  initialLang?: "ar" | "en";
+}) {
+  // Phase 137: SSR-first-paint — the bar is server-rendered VISIBLE. The
+  // layout's pre-paint script already hid it for returning users.
+  const [show, setShow] = useState(true);
+  const [lang, setLang] = useState<"ar" | "en">(initialLang);
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Detect language from <html lang="...">
+    // Detect language from <html lang="..."> (safety net — matches the
+    // SSR initialLang in practice, so no visible change on hydration).
     const htmlLang = document.documentElement.lang;
     setLang(htmlLang === "ar" ? "ar" : "en");
 
@@ -46,15 +64,17 @@ export function CookieConsent() {
         const data = JSON.parse(stored);
         const age = Date.now() - data.timestamp;
         if (age < CONSENT_DURATION) {
-          // Consent still valid — update gtag
+          // Consent still valid — update gtag and unmount the bar (it was
+          // already display:none'd pre-paint; this frees the DOM node and
+          // publishes --mhe-cookie-bar-h: 0).
           updateConsent(data.granted);
+          setShow(false);
           return;
         }
       }
     } catch {}
 
-    // No valid consent — show banner
-    setShow(true);
+    // No valid consent — banner stays visible (already painted with FCP).
   }, []);
 
   // NO-COVER LAW (2026-08-27): while this banner is visible it must NEVER
@@ -121,7 +141,7 @@ export function CookieConsent() {
          once (see `rounded-none!` below) — `fixed!` follows that same
          established pattern. Verified: computed position was `relative`
          before, `fixed` after. */
-      className="marble-card fixed! bottom-0 left-0 right-0 z-[100] rounded-none! p-4 shadow-lg md:p-6"
+      className="marble-card mhe-cookie-bar fixed! bottom-0 left-0 right-0 z-[100] rounded-none! p-4 shadow-lg md:p-6"
     >
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 md:flex-row md:justify-between">
         <p className="text-center text-sm font-normal text-[var(--muted-2)] md:text-start">
