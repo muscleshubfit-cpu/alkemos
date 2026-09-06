@@ -1480,3 +1480,23 @@ Stage Summary:
 - Commit SHA: 26bcad1 — PUSHED b535acd..26bcad1 main→main · Vercel READY sha=26bcad10
 - تحقق إنتاجي: build-info=26bcad1 ✓ · الـ 4 preloads المقيدة بالوسيط حية بالـ HTML ✓ · 0rtt=on (API) ✓ · الصفحات الرئيسة 200 بـ TTFB 34-42ms ✓ · متصفح لايت يحمل hero-light+logo-hero-light فقط — hero-dark 68KB لم تعد تُطلب ✓
 - الخلاصة للمالك: CF ليس سبب البطء من موقع القياس (أسرع من المباشر للأصول والـ TTFB) — الوزن الحقيقي للزيارة الأولى 1.3MB (إعلانات خارجية + خطوط + صور) وHTML يُبث ~0.5s بسبب التخطيط الجذري الديناميكي · متبقٍ اختياري: Speed Brain يدوي · قرار البراند TTL · تدوير المفاتيح
+
+---
+Task ID: 136
+Agent: main (Super Z)
+Task: Phase 136 — بلاغ المالك «٣ اختبارات PageSpeed متفاوتة 44/75/41 + إعلانات جوجل لسه تحت المراجعة»
+
+Work Log:
+- تشخيص كمي بدل التخمين: Lighthouse محلي ×3 (نفس محاكاة PSI: slow-4G + CPU 4x) استنسخ التذبذب بدقة (42/54/58) — القاتل الأول CLS 0.207 ثابت في كل جولة (ليس تذبذبًا بل خللًا حتميًا) + LCP 5.0-6.9s + TBT 508-690ms
+- التتبع الحي بـ Playwright + PerformanceObserver: الإزاحة 0.187 = حاوية الصفحة كلها تتحرك 154px عند 4.8s — مصدرها بانر الكوكيز يرندر static بدل fixed
+- السبب الجذري (فخ cascade): `.marble-card` معرّف خارج أي @layer في globals.css وCSS غير الطبقي يتغلب على utilities الطبقية في سلّم CSS → position:relative سحقت position:fixed — نفس الفخ أصاب الملف قبلًا (rounded-none!) — الإصلاح: `fixed!` بنفس النمط
+- اكتشاف ثانٍ: 13 ملف خط @fontsource (Inter/Cairo/Playfair بأوزان متعددة = 8 ملفات/194KB بالزيارة الأولى) بـ fallback غير مضبوط — إزاحة الخطوط كانت مسؤولة عن باقي CLS
+- الإصلاحات المنفذة (b15b272 + 2e632c6): next/font/google متغيّر (ملف/عائلة + fallback مقاييس تلقائي: Inter Fallback بـ size-adjust 107.12%...) · srcset responsive كامل للبراند (لوجو 96.6→23.4KB موبايل · هيرو 828w 17.2KB · evo-hero 512w 27.1KB) مع imageSrcSet/imageSizes متناظرة في الـ preloads (شرط المطابقة) · fetchPriority=high للهيرو (lcp-discovery كان يشير priorityHinted=false) · preconnects مقيدة بالمسار (/blog→Pexels/Pixabay/Unsplash · /exercises→wger · /coaching→randomuser · /referral→qrserver) · كاش البراند 300s+SWR 7d (بديل قرار المرحلة 128 المعلق) · ضغط evo-card/divider/evo-widget والأيقونات · SW v4→v5 · purge CF للأيقونات القديمة (كانت عالقة 24h)
+- قرار واعٍ: سكربت AdSense بقي SSR في HTML (نُقل body-end لكن React Float يرفعه للـ head) — إزالته كانت ستربح ~10 نقاط لكنها تخاطر بتعثر مراجعة AdSense («الرمز غير موجود») — التأجيل لما بعد الموافقة
+- البوابات: CI GitHub (docs-parity + guard-stale-refs + Supabase Preview) success ×2 · Vercel build ✓ (يشمل type-check) · بلا ميجريشن
+
+Stage Summary:
+- Commit SHAs: b15b272 (136a) + 2e632c6 (136b) — PUSHED 26bcad1..2e632c6 · Vercel READY sha=2e632c6
+- النتائج المقاسة: CLS 0.207→0.0196 (أخضر) · موبايل 42-58 → 54-69 · Desktop 98 · إصلاح بصري خفي: البانر كان عالقًا أعلى الصفحة لكل زائر أول
+- تفسير تذبذب 44/75/41 للمالك: Lighthouse يحاكي موبايل متوسط على 4G بطيء — قبل الإصلاح كانت المقاييس على حافة العتبات فتتقلب النتيجة جولة لجولة؛ CLS الآن مقفول والوزن أخف ~350KB — التذبذب المتبقي من سلسلة AdSense + hydration (موصوف في «المفتوح الآن»)
+- متبقٍ بعد موافقة AdSense: lazy-load للمحمّل (~240KB/500ms) · لاحقًا هيكليًا: تقسيم hydration الرئيسية
