@@ -58,12 +58,13 @@ function NotificationBellHeader({ isAdmin = false }: { isAdmin?: boolean }) {
 /**
  * Site header — Apple-style clean bar.
  *
- * Layout: [MENU] [THEME] ...... [LOGO] ...... [LANG] [LOGIN/LOGOUT] [BELL]
+ * Layout: [MENU] [MARK] ...... [THEME] [LANG] [LOGIN/LOGOUT] [BELL]
  *
- * Language toggle + Login/Logout are in the header bar (always visible).
- * The theme toggle sits on the menu side (Phase 128 owner directive — it
- * used to hug the centered logo on the actions side). The hamburger opens
- * a slide-in drawer for full navigation.
+ * Phase 138 (owner directive 2026-09-07): the logo is the helmet MARK
+ * only (no wordmark), anchored at the start side next to the menu button.
+ * All utility buttons (theme / language / login / bell) are grouped
+ * together on the end side. The hamburger opens a slide-in drawer for
+ * full navigation.
  */
 export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app" }) {
   const { t, lang } = useI18n();
@@ -337,24 +338,28 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     <>
       {/* G1 → Phase 126 «Marble & Chrome»: navbar-chrome (mission §1) —
           sticky, blur(12px), translucent bg, chrome bottom border.
-          3-zone layout stays: menu left / centered logo / actions right
-          (owner directives Phase 124-125). Logo = owner's navbar artwork
-          pair (light/dark) at 36px. ThemeToggle (light/dark/auto) + a
-          chrome CTA join the right action group. */}
+          2-zone layout (Phase 138): [menu][helmet mark] start / [theme]
+          [lang][bell][account] end. Phase 138 (owner directive 2026-09-07):
+          «عدل لوجو الهيدر لشكل الرسمة بدون الكتابة وانقله الى الجانب مع
+          تنسيق ازرار الهيدر» — the header logo is now the owner's helmet
+          MARK only (no wordmark), anchored at the start side right after
+          the menu button (the center-anchored navbar wordmark pair is
+          retired). With the wordmark gone from the center there is nothing
+          left for the theme toggle to crowd (the original Phase 128
+          concern), so it returns to the actions group — every utility
+          button now lives together on the end side, uniformly sized.
+          Phase 127 note: the «Start now» chrome CTA stays REMOVED (owner
+          request) — the navbar is navigation-only. */}
       <header className="navbar-chrome sticky top-0 z-40 w-full">
         <div
           className={cn(
-            "relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6",
+            "mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6",
             variant === "app" && "max-w-6xl",
           )}
         >
-          {/* Left: hamburger + theme toggle — Phase 128 (owner directive
-              2026-09-06): «زر التبيدل للوضع الداكن ملتصق باللوجو انقلة الى
-              الجانب الاخر» — ThemeToggle moved from the right action group
-              (where it sat right beside the centered logo) to the menu
-              side. Bar layout: [menu][theme] …… logo …… [lang][bell][account].
-              Phase 127 note: the «Start now» chrome CTA stays REMOVED (owner
-              request) — the navbar is navigation-only. */}
+          {/* Start side: hamburger + helmet mark — Phase 138. Mark pair
+              (light/dark, ~5.7KB each) ThemeImg CSS-switches with the
+              theme; tap → home. */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setOpen(true)}
@@ -363,37 +368,34 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
             >
               <Menu className="h-5 w-5" />
             </button>
-            {/* Phase 126 — light/dark/auto cycle (moved here Phase 128) */}
-            <ThemeToggle />
-          </div>
-
-          {/* Center: logo — absolutely centered so side groups never push it.
-              Phase 126 (mission §1): owner's navbar logo pair (light/dark) at
-              36px height — ThemeImg CSS-switches with the theme. */}
-          <div className="pointer-events-none absolute inset-x-0 flex justify-center">
             <button
               onClick={() => navigate("landing")}
-              className="pointer-events-auto flex items-center"
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-[var(--tint)]"
               aria-label="Alkemos"
             >
               <ThemeImg
-                light="/images/brand/logo-navbar-light.png"
-                dark="/images/brand/logo-navbar-dark.png"
+                light="/images/brand/mark-helmet-light.png"
+                dark="/images/brand/mark-helmet-dark.png"
                 alt="Alkemos"
-                /* PHASE 137: artwork optimized 66/52KB -> 7/6KB (same aspect:
-                    373x120 -> 224x72 light, 284x120 -> 170x72 dark; attrs
-                    now mirror the LIGHT variant's intrinsic size). */
-                width={224}
-                height={72}
+                /* PHASE 138: helmet MARK (no wordmark) 128x128 shown at 36px
+                    (covers 3x DPR). Dark variant = luminosity-inverted
+                    engraving so the mark pops on dark chrome. */
+                width={128}
+                height={128}
                 eager
-                className="h-9 w-auto object-contain"
+                className="h-9 w-9 object-contain"
               />
             </button>
           </div>
 
-          {/* Right side: Language + Notifications + Account (theme toggle
-              moved to the menu side — Phase 128 owner directive) */}
+          {/* End side: theme + language + notifications + account — Phase
+              138 tidy: ALL utility buttons grouped here, uniformly sized. */}
           <div className="flex items-center gap-2 md:gap-3">
+            {/* Theme toggle — light/dark/auto (returned from the menu side:
+                Phase 128 moved it left only to un-crowd the centered logo,
+                which no longer exists). */}
+            <ThemeToggle />
+
             {/* Language toggle — always visible */}
             <LanguageToggle />
 
@@ -463,28 +465,25 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
           aria-modal="true"
           aria-label={isAr ? "القائمة الرئيسية" : "Main menu"}
         >
-          {/* Drawer header — Phase 126: owner's navbar logo pair (mission:
-              "use the Navbar logo in the header menu"), tap → home. */}
+          {/* Drawer header — Phase 138: helmet MARK (same as the navbar bar,
+              no wordmark), tap → home. */}
           <div className="flex h-16 items-center justify-between border-b border-[var(--edge)] px-4">
             <button
               onClick={() => {
                 setOpen(false);
                 navigate("landing");
               }}
-              className="flex items-center"
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-[var(--tint)]"
               aria-label="Alkemos"
             >
               <ThemeImg
-                light="/images/brand/logo-navbar-light.png"
-                dark="/images/brand/logo-navbar-dark.png"
+                light="/images/brand/mark-helmet-light.png"
+                dark="/images/brand/mark-helmet-dark.png"
                 alt="Alkemos"
-                /* PHASE 137: artwork optimized 66/52KB -> 7/6KB (same aspect:
-                    373x120 -> 224x72 light, 284x120 -> 170x72 dark; attrs
-                    now mirror the LIGHT variant's intrinsic size). */
-                width={224}
-                height={72}
+                width={128}
+                height={128}
                 eager
-                className="h-9 w-auto object-contain"
+                className="h-9 w-9 object-contain"
               />
             </button>
             <button
