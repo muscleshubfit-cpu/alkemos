@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Script from "next/script";
 import { cookies, headers } from "next/headers";
+import { Inter, Playfair_Display, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -19,6 +20,40 @@ export { metadata, viewport };
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
+
+/* Phase 136 (PSI variance fix, 2026-09-07) — next/font migration.
+ * BEFORE: 13 @fontsource weight CSS imports (Inter 400-800, Cairo 400-800,
+ * Playfair 500-700) = 8 woff2 files (~194KB) discovered only AFTER the
+ * render-blocking CSS parsed, each with a plain system-font fallback whose
+ * metrics differ from the webfont → the FOUT swap reflowed the ENTIRE page
+ * container (Lighthouse layout-shifts: 0.187 of the 0.208 CLS, causes
+ * "Web font loaded" inter-latin-700 + playfair-500). AFTER: one VARIABLE
+ * font file per family (~40KB), preloaded in <head> in parallel with the
+ * CSS, and next/font's automatic metric-adjusted fallback (size-adjust /
+ * ascent-override) keeps the fallback swap geometrically identical → the
+ * font reflow CLS is eliminated while text stays visible during load
+ * (display: swap). Cairo keeps preload:false — its @font-face unicode-range
+ * means only /ar pages ever download the arabic subset, and preloading it
+ * on EN pages would be pure waste (EN homepage downloaded ZERO Cairo files
+ * before and still does). */
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+  preload: true,
+});
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  display: "swap",
+  variable: "--font-cairo",
+  preload: false,
+});
 
 // Site-wide structured data (JSON-LD) — injected on every page
 const organizationSchema = getOrganizationSchema();
@@ -112,38 +147,75 @@ export default async function RootLayout({
   const requestPath = h.get("x-pathname") || "/";
   const isHomePage = requestPath === "/" || requestPath === "/ar";
 
+  /* Phase 136 — ROUTE-SCOPED preconnects (was: 6 global preconnects on
+   * EVERY page). Each preconnect opens a DNS+TCP+TLS handshake to a
+   * third-party origin; on Lighthouse's simulated slow-4G mobile profile
+   * six of them ate the connection budget of the LCP image (its resource
+   * load delay measured 395ms). Now each origin is warmed only on the
+   * route subtree that actually fetches from it:
+   *   /blog*      → Pexels/Pixabay/Unsplash (featured images)
+   *   /exercises* → wger.de (exercise photos)
+   *   /coaching*  → randomuser.me (testimonial avatars)
+   *   /referral*  → api.qrserver.com (QR codes) */
+  const isBlogPage =
+    requestPath === "/blog" ||
+    requestPath.startsWith("/blog/") ||
+    requestPath === "/ar/blog" ||
+    requestPath.startsWith("/ar/blog/");
+  const isExercisesPage =
+    requestPath === "/exercises" ||
+    requestPath.startsWith("/exercises/") ||
+    requestPath === "/ar/exercises" ||
+    requestPath.startsWith("/ar/exercises/");
+  const isCoachingPage =
+    requestPath === "/coaching" ||
+    requestPath === "/ar/coaching" ||
+    requestPath.startsWith("/coaching/") ||
+    requestPath.startsWith("/ar/coaching/");
+  const isReferralPage = requestPath.startsWith("/referral");
+
   return (
-    <html lang={lang} dir={dir} suppressHydrationWarning>
+    <html
+      lang={lang}
+      dir={dir}
+      className={`${inter.variable} ${playfair.variable} ${cairo.variable}`}
+      suppressHydrationWarning
+    >
       <head>
-        {/* Google AdSense — only loaded when NEXT_PUBLIC_ADSENSE_CLIENT env
-            var is set. Avoids loading AdSense on local dev or when the
-            publisher hasn't been approved yet. */}
-        {ADSENSE_CLIENT && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
-        {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://randomuser.me" />
-        <link rel="dns-prefetch" href="https://randomuser.me" />
         {/* RSS autodiscovery (Phase 86) — site-wide feed links so readers,
             aggregators and AI engines discover the 6-articles/day pipeline */}
         <link rel="alternate" type="application/rss+xml" title="Alkemos Blog (English)" href="/rss.xml" />
         <link rel="alternate" type="application/rss+xml" title="مدونة Alkemos (عربي)" href="/ar/rss.xml" />
-        <link rel="preconnect" href="https://api.qrserver.com" />
-        <link rel="dns-prefetch" href="https://api.qrserver.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        {/* Phase 98: the blog's PRIMARY image sources — warm the origins
-            before the first featured-image fetch (LCP on /blog pages) */}
-        <link rel="preconnect" href="https://images.pexels.com" />
-        <link rel="dns-prefetch" href="https://images.pexels.com" />
-        <link rel="preconnect" href="https://cdn.pixabay.com" />
-        <link rel="dns-prefetch" href="https://cdn.pixabay.com" />
-        <link rel="preconnect" href="https://wger.de" />
-        <link rel="dns-prefetch" href="https://wger.de" />
+        {/* Route-scoped preconnects — see the Phase 136 note above the
+            return. Every page used to pay for all six handshakes. */}
+        {isBlogPage && (
+          <>
+            <link rel="preconnect" href="https://images.pexels.com" />
+            <link rel="dns-prefetch" href="https://images.pexels.com" />
+            <link rel="preconnect" href="https://cdn.pixabay.com" />
+            <link rel="dns-prefetch" href="https://cdn.pixabay.com" />
+            <link rel="preconnect" href="https://images.unsplash.com" />
+            <link rel="dns-prefetch" href="https://images.unsplash.com" />
+          </>
+        )}
+        {isExercisesPage && (
+          <>
+            <link rel="preconnect" href="https://wger.de" />
+            <link rel="dns-prefetch" href="https://wger.de" />
+          </>
+        )}
+        {isCoachingPage && (
+          <>
+            <link rel="preconnect" href="https://randomuser.me" />
+            <link rel="dns-prefetch" href="https://randomuser.me" />
+          </>
+        )}
+        {isReferralPage && (
+          <>
+            <link rel="preconnect" href="https://api.qrserver.com" />
+            <link rel="dns-prefetch" href="https://api.qrserver.com" />
+          </>
+        )}
         {/* Structured data — Organization + WebSite (site-wide) */}
         <script
           type="application/ld+json"
@@ -156,19 +228,15 @@ export default async function RootLayout({
         {/* Phase 126 — Marble & Chrome themes: hero artwork preloads.
             P2 fix (2026-09-07): homepage-only (the hero never renders
             elsewhere, so preloading it on /blog etc. was pure waste).
-            Phase 135 speed fix (owner report "site slow via Cloudflare"):
-            preloads are now OS-SCHEME-SCOPED via the `media` attribute —
-            the browser skips a preload whose media query doesn't match, so
-            a light-OS visitor no longer downloads hero-dark.webp (68KB) and
-            a dark-OS visitor no longer downloads hero-light.webp (38KB).
-            Manual-theme-override users (localStorage alkemos-theme) fall
-            back to exactly the old behavior: at most one wasted preload —
-            their DOM <img>/CSS still switches on data-theme, so rendering
-            is unchanged; only the fetch hint is scoped. The hero is a CSS
-            cover background, so no CLS either way.
-            logo-hero-dark.webp also gains a dark-scoped preload — before,
-            dark users' actual LCP-adjacent logo image had NO preload while
-            the light variant's 99KB was preloaded unconditionally. */}
+            Phase 135: preloads are OS-SCHEME-SCOPED via the `media`
+            attribute. Phase 136 (PSI variance fix): (1) fetchPriority=high
+            — Lighthouse lcp-discovery flagged the LCP request un-prioritized;
+            (2) imageSrcSet/imageSizes mirror the <img srcset> EXACTLY so the
+            preload still matches after the responsive-variant change —
+            a preload that stops matching the img's chosen candidate would
+            download the ORIGINAL file (e.g. 96.6KB logo) on top of the
+            smaller variant the img actually uses. Mobile now fetches
+            hero-640 (12.4KB vs 37.3KB) and logo-256 (23.4KB vs 96.6KB). */}
         {isHomePage && (
           <>
             <link
@@ -176,27 +244,37 @@ export default async function RootLayout({
               as="image"
               href="/images/brand/hero-light.webp"
               media="(prefers-color-scheme: light)"
+              fetchPriority="high"
+              imageSrcSet="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light.webp 1280w"
+              imageSizes="100vw"
             />
             <link
               rel="preload"
               as="image"
               href="/images/brand/hero-dark.webp"
               media="(prefers-color-scheme: dark)"
+              fetchPriority="high"
+              imageSrcSet="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark.webp 1280w"
+              imageSizes="100vw"
             />
             {/* Phase 127 — the hero chrome logo is a ThemeImg <img> pair
                 (above the fold); preload BOTH variants scoped to their
-                matching OS scheme (see Phase 135 note above). */}
+                matching OS scheme, with the responsive srcset mirrored. */}
             <link
               rel="preload"
               as="image"
               href="/images/brand/logo-hero-light.webp"
               media="(prefers-color-scheme: light)"
+              imageSrcSet="/images/brand/logo-hero-light-256.webp 256w, /images/brand/logo-hero-light-512.webp 512w, /images/brand/logo-hero-light.webp 760w"
+              imageSizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
             />
             <link
               rel="preload"
               as="image"
               href="/images/brand/logo-hero-dark.webp"
               media="(prefers-color-scheme: dark)"
+              imageSrcSet="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
+              imageSizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
             />
           </>
         )}
@@ -246,8 +324,9 @@ export default async function RootLayout({
                 // browser fetches the NEW worker immediately even if an old
                 // /sw.js copy is still sitting in the HTTP cache (the update
                 // check would otherwise reuse it for up to 24h). Keep this
-                // query in sync with CACHE_VERSION in public/sw.js (now v4).
-                navigator.serviceWorker.register('/sw.js?v=4').then(function(reg) {
+                // query in sync with CACHE_VERSION in public/sw.js (v5 —
+                // Phase 136 bump to drop pre-compression artwork caches).
+                navigator.serviceWorker.register('/sw.js?v=5').then(function(reg) {
                   console.log('[PWA] Service Worker registered');
                 }).catch(function(e) {
                   console.warn('[PWA] SW registration failed:', e);
@@ -286,6 +365,28 @@ export default async function RootLayout({
 
         {/* Vercel Speed Insights — Core Web Vitals + LCP/CLS/INP tracking. */}
         <SpeedInsights />
+
+        {/* Google AdSense — only loaded when NEXT_PUBLIC_ADSENSE_CLIENT env
+            var is set. Avoids loading AdSense on local dev or when the
+            publisher hasn't been approved yet.
+            Phase 136: moved from <head> to BODY-END. The loader is async so
+            it never blocks parsing either way, but at body-end its ~240KB
+            download (+~510ms of third-party main-thread work observed in
+            Lighthouse while ads are under review and not even serving)
+            starts AFTER the critical path — CSS, fonts, LCP image and the
+            hydration chunks — instead of competing with them during the
+            LCP window on slow mobile networks. The tag is still
+            server-rendered in the initial HTML (the AdSense site review
+            sees the code — do NOT make this client-side-only), and the
+            AdSenseAd components queue their pushes in
+            window.adsbygoogle, which the loader drains when it arrives. */}
+        {ADSENSE_CLIENT && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </body>
     </html>
   );

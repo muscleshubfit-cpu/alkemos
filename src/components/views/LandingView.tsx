@@ -388,7 +388,11 @@ export function LandingView() {
           .hero-art in globals.css). History: Phase 127 scrubbed the baked
           logo from the artwork + removed the old CTAs/eyebrow. */}
       <section className="hero-art relative w-full">
-        {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP) */}
+        {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP).
+            Phase 136: fetchPriority=high (Lighthouse lcp-discovery flagged
+            the LCP request un-prioritized) + responsive srcset — mobile
+            fetches hero-*-640.webp (12.4KB) instead of the 1280w original
+            (37.3KB light / 66.9KB dark). */}
         <div className="hero-bg" aria-hidden="true">
           <ThemeImg
             light="/images/brand/hero-light.webp"
@@ -397,17 +401,33 @@ export function LandingView() {
             width={1280}
             height={713}
             eager
+            fetchPriority="high"
+            srcSetLight="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light.webp 1280w"
+            srcSetDark="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark.webp 1280w"
+            sizes="100vw"
           />
         </div>
         {/* Content overlay — logo + H1 + seal chips, centered in the artwork */}
         <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-4 text-center md:py-8">
-          {/* Silver-chrome brand lockup (owner artwork, theme pair) */}
+          {/* Silver-chrome brand lockup (owner artwork, theme pair).
+              Phase 136: the 760×606 original was served to phones that
+              render it at 128×102 — Lighthouse image-delivery flagged 96KB
+              waste. srcset now serves 256w (23.4KB) on phones, 512w on
+              retina, 760w on lg screens; explicit width/height (matching
+              the light variant's intrinsic aspect 760:606) reserves the
+              layout box pre-load (unsized-images audit). The root layout
+              preload mirrors this srcset via imageSrcSet. */}
           <ThemeImg
             light="/images/brand/logo-hero-light.webp"
             dark="/images/brand/logo-hero-dark.webp"
             alt="Alkemos"
             className="w-32 object-contain md:w-52 lg:w-64"
+            width={760}
+            height={606}
             eager
+            srcSetLight="/images/brand/logo-hero-light-256.webp 256w, /images/brand/logo-hero-light-512.webp 512w, /images/brand/logo-hero-light.webp 760w"
+            srcSetDark="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
+            sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
           <h1 className="font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
             {isAr ? "منصتك الرياضية المتكاملة." : "Your complete fitness platform."}
@@ -527,6 +547,11 @@ export function LandingView() {
                 dark="/images/brand/evo-hero-dark.webp"
                 alt=""
                 className="h-full w-full object-cover"
+                width={640}
+                height={675}
+                srcSetLight="/images/brand/evo-hero-light-400.webp 400w, /images/brand/evo-hero-light.webp 640w"
+                srcSetDark="/images/brand/evo-hero-dark-400.webp 400w, /images/brand/evo-hero-dark.webp 640w"
+                sizes="(max-width: 768px) 300px, 560px"
               />
             </div>
             {/* Text column — title only (Phase 128), smaller + shorter card

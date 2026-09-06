@@ -110,16 +110,23 @@ const nextConfig: NextConfig = {
       },
       {
         // Brand artwork pair changes between phases but KEEPS its filenames
-        // (/images/brand/hero-light.webp etc.) — browsers must revalidate it
-        // on every load. Phase 128 cache fix: the old blanket
-        // "/images/* immutable max-age=1y" (vercel.json) is exactly why the
-        // owner saw the previous phase's hero in a normal browser for days
-        // while incognito always showed the new one. (Also in vercel.json.)
+        // (/images/brand/hero-light.webp etc.). Phase 128 set max-age=0
+        // must-revalidate because the old blanket immutable 1y rule left the
+        // owner staring at a stale hero for days. Phase 136 (speed variance
+        // report): always-revalidate meant every repeat visit re-downloaded
+        // the FULL hero+logo pair through Vercel (cf REVALIDATED + Vercel
+        // MISS, full 200 body) — the exact "site feels slow" symptom.
+        // NEW LAW: 5 minutes of freshness + 7 days of stale-while-revalidate.
+        // Repeat visits serve the pair from cache instantly (0ms, no network
+        // on the LCP path) while a phase flip propagates within ≤5 minutes
+        // of normal browsing (hard refresh is still immediate). Cloudflare
+        // and Vercel both honor stale-while-revalidate, so the edge behaves
+        // the same way. (Also in vercel.json.)
         source: "/images/brand/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=0, must-revalidate",
+            value: "public, max-age=300, stale-while-revalidate=604800",
           },
         ],
       },
