@@ -174,6 +174,36 @@ export default async function RootLayout({
     requestPath.startsWith("/ar/coaching/");
   const isReferralPage = requestPath.startsWith("/referral");
 
+  /* PHASE 137c (deep speed audit): hub-page banner preloads. PageBanner
+   * server-renders the header-{section} artwork pair, but React Float
+   * only emits its auto-preload WHERE THE BANNER STREAMS — after the
+   * page's server-side data fetch (on /blog that measured a 688ms LCP
+   * resource-load delay: the image request couldn't start until the posts
+   * query finished streaming). These route-scoped preloads mirror the
+   * homepage hero pattern: the EXACT same URLs start at TTFB. Scheme-
+   * scoped so only the matching variant downloads. */
+  const hubBannerSection: string | null =
+    isBlogPage
+      ? "blog"
+      : isExercisesPage
+        ? "exercises"
+        : requestPath === "/tools" ||
+            requestPath === "/ar/tools" ||
+            requestPath.startsWith("/tools/")
+          ? "tools"
+          : requestPath === "/foods" ||
+              requestPath === "/ar/foods" ||
+              requestPath.startsWith("/foods/")
+            ? "foods"
+            : requestPath === "/programs" ||
+                requestPath === "/ar/programs" ||
+                requestPath.startsWith("/programs/")
+              ? "programs"
+              : requestPath === "/memberships" ||
+                  requestPath === "/ar/memberships"
+                ? "pricing"
+                : null;
+
   return (
     <html
       lang={lang}
@@ -275,6 +305,29 @@ export default async function RootLayout({
               media="(prefers-color-scheme: dark)"
               imageSrcSet="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
               imageSizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
+            />
+          </>
+        )}
+        {/* PHASE 137c — hub banner artwork preloads (see the note above the
+            return): PageBanner's own auto-preload arrives with the streamed
+            page content (after the server data fetch); these start the same
+            URLs at TTFB so the banner is LCP-ready immediately. The preload
+            URL matches the <img src> exactly — no double download. */}
+        {hubBannerSection && (
+          <>
+            <link
+              rel="preload"
+              as="image"
+              href={`/images/brand/header-${hubBannerSection}-light.webp`}
+              media="(prefers-color-scheme: light)"
+              fetchPriority="high"
+            />
+            <link
+              rel="preload"
+              as="image"
+              href={`/images/brand/header-${hubBannerSection}-dark.webp`}
+              media="(prefers-color-scheme: dark)"
+              fetchPriority="high"
             />
           </>
         )}

@@ -32,6 +32,11 @@ export function PageBanner({
         alt=""
         className="theme-img-light h-full w-full object-cover"
         decoding="async"
+        /* PHASE 137c: high priority — this banner is the page's LCP element
+           (Lighthouse lcp-discovery). The root layout route-scoped preload
+           starts the same URL at TTFB; this keeps priority high for the
+           pre-hydration discovery path as well. */
+        fetchPriority="high"
       />
       <img
         src={`/images/brand/header-${section}-dark.webp`}
