@@ -1500,3 +1500,32 @@ Stage Summary:
 - النتائج المقاسة: CLS 0.207→0.0196 (أخضر) · موبايل 42-58 → 54-69 · Desktop 98 · إصلاح بصري خفي: البانر كان عالقًا أعلى الصفحة لكل زائر أول
 - تفسير تذبذب 44/75/41 للمالك: Lighthouse يحاكي موبايل متوسط على 4G بطيء — قبل الإصلاح كانت المقاييس على حافة العتبات فتتقلب النتيجة جولة لجولة؛ CLS الآن مقفول والوزن أخف ~350KB — التذبذب المتبقي من سلسلة AdSense + hydration (موصوف في «المفتوح الآن»)
 - متبقٍ بعد موافقة AdSense: lazy-load للمحمّل (~240KB/500ms) · لاحقًا هيكليًا: تقسيم hydration الرئيسية
+
+---
+Task 137 — فحص السرعة العميق الشامل + إصلاحات (طلب المالك 2026-09-07 «اعمل فحص عميق جدا ودقيق جدا للسرعه فى الموقع بالكامل»)
+
+**القياس:**
+- المرحلة A: 22 مسارًا عامًا × 5 جولات — TTFB وسيطي 26-37ms عبر الكل · قفزات أول-طلب 300-820ms (meal-planner/programs/about/contact) = cold-start سيرفرليس فقط · /coaches 404 سلوك صحيح (لا page.tsx جذري)
+- المرحلة B: جرد أصول كامل — الرئيسية 70 ملفًا/1478KB بالcurl (يشمل مجموعتي light+dark؛ المتصفح الحقيقي يحمل واحدة لكل ThemeImg بdisplay:none+lazy)
+- المرحلة C: 16+ جولة Lighthouse (PSI-like) عبر 8 صفحات + Desktop ×2
+
+**الجذور:**
+1. بانر الكوكيز رندره post-hydration فقط (useState(false)+useEffect) → كان **عنصر LCP في /blog عند 7.9s** (صندوق 412×154 = أكبر عنصر يُرسم أخيرًا)
+2. بعد SSR: نسيج الرخام ::before (5% شفافية) جعل البانر مرشح IMAGE-paint خلف سلسلة CSS-var discovery — resourceLoadDelay 877ms
+3. React Float SSR يpreload تلقائيًا أي <img> بلا loading=lazy → **mark-helmet.png 216KB على المسار الحرج لأيقونة 16px**
+4. PageBanner (أعلام الصفحات) auto-preload يصل مع التدفق بعد استعلام DB — resourceLoadDelay 688ms
+5. المتبقي الهيكلي: Script Evaluation 2296ms مرصود (LandingView عميل واحد) + AdSense 272KB/535ms + بث HTML ~700ms (headers() في الجذر = ديناميكية كاملة)
+
+**الإصلاحات (137 = 79df4c8 · 137b = 68b65e4 · 137c = 6c6a483):**
+- بانر الكوكيز SSR أول رسم: show=true افتراضيًا + initialLang prop من الجذر + سكربت alkemos-consent-init قبل الرسم يختم html[data-mhe-consent-ok] للعائد (CSS يخفيه فورًا بلا وميض) + إزالة ::before النسيج من البانر (content:none)
+- ضغط الأصول: helmet 216→5.9KB (128px) + loading=lazy (قتل الpreload) · navbar 66/52→7.3/5.9KB (h=72) + تحديث attrs · evo-card 81/96→5.7/5.5KB (640px مُسبق blur — يُستخدم فقط كخلفية 12%+blur(2px))
+- preloads الأعلام الست (blog/exercises/tools/foods/programs/pricing + ar) route-scoped في <head> من TTFB fetchpriority=high + fetchPriority على صورة PageBanner
+- SW v5→v6 + purge CF للخمسة المتغيرين
+
+**النتائج المقاسة (بعد):**
+- /blog: LCP 7.9→5.3-7.5s · TBT 447-509→331-576ms · عنصر LCP الآن صورة الهيدر الحقيقية
+- الرئيسية: TBT 630-1347→515-1127ms · /ar: 68 (أفضل تاريخيًا) · CLS مقفول · Desktop 95-96
+- LCP المرصود بلا خنق: ~0.85s (TTFB 30 + delay 553 + load 37 + render 226)
+- المنقول: 1162→1090KB
+
+**المتبقي الموثق:** AdSense 272KB+535ms (بعد الموافقة) · تقسيم LandingView · تأجيل Supabase (68KB/53KB unused) · PPR/ISR لقطع البث الديناميكي
