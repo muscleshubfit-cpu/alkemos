@@ -110,7 +110,18 @@ export function CookieConsent() {
   return (
     <div
       ref={barRef}
-      className="marble-card fixed bottom-0 left-0 right-0 z-[100] rounded-none! p-4 shadow-lg md:p-6"
+      /* CASCADE TRAP FIX (Phase 136b, 2026-09-07): `.marble-card` is defined
+         UNLAYERED in globals.css and unlayered CSS beats every @layer — so
+         its `position: relative` silently crushed the `fixed` utility here.
+         The banner therefore rendered as a static 154px block at the top of
+         <body> (a client-only mount after hydration) pushing the ENTIRE page
+         down — Lighthouse measured a deterministic 0.187 CLS on every
+         first-visit (cold-consent) page load. The owner never saw it because
+         his browser has the consent cookie. Same trap already hit this file
+         once (see `rounded-none!` below) — `fixed!` follows that same
+         established pattern. Verified: computed position was `relative`
+         before, `fixed` after. */
+      className="marble-card fixed! bottom-0 left-0 right-0 z-[100] rounded-none! p-4 shadow-lg md:p-6"
     >
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 md:flex-row md:justify-between">
         <p className="text-center text-sm font-normal text-[var(--muted-2)] md:text-start">

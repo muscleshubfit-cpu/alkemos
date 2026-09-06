@@ -402,8 +402,8 @@ export function LandingView() {
             height={713}
             eager
             fetchPriority="high"
-            srcSetLight="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light.webp 1280w"
-            srcSetDark="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark.webp 1280w"
+            srcSetLight="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light-828.webp 828w, /images/brand/hero-light.webp 1280w"
+            srcSetDark="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark-828.webp 828w, /images/brand/hero-dark.webp 1280w"
             sizes="100vw"
           />
         </div>
@@ -549,8 +549,8 @@ export function LandingView() {
                 className="h-full w-full object-cover"
                 width={640}
                 height={675}
-                srcSetLight="/images/brand/evo-hero-light-400.webp 400w, /images/brand/evo-hero-light.webp 640w"
-                srcSetDark="/images/brand/evo-hero-dark-400.webp 400w, /images/brand/evo-hero-dark.webp 640w"
+                srcSetLight="/images/brand/evo-hero-light-400.webp 400w, /images/brand/evo-hero-light-512.webp 512w, /images/brand/evo-hero-light.webp 640w"
+                srcSetDark="/images/brand/evo-hero-dark-400.webp 400w, /images/brand/evo-hero-dark-512.webp 512w, /images/brand/evo-hero-dark.webp 640w"
                 sizes="(max-width: 768px) 300px, 560px"
               />
             </div>

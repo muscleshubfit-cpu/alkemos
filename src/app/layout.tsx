@@ -245,7 +245,7 @@ export default async function RootLayout({
               href="/images/brand/hero-light.webp"
               media="(prefers-color-scheme: light)"
               fetchPriority="high"
-              imageSrcSet="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light.webp 1280w"
+              imageSrcSet="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light-828.webp 828w, /images/brand/hero-light.webp 1280w"
               imageSizes="100vw"
             />
             <link
@@ -254,7 +254,7 @@ export default async function RootLayout({
               href="/images/brand/hero-dark.webp"
               media="(prefers-color-scheme: dark)"
               fetchPriority="high"
-              imageSrcSet="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark.webp 1280w"
+              imageSrcSet="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-dark-828.webp 828w, /images/brand/hero-dark.webp 1280w"
               imageSizes="100vw"
             />
             {/* Phase 127 — the hero chrome logo is a ThemeImg <img> pair
