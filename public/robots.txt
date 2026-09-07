@@ -35,4 +35,17 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /preview
 
+# Sitemap discovery (Phase SEO-GEO-1.1 fix, 2026-09-08): GSC and Bing
+# Webmaster Tools reported "Couldn't fetch" on /sitemap-collections.xml
+# when it was ONLY discoverable via the parent /sitemap.xml index. Listing
+# every child sitemap directly here gives Googlebot and Bingbot multiple
+# discovery paths — if the index fetch fails for any reason, each child
+# is still discoverable on its own. This is the recommended pattern from
+# sitemaps.org/protocol.html#otherformats and is harmless when the index
+# also lists them (Google dedupes).
 Sitemap: https://alkemos.com/sitemap.xml
+Sitemap: https://alkemos.com/sitemap-pages.xml
+Sitemap: https://alkemos.com/sitemap-collections.xml
+Sitemap: https://alkemos.com/sitemap-exercises.xml
+Sitemap: https://alkemos.com/sitemap-foods.xml
+Sitemap: https://alkemos.com/sitemap-blog.xml
