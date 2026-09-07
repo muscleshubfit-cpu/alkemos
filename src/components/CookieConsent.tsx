@@ -3,26 +3,53 @@
 import { useState, useEffect, useRef } from "react";
 
 /**
- * CookieConsent — GDPR/AdSense consent banner.
+ * CookieConsent — GDPR/ePrivacy consent banner.
  *
- * Shows a bottom bar asking users to accept/reject cookies.
- * Stores consent in localStorage (365 days).
- * Calls gtag to update consent mode for AdSense.
+ * PHASE 144 (2026-09-08, owner directive «شريط الكوكيز يجب أن يحتوي على
+ * المعايير العالمية ورابط سياسة الخصوصية بداخله + حل مشكلة الأداء»):
+ * the banner gains full GDPR/ePrivacy compliance content — cookie
+ * CATEGORIES (necessary / preferences / analytics / advertising) in a
+ * zero-JS <details>, an in-banner privacy-policy LINK, equal-prominence
+ * Accept/Reject (reject = strictly-necessary only via gtag consent
+ * mode), an honest 365-day consent record, and WITHDRAWAL as easy as
+ * giving: the privacy page's «إعدادات الكوكيز / Cookie settings»
+ * button clears the record and dispatches `alkemos:consent-reopen`,
+ * which this component listens for and re-opens the banner.
  *
- * AdSense will only serve personalized ads if consent is granted.
+ * PERFORMANCE REWORK (same phase): the bar drops `.marble-card` — its
+ * unlayered `position: relative` crushed the `fixed` utility (Phase
+ * 136b cascade-trap, see the old `fixed!` hack) and its texture made
+ * the bar an image-paint LCP candidate (Phase 137b) — for a flat solid
+ * surface defined entirely in globals.css `.mhe-cookie-bar`, with
+ * `contain: layout style` bounding its layout work and a compact
+ * line-clamped text block. globals.css also reserves body padding
+ * PRE-PAINT (`html:not([data-mhe-consent-ok]) body`) so the bar can
+ * never cover CTAs at a page's bottom (the 2026-09-07 /auth finding:
+ * the login button sat under the banner on short viewports).
  *
- * PHASE 137 (2026-09-07, deep speed audit): SSR-FIRST-PAINT. This banner
- * used to mount only AFTER hydration (show=false → useEffect → setShow(true)),
- * so for every cold-consent visitor (and Googlebot/PSI) a large text block
- * painted LAST — on /blog Lighthouse identified it as THE LCP element at
- * 7.9s. Now the banner is server-rendered visible (show=true initial), a
- * pre-paint inline script in layout.tsx stamps html[data-mhe-consent-ok]
- * for returning users and globals.css hides the bar instantly (no flash,
- * no late LCP). The useEffect still reconciles state post-hydration.
+ * PHASE 137 (kept, 2026-09-07): SSR-FIRST-PAINT — the bar is
+ * server-rendered visible and paints WITH FCP (it was THE /blog LCP
+ * element at 7.9s when it mounted post-hydration). The pre-paint
+ * inline script in layout.tsx stamps html[data-mhe-consent-ok] for
+ * returning users and globals.css hides the bar instantly (no flash,
+ * no late LCP, no CLS). The useEffect reconciles state post-hydration.
+ *
+ * NO-COVER LAW (2026-08-27, kept): while visible the banner publishes
+ * its height as --mhe-cookie-bar-h on :root — fixed bottom-corner UI
+ * (the EVO floating chat icon) lifts itself with
+ * bottom: calc(<offset> + var(--mhe-cookie-bar-h, 0px)).
+ *
+ * Consent storage: localStorage `mhe_cookie_consent`
+ * {granted: boolean, timestamp: number}, 365-day validity (ePrivacy
+ * refresh rather than hoard). gtag consent mode is applied for stored
+ * consent on load and on every choice — AdSense/GA only personalize
+ * when consent is granted.
  */
 
 const CONSENT_KEY = "mhe_cookie_consent";
 const CONSENT_DURATION = 365 * 24 * 60 * 60 * 1000; // 365 days
+/** Fired by the privacy page's "Cookie settings" button (withdraw). */
+export const CONSENT_REOPEN_EVENT = "alkemos:consent-reopen";
 
 function updateConsent(granted: boolean) {
   try {
@@ -57,7 +84,21 @@ export function CookieConsent({
     const htmlLang = document.documentElement.lang;
     setLang(htmlLang === "ar" ? "ar" : "en");
 
-    // Check if user already gave consent
+    // GDPR withdrawal-as-easy-as-giving: the privacy page's "Cookie
+    // settings" button clears the stored record (its own handler) and
+    // dispatches this event — re-open the banner so the user can change
+    // the choice with the same one-click ease as the original choice.
+    const onReopen = () => {
+      document.documentElement.removeAttribute("data-mhe-consent-ok");
+      setShow(true);
+    };
+    window.addEventListener(CONSENT_REOPEN_EVENT, onReopen);
+    return () => window.removeEventListener(CONSENT_REOPEN_EVENT, onReopen);
+  }, []);
+
+  // Check if user already gave consent (post-hydration reconciliation —
+  // the pre-paint script + CSS already hid the bar for this case).
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(CONSENT_KEY);
       if (stored) {
@@ -73,16 +114,10 @@ export function CookieConsent({
         }
       }
     } catch {}
-
     // No valid consent — banner stays visible (already painted with FCP).
   }, []);
 
-  // NO-COVER LAW (2026-08-27): while this banner is visible it must NEVER
-  // hide fixed bottom-corner UI — specifically the EVO floating chat icon
-  // (z-50 < this banner's z-[100] covered it entirely on mobile, so new
-  // visitors could not open EVO at all). The banner publishes its height
-  // as --mhe-cookie-bar-h on :root; fixed bottom elements lift themselves
-  // with bottom: calc(<offset> + var(--mhe-cookie-bar-h, 0px)).
+  // NO-COVER LAW: publish the bar height for fixed bottom-corner UI.
   useEffect(() => {
     const root = document.documentElement;
     if (!show) {
@@ -105,21 +140,16 @@ export function CookieConsent({
     };
   }, [show]);
 
-  const handleAccept = () => {
-    const data = { granted: true, timestamp: Date.now() };
+  /** Store the choice, sync gtag, and stamp the same pre-paint attribute
+   * the layout script uses — globals.css then drops the reserved body
+   * padding and hides the bar in the same frame (no second flash). */
+  const choose = (granted: boolean) => {
+    const data = { granted, timestamp: Date.now() };
     try {
       localStorage.setItem(CONSENT_KEY, JSON.stringify(data));
     } catch {}
-    updateConsent(true);
-    setShow(false);
-  };
-
-  const handleReject = () => {
-    const data = { granted: false, timestamp: Date.now() };
-    try {
-      localStorage.setItem(CONSENT_KEY, JSON.stringify(data));
-    } catch {}
-    updateConsent(false);
+    updateConsent(granted);
+    document.documentElement.setAttribute("data-mhe-consent-ok", "1");
     setShow(false);
   };
 
@@ -130,34 +160,90 @@ export function CookieConsent({
   return (
     <div
       ref={barRef}
-      /* CASCADE TRAP FIX (Phase 136b, 2026-09-07): `.marble-card` is defined
-         UNLAYERED in globals.css and unlayered CSS beats every @layer — so
-         its `position: relative` silently crushed the `fixed` utility here.
-         The banner therefore rendered as a static 154px block at the top of
-         <body> (a client-only mount after hydration) pushing the ENTIRE page
-         down — Lighthouse measured a deterministic 0.187 CLS on every
-         first-visit (cold-consent) page load. The owner never saw it because
-         his browser has the consent cookie. Same trap already hit this file
-         once (see `rounded-none!` below) — `fixed!` follows that same
-         established pattern. Verified: computed position was `relative`
-         before, `fixed` after. */
-      className="marble-card mhe-cookie-bar fixed! bottom-0 left-0 right-0 z-[100] rounded-none! p-4 shadow-lg md:p-6"
+      role="dialog"
+      aria-live="polite"
+      aria-label={isAr ? "الموافقة على ملفات تعريف الارتباط" : "Cookie consent"}
+      /* Flat solid surface defined in globals.css (`.mhe-cookie-bar`) —
+         deliberately NOT `.marble-card`: unlayered CSS there beats every
+         @layer (Phase 136b cascade trap: its `position: relative` crushed
+         `fixed`, and the texture was an image-paint LCP candidate —
+         Phase 137b). globals.css owns position/z-index/padding/contain. */
+      className="mhe-cookie-bar"
     >
-      <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 md:flex-row md:justify-between">
-        <p className="text-center text-sm font-normal text-[var(--muted-2)] md:text-start">
-          {isAr
-            ? "نستخدم ملفات تعريف الارتباط لتحسين تجربتك وعرض الإعلانات. بمتابعتك استخدام الموقع، فإنك توافق على سياسة الخصوصية."
-            : "We use cookies to improve your experience and show ads. By continuing to use this site, you agree to our privacy policy."}
-        </p>
-        <div className="flex shrink-0 gap-3">
+      <div className="mx-auto flex max-w-4xl flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+        <div className="min-w-0">
+          <p className="text-xs font-normal leading-relaxed text-[var(--muted-2)] md:text-sm">
+            {isAr ? (
+              <>
+                نستخدم ملفات تعريف الارتباط لتشغيل الموقع، وملفات تحليلات
+                وإعلانات بموافقتك فقط.{" "}
+                <a
+                  href="/privacy"
+                  className="whitespace-nowrap font-medium text-[var(--text)] underline underline-offset-4 hover:opacity-80"
+                >
+                  سياسة الخصوصية
+                </a>
+              </>
+            ) : (
+              <>
+                We use cookies to run the site, plus analytics and
+                advertising cookies only with your consent.{" "}
+                <a
+                  href="/privacy"
+                  className="whitespace-nowrap font-medium text-[var(--text)] underline underline-offset-4 hover:opacity-80"
+                >
+                  Privacy&nbsp;Policy
+                </a>
+              </>
+            )}
+          </p>
+          {/* Zero-JS collapsible categories (native <details> — SSR'd,
+              no hydration cost). ePrivacy: informed consent needs the
+              PURPOSE of each non-necessary category. */}
+          <details className="mt-1 text-[11px] leading-relaxed text-[var(--muted-2)] md:text-xs">
+            <summary className="cursor-pointer select-none font-medium hover:opacity-80">
+              {isAr ? "تفاصيل الفئات (٤)" : "Category details (4)"}
+            </summary>
+            <ul className="mt-1 space-y-0.5 ps-4">
+              {(isAr
+                ? [
+                    "الضرورية — دائمًا مفعلة: الجلسة والمصادقة والأمان (لا تُعطَّل)",
+                    "التفضيلات — لغتك ومظهرك المفضل",
+                    "التحليلات — قياس الاستخدام والأداء (Google Analytics)",
+                    "الإعلانات — إعلانات مخصصة (Google AdSense)",
+                  ]
+                : [
+                    "Necessary — always on: session, auth, security (cannot be disabled)",
+                    "Preferences — your language and theme choice",
+                    "Analytics — usage & performance measurement (Google Analytics)",
+                    "Advertising — personalized ads (Google AdSense)",
+                  ]
+              ).map((item) => (
+                <li key={item} className="list-disc">
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1">
+              {isAr
+                ? "يُحفظ اختيارك 365 يومًا ويمكنك تغييره في أي وقت من صفحة سياسة الخصوصية."
+                : "Your choice is stored for 365 days; you can change it anytime from the Privacy Policy page."}
+            </p>
+          </details>
+        </div>
+        {/* Equal-prominence choices: same size, same row — rejecting is
+            exactly as easy as accepting (GDPR Art. 7(3)). */}
+        <div className="flex shrink-0 items-center justify-center gap-3">
           <button
-            onClick={handleReject}
+            type="button"
+            onClick={() => choose(false)}
             className="btn-outline px-5 py-2 text-sm"
           >
             {isAr ? "رفض" : "Reject"}
           </button>
           <button
-            onClick={handleAccept}
+            type="button"
+            onClick={() => choose(true)}
             className="btn-chrome px-5 py-2 text-sm"
           >
             {isAr ? "قبول" : "Accept"}

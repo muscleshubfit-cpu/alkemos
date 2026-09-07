@@ -74,6 +74,36 @@ export async function signUpEmail(
  // Instead, return needsConfirmation=true so the caller shows a
  // "Check your email" screen.
  if (!data.session) {
+ // 0074 (owner directive 2026-09-08 «التسجيل بدون رسالة تأكيد كما
+ // كانت سابقا»): the DB-side auto-confirm trigger
+ // (alkemos_autoconfirm_email) stamps email_confirmed_at AT INSERT,
+ // so the account is usable IMMEDIATELY — but GoTrue's dashboard
+ // config still has mailer_autoconfirm=false, so signUp does NOT
+ // hand back a session. Retry a password login INSTANTLY: success
+ // means the account is confirmed server-side and the user is in
+ // (no dead-end "check your email" screen while SMTP is unconfigured);
+ // failure ("Email not confirmed") means confirmation is genuinely
+ // still required → keep the M6 fallback screen below.
+ const {
+ data: retry,
+ error: retryError,
+ } = await supabase.auth.signInWithPassword({ email, password });
+ if (!retryError && retry?.user) {
+ const profile = await fetchProfile(retry.user.id);
+ if (profile) {
+ // Attribution done at insert time — the cookie's job is over.
+ clearCoachSlugCookie();
+ clearReferralCookie();
+ await createAdminNotification(
+ "new_client",
+ "عميل جديد سجّل! ",
+ `${fullName} (${email}) انضم للمنصة. اطمئن على استبياناته وجهّز خططه.`,
+ "coach",
+ retry.user.id,
+ ).catch(() => {});
+ return { error: null, profile };
+ }
+ }
  // Attribution done at insert time — the cookie's job is over.
  clearCoachSlugCookie();
  clearReferralCookie();

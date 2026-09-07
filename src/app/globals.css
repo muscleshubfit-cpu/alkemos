@@ -456,20 +456,58 @@
 [data-theme="dark"] .theme-img-light { display: none; }
 [data-theme="dark"] .theme-img-dark { display: block; }
 
-/* PHASE 137 (deep speed audit): cookie banner SSR-first-paint. The bar is
-   server-rendered visible so it paints WITH first paint (Lighthouse had it
-   as the /blog LCP element at 7.9s when it mounted post-hydration). The
-   layout's alkemos-consent-init inline script stamps this attribute BEFORE
-   the bar is parsed for returning users — this rule then hides it pre-paint
-   (no flash); React unmounts it after hydration. */
+/* PHASE 137 (deep speed audit, kept): cookie banner SSR-first-paint. The
+   bar is server-rendered visible so it paints WITH first paint (Lighthouse
+   had it as the /blog LCP element at 7.9s when it mounted post-hydration).
+   The layout's alkemos-consent-init inline script stamps this attribute
+   BEFORE the bar is parsed for returning users — this rule then hides it
+   pre-paint (no flash); React unmounts it after hydration. */
 html[data-mhe-consent-ok] .mhe-cookie-bar { display: none !important; }
-/* PHASE 137b: kill the banner's ::before marble texture. The 5%-opacity
-   overlay is invisible on a consent bar, but it made the banner an
-   IMAGE-paint LCP candidate chained behind CSS-var discovery (Lighthouse
-   lcp-breakdown: resourceLoadDelay 877ms observed → 5.3s simulated on 4G,
-   STILL the /blog LCP even after the SSR fix). Without it the banner's
-   LCP entry is its text, which paints with FCP. */
-html .mhe-cookie-bar::before { content: none; }
+
+/* PHASE 144 (2026-09-08, owner directive «المعايير العالمية + حل مشكلة
+   الأداء»): the consent bar's surface now lives HERE — a flat solid
+   .mhe-cookie-bar, deliberately NOT .marble-card. Two traps die at once:
+   (1) Phase 136b cascade trap — .marble-card is unlayered so its
+   `position: relative` beat every @layer and crushed the `fixed` utility
+   (the bar rendered as a static block pushing the whole page down — a
+   deterministic 0.187 CLS); owning `position` here needs no `fixed!`
+   hacks. (2) Phase 137b — the marble ::before texture made the banner an
+   image-paint LCP candidate; a solid background paints as plain text.
+   `contain: layout style` bounds its layout/paint work, and the bar
+   never competes for LCP (compact, bottom-fixed, paints with FCP). */
+.mhe-cookie-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: var(--card);
+  border-top: 1px solid var(--edge);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
+  contain: layout style;
+}
+[data-theme="dark"] .mhe-cookie-bar {
+  background: var(--card);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* PHASE 144 — NO-COVER GUARANTEE (the 2026-09-07 /auth finding: the login
+   button sat under the banner on short viewports). While the banner is
+   up (cold-consent visitors — the pre-paint script stamps the attribute
+   for everyone else BEFORE paint), the body reserves bottom padding so
+   the last content row is always scrollable ABOVE the bar. Static CSS
+   from first parse → zero CLS; stamping the attribute (pre-paint script
+   for returning users, choose() for fresh choices) drops it atomically
+   with the bar's own hiding. 112px mobile / 88px desktop bound the
+   compact bar (2 clamped text lines + details + buttons). */
+html:not([data-mhe-consent-ok]) body {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 768px) {
+  html:not([data-mhe-consent-ok]) body {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+}
 
 /* EVO floating bubble — mission §5 (dark mode: 2px glow ring var(--ai)) */
 .evo-bubble-ring { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }

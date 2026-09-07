@@ -231,6 +231,18 @@ const en: Dict = {
  "prog.uploadPhoto": "Upload photo",
  "prog.photos": "Progress photos",
  "prog.noPhotos": "No photos yet. Upload your first one!",
+ "prog.photoUploaded": "Photo uploaded",
+
+ "plan.print": "Print",
+ "plan.calories": "Calories",
+ "plan.protein": "Protein",
+ "plan.carbs": "Carbs",
+ "plan.fat": "Fat",
+ "plan.food": "Food",
+ "plan.amount": "Amount",
+ "plan.sets": "sets",
+ "plan.reps": "reps",
+ "plan.swap": "Swap",
 
  "plans.title": "My Plans",
  "plans.subtitle": "Your meal and workout plans from Alkemos.",
@@ -294,6 +306,12 @@ const en: Dict = {
  "coach.manage": "Manage",
  "coach.profile": "Profile",
  "coach.subscriptionMgmt": "Subscription",
+ // Phase 144 (2026-09-08): parity audit — these keys were USED in
+ // CoachClientView/PlansView/ProgressView but MISSING from both dicts,
+ // so t() rendered the raw key (the reported "coach.subscription"
+ // showing as literal text). Added in both languages below.
+ "coach.subscription": "Subscription",
+ "coach.deletePlanConfirm": "Delete this plan? This cannot be undone.",
  // 0043: manual date inputs removed — dates are computed from the duration.
  "coach.datesAutoTitle": "Dates (auto-calculated)",
  "coach.datesAutoHint": "The dates are calculated automatically from the selected duration — manual editing is no longer needed.",
@@ -602,6 +620,18 @@ const ar: Dict = {
  "prog.uploadPhoto": "رفع صورة",
  "prog.photos": "صور التقدم",
  "prog.noPhotos": "مفيش صور بعد. ارفع أول صورة!",
+ "prog.photoUploaded": "تم رفع الصورة",
+
+ "plan.print": "طباعة",
+ "plan.calories": "السعرات",
+ "plan.protein": "البروتين",
+ "plan.carbs": "الكربوهيدرات",
+ "plan.fat": "الدهون",
+ "plan.food": "الطعام",
+ "plan.amount": "الكمية",
+ "plan.sets": "مجموعات",
+ "plan.reps": "تكرارات",
+ "plan.swap": "استبدال",
 
  "plans.title": "خطتي",
  "plans.subtitle": "خطط وجباتك وتمارينك من فريق Alkemos.",
@@ -668,6 +698,10 @@ const ar: Dict = {
  "coach.manage": "إدارة",
  "coach.profile": "الملف الشخصي",
  "coach.subscriptionMgmt": "الاشتراك",
+ // Phase 144: مفاتيح كانت مستخدمة في الكود وغير موجودة في القاموسين —
+ // كانت بتظهر خام (مثل coach.subscription في كارت اشتراك العميل).
+ "coach.subscription": "الاشتراك",
+ "coach.deletePlanConfirm": "هل تريد حذف هذه الخطة؟ لا يمكن التراجع.",
  // 0043: خانات التاريخ اليدوية اتشالت — التواريخ بتتحسب من المدة المختارة.
  "coach.datesAutoTitle": "التواريخ (بتتحسب تلقائي)",
  "coach.datesAutoHint": "مفيش تدوير تواريخ يدوي — اختار المدة والموقع بيحسب البداية والنهاية لوحده وبيجمع المدة على المتبقي لو العميل عنده اشتراك شغال بنفس النوع.",

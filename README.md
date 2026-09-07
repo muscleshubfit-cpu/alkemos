@@ -303,7 +303,9 @@ alkemos/
 ## 🎯 Key Features
 
 ### For Users
-- **6 Free Tools:** Calorie calculator, BMI, macros, body fat %, water tracker, meal planner — each with email delivery of results + lead capture
+- **Instant Signup — no email confirmation (restored 2026-09-08, migration 0074):** a new account is usable the SECOND the form submits: a DB-side auto-confirm trigger stamps `email_confirmed_at` at insert, and the client retries an instant password login when Supabase withholds the session — the user lands straight in the dashboard instead of a dead-end "check your email" screen (SMTP is unconfigured; see SECURITY.md for the trade-off and how to switch back)
+- **GDPR Cookie Consent:** bilingual bottom banner (AR/EN) with the four cookie categories (necessary / preferences / analytics / advertising), an in-banner Privacy Policy link, equal-prominence Accept/Reject, a 365-day consent record, and one-click withdrawal via the "Cookie settings" button on the Privacy page — performance-safe by design: server-rendered with first paint, pre-paint hidden for returning visitors, compact fixed-position surface that never covers CTAs (reserved body padding)
+- **6 Free Tools:** Calorie calculator, BMI, macros, body fat %, water tracker, meal planner — each with email delivery of results + lead capture, and inline bilingual validation feedback (no silent dead buttons)
 - **Exercise Library:** 868 exercises with images (start + end positions), Arabic + English
 - **Food Database:** 8,830 foods with per-100g macros
 - **Workout Programs Library:** 7 structured programs (home, gym, HIIT…)

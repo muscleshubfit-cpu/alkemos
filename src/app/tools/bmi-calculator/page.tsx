@@ -27,11 +27,25 @@ export default function BMICalculatorPage() {
     idealWeightMin: number;
     idealWeightMax: number;
   } | null>(null);
+  /* Phase 144 (2026-09-08, live QA finding «silent calculator
+   * validation»): the calculate() guard returned silently when the
+   * inputs were empty/zero/invalid — the button appeared broken. Now
+   * an inline, bilingual, aria-live error tells the user what to fix. */
+  const [error, setError] = useState<string | null>(null);
 
   const calculate = () => {
+    setError(null);
     const w = parseFloat(weight);
     const h = parseFloat(height);
-    if (!w || !h || w <= 0 || h <= 0) return;
+    if (!w || !h || w <= 0 || h <= 0) {
+      setError(
+        isAr
+          ? "من فضلك أدخل وزنًا و طولًا صحيحين أكبر من صفر."
+          : "Please enter a valid weight and height (greater than zero).",
+      );
+      setResult(null);
+      return;
+    }
 
     let bmi: number;
     let weightKg: number;
@@ -150,6 +164,16 @@ export default function BMICalculatorPage() {
           >
             {isAr ? "احسب" : "Calculate"}
           </button>
+
+          {/* Phase 144 — inline validation feedback (was silent) */}
+          {error && (
+            <p
+              role="alert"
+              className="mt-3 rounded-xl bg-[#ff3b30]/10 px-4 py-2.5 text-center text-sm font-normal text-[#ff3b30]"
+            >
+              {error}
+            </p>
+          )}
         </div>
 
         {/* Results */}

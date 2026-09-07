@@ -3,6 +3,27 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-144-2026-09-08
+Agent: Super Z (main)
+Task: Phase 144 — أوامر المالك الثلاثة: استعادة التسجيل الفوري بلا بريد تأكيد (0074) + شريط كوكيز بالمعايير العالمية ورابط سياسة الخصوصية وحل الأداء + تنفيذ مقترحات فحص QA الحية (ترجمات/جرس الأدمن/الحاسبات/عدم تغطية الأزرار)
+
+Work Log:
+- Migration 20260908090000_0074_autoconfirm_signup.sql: دالة alkemos_autoconfirm_email (SECURITY DEFINER، search_path مثبتة) + تريغر BEFORE INSERT على auth.users (يختم email_confirmed_at للحسابات غير المؤكدة — OAuth يصل مؤكدًا فلا يتأثر) + تأكيد المعلّقين الحاليين — كل مسّ auth.users داخل DO blocks محصّنة بمعالج استثناء (نمط 0073: استحالة وقف خط الترحيل)؛ DROP statements موثقة داخل الملف للاسترجاع عند تهيئة SMTP
+- src/lib/data/auth.ts signUpEmail: عند بلا جلسة من signUp → إعادة signInWithPassword فورية (نجاح = دخول فوري بلا شاشة «افحص بريدك»؛ فشل = شاشة التأكيد كما هي) + إشعار الكوتش الطبيعي في مسار الدخول الفوري
+- CookieConsent.tsx (إعادة بناء كاملة): فئات الكوكيز الأربع في <details> بلا JS + رابط /privacy داخل البانر + قبول/رفض متكافئ (رفض = ضرورية فقط عبر gtag consent) + سجل 365 يومًا (نفس المفتاح mhe_cookie_consent — توافق عكسي مع سكربت pre-paint القائم) + سحب الموافقة: يستمع لحدث alkemos:consent-reopen
+- globals.css: سطح .mhe-cookie-bar مصمت (position/z-index/padding/contain هنا — قتل فخ الطبقات marble-card وفخ LCP الصوري معًا) + حجز body padding قبل الرسم للزوار الجدد (html:not([data-mhe-consent-ok])) — لا تغطية أزرار أبدًا (ملاحظة /auth) وصفر CLS
+- StaticPageView (privacy): قسم كوكيز دقيق ثنائي اللغة (٤ فئات + آلية الموافقة + مدة التخزين + السحب) + زر «إعدادات الكوكيز» يمسح السجل ويبث حدث إعادة الفتح
+- i18n.tsx: 13 مفتاحًا مستخدمًا وغير موجود أُضيف للقاموسين (coach.subscription — جذر «COACH.SUBSCRIPTION» الخام المرصود حيًا · coach.deletePlanConfirm · plan.* عشرة · prog.photoUploaded) — سكربت فحص اتساق i18n_key_audit.py: 0 ناقص
+- AdminNotificationBell.tsx: «إشعارات الكوتش» → تسميات ثنائية اللغة محايدة للدور (الإشعارات/Notifications + تعليم الكل + لا توجد إشعارات)
+- حاسبتا BMI ونسبة الدهون: تحقق ظاهر ثنائي اللغة (role=alert) بدل العودة الصامتة — 3 رسائل دلالية للدهون (ناقص عام/خصوص الرجال/خصوص النساء)
+- Docs: README (For Users: التسجيل الفوري + كوكيز GDPR — قانون ميزات README) · SECURITY.md (توثيق استعادة 0074 وطريقة العودة للتحقق) · STATE.md (مرحلة 144 كاملة) · INDEX.md (صف 0074 + رأس الخريطة 0001→0074) · PROGRESS.md (قسم المرحلة)
+- §3.5: tsc 0 (أخطاء jpg الأربعة موجودة مسبقًا في main — تحققت بـgit stash؛ وبعد next build وتوليد next-env.d.ts = صفر) · eslint 0/0 · vitest 256/256 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ صفر انجراف جديد · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- التسجيل الفوري مستعد للتحقق الحي بعد الدفع (الميجريشن تلقائي عبر التكامل)؛ لو رفض دور التكامل تريغر auth.users: الميجريشن يكمل نجاحًا وتلزم خطوة يدوية (سيوثق في التحقق الحي بالأسفل)
+- كوكيز: امتثال GDPR (فئات/رابط/تكافؤ/سحب) + أداء (سطح مصمت SSR + إخفاء pre-paint + بلا LCP/CLS)
+- Commit SHA: (يُدفع بهذا الكوميت) · Push status: pushed → التحقق الحي في القسم التالي
+---
 Task ID: 14
 Agent: Super Z (main)
 Task: Phase 57 — optional coach certificates section on the public coach page + migration 0049 (owner: «ضيف قسم رفع شهادات المدرب اختيارى الى الصفحة العامة للمدربين ثم اعطينى رابط الهجرة raw»)

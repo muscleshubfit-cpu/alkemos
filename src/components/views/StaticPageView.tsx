@@ -3,6 +3,7 @@
 import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useNav, type View } from "@/hooks/use-nav";
+import { CONSENT_REOPEN_EVENT } from "@/components/CookieConsent";
 
 export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" | "faq" }) {
   const { t, lang } = useI18n();
@@ -10,6 +11,19 @@ export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" |
   const isAr = lang === "ar";
 
   const content = getContent(page, isAr);
+
+  /* PHASE 144 (owner directive 2026-09-08 «المعايير العالمية»):
+     GDPR withdrawal-as-easy-as-giving — one click on the privacy page
+     clears the stored consent record and re-opens the site-wide banner
+     (CookieConsent listens for CONSENT_REOPEN_EVENT). Same ease as the
+     original Accept/Reject click. */
+  const reopenCookieBanner = () => {
+    try {
+      localStorage.removeItem("mhe_cookie_consent");
+    } catch {}
+    window.dispatchEvent(new Event(CONSENT_REOPEN_EVENT));
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
 
   return (
     /* Phase 132 (owner feedback: «باقي الموقع إعادة التنسيق ليتبع هوية
@@ -58,6 +72,24 @@ export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" |
             </button>
           </div>
         )}
+
+        {/* PHASE 144 — GDPR cookie-withdrawal CTA (privacy page only):
+            clears the stored consent and re-opens the consent banner. */}
+        {page === "privacy" && (
+          <div className="marble-card mt-20 p-10 text-center">
+            <p className="text-base font-normal text-[var(--muted-foreground)]">
+              {isAr
+                ? "تحب تغيّر اختيارك لملفات تعريف الارتباط؟"
+                : "Want to change your cookie choice?"}
+            </p>
+            <button
+              onClick={reopenCookieBanner}
+              className="btn-chrome mt-4 px-6 py-2.5 text-sm"
+            >
+              {isAr ? "إعدادات الكوكيز" : "Cookie settings"}
+            </button>
+          </div>
+        )}
       </main>
 
       <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
@@ -102,7 +134,7 @@ function getContent(page: string, isAr: boolean) {
  { heading: "أمان البيانات", paragraphs: ["نستخدم Supabase الذي يوفر تشفير على مستوى قاعدة البيانات. كما نستخدم سياسات RLS (Row Level Security) لضمان أن بياناتك لا يراها أحد سواك والكوتش."] },
  { heading: "محتوى المدربين", paragraphs: ["الصور والمحتوى الذي ينشره المدرب على صفحته العامة (بما فيه صور نتائج العملاء) يقع تحت مسؤوليته هو، ويلتزم بنشره بموافقة أصحابه. للاستفسار أو حذف أي محتوى يتعلق بك، تواصل مع مدربك مباشرة أو معنا عبر صفحة الاتصال."] },
  { heading: "حقوقك", paragraphs: ["لديك الحق في:"], list: ["طلب نسخة من بياناتك", "طلب حذف حسابك وبياناتك", "تعديل بياناتك في أي وقت من لوحة التحكم"] },
- { heading: "ملفات تعريف الارتباط (Cookies)", paragraphs: ["نستخدم cookies أساسية لتشغيل الموقع (جلسة المصادقة). لا نستخدم cookies تتبع إعلانية."] },
+ { heading: "ملفات تعريف الارتباط (Cookies)", paragraphs: ["نستخدم أربع فئات من ملفات تعريف الارتباط. الفئة الضرورية مفعلة دائمًا لتشغيل الموقع؛ أما التحليلات والإعلانات فلا تُفعّل إلا بموافقتك الصريحة من شريط الموافقة، ويُحفظ اختيارك 365 يومًا ثم يُعاد سؤالك."], list: ["الضرورية — جلسة المصادقة والأمان (دائمًا مفعلة، لا تُعطّل)", "التفضيلات — لغتك ومظهرك المفضل", "التحليلات — قياس الاستخدام والأداء (Google Analytics)", "الإعلانات — إعلانات مخصصة (Google AdSense)", "يمكنك سحب موافقتك في أي وقت بنفس سهولة منحها — من زر «إعدادات الكوكيز» بالأسفل"] },
  { heading: "التواصل", paragraphs: ["لأي استفسار حول الخصوصية، تواصل معنا عبر صفحة الاتصال."] },
  ],
  } : {
@@ -114,7 +146,7 @@ function getContent(page: string, isAr: boolean) {
  { heading: "Data Security", paragraphs: ["We use Supabase which provides database-level encryption. We also use RLS (Row Level Security) policies to ensure your data is only visible to you and your coach."] },
  { heading: "Coach-Authored Content", paragraphs: ["Photos and content a coach publishes on his public page (including client results photos) are his own responsibility, published with the consent of their owners. To inquire about or remove any content concerning you, contact your coach directly or reach us via the Contact page."] },
  { heading: "Your Rights", paragraphs: ["You have the right to:"], list: ["Request a copy of your data", "Request deletion of your account and data", "Edit your data anytime from the dashboard"] },
- { heading: "Cookies", paragraphs: ["We use essential cookies for site operation (auth session). We do not use advertising tracking cookies."] },
+ { heading: "Cookies", paragraphs: ["We use four cookie categories. The necessary category is always on to run the site; analytics and advertising cookies are only enabled with your explicit consent via the consent banner, and your choice is stored for 365 days before you are asked again."], list: ["Necessary — auth session & security (always on, cannot be disabled)", "Preferences — your language and theme choice", "Analytics — usage & performance measurement (Google Analytics)", "Advertising — personalized ads (Google AdSense)", "You can withdraw your consent anytime as easily as you gave it — via the “Cookie settings” button below"] },
  { heading: "Contact", paragraphs: ["For any privacy inquiries, contact us via the Contact page."] },
  ],
  };

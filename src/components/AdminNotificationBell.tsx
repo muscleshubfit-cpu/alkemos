@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 import { listAdminNotifications, markAdminNotificationsRead, markAdminNotificationRead, type AdminNotificationRow } from "@/lib/data";
 
 export function AdminNotificationBell() {
- const { t } = useI18n();
+ const { t, lang } = useI18n();
+ const isAr = lang === "ar";
  const { navigate } = useNav();
  const router = useRouter();
  const [open, setOpen] = useState(false);
@@ -81,14 +82,19 @@ export function AdminNotificationBell() {
  </PopoverTrigger>
  <PopoverContent align="end" className="w-80 p-0">
  <div className="flex items-center justify-between border-b border-border px-3 py-2">
- <span className="text-sm font-semibold">إشعارات الكوتش</span>
+ {/* Phase 144 (2026-09-08): this bell lives in the ADMIN console — the
+     hardcoded «إشعارات الكوتش» (coach notifications) title was wrong for
+     admins and untranslated for English users. Bilingual + role-neutral. */}
+ <span className="text-sm font-semibold">
+ {isAr ? "الإشعارات" : "Notifications"}
+ </span>
  {unread > 0 && (
  <button
  onClick={handleMarkRead}
  className="flex items-center gap-1 text-xs text-gold hover:underline"
  >
  <Check className="h-3 w-3" />
- تعليم الكل كمقروء
+ {isAr ? "تعليم الكل كمقروء" : "Mark all as read"}
  </button>
  )}
  </div>
@@ -96,7 +102,9 @@ export function AdminNotificationBell() {
  {loading ? (
  <p className="px-3 py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
  ) : items.length === 0 ? (
- <p className="px-3 py-8 text-center text-sm text-muted-foreground">لا توجد إشعارات</p>
+ <p className="px-3 py-8 text-center text-sm text-muted-foreground">
+ {isAr ? "لا توجد إشعارات" : "No notifications"}
+ </p>
  ) : (
  items.map((n) => (
  <button

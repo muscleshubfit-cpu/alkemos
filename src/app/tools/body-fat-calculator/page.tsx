@@ -23,22 +23,51 @@ export default function BodyFatCalculatorPage() {
   const [waist, setWaist] = useState("");
   const [hip, setHip] = useState("");
   const [result, setResult] = useState<{ bf: number; category: string; color: string; fatMass: number; leanMass: number } | null>(null);
+  /* Phase 144 (live QA finding «silent calculator validation»): the
+   * guards below returned silently — the button appeared broken. Now
+   * an inline bilingual aria-live error says exactly what to fix. */
+  const [error, setError] = useState<string | null>(null);
 
   const calculate = () => {
+    setError(null);
     const h = parseFloat(height);
     const n = parseFloat(neck);
     const w = parseFloat(waist);
-    if (!h || !n || !w || h <= 0 || n <= 0 || w <= 0) return;
+    if (!h || !n || !w || h <= 0 || n <= 0 || w <= 0) {
+      setError(
+        isAr
+          ? "من فضلك أدخل الطول ومحيط الرقبة ومحيط الخصر بقيم صحيحة أكبر من صفر."
+          : "Please enter valid height, neck and waist values (greater than zero).",
+      );
+      setResult(null);
+      return;
+    }
 
     let bf: number;
     if (gender === "male") {
       // Navy Method (men): 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450
       const diff = w - n;
-      if (diff <= 0) return;
+      if (diff <= 0) {
+        setError(
+          isAr
+            ? "محيط الخصر لازم يكون أكبر من محيط الرقبة للرجال."
+            : "For men, the waist must be larger than the neck.",
+        );
+        setResult(null);
+        return;
+      }
       bf = 495 / (1.0324 - 0.19077 * Math.log10(diff) + 0.15456 * Math.log10(h)) - 450;
     } else {
       const hp = parseFloat(hip);
-      if (!hp || hp <= 0) return;
+      if (!hp || hp <= 0) {
+        setError(
+          isAr
+            ? "السيدات بحاجة لإدخال محيط الورك أيضًا."
+            : "Women also need a valid hip measurement.",
+        );
+        setResult(null);
+        return;
+      }
       const diff = w + hp - n;
       bf = 495 / (1.29579 - 0.35004 * Math.log10(diff) + 0.22100 * Math.log10(h)) - 450;
     }
@@ -126,6 +155,16 @@ export default function BodyFatCalculatorPage() {
           <button onClick={calculate} className="w-full btn-chrome px-6 py-3 text-base">
             {isAr ? "احسب" : "Calculate"}
           </button>
+
+          {/* Phase 144 — inline validation feedback (was silent) */}
+          {error && (
+            <p
+              role="alert"
+              className="mt-3 rounded-xl bg-[#ff3b30]/10 px-4 py-2.5 text-center text-sm font-normal text-[#ff3b30]"
+            >
+              {error}
+            </p>
+          )}
         </div>
 
         {result && (

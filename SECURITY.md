@@ -393,6 +393,17 @@ Cache headers (set in `vercel.json` + `next.config.ts`):
   accounts are created with `email_confirm: true`, so the email is not
   verified at signup. Spam risk is mitigated by the rate limit +
   honeypot; switch to invite/confirm flows later if abuse appears.
+- **Instant signup RESTORED (2026-09-08, migration 0074, owner
+  directive «التسجيل بدون رسالة تأكيد كما كانت سابقا»):** the Supabase
+  dashboard still lists `mailer_autoconfirm=false` (which, with
+  unconfigured SMTP, left every new signup permanently locked out),
+  so a DB-side `BEFORE INSERT` trigger on `auth.users`
+  (`public.alkemos_autoconfirm_email`, SECURITY DEFINER, pinned
+  search_path) now stamps `email_confirmed_at` at insert and the
+  signup flow retries an instant password login when GoTrue withholds
+  the session. To switch BACK to email verification later: configure
+  SMTP in the Supabase dashboard, then run the two DROP statements
+  documented inside the 0074 migration file (trigger, then function).
 
 ### Coach Boost Security Notes (2026-08-30, migration 0037)
 
