@@ -77,6 +77,12 @@ export default async function Page({
   const { slug } = await params;
   const exercise = getExerciseBySlug(slug);
 
+  // A-8 (Phase 141): real 404 instead of a 200 + noindex soft-404 —
+  // protects crawl budget and cleans Search Console coverage reports.
+  // (Blog detail pages already did this; the exercise page even
+  // imported notFound without ever calling it.)
+  if (!exercise) notFound();
+
   // Generate JSON-LD schemas server-side so they're in the initial HTML
   const exerciseSchema = exercise
     ? getHowToSchema({

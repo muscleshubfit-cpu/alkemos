@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getProgramBySlug } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
@@ -79,6 +80,12 @@ export default async function Page({
 }) {
   const { slug } = await params;
   const program = getProgramBySlug(slug);
+
+  // A-8 (Phase 141): real 404 instead of a 200 + noindex soft-404 —
+  // protects crawl budget and cleans Search Console coverage reports.
+  // (Blog detail pages already did this; the exercise page even
+  // imported notFound without ever calling it.)
+  if (!program) notFound();
 
   const breadcrumbSchema = program
     ? getBreadcrumbSchema([

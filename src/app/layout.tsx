@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Script from "next/script";
 import { cookies, headers } from "next/headers";
 import { Inter, Playfair_Display, Cairo } from "next/font/google";
@@ -373,7 +372,7 @@ export default async function RootLayout({
                   public pages (no <main id="main-content">) and app pages
                   (AppLayout has its own <main id="main-content">). */}
               <div id="main-content-skip">
-                <Suspense fallback={null}>{children}</Suspense>
+                {children}
               </div>
               {/* EVO Floating Widget — lazy (H5 audit 2026-09-05): loads
                   after first paint via requestIdleCallback, off the critical

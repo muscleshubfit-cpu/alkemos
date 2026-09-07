@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getExerciseBySlug, getRelatedExercises, EXERCISES, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHowToSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 import ExerciseDetailClient from "@/app/exercises/[slug]/ExerciseDetailClient";
@@ -80,6 +81,12 @@ export default async function Page({
 }) {
   const { slug } = await params;
   const exercise = getExerciseBySlug(slug);
+
+  // A-8 (Phase 141): real 404 instead of a 200 + noindex soft-404 —
+  // protects crawl budget and cleans Search Console coverage reports.
+  // (Blog detail pages already did this; the exercise page even
+  // imported notFound without ever calling it.)
+  if (!exercise) notFound();
 
   // JSON-LD in ARABIC — HowTo steps from instructionsAr + Arabic breadcrumb.
   const exerciseSchema = exercise
