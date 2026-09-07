@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { exerciseNameSchema } from "@/lib/validation/schemas";
 
 /**
  * Exercise Image Proxy — fetches real exercise images from wger.de
@@ -182,13 +183,23 @@ async function fetchExerciseImage(name: string): Promise<string | null> {
 
 export async function GET(request: NextRequest) {
  const url = new URL(request.url);
- const name = url.searchParams.get("name");
+ const nameParam = url.searchParams.get("name");
 
- if (!name) {
+ if (!nameParam) {
  return NextResponse.json({ error: "Missing 'name' parameter" }, { status: 400 });
  }
 
- const imageUrl = await fetchExerciseImage(name);
+ // PHASE 141 / A-7 wave 1: bounded name (Zod) — hostile multi-KB
+ // params no longer reach the wger.de outbound URL.
+ const nameParsed = exerciseNameSchema.safeParse(nameParam);
+ if (!nameParsed.success) {
+ return NextResponse.json(
+ { error: "Invalid 'name' parameter — max 80 characters" },
+ { status: 400 },
+ );
+ }
+
+ const imageUrl = await fetchExerciseImage(nameParsed.data);
 
  if (!imageUrl) {
  return NextResponse.json({ error: "No image found", fallback: true }, { status: 404 });

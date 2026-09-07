@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FOODS } from "@/lib/foods";
+import { searchQuerySchema } from "@/lib/validation/schemas";
 
 /**
  * GET /api/food-search?q=chicken+breast
@@ -49,7 +50,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const q = query.trim().toLowerCase();
+  // PHASE 141 / A-7 wave 1: bounded query (Zod). Hostile multi-KB
+  // strings no longer flow into the outbound Open Food Facts URL.
+  const qParsed = searchQuerySchema.safeParse(query.trim());
+  if (!qParsed.success) {
+    return NextResponse.json(
+      { error: "Invalid query — max 100 characters" },
+      { status: 400 },
+    );
+  }
+
+  const q = qParsed.data.toLowerCase();
 
   // 1. Search local database
   const localResults: SearchResult[] = FOODS.filter(

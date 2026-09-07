@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { validateEmailStrict } from "@/lib/email-validation";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { leadBodySchema } from "@/lib/validation/schemas";
 
 /**
  * H3 (audit 2026-09-05): rate limiting now goes through
@@ -61,36 +62,28 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
-    const {
-      tool_slug,
-      email,
-      name,
-      result_summary,
-      result_json,
-      lang,
-    } = body || {};
-
-    // Validate tool_slug — Phase 72: + water-tracker, meal-planner, newsletter
-    const ALLOWED_TOOLS = [
-      "calorie-calculator",
-      "bmi-calculator",
-      "macro-calculator",
-      "body-fat-calculator",
-      "water-tracker",
-      "meal-planner",
-      "newsletter",
-    ];
-    if (!ALLOWED_TOOLS.includes(tool_slug)) {
-      return NextResponse.json(
-        { error: "Invalid tool_slug" },
-        { status: 400 },
-      );
+    // PHASE 141 / A-7 wave 1: central Zod shape gate (SECURITY.md §9.7).
+    // Error mapping preserves the EXACT historical messages per field;
+    // documented tightening: oversized/garbage fields now 400 instead of
+    // being silently sliced or defaulted.
+    const body = await request.json().catch(() => null);
+    const parsed = leadBodySchema.safeParse(body ?? {});
+    if (!parsed.success) {
+      const field = parsed.error.issues[0]?.path?.[0];
+      const error =
+        field === "tool_slug"
+          ? "Invalid tool_slug"
+          : field === "email"
+            ? "Valid email is required"
+            : "Invalid request body";
+      return NextResponse.json({ error }, { status: 400 });
     }
+    const { tool_slug, email, name, result_summary, result_json, lang } =
+      parsed.data;
 
-    const cleanEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const cleanEmail = email; // schema already trimmed + lowercased
 
-    // Phase 73: STRICT email filtering (same rules as the client-side form)
+    // Phase 73: STRICT email filtering (policy layer — shape was Zod's job)
     const emailCheck = validateEmailStrict(cleanEmail);
     if (!emailCheck.ok) {
       return NextResponse.json(
@@ -134,11 +127,11 @@ export async function POST(request: NextRequest) {
       .insert({
         tool_slug,
         email: cleanEmail,
-        name: typeof name === "string" && name.trim() ? name.trim().slice(0, 80) : null,
+        name: name || null, // schema already trimmed + bounded (≤80)
         whatsapp: null,
-        result_summary: typeof result_summary === "string" ? result_summary.slice(0, 500) : null,
+        result_summary: result_summary ?? null, // schema bounded (≤500)
         result_json: storedResultJson,
-        lang: lang || "ar",
+        lang: lang ?? "ar",
         consent: true,
         // Phase 72: newsletter subscribers get their dedicated type
         type: tool_slug === "newsletter" ? "newsletter" : "tool",
