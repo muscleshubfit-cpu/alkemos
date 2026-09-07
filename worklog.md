@@ -1619,3 +1619,27 @@ Stage Summary:
 - محجوب خارجيًا: A-12/A-13 على فرع phase141-ci-bun (يلزم صلاحية Workflows في PAT) — الباتش جاهز ومدقّق YAML
 - مؤجل بقانون موثق: CSP (أسبوع RO لم يكتمل — إعادة تقييم 2026-09-12) · AdSense lazy-load (حتى موافقة AdSense — الوسم لازم يبقى للمراجعة) · Supabase 68KB + hydration (هيكلي — يتطلب إعادة هيكلة 12+ وحدة auth)
 - تحقق حي ختامي: 404 حقيقية في الإنتاج + 160 URL في sitemap-foods الحية + hreflang البرامج + robots كاملة — كلها بأوامر قابلة للإعادة من سجل العمل ده
+
+---
+Task ID: 141.1
+Agent: main (Super Z — GLM)
+Task: أمر المالك «تم اضافة الصلاحيات للتوكين، اكمل التنفيذ» — فك حجب CI وتفعيل بوابة الجودة (A-12/A-13) على main
+
+Work Log:
+- بروتوكول الجلسة: STATE.md (عائق Workflows) → fetch (origin/main=97cb7d5) → فرع phase141-ci-bun (0471a2b مبني على 0c13b5e القديم)
+- البحث الشامل عن قيمة التوكن: غير مخزنة على القرص (قانون الريبو: توكن عابر في push فقط) → المالك أعاد إرسالها في الدردشة
+- ريبيس نظيف: phase141-ci-bun → 97cb7d5 (aae5fd3) — صفر تعارضات (لا كوميت في الفجوة يلمس workflows/CI_GATES)
+- بوابات محلية على الفرع: tsc 0 · eslint 0/0 · vitest 256/256 · docs_parity ✓ · docs_audit ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓ · YAML 8/8 · od أكد `branches: [main]` سليمة (وهم العرض)
+- **الدفع نجح بالصلاحية الجديدة:** الفرع ثم main (ff-only) — aae5fd3
+- **أول تشغيل للبوابة (34078054217) = فشل مشروع:** TS2307 على كل استورادات الصور — تشخيص: `next-env.d.ts` متجاهَل في .gitignore (سطر 9، درس Phase 119: يتولد فقط من next build/dev) وهو مصدر تصريحات أنواع الصور (next/image-types/global)؛ Vercel لا يراه لأن build يولده أولًا، لكن tsc في checkout نظيف يفتقده — **البوابة اكتشفت فجوة حقيقية من يومها الأول**
+- الإصلاح (80c337e): خطوة توليد الـstub القياسي قبل tsc في quality-gate.yml (printf حتمي مستقل عن build) + محاكاة CI محليًا (حذف الملف + كتابة الstub + tsc = 0) + درس موثق في CI_GATES.md §2
+- **التحقق الحي الكامل من GitHub نفسه:** push-trigger على 80c337e = **GREEN** (34078286310: tsc ✓ → eslint ✓ → vitest 256/256 ✓ في runner) + docs-parity ✓ + guard-stale-refs ✓
+- **قانون اختبار الـdispatch (CI_GATES §2):** quality-gate dispatch على main = 204 مقبول → تشغيل 34078371773 = **GREEN** · process-ai-jobs dispatch (اختبار A-12 في runner حقيقي) = 204 → تشغيل 34078822444 = **GREEN** (setup-bun ✓ → bun install --frozen-lockfile ✓ → drain ai_jobs ✓)
+- التسجيل: 8/8 workflows نشطة الآن (quality-gate.yml الجديد مسجل على الفرع الافتراضي — شرط GitHub للـdispatch بالاسم)
+- ملاحظة جدولة: لا تشغيل مجدول لـprocess-ai-jobs منذ 00:54 (قبل الدفع) — الدفع الملموس للملف (aae5fd3) هو علاج إعادة التسجيل الموثق (SCHEDULE HEALTH LAW)؛ فتحة اليوم 05:00 UTC ستحسم
+
+Stage Summary:
+- main = 80c337e: A-12 + A-13 حيان بالكامل بأدلة من GitHub Actions نفسه
+- بوابة الجودة أثبتت قيمتها أول يوم (أوقفت فجوة TS2307) وأُصلحت — الحلقة مكتملة
+- فرع phase141-ci-bun مدموج (نفس كوميتات main) — السجل التاريخي في worklog
+- المتبقي الوحيد يدوي (المالك): تدوير المفاتيح الأربعة بعد الجلسات
