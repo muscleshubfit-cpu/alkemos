@@ -20,9 +20,17 @@ Work Log:
 - §3.5: tsc 0 (أخطاء jpg الأربعة موجودة مسبقًا في main — تحققت بـgit stash؛ وبعد next build وتوليد next-env.d.ts = صفر) · eslint 0/0 · vitest 256/256 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ صفر انجراف جديد · stale-refs ✓ · ui-wiring ✓
 
 Stage Summary:
-- التسجيل الفوري مستعد للتحقق الحي بعد الدفع (الميجريشن تلقائي عبر التكامل)؛ لو رفض دور التكامل تريغر auth.users: الميجريشن يكمل نجاحًا وتلزم خطوة يدوية (سيوثق في التحقق الحي بالأسفل)
+- Commit SHA: 680833f · Push status: pushed · CI 4/4 أخضر (Supabase Preview ✓ + guard + quality + parity)
 - كوكيز: امتثال GDPR (فئات/رابط/تكافؤ/سحب) + أداء (سطح مصمت SSR + إخفاء pre-paint + بلا LCP/CLS)
-- Commit SHA: (يُدفع بهذا الكوميت) · Push status: pushed → التحقق الحي في القسم التالي
+
+**التحقق الحي بعد النشر (نفس الجلسة):**
+- 0074 مطبقة فعليًا على الإنتاج: تسجيل REST لحساب جديد (qa.signup144.v*) رجّع **جلسة + email_confirmed_at مختوم لحظة الإنشاء** — التريغر حي؛ دخول بكلمة المرور نجح فورًا
+- E2E متصفح كامل (جلسة نظيفة): تعبئة نموذج التسجيل → **هبوط مباشر في /dashboard** («Welcome back, QA Signup144») — بلا شاشة «افحص بريدك» نهائيًا، صفر أخطاء صفحة
+- البانر الجديد حي باللغتين: فئات (تفاصيل ٤) + رابط سياسة الخصوصية + قبول/رفض — قبول → إلغاء تركيب البانر + سجل localStorage + هبوط padding الـbody من 88px إلى 0px (بلا CLS) — زر «Cookie settings» بصفحة /privacy → يمسح السجل ويعيد فتح البانر (سحب الموافقة أسهل) — النسخة العربية تعرض «سياسة الخصوصية» و«تفاصيل الفئات»
+- الحاسبات: BMI بمدخلات فارغة → «Please enter a valid weight and height (greater than zero).» ظاهرة (role=alert)
+- i18n: كارت اشتراك العميل في /coach/<id> يعرض «الاشتراك» — المفتاح الخام coach.subscription اختفى
+- جرس الأدمن: الحزمة المنشورة تحوي «Mark all as read»/«الإشعارات» ولا تحوي «إشعارات الكوتش» (تحقق bundle — البوب أوفر رفض الفتح في أتمتة الجلسة القصيرة)
+- حسابات QA أُنشئت للفحص (يمكن مسحها من /admin/clients بأداة «مسح كل المحدد»): qa.signup144.v*@alkemos-test.com + qa.browser144.t*@alkemos-test.com
 ---
 Task ID: 14
 Agent: Super Z (main)
