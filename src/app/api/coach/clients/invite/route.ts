@@ -74,11 +74,34 @@ export async function POST(request: NextRequest) {
     ...(auth.role === "coach" ? { coach_id: auth.id } : {}),
   };
 
-  const { data: invited, error: inviteErr } =
-    await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+  // PHASE 143 (live UX test finding — honest exits): on production this
+  // exact call CRASHED the whole Vercel function (Cloudflare text-502, no
+  // app headers, nothing persisted, coach saw only «Invite failed»).
+  // Isolation proof: no-auth → clean 401 · existing-email → clean 409 ·
+  // wallet/ads/whatsapp routes → 200 — the crash lives INSIDE
+  // inviteUserByEmail (a THROW, not a {error} return). Wrap it so ANY
+  // throw becomes an honest JSON 502 carrying the underlying reason —
+  // the UI toast surfaces `message`, which makes the root cause (most
+  // likely the project's SMTP/GoTrue email path) visible to the coach
+  // and to the owner instead of a dead lambda.
+  let invited: Awaited<ReturnType<typeof supabaseAdmin.auth.admin.inviteUserByEmail>>["data"];
+  let inviteErr: Awaited<ReturnType<typeof supabaseAdmin.auth.admin.inviteUserByEmail>>["error"];
+  try {
+    const res = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       data: metadata,
       redirectTo: `${siteUrl()}/auth?next=/dashboard`,
     });
+    invited = res.data;
+    inviteErr = res.error;
+  } catch (e) {
+    return NextResponse.json(
+      {
+        error: "invite_failed",
+        message: `فشل إرسال الدعوة (استثناء): ${e instanceof Error ? e.message : "سبب غير معروف"}`,
+      },
+      { status: 502 },
+    );
+  }
 
   if (inviteErr || !invited?.user) {
     return NextResponse.json(
