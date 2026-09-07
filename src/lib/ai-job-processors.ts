@@ -596,7 +596,9 @@ async function materializeArticleDraft(r: {
     featured_image: r.featured_image || "",
     cover_alt: r.cover_alt || "",
     reading_time: Math.max(1, Math.round(words / 200)),
-    author: "Alkemos",
+    // Phase SEO-GEO-4.1 (2026-09-08): author = Ahmed Zake (human founder),
+    // not the brand "Alkemos". See p5-publish route for the full rationale.
+    author: "Ahmed Zake",
     is_published: false, // NEVER auto-publish — coach reviews first
     published_at: null,
     created_at: now,

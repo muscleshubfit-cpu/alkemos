@@ -1990,3 +1990,53 @@ Stage Summary:
 تنبيهات يدوية للمالك: لا توجد مهمات يدوية جديدة في هذه المرحلة — كل التغييرات تقنية وتُدفع تلقائيًا. لكن تذكّر:
   - راجع Google Search Console بعد 24-48 ساعة لرؤية تواريخ lastReviewed الجديدة في تقرير Article schema
   - اختبر البحث الصوتي: اسأل Google Assistant "Hey Google, how to adjust training volume during a cut" — يجب أن يظهر Alkemos كمصدر محتمل بعد أسبوعين من الفهرسة
+
+---
+Task ID: SEO-GEO-4.1 — إصلاح author: "Alkemos" → "Ahmed Zake" (E-E-A-T byline fix)
+Agent: main (Super Z — GLM)
+
+Work Log (إصلاح خطأ مرئي في byline المدوّنة):
+- **المشكلة المُكتشفة (تنبيه المالك):** خط التوليد الآلي كان يضبط `author: "Alkemos"` لكل مقال جديد، وكل المقالات الموجودة في DB تحمل `author = 'Alkemos'` (من migration 0070 rebrand). رغم أن `resolveAuthor()` كان يُطبّع القيمة للـ Article schema (Person = Ahmed Zake)، **الـ byline UI كان يعرض `post.author` مباشرة** = "Alkemos" بدلًا من اسم المؤسس البشري.
+- **الإصلاح 1 — الكود التطبيقي (3 ملفات):**
+  - `src/app/api/cron/blog/p5-publish/route.ts`: `author: "Alkemos"` → `author: "Ahmed Zake"` (خط النشر الآلي)
+  - `src/components/views/BlogEditorView.tsx`: الـ default state للمقال الجديد في الـ admin editor
+  - `src/lib/ai-job-processors.ts`: materialization step للـ blog jobs
+- **الإصلاح 2 — Migration 0075 (DB backfill):**
+  - إنشاء `supabase/migrations/20260908120000_0075_blog_author_ahmed_zake.sql`
+  - UPDATE كل صفوف blog_posts: author = 'Ahmed Zake' (يستبدل 'Alkemos' + 'MuscleHub' دفاعيًا)
+  - ALTER DEFAULT العمود من 'Alkemos' → 'Ahmed Zake'
+  - تحديث `supabase/migrations/INDEX.md` بإدخال 0075 + تحديث عنوان القسم (0001 → 0075)
+- **التحقق من الجودة (كل البوابات خضراء):**
+  - `tsc --noEmit` → 0 أخطاء
+  - `eslint` على 3 ملفات → نظيف
+  - `next build` → ✓ Compiled successfully in 7.7s
+  - `vitest` → 256/256 ناجح
+  - `docs_audit.py` → ✓
+  - `docs_parity.py` → ✓ (newest NNNN=0075, sql=88)
+  - `migration_audit.py --ci` → PASS ✓ (صفر انجراف جديد)
+  - `check-stale-refs.sh` → ✓
+  - `check-ui-wiring.sh` → ✓
+
+Stage Summary:
+- **61 مقالًا موجودًا** في DB سيُحدَّث author → 'Ahmed Zake' فور تطبيق migration 0075
+- **كل مقال جديد** (6/يوم آليًا) سيُولّد بـ author = 'Ahmed Zake' بدلًا من 'Alkemos'
+- **الـ byline UI** سيعرض: "Ahmed Zake" + "Founder & Head Coach · Reviewed by Ahmed Zake" + avatar بحرف "A"
+- **الـ Article schema** يطابق الـ UI (كلاهما Person = Ahmed Zake) — E-E-A-T consistency كاملة
+- `resolveAuthor()` يبقى يعمل كـ fallback للقيم القديمة (لو فات مقال قديم دون تحديث)
+
+الملفات المُعدّلة (6):
+  ~ src/app/api/cron/blog/p5-publish/route.ts (author → "Ahmed Zake")
+  ~ src/components/views/BlogEditorView.tsx (default state)
+  ~ src/lib/ai-job-processors.ts (materialization)
+  + supabase/migrations/20260908120000_0075_blog_author_ahmed_zake.sql
+  ~ supabase/migrations/INDEX.md (إدخال 0075 + تحديث العنوان)
+  ~ worklog.md
+
+⚠️ تنبيه يدوي إلزامي للمالك:
+  - **طبّق migration 0075 يدويًا على Supabase SQL Editor** (لا يُطبّق تلقائيًا):
+    1. افتح Supabase Dashboard → SQL Editor
+    2. الصق محتوى `supabase/migrations/20260908120000_0075_blog_author_ahmed_zake.sql`
+    3. نفّذ (Run)
+    4. تحقق: `SELECT author, COUNT(*) FROM blog_posts GROUP BY author;` — يجب صف واحد: 'Ahmed Zake', 61
+    5. نفّذ: `NOTIFY pgrst, 'reload schema';` لإعادة تحميل schema
+  - بعد التطبيق: الـ byline في كل مقال سيعرض "Ahmed Zake" فورًا ( ISR cache يُحدَّث خلال 5 دقائق)

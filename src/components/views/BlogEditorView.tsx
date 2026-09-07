@@ -78,7 +78,10 @@ export function BlogEditorView({ mode, postId }: { mode: "new" | "edit"; postId?
  featured_image: "",
  cover_alt: "",
  reading_time: 1,
- author: "Alkemos",
+ // Phase SEO-GEO-4.1 (2026-09-08): default author = Ahmed Zake (the human
+ // founder) — see /authors/ahmed-zake. The admin editor still allows
+ // overriding per-post if a second human author is ever added.
+ author: "Ahmed Zake",
  is_published: false,
  faq_json: [],
  });

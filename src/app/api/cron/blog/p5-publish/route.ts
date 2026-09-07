@@ -153,7 +153,14 @@ export async function GET(request: NextRequest) {
       featured_image: featured,
       cover_alt: title,
       reading_time: Math.max(1, Math.ceil(countWords(review.markdown) / 200)),
-      author: "Alkemos",
+      // Phase SEO-GEO-4.1 (2026-09-08): author is the human founder Ahmed
+      // Zake, not the brand "Alkemos". The byline UI + Article schema's
+      // `author` Person both display this value — using a real human name
+      // is the strongest E-E-A-T signal per Google's QRG. resolveAuthor()
+      // in authors.ts still normalizes legacy "Alkemos"/"MuscleHub" values
+      // to Ahmed Zake for backward compatibility, but new posts ship with
+      // the canonical name from the start.
+      author: "Ahmed Zake",
       is_published: true,
       published_at: now,
       faq_json: bundle.research0?.faqs ?? [],
