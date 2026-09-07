@@ -55,6 +55,12 @@ type ClientWithMeta = {
   // multi-coach assignment (0030A — admin reassignment UI, Phase 2B)
   assigned_coach_id: string | null;
   assigned_coach_name: string | null;
+  // PHASE 142 (0072 RPC): how the caller relates to this row —
+  // 'b2b' = his coach_assignments client · 'site' = his follow-up member
+  // (site_coach_assignments). null = legacy RPC / fallback rows.
+  memberKind: "b2b" | "site" | null;
+  // follow-up signal for site members (any active sub, no tier exposed)
+  siteMemberActive: boolean | null;
 };
 
 /** Subscription info attached to a client row (RPC view or full row). */
@@ -86,6 +92,9 @@ type CoachClientRpcRow = {
   fit_q_status: string | null;
   assigned_coach_id: string | null;
   assigned_coach_name: string | null;
+  // 0072 additive columns (absent before the migration → undefined)
+  member_kind?: string | null;
+  site_member_active?: boolean | null;
   total_count?: number | string;
 };
 
@@ -130,13 +139,15 @@ function enrichClientRow(row: CoachClientRpcRow): ClientWithMeta {
     hasPendingPayment: (row.pending_payments || 0) > 0,
     assigned_coach_id: row.assigned_coach_id ?? null,
     assigned_coach_name: row.assigned_coach_name ?? null,
+    memberKind: row.member_kind === "site" || row.member_kind === "b2b" ? row.member_kind : null,
+    siteMemberActive: row.site_member_active ?? null,
   } as ClientWithMeta;
 }
 
 export function CoachView() {
   const { t, lang } = useI18n();
   const isAr = lang === "ar";
-  const { profile, isAdmin } = useAuth();
+  const { isAdmin, isSiteCoach, isB2BCoach } = useAuth();
   const { navigate } = useNav();
   const [clients, setClients] = useState<ClientWithMeta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -629,16 +640,30 @@ export function CoachView() {
       <div>
         <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{t("coach.title")}</h1>
         <p className="mt-2 text-base font-normal text-[#6e6e73] md:text-lg">{t("coach.subtitle")}</p>
-        {!isAdmin && (
-          <p className="mt-2 inline-block rounded-full bg-[#0071e3]/10 px-4 py-1.5 text-xs font-medium text-[#0071e3]">
+        {/* PHASE 142 — role-aware identity pill: B2B coach sees his
+            private-client model; site coach sees his B2C follow-up model;
+            admin sees nothing (his console is /admin). */}
+        {isB2BCoach && (
+          <p className="mt-2 inline-block rounded-full bg-[#8b5cf6]/10 px-4 py-1.5 text-xs font-medium text-[#8b5cf6]">
             {isAr
               ? "عملاؤك الخاصون فقط — جيب عملاءك عبر صفحتك العامة أو ادعُهم بإيميل"
               : "Your private clients only — bring clients via your public page or invite them by email"}
           </p>
         )}
+        {isSiteCoach && (
+          <p className="mt-2 inline-block rounded-full bg-[#34c759]/10 px-4 py-1.5 text-xs font-medium text-[#248a3d]">
+            {isAr
+              ? "أعضاء الموقع المعيّنون لك للمتابعة (B2C) — الإدارة بتضيفهم لك من لوحة الأدمن"
+              : "Site members assigned to you for follow-up (B2C) — the admin assigns them from the admin console"}
+          </p>
+        )}
       </div>
 
-      {/* Actions: broadcast + invite client + public-page/personal shortcuts */}
+      {/* Actions: broadcast + personal shortcut. PHASE 142: «invite a
+          client» is the B2B partner's growth tool — hidden from site
+          coaches (their members come from the admin's roster) and from
+          the admin. The old «🌐 صفحتي العامة» button duplicated the
+          sidebar item — removed (sidebar is the single nav source). */}
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setShowBroadcast(!showBroadcast)}
@@ -646,7 +671,7 @@ export function CoachView() {
         >
           {isAr ? "إرسال إشعار للعملاء" : "Send notification to clients"}
         </button>
-        {!isAdmin && (
+        {isB2BCoach && (
           <button
             onClick={() => setShowInvite(!showInvite)}
             className="rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-normal text-white transition-opacity hover:opacity-90"
@@ -656,15 +681,6 @@ export function CoachView() {
               : (isAr ? "+ دعوة عميل" : "+ Invite a client")}
           </button>
         )}
-        {/* Phase 51 (owner: «صفحته العامة مش موجودة فى الداشبورد» + «زرار
-            الصفحة الشخصية») — the coach's public-page editor and his
-            member-style personal page, one tap away from his console. */}
-        <button
-          onClick={() => navigate("coach-landing")}
-          className="rounded-full border border-[#0071e3]/40 bg-[#0071e3]/5 px-5 py-2.5 text-sm font-normal text-[#0071e3] transition-colors hover:bg-[#0071e3]/10"
-        >
-          {isAr ? "🌐 صفحتي العامة" : "🌐 My public page"}
-        </button>
         <a
           href="/profile"
           className="rounded-full border border-[#d2d2d7] bg-white px-5 py-2.5 text-sm font-normal text-[#1d1d1f] transition-colors hover:bg-[#f5f5f7]"
@@ -678,8 +694,8 @@ export function CoachView() {
         )}
       </div>
 
-      {/* Invite-client form (coach brings his own clients — 0033) */}
-      {showInvite && !isAdmin && (
+      {/* Invite-client form (the B2B coach brings his own clients — 0033) */}
+      {showInvite && isB2BCoach && (
         <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/[0.04] p-6">
           <p className="text-sm font-medium">
             {isAr ? "دعوة عميل جديد بالبريد" : "Invite a new client by email"}
@@ -1006,7 +1022,13 @@ export function CoachView() {
 
         {/* Client list */}
         {filtered.length === 0 ? (
-          <p className="py-12 text-center text-base font-normal text-[#6e6e73]">{t("coach.noClients")}</p>
+          <p className="py-12 text-center text-base font-normal text-[#6e6e73]">
+            {isSiteCoach
+              ? isAr
+                ? "لا أعضاء معيّنين لك بعد — الإدارة بتضيف أعضاء الموقع من لوحة الأدمن (مدربو الموقع)"
+                : "No members assigned to you yet — the admin assigns site members from the admin console"
+              : t("coach.noClients")}
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -1085,6 +1107,19 @@ export function CoachView() {
                       </td>
                       <td className="p-3">
                         <div className="flex flex-wrap gap-1">
+                          {/* PHASE 142 — honest inline kind badge: a «site»
+                              row is a B2C follow-up member (assigned via
+                              the site-coach roster), not a B2B client. */}
+                          {c.memberKind === "site" && (
+                            <span className="rounded-full bg-[#34c759]/10 px-2 py-0.5 text-[10px] font-medium text-[#248a3d]">
+                              {isAr ? "متابعة موقع" : "Site follow-up"}
+                            </span>
+                          )}
+                          {c.memberKind === "b2b" && (
+                            <span className="rounded-full bg-[#8b5cf6]/10 px-2 py-0.5 text-[10px] font-medium text-[#8b5cf6]">
+                              {isAr ? "عميل B2B" : "B2B client"}
+                            </span>
+                          )}
                           {c.hasPendingPayment && (
                             <span className="rounded-full bg-[#0071e3]/10 px-2 py-0.5 text-[10px] font-medium text-[#0071e3]">
                               {isAr ? "بانتظار الدفع" : "Pending payment"}
@@ -1135,7 +1170,31 @@ export function CoachView() {
                         </div>
                       </td>
                       <td className="p-3">
-                        {c.sub?.tier ? (
+                        {/* PHASE 142 — site-coach view: his site members'
+                            membership shows as an honest follow-up signal
+                            (active / not) WITHOUT exposing tier or pricing
+                            (the coach tier-visibility law is intact). */}
+                        {isSiteCoach && c.memberKind === "site" && !c.sub?.tier ? (
+                          c.siteMemberActive !== null ? (
+                            <span
+                              className={`inline-block w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                c.siteMemberActive
+                                  ? "bg-[#34c759]/10 text-[#34c759]"
+                                  : "bg-[#6e6e73]/10 text-[#6e6e73]"
+                              }`}
+                            >
+                              {c.siteMemberActive
+                                ? isAr
+                                  ? "عضوية نشطة"
+                                  : "Active membership"
+                                : isAr
+                                  ? "بدون عضوية نشطة"
+                                  : "No active membership"}
+                            </span>
+                          ) : (
+                            <span className="text-xs font-normal text-[#6e6e73]">—</span>
+                          )
+                        ) : c.sub?.tier ? (
                           <div className="flex flex-col gap-1">
                             <span
                               className={`inline-block w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -1184,7 +1243,15 @@ export function CoachView() {
                           >
                             {staff.map((s) => (
                               <option key={s.id} value={s.id}>
-                                {(s.full_name || s.email || s.id) + (s.role === "admin" ? (isAr ? " (أدمن)" : " (admin)") : "")}
+                                {/* PHASE 142 — honest label: assigning a
+                                    member to the ADMIN is «متابعة الإدارة»
+                                    (the 0068 default), not a coach pick. */}
+                                {(s.full_name || s.email || s.id) +
+                                  (s.role === "admin"
+                                    ? isAr
+                                      ? " (متابعة الإدارة)"
+                                      : " (admin follow-up)"
+                                    : "")}
                               </option>
                             ))}
                           </select>

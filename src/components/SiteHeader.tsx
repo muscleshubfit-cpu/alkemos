@@ -7,7 +7,6 @@ import {
   X,
   Home,
   FileText,
-  Crown,
   Calculator,
   Dumbbell,
   Utensils,
@@ -19,13 +18,13 @@ import {
   Gift,
   LogIn,
   LogOut,
+  ShieldCheck,
   Bot,
   ChevronRight,
   ChevronDown,
   Bell,
   User,
   Sparkles,
-  Bookmark,
   Users,
   Globe,
   Droplet,
@@ -33,6 +32,7 @@ import {
   Activity,
   Pizza,
   Megaphone,
+  Wallet,
   ShieldQuestion,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -69,7 +69,7 @@ function NotificationBellHeader({ isAdmin = false }: { isAdmin?: boolean }) {
 export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app" }) {
   const { t, lang } = useI18n();
   const { navigate } = useNav();
-  const { profile, isCoach, isAdmin, signOutAsync } = useAuth();
+  const { profile, isCoach, isAdmin, isSiteCoach, isB2BCoach, signOutAsync } = useAuth();
 
   // Phase 51 — the header ACCOUNT button opens the role's own CONSOLE for
   // staff (admin → /admin, coach → /coach) instead of the member-style
@@ -279,38 +279,58 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     });
   }
 
-  // Group 7a: Coach (staff work items — coach | admin)
-  if (isLoggedIn && isCoach) {
+  // Group 7a: Coach work items — PHASE 142 role-aware split (owner:
+  // «يجب الفصل بين ادمن / مدرب موقع / مدرب مستقل»):
+  //   - B2B COACH: the FULL business set, INCLUDING wallet + affiliate —
+  //     they existed only in the app sidebar before, so a coach browsing
+  //     public pages could never reach them (the «اختفاء ازرار» part).
+  //   - SITE COACH: B2C follow-up items only — no money surfaces.
+  //   - ADMIN: NO coach group at all — one link to HIS console (7b).
+  if (isLoggedIn && isB2BCoach) {
     groups.push({
       id: "coach",
       title: isAr ? "إدارة الكوتش" : "Coach Admin",
       items: [
         { label: isAr ? "لوحة الكوتش" : "Coach Dashboard", icon: LayoutDashboard, onClick: () => navigate("coach") },
-      // 0043 TERMINOLOGY: the old «المدفوعات» coach item is GONE —
-      // site-membership payment requests are admin-only (see group 7b);
-      // the coach's B2B money surface is his client page + wallet.
-        { label: isAr ? "دعم العملاء" : "Client Support", icon: LifeBuoy, onClick: () => navigate("coach-support") },
         { label: isAr ? "صفحتي العامة" : "My Public Page", icon: Globe, onClick: () => navigate("coach-landing") },
+        // 0035 wallet — the B2B partner's money rail (was drawer-missing).
+        { label: isAr ? "محفظتي" : "My Wallet", icon: Wallet, onClick: () => navigate("coach-wallet") },
+        { label: isAr ? "أفيليت المدربين" : "Coach Affiliate", icon: Gift, onClick: () => navigate("coach-affiliate") },
+        // 0043 TERMINOLOGY: site-membership payment requests are admin-only;
+        // the coach's B2B money surface is his client page + wallet.
+        { label: isAr ? "دعم العملاء" : "Client Support", icon: LifeBuoy, onClick: () => navigate("coach-support") },
         // 0037 — «أعلن معنا» + the dedicated coach→site support channel
         { label: isAr ? "أعلن معنا" : "Advertise with us", icon: Megaphone, onClick: () => navigate("coach-ads") },
         { label: isAr ? "دعم المدربين" : "Coach Support", icon: ShieldQuestion, onClick: () => navigate("coach-help") },
       ],
     });
   }
+  if (isLoggedIn && isSiteCoach) {
+    groups.push({
+      id: "coach",
+      title: isAr ? "لوحة مدرب الموقع" : "Site Coach",
+      items: [
+        { label: isAr ? "أعضائي للمتابعة" : "My members", icon: LayoutDashboard, onClick: () => navigate("coach") },
+        { label: isAr ? "صفحتي العامة" : "My Public Page", icon: Globe, onClick: () => navigate("coach-landing") },
+        { label: isAr ? "دعم العملاء" : "Client Support", icon: LifeBuoy, onClick: () => navigate("coach-support") },
+        { label: isAr ? "دعم المدربين" : "Coach Support", icon: ShieldQuestion, onClick: () => navigate("coach-help") },
+      ],
+    });
+  }
 
-  // Group 7b: Admin-exclusive items (owner directive 2026-08-29 — Q6:
-  // leads / saved results / blog CMS / referrals admin are admin-only).
+  // Group 7b: ADMIN — PHASE 142: the old 5-item «إدارة المنصة» group
+  // (leads / saved / site-memberships / referrals / blog) duplicated the
+  // /admin sidebar. ONE entry now: his console — everything lives there.
   if (isLoggedIn && isAdmin) {
     groups.push({
       id: "admin",
       title: isAr ? "إدارة المنصة" : "Platform Admin",
       items: [
-        { label: isAr ? "أدوات Leads" : "Tool Leads", icon: Calculator, href: "/admin/leads" },
-        { label: isAr ? "النتائج المحفوظة" : "Saved Results", icon: Bookmark, href: "/admin/saved-results" },
-        // 0043: site-membership payment requests (B2C) — admin-only review.
-        { label: isAr ? "عضويات الموقع" : "Site memberships", icon: Crown, onClick: () => navigate("admin-payments") },
-        { label: isAr ? "الإحالات" : "Referrals", icon: Gift, onClick: () => navigate("admin-referrals") },
-        { label: isAr ? "إدارة المدونة" : "Blog Admin", icon: FileText, href: "/admin/blog" },
+        {
+          label: isAr ? "لوحة الأدمن" : "Admin Console",
+          icon: ShieldCheck,
+          href: "/admin/dashboard",
+        },
       ],
     });
   }

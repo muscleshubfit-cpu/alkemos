@@ -50,15 +50,13 @@ type CoachRow = {
 
 type WalletRow = { coach_id: string; balance: number };
 
-type Card = {
-  href: string;
-  emoji: string;
-  ar: string;
-  en: string;
-  descAr: string;
-  descEn: string;
-  badge?: "pending" | "missing";
-};
+/* PHASE 142 (owner: «تكرار ازرار»): the 5 «أدوات المدربين» cards that
+ * lived below the roster were an EXACT copy of the AdminShell sidebar's
+ * «المدربون» section (site-assignments / assignments / coach-pages /
+ * wallets / coach-support) — same links rendered twice on one screen.
+ * The sidebar (desktop) and the button grid (mobile) carry them; the
+ * cards section is removed. The tools are still ONE tap away — the
+ * ShieldCheck footer note below explains the kind split as before. */
 
 export default function CoachesPage() {
   const { lang } = useI18n();
@@ -69,8 +67,6 @@ export default function CoachesPage() {
   const [loading, setLoading] = useState(true);
   const [rpcFailed, setRpcFailed] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [pendingPages, setPendingPages] = useState<number | null>(null);
-  const [missingPages, setMissingPages] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,25 +101,6 @@ export default function CoachesPage() {
     load();
   }, [load]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/admin/coach-pages");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled || !data?.counts) return;
-        setPendingPages(Number(data.counts.pending) || 0);
-        setMissingPages(Number(data.counts.missing) || 0);
-      } catch {
-        /* badges stay hidden */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   /** Site / B2B kind toggle — PATCH /api/admin/coach-kind (0067). */
   const toggleKind = async (r: CoachRow) => {
     setBusyId(r.client_id);
@@ -151,54 +128,6 @@ export default function CoachesPage() {
     }
   };
 
-  const cards: Card[] = [
-    {
-      href: "/admin/site-assignments",
-      emoji: "🎯",
-      ar: "مدربو الموقع والتعيينات",
-      en: "Site coaches & roster",
-      descAr:
-        "تعيين مدربين كـ«مدربي موقع» وتخصيص أعضاء الموقع ليهم للمتابعة (B2C) — جدول منفصل تمامًا عن حسابات مدربي B2B",
-      descEn:
-        "Designate site coaches and assign site members to them for B2C follow-up — a table fully separate from B2B billing",
-    },
-    {
-      href: "/admin/coach-pages",
-      emoji: "🗂️",
-      ar: "صفحات المدربين",
-      en: "Coach pages",
-      descAr: "مراجعة صفحات المدربين — موافقة أو رفض بسبب، وتذكير اللي لسه ما أنشأش صفحته",
-      descEn:
-        "Review coach pages — approve or reject with reason, and remind those without a page",
-      badge: "pending",
-    },
-    {
-      href: "/admin/assignments",
-      emoji: "🤝",
-      ar: "تعيينات مدربي B2B",
-      en: "B2B assignments",
-      descAr: "إضافة مدرب B2B، ربط عملائه بالمدربين، رسوم الكوتشينج، وسجل الدفعات اليدوية",
-      descEn:
-        "Add B2B coaches, assign their clients, coaching fees & the offline-payments ledger",
-    },
-    {
-      href: "/admin/wallets",
-      emoji: "👷",
-      ar: "المحافظ",
-      en: "Wallets",
-      descAr: "أرصدة المحافظ، طلبات الشحن والإيصالات، والتعديل اليدوي",
-      descEn: "Balances, receipt top-ups & manual adjustments",
-    },
-    {
-      href: "/admin/coach-support",
-      emoji: "🛠️",
-      ar: "دعم المدربين",
-      en: "Coach support",
-      descAr: "رسائل دعم المدربين الواردة للإدارة والرد عليها",
-      descEn: "Coach→site support inbox and replies",
-    },
-  ];
-
   const siteCount = rows.filter((r) => r.coach_kind === "site").length;
 
   return (
@@ -207,8 +136,8 @@ export default function CoachesPage() {
         title={isAr ? "المدربون" : "Coaches"}
         sub={
           isAr
-            ? "قائمة بكل المدربين مع تفرقة واضحة: «مدرب موقع» بيتابع أعضاء الموقع (B2C)، و«مدرب B2B» شريك خارجي ليه عملاءه ومحفظته وفاتورته — وتحتها كل أدوات المدربين."
-            : "The full coach roster with a clear split: a «site coach» follows up site members (B2C), a «B2B coach» is an external partner with his own clients, wallet and billing — with every coach tool right below."
+            ? "قائمة بكل المدربين مع تفرقة واضحة: «مدرب موقع» بيتابع أعضاء الموقع (B2C)، و«مدرب B2B» شريك خارجي ليه عملاءه ومحفظته وفاتورته — وكل أدوات المدربين في القائمة الجانبية."
+            : "The full coach roster with a clear split: a «site coach» follows up site members (B2C), a «B2B coach» is an external partner with his own clients, wallet and billing — every coach tool lives in the sidebar."
         }
       />
 
@@ -353,51 +282,11 @@ export default function CoachesPage() {
         )}
       </SectionCard>
 
-      {/* Tools — every coach surface one tap away (no hub-of-hubs) */}
-      <SectionCard
-        title={isAr ? "أدوات المدربين" : "Coach tools"}
-        sub={
-          isAr
-            ? "كل ما يخص المدربين في مكان واحد — والقائمة الجانبية بتوصلك لأي أداة منهم مباشرة."
-            : "Every coach-management surface in one place — the sidebar also reaches each tool directly."
-        }
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          {cards.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="group rounded-3xl border border-[#d2d2d7] bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-[#1d1d1f]/40 hover:shadow-lg hover:shadow-black/5"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <span className="text-3xl">{card.emoji}</span>
-                <div className="flex gap-1.5">
-                  {card.badge === "pending" && pendingPages !== null && pendingPages > 0 && (
-                    <span className="rounded-full bg-[#ff9500] px-2.5 py-1 text-[10px] font-bold text-white">
-                      {isAr ? `${pendingPages} في الانتظار` : `${pendingPages} pending`}
-                    </span>
-                  )}
-                  {card.badge === "pending" && missingPages !== null && missingPages > 0 && (
-                    <span className="rounded-full bg-[#86868b]/15 px-2.5 py-1 text-[10px] font-bold text-[#6e6e73]">
-                      {isAr ? `${missingPages} بدون صفحة` : `${missingPages} no page`}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <p className="mt-3 font-semibold">{isAr ? card.ar : card.en}</p>
-              <p className="mt-1 text-sm leading-relaxed text-[#6e6e73]">
-                {isAr ? card.descAr : card.descEn}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </SectionCard>
-
       <p className="flex items-start gap-2 text-xs text-[#6e6e73]">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         {isAr
-          ? "تفرقة النوع محفوظة في قاعدة البيانات (profiles.coach_kind) — ومدربي B2B تفضل فاتورتهم ومحافظهم شغالة زي ما هي بدون أي تأثير، ومدربي الموقع تعييناتهم في جدول منفصل تمامًا عن الفلوس."
-          : "The kind split is stored in the DB (profiles.coach_kind) — B2B coaches keep their wallet and billing untouched, and site-coach rosters live in a table fully separate from money."}
+          ? "تفرقة النوع محفوظة في قاعدة البيانات (profiles.coach_kind) — ومدربي B2B تفضل فاتورتهم ومحافظهم شغالة زي ما هي بدون أي تأثير، ومدربي الموقع تعييناتهم في جدول منفصل تمامًا عن الفلوس. أدوات المدربين (الصفحات / التعيينات B2B / المحافظ / الدعم) في القائمة الجانبية — وبادج «صفحات بانتظار المراجعة» على بند صفحات المدربين نفسه."
+          : "The kind split is stored in the DB (profiles.coach_kind) — B2B coaches keep their wallet and billing untouched, and site-coach rosters live in a table fully separate from money. The coach tools (pages / B2B assignments / wallets / support) live in the sidebar — with the pending-pages badge on the Coach pages item itself."}
       </p>
     </div>
   );

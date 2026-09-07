@@ -29,6 +29,16 @@ type AuthCtx = {
  /** role === "admin" — platform owner. Admin-exclusive: blog admin,
   * tool leads, saved results, referrals admin. */
  isAdmin: boolean;
+ /** profiles.coach_kind — 'site' | 'b2b' | null. Phase 142 (owner:
+  * «يجب الفصل بين ادمن / مدرب موقع / مدرب مستقل»): the kind decides
+  * which coach console a coach gets. Null for clients/admins. */
+ coachKind: "site" | "b2b" | null;
+ /** role='coach' AND coach_kind='site' — follows up assigned site members
+  * (B2C): no wallet, no per-client billing, no ads/affiliate. */
+ isSiteCoach: boolean;
+ /** role='coach' AND coach_kind!=='site' — an independent B2B partner:
+  * own clients, wallet, per-client fees, affiliate, ads. */
+ isB2BCoach: boolean;
  signUp: (email: string, password: string, fullName: string, phone: string, coachSlug?: string | null) => Promise<{ error: string | null; needsConfirmation?: boolean }>;
  signIn: (email: string, password: string) => Promise<{ error: string | null; profile: Profile | null }>;
  signInGoogle: (nextPath?: string) => Promise<{ error: string | null }>;
@@ -98,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  setProfile(null);
  }, []);
 
+ const kind = (profile?.coach_kind === "site" ? "site" : profile?.role === "coach" ? "b2b" : null) as "site" | "b2b" | null;
  return (
  <Ctx.Provider
  value={{
@@ -105,6 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  loading,
  isCoach: profile?.role === "coach" || profile?.role === "admin",
  isAdmin: profile?.role === "admin",
+ coachKind: kind,
+ isSiteCoach: profile?.role === "coach" && kind === "site",
+ isB2BCoach: profile?.role === "coach" && kind !== "site",
  signUp,
  signIn,
  signInGoogle,

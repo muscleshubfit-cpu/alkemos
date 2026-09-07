@@ -15,6 +15,11 @@ import { PageHeader, StatTile, fmtMoney, fmtNum } from "@/components/admin/ui";
  * checks daily (clients, active subs, expired, pending payments, pending
  * page reviews, approved revenue) + compact quick-action cards.
  *
+ * PHASE 142 (owner: «تكرار ازرار»): the old 14-card QUICK grid was a
+ * full COPY of the sidebar (every admin surface twice on one screen).
+ * Reduced to the FOUR daily actions — the sidebar stays the single
+ * complete map (and the mobile button grid mirrors it).
+ *
  * All counters are best-effort — a failing source hides its tile, never
  * breaks the page.
  */
@@ -23,44 +28,14 @@ type QuickCard = { href: string; emoji: string; ar: string; en: string };
 
 const QUICK: { ar: string; en: string; cards: QuickCard[] }[] = [
   {
-    ar: "العملاء والعضويات",
-    en: "Clients & memberships",
+    ar: "الإجراءات اليومية",
+    en: "Daily actions",
     cards: [
       // Phase 103: members + accounts merged into /admin/clients
       { href: "/admin/clients", emoji: "👥", ar: "جدول العملاء", en: "Clients table" },
       { href: "/admin/payments", emoji: "💳", ar: "طلبات العضويات", en: "Membership requests" },
-    ],
-  },
-  {
-    ar: "المدربون",
-    en: "Coaches",
-    cards: [
-      { href: "/admin/coaches", emoji: "🎛️", ar: "قائمة المدربين", en: "Coach roster" },
-      { href: "/admin/site-assignments", emoji: "🎯", ar: "مدربو الموقع", en: "Site coaches" },
       { href: "/admin/coach-pages", emoji: "🗂️", ar: "مراجعة الصفحات", en: "Page reviews" },
-    ],
-  },
-  {
-    ar: "المالية والمحتوى",
-    en: "Finances & content",
-    cards: [
       { href: "/admin/finances", emoji: "💰", ar: "المالية", en: "Finances" },
-      { href: "/admin/blog", emoji: "📝", ar: "المدونة", en: "Blog" },
-      { href: "/admin/external-plans", emoji: "📋", ar: "خطط لغير الأعضاء", en: "External plans" },
-    ],
-  },
-  {
-    ar: "النمو",
-    en: "Growth",
-    cards: [
-      { href: "/admin/referrals", emoji: "🎁", ar: "الإحالات", en: "Referrals" },
-      { href: "/admin/leads", emoji: "📨", ar: "Leads الأدوات", en: "Tool leads" },
-      {
-        href: "/admin/saved-results",
-        emoji: "🔖",
-        ar: "النتائج المحفوظة",
-        en: "Saved results",
-      },
     ],
   },
 ];
@@ -111,7 +86,7 @@ export default function AdminDashboardPage() {
         title={isAr ? "الرئيسية" : "Dashboard"}
         sub={
           isAr
-            ? "الأرقام اللي بتفحصها كل يوم في مكان واحد — والتنقل الكامل من القائمة الجانبية."
+            ? "الأرقام اللي بتفحصها كل يوم في مكان واحد — التنقل الكامل من القائمة الجانبية."
             : "The daily numbers in one place — full navigation lives in the sidebar."
         }
       />

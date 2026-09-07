@@ -6,7 +6,7 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * ADMIN — COACH WALLETS OVERVIEW (0035).
  * GET /api/admin/wallets
  *
- * Powers /admin/wallets: every staff member's wallet balance next to his
+ * Powers /admin/wallets: every B2B coach's wallet balance next to his
  * per-client monthly fee and live client count, plus the PENDING top-up
  * queue (receipt path included — the admin opens the receipt and then
  * approves/rejects via PATCH /api/admin/wallets/topups).
@@ -25,7 +25,11 @@ export async function GET(_request: NextRequest) {
     supabaseAdmin
       .from("profiles")
       .select("id, full_name, email, role")
-      .in("role", ["coach", "admin"]),
+      // PHASE 142 (owner: «الادمن يعامل مثل مدربين b2b وهذا خطأ»): the
+      // wallet table is the B2B PARTNERS' money surface — the admin has
+      // no personal B2B wallet row here (he manages everyone's money from
+      // this page; his own account never appears as a billable coach).
+      .eq("role", "coach"),
     supabaseAdmin.from("coach_wallets").select("coach_id, balance, currency"),
     supabaseAdmin
       .from("coach_fees")

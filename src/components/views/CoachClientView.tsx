@@ -114,7 +114,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  const { navigate } = useNav();
  // OWNER BOUNDARY (2026-08-30): admins manage everything; coaches must
  // NEVER see site memberships (premium/pro) — only their coaching product.
- const { isAdmin } = useAuth();
+ const { isAdmin, isSiteCoach } = useAuth();
  const [client, setClient] = useState<Profile | null>(null);
  const [sub, setSub] = useState<Subscription | null>(null);
  const [allSubs, setAllSubs] = useState<Subscription[]>([]);
@@ -180,7 +180,15 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  [allSubs],
  );
  const planGateOpen = isAdmin || hasActiveCoaching;
- const planGateMessage = isAr
+ // PHASE 142 — kind-aware gate copy: a site coach never sells the B2B
+ // $6/$16 coaching packages — his member's coaching subscription is
+ // activated from the ADMIN console (the money law: site follow-up has
+ // ZERO billing through the coach).
+ const planGateMessage = isSiteCoach
+ ? isAr
+ ? "توليد الخطط مقفول — ده عضو متابعة موقع: اشتراك الكوتشينج بيتفعّل من لوحة الأدمن وهو اللي بيفتح التوليد هنا."
+ : "Plan generation is locked — this is a site follow-up member: the coaching subscription is activated from the admin console and that unlocks generation here."
+ : isAr
  ? "توليد الخطط مقفول لحد ما تفعّل اشتراك العميل — من تبويب الاشتراك (شهر 6$ — ٣ شهور 16$ بتخصم من محفظتك)."
  : "Plan generation is locked until you activate this client's subscription — from the Subscription tab (1 month $6 — 3 months $16 debited from your wallet).";
 
@@ -639,15 +647,21 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  weight: e.weight,
  }));
 
- const tabs = [
+ // PHASE 142 — the B2B subscription/billing tab is the independent
+ // partner's (and the admin's manual-override) surface. A site coach
+ // never bills: his member's subscriptions are managed by the admin.
+ type TabId = "overview" | "subscription" | "plans" | "ai-plans" | "notifications" | "questionnaires" | "progress";
+ const tabs: { id: TabId; label: string }[] = [
  { id: "overview", label: t("coach.overview") },
- { id: "subscription", label: t("coach.subscriptionMgmt") },
+ ...(isSiteCoach
+   ? []
+   : ([{ id: "subscription" as TabId, label: t("coach.subscriptionMgmt") }] satisfies { id: TabId; label: string }[])),
  { id: "plans", label: t("coach.plansSection") },
  { id: "ai-plans", label: t("coach.aiPlans") },
  { id: "notifications", label: lang === "ar" ? "إشعارات" : "Notifications" },
  { id: "questionnaires", label: t("coach.questionnairesSection") },
  { id: "progress", label: t("coach.clientProgress") },
- ] as const;
+ ];
 
  // PHASE 62 VARIETY: collect food/exercise names from the client's
  // existing plans so the AI avoids repeating the same meals/lifts.
@@ -846,7 +860,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  </div>
  )}
 
- {tab === "subscription" && (
+ {tab === "subscription" && !isSiteCoach && (
  <>
  {/* All subscriptions list — shows every sub the client has */}
  <Card className="mb-4 p-6 shadow-card">

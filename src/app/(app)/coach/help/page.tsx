@@ -8,15 +8,15 @@ import { CoachHelpView } from "@/components/views/CoachHelpView";
 /**
  * «دعم المدربين» (0037) — /coach/help
  *
- * Staff surface (coach + admin): the dedicated coach → site support
- * channel, separate from the site's client support. Gated like
- * /coach/wallet — staff only; clients bounce to /dashboard.
+ * COACHES-ONLY (both kinds — site & B2B) since Phase 142: the dedicated
+ * coach → site support channel. The ADMIN is the RECEIVING side of this
+ * channel (his inbox is /admin/coach-support inside the admin console)
+ * — he bounces there instead of filing tickets to himself; clients
+ * bounce to /dashboard.
  */
 export default function Page() {
-  const { profile, loading } = useAuth();
+  const { profile, loading, isCoach } = useAuth();
   const router = useRouter();
-  const isStaff =
-    !!profile && (profile.role === "coach" || profile.role === "admin");
 
   useEffect(() => {
     if (loading) return;
@@ -24,11 +24,16 @@ export default function Page() {
       router.replace("/auth");
       return;
     }
-    if (!isStaff) {
+    if (profile.role === "admin") {
+      // the admin receives coach support — his inbox lives in his console.
+      router.replace("/admin/coach-support");
+      return;
+    }
+    if (!isCoach) {
       router.replace("/dashboard");
     }
-  }, [loading, profile, isStaff, router]);
+  }, [loading, profile, isCoach, router]);
 
-  if (loading || !isStaff) return null;
+  if (loading || !isCoach || profile?.role === "admin") return null;
   return <CoachHelpView />;
 }

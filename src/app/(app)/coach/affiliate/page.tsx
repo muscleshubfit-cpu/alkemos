@@ -13,12 +13,17 @@ import { ReferralView } from "@/components/views/ReferralView";
  * pays for... and the person who INVITED him earns it too. Staff (coach +
  * admin) previously bounced off /referral (client-only surface), so this
  * staff mirror reuses the same ReferralView against the same tables.
- * Clients bounce to /dashboard.
+ *
+ * PHASE 142 (owner: «يجب الفصل بين ادمن / مدرب موقع / مدرب مستقل»):
+ * B2B-COACH-ONLY — the affiliate earnings mirror exists for the
+ * independent partner whose activations pay the site fee. An ADMIN has
+ * no coach-referral earnings surface (he runs /admin/referrals) and a
+ * SITE coach's follow-up work never debits wallets. Both bounce to
+ * their own consoles; clients bounce to /dashboard.
  */
 export default function Page() {
-  const { profile, loading } = useAuth();
+  const { profile, loading, isB2BCoach } = useAuth();
   const router = useRouter();
-  const isStaff = !!profile && (profile.role === "coach" || profile.role === "admin");
 
   useEffect(() => {
     if (loading) return;
@@ -26,11 +31,11 @@ export default function Page() {
       router.replace("/auth");
       return;
     }
-    if (!isStaff) {
-      router.replace("/dashboard");
+    if (!isB2BCoach) {
+      router.replace(profile.role === "admin" ? "/admin/dashboard" : "/coach");
     }
-  }, [loading, profile, isStaff, router]);
+  }, [loading, profile, isB2BCoach, router]);
 
-  if (loading || !isStaff) return null;
+  if (loading || !isB2BCoach) return null;
   return <ReferralView />;
 }

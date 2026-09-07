@@ -405,36 +405,35 @@ export function AdminAssignmentsView() {
         </div>
       </section>
 
-      {/* Staff cards */}
+      {/* Staff cards — PHASE 142 (owner: «الادمن يعامل مثل مدربين b2b
+          وهذا خطأ»): B2B coaches ONLY. The admin's auto-assignment row
+          (0030A) is «متابعة الإدارة» — he is not a B2B partner and his
+          card no longer sits in the B2B team grid. The reassignment
+          dropdown keeps an honest «متابعة الإدارة» option for him. */}
       <section>
         <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[#6e6e73]">
-          {isAr ? "فريق العمل" : "Staff"}
+          {isAr ? "فريق مدربي B2B" : "B2B coaches"}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {staff.map((s) => (
-            <div key={s.id} className="rounded-2xl bg-[#f5f5f7] p-5">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-medium">{s.full_name || "—"}</p>
-                  <p className="mt-0.5 text-xs font-normal text-[#6e6e73]" dir="ltr">
-                    {s.email || s.id}
-                  </p>
+          {staff
+            .filter((s) => s.role === "coach")
+            .map((s) => (
+              <div key={s.id} className="rounded-2xl bg-[#f5f5f7] p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-medium">{s.full_name || "—"}</p>
+                    <p className="mt-0.5 text-xs font-normal text-[#6e6e73]" dir="ltr">
+                      {s.email || s.id}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-[#1d1d1f]/5 px-3 py-1 text-xs font-medium text-[#1d1d1f]">
+                    {isAr ? "مدرب B2B" : "B2B coach"}
+                  </span>
                 </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    s.role === "admin"
-                      ? "bg-[#0071e3]/10 text-[#0071e3]"
-                      : "bg-[#1d1d1f]/5 text-[#1d1d1f]"
-                  }`}
-                >
-                  {s.role === "admin" ? (isAr ? "أدمن" : "Admin") : isAr ? "مدرب" : "Coach"}
-                </span>
-              </div>
-              <p className="mt-3 text-sm font-normal text-[#6e6e73]">
-                {isAr ? "العملاء الحاليون: " : "Current clients: "}
-                <span className="font-medium text-[#1d1d1f]">{counts[s.id] ?? 0}</span>
-              </p>
-              {s.role === "coach" && (
+                <p className="mt-3 text-sm font-normal text-[#6e6e73]">
+                  {isAr ? "العملاء الحاليون: " : "Current clients: "}
+                  <span className="font-medium text-[#1d1d1f]">{counts[s.id] ?? 0}</span>
+                </p>
                 <button
                   onClick={() => demoteCoach(s)}
                   disabled={demotingId === s.id}
@@ -444,12 +443,11 @@ export function AdminAssignmentsView() {
                     ? (isAr ? "جارٍ التحويل…" : "Converting…")
                     : (isAr ? "تحويله إلى عميل عادي" : "Convert back to client")}
                 </button>
-              )}
-            </div>
-          ))}
-          {staff.length === 0 && (
+              </div>
+            ))}
+          {staff.filter((s) => s.role === "coach").length === 0 && (
             <p className="text-sm font-normal text-[#6e6e73]">
-              {isAr ? "لا يوجد فريق بعد." : "No staff yet."}
+              {isAr ? "لا يوجد مدربو B2B بعد — أضف أول مدرب من فوق." : "No B2B coaches yet — add the first one above."}
             </p>
           )}
         </div>
@@ -667,8 +665,15 @@ export function AdminAssignmentsView() {
                         .filter((s) => s.id !== c.id)
                         .map((s) => (
                           <option key={s.id} value={s.id}>
+                            {/* PHASE 142 — honest label: assigning a member
+                                to the ADMIN is «متابعة الإدارة» (the 0068
+                                default follow-up), not a B2B coach pick. */}
                             {(s.full_name || s.email || s.id) +
-                              (s.role === "admin" ? (isAr ? " (أدمن)" : " (admin)") : "")}
+                              (s.role === "admin"
+                                ? isAr
+                                  ? " (متابعة الإدارة)"
+                                  : " (admin follow-up)"
+                                : "")}
                           </option>
                         ))}
                     </select>
