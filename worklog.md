@@ -1558,3 +1558,25 @@ Task 137 — فحص السرعة العميق الشامل + إصلاحات (ط�
 3. الموقع نفسه سليم: TTFB 11-40ms حقيقي، LCP مرصود ~1s، CLS 0
 
 **المتبقي الموثق (خارج نطاق هذه الجولة):** كتلة react-dom 74KB (577ms) للتحسين التالي · صفحات AR تحمّل 4 خطوط (152KB — Playfair لاتيني فيها) · عند اعتماد AdSense: احجز أبعاد الخانات (CLS) وقياس جديد
+---
+Task ID: 140
+Agent: main (Super Z — GLM)
+Task: Phase 140 — التدقيق الهندسي/الأمني/SEO الشامل (أمر المالك «الأمر الشامل» GLM-5) عبر المنظومة الحقيقية + الإصلاحات الآمنة القابلة للعكس
+
+Work Log:
+- بروتوكول الجلسة الكامل: STATE.md → git fetch (HEAD=d249cbf متزامن مع origin/main) → آخر 3 مدخلات worklog → آخر 5 كوميتات → AGENTS.md كاملًا (المصدر الحاكم)
+- فحص القاعدة: tsc 0 · eslint 0 أخطاء/4 تحذيرات · vitest 219/219 · next build ✓ · الأسرار: صفر تسريب في src/scripts/public · Vercel env: 32 متغيرًا (Upstash/CRON_SECRET/SERVICE_ROLE حاضرين في production)
+- الصلاحيات الحقيقية: Vercel API ✓ (team muscleshubfit — الإنتاج READY على d249cbf نفسه) · Supabase API ✓ (مشروع alkemos ACTIVE_HEALTHY) · **GitHub push ✗ — المفتاح وصل [REDACTED] في ملف الأمر → المسار الرسمي للدفع معطوب؛ الموثق كعائق والكوميتات جاهزة محليًا**
+- تصحيح ادعاءات الأمر بالدليل: fflate=0.7.5 المصحح فعلًا في bun.lock+node_modules (الإدعاء 0.7.3) · OG images حية 3/3 (200 PNG ~273KB) · hreflang الرئيسية EN+AR كامل حي (تقرير الأمر أقدم من النشر) · غياب hreflang المدونة موثق C1 (صفر أزواج ترجمة) · Zod غائب لكن المسارات الحساسة موثقة يدويًا (اختبار curl فعلي: hostile tool_slug 400 · بريد غير صالح 400 · cron بلا سر 401 · admin fail-closed)
+- **المشكلة الحقيقية المكتشفة (robots ثنائي الطبقات):** robots.txt الحي = كتلة Cloudflare Managed مُحقنة من الـedge تحجب 8 روبوتات AI بالكامل (GPTBot/ClaudeBot/CCBot/Bytespider/Google-Extended/Amazonbot/Applebot-Extended/meta-externalagent) بينما ملف المصدر يسمح بها — مصدر «التعارض الظاهري» في تقرير SEO للأمر؛ عُولج جانب المصدر، وطبقة CF تحتاج قرار لوحة تحكم (موثقة في التقرير النهائي بخطوات بلس)
+- hreflang فحص شامل: الرئيسية/exercises/foods/faq/about/memberships/for-coaches متبادلة وسليمة · **الفجوة: /programs و/programs/[slug] EN لا تردّان على إعلان AR** (الأدوات/EVO/meal-planner/contact لا نظير عربي لها → صحيح بلا hreflang — لا بدائل وهمية)
+- تنفيذ الإصلاحات الآمنة: (1) languages en/ar/x-default في programs/layout.tsx + programs/[slug]/page.tsx (2) robots.txt موحدة: مجموعة `*` واحدة، إزالة 14 مجموعة AI متناقضة، Disallow: /coach$+/coach/ exact (كانت البادئة تبتلع /coaching العام)، + حجب /preview (3) حذف framer-motion الميت من optimizePackageImports (4) نقل تعليقي eslint-disable إلى سطر <img الصحيح
+- وهم "تلف workflow": خرج grep يظهر `branches: ain]` — od + GitHub API أثبتا أن الملفات `[main]` سليمة أصلًا (بوابة العرض تبتلع `[m`)؛ **صفر تعديل كان لازمًا — قيد الاكتشاف هنا لعدم تكراره**
+- البوابات بعد الإصلاح: tsc 0 · eslint **0/0** (التحذيرات الأربعة قُتلت) · vitest 219/219 · build ✓ · docs_audit ✓ (STATE phase=140 · 57 سطرًا) · docs_parity ✓ · curl محلي فعلي على خادم البناء الجديد: /programs + /programs/[slug] يرندان hreflang الكامل + canonical · انحدار /ar/programs (3 hreflang) + الرئيسية 200 ✓
+
+Stage Summary:
+- الفجوة الموثقة للتوثيق: STATE كان متوقفًا عند 137 بينما الكود وصل 139 (كوميتات docs للأخيرة لم تحدّث STATE — البوابة لا ترصد worklog-ahead-of-STATE) — STATE 140 الآن يعالج التر acumulativelly (137→140)
+- Commit SHA: (محلي — بانتظار الدفع: مفتاح GitHub منقّح) — Patches مُصدَّرة إلى /home/z/my-project/download/alkemos-phase140/
+- Push status: not-pushed (عائق موثق — بديل الدفع بخطوة واحدة مشروح في التقرير النهائي §12.9)
+- التقييم الأمني الإجمالي: لا ثغرات P0 مفتوحة؛ P1 = اتساق Zod المركزي (خطة مرحلية جاهزة) + توحيد resolveMembershipTier (تصميم جاهز — §7 يمنع التنفيذ دون موافقة) + قرار فهرسة الأطعمة 17,660 URL (خيارات جاهزة)
+
