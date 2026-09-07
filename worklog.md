@@ -18,7 +18,7 @@ Work Log:
 Stage Summary:
 - الوقاية الدائمة للمرحلة 144.1 أصبحت كودًا متحققًا حيًا — يتبقى فقط سر VERCEL_TOKEN ليدور تلقائيًا يوميًا
 - الالتزام البنيوي: GUARD-COMMITMENT COROLLARY — السكربت والworkflow في نفس الكوميت
-- Commit SHA: <filled-at-commit> · Push status: pushed
+- Commit SHA: 766586c · Push status: pushed (+ كوميت إصلاح فوري: /scripts/* في .gitignore استبعاد السكربت — استثناء !/scripts/vercel-cleanup/ أُضيف والسكربت رُفع — GUARD-COMMITMENT مكتمل)
 
 ---
 Task ID: VERCEL-FS-CLEANUP-2026-09-08

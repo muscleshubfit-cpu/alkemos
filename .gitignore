@@ -54,9 +54,11 @@ pnpm-lock.yaml
 #   scripts/docs_audit.py      → knowledge-system gate (docs-parity-gate.yml, Phase 107)
 #   scripts/db-backup.mjs      → daily DB snapshot (db-backup.yml, 2026-09-05)
 #   scripts/db-restore.mjs     → snapshot restore tool (db-backup.yml docs)
+#   scripts/vercel-cleanup/    → daily Vercel stale-deployment purge (vercel-cleanup.yml, Phase 145)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
+!/scripts/vercel-cleanup/
 !/scripts/check-stale-refs.sh
 !/scripts/migration_audit.py
 !/scripts/docs_parity.py
