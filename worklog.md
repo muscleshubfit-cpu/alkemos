@@ -1696,3 +1696,20 @@ Work Log (فحص حي على alkemos.com — الإنتاج 2582230):
 Stage Summary:
 - الفحص الحي منفّذ لكل ما هو ممكن ذاتيًا: مجهول + مدرب مستقل كامل + البوابات — وعطل P1 حقيقي مكتشف ومعزول ومعالج دفاعيًا
 - الباقي على المالك: توكن GitHub عابر للدفع · تطبيق 0072 · فحص SMTP وسجلات Vercel لعطل الدعوة · اعتمادات أدمن/عضو لاستكمال الفحص
+---
+Task ID: 143.1 — حسم الترحيل + تعديل أزرار قائمة العملاء + الدفع
+Agent: main (Super Z — GLM)
+Task: أمر المالك «تاكد من سوبابيز انه مربوط مع الريبو بالاسم الجديد للريبو، ممكن يكون ده سبب عدم الترحيل، فى طلبى السابق لحذف زر المسح (امسح الازرار المحدده فقط واترك عامود مربعات التحديد ومسح كل المحدد)» + توكنات عابرة (GitHub/Vercel/Supabase) للدفع والفحص
+
+Work Log:
+- **فحص تكامل Supabase↔GitHub (سؤال المالك):** Management API (توكن sbp عابر): المشروع wyopqryzfjifyeyvyxfy ACTIVE_HEALTHY · فرع main حالته MIGRATIONS_FAILED · الليدجر (supabase_migrations.schema_migrations عبر /database/query): يثبت تطبيق 0058→0065 + 0067→0069 + **0070 + 0071** (أي بعد تبراند 2026-09-05) — **الريبو موصول بالاسم الجديد والاسم ليس العائق** · 0072 وحدها غائبة رغم هبوطها main 11:30Z
+- **السبب الجذري (أعيد إنتاج الخطأ):** POST /database/migrations بمحتوى 0072 → **22P02: invalid input value for enum user_role: "none"** — `coalesce(b.assigned_coach_role,'none')` في مرشح p_segment يستخدم 'none' كقيمة enum (user_role={client,coach,admin} — تحقق مباشر بenum_range) · هذا نفسه ما فجّر محاولة التكامل التلقائي (تفسير MIGRATIONS_FAILED) — التكامل حي وحاول
+- **الإصلاح:** 0072 غير مسجلة بالليدجر وقتها = تعديلها قانوني → `is distinct from 'coach'` (آمنة NULL+enum، دلالة مطابقة: NULL=غير مسند=عضو موقع) + تعليق يوثق الدرس
+- **التطبيق:** POST /database/migrations (نفس مسار SQL Editor) → 200 · صف ليدجر 20260907124205/0072_site_coach_console · VERIFY: 6/1×7 مباشرة + stats_coach_gate=0 ← نمط مطابقة معيب لا الدالة (مسبر مستقل: pg_get_functiondef LIKE '%_has_b2b_coach%' = 1) · اختبارات دخان: get_coach_client_list_paged(25,0,NULL,'all','all','newest') ينفذ نظيف (0 صفوف بلا auth — متوقع) · site_coach_of(NULL)=NULL · is_admin()=false
+- **تعديل UI (أمر المالك الصريح):** /admin/clients — أُعيد عمود خانات الاختيار (disabled للأدمن) + «تحديد كل الظاهر» + شريط «مسح كل المحدد» العائم بتدفق تأكيده (deleteSelected→DELETE {user_ids}) · خانة الاختيار stopPropagation حتى لا يفجّر نقر الصف الكامل (قانون 54 من adc20c3) · الأزرار الفردية «تعليم تجريبي»/«مسح» + تدفقهما (busyId/confirmId/toggleTest) تبقى محذوفة · استورادت: toast/Loader2/Trash2/useMemo
+- الوثائق: STATE.md (143.1) + README (نفس المرحلة — قانون README) + هذا المدخل · البوابات المحلية أدناه
+
+Stage Summary:
+- سبب «عدم الترحيل» محسوم بالدليل: خطأ SQL داخل 0072 (enum 'none') لا اسم الريبو — أُصلح وطُبق والقاعدة حية على 0072 (حلقة مدرب الموقع مفتوحة)
+- قائمة العملاء: نقر الصف الكامل + عمود التحديد + «مسح كل المحدد» — الأزرار الفردية الثلاثة محذوفة
+- الدفع بتوكن عابر غير مخزّن — المالك يدوّر المفاتيح الأربعة بعدها

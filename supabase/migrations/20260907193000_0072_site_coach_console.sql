@@ -277,9 +277,13 @@ as $$
     -- p_segment (admin split; no-op for coaches — already scoped).
     -- 0072: «coach» = assigned to a REAL coach (cp.role='coach') — the
     -- 0030A admin row is «متابعة الإدارة», NOT a B2B coach client.
+    -- NOTE: assigned_coach_role is the user_role ENUM {client,coach,admin}
+    -- — a coalesce(...,'none') literal breaks it (22P02, the very error
+    -- that made the auto-integration run fail); is distinct from is the
+    -- NULL-safe, enum-safe form (NULL = unassigned = site member).
     and case coalesce(p_segment, 'all')
       when 'coach' then b.assigned_coach_role = 'coach'
-      when 'site'  then coalesce(b.assigned_coach_role, 'none') <> 'coach'
+      when 'site'  then b.assigned_coach_role is distinct from 'coach'
       else true
     end
     -- p_search on name / email / phone

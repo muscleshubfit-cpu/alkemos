@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -11,7 +11,8 @@ import {
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { getTier, type TierId } from "@/lib/plans";
 import { Pagination } from "@/components/Pagination";
-import { FlaskConical } from "lucide-react";
+import { toast } from "sonner";
+import { FlaskConical, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PageHeader,
@@ -58,10 +59,13 @@ import {
  * the WHOLE client row opens /coach/<id> — the same Phase-54 law the
  * coach console has always had, restored here after the Phase-103
  * unification replaced the old admin-mode listing (where it worked).
- * The per-row danger tools (test mark, two-step delete) and the
- * bulk-delete machinery (checkbox column, select-all, floating bar)
- * are REMOVED from this surface by the same directive — the guarded
- * /api/admin/accounts endpoints stay available to admin tooling.
+ *
+ * Phase 143 amendment (owner: «امسح الازرار المحدده فقط واترك عامود
+ * مربعات التحديد ومسح كل المحدد»): ONLY the two per-row danger buttons
+ * (test-mark + single delete) are removed. The bulk machinery STAYS:
+ * checkbox column, «تحديد كل الظاهر», and the floating «مسح المحدد» bar —
+ * same guarded endpoint /api/admin/accounts (batch shape {user_ids}).
+ * Checkboxes stopPropagation so selecting never triggers row navigation.
  */
 
 type Row = {
@@ -111,6 +115,11 @@ export default function AdminClientsPage() {
 
   // Phase 143: whole-row navigation — client rows open the deep manager.
   const router = useRouter();
+
+  // Bulk-delete state (owner amendment: column + «مسح كل المحدد» stay).
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirm, setBulkConfirm] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   // Debounce search so typing does not hammer the RPC.
   useEffect(() => {
@@ -191,6 +200,91 @@ export default function AdminClientsPage() {
         label: isAr ? "عميل مدرب B2B" : "B2B coach client",
       };
     return { cls: "bg-[#34c759]/10 text-[#34c759]", label: isAr ? "عضو الموقع" : "Site member" };
+  };
+
+  /* ── Bulk selection + «مسح كل المحدد» (owner amendment) ──── */
+
+  const selectablePage = useMemo(() => rows.filter((r) => r.role !== "admin"), [rows]);
+  const allSelected =
+    selectablePage.length > 0 && selectablePage.every((r) => selected.has(r.client_id));
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setBulkConfirm(false);
+  };
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        selectablePage.forEach((r) => next.delete(r.client_id));
+      } else {
+        selectablePage.forEach((r) => next.add(r.client_id));
+      }
+      return next;
+    });
+    setBulkConfirm(false);
+  };
+
+  /** Delete the selected batch — guarded endpoint, batch shape. */
+  const deleteSelected = async () => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = await fetch("/api/admin/accounts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_ids: ids }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "failed");
+
+      const deleted: string[] = data.deleted ?? [];
+      const skipped: Array<{ id: string; reason: string }> = data.skipped ?? [];
+      const failed: Array<{ id: string; error: string }> = data.failed ?? [];
+
+      setRows((prev) => prev.filter((r) => !deleted.includes(r.client_id)));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        deleted.forEach((id) => next.delete(id));
+        skipped.forEach((s) => next.delete(s.id));
+        return next;
+      });
+      loadStats();
+
+      if (deleted.length > 0) {
+        toast.success(
+          isAr
+            ? `اتمسح ${deleted.length} ${deleted.length === 1 ? "حساب" : "حساب"} وكل بياناتهم`
+            : `${deleted.length} account(s) deleted`,
+        );
+      }
+      if (skipped.length > 0) {
+        toast.info(
+          isAr
+            ? `اتخطى ${skipped.length} ${skipped.length === 1 ? "حساب" : "حسابات"} (أدمن أو محمي)`
+            : `${skipped.length} account(s) skipped (admin or protected)`,
+        );
+      }
+      if (failed.length > 0) {
+        toast.error(
+          isAr
+            ? `فشل مسح ${failed.length} ${failed.length === 1 ? "حساب" : "حسابات"} — حاول تاني`
+            : `Failed to delete ${failed.length} account(s) — try again`,
+        );
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : (isAr ? "خطأ في المسح" : "Delete failed"));
+    } finally {
+      setBulkBusy(false);
+      setBulkConfirm(false);
+    }
   };
 
   /* ── Filter option lists ──────────────────────────────────── */
@@ -331,6 +425,26 @@ export default function AdminClientsPage() {
         />
       </div>
 
+      {/* Select-all row (bulk machinery — kept per owner amendment) */}
+      {selectablePage.length > 0 && (
+        <div className="flex items-center gap-3 text-sm text-[#6e6e73]">
+          <label className="inline-flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleSelectAll}
+              className="h-4 w-4 cursor-pointer accent-[#0071e3]"
+            />
+            {isAr ? "تحديد كل الظاهر في الصفحة" : "Select all on this page"}
+          </label>
+          {selected.size > 0 && (
+            <span className="font-medium text-[#1d1d1f]">
+              {isAr ? `محدد: ${selected.size}` : `Selected: ${selected.size}`}
+            </span>
+          )}
+        </div>
+      )}
+
       {rpcFailed ? (
         <EmptyState
           text={
@@ -350,6 +464,7 @@ export default function AdminClientsPage() {
           <Table>
             <TableHeader>
               <TableRow className="bg-[#f5f5f7] hover:bg-[#f5f5f7]">
+                <TableHead className="w-10" />
                 <TableHead className="text-start">{isAr ? "الحساب" : "Account"}</TableHead>
                 <TableHead className="text-start">{isAr ? "النوع" : "Type"}</TableHead>
                 <TableHead className="text-start">{isAr ? "الخطة" : "Tier"}</TableHead>
@@ -372,7 +487,8 @@ export default function AdminClientsPage() {
                 // console has had since Phase 54): clicking ANYWHERE on a
                 // client row opens the client manager /coach/<id>. Coach
                 // and admin rows stay inert — the deep manager's role
-                // gate only serves role='client'.
+                // gate only serves role='client'. The checkbox cell
+                // stopPropagation so selecting never navigates.
                 const isClientRow = r.role === "client";
                 const openClient = () => router.push(`/coach/${r.client_id}`);
                 return (
@@ -391,6 +507,20 @@ export default function AdminClientsPage() {
                       isClientRow && "cursor-pointer hover:bg-[#f5f5f7]/70",
                     )}
                   >
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selected.has(r.client_id)}
+                        disabled={r.role === "admin"}
+                        onChange={() => toggleSelect(r.client_id)}
+                        aria-label={
+                          r.role === "admin"
+                            ? isAr ? "حسابات الأدمن محمية" : "Admin accounts are protected"
+                            : isAr ? `تحديد ${r.client_full_name || r.client_email || r.client_id}` : `Select ${r.client_full_name || r.client_email || r.client_id}`
+                        }
+                        className="h-4 w-4 cursor-pointer accent-[#0071e3] disabled:cursor-not-allowed disabled:opacity-30"
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <p className="font-medium">{r.client_full_name || "—"}</p>
@@ -453,7 +583,9 @@ export default function AdminClientsPage() {
                       <div className="flex flex-wrap items-center justify-end gap-1.5">
                         {/* Phase 143: the chip is the visible affordance of
                             the clickable row — same destination, kept for
-                            clarity and middle-click/keyboard access. */}
+                            clarity and middle-click/keyboard access. The
+                            per-row test-mark + delete buttons are GONE by
+                            the owner directive; bulk-delete stays. */}
                         {isClientRow && (
                           <a
                             href={`/coach/${r.client_id}`}
@@ -490,6 +622,59 @@ export default function AdminClientsPage() {
         isAr={isAr}
         busy={loading}
       />
+
+      {/* Floating bulk-delete bar — «مسح كل المحدد» (kept per owner
+          amendment; mobile-proof, ported from accounts manager) */}
+      {selected.size > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#f2f2f7] bg-white/95 p-3 backdrop-blur md:bottom-4 md:rounded-3xl md:border md:shadow-2xl md:shadow-black/10" style={{ maxWidth: "42rem", margin: "0 auto" }}>
+          {bulkConfirm ? (
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <span className="text-sm font-medium text-[#1d1d1f]">
+                {isAr
+                  ? `متأكد من مسح ${selected.size} ${selected.size === 1 ? "حساب" : "حسابات"} وكل بياناتهم نهائيًا؟`
+                  : `Delete ${selected.size} account(s) and all their data permanently?`}
+              </span>
+              <button
+                onClick={deleteSelected}
+                disabled={bulkBusy}
+                className="rounded-full bg-[#ff3b30] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {bulkBusy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  isAr ? "مسح نهائي" : "Delete forever"
+                )}
+              </button>
+              <button
+                onClick={() => setBulkConfirm(false)}
+                disabled={bulkBusy}
+                className="rounded-full px-3 py-2 text-sm text-[#6e6e73] hover:text-[#1d1d1f]"
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-sm font-medium text-[#1d1d1f]">
+                {isAr ? `${selected.size} ${selected.size === 1 ? "حساب محدد" : "حسابات محددة"}` : `${selected.size} selected`}
+              </span>
+              <button
+                onClick={() => setBulkConfirm(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#ff3b30] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              >
+                <Trash2 className="h-4 w-4" />
+                {isAr ? "مسح كل المحدد" : "Delete selected"}
+              </button>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="rounded-full px-3 py-2 text-sm text-[#6e6e73] hover:text-[#1d1d1f]"
+              >
+                {isAr ? "إلغاء التحديد" : "Clear"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
