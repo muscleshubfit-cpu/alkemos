@@ -3,6 +3,24 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: VERCEL-CLEANUP-GHA-2026-09-08
+Agent: Super Z (main)
+Task: Phase 145 (أمر المالك «نفذ خيار أ») — GHA تنظيف نشرات Vercel التلقائي + حذف بند تدوير المفاتيح من STATE.md بأمر المالك الصريح («فقط الغِ التنبيه داخل المحادثات، والمفاتيح لا تُعرض في أي مكان حسب القوانين»)
+
+Work Log:
+- scripts/vercel-cleanup/vercel-cleanup.mjs: Node خالص بلا اعتماديات (global fetch، نمط db-backup.mjs) — يحل المشروع بالاسم، يسرد النشرات READY بترقيم صفحات محرس، ويحفظ دائمًا: نشر الإنتاج الحي (حامل الـaliases — مع شبكة أمان: لو لم يوجد target=production يُحفظ الأحدث إطلاقًا) + نافذة KEEP_HOURS (افتراضي 48) + أحدث KEEP_PREVIEWS (افتراضي 2) — يحذف الباقي عبر DELETE /v13/deployments مع 429-backoff وpacing — خروج صادق (أحمر = فشل API بعد المحاولات) + ملخص GITHUB_STEP_SUMMARY
+- .github/workflows/vercel-cleanup.yml: يوميًا 01:00 UTC (بعيد عن 22:00/23:00/05:00/05:30/07:00 القائمة) + workflow_dispatch بخيار DRY RUN — checkout@v5/setup-node@v5/node 22 (نمط المستودع) — preflight يفشل سريعًا مسميًا السر الناقص والطريق لإضافته — permissions contents:read + concurrency group — تذييل بقانون صحة الجداول (§8 SCHEDULE HEALTH LAW)
+- تحقق حي ضد Vercel API الحقيقي: TEST 1 DRY_RUN (4 نشرات → خطة keep صحيحة، 0 حذف) — TEST 2 KEEP_HOURS=0 حذف فعلي للنشر المتجاوز dpl_GNZgem… فقط (الإنتاج الحي dpl_HUDydQ + previewان بقيا — sanity: الـaliases مؤكدة على الأحدث قبل الحذف — alkemos.com 200 بعده)
+- سر VERCEL_TOKEN: محاولة وضعه برمجيًا عبر GitHub API فشلت (PAT المالك بلا صلاحية secrets — 403) → تبقى خطوة يدوية واحدة للمالك (الدليل المبسط في التقرير) — قبلها preflight يفشل برسالة المقصد
+- STATE.md: المرحلة 145 + بند (هـ) + «المفتوح» بند التفعيل اليدوي الواحد — **وحذف بند «يدوي (المالك) — إلزامي: تدوير مفاتيح المنصات الأربعة» بأمر المالك الصريح 2026-09-08 (قرار مالك نهائي — لا يُعاد فتحه في المحادثات؛ §3.2 قائمة التزامًا: المفاتيح لا تُكتب في أي ملف/كود/توثيق)**
+- Docs: README (بند التنظيف التلقائي تحت Deployment — قانون ميزات README) · SECURITY.md §2.2 (سر VERCEL_TOKEN — نطاقه وسجله) · worklog (هذا المدخل)
+
+Stage Summary:
+- الوقاية الدائمة للمرحلة 144.1 أصبحت كودًا متحققًا حيًا — يتبقى فقط سر VERCEL_TOKEN ليدور تلقائيًا يوميًا
+- الالتزام البنيوي: GUARD-COMMITMENT COROLLARY — السكربت والworkflow في نفس الكوميت
+- Commit SHA: <filled-at-commit> · Push status: pushed
+
+---
 Task ID: VERCEL-FS-CLEANUP-2026-09-08
 Agent: Super Z (main)
 Task: (أمر المالك 2026-09-08 «حل مشكلة خطة فيرسال المجانية») — بريد Vercel: الفريق المجاني بلغ 100% من Function Storage (10 GB) → تشخيص + تحرير المساحة فورًا + اقتراح وقائي دائم

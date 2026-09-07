@@ -1,0 +1,84 @@
+# Vercel stale-deployment purge — daily (Phase 145, owner directive 2026-09-08).
+#
+# WHY: the Hobby plan's "Function Storage" (10 GB) counts the retained
+# function bundles of every kept deployment. This repo deploys on EVERY push
+# to main, and in the SEO-GEO sprint the retention hit 100% in under a week
+# (VERCEL-FS-CLEANUP-2026-09-08 — 123 retained deployments, new deploys
+# blocked until purged). The manual purge is now automated.
+#
+# WHAT: runs scripts/vercel-cleanup/vercel-cleanup.mjs — keeps the CURRENT
+# production deployment (alkemos.com aliases) + the last KEEP_HOURS (48h
+# default) + the newest KEEP_PREVIEWS (2) previews, DELETEs the rest.
+# Superseded deployments are reproducible from git at any time.
+#
+# SCHEDULE: 01:00 UTC daily — clear of the blog slots (22:00 EN / 05:00 AR),
+# the 23:00 dispatch-pipelines backstop, the 05:30 db-backup and the Sunday
+# 07:00 progress reminder.
+#
+# SCHEDULE HEALTH LAW (AGENTS.md §8): GitHub can silently de-register
+# scheduled workflows repo-wide. If blog/backup runs stop AND this workflow
+# shows no recent runs, start with schedule forensics (GET
+# /actions/runs?event=schedule) + a touching commit to re-register —
+# "vercel stopped cleaning" is diagnosed the same way.
+#
+# SETUP (one-time, owner): repository secret VERCEL_TOKEN (Settings ▸
+# Secrets and variables ▸ Actions). A project-scoped Vercel token is enough.
+# Until the secret exists the preflight step fails fast with the exact fix.
+name: Vercel cleanup (daily stale-deployment purge)
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "DRY RUN — list keep/purge plan, delete nothing"
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: vercel-cleanup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # Node 22 — global fetch, zero-dependency runner (db-backup pattern).
+          node-version: 22
+
+      - name: Preflight — VERCEL_TOKEN secret present (fails fast, names the fix)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${VERCEL_TOKEN}" ]; then
+            echo "::error::Missing secret VERCEL_TOKEN — add it under Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret (a project-scoped Vercel token is enough)"
+            exit 1
+          fi
+          echo "✓ VERCEL_TOKEN present"
+
+      - name: Purge stale deployments (keep production + fresh window + newest previews)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_NAME: alkemos
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+        run: node scripts/vercel-cleanup/vercel-cleanup.mjs
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Vercel cleanup summary ==="
+          echo "GREEN run = purge completed (or nothing needed purging) — Function Storage stays within quota."
+          echo "RED run   = a Vercel API call failed — scroll to the ✗ lines for the exact deployment UID + HTTP status."
+          echo "DRY RUN   = plan-only run selected via workflow_dispatch (nothing was deleted)."

@@ -193,6 +193,26 @@ fixed — proven live in Phase 99-run, where a single 42703 on two phantom
 columns froze the ledger at 0063 and silently held back 0064→0067
 (RLS hardening + the entire Phase 103 admin unification) until corrected.
 
+**Automatic deployment cleanup (Phase 145, owner directive 2026-09-08):**
+every push to `main` creates a Vercel deployment, and each retained
+deployment holds its serverless "Function Storage" bundles — on the free
+plan that quota (10 GB) filled to 100% in under a week and blocked new
+deploys (incident `VERCEL-FS-CLEANUP-2026-09-08`, purged live by the
+agent). The daily scheduled workflow
+[`.github/workflows/vercel-cleanup.yml`](./.github/workflows/vercel-cleanup.yml)
+(01:00 UTC) runs
+[`scripts/vercel-cleanup/vercel-cleanup.mjs`](./scripts/vercel-cleanup/vercel-cleanup.mjs)
+(a zero-dependency Node script) to purge stale READY deployments while
+ALWAYS keeping: the current production deployment (the one holding the
+alkemos.com aliases), everything newer than the freshness window
+(`KEEP_HOURS`, default 48h), and the newest preview deployments
+(`KEEP_PREVIEWS`, default 2). Superseded deployments stay reproducible
+from git at any time. Requires the repository secret `VERCEL_TOKEN`
+(Settings ▸ Secrets and variables ▸ Actions — a project-scoped Vercel
+token is enough); until it exists the preflight step fails fast naming
+the fix. Plan-only inspection: Actions ▸ Vercel cleanup ▸ Run workflow
+▸ tick DRY RUN.
+
 ---
 
 ## 🏗️ Project Structure

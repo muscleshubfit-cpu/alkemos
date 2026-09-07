@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-08-23
+> **Last updated:** 2026-09-08
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -56,6 +56,12 @@ Any of the following:
   `.env*` in `.gitignore`).
 - Production: Vercel project environment variables (plaintext at
   rest in Vercel, encrypted in transit). Never logged.
+- GitHub Actions: `VERCEL_TOKEN` (project-scoped Vercel API token)
+  stored ONLY as an encrypted repository secret — used exclusively by
+  `vercel-cleanup.yml` / `scripts/vercel-cleanup/vercel-cleanup.mjs`
+  to purge stale deployments (Phase 145, owner directive 2026-09-08).
+  The runner logs deployment UIDs and HTTP statuses only — never the
+  token itself (§2.3).
 - The agent's own working clone of the repo: the agent must use the
   same `.env.local` pattern. The agent must NEVER commit `.env.local`
   or any file matching `.env*`.
