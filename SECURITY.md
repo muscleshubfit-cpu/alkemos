@@ -342,14 +342,28 @@ Cache headers (set in `vercel.json` + `next.config.ts`):
 - **Client-side tier resolution:** `useMembershipTier(profile)` hook
   queries the `subscriptions` table and picks the highest-priority
   active membership.
-- **Server-side tier resolution:** `requireUser(request)` /
-  `requireCoach(request)` in `src/lib/auth-server.ts` do the same
-  query server-side.
+- **Server-side tier resolution (SINGLE SOURCE OF TRUTH, Phase 141 —
+  2026-09-07, owner-approved §7 change):** `resolveMembershipTier()`
+  in `src/lib/membership-tier.ts` is the one resolver shared by BOTH
+  server entry points — `getAuthUser()` (API routes via
+  requireUser/requireCoach/requireAdmin) and
+  `getAuthUserFromHeaders()` (server components / coach preview).
+  Before Phase 141 the two functions carried drifted copies and
+  `getAuthUserFromHeaders()` missed the 0045 legacy map, so a stray
+  legacy `starter`/`elite` row resolved as "free" in server
+  components while resolving correctly in API routes. Pinned by
+  `src/lib/__tests__/membership-tier.test.ts` (18 canaries:
+  staff / free / premium / pro / coaching / legacy / combined
+  coaching+membership / unknown-tier defensive).
 - **Tier priority order (verified from code):**
   `pro` (3) > `premium` (2) > `free` (0). `coaching` is treated
   separately — it grants EVO access equivalent to Premium but is NOT
-  a higher membership tier. There is NO `elite` tier (an older doc
-  claim was incorrect — see `archive/PROGRESS.md` for the discrepancy).
+  a higher membership tier. Live products have no `elite`/`starter`
+  rows (migration 0045 remapped them all); the resolver keeps a
+  defensive `starter → premium` / `elite → pro` map so a stray
+  legacy row can never DOWNGRADE a paying client to "free"
+  (an older doc claim that there is "NO elite tier" was about the
+  product catalog — see `archive/PROGRESS.md` for the discrepancy).
 - **RLS:** every table in the database has RLS policies enforced.
   See `DEVELOPER_GUIDE.md` §4 for the per-table policy summary.
 - **`is_coach()` SQL function:** SECURITY DEFINER function used by

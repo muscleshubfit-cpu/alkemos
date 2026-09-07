@@ -2,6 +2,17 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
+import {
+  resolveMembershipTier,
+  type MembershipTier,
+  type SubscriptionTierRow,
+} from "@/lib/membership-tier";
+
+export { resolveMembershipTier } from "@/lib/membership-tier";
+export type {
+  MembershipTier,
+  SubscriptionTierRow,
+} from "@/lib/membership-tier";
 
 /**
  * Server-side auth helpers for API routes.
@@ -57,12 +68,6 @@ export const isServiceKeyConfigured = Boolean(serviceRoleKey);
  * local only) keeps its fall-through behavior unchanged.
  */
 export const authRequired = isAuthConfigured || isServiceKeyConfigured;
-
-export type MembershipTier =
-  | "free"
-  | "premium"
-  | "pro"
-  | "coaching";
 
 export type AuthUser = {
   id: string;
@@ -126,61 +131,27 @@ export async function getAuthUser(
 
   if (!profile) return null;
 
-  // Resolve membership tier from subscriptions table.
-  // Coaching and memberships (Premium/Pro) are COMPLETELY SEPARATE.
-  // A client can have BOTH (e.g. Coaching + Pro).
-  //
-  // We resolve TWO things:
-  // 1. membership_tier: the best MEMBERSHIP tier (pro > premium > free)
-  //    — used for premiumContent, adsEnabled, patternAnalysis, etc.
-  // 2. hasCoaching: whether the client has an active Coaching subscription
-  //    — used for human coach features
-  //
-  // EVO limits are resolved by merging: if client has Coaching, they get
-  // Premium-level EVO limits (same as Premium). If they also have Pro,
-  // they get Pro-level EVO limits (better).
-  //
-  // The membership_tier field picks the BEST membership (not coaching).
-  // Coaching EVO limits are merged via getLimits() in the client.
-  let membership_tier: MembershipTier = "free";
-  if (profile.role !== "client") {
-    // Staff (coach | admin) — "coaching" tier unlocks subscriber UI gates;
-    // hard limits are bypassed server-side via is_staff.
-    membership_tier = "coaching";
-  } else {
-    const { data: subs } = await supabase
-      .from("subscriptions")
-      .select("tier, status, end_date")
-      .eq("client_id", user.id)
-      .eq("status", "active")
-      .gt("end_date", new Date().toISOString());
-    if (subs && subs.length > 0) {
-      // Separate coaching from memberships
-      const hasCoaching = subs.some((s) => s.tier === "coaching");
-      // 0045 legacy compat: starter/elite were the retired coaching-page
-      // products; migration 0045 remapped all rows (starter → premium,
-      // elite → pro). The mapping here is belt-and-suspenders so a stray
-      // legacy row can never downgrade a paying client to "free" again.
-      const membershipSubs = subs.filter((s) =>
-        ["premium", "pro", "starter", "elite"].includes(s.tier),
-      );
-
-      if (membershipSubs.length > 0) {
-        // Pick the best membership tier (pro/elite > premium/starter)
-        const priority = (tier: string) => {
-          if (tier === "pro" || tier === "elite") return 3;
-          if (tier === "premium" || tier === "starter") return 2;
-          return 0;
-        };
-        membershipSubs.sort((a, b) => priority(b.tier) - priority(a.tier));
-        const best = membershipSubs[0].tier as string;
-        membership_tier = (best === "elite" ? "pro" : best === "starter" ? "premium" : best) as MembershipTier;
-      } else if (hasCoaching) {
-        // Only coaching, no membership — tier is "coaching" for EVO access
-        membership_tier = "coaching";
-      }
-    }
-  }
+  // Resolve membership tier via the SINGLE SOURCE OF TRUTH
+  // (resolveMembershipTier — audit A-6/Phase 141: the two entry points
+  // previously carried drifted copies; this one call replaces both).
+  // Semantics documented in src/lib/membership-tier.ts: staff →
+  // "coaching"; best membership wins; coaching-only → "coaching";
+  // stray 0045 legacy starter/elite rows map to premium/pro.
+  const subs: ReadonlyArray<SubscriptionTierRow> | null =
+    profile.role === "client"
+      ? (
+          await supabase
+            .from("subscriptions")
+            .select("tier, status, end_date")
+            .eq("client_id", user.id)
+            .eq("status", "active")
+            .gt("end_date", new Date().toISOString())
+        ).data
+      : null;
+  const membership_tier: MembershipTier = resolveMembershipTier(
+    profile.role,
+    subs,
+  );
 
   return {
     id: profile.id,
@@ -289,38 +260,23 @@ export async function getAuthUserFromHeaders(): Promise<AuthUser | null> {
     .maybeSingle();
   if (!profile) return null;
 
-  let membership_tier: MembershipTier = "free";
-  if (profile.role !== "client") {
-    // Staff (coach | admin) — "coaching" tier unlocks subscriber UI gates;
-    // hard limits are bypassed server-side via is_staff.
-    membership_tier = "coaching";
-  } else {
-    const { data: subs } = await supabase
-      .from("subscriptions")
-      .select("tier, status, end_date")
-      .eq("client_id", user.id)
-      .eq("status", "active")
-      .gt("end_date", new Date().toISOString());
-    if (subs && subs.length > 0) {
-      // Separate coaching from memberships
-      const hasCoaching = subs.some((s) => s.tier === "coaching");
-      const membershipSubs = subs.filter((s) =>
-        ["premium", "pro"].includes(s.tier),
-      );
-
-      if (membershipSubs.length > 0) {
-        const priority = (tier: string) => {
-          if (tier === "pro") return 3;
-          if (tier === "premium") return 2;
-          return 0;
-        };
-        membershipSubs.sort((a, b) => priority(b.tier) - priority(a.tier));
-        membership_tier = membershipSubs[0].tier as MembershipTier;
-      } else if (hasCoaching) {
-        membership_tier = "coaching";
-      }
-    }
-  }
+  // Same SINGLE SOURCE OF TRUTH as getAuthUser() above — the legacy
+  // starter/elite drift between the two functions is gone (A-6).
+  const subs: ReadonlyArray<SubscriptionTierRow> | null =
+    profile.role === "client"
+      ? (
+          await supabase
+            .from("subscriptions")
+            .select("tier, status, end_date")
+            .eq("client_id", user.id)
+            .eq("status", "active")
+            .gt("end_date", new Date().toISOString())
+        ).data
+      : null;
+  const membership_tier: MembershipTier = resolveMembershipTier(
+    profile.role,
+    subs,
+  );
 
   return {
     id: profile.id,
