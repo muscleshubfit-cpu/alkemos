@@ -1,0 +1,71 @@
+name: Quality gate (tsc • eslint • vitest)
+
+# ============================================================
+# PHASE 141 (2026-09-07) — audit A-13: the repo's quality commands
+# (AGENTS.md §3.5: npx tsc --noEmit → npx eslint . → vitest) ran
+# ONLY in agent sessions. Nothing on GitHub enforced them, so a
+# human push (or an undisciplined agent) could land red code on
+# main with only Vercel's build (which does NOT run tsc or the
+# unit suite) as a late, partial signal.
+#
+# This gate runs the EXACT canonical commands on every push to main
+# and every PR — GitHub-side, independent of any local workspace.
+#
+# PHASE 141 (A-12) install discipline: dependencies come from
+# `bun install --frozen-lockfile` — the SAME bun.lock Vercel and
+# local dev use. The previous CI pattern (fresh `npm install` from
+# registry metadata, no lockfile) could resolve a DIFFERENT tree
+# than production; frozen Bun kills that drift class.
+#
+# Runtime stays Node (setup-node 22) — the canonical commands run
+# through npx/node exactly as documented in AGENTS.md.
+# ============================================================
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Node 22 — runtime for the npx-based canonical commands.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Bun pinned to the repo's local version (A-12) — install only.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck — npx tsc --noEmit
+        run: npx --no-install tsc --noEmit
+
+      - name: Lint — npx eslint .
+        run: npx --no-install eslint .
+
+      - name: Unit tests — vitest run
+        run: npx --no-install vitest run
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Quality gate summary ==="
+          echo "Commands (AGENTS.md §3.5): tsc --noEmit · eslint . · vitest run"
+          echo "Install: bun install --frozen-lockfile (bun.lock = production tree)"
+          echo "A red step here means main is broken — fix before merging anything."

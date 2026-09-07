@@ -33,15 +33,17 @@ jobs:
         with:
           node-version: 22
 
-      # npm 11 REQUIRED: npm 10 (bundled with Node 22) crashes in arborist —
-      # «Cannot read properties of null (reading 'edgesOut')» — against the
-      # 2026-09-03 registry metadata (repo has NO lockfile → every install
-      # re-resolves fresh). npm 11.17 resolves the identical tree cleanly.
-      - name: Bump npm (10 arborist edgesOut crash — 2026-09-03 CI red)
-        run: npm install -g npm@11
+      # PHASE 141 (A-12) — production-locked install: bun reads the SAME
+      # bun.lock Vercel and local dev build from, killing the npm
+      # fresh-re-resolution drift class (and the 2026-09-03 npm-10
+      # arborist crash + npm-11 workaround that fought it). Node stays
+      # the RUNTIME — the tsx/npx steps below are unchanged.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
 
       - name: Migrate all pollinations images to Pexels stock (people OK / NSFW screened)
         run: npx --no-install tsx scripts/blog-runner/remediate-images.mts
