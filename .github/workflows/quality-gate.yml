@@ -53,6 +53,23 @@ jobs:
       - name: Install dependencies (frozen bun.lock = production tree)
         run: bun install --frozen-lockfile
 
+      # PHASE 141.1 (post-first-run fix): next-env.d.ts is a GITIGNORED
+      # fresh-clone artifact (Phase 119 lesson) — only `next build/dev`
+      # regenerates it, and the static-image module type declarations
+      # (next/image-types/global) live there. A bare tsc in a clean checkout
+      # fails every image import with TS2307 (first CI run 34078054217).
+      # Write the standard stub deterministically; the .next/types imports
+      # only exist after a build and are not part of --noEmit verification.
+      - name: Regenerate next-env.d.ts (gitignored fresh-clone artifact)
+        run: |
+          printf '%s\n' \
+            '/// <reference types="next" />' \
+            '/// <reference types="next/image-types/global" />' \
+            '' \
+            '// NOTE: This file should not be edited' \
+            '// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.' \
+            > next-env.d.ts
+
       - name: Typecheck — npx tsc --noEmit
         run: npx --no-install tsc --noEmit
 
