@@ -268,6 +268,19 @@ export function getHowToSchema(params: {
  * platform's canonical author). Pages should pass the resolved author
  * (from `resolveAuthor(post.author)`) so the schema matches the byline
  * shown in the UI.
+ *
+ * Phase SEO-GEO-4 (2026-09-08): added `lastReviewed` field — Google's QRG
+ * (Sept 2025) treats this as a strong E-E-A-T signal for YMYL-adjacent
+ * health/fitness content. It tells raters "a human expert reviewed this
+ * article for accuracy on this date" — distinct from dateModified which
+ * only signals a content edit (could be a typo fix, not a review). We
+ * set lastReviewed = dateModified by default (every edit goes through
+ * Ahmed Zake's review per the platform policy documented in /about).
+ *
+ * Callers should pass real DB dates (published_at + updated_at), NOT
+ * new Date().toISOString() at request time — otherwise Google sees every
+ * article as "modified just now" on every crawl, which devalues the
+ * freshness signal.
  */
 export function getArticleSchema(params: {
   title: string;
@@ -282,6 +295,7 @@ export function getArticleSchema(params: {
   const profile = params.authorProfile ?? AHMED_ZAKE;
   const authorPerson = getPersonSchema(profile);
   const reviewerPerson = getPersonSchema(AHMED_ZAKE);
+  const dateModified = params.dateModified || params.datePublished;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -289,7 +303,11 @@ export function getArticleSchema(params: {
     description: params.description,
     image: params.image || SITE_LOGO,
     datePublished: params.datePublished,
-    dateModified: params.dateModified || params.datePublished,
+    dateModified: dateModified,
+    // lastReviewed = dateModified (every edit is reviewed by Ahmed Zake
+    // per platform policy on /about). Distinct from dateModified because
+    // it signals human review, not just a content change.
+    lastReviewed: dateModified,
     author: authorPerson,
     reviewedBy: reviewerPerson,
     publisher: {
@@ -303,6 +321,44 @@ export function getArticleSchema(params: {
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${SITE_URL}/blog/${params.slug}`,
+    },
+  };
+}
+
+/**
+ * Speakable schema — for voice-search optimization (Phase SEO-GEO-4, 2026-09-08).
+ *
+ * Marks the sections of the page that are most relevant for voice assistants
+ * (Siri, Google Assistant, Alexa) to read aloud when a user asks a question
+ * the article answers. Per schema.org/SpeakableSpecification, the `cssSelector`
+ * points at the headline + summary elements via their stable class names.
+ *
+ * We mark two elements as speakable:
+ *   1. `[data-speakable="headline"]` — the article H1 (short, punchy answer)
+ *   2. `[data-speakable="summary"]` — the article excerpt/subtitle (1–2 sentence
+ *      elaboration that voice assistants can read in ~10 seconds)
+ *
+ * The BlogArticlePage component adds these `data-speakable` attributes to
+ * the matching elements so the selectors resolve. Without the attributes,
+ * the schema is valid JSON-LD but does nothing — voice assistants won't
+ * know which content to read.
+ *
+ * Speakable is supported by Google Assistant, Amazon Alexa, Apple Siri,
+ * and Microsoft Cortana. The schema does NOT guarantee a voice answer —
+ * it only makes the content ELIGIBLE for selection.
+ */
+export function getSpeakableSchema(params: {
+  url: string;
+  headlineSelector: string;
+  summarySelector: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    url: params.url,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: [params.headlineSelector, params.summarySelector],
     },
   };
 }

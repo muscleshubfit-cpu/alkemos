@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
-import { getArticleSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
@@ -72,16 +72,30 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     notFound();
   }
 
+  // Phase SEO-GEO-4 (2026-09-08): real DB dates — see EN mirror for the rationale.
+  const publishedAt = og.publishedAt || new Date().toISOString();
+  const updatedAt = og.updatedAt || publishedAt;
+
   const articleSchema = og
     ? getArticleSchema({
         title: og.title,
         description: og.description,
         slug,
         image: og.image,
-        datePublished: og.publishedAt || new Date().toISOString(),
+        datePublished: publishedAt,
+        dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): resolved author Person — see
         // the EN mirror (/blog/[slug]/page.tsx) for the full rationale.
-        authorProfile: resolveAuthor(undefined),
+        authorProfile: resolveAuthor(og.author),
+      })
+    : null;
+
+  // Phase SEO-GEO-4 (2026-09-08): Speakable schema — see EN mirror.
+  const speakableSchema = og
+    ? getSpeakableSchema({
+        url: og.articleUrl,
+        headlineSelector: '[data-speakable="headline"]',
+        summarySelector: '[data-speakable="summary"]',
       })
     : null;
 
@@ -105,13 +119,19 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           dangerouslySetInnerHTML={{ __html: jsonLd(articleSchema) }}
         />
       )}
+      {speakableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(speakableSchema) }}
+        />
+      )}
       {breadcrumbSchema && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
         />
       )}
-      <BlogArticlePage lang="ar" slug={slug} initialPost={fullPost} />
+      <BlogArticlePage lang="ar" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />
     </>
   );
 }

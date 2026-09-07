@@ -13,10 +13,16 @@ export function BlogArticlePage({
   lang,
   slug,
   initialPost,
+  publishedAt,
+  updatedAt,
 }: {
   lang: "en" | "ar";
   slug: string;
   initialPost?: BlogPost | null;
+  /** Phase SEO-GEO-4 (2026-09-08): real DB published_at + updated_at from
+   *  the server, used for the visible byline + the Article schema. */
+  publishedAt?: string;
+  updatedAt?: string;
 }) {
   const isAr = lang === "ar";
   // M28 fix: accept initialPost as a prop from the server component.
@@ -144,12 +150,38 @@ export function BlogArticlePage({
                   </span>
                 )}
               </div>
-              <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl">
+              <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl"
+                 data-speakable="headline">
                 {post.title}
               </h1>
-              <p className="mt-4 text-lg font-normal leading-relaxed text-[var(--muted-foreground)] md:text-xl">
+              <p className="mt-4 text-lg font-normal leading-relaxed text-[var(--muted-foreground)] md:text-xl"
+                 data-speakable="summary">
                 {post.excerpt}
               </p>
+              {/* Phase SEO-GEO-4 (2026-09-08): visible publish + last-reviewed
+                  dates. The Article schema carries the same dates as
+                  datePublished + dateModified + lastReviewed — the visible
+                  UI matches the machine-readable schema (E-E-A-T consistency).
+                  `updatedAt` is the real DB updated_at (passed from the server
+                  route); falls back to `publishedAt` when the DB has no
+                  updated_at yet (brand-new post). */}
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+                {publishedAt && (
+                  <span>
+                    {isAr ? "نُشر في" : "Published"}{" "}
+                    {new Date(publishedAt).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  </span>
+                )}
+                {updatedAt && updatedAt !== publishedAt && (
+                  <>
+                    <span className="text-[var(--muted-foreground)]">•</span>
+                    <span>
+                      {isAr ? "آخر مراجعة" : "Last reviewed"}{" "}
+                      {new Date(updatedAt).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  </>
+                )}
+              </div>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 {/* Phase SEO-GEO-2 (2026-09-08): author byline now links to
                     the Ahmed Zake author profile page. E-E-A-T signal: human

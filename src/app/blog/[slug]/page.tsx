@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
-import { getArticleSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
@@ -86,19 +86,38 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     notFound();
   }
 
+  // Phase SEO-GEO-4 (2026-09-08): pass real DB published_at + updated_at
+  // to the Article schema so dateModified + lastReviewed reflect actual
+  // edit history. Was: new Date().toISOString() at request time → every
+  // crawl looked "freshly edited" which devalues the freshness signal.
+  const publishedAt = og.publishedAt || new Date().toISOString();
+  const updatedAt = og.updatedAt || publishedAt;
+
   const articleSchema = og
     ? getArticleSchema({
         title: og.title,
         description: og.description,
         slug,
         image: og.image,
-        datePublished: og.publishedAt || new Date().toISOString(),
+        datePublished: publishedAt,
+        dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): pass the resolved author Profile
         // so the Article schema's `author` Person matches the byline shown
         // in the UI. The DB `author` column historically stored 'Alkemos'
         // or 'MuscleHub' — resolveAuthor normalizes all of those to the
         // canonical Ahmed Zake Person (the de-facto author of every post).
-        authorProfile: resolveAuthor(undefined),
+        authorProfile: resolveAuthor(og.author),
+      })
+    : null;
+
+  // Phase SEO-GEO-4 (2026-09-08): Speakable schema marks the H1 + excerpt
+  // as voice-readable for Siri / Google Assistant / Alexa. The matching
+  // `data-speakable` attributes are added in BlogArticlePage.tsx.
+  const speakableSchema = og
+    ? getSpeakableSchema({
+        url: og.articleUrl,
+        headlineSelector: '[data-speakable="headline"]',
+        summarySelector: '[data-speakable="summary"]',
       })
     : null;
 
@@ -122,13 +141,19 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           dangerouslySetInnerHTML={{ __html: jsonLd(articleSchema) }}
         />
       )}
+      {speakableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(speakableSchema) }}
+        />
+      )}
       {breadcrumbSchema && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
         />
       )}
-      <BlogArticlePage lang="en" slug={slug} initialPost={fullPost} />
+      <BlogArticlePage lang="en" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />
     </>
   );
 }

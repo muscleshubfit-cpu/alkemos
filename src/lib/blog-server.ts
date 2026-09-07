@@ -55,6 +55,17 @@ export type BlogOGData = {
   articleUrl: string;
   locale: "en_US" | "ar_EG";
   publishedAt?: string | null;
+  /**
+   * Phase SEO-GEO-4 (2026-09-08): the article schema's dateModified +
+   * lastReviewed + the visible "Last reviewed" byline all need the real
+   * DB updated_at. Without it, every page silently fell back to
+   * new Date().toISOString() at request time → Google saw every article
+   * as "modified just now" on every crawl, which devalues the freshness
+   * signal. Also adds `author` so resolveAuthor can match the DB value
+   * instead of always falling through to the default.
+   */
+  updatedAt?: string | null;
+  author?: string | null;
 };
 
 /**
@@ -86,7 +97,7 @@ const fetchBlogForOGUncached = async (
     const { data } = await supabase
       .from("blog_posts")
       .select(
-        "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug",
+        "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author",
       )
       .eq("slug", slug)
       .eq("language", lang)
@@ -102,6 +113,9 @@ const fetchBlogForOGUncached = async (
       image: data.featured_image || `${baseUrl}/logo.png`,
       articleUrl,
       locale: lang === "ar" ? "ar_EG" : "en_US",
+      publishedAt: data.published_at,
+      updatedAt: data.updated_at,
+      author: data.author,
     };
   } catch {
     return null;

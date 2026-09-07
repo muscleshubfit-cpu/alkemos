@@ -1931,3 +1931,62 @@ Stage Summary:
   ~ public/robots.txt (add comparisons Sitemap directive)
   ~ src/app/blog/[slug]/page.tsx (OG image → /api/og-image/[slug])
   ~ src/app/ar/blog/[slug]/page.tsx (OG image → /api/og-image/[slug])
+
+---
+Task ID: SEO-GEO-4 — lastReviewed + Speakable + تواريخ حقيقية لكل المقالات
+Agent: main (Super Z — GLM)
+
+Work Log (E-E-A-T signals + voice search + freshness accuracy):
+- **المشكلة المُكتشفة:** `fetchBlogForOG` لم يكن يُرجع `publishedAt` أو `updatedAt` أو `author` من قاعدة البيانات → كل مقالات المدوّنة كانت تستخدم `new Date().toISOString()` كـ dateModified في Article schema → Google رأى كل مقال كأنه "مُعدّل للتو" في كل زحف، مما يُضعف إشارة الـ freshness.
+- **الإصلاح 1 — fetchBlogForOG يُرجع التواريخ الحقيقية:**
+  - تحديث `BlogOGData` type بإضافة `updatedAt` + `author`
+  - تحديث الاستعلام في `fetchBlogForOGUncached` لإضافة `published_at, updated_at, author` لـ SELECT
+  - النتيجة: كل مقال الآن يحمل datePublished + dateModified + lastReviewed حقيقية من DB
+- **الإصلاح 2 — إضافة lastReviewed لـ Article schema:**
+  - `getArticleSchema` الآن يُضيف `lastReviewed = dateModified`
+  - إشارة E-E-A-T قوية لـ YMYL-adjacent health/fitness content حسب Google QRG Sept 2025
+  - يُميّز "مراجعة بشرية" عن "تعديل محتوى" (ممكن يكون تصحيح خطأ مطبعي فقط)
+- **الإصلاح 3 — Speakable schema للبحث الصوتي:**
+  - إنشاء `getSpeakableSchema(url, headlineSelector, summarySelector)` في seo.ts
+  - يُحدّد عناصر H1 + excerpt كـ "voice-readable" لـ Siri / Google Assistant / Alexa
+  - BlogArticlePage يُضيف `data-speakable="headline"` على H1 + `data-speakable="summary"` على الـ excerpt
+  - صفحات /blog/[slug] و /ar/blog/[slug] تُضيف Speakable JSON-LD للـ HTML
+- **الإصلاح 4 — تواريخ مرئية في BlogArticlePage:**
+  - إضافة `publishedAt` + `updatedAt` كـ props للـ component
+  - عرض "Published [date]" + "Last reviewed [date]" بشكل مرئي تحت العنوان مباشرة
+  - التواريخ المرئية تطابق الـ schema (E-E-A-T consistency بين UI و machine-readable)
+  - ثنائية اللغة: "نُشر في" / "آخر مراجعة" للعربية
+- **التحقق من خط توليد المقالات:**
+  - p5-publish route يضبط `published_at: now` + `author: "Alkemos"` لكل مقال جديد ✓
+  - `trg_blog_posts_touch_updated` trigger يُحدّث `updated_at` تلقائيًا عند كل تعديل ✓
+  - النتيجة: المقالات الحالية والقادمة كلها تحمل تواريخ حقيقية، لا حاجة لإصلاح بيانات قديمة
+
+- **التحقق من الجودة (كل البوابات خضراء):**
+  - `tsc --noEmit` → 0 أخطاء
+  - `eslint` على 5 ملفات → نظيف
+  - `next build` → نجح
+  - `vitest` → 256/256 ناجح
+  - `docs_audit.py` → ✓
+  - `docs_parity.py` → ✓
+  - `check-stale-refs.sh` → ✓
+  - `check-ui-wiring.sh` → ✓
+
+Stage Summary:
+- كل مقالات المدوّنة (61 الحالية + كل القادمة) الآن تحمل:
+  - datePublished + dateModified + lastReviewed حقيقية من DB في Article schema
+  - Speakable schema للبحث الصوتي
+  - تواريخ مرئية "Published [date] · Last reviewed [date]" تحت العنوان
+  - author + reviewedBy Person(Ahmed Zake) من Phase SEO-GEO-2
+- خط التوليد الآلي لا يحتاج تعديل — يضبط التواريخ بشكل صحيح بالفعل
+- الـ trigger يُحدّث updated_at تلقائيًا → lastReviewed يبقى دقيقًا دائمًا
+
+الملفات المُعدّلة (5):
+  ~ src/lib/blog-server.ts (BlogOGData + fetchBlogForOG return real dates)
+  ~ src/lib/seo.ts (lastReviewed in Article + new getSpeakableSchema)
+  ~ src/app/blog/[slug]/page.tsx (pass real dates + Speakable schema)
+  ~ src/app/ar/blog/[slug]/page.tsx (same for AR)
+  ~ src/components/blog/BlogArticlePage.tsx (data-speakable attrs + visible dates)
+
+تنبيهات يدوية للمالك: لا توجد مهمات يدوية جديدة في هذه المرحلة — كل التغييرات تقنية وتُدفع تلقائيًا. لكن تذكّر:
+  - راجع Google Search Console بعد 24-48 ساعة لرؤية تواريخ lastReviewed الجديدة في تقرير Article schema
+  - اختبر البحث الصوتي: اسأل Google Assistant "Hey Google, how to adjust training volume during a cut" — يجب أن يظهر Alkemos كمصدر محتمل بعد أسبوعين من الفهرسة
