@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
 import { getLimits } from "@/lib/memberships";
+import { isAdFreePath } from "@/lib/ads-routes";
 
 /**
  * AdSense Ad Component
@@ -33,25 +34,14 @@ declare global {
   }
 }
 
-// Routes where ads should NOT be shown:
+// Routes where ads should NOT be shown (AD_FREE_ROUTE_PREFIXES):
 //   - Authenticated member routes (AdSense policy: no ads behind login)
 //   - Admin routes
 //   - Checkout + auth flows
-const AD_FREE_ROUTE_PREFIXES = [
-  "/dashboard",
-  "/admin",
-  "/profile",
-  "/checkout",
-  "/auth",
-  "/coach",
-  "/plans",
-  "/progress",
-  "/questionnaires",
-  "/referral",
-  "/support",
-  // EVO CHAT SURFACE LAW (2026-08-27): "/chat" removed — the route no
-  // longer exists; the floating widget is the only chat surface.
-];
+// PHASE 139: the list moved to the shared server/client module
+// src/lib/ads-routes.ts — layout.tsx route-scopes the adsbygoogle.js
+// loader against the SAME law (it used to load ~220KB on every page,
+// including ad-free app pages).
 
 export function AdSenseAd({
   slot,
@@ -75,9 +65,7 @@ export function AdSenseAd({
   const adClient =
     process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8658364692422583";
 
-  const isAdFreeRoute = AD_FREE_ROUTE_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
+  const isAdFreeRoute = isAdFreePath(pathname);
   const limits = getLimits(tier);
   // Phase 71 — owner decree «الادمن بلا حدود»: the admin NEVER sees ads,
   // even on public pages (adsEnabled for his coaching tier is ignored).

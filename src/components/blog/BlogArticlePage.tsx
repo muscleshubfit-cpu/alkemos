@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
+import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
 
@@ -164,8 +165,12 @@ export function BlogArticlePage({
                 edge (IMAGE SOURCE LAW v3: «حجم خفيف بنظام الموقع»). */}
             {post.featured_image && (
               <div className="relative mb-10 aspect-[2/1] overflow-hidden rounded-3xl">
+                {/* PHASE 139: render-time Pexels resize (w=1080 webp, 2:1
+                    crop) — the hero renders at ≤896 CSS px (mobile full
+                    width × DPR ≈ 1080 device px); it used to download the
+                    full 1200×627 JPEG. */}
                 <Image
-                  src={post.featured_image}
+                  src={sizedRemoteImage(post.featured_image, 1080, 2) || post.featured_image}
                   alt={post.cover_alt || post.title}
                   fill
                   sizes="(max-width: 896px) 100vw, 896px"
@@ -245,8 +250,10 @@ export function BlogArticlePage({
                     >
                       {rel.featured_image && (
                         <div className="relative aspect-video overflow-hidden">
+                          {/* PHASE 139: render-time Pexels resize (w=600
+                              webp) for the small related cards. */}
                           <Image
-                            src={rel.featured_image}
+                            src={sizedRemoteImage(rel.featured_image, 600, 16 / 9) || rel.featured_image}
                             alt={rel.title}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"

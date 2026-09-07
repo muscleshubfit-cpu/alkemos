@@ -38,11 +38,19 @@ export function PageBanner({
            pre-hydration discovery path as well. */
         fetchPriority="high"
       />
+      {/* PHASE 139 (deep speed audit): the dark variant MUST be
+           loading="lazy" — a plain eager <img> is fetched by Chrome even
+           while display:none hides it (measured: header-blog-dark.webp
+           60KB downloaded in LIGHT mode, pure waste on every hub page).
+           ThemeImg's dark img has always been lazy — this is why the
+           homepage hero never leaked. lazy + display:none = never fetched;
+           flipping the theme to dark reveals it and it loads then. */}
       <img
         src={`/images/brand/header-${section}-dark.webp`}
         alt=""
         className="theme-img-dark h-full w-full object-cover"
         decoding="async"
+        loading="lazy"
       />
     </div>
   );

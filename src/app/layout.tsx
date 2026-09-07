@@ -14,6 +14,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { EvoChatProvider } from "@/lib/evo-chat-context";
 import { EvoWidgetLazy } from "@/components/EvoWidgetLazy";
 import { getOrganizationSchema, getWebSiteSchema, jsonLd } from "@/lib/seo";
+import { isAdFreePath } from "@/lib/ads-routes";
 import { metadata, viewport } from "./metadata";
 
 export { metadata, viewport };
@@ -445,8 +446,14 @@ export default async function RootLayout({
             server-rendered in the initial HTML (the AdSense site review
             sees the code — do NOT make this client-side-only), and the
             AdSenseAd components queue their pushes in
-            window.adsbygoogle, which the loader drains when it arrives. */}
-        {ADSENSE_CLIENT && (
+            window.adsbygoogle, which the loader drains when it arrives.
+            PHASE 139 (deep speed audit): route-scoped via the SHARED
+            ad-free law (src/lib/ads-routes.ts) — the loader no longer
+            ships ~220KB of third-party JS to /admin, /coach, /dashboard,
+            /checkout, /auth and the other authenticated surfaces where
+            ads are policy-forbidden anyway (AdSenseAd slots there render
+            null). Public content pages keep the tag for the site review. */}
+        {ADSENSE_CLIENT && !isAdFreePath(requestPath) && (
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageBanner } from "@/components/PageBanner";
+import { sizedRemoteImage } from "@/lib/remote-image-size";
 
 import { useEffect, useState } from "react";
 import { listBlogPosts, BLOG_CATEGORIES, getCategoryLabel, type BlogPostCard } from "@/lib/blog";
@@ -110,8 +111,11 @@ export function BlogListPage({
               >
                 {post.featured_image && (
                   <div className="relative aspect-video overflow-hidden">
+                    {/* PHASE 139: render-time Pexels resize (w=800 webp,
+                        aspect-video crop) — cards rendered at ≤400 CSS px
+                        used to download the full 1200×627 JPEG. */}
                     <Image
-                      src={post.featured_image}
+                      src={sizedRemoteImage(post.featured_image, 800, 16 / 9) || post.featured_image}
                       alt={post.cover_alt || post.title}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
