@@ -19,6 +19,16 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://alkemos.com/programs",
+    // HREFLANG RECIPROCITY FIX (Phase 140 audit): /ar/programs declares
+    // the full cluster (en/ar/x-default) but this EN side never
+    // reciprocated. Same fix as /programs/[slug] in the same phase —
+    // matches the pattern already live on /, /blog, /exercises, /foods,
+    // /memberships, /faq, /about, /for-coaches.
+    languages: {
+      en: "https://alkemos.com/programs",
+      ar: "https://alkemos.com/ar/programs",
+      "x-default": "https://alkemos.com/programs",
+    },
   },
   openGraph: {
     title: "Workout Programs | Alkemos",

@@ -37,6 +37,16 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: url,
+      // HREFLANG RECIPROCITY FIX (Phase 140 audit): the AR mirror
+      // /ar/programs/[slug] has declared the full cluster since it was
+      // built, but THIS side never reciprocated — a one-sided declaration
+      // Google ignores. Same real-translation pattern as exercises/[slug]
+      // and foods/[slug] (both reciprocal, both verified live).
+      languages: {
+        en: url,
+        ar: `https://alkemos.com/ar/programs/${program.slug}`,
+        "x-default": url,
+      },
     },
     openGraph: {
       type: "article",

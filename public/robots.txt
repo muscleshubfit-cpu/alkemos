@@ -1,51 +1,25 @@
 # Alkemos — robots.txt
-# Allow all public pages, block private/authenticated pages
+# UNIFIED CRAWL POLICY (Phase 140 audit fix): previously 14 bot-specific
+# groups (GPTBot, ClaudeBot, PerplexityBot, Bingbot, …) each carried a
+# blanket `Allow: /` that OVERRODE this group's private-path Disallows —
+# crawlers with a dedicated group ignore `User-agent: *` entirely, so AI
+# agents could request /admin, /auth, /dashboard, /api/* while ordinary
+# search bots could not. The unified policy below now serves EVERY bot
+# the same rules: all PUBLIC content (pages, blog, tools, exercises,
+# foods, programs, coaching, memberships, llms.txt, RSS) stays crawlable
+# for search AND AI engines (they inherit this group — a dedicated group
+# is only needed to grant DIFFERENT rules), while private surfaces stay
+# blocked for everyone.
+#
+# Prefix-precision note: the coach-area block uses BOTH `/coach$` and
+# `/coach/` so it can never swallow the public /coaching sales page or
+# the public /for-coaches funnel (the old file relied on an explicit
+# `Allow: /coaching` outranking the longer-prefix match — dropped now
+# in favor of exact patterns).
 
 User-agent: *
-Allow: /$
-Allow: /ar
-Allow: /about
-Allow: /ar/about
-Allow: /blog
-Allow: /blog/*
-Allow: /ar/blog
-Allow: /ar/blog/*
-Allow: /faq
-Allow: /ar/faq
-Allow: /contact
-Allow: /privacy
-Allow: /terms
-Allow: /tools
-Allow: /tools/*
-Allow: /exercises
-Allow: /exercises/*
-Allow: /ar/exercises
-Allow: /programs
-Allow: /programs/*
-Allow: /foods
-Allow: /foods/*
-Allow: /ar/foods
-Allow: /memberships
-Allow: /ar/memberships
-Allow: /meal-planner
-Allow: /coaching
-Allow: /evo
-# (reverted per owner/coach note 2026-09-04 — Phase 117 correction: /coaches
-#  detail pages stay out of the explicit Allow list; /affiliate stays)
-Allow: /affiliate
-# FOR-COACHES — coach recruitment funnel (public, SEO-indexed)
-Allow: /for-coaches
-Allow: /ar/for-coaches
-Allow: /for-coaches/register
-Allow: /ar/for-coaches/register
-# GEO (2026-08-30): llms.txt — machine-readable site guide for AI engines
-Allow: /llms.txt
-# GEO (Phase 86): expanded AI guide + RSS feeds (organic distribution)
-Allow: /llms-full.txt
-Allow: /rss.xml
-Allow: /ar/rss.xml
 
-# Block private/authenticated pages
+# Private / authenticated surfaces — blocked for ALL crawlers
 Disallow: /dashboard
 Disallow: /questionnaires
 Disallow: /progress
@@ -53,58 +27,12 @@ Disallow: /plans
 Disallow: /chat
 Disallow: /support
 Disallow: /referral
-Disallow: /coach
+Disallow: /coach$
+Disallow: /coach/
 Disallow: /checkout
 Disallow: /auth
 Disallow: /admin
 Disallow: /api/
-
-# Allow AI search engines (ChatGPT, Claude, Perplexity, etc.)
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-# OAI-SearchBot — OpenAI's SEARCH crawler (ChatGPT Search citations)
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-# ClaudeBot — Anthropic's current crawler (Claude-Web is legacy)
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-# Applebot — Siri / Apple Intelligence
-User-agent: Applebot
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-# Meta-ExternalAgent — Meta AI
-User-agent: Meta-ExternalAgent
-Allow: /
-
-# Amazonbot — Alexa
-User-agent: Amazonbot
-Allow: /
-
-User-agent: YouBot
-Allow: /
+Disallow: /preview
 
 Sitemap: https://alkemos.com/sitemap.xml
