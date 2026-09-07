@@ -18,7 +18,7 @@ Work Log:
 Stage Summary:
 - Function Storage حرر فورًا (من ~123 نشرًا محتفظًا إلى 3) — النشر القادم على main (هذا الكوميت) هو اختبار حي أن Vercel رفع الإقفال
 - قرارات معلقة للمالك: (1) موافقة GHA تنظيف أسبوعي (يحتاج سر VERCEL_TOKEN في GitHub) (2) أو/و تقليص كثافة الكوميتات (~17/يوم = استنفاد الحصة خلال أيام مجددًا)
-- Commit SHA: <filled-at-commit> · Push status: pushed
+- Commit SHA: f4d813d · Push status: pushed (كوميت التوثيق نفسه = الاختبار الحي الأول لنشر جديد بعد رفع الإقفال)
 ---
 Task ID: PHASE-144-2026-09-08
 Agent: Super Z (main)
