@@ -2032,11 +2032,36 @@ Stage Summary:
   ~ supabase/migrations/INDEX.md (إدخال 0075 + تحديث العنوان)
   ~ worklog.md
 
-⚠️ تنبيه يدوي إلزامي للمالك:
-  - **طبّق migration 0075 يدويًا على Supabase SQL Editor** (لا يُطبّق تلقائيًا):
-    1. افتح Supabase Dashboard → SQL Editor
-    2. الصق محتوى `supabase/migrations/20260908120000_0075_blog_author_ahmed_zake.sql`
-    3. نفّذ (Run)
-    4. تحقق: `SELECT author, COUNT(*) FROM blog_posts GROUP BY author;` — يجب صف واحد: 'Ahmed Zake', 61
-    5. نفّذ: `NOTIFY pgrst, 'reload schema';` لإعادة تحميل schema
-  - بعد التطبيق: الـ byline في كل مقال سيعرض "Ahmed Zake" فورًا ( ISR cache يُحدَّث خلال 5 دقائق)
+✅ تطبيق تلقائي (لا يدوي):
+  - migration 0075 تحمل البادئة `YYYYMMDDHHMMSS_` (20260908120000_0075_*) — حسب INDEX.md §1، هذا النمط يُطبّقه **Supabase GitHub integration تلقائيًا** عند دفع الكوميت.
+  - لا حاجة لفتح SQL Editor ولا تنفيذ يدوي — التهجيرة idempotent (UPDATE no-op إذا author = 'Ahmed Zake' بالفعل، ALTER SET DEFAULT no-op إذا الافتراضي صحيح).
+  - بعد تطبيق الـ integration (خلال دقائق من الـ push): تحقق عبر `SELECT author, COUNT(*) FROM blog_posts GROUP BY author;` — يجب صف واحد: 'Ahmed Zake', 61.
+  - الـ byline في كل مقال سيعرض "Ahmed Zake" فورًا (ISR cache يُحدَّث خلال 5 دقائق).
+  - **تنبيه تاريخي:** INDEX.md كان يحمل إدخال 0075 مُصنّفًا "يدوي ⚠️" بالخطأ في الكوميت الأول (d3b7f62) — صُحّح في الكوميت التالي إلى "integration" لأن البادئة التاريخية تُطبّق تلقائيًا وفق جدول §1.
+
+---
+Task ID: SEO-GEO-4.1.1 — تصحيح تصنيف migration 0075 (يدوي → تلقائي)
+Agent: main (Super Z — GLM)
+
+Work Log (تصحيح خطأ توثيقي بناءً على تنبيه المالك):
+- **المشكلة:** في الكوميت d3b7f62 (SEO-GEO-4.1)، وثّقت migration 0075 في `supabase/migrations/INDEX.md` §2 كـ "يدوي ⚠️" بالخطأ، وكتبت تنبيهًا يدويًا إلزاميًا في worklog.md. المالك نبّه أن ملفات `YYYYMMDDHHMMSS_*.sql` تُطبّق تلقائيًا عبر Supabase GitHub integration (موضّح في INDEX.md §1).
+- **التحقق:** راجعت INDEX.md §1 — جدول "عائلات التسمية" يُؤكّد:
+  - `YYYYMMDDHHMMSS_*.sql` → ✅ نعم (يطبقه Supabase GitHub integration)
+  - `RUN_ON_SUPABASE_*` → ❌ لا (يدوي)
+  - `RUN_ON_SUPABASE_ORIGINAL_*` → ❌ لا (يدوي)
+  - `VERIFY_*.sql` → ❌ لا (يدوي)
+  - migration 0075 اسمها `20260908120000_0075_blog_author_ahmed_zake.sql` — تنطبق على البادئة التاريخية، تُطبّق تلقائيًا.
+- **الإصلاح:**
+  1. `supabase/migrations/INDEX.md` §2: تغيير تصنيف 0075 من "يدوي ⚠️" إلى "integration" + إضافة ملاحظة idempotent
+  2. `supabase/migrations/INDEX.md` §0: تحديث "آخر تدقيق" بإضافة "+1 تلقائي مع 0075"
+  3. `worklog.md`: استبدال "⚠️ تنبيه يدوي إلزامي" بـ "✅ تطبيق تلقائي (لا يدوي)"
+
+Stage Summary:
+- migration 0075 ستُطبّق تلقائيًا على الإنتاج بمجرد دفع هذا الكوميت (خلال دقائق)
+- لا حاجة لأي إجراء يدوي من المالك
+- التوثيق الآن صحيح: البادئة التاريخية = integration، والمسار = تلقائي
+- التهجيرة idempotent — آمنة حتى لو أُعيد تشغيلها
+
+الملفات المُعدّلة (2):
+  ~ supabase/migrations/INDEX.md (§0 + §2: 0075 يدوي → integration)
+  ~ worklog.md (استبدال التنبيه اليدوي بملاحظة التطبيق التلقائي)
