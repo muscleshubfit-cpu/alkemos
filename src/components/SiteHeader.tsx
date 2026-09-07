@@ -234,6 +234,9 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   });
 
   // Group 5: Resources (content libraries — exercises / programs / foods / blog)
+  // Phase SEO-GEO-1 (2026-09-08): added hub-page entry points (Muscle Groups,
+  // Food Collections) so the new hub pages receive internal link equity from
+  // every page on the site and become discoverable from the nav drawer.
   groups.push({
     id: "resources",
     title: isAr ? "المحتوى" : "Resources",
@@ -244,6 +247,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         href: "/exercises",
       },
       {
+        label: isAr ? "حسب المجموعة العضلية" : "By Muscle Group",
+        icon: Target,
+        href: isAr ? "/ar/muscles/chest" : "/muscles/chest",
+      },
+      {
         label: isAr ? "برامج التدريب" : "Programs",
         icon: ClipboardList,
         href: "/programs",
@@ -252,6 +260,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         label: isAr ? "مكتبة الأكلات" : "Foods",
         icon: Utensils,
         href: "/foods",
+      },
+      {
+        label: isAr ? "مجموعات الأطعمة" : "Food Collections",
+        icon: Pizza,
+        href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods",
       },
       {
         label: isAr ? "المدونة" : "Blog",

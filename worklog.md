@@ -1760,3 +1760,58 @@ Stage Summary:
 - الأدوار الأربعة فُحصت حيًا بالكامل: كل شيء يعمل (نقر الصف + عمود التحديد + مسح المحدد + حلقة مدرب الموقع + الفصل الثلاثي + البوابات)
 - عطل الدعوة: الجذر = SMTP غير مُعد (دليل config) — إصلاح يدوي من المالك، والكود محصّن مسبقًا
 - حسابات QA الثلاثة + qa.coach143 باقية للمالك (كلها test-flagged): qa.admin1431/Qa#Admin1431x · qa.sitecoach1431/Qa#Site1431x · qa.member1431/Qa#Member1431x
+
+---
+Task ID: SEO-GEO-1 — فحص SEO/GEO + ملف التوثيق + تنفيذ Hub/Collection Pages
+Agent: main (Super Z — GLM)
+
+Work Log (مراجعة شاملة + تنفيذ تقني آمن):
+- **مرحلة الفحص الموسّع:** استنساخ المستودع · قراءة AGENTS.md و STATE.md (المرحلة 144، كوميت 24a033e) · فحص حي للموقع (TTFB, robots.txt, sitemaps, hreflang, JSON-LD, meta tags على 8 صفحات) · فحص Bing (80,100 صفحة مفهرسة) · 10 أبحاث منافسين بالتوازي (ExRx, MuscleWiki, MyFitnessPal, FatSecret, calculator.net, NASM, Trainera, Vora, Freeletics, ChatGPT-direct)
+- **فحص Cloudflare (تصحيح تحليل أولي):** Token 1 (zone_settings) + Token 2 (waf) — Zone ID `b4be55a0736831d9c5d9564788861076` · لا Page Rules · لا Custom WAF · فقط Cloudflare Managed Free Ruleset (Log4j/Shellshock/WordPress) + Rate Limit 50/10s على /api/* · **التأكيد:** Cloudflare Managed robots.txt يحظر فقط بوتات **التدريب** (GPTBot, ClaudeBot, Google-Extended, CCBot, Bytespider, Amazonbot, Applebot-Extended, meta-externalagent) — بينما Googlebot/Bingbot/PerplexityBot/OAI-SearchBot/Applebot حرة في الزحف. الوضع صحيح ومتوازن، لا تغيير مطلوب.
+- **ملف التوثيق:** إنشاء `docs/SEO-GEO-MASTER-PLAN.md` (560+ سطر) — 13 قسم شامل: ملخّص تنفيذي · تدقيق الوضع الحالي (تصحيح تحليل Cloudflare) · المشهد التنافسي · تحليل SWOT · استراتيجية الكلمات المفتاحية · استراتيجية المحتوى · أولويات SEO التقني · استراتيجية GEO · السلطة والروابط الخلفية · خارطة طريق 12 شهر/5 مراحل · KPIs · سجل التنفيذ · ملاحق
+- **تنفيذ صفحات Hub/Collection (52 URL جديد):**
+  - `src/lib/hub-collections.ts` — تعريفات مركزية (8 muscle hubs + 8 equipment hubs + 10 food collections × 2 لغة = 52 صفحة) + تحقق آلي من تطابق الـ tags مع TAG_LABELS
+  - `src/app/muscles/[group]/page.tsx` + `src/app/ar/muscles/[group]/page.tsx` — صفحات المجموعات العضلية (EN+AR) مع ItemList + Breadcrumb schema
+  - `src/app/equipment/[type]/page.tsx` + `src/app/ar/equipment/[type]/page.tsx` — صفحات المعدات (EN+AR)
+  - `src/app/collections/[slug]/page.tsx` + `src/app/ar/collections/[slug]/page.tsx` — صفحات مجموعات الأطعمة (EN+AR) — تستهدف "high protein foods", "low carb foods", "keto friendly foods", "vegan protein sources", "foods for cutting", "foods for bulking" + 4 أخرى
+  - `src/app/sitemap-collections.xml/route.ts` — خريطة منفصلة للصفحات الجديدة
+  - تحديث `src/app/sitemap.xml/route.ts` — إضافة sitemap-collections.xml للـ index
+  - تحديث `src/components/SiteHeader.tsx` — إضافة روابط "By Muscle Group" + "Food Collections" لقائمة التنقل (Link equity من كل صفحة)
+- **التحقق من الجودة:**
+  - `bunx tsc --noEmit` → 0 أخطاء في الكود الجديد (4 أخطاء موجودة مسبقًا في for-coaches/page.tsx لاستيراد صور، لا علاقة لها بعملنا)
+  - `bunx eslint` على كل الملفات الجديدة → نظيف
+  - `bun run build` → نجح، 52 صفحة جديدة ظاهرة في قائمة الـ routes
+  - `bun run test` → 256/256 اختبار ناجح (لا انحدار)
+  - `python3 scripts/docs_audit.py` → ✓
+  - `python3 scripts/docs_parity.py` → ✓
+  - `bash scripts/check-stale-refs.sh` → ✓
+  - `bash scripts/check-ui-wiring.sh` → ✓ (60 /api targets · 71 routes · 9 types ↔ 9 processors ↔ 9 gates)
+
+Stage Summary:
+- **52 صفحة Hub/Collection جديدة** جاهزة للنشر، تستهدف 24+ كلمة medium-tail عالية الحجم
+- **خريطة موقع جديدة** (`/sitemap-collections.xml`) + تحديث الـ index
+- **ملف توثيق شامل** (`docs/SEO-GEO-MASTER-PLAN.md`) — مصدر الحقيقة الوحيد لخطة SEO/GEO
+- **تحديث قائمة التنقل** — الروابط الداخلية من كل صفحة للمجموعات الجديدة
+- **كل بوابات CI خضراء** — جاهز للـ PR
+- **لم يُدفع للإنتاج بعد** — ينتظر مراجعة المالك وفق AGENTS.md §2 (كل تغيير يُراجَع من المالك قبل الدفع)
+
+الملفات الجديدة/المُعدّلة (10):
+  + docs/SEO-GEO-MASTER-PLAN.md
+  + src/lib/hub-collections.ts
+  + src/app/muscles/[group]/page.tsx
+  + src/app/ar/muscles/[group]/page.tsx
+  + src/app/equipment/[type]/page.tsx
+  + src/app/ar/equipment/[type]/page.tsx
+  + src/app/collections/[slug]/page.tsx
+  + src/app/ar/collections/[slug]/page.tsx
+  + src/app/sitemap-collections.xml/route.ts
+  ~ src/app/sitemap.xml/route.ts (إضافة collections)
+  ~ src/components/SiteHeader.tsx (روابط nav)
+
+ما ينتظر المالك (يدوي):
+- مراجعة الكود + `git push` لتفعيل CI على GitHub
+- إنشاء حسابات Facebook/Instagram/X/LinkedIn/YouTube/TikTok الرسمية
+- إضافة Alkemos إلى Product Hunt + Trustpilot + Crunchbase
+- طلب 5–10 reviews من العملاء الأوائل
+- بدء برنامج HARO يوميًا (15 دقيقة/يوم)
+- فتح Search Console + Bing Webmaster Tools (إن لم يكونا مفعّلين)
