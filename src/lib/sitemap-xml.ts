@@ -8,7 +8,11 @@
  *   /sitemap.xml             → index (points at the 4 children)
  *   /sitemap-pages.xml       → static pages + tools + programs (~60 URLs)
  *   /sitemap-exercises.xml   → 868 exercises × EN+AR (1,736 URLs)
- *   /sitemap-foods.xml       → 8,830 foods × EN+AR (17,660 URLs)
+ *   /sitemap-foods.xml       → 80 CURATED foods × EN+AR (160 URLs —
+ *                              Phase 141/A-5 crawl-budget policy; the
+ *                              8,750-row USDA long tail stays live and
+ *                              indexable via internal links but is no
+ *                              longer advertised)
  *   /sitemap-blog.xml        → published posts (live Supabase query)
  *
  * Each child carries its own realistic <priority> bands and is ISR
