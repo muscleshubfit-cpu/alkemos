@@ -88,7 +88,10 @@ const nextConfig: NextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion"],
+    // Phase 139 removed framer-motion (zero importers, dead weight) and
+    // Phase 140 dropped it here too — optimizePackageImports entries for
+    // absent packages are dead config (guard-stale-refs philosophy).
+    optimizePackageImports: ["lucide-react"],
   },
   // Async headers — support dynamic routes via function form
   async headers() {

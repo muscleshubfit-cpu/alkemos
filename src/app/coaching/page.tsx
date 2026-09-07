@@ -332,9 +332,9 @@ export default function CoachingPage() {
             {/* Alkemos brand mark — helmet emblem (identity) above the marquee */}
             <Reveal delay={200}>
               <div className="mt-10 flex flex-col items-center">
-                {/* eslint-disable-next-line @next/next/no-img-element -- local fixed asset (helmet mark, decorative) */}
                 {/* PHASE 137: loading=lazy (kills the React Float auto-preload
                     of this artwork on the critical path). */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- local fixed asset (helmet mark, decorative) */}
                 <img
                   src="/images/brand/mark-helmet.png"
                   alt=""
