@@ -1580,3 +1580,19 @@ Stage Summary:
 - Push status: not-pushed (عائق موثق — بديل الدفع بخطوة واحدة مشروح في التقرير النهائي §12.9)
 - التقييم الأمني الإجمالي: لا ثغرات P0 مفتوحة؛ P1 = اتساق Zod المركزي (خطة مرحلية جاهزة) + توحيد resolveMembershipTier (تصميم جاهز — §7 يمنع التنفيذ دون موافقة) + قرار فهرسة الأطعمة 17,660 URL (خيارات جاهزة)
 
+---
+Task ID: 140.1
+Agent: main (Super Z — GLM)
+Task: محاولة رفع عائق الدفع — مفتاح GitHub بديل سلّمه المالك في جلسة 2026-09-07
+
+Work Log:
+- بروتوكول الجلسة: STATE.md → git fetch origin (نظيف، origin/main = d249cbf، main متقدم 3 كوميتات 6673559/9fe7172/6fe8ad4) → آخر مدخلات worklog
+- فحص التوكن المُستلَم: بنية سليمة 93 حرفًا (github_pat_ + 22 + _ + 59، ASCII خالص، بلا محارف خفية) → يستبعد البتر أو التشويه في النقل
+- اختبار كل مسارات المصادقة الرسمية: API `Authorization: Bearer` = 401 Bad credentials · API `Authorization: token` = 401 · Basic auth = 401 · `git push` HTTPS = "Invalid username or token. Password authentication is not supported"
+- الاستنتاج الموثق: التوكن نفسه غير مقبول لدى GitHub (منتهي الصلاحية أو مُبطل — ليس خطأ في الطريقة أو النقل)
+- صلاحيات أخرى متحققة في نفس الجلسة: Vercel API ✓ (team muscleshubfit) · alkemos.com حي 200 (الإنتاج ما زال على d249cbf المتحقق منه)
+
+Stage Summary:
+- Push status: still not-pushed — العائق تحول من «توكن منقّح» إلى «توكن مرفوض من GitHub»؛ يلزم PAT Fine-grained جديد (Resource owner: muscleshubfit-cpu · Repo: alkemos · Contents: Read & Write · Expiry معقولة)
+- كوميتات 140 (و4 كوميت توثيقي 140.1) جاهزة محليًا · patches/bundle مُصدَّرة في download/alkemos-phase140/
+- تعديل STATE.md (سطر آخر تحديث + عائق الدفع) لعكس الحقيقة الجديدة — بوابة docs_audit قبل الالتزام
