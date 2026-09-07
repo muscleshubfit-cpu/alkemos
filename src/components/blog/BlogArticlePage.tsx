@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
@@ -149,14 +150,32 @@ export function BlogArticlePage({
               <p className="mt-4 text-lg font-normal leading-relaxed text-[var(--muted-foreground)] md:text-xl">
                 {post.excerpt}
               </p>
-              <div className="mt-6 flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-sm font-semibold text-[var(--text)]">
-                  {post.author.charAt(0)}
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                {/* Phase SEO-GEO-2 (2026-09-08): author byline now links to
+                    the Ahmed Zake author profile page. E-E-A-T signal: human
+                    name + job title + link to credentials = strongest trust
+                    signal possible. The `Reviewed by Ahmed Zake` second line
+                    matches the reviewedBy Person in the Article schema. */}
+                <Link
+                  href={isAr ? "/ar/authors/ahmed-zake" : "/authors/ahmed-zake"}
+                  className="group flex items-center gap-3"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-sm font-semibold text-[var(--text)] transition-opacity group-hover:opacity-80">
+                    {post.author.charAt(0)}
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-sm font-medium text-[var(--text)] group-hover:underline">
+                      {post.author}
+                    </span>
+                    <span className="text-xs font-normal text-[var(--muted-foreground)]">
+                      {isAr ? "المؤسس والمدرب الرئيسي · راجع بواسطة Ahmed Zake" : "Founder & Head Coach · Reviewed by Ahmed Zake"}
+                    </span>
+                  </span>
+                </Link>
+                <span className="hidden sm:inline text-[var(--muted-foreground)]">•</span>
+                <span className="text-xs font-normal text-[var(--muted-foreground)]">
+                  {isAr ? "تحقق من المصادر المنشورة في المقال" : "Sources cited in article"}
                 </span>
-                <div>
-                  <p className="text-sm font-medium">{post.author}</p>
-                  <p className="text-xs font-normal text-[var(--muted-foreground)]">{isAr ? "كوتش معتمد" : "Certified Coach"}</p>
-                </div>
               </div>
             </div>
 

@@ -666,21 +666,54 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **الملفات المُنشأة:**
 - ✅ `docs/SEO-GEO-MASTER-PLAN.md` (هذا الملف)
-- 🟡 `src/lib/hub-collections.ts` — تعريف المجموعات والـ Hubs
-- 🟡 `src/app/muscles/[group]/page.tsx` — صفحة مجموعة عضلية (EN)
-- 🟡 `src/app/ar/muscles/[group]/page.tsx` — صفحة مجموعة عضلية (AR)
-- 🟡 `src/app/equipment/[type]/page.tsx` — صفحة معدات (EN)
-- 🟡 `src/app/ar/equipment/[type]/page.tsx` — صفحة معدات (AR)
-- 🟡 `src/app/collections/[slug]/page.tsx` — صفحة مجموعة أطعمة (EN)
-- 🟡 `src/app/ar/collections/[slug]/page.tsx` — صفحة مجموعة أطعمة (AR)
-- 🟡 `src/app/sitemap-collections.xml/route.ts` — خريطة الصفحات الجديدة
-- 🟡 تحديث `src/app/sitemap-pages.xml/route.ts` لإضافة الـ Hubs
+- ✅ `src/lib/hub-collections.ts` — تعريف المجموعات والـ Hubs
+- ✅ `src/app/muscles/[group]/page.tsx` — صفحة مجموعة عضلية (EN)
+- ✅ `src/app/ar/muscles/[group]/page.tsx` — صفحة مجموعة عضلية (AR)
+- ✅ `src/app/equipment/[type]/page.tsx` — صفحة معدات (EN)
+- ✅ `src/app/ar/equipment/[type]/page.tsx` — صفحة معدات (AR)
+- ✅ `src/app/collections/[slug]/page.tsx` — صفحة مجموعة أطعمة (EN)
+- ✅ `src/app/ar/collections/[slug]/page.tsx` — صفحة مجموعة أطعمة (AR)
+- ✅ `src/app/sitemap-collections.xml/route.ts` — خريطة الصفحات الجديدة
+- ✅ تحديث `src/app/sitemap-pages.xml/route.ts` لإضافة الـ Hubs
+- ✅ تحديث `src/app/sitemap.xml/route.ts` لإضافة collections للـ index
+- ✅ تحديث `src/components/SiteHeader.tsx` بإضافة روابط nav
 
-**النتائج المتوقعة:**
-- +24 صفحة Hub/Collection جديدة (12 EN + 12 AR)
-- استهداف 24 كلمة medium-tail جديدة
+**النتائج:**
+- +52 صفحة Hub/Collection جديدة (12 EN + 12 AR × 3 عائلات)
+- استهداف 24+ كلمة medium-tail جديدة
 - تحسين Internal Linking بين 868 تمرين + 80 طعام + 8 برامج
-- زيادة Crawl Depth للصفحات الطرفية
+- **تم الدفع لـ GitHub** (commit `8751d8c`)
+
+---
+
+### 2026-09-08 — Phase SEO-GEO-2: Ahmed Zake Author + Reviewer (E-E-A-T)
+
+**الهدف:** ترقية إشارات E-E-A-T (الخبرة، السلطة، الثقة) عبر إضافة Ahmed Zake ككاتب ومراجع بشري حقيقي في كل الـ schemas. كان الكود السابق يستخدم `Organization` كـ author (إشارة ضعيفة) — الآن يستخدم `Person` مع `@id` URL ثابت + `reviewedBy` Person ثانية.
+
+**الملفات المُنشأة/المُعدّلة:**
+- ✅ `src/lib/authors.ts` (جديد) — تعريف مركزي لـ Ahmed Zake + `getPersonSchema` + `getProfilePageSchema` + `resolveAuthor` (يطبّع 'Alkemos'/'MuscleHub' → Ahmed Zake)
+- ✅ `src/lib/seo.ts` (تحديث) — `getOrganizationSchema` يُضيف `founder` Person · `getArticleSchema` يُضيف `author` Person + `reviewedBy` Person
+- ✅ `src/app/authors/[slug]/page.tsx` (جديد) — صفحة الكاتب EN مع `ProfilePage` schema + Breadcrumb
+- ✅ `src/app/ar/authors/[slug]/page.tsx` (جديد) — صفحة الكاتب AR مع نفس الـ schemas
+- ✅ `src/components/blog/BlogArticlePage.tsx` (تحديث) — byline UI يربط لصفحة الكاتب + يعرض "Reviewed by Ahmed Zake"
+- ✅ `src/app/blog/[slug]/page.tsx` (تحديث) — تمرير `authorProfile` للـ Article schema
+- ✅ `src/app/ar/blog/[slug]/page.tsx` (تحديث) — نفس التحديث للنسخة العربية
+- ✅ `src/components/views/StaticPageView.tsx` (تحديث) — إضافة قسم "Founder: Ahmed Zake" لصفحة /about
+- ✅ `src/app/sitemap-pages.xml/route.ts` (تحديث) — إضافة `/authors/ahmed-zake` و `/ar/authors/ahmed-zake`
+
+**التأثير المتوقع:**
+- كل مقال مدوّنة (61 EN + AR) يحمل الآن `author: Person(Ahmed Zake)` + `reviewedBy: Person(Ahmed Zake)` بدلًا من `author: Organization`
+- صفحة Organization الرئيسية (تظهر على كل صفحات الموقع) تحمل الآن `founder: Person(Ahmed Zake)`
+- صفحة `/authors/ahmed-zake` جديدة ككيان `ProfilePage` قابل للفهرسة في Knowledge Graph
+- byline UI في المدوّنة يعرض اسم الكاتب + "Reviewed by Ahmed Zake" + رابط لصفحة الكاتب
+- صفحة /about تعرض قسم "Founder: Ahmed Zake" مع نبذة كاملة
+
+**الجودة:**
+- `tsc --noEmit` → 0 أخطاء
+- `eslint` → نظيف
+- `next build` → نجح (4 صفحات جديدة مُسجّلة)
+- `vitest` → 256/256 ناجح
+- `docs_audit`, `docs_parity`, `stale-refs`, `ui-wiring` → كلها ✓
 
 ---
 

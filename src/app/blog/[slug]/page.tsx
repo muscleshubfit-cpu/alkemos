@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
 import { getArticleSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
 // #10 fix: use ISR instead of force-dynamic — blog posts change rarely,
@@ -79,6 +80,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         slug,
         image: og.image,
         datePublished: og.publishedAt || new Date().toISOString(),
+        // Phase SEO-GEO-2 (2026-09-08): pass the resolved author Profile
+        // so the Article schema's `author` Person matches the byline shown
+        // in the UI. The DB `author` column historically stored 'Alkemos'
+        // or 'MuscleHub' — resolveAuthor normalizes all of those to the
+        // canonical Ahmed Zake Person (the de-facto author of every post).
+        authorProfile: resolveAuthor(undefined),
       })
     : null;
 

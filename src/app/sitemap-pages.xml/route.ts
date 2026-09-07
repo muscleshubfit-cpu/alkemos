@@ -46,6 +46,10 @@ export async function GET() {
     // About / FAQ pairs
     { loc: `${base}/about`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/about`, ar: `${base}/ar/about` } },
     { loc: `${base}/ar/about`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/about`, ar: `${base}/ar/about` } },
+    // Phase SEO-GEO-2 (2026-09-08): author profile pages — the @id URLs
+    // referenced by every Article.author Person + Organization.founder.
+    { loc: `${base}/authors/ahmed-zake`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/authors/ahmed-zake`, ar: `${base}/ar/authors/ahmed-zake` } },
+    { loc: `${base}/ar/authors/ahmed-zake`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/authors/ahmed-zake`, ar: `${base}/ar/authors/ahmed-zake` } },
     { loc: `${base}/faq`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/faq`, ar: `${base}/ar/faq` } },
     { loc: `${base}/ar/faq`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/faq`, ar: `${base}/ar/faq` } },
     { loc: `${base}/contact`, changefreq: "yearly", priority: 0.5 },

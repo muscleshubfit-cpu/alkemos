@@ -1815,3 +1815,67 @@ Stage Summary:
 - طلب 5–10 reviews من العملاء الأوائل
 - بدء برنامج HARO يوميًا (15 دقيقة/يوم)
 - فتح Search Console + Bing Webmaster Tools (إن لم يكونا مفعّلين)
+
+---
+Task ID: SEO-GEO-2 — Ahmed Zake Author + Reviewer (E-E-A-T foundation)
+Agent: main (Super Z — GLM)
+
+Work Log (ترقية E-E-A-T عبر Person schema + byline UI + author profile page):
+- **السياق:** الكود السابق في `src/lib/seo.ts` كان يستخدم `Organization` كـ author في Article schema — إشارة E-E-A-T ضعيفة. Google September 2025 QRG أكّد أن raters يقيّمون AI content لـ "genuine E-E-A-T signals" والـ Person author هو أقوى إشارة ممكنة.
+- **ملف مركزي للكُتّاب:** إنشاء `src/lib/authors.ts` بـ:
+  - `AHMED_ZAKE` constant — تعريف كامل (slug, nameEn/Ar, jobTitleEn/Ar, bioEn/Ar, credentials[], sameAs[], avatarUrl, profileUrl)
+  - `AUTHORS` registry — يمكن إضافة كُتّاب جدد مستقبلًا
+  - `getAuthorBySlug(slug)` + `resolveAuthor(dbAuthor)` — يُطبّع 'Alkemos'/'MuscleHub' → Ahmed Zake
+  - `getPersonSchema(author)` — يبني schema.org Person JSON-LD مع `@id` ثابت (profileUrl) + name + alternateName + jobTitle + description + url + image + worksFor + knowsAbout + hasCredential + sameAs
+  - `getProfilePageSchema(author)` — يبني ProfilePage JSON-LD للصفحة الرئيسية للكاتب
+  - ملاحظة: الملف NOT server-only لأنه يحتوي فقط على بيانات عامة (آمنة للـ client)
+- **تحديث seo.ts:**
+  - `getOrganizationSchema` يُضيف `founder: Person(Ahmed Zake)` — يظهر على كل صفحة في الموقع عبر layout.tsx
+  - `getArticleSchema` يُضيف `author: Person(authorProfile)` + `reviewedBy: Person(Ahmed Zake)` بدلًا من `author: Organization`
+- **صفحات الكاتب (جديدة):**
+  - `/authors/[slug]/page.tsx` (EN) — صفحة ProfilePage مع avatar + bio + credentials + روابط للأقسام
+  - `/ar/authors/[slug]/page.tsx` (AR) — نفس المحتوى بالعربية مع dir="rtl"
+  - كل صفحة تحمل `ProfilePage` JSON-LD + `Breadcrumb` schema + reciprocal hreflang
+- **تحديث BlogArticlePage.tsx (byline UI):**
+  - الـ byline السابق كان: `<p>{post.author}</p> <p>Certified Coach</p>` بدون رابط
+  - الجديد: `<Link href="/authors/ahmed-zake">` يعرض `post.author` + `Founder & Head Coach · Reviewed by Ahmed Zake` + رابط لصفحة الكاتب
+  - يطابق الـ `reviewedBy` Person في الـ Article schema (consistency بين UI و schema)
+- **تحديث blog/[slug]/page.tsx (EN + AR):**
+  - تمرير `authorProfile: resolveAuthor(undefined)` لـ `getArticleSchema` (يتحلّل لـ AHMED_ZAKE افتراضيًا)
+  - الـ Article schema الآن يحمل Person كـ author + reviewedBy
+- **تحديث StaticPageView.tsx (صفحة /about):**
+  - إضافة قسم جديد "Founder: Ahmed Zake" / "المؤسس: أحمد زكي" في كلتا اللغتين
+  - نبذة 2 فقرة تشرح خبرته وإشرافه على كل محتوى المنصة
+- **تحديث sitemap-pages.xml:**
+  - إضافة `/authors/ahmed-zake` + `/ar/authors/ahmed-zake` بـ priority 0.7 + hreflang pair
+- **التحقق من الجودة (كل البوابات خضراء):**
+  - `bunx tsc --noEmit` → 0 أخطاء في الكود الجديد
+  - `bunx eslint` على 9 ملفات → نظيف
+  - `bun run build` → نجح، 4 صفحات جديدة مُسجّلة (`/authors/[slug]`, `/ar/authors/[slug]` + الـ schemas في layout)
+  - `bun run test` → 256/256 ناجح
+  - `docs_audit.py` → ✓ (pages=90, endpoints=71, sql=87, views=31, ui=51)
+  - `docs_parity.py` → ✓
+  - `check-stale-refs.sh` → ✓
+  - `check-ui-wiring.sh` → ✓ (60 /api targets · 71 routes · 9 processors)
+
+Stage Summary:
+- **Ahmed Zake** أصبح كيانًا (Entity) في كل schemas:
+  - Organization.founder → Person(Ahmed Zake) — على كل صفحة في الموقع
+  - Article.author → Person(Ahmed Zake) — على كل مقال مدوّنة (61 EN + AR)
+  - Article.reviewedBy → Person(Ahmed Zake) — على كل مقال مدوّنة
+  - ProfilePage @id → /authors/ahmed-zake — صفحة قابلة للفهرسة في Knowledge Graph
+- **byline UI** في المدوّنة يعرض الآن: الاسم + "Founder & Head Coach · Reviewed by Ahmed Zake" + رابط لصفحة الكاتب
+- **صفحة /about** تعرض قسم "Founder: Ahmed Zake" مع نبذة كاملة في كلتا اللغتين
+- **الملفات (9):** 3 جديدة (authors.ts + 2 صفحات) + 6 مُعدّلة (seo.ts + BlogArticlePage + 2 blog pages + StaticPageView + sitemap-pages)
+- **لم يُدفع بعد** — سيُدفع مع SEO-GEO-2 commit
+
+الملفات الجديدة/المُعدّلة (9):
+  + src/lib/authors.ts
+  + src/app/authors/[slug]/page.tsx
+  + src/app/ar/authors/[slug]/page.tsx
+  ~ src/lib/seo.ts (founder in Organization + author/reviewedBy in Article)
+  ~ src/components/blog/BlogArticlePage.tsx (byline UI + link)
+  ~ src/app/blog/[slug]/page.tsx (pass authorProfile)
+  ~ src/app/ar/blog/[slug]/page.tsx (pass authorProfile)
+  ~ src/components/views/StaticPageView.tsx (Founder section on /about)
+  ~ src/app/sitemap-pages.xml/route.ts (add /authors/ahmed-zake)

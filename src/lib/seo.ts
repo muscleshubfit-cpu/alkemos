@@ -6,19 +6,23 @@
  * into a page's <script type="application/ld+json"> tag.
  *
  * Schemas included:
- *   - Organization (site-wide)
+ *   - Organization (site-wide, with founder Person — Phase SEO-GEO-2)
  *   - WebSite (site-wide, with SearchAction)
  *   - Service (for coaching page)
  *   - FAQPage (⚠️ DEPRECATED — Google retired rich results May 2026)
  *   - BreadcrumbList (for navigation)
  *   - HowTo (⚠️ DEPRECATED — Google retired rich results Sept 2023)
- *   - Article (for blog posts)
+ *   - Article (for blog posts — with author Person + reviewedBy)
  *   - SoftwareApplication (for EVO AI coach)
  *   - ExerciseAction (for exercise detail pages)
  *   - ItemList (for list pages)
  *
  * Reference: docs/SEO-SCHEMA-REFERENCE.md (from claude-seo project)
+ * Reference: docs/SEO-EEAT-FRAMEWORK.md (E-E-A-T signals)
+ * Reference: docs/SEO-GEO-MASTER-PLAN.md §6 (content strategy)
  */
+
+import { AHMED_ZAKE, getPersonSchema, type AuthorProfile } from "./authors";
 
 const SITE_URL = "https://alkemos.com";
 const SITE_NAME = "Alkemos";
@@ -52,8 +56,15 @@ export function jsonLd(obj: unknown): string {
  * hits are share-button targets, not profiles) — the owner said to add
  * social links "إن وجدت" (if found) and none exist. areaServed:
  * Worldwide + knowsLanguage stay (global reach, not local presence).
+ *
+ * Phase SEO-GEO-2 (2026-09-08): added `founder` Person field pointing
+ * at the Ahmed Zake ProfilePage @id. This is a strong E-E-A-T signal —
+ * it tells Google's Knowledge Graph that a real human stands behind
+ * the organization, not just an anonymous brand. Pairs with the
+ * `author` Person on every Article schema (getArticleSchema).
  */
 export function getOrganizationSchema() {
+  const founderPerson = getPersonSchema(AHMED_ZAKE);
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -67,6 +78,7 @@ export function getOrganizationSchema() {
     ],
     areaServed: "Worldwide",
     knowsLanguage: ["ar", "en"],
+    founder: founderPerson,
   };
 }
 
@@ -243,6 +255,19 @@ export function getHowToSchema(params: {
 
 /**
  * Article schema — for blog posts.
+ *
+ * Phase SEO-GEO-2 (2026-09-08): added `author` as a Person (was Organization
+ * before — a weaker E-E-A-T signal). Added `reviewedBy` Person (Ahmed Zake)
+ * to satisfy Google's Quality Rater Guidelines for YMYL-adjacent health &
+ * fitness content. The author + reviewer Persons both carry `@id` URLs so
+ * multiple references on the same page collapse into one Knowledge Graph
+ * entity.
+ *
+ * The `authorProfile` parameter is optional for backward compatibility —
+ * if not passed, the schema falls back to the Ahmed Zake Person (the
+ * platform's canonical author). Pages should pass the resolved author
+ * (from `resolveAuthor(post.author)`) so the schema matches the byline
+ * shown in the UI.
  */
 export function getArticleSchema(params: {
   title: string;
@@ -252,7 +277,11 @@ export function getArticleSchema(params: {
   datePublished: string;
   dateModified?: string;
   author?: string;
+  authorProfile?: AuthorProfile;
 }) {
+  const profile = params.authorProfile ?? AHMED_ZAKE;
+  const authorPerson = getPersonSchema(profile);
+  const reviewerPerson = getPersonSchema(AHMED_ZAKE);
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -261,10 +290,8 @@ export function getArticleSchema(params: {
     image: params.image || SITE_LOGO,
     datePublished: params.datePublished,
     dateModified: params.dateModified || params.datePublished,
-    author: {
-      "@type": "Organization",
-      name: params.author || SITE_NAME,
-    },
+    author: authorPerson,
+    reviewedBy: reviewerPerson,
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,

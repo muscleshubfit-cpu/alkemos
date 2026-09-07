@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
 import { getArticleSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
 // #10 fix: ISR — 1 hour revalidate
@@ -68,6 +69,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         slug,
         image: og.image,
         datePublished: og.publishedAt || new Date().toISOString(),
+        // Phase SEO-GEO-2 (2026-09-08): resolved author Person — see
+        // the EN mirror (/blog/[slug]/page.tsx) for the full rationale.
+        authorProfile: resolveAuthor(undefined),
       })
     : null;
 
