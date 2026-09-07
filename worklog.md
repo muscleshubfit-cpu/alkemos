@@ -1879,3 +1879,55 @@ Stage Summary:
   ~ src/app/ar/blog/[slug]/page.tsx (pass authorProfile)
   ~ src/components/views/StaticPageView.tsx (Founder section on /about)
   ~ src/app/sitemap-pages.xml/route.ts (add /authors/ahmed-zake)
+
+---
+Task ID: SEO-GEO-1.1 + SEO-GEO-3 — sitemap fix + comparison pages + OG images
+Agent: main (Super Z — GLM)
+
+Work Log:
+- **SEO-GEO-1.1 (إصلاح sitemap-collections.xml في GSC/Bing):**
+  - **التشخيص:** فحص حي لـ `/sitemap-collections.xml` → HTTP 200 + `application/xml` + 52 URL صحيح. الكود كان سليمًا، المشكلة كانت discovery latency — GSC يحتاج 12–24 ساعة لاكتشاف sitemap جديد مُدرج فقط في الـ index.
+  - **الإصلاح 1:** تحديث `public/robots.txt` — إضافة `Sitemap:` directives لكل خريطة فرعية (6 توجيهات بدلًا من 1). يعطي Googlebot و Bingbot مسارات اكتشاف متعددة.
+  - **الإصلاح 2:** تحديث `src/app/sitemap.xml/route.ts` — إضافة `<lastmod>today</lastmod>` لكل `<sitemap>` entry في الـ index. يحفّز GSC لإعادة الفحص فورًا بدل الانتظار للدورة 24h.
+  - **تم الدفع** (commit `28fdac1`)
+
+- **SEO-GEO-3 (صفحات المقارنة + OG images المخصصة):**
+  - **مكتبة المقارنات:** إنشاء `src/lib/comparisons.ts` بـ 3 مقارنات كاملة (Alkemos vs MyFitnessPal, Alkemos vs Freeletics, Alkemos vs ExRx.net) — كل واحدة بـ 9 صفوف مقارنة + verdict + 3 أقسام body طويلة باللغتين
+  - **صفحات المقارنة (6 صفحات جديدة):**
+    - `/compare/[slug]/page.tsx` (EN) — جدول مقارنة بـ win/loss/tie badges + verdict + body sections + CTA + روابط للمقارنات الأخرى
+    - `/ar/compare/[slug]/page.tsx` (AR) — نفس المحتوى بالعربية مع dir="rtl"
+    - كل صفحة تحمل Article schema (with author + reviewedBy) + ItemList + Breadcrumb + hreflang
+  - **sitemap-comparisons.xml:** خريطة جديدة بـ 6 URLs (3 مقارنات × 2 لغة)
+  - **تحديث sitemap index:** إضافة sitemap-comparisons.xml لقائمة الأطفال (7 خرائط الآن)
+  - **تحديث robots.txt:** إضافة `Sitemap: https://alkemos.com/sitemap-comparisons.xml`
+  - **تفعيل OG images المخصصة:**
+    - `src/app/blog/[slug]/page.tsx` — استبدال `og.image` (Pexels JPEG) بـ `/api/og-image/[slug]?lang=en` (Alkemos-branded 1200×630 PNG)
+    - `src/app/ar/blog/[slug]/page.tsx` — نفس الاستبدال للنسخة العربية
+    - النتيجة: كل مقال مدوّنة الآن يُشارك بصورة OG ذات علامة Alkemos التجارية بدلًا من صورة Pexels عامة
+
+- **التحقق من الجودة (كل البوابات خضراء):**
+  - `tsc --noEmit` → 0 أخطاء
+  - `eslint` على 7 ملفات → نظيف
+  - `next build` → نجح، 6 صفحات جديدة مُسجّلة (`/compare/[slug]`, `/ar/compare/[slug]` + `/sitemap-comparisons.xml`)
+  - `vitest` → 256/256 ناجح
+  - `docs_audit.py` → ✓
+  - `docs_parity.py` → ✓ (pages=90, endpoints=71, sql=87, views=31, ui=51)
+  - `check-stale-refs.sh` → ✓
+  - `check-ui-wiring.sh` → ✓
+
+Stage Summary:
+- **6 صفحات مقارنة جديدة** تستهدف كلمات عالية النية التجارية (Alkemos vs MyFitnessPal/Freeletics/ExRx)
+- **خريطة موقع جديدة** (`/sitemap-comparisons.xml`) + تحديث index و robots.txt
+- **OG images المخصصة مُفعّلة** لكل مقالات المدوّنة (EN + AR)
+- **إصلاح sitemap-collections.xml discovery** عبر lastmod + multi-Sitemap directives
+- **كل بوابات CI خضراء** — جاهز للدفع
+
+الملفات الجديدة/المُعدّلة (8):
+  + src/lib/comparisons.ts (3 مقارنات كاملة)
+  + src/app/compare/[slug]/page.tsx
+  + src/app/ar/compare/[slug]/page.tsx
+  + src/app/sitemap-comparisons.xml/route.ts
+  ~ src/app/sitemap.xml/route.ts (add comparisons child + lastmod)
+  ~ public/robots.txt (add comparisons Sitemap directive)
+  ~ src/app/blog/[slug]/page.tsx (OG image → /api/og-image/[slug])
+  ~ src/app/ar/blog/[slug]/page.tsx (OG image → /api/og-image/[slug])

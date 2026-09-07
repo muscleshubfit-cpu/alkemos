@@ -29,6 +29,7 @@ export async function GET() {
   const children = [
     `${base}/sitemap-pages.xml`,
     `${base}/sitemap-collections.xml`,
+    `${base}/sitemap-comparisons.xml`,
     `${base}/sitemap-exercises.xml`,
     `${base}/sitemap-foods.xml`,
     `${base}/sitemap-blog.xml`,

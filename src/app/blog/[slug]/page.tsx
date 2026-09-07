@@ -47,7 +47,20 @@ export async function generateMetadata({
       url: og.articleUrl,
       title: og.title,
       description: og.description,
-      images: [{ url: og.image, width: 1200, height: 630 }],
+      // Phase SEO-GEO-3 (2026-09-08): use the dynamically-generated OG
+      // image (Alkemos-branded 1200×630 PNG with title + description)
+      // instead of the raw Pexels JPEG. The branded image is more
+      // recognizable in social feeds (Facebook, X, LinkedIn, WhatsApp)
+      // and reinforces the Alkemos brand on every share. The Pexels
+      // image is still shown as the article hero inside the page body.
+      images: [
+        {
+          url: `https://alkemos.com/api/og-image/${slug}?lang=en`,
+          width: 1200,
+          height: 630,
+          alt: og.title,
+        },
+      ],
       siteName: "Alkemos",
       locale: "en_US",
     },
@@ -55,7 +68,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: og.title,
       description: og.description,
-      images: [og.image],
+      images: [`https://alkemos.com/api/og-image/${slug}?lang=en`],
     },
   };
 }

@@ -46,6 +46,7 @@ Disallow: /preview
 Sitemap: https://alkemos.com/sitemap.xml
 Sitemap: https://alkemos.com/sitemap-pages.xml
 Sitemap: https://alkemos.com/sitemap-collections.xml
+Sitemap: https://alkemos.com/sitemap-comparisons.xml
 Sitemap: https://alkemos.com/sitemap-exercises.xml
 Sitemap: https://alkemos.com/sitemap-foods.xml
 Sitemap: https://alkemos.com/sitemap-blog.xml
