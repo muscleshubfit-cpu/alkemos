@@ -1596,3 +1596,26 @@ Stage Summary:
 - Push status: still not-pushed — العائق تحول من «توكن منقّح» إلى «توكن مرفوض من GitHub»؛ يلزم PAT Fine-grained جديد (Resource owner: muscleshubfit-cpu · Repo: alkemos · Contents: Read & Write · Expiry معقولة)
 - كوميتات 140 (و4 كوميت توثيقي 140.1) جاهزة محليًا · patches/bundle مُصدَّرة في download/alkemos-phase140/
 - تعديل STATE.md (سطر آخر تحديث + عائق الدفع) لعكس الحقيقة الجديدة — بوابة docs_audit قبل الالتزام
+---
+Task ID: 141
+Agent: main (Super Z — GLM)
+Task: Phase 141 — أمر المالك «نفّذ كل المقترحات والأوامر المنتظرة لموافققتي» (رسالة 2026-09-07): مفتاح GitHub جديد + توكنات Cloudflare + تنفيذ كل البنود §7 والمؤجلة القابلة للتنفيذ الآمن
+
+Work Log:
+- بروتوكول الجلسة: STATE.md → git fetch (origin/main=d249cbf, main ahead 4) → آخر مدخلات worklog → توكن GitHub الجديد تحقق ✓ (login muscleshubfit-cpu · push=true)
+- **فك عائق الدفع:** 4 كوميتات 140 دُفعت (3315b1f) عبر التوكن الجديد → Vercel READY → تحقق حي: hreflang /programs EN+AR كامل (كان rg حساس الحالة يخدع — React يرندر hrefLang) · نُقّي كاش Cloudflare (توكن 1 لديه cache purge) → robots الموحدة حية (coach$ exact + /preview)
+- **A-4 (قرار CF) — محسوم بالأدلة لا بالرأي:** كشط الكامل الحي أثبت أن طبقة CF Managed تحجب روبوتات **التدريب** فقط (9 مجموعات) بينما بحث AI حر (OAI-SearchBot/ChatGPT-User/PerplexityBot بلا مجموعة) + `Content-Signal: search=yes,ai-train=no` — أي «البحث نعم والتدريب لا»: متسقة مع GEO/llms.txt ولا تتعارض مع المصدر الموحد بعد 140؛ فحص API كامل (ai_bots/robot_txt/ai-audit/zsettings/rulesets) أثبت عدم وجود endpoint عام للمفتاح (لوحة فقط) — لا تغيير مطلوب
+- **A-6 (§7 مصادسة → security:):** resolveMembershipTier() في src/lib/membership-tier.ts وحدة نقية (بلا next/headers ولا supabase — قابلة للاختبار والاستيراد من أي سياق) — النقطتان getAuthUser/getAuthUserFromHeaders تشتركان فيها؛ التباعد المؤكد: النسخة الثانية كانت تفقد خريطة starter→premium/elite→pro (0045) فأي صف قديم شارد = «free» في مكونات الخادم؛ 18 اختبار يثبّت كل الحالات + SECURITY.md §11 محدث (يصحح ملاحظة «لا يوجد elite» القديمة)
+- **A-5 (خريطة الأطعمة):** تحليل بيانات FOODS: 80 منسّق (وسوم + أسماء عربية حقيقية) مقابل 8,750 USDA **بلا حرف عربي واحد** في nameAr (المرايا العربية كانت عناوين إنجليزية داخل RTL) → الخريطة 17,660→160 URL (المنسّقون فقط × لغتان)؛ الذيل حي 200 + قابل للاكتشاف (curl محلي أثبت EN+AR)؛ 3 اختبارات تثبّت أسس القرار (لاجيال regeneration ينكسر بصمت)
+- **A-8 (soft-404) — تشخيص جذري بمنهج العزل:** عزلة بالمسبارات (مسارات مؤقتة حُذفت قبل الكوميت): notFound() نظيف=404 لكن تحت `<Suspense fallback={null}>` في التخطيط الجذري (منذ 3bad368)=200 — الغلاف يبث shell بحالة 200 قبل حل الصفحة فيبتلع notFound (حتى M29 «إصلاح» المدونة لم يكن يعمل — القياس لم يحدث قط)؛ أُزيل الغلاف (مكرر مع حدود Next الداخلية) + حارس notFound() لصفحات التفاصيل الست + المدونة كانت تستدعيه؛ **النتيجة المتحققة: كل المسارات الوهمية EN+AR = 404 حقيقية (محليًا وحيًا)**
+- **A-7 (Zod موجة 1/3):** src/lib/validation/schemas.ts (قانون الطبقات: Zod=الشكل/الحدود/التجريد · السياسة=validateEmailStrict ورفاقه بعد البوابة) + المسارات الثلاثة العامة؛ عقد الأخطاء محفوظ حرفيًا (مطابقة رسائل tool_slug/email التاريخية)؛ التشديد الموثق: 200-حرف اسم/150-حرف استعلام/JSON خرب/مفاتيح مهرّبة = 400؛ 16 اختبار شامل key-smuggling
+- **A-12/A-13 (CI) — جاهز ومحجوب:** quality-gate.yml (أوامر AGENTS §3.5 الرسمية نفسها على كل push/PR) + تحويل الـ4 workflows إلى bun install --frozen-lockfile (مطابقة bun.lock محليًا: صفر تغيير) + CI_GATES.md محدث — الدفع رُفض: **Fine-grained PAT بلا صلاحية Workflows** (يعرض: refusing to allow...without workflow scope) + dispatch=403 → كل العمل على فرع phase141-ci-bun (0471a2b) بانتظار PAT بصلاحية أو دفعة يدوية
+- **CSP (وفق القانون لا التسرع):** RO منشور 669e112 بتاريخ 2026-09-05 13:34Z → 37 ساعة فقط من الأسبوع المطلوب + التقارير في سجلات Vercel (غير قابلة للقراءة بالتوكن) → الفرض مؤجل بقرار موثق للمرحلة القادمة
+- حادثة تشغيلية: بناء مبتور (OOM أثناء الجلسة قتل next build بعد rg الناجح ظاهريًا) → rm -rf .next + rebuild نظيف + إعادة كل القياسات؛ أيضًا pkill -f "next start" لا يقتل next-server — التنظيف الصحيح pkill -f next-server
+- البوابات النهائية: tsc 0 · eslint 0/0 · vitest 256/256 (18+16+3 جديدة) · build ✓ (نظيف) · docs_audit ✓ · docs_parity ✓ · نشر Vercel متسلسل: 54c8ce4 → 0c13b5e → 1c8c182 كلها READY وc873c62 في البناء
+
+Stage Summary:
+- كوميتات Phase 141 المدفوعة: 54c8ce4 (security: A-6) · 0c13b5e (feat(seo): A-5) · 1c8c182 (fix(seo): A-8 جذر soft-404) · c873c62 (security: Zod موجة 1) + كوميت التوثيق الختامي
+- محجوب خارجيًا: A-12/A-13 على فرع phase141-ci-bun (يلزم صلاحية Workflows في PAT) — الباتش جاهز ومدقّق YAML
+- مؤجل بقانون موثق: CSP (أسبوع RO لم يكتمل — إعادة تقييم 2026-09-12) · AdSense lazy-load (حتى موافقة AdSense — الوسم لازم يبقى للمراجعة) · Supabase 68KB + hydration (هيكلي — يتطلب إعادة هيكلة 12+ وحدة auth)
+- تحقق حي ختامي: 404 حقيقية في الإنتاج + 160 URL في sitemap-foods الحية + hreflang البرامج + robots كاملة — كلها بأوامر قابلة للإعادة من سجل العمل ده
