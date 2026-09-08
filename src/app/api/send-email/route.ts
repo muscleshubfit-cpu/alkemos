@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 import { validateEmailStrict, validateNameStrict } from "@/lib/email-validation";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
@@ -15,8 +14,10 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
  * (used by the newsletter form).
  *
  * Env vars (set on Vercel):
- *   EMAIL_SERVER_HOST / EMAIL_SERVER_PORT / EMAIL_SERVER_USER / EMAIL_SERVER_PASSWORD
- *   EMAIL_FROM (optional display name) / EMAIL_REPLY_TO (optional)
+ *   BREVO_API_KEY (Brevo transactional REST API — Vercel serverless BLOCKS
+ *   outbound SMTP ports 25/465/587, so nodemailer/SMTP cannot reach the
+ *   relay from the runtime; the HTTPS API uses the same free Brevo account)
+ *   EMAIL_FROM ("Name <address>") / EMAIL_REPLY_TO (optional)
  *
  * Body:
  *   {
@@ -516,42 +517,52 @@ export async function POST(request: NextRequest) {
       console.warn("[api/send-email] Supabase env missing — lead not saved (demo mode)");
     }
 
-    /* ---- 3) Send the email ---- */
-    const host = process.env.EMAIL_SERVER_HOST;
-    const port = Number(process.env.EMAIL_SERVER_PORT ?? "587");
-    const user = process.env.EMAIL_SERVER_USER;
-    const pass = process.env.EMAIL_SERVER_PASSWORD;
-
-    if (!host || !user || !pass) {
-      console.error("[api/send-email] EMAIL_SERVER_* env vars are not configured");
+    /* ---- 3) Send the email (Brevo REST API) ----
+       Vercel serverless BLOCKS outbound SMTP ports (25/465/587) — raw SMTP
+       cannot reach any relay from the runtime (verified live 2026-09-08:
+       smtplib/nodemailer succeed locally, fail from Vercel on both ports).
+       The HTTPS API hits the same free Brevo account over 443. */
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) {
+      console.error("[api/send-email] BREVO_API_KEY is not configured");
       return NextResponse.json(
         { error: "Email service is not configured", leadSaved },
         { status: 500 },
       );
     }
 
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-    });
-
     const isAr = lang === "ar";
     const toolName = isAr ? TOOL_NAMES[tool_slug as ToolSlug].ar : TOOL_NAMES[tool_slug as ToolSlug].en;
-    const from = process.env.EMAIL_FROM ?? `Alkemos <${user}>`;
+    const fromRaw = process.env.EMAIL_FROM ?? "Alkemos <no-reply@alkemos.com>";
+    const fromMatch = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(fromRaw);
+    const fromEmail = fromMatch?.[2] ?? fromRaw;
+    const fromName = fromMatch?.[1] || "Alkemos";
     const replyTo = process.env.EMAIL_REPLY_TO || undefined;
 
-    await transporter.sendMail({
-      from,
-      to: email,
-      replyTo,
-      subject: isAr
-        ? `نتائجك من ${toolName} — Alkemos`
-        : `Your ${toolName} results — Alkemos`,
-      html: buildEmailHtml(tool_slug as ToolSlug, name, result_json, isAr),
-      text: buildEmailText(tool_slug as ToolSlug, name, result_json, isAr),
+    const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: fromName, email: fromEmail },
+        to: [{ email }],
+        ...(replyTo ? { replyTo: { email: replyTo } } : {}),
+        subject: isAr
+          ? `نتائجك من ${toolName} — Alkemos`
+          : `Your ${toolName} results — Alkemos`,
+        htmlContent: buildEmailHtml(tool_slug as ToolSlug, name, result_json, isAr),
+        textContent: buildEmailText(tool_slug as ToolSlug, name, result_json, isAr),
+      }),
     });
+
+    if (!brevoRes.ok) {
+      const errBody = await brevoRes.text();
+      console.error(`[api/send-email] Brevo API ${brevoRes.status}: ${errBody.slice(0, 300)}`);
+      throw new Error(`Brevo API ${brevoRes.status}`);
+    }
 
     return NextResponse.json({ ok: true, id: leadId, leadSaved });
   } catch (e) {

@@ -2165,3 +2165,22 @@ Stage Summary:
 - **الاختبار E2E الأخير على المالك:** دعوة عميل حقيقية من التطبيق → تصلك الرسالة بالقالب الجديد
 - ملفات: ~ STATE.md (2) · ~ worklog.md — بلا كود؛ سكربتات الجلسة في scripts/ (خارج المستودع): smtp_live_test.py · supabase_smtp_patch.py · vercel_email_env_update.py
 - مفاتيح المالك مخزنة scripts/.secrets (chmod 600) خارج المستودع — لا قيم سرية في أي ملف مرفوع
+
+---
+Task ID: SMTP-BREVO-P1-VERCEL-REST-2026-09-08
+Agent: main (Super Z — GLM)
+Task: استكمال P1 — بعد بيانات Brevo الصحيحة (login b85159001@smtp-brevo.com + SMTP key جديد): تكوين Supabase كاملًا + اكتشاف حجب Vercel لـSMTP وتحويل send-email إلى Brevo REST API
+
+Work Log:
+- سبب 535 السابق تآكد: SMTP login في Brevo ليس بريد الحساب بل b85159001@smtp-brevo.com → اختبار حي: LOGIN OK + إرسال delivered+opened (سجل أحداث Brevo: requests → delivered 04:18:56 → opened 04:20:47)
+- Supabase Management API (sbp_ توكن = كتابة): PATCH واحد /v1/projects/wyopqryzfjifyeyvyxfy/config/auth → custom SMTP كامل + rate_limit_email_sent 2→30 + قالب دعوة ثنائي اللغة RTL (1688 حرفًا) + الموضوع الموحد — عقبات: Cloudflare 1010 (حظر python-urllib → UA curl/8.5.0) + smtp_port نصًا + قوالب/حدود مغلقة قبل SMTP على الخطة المجانية (رسالة API صريحة)
+- Vercel envs: EMAIL_FROM + EMAIL_REPLY_TO أُنشئا (POST) · EMAIL_SERVER_* حُدثت (PUT 404 → POST upsert ENV_ALREADY_EXISTS → **PATCH نجح**) بالقيم الجديدة
+- **اختبار /api/send-email الحي → 500 مرتين** (587 ثم 465) مع أن البوابات نفسها نجحت محليًا (smtplib + nodemailer على المنفذين) → التشخيص: **Vercel serverless يحجب منافذ SMTP الصادر** (25/465/587) — قيود معروفة على الدوال
+- الحل الجذري: تحويل `src/app/api/send-email/route.ts` إلى **Brevo REST API** (fetch https://api.brevo.com/v3/smtp/email — 443 مسموح): sender/to/replyTo/subject/htmlContent/textContent — نفس سلوك الأخطاء والاستجابة {ok, id, leadSaved} — env: BREVO_API_KEY (أُضيف) + EMAIL_FROM + EMAIL_REPLY_TO (بقيا) — EMAIL_SERVER_* الأربعة حُذفت — **nodemailer + @types/nodemailer أُزيلا من المشروع** (npm uninstall — كانا حصريين لهذا المسار)
+- البوابات: tsc 0 · eslint 0 · vitest 256/256 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- **رسائل الأدوات (lead capture) تعمل الآن عبر HTTPS** من Vercel بنفس حساب Brevo المجاني — يختبر حيًا بعد نشر هذا الكوميت
+- **دعوات Supabase تعمل عبر custom SMTP** (لوحة Supabase ليست على Vercel — SMTP متاح منها) — قالب الدعوة ثنائي اللغة
+- الترتيب النهائي للإرسال: Supabase (دعوة/استعادة/تأكيد) → Brevo relay SMTP · Vercel (نتائج الأدوات) → Brevo REST HTTPS — حد 300/يوم موحّد (الكود يحد 100/يوم للرسائل)
+- الملفات: ~ src/app/api/send-email/route.ts · ~ src/components/LeadCaptureCard.tsx (تعليق) · ~ package.json + lock (إزالة nodemailer) · ~ STATE.md · ~ worklog.md

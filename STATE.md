@@ -3,7 +3,7 @@
 > **قانون (AGENTS.md §3.6):** ده أول ملف أي وكيل يقرأه قبل أي شغل — وبيتحدث إلزاميًا في نفس الفريم اللي بيغيّر الحالة.
 > الملف محدود بـ 100 سطر بوابةً (`scripts/docs_audit.py`) — اكتب مضغوط.
 > **قانون التوحيد (Phase 115):** الملف ده هو **المصدر الرسمي والوحيد** لحالة المشروع الحية — `PROGRESS.md` و`QA_CHECKLIST.md` مجمدون في `archive/`.
-> **آخر تحديث:** 2026-09-08 (المرحلة 145 — GHA تنظيف نشرات Vercel مفعّل بالكامل (dispatch أخضر) — + **P1 SMTP/Brevo مُهيأ بالكامل عبر API**: DNS (MX Zoho + SPF + DKIM) → توثيق النطاق → مُرسِل no-reply → SMTP حي (login b85159001@smtp-brevo.com) → Supabase custom SMTP + قالب دعوة ثنائي اللغة + حد 30/ساعة → Vercel EMAIL_* — فوق مرحلة 144)
+> **آخر تحديث:** 2026-09-08 (المرحلة 145 — GHA تنظيف نشرات Vercel مفعّل بالكامل (dispatch أخضر) — + **P1 SMTP/Brevo مُهيأ بالكامل**: DNS → توثيق النطاق → مُرسِل no-reply → Supabase custom SMTP + قالب ثنائي اللغة + حد 30/ساعة → **اكتشاف حي: Vercel يحجب SMTP الصادر (25/465/587) → مسار send-email حُوّل إلى Brevo REST API** (nodemailer أُزيل، BREVO_API_KEY جديد) — فوق مرحلة 144)
 
 ## المرحلة الحالية
 - **المرحلة:** 145 — وقاية Vercel التلقائية (أمر المالك «نفذ خيار أ» 2026-09-08) فوق مرحلة 144:
@@ -15,7 +15,7 @@
 - **آخر كوميت متحقق منه:** 24a033e (+ كوميت 144 فوقه) · **الإنتاج:** alkemos.com حي · **CI:** البوابة خضراء على main
 
 ## المفتوح الآن
-- **P1 SMTP/Brevo (مُهيأ بالكامل — باقي فحص الدعوة الحية):** مسار كامل عبر API بلا لوحات: DNS (MX Zoho ×3 بدل NULL MX + SPF موحّد `include:spf.sendinblue.com include:zohomail.com -all` + CNAME DKIM) → المالك وثّق النطاق في Brevo → مُرسِل `no-reply@alkemos.com` (dkim/spf نظيفان) → **إرسال حي متحقق مرتين** (REST + SMTP عبر login `b85159001@smtp-brevo.com` — delivered+opened في بريد المالك) → **Supabase custom SMTP كامل** (Management API: host/port/user/pass/admin/sender + **rate_limit_email_sent 2→30** + قالب دعوة ثنائي اللغة RTL بموضوع موحّد) → **Vercel EMAIL_*** (PATCH: HOST/PORT/USER/PASSWORD + إضافة FROM `Alkemos <no-reply@alkemos.com>` وREPLY_TO `support@alkemos.com`) — **المتبقي:** دعوة عميل حقيقية من التطبيق (فحص E2E الأخير للمالك) + الصناديق على Zoho تصلحة (سبق إضافة MX) · ملاحظة: مُرسِل «no-replay» (بخطأ إملائي) لم يكتمل في Brevo — الرسمي no-reply
+- **P1 SMTP/Brevo (مُهيأ بالكامل — باقي فحص الدعوة الحية):** مسار كامل عبر API: DNS (MX Zoho ×3 + SPF موحّد + CNAME DKIM) → المالك وثّق النطاق في Brevo → مُرسِل `no-reply@alkemos.com` → **Supabase custom SMTP** (Management API: بيانات كاملة + **rate_limit_email_sent 2→30** + قالب دعوة ثنائي اللغة RTL) — **اكتشاف حي مهم:** Vercel serverless يحجب منافذ SMTP الصادر (25/465/587 — nodemailer نجح محليًا وفشل من الدوال على المنفذين) → **مسار `/api/send-email` حُوّل إلى Brevo REST API عبر HTTPS** (nodemailer أُزيل من المشروع، env جديد `BREVO_API_KEY` + EMAIL_FROM/REPLY_TO، حُذفت EMAIL_SERVER_*) — البوابات: tsc 0 · eslint 0 · vitest 256/256 · build ✓ — **المتبقي:** دعوة عميل حقيقية من التطبيق (E2E للمالك) + رسالة أداة حية بعد هذا النشر · ملاحظة: مُرسِل «no-replay» (بخطأ إملائي) لم يكتمل — الرسمي no-reply
 - **CSP (وفق خطة موثقة):** RO منشور 2026-09-05 13:34Z → الفرض مؤجل لـ2026-09-12 مع إضافة paypal+google-analytics لـconnect-src (كما هو موثق)
 - **AdSense lazy-load (مقصود):** الموقع قيد مراجعة AdSense والوسم **يجب** أن يبقى server-rendered → بعد الموافقة فقط
 - **لاحق (هيكلي):** تأجيل عميل Supabase (68KB) = إعادة هيكلة 12+ وحدة auth · تقسيم hydration الرئيسية

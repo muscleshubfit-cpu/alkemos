@@ -33,7 +33,7 @@ type Props = {
  * a professional HTML email with their full results + smart tips.
  *
  * The lead (email + name + tool) is saved in the `tool_leads` table FIRST,
- * then the email is sent via POST /api/send-email (nodemailer on the server).
+ * then the email is sent via POST /api/send-email (Brevo API on the server).
  */
 export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) {
   const { lang } = useI18n();
