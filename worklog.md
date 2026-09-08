@@ -2140,3 +2140,28 @@ Stage Summary:
 - اكتمل: DNS البريد (استقبال Zoho + إرسال Brevo ينتظر توثيق النطاق فقط) — كل تحولات الـDNS متحققة حيًا
 - على المالك (3 نقرات): Brevo Domains → Add a domain alkemos.com → لزق السجلات لي → أطابقها → Verify + توليد SMTP key (xsmtpsib-)
 - بعدها أنا: مُرسلَي no-reply/support عبر API → EMAIL_* على Vercel → Supabase SMTP (الحقول جاهزة) → اختبار دعوة حقيقية حيًا
+
+---
+Task ID: SMTP-BREVO-P1-COMPLETE-2026-09-08
+Agent: main (Super Z — GLM)
+Task: استكمال تهيئة SMTP بالكامل بعد توفير المالك لبيانات Brevo الصحيحة (login + SMTP key جديد) — أمر المالك «خدمات مجانية فقط»
+
+Work Log:
+- سبب فشل 535 السابق تآكد: SMTP login في Brevo ليس بريد الحساب بل `b85159001@smtp-brevo.com` (المالك نسخه من لوحة SMTP & API)
+- اختبار SMTP حي: LOGIN OK على smtp-relay.brevo.com:587 (STARTTLS) + إرسال فعلي من no-reply@alkemos.com إلى بريد المالك — سجل أحداث Brevo: requests → **delivered** → **opened** (وصول حقيقي لصندوق Gmail وليس Spam)
+- إرسال REST عبر API key أيضًا متحقق (messageId من smtp-relay.mailin.fr) — المرسل no-reply@alkemos.com أُنشئ برمجيًا (dkimError:false / spfError:false — النطاق موثق)
+- **Supabase Management API** (توكن sbp_ المالك = صلاحية كتابة، لا قراءة قيم فقط): PATCH واحد على /v1/projects/wyopqryzfjifyeyvyxfy/config/auth:
+  - custom SMTP كامل: smtp-relay.brevo.com:587 / b85159001@smtp-brevo.com / admin+sender = no-reply@alkemos.com / name=Alkemos
+  - **rate_limit_email_sent: 2 → 30** (معلق سابقًا: الـAPI يرفض تعديل الحد دون كتلة SMTP كاملة في نفس الطلب — وقوالب مغلقة حتى تهيئة SMTP على الخطة المجانية)
+  - قالب دعوة ثنائي اللغة RTL (1688 حرفًا — {{ .ConfirmationURL }}) + الموضوع «دعوة للانضمام إلى Alkemos · You have been invited»
+  - عقبات محلولة: Cloudflare 1010 (حظر بصمة python-urllib → UA curl) + smtp_port يُقبل نصًا لا رقمًا
+- **Vercel EMAIL_*** (PATCH /v9/projects/prj_y4p.../env/{id} — بعد فشل PUT (404) وPOST upsert (ENV_ALREADY_EXISTS) نجح PATCH):
+  - تحديث: EMAIL_SERVER_HOST=smtp-relay.brevo.com · PORT=587 · USER=b85159001@smtp-brevo.com · PASSWORD=<المفتاح الجديد>
+  - إضافة: EMAIL_FROM=`Alkemos <no-reply@alkemos.com>` · EMAIL_REPLY_TO=support@alkemos.com (الإنتاج — مطابقة أهداف الحالية)
+- القيم القديمة (Gmail Phase 72) استُبدلت بالكامل — نشر الإنتاج التالي (كوميت التوثيق) يلتقط القيم الجديدة
+
+Stage Summary:
+- **P1 دعوات العملاء أصبحت جاهزة تشغيليًا**: Supabase (دعوة/استعادة/تأكيد) + nodemailer (رسائل الأدوات) كلاهما على Brevo المجاني (300/يوم) عبر دومين alkemos.com الموثق DKIM — الحد الفعلي للتطبيق 30/ساعة (Supabase) و100/يوم (حد الكود لرسائل الأدوات)
+- **الاختبار E2E الأخير على المالك:** دعوة عميل حقيقية من التطبيق → تصلك الرسالة بالقالب الجديد
+- ملفات: ~ STATE.md (2) · ~ worklog.md — بلا كود؛ سكربتات الجلسة في scripts/ (خارج المستودع): smtp_live_test.py · supabase_smtp_patch.py · vercel_email_env_update.py
+- مفاتيح المالك مخزنة scripts/.secrets (chmod 600) خارج المستودع — لا قيم سرية في أي ملف مرفوع
