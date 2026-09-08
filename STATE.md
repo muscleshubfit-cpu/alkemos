@@ -14,7 +14,7 @@
 - **(هـ) 154 — UI-LIVE-AUDIT:** بلاغ المالك مغلق — .marble-card--unclipped أنقذ بحث الأكل + رسالة تحقق لحاسبة السعرات + اختبار حي شامل لكل الأدوات ✓ (إنتاج 2ebfde9)
 - **(و) 153 — sameAs + فوتر الكيان (§12.13):** 5 روابط في Organization.sameAs + أيقونات الفوتر — التكليف من §12.10 مغلق
 - **(ز) 152→149 — E-E-A-T على YMYL (≈19,396 صفحة) + OG العربية + سايت مابز hreflang/IndexNow/كاش** (§12.12→12.9)
-- **آخر كوميت متحقق منه:** 11f9555 (المرحلة 155) · **الإنتاج:** alkemos.com حي · **CI:** البوابة خضراء على main
+- **آخر كوميت متحقق منه:** 84c841f (المرحلة 156) · **الإنتاج:** alkemos.com حي · **CI:** البوابة خضراء على main
 
 ## المفتوح الآن
 - **P1 بناء الكيان — التكليف التقني ✅ مُغلق (§12.13):** sameAs + أيقونات الفوتر حية — **المتبقي على المالك:** أول 10 تقييمات Trustpilot (0 حاليًا) · GBP · LinkedIn/YouTube/TikTok اختيارية (تُضاف لsocial.ts فينتشر تلقائيًا)
@@ -42,6 +42,7 @@
 - **تغييرات المرحلة:** كود (blog-content-sanitize.ts جديد: 3 إصلاحات حتمية مركبة · blog-server.ts: fetchPublishedBlogSlugPools كاش 300s · blog pages EN+AR: حقن التعقيم بPromise.all قبل insertToolLinks) + اختبارات (+13) + docs (§12.15 + §7.1 #15 → ✅ + STATE + worklog) — قاعدة البيانات لم تُمس إطلاقًا
 - **البوابات:** next build ✓ · tsc 0 · eslint 0/0 · vitest **298/298** (+13: البادئات 4 + المراسٍ 4 + التلف 2 + المركب 2 + idempotency) · docs_audit · docs_parity · migration_audit --ci · stale-refs · ui-wiring
 - **التدقيق (المنهجية):** PostgREST مباشر (نمط 147 — anon key من حزمة الإنتاج) → 63 مقالًا كاملة → 12 بُعدًا → صفر مرشحي حذف/دمج · 85 رابطًا خاطئ البادئة (24 مقالًا AR) · 3 مراسٍ خام · 3 CJK
+- **التحقق الحي على الإنتاج (84c841f بعد النشر):** /ar/blog/best-protein-supplement-ramadan: صفر hrefs خاطئة بـ/blog/ و2 روابط /ar/blog/ عاملة · /ar/blog/best-dynamic-stretching-before-gym: صفر نص خام و3 روابط أدوات text-primary حية (water/macro/calorie) · /ar/blog/optimal-rest-periods: صفر CJK · مقال EN: روابط /blog/ سليمة (صفر انحدار) — كل البوابات خضراء
 - (محفوظ من 155): شبكة spoke→hub حيًا (c458aa0) · (من 154): بلاغ مخطط الوجبات مغلق حيًا (2ebfde9) · (من 153): sameAs + الفوتر · (من 152): reviewedBy/lastReviewed على ≈19,396 صفحة YMYL
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)

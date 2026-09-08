@@ -897,7 +897,7 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **hreflang المدونة (قرار مالك معلق، ليست عطلًا):** صفر من 34 مقالًا عربيًا يحمل `linked_post_id` — ميزة الربط ثنائي اللغة (blog-sitemap.ts، مُختبَرة) سابحة كليًا. مطابقة الترجمات تحريرية بحتة (كشف الأرقام المشتركة أثبت ضوضاءه في التجربة) — تُملأ عند توفرها من المالك/التحرير فتنتفض hreflang تلقائيًا في السايت ماب.
 
-**التحقق:** next build ✓ · tsc 0 · eslint 0/0 · vitest **298/298** (+13: البادئات 4 + الماركداون 4 + التلف 2 + المركب 2 + idempotency مشتركة) · docs gates · migration_audit --ci · stale-refs · ui-wiring — والتحقق الحي على الإنتاج بعد النشر: مقال AR من الـ24 يُظهر روابط `/ar/blog/` فعلًا + روابط الأدوات الثلاث عاملة + لا CJK.
+**التحقق:** next build ✓ · tsc 0 · eslint 0/0 · vitest **298/298** (+13: البادئات 4 + الماركداون 4 + التلف 2 + المركب 2 + idempotency مشتركة) · docs gates · migration_audit --ci · stale-refs · ui-wiring — **التحقق الحي على الإنتاج (84c841f):** /ar/blog/best-protein-supplement-ramadan صفر روابط `/blog/` خاطئة و2 روابط `/ar/blog/` عاملة · /ar/blog/best-dynamic-stretching-before-gym: 3 روابط أدوات `text-primary` حية بدل النص الميت · صفر CJK في optimal-rest-periods · مقال EN سليم بلا انحدار.
 
 ---
 
