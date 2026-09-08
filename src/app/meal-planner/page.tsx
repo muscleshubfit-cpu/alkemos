@@ -513,7 +513,10 @@ function MealCard({
   onUpdateGrams: (itemId: string, grams: number) => void;
 }) {
   return (
-    <div className="marble-card p-5 md:p-6">
+    // Phase 154 — marble-card--unclipped: overflow:hidden clipped the food
+    // search dropdown to the card bounds (271/288px invisible on live mobile).
+    // The dropdown (absolute z-20) now escapes over the following cards.
+    <div className="marble-card marble-card--unclipped p-5 md:p-6">
       {/* Meal header */}
       <div className="flex items-center gap-3">
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-sm font-semibold text-[var(--text)]">

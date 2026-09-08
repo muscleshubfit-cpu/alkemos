@@ -57,12 +57,23 @@ export default function CalorieCalculatorPage() {
     carbs: number;
     fat: number;
   } | null>(null);
+  // Phase 154 — inline validation feedback (was a silent `return` — the only
+  // calculator with no empty-submit message; BMI/body-fat both show one).
+  const [error, setError] = useState<string | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight);
     const h = parseFloat(height);
     const a = parseInt(age);
-    if (!w || !h || !a || w <= 0 || h <= 0 || a <= 0) return;
+    if (!w || !h || !a || w <= 0 || h <= 0 || a <= 0) {
+      setError(
+        isAr
+          ? "من فضلك أدخل عمرًا ووزنًا وطولًا صحيحة (أكبر من صفر)."
+          : "Please enter a valid age, weight and height (greater than zero).",
+      );
+      return;
+    }
+    setError(null);
 
     // Mifflin-St Jeor Equation
     const bmr = gender === "male"
@@ -225,6 +236,15 @@ export default function CalorieCalculatorPage() {
           >
             {isAr ? "احسب" : "Calculate"}
           </button>
+          {/* Phase 154 — inline validation feedback */}
+          {error && (
+            <p
+              role="alert"
+              className="mt-3 rounded-xl bg-[#ff3b30]/10 px-4 py-2.5 text-center text-sm font-normal text-[#ff3b30]"
+            >
+              {error}
+            </p>
+          )}
         </div>
 
         {/* Results */}

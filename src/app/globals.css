@@ -339,6 +339,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background-image: var(--marble-img);
   background-size: cover;
   background-position: center;
@@ -346,6 +347,14 @@
   pointer-events: none;
 }
 [data-theme="dark"] .marble-card::before { opacity: 0.07; }
+
+/* Phase 154 — popover escape hatch (owner live report: meal-planner food
+   search dropdown lost 271/288px behind overflow:hidden — the card «يحجب
+   رؤية البحث عن الاكل»). Cards hosting absolute popovers opt out of the
+   clip; the marble ::before texture still follows the rounded corners via
+   border-radius: inherit above. Unlayered, same cascade tier as
+   .marble-card (Phase 136b lesson: unlayered beats @layer utilities). */
+.marble-card--unclipped { overflow: visible; }
 
 /* Greek meander divider band — mission §4 */
 .meander-divider {
