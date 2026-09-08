@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 import { fetchBlogForOG } from "@/lib/blog-server";
 
 /**
@@ -9,19 +9,70 @@ import { fetchBlogForOG } from "@/lib/blog-server";
  *
  * Returns a 1200×630 PNG image optimized for social sharing (Twitter,
  * Facebook, LinkedIn, WhatsApp, Telegram). Generated on-the-fly using
- * @vercel/og (Satori under the hood) — no static image generation
- * needed.
+ * next/og (Satori under the hood) — no static image generation needed.
  *
  * Design:
  *   - Dark gradient background (#1d1d1f → #0071e3)
- *   - Alkemos logo + brand mark top-left
+ *   - Alkemos brand mark (A) + name top-left
  *   - Article title centered (auto-fit font size based on length)
  *   - Article description (truncated to 120 chars)
  *   - Site URL "alkemos.com" footer
+ *
+ * Phase 151 (2026-09-08 — AR OG bug): the previous implementation imported
+ * ImageResponse from @vercel/og (bundled 2023-era Satori without Arabic
+ * shaping/bidi). Every ?lang=ar request returned a 0-byte PNG (verified
+ * live: EN 251KB / AR 0B), so ALL Arabic articles shared broken cards on
+ * WhatsApp/Telegram/Facebook — the core Arabic market surfaces. Fix:
+ *   1. ImageResponse now comes from next/og (modern Satori with harfbuzz
+ *      shaping + bidi — Arabic verified rendering correctly, joined
+ *      glyph forms, RTL order, mixed AR+EN lines).
+ *   2. Cairo (Google font, Arabic+Latin, OFL) is SELF-HOSTED at
+ *      public/fonts/og-cairo-{400,700}.ttf and fetched same-origin on
+ *      first use, then cached module-level per warm isolate. No external
+ *      runtime dependency. If fonts fail to load, we degrade gracefully
+ *      to the bundled default (EN still renders — never worse than before).
+ *   3. Brand mark fixed "M" → "A" (leftover from the old brand).
+ *   4. Cache-Control: public 1day + SWR so social crawlers and CDNs
+ *      cache cards; keyed by slug+lang (both languages cached apart).
  */
 
 export const runtime = "edge";
 export const maxDuration = 30;
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL || "https://alkemos.com";
+
+type CairoFont = {
+  name: "Cairo";
+  data: ArrayBuffer;
+  weight: 400 | 700;
+  style: "normal";
+};
+
+// Module-level cache: one fetch pair per warm edge isolate.
+let cairoFontsPromise: Promise<CairoFont[] | null> | null = null;
+
+function loadCairoFonts(): Promise<CairoFont[] | null> {
+  if (!cairoFontsPromise) {
+    cairoFontsPromise = Promise.all([
+      fetch(`${APP_URL}/fonts/og-cairo-400.ttf`),
+      fetch(`${APP_URL}/fonts/og-cairo-700.ttf`),
+    ])
+      .then(async ([r400, r700]) => {
+        if (!r400.ok || !r700.ok) return null;
+        const [data400, data700] = await Promise.all([
+          r400.arrayBuffer(),
+          r700.arrayBuffer(),
+        ]);
+        return [
+          { name: "Cairo", data: data400, weight: 400, style: "normal" },
+          { name: "Cairo", data: data700, weight: 700, style: "normal" },
+        ] as CairoFont[];
+      })
+      .catch(() => null);
+  }
+  return cairoFontsPromise;
+}
 
 export async function GET(
   request: NextRequest,
@@ -54,6 +105,8 @@ export async function GET(
   const titleLength = title.length;
   const titleFontSize = titleLength > 80 ? 36 : titleLength > 50 ? 48 : titleLength > 30 ? 60 : 72;
 
+  const fonts = await loadCairoFonts();
+
   return new ImageResponse(
     (
       <div
@@ -65,7 +118,7 @@ export async function GET(
           justifyContent: "space-between",
           background: "linear-gradient(135deg, #1d1d1f 0%, #0071e3 100%)",
           padding: 60,
-          fontFamily: "sans-serif",
+          fontFamily: fonts ? "Cairo" : "sans-serif",
           color: "white",
         }}
       >
@@ -85,7 +138,7 @@ export async function GET(
               fontWeight: 700,
             }}
           >
-            M
+            A
           </div>
           <div style={{ fontSize: 32, fontWeight: 700, letterSpacing: -0.5 }}>
             Alkemos
@@ -129,13 +182,25 @@ export async function GET(
           }}
         >
           <div>alkemos.com</div>
-          <div>{lang === "ar" ? "مدونة Alkemos" : "Alkemos Blog"}</div>
+          {lang === "ar" ? (
+            // flex gap keeps the AR/Latin bidi boundary from collapsing
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div>مدونة</div>
+              <div>Alkemos</div>
+            </div>
+          ) : (
+            <div>Alkemos Blog</div>
+          )}
         </div>
       </div>
     ),
     {
       width: 1200,
       height: 630,
+      ...(fonts ? { fonts } : {}),
+      headers: {
+        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+      },
     },
   );
 }
