@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
-import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
+import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools } from "@/lib/blog-server";
+import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
@@ -138,9 +139,19 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   // is idempotent (skips already-linked tools, caps at 3, never touches
   // headings/existing markdown links), so pipeline-generated articles
   // pass through unchanged.
-  const fetchedPost = await fetchBlogPostFull(slug, "en");
+  // Phase 156 (SEO-GEO-4.8, §7.1 #15): sanitizeBlogContent runs FIRST
+  // (audit-driven: wrong cross-language prefixes → 404, raw HTML anchors
+  // killed by the XSS escape, known CJK corruption) — then tool links
+  // are injected into the now-clean markdown. Both are idempotent.
+  const [fetchedPost, slugPools] = await Promise.all([
+    fetchBlogPostFull(slug, "en"),
+    fetchPublishedBlogSlugPools(),
+  ]);
   const fullPost = fetchedPost
-    ? { ...fetchedPost, content: insertToolLinks(fetchedPost.content, "en").md }
+    ? {
+        ...fetchedPost,
+        content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "en", slugPools), "en").md,
+      }
     : fetchedPost;
 
   return (

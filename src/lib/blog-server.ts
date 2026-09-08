@@ -173,6 +173,43 @@ export const fetchBlogPostFull = unstable_cache(
   { revalidate: 300 },
 );
 
+/**
+ * Phase 156 (SEO-GEO-4.8, §7.1 #15): published blog slugs per language —
+ * the truth source for the render-time link-prefix sanitizer
+ * (blog-content-sanitize.ts). A wrong-prefix link is only rewritten when
+ * the target genuinely exists in the reader's language, so a missing or
+ * deliberately cross-language target can never be turned into a 404.
+ * Light select (slug, language only) + unstable_cache @300s aligned with
+ * the blog pages' ISR window: at most one extra query per 5 minutes.
+ */
+export const fetchPublishedBlogSlugPools = unstable_cache(
+  async (): Promise<{ en: Set<string>; ar: Set<string> }> => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const pools: { en: Set<string>; ar: Set<string> } = { en: new Set(), ar: new Set() };
+    if (!supabaseUrl || !supabaseAnonKey) return pools;
+    try {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("slug, language")
+        .eq("is_published", true);
+      if (error || !data) return pools;
+      for (const row of data as Array<{ slug: string; language: string }>) {
+        if (row.language === "ar") pools.ar.add(row.slug);
+        else pools.en.add(row.slug);
+      }
+    } catch {
+      // empty pools on failure — sanitizer degrades to a no-op (never 500s)
+    }
+    return pools;
+  },
+  ["blog-slug-pools"],
+  { revalidate: 300 },
+);
+
 // FAQ item moved to blog.ts (client-safe single source of truth — Phase 90)
 // and re-exported here for the existing blog-server import surface.
 export type { BlogFaq };

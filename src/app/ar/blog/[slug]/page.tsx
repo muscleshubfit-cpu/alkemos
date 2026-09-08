@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
-import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
+import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools } from "@/lib/blog-server";
+import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
@@ -112,9 +113,19 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   // the initial HTML (visible to Googlebot without executing JS).
   // Phase 155 (SEO-GEO-4.7, §7.1 #11): same render-time tool-link
   // injection as the EN mirror (AR trigger dictionary, idempotent).
-  const fetchedPost = await fetchBlogPostFull(slug, "ar");
+  // Phase 156 (SEO-GEO-4.8, §7.1 #15): the AR legacy corpus carries 85
+  // /blog/-prefixed links to AR-only articles (live 404s) + 3 raw HTML
+  // anchors + 3 CJK tokens — all fixed deterministically here, pools
+  // guard so a real cross-language target is never broken.
+  const [fetchedPost, slugPools] = await Promise.all([
+    fetchBlogPostFull(slug, "ar"),
+    fetchPublishedBlogSlugPools(),
+  ]);
   const fullPost = fetchedPost
-    ? { ...fetchedPost, content: insertToolLinks(fetchedPost.content, "ar").md }
+    ? {
+        ...fetchedPost,
+        content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "ar", slugPools), "ar").md,
+      }
     : fetchedPost;
 
   return (
