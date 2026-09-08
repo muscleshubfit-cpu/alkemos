@@ -2203,3 +2203,22 @@ Stage Summary:
 - **Gmail لم يعد له أي دور في الإرسال أو الواجهة**: المُرسِل محذوف من Brevo، صفحة التواصل على دومين الموقع، الوثائق مطابقة للواقع
 - ملاحظة تشغيلية للمالك: صندوق استقبال newsletter@ غير مُنشأ على Zoho — لو حابب الردود تيجي عليه أنشئه، أو خلي replyTo = support@alkemos.com في الحملات
 - الملفات: ~ src/components/views/ContactView.tsx · ~ src/app/api/send-email/route.ts (تعليق) · ~ .env.example · ~ README.md · ~ DEVELOPER_GUIDE.md · ~ STATE.md · ~ worklog.md — سكربتات الجلسة في scripts/ خارج المستودع (newsletter_status.py · newsletter_sender_setup.py)
+
+---
+Task ID: EMAIL-E2E-147-2026-09-08
+Agent: main (Super Z — GLM)
+Task: أمر المالك «ابداء تجربة حية لكل انظمة البريد بحسابات اختبار، وتاكد ان جميع الادوات يعمل داخلها البريد وايضا يتم تسجيلهم فى قائمة ال lead capture»
+
+Work Log:
+- تجهيز: فحص auth config عبر Management API (mailer_autoconfirm=false + SMTP relay مكتمل) · خط أساس tool_leads = 45 صفًا · استخراج anon key من حزمة الإنتاج (عام بالتصميم، ref مطابق) — كل الطلبات بـ UA curl/8.5.0 (python-urllib محظور)
+- دفعة 1 (03:29Z): النشرة POST /api/tools/lead → 200 {ok,id} · 4 أدوات POST /api/send-email → 200 {ok,leadSaved:true} — حد 5/10min/IP أجبر الدفعتين (وصولًا واقعيًا لحدود المعدل)
+- دفعة 2 (03:40Z بعد انتهاء النافذة): water-tracker + meal-planner → 200 {ok,leadSaved:true} — الأدوات الست اكتملت
+- بريد Auth: signup عضوين تجريبيين → **تأكيد فوري بلا بريد تأكيد** — السبب موثق ومقصود: تريغر 0074 `alkemos_autoconfirm_email` يختم email_confirmed_at لحظة الإنشاء (تحقق حيًا رغم config autoconfirm=false) + تريغر `handle_new_user_add_lead` يسجل العضو تلقائيًا type=member — استعادة كلمة المرور `/auth/v1/recover` + Magic Link `/auth/v1/otp` → كلاهما **delivered** عبر relay من no-reply@alkemos.com (**أول إثبات حي أن Supabase custom SMTP يعمل**)
+- تحقق نهائي عبر أحداث Brevo: 7/7 رسائل delivered+opened (6 أدوات REST + recovery + magic link — أحدها حتى clicks) · tool_leads 45→54: 9/9 صفوف اختبار سُجلت (6 tool + 1 newsletter + 2 member) · حد 100/يوم لم يُمس (6 إرسالات)
+- البوابات: docs_audit ✓ (STATE 64 سطرًا) · docs_parity ✓ · stale-refs ✓ — بلا تغيير كود (توثيق فقط)
+
+Stage Summary:
+- **كل أنظمة البريد في الإنتاج تعمل فعليًا ومثبتة حيًا**: نتائج الأدوات الست (Brevo REST من Vercel) delivered+opened · النشرة تجمع اشتراكات في tool_leads type=newsletter · relay Supabase SMTP يسلّم (recovery + magic link) · التسجيل الفوري يعمل مع تسجيل lead تلقائي
+- **lead capture شامل وموثوق**: كل مسار (أداة/نشرة/عضو جديد) سجّل صفًا صحيح النوع في tool_leads — 9/9
+- المتبقي الوحيد على المالك: دعوة عميل حقيقية من التطبيق (تحتاج دخول الأدمن) + أول نشرة من لوحة Brevo
+- الملفات: ~ STATE.md · ~ worklog.md — سكربتات الاختبار خارج المستودع (live_e2e_prep.py · live_e2e_147.py · final_verify_147.py)
