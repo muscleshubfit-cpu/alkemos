@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull } from "@/lib/blog-server";
+import { insertToolLinks } from "@/lib/blog-tool-links";
 import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
@@ -109,7 +110,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   // M28 fix: fetch the full post server-side so the article body is in
   // the initial HTML (visible to Googlebot without executing JS).
-  const fullPost = await fetchBlogPostFull(slug, "ar");
+  // Phase 155 (SEO-GEO-4.7, §7.1 #11): same render-time tool-link
+  // injection as the EN mirror (AR trigger dictionary, idempotent).
+  const fetchedPost = await fetchBlogPostFull(slug, "ar");
+  const fullPost = fetchedPost
+    ? { ...fetchedPost, content: insertToolLinks(fetchedPost.content, "ar").md }
+    : fetchedPost;
 
   return (
     <>

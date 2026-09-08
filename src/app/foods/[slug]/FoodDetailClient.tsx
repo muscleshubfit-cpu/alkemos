@@ -11,6 +11,7 @@ import {
   type Food,
 } from "@/lib/foods-shared";
 import { ArrowLeft, Calculator, Target } from "lucide-react";
+import type { HubLinkMini } from "@/lib/hub-collections";
 
 /**
  * Client component for food detail page.
@@ -29,10 +30,16 @@ import { ArrowLeft, Calculator, Target } from "lucide-react";
 export default function FoodDetailClient({
   food,
   related: relatedProp,
+  collectionLinks: collectionLinksProp,
   lang: langProp,
 }: {
   food: Food | null;
   related?: Food[];
+  /** Phase 155 (#11): server-resolved tag-collection links (locale-free
+   *  hrefs — this component prefixes /ar for the AR mirror, same
+   *  URL-space law as `base` below). Empty for the USDA long tail
+   *  (no tags → no collection links, honest linking only). */
+  collectionLinks?: HubLinkMini[];
   lang?: Lang;
 }) {
   const { lang: ctxLang } = useI18n();
@@ -75,6 +82,8 @@ export default function FoodDetailClient({
   const nutrition = calculateNutrition(food, grams);
   // Server-computed related foods (prop) — no client data dependency.
   const related = relatedProp ?? [];
+  // Phase 155 (#11): server-resolved collection links (prop).
+  const collectionLinks = collectionLinksProp ?? [];
   const categoryLabel = isAr ? CATEGORY_LABELS[food.category].ar : CATEGORY_LABELS[food.category].en;
 
   // Quick gram presets
@@ -398,6 +407,38 @@ export default function FoodDetailClient({
                   </p>
                 </a>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Phase 155 (#11): tag-collection links + meal-planner CTA —
+            spoke→hub links from every food page to the curated
+            collection hub(s) it belongs to, plus the free planner. */}
+        {(collectionLinks.length > 0 || food) && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {isAr ? "خطّط واستكشف" : "Plan & explore"}
+            </h2>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {collectionLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={`${isAr ? "/ar" : ""}${l.href}`}
+                  className="rounded-full bg-[#f5f5f7] px-4 py-2 text-sm font-medium text-[#1d1d1f] transition-opacity hover:opacity-90"
+                >
+                  {isAr ? l.labelAr : l.labelEn}
+                  <span aria-hidden="true" className="ms-1 text-[#6e6e73]">›</span>
+                </a>
+              ))}
+              {food && (
+                <a
+                  href={isAr ? "/ar/meal-planner" : "/meal-planner"}
+                  className="rounded-full bg-[#0071e3]/10 px-4 py-2 text-sm font-medium text-[#0071e3] transition-opacity hover:opacity-90"
+                >
+                  {isAr ? "مخطط الوجبات المجاني" : "Free AI Meal Planner"}
+                  <span aria-hidden="true" className="ms-1">›</span>
+                </a>
+              )}
             </div>
           </section>
         )}

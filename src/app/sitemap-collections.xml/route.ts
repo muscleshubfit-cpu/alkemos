@@ -1,8 +1,11 @@
 import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitemap-xml";
+import { familyLastmod } from "@/lib/sitemap-lastmod";
 import {
   MUSCLE_HUBS,
   EQUIPMENT_HUBS,
   FOOD_COLLECTIONS,
+  isAdvertisedMuscleHub,
+  isAdvertisedEquipmentHub,
 } from "@/lib/hub-collections";
 
 /**
@@ -20,6 +23,13 @@ import {
  * Each URL declares its reciprocal hreflang pair (EN ↔ AR) so Google
  * indexes the locale pair correctly.
  *
+ * EMPTY-HUB POLICY (Phase 155, extends A-5 crawl economy): hubs whose
+ * library filter yields ZERO exercises (/muscles/cardio and
+ * /equipment/none as of the 868-row library) are thin content — they
+ * stay live (slug law) but are NOT advertised here. Re-admission is
+ * automatic the moment a matching exercise ships (isAdvertised* in
+ * hub-collections.ts, pinned by hub-linking.test.ts).
+ *
  * ISR cache: 1 hour (matches the other sitemap routes).
  */
 
@@ -29,8 +39,9 @@ export async function GET() {
   const base = siteUrl();
   const urls: SitemapUrl[] = [];
 
-  // 1. Muscle group hubs
+  // 1. Muscle group hubs (skips empty hubs — EMPTY-HUB POLICY above)
   for (const hub of MUSCLE_HUBS) {
+    if (!isAdvertisedMuscleHub(hub)) continue;
     urls.push({
       loc: `${base}/muscles/${hub.slug}`,
       changefreq: "weekly",
@@ -51,8 +62,9 @@ export async function GET() {
     });
   }
 
-  // 2. Equipment hubs
+  // 2. Equipment hubs (skips empty hubs — EMPTY-HUB POLICY above)
   for (const hub of EQUIPMENT_HUBS) {
+    if (!isAdvertisedEquipmentHub(hub)) continue;
     urls.push({
       loc: `${base}/equipment/${hub.slug}`,
       changefreq: "weekly",
@@ -95,5 +107,8 @@ export async function GET() {
     });
   }
 
-  return xmlResponse(buildUrlSet(urls));
+  // Phase 155 (#14): truthful per-family lastmod (see sitemap-lastmod.ts).
+  return xmlResponse(
+    buildUrlSet(urls.map((u) => ({ ...u, lastModified: familyLastmod("collections") }))),
+  );
 }

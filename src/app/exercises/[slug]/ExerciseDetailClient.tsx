@@ -13,6 +13,7 @@ import {
 import { ArrowLeft, Dumbbell, Target, AlertCircle, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import type { HubLinkMini } from "@/lib/hub-collections";
 
 /**
  * Client component for exercise detail page.
@@ -32,11 +33,19 @@ export default function ExerciseDetailClient({
   exercise,
   slug,
   related: relatedProp,
+  hubLinks: hubLinksProp,
   lang: langProp,
 }: {
   exercise: Exercise | null;
   slug: string;
   related?: Exercise[];
+  /** Phase 155 (#11): server-resolved muscle/equipment hub links
+   *  (locale-free hrefs — this component prefixes /ar for the AR mirror,
+   *  same URL-space law as `base` below). */
+  hubLinks?: {
+    muscle: HubLinkMini | null;
+    equipment: HubLinkMini | null;
+  } | null;
   lang?: Lang;
 }) {
   const { lang: ctxLang } = useI18n();
@@ -279,6 +288,29 @@ export default function ExerciseDetailClient({
                   </a>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {/* Phase 155 (#11): spoke→hub links — muscle group + equipment hubs */}
+        {hubLinksProp && (hubLinksProp.muscle || hubLinksProp.equipment) && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {isAr ? "تصفّح حسب التصنيف" : "Browse by category"}
+            </h2>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {[hubLinksProp.muscle, hubLinksProp.equipment]
+                .filter((l): l is HubLinkMini => l !== null)
+                .map((l) => (
+                  <a
+                    key={l.href}
+                    href={`${isAr ? "/ar" : ""}${l.href}`}
+                    className="rounded-full bg-[#f5f5f7] px-4 py-2 text-sm font-medium text-[#1d1d1f] transition-opacity hover:opacity-90"
+                  >
+                    {isAr ? l.labelAr : l.labelEn}
+                    <span aria-hidden="true" className="ms-1 text-[#6e6e73]">›</span>
+                  </a>
+                ))}
             </div>
           </section>
         )}

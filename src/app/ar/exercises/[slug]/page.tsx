@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExerciseBySlug, getRelatedExercises, EXERCISES, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
+import {
+  getMuscleHubByCategory,
+  getEquipmentHubByEquipment,
+  type HubLinkMini,
+} from "@/lib/hub-collections";
 import { getHowToSchema, getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import ExerciseDetailClient from "@/app/exercises/[slug]/ExerciseDetailClient";
 
@@ -115,6 +120,25 @@ export default async function Page({
       })
     : null;
 
+  // Phase 155 (SEO-GEO-4.7, §7.1 #11): spoke→hub internal links — same
+  // resolvers as the EN mirror (locale-free hrefs; the client prefixes
+  // /ar so the links stay inside the Arabic URL space).
+  const muscleHub = exercise ? getMuscleHubByCategory(exercise.category) : null;
+  const equipmentHub = exercise ? getEquipmentHubByEquipment(exercise.equipment) : null;
+  const hubLinks: {
+    muscle: HubLinkMini | null;
+    equipment: HubLinkMini | null;
+  } | null = exercise
+    ? {
+        muscle: muscleHub
+          ? { href: `/muscles/${muscleHub.slug}`, labelEn: muscleHub.h1En, labelAr: muscleHub.h1Ar }
+          : null,
+        equipment: equipmentHub
+          ? { href: `/equipment/${equipmentHub.slug}`, labelEn: equipmentHub.h1En, labelAr: equipmentHub.h1Ar }
+          : null,
+      }
+    : null;
+
   return (
     <>
       {exerciseSchema && (
@@ -139,6 +163,7 @@ export default async function Page({
         exercise={exercise ?? null}
         slug={slug}
         related={exercise ? getRelatedExercises(exercise) : []}
+        hubLinks={hubLinks}
         lang="ar"
       />
     </>

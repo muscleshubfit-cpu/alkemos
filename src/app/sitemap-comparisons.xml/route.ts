@@ -1,4 +1,5 @@
 import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitemap-xml";
+import { familyLastmod } from "@/lib/sitemap-lastmod";
 import { COMPARISONS } from "@/lib/comparisons";
 
 /**
@@ -42,5 +43,8 @@ export async function GET() {
     });
   }
 
-  return xmlResponse(buildUrlSet(urls));
+  // Phase 155 (#14): truthful per-family lastmod (see sitemap-lastmod.ts).
+  return xmlResponse(
+    buildUrlSet(urls.map((u) => ({ ...u, lastModified: familyLastmod("comparisons") }))),
+  );
 }

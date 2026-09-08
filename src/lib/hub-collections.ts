@@ -465,7 +465,7 @@ export const FOOD_COLLECTIONS: FoodCollection[] = [
     introEn:
       "The best foods for a cutting phase from the Alkemos library — high protein, low calorie, low fat options that maximize satiety while keeping you in a calorie deficit. Chicken breast, egg whites, tuna, white fish, leafy greens, and berries form the backbone of any successful cut. This collection organizes every cutting-friendly food with full macros so you can plan your fat-loss phase precisely.",
     introAr:
-      "أفضل أطعمة مرحلة التخسيس من مكتبة Alkemos — خيارات عالية البروتين، منخفضة السعرات، منخفضة الدهون تُعظّم الشبع مع إبقائك في عجز سعرات. صدور دجاج، بياض البيض، تونة، سمك أبيض، خضار ورقية، وتوت形成 العمود الفقري لأي تخسيس ناجح. هذه المجموعة تنظّم كل أطعمة التخسيس مع الماكروز الكاملة لتخطّط مرحلة خسارة الدهون بدقة.",
+      "أفضل أطعمة مرحلة التخسيس من مكتبة Alkemos — خيارات عالية البروتين، منخفضة السعرات، منخفضة الدهون تُعظّم الشبع مع إبقائك في عجز سعرات. صدور دجاج، بياض البيض، تونة، سمك أبيض، خضار ورقية، وتوت تُشكّل العمود الفقري لأي تخسيس ناجح. هذه المجموعة تنظّم كل أطعمة التخسيس مع الماكروز الكاملة لتخطّط مرحلة خسارة الدهون بدقة.",
     descriptionEn:
       "Complete list of foods for cutting with macros per 100g. Chicken breast, egg whites, tuna, white fish, leafy greens, and berries.",
     descriptionAr:
@@ -545,4 +545,88 @@ for (const c of FOOD_COLLECTIONS) {
       `Food collection "${c.slug}" uses unknown tag "${c.tag}" — add it to foods-shared.ts TAG_LABELS first.`,
     );
   }
+}
+
+// ============================================================================
+// 4. SPOKE→HUB INTERNAL LINKING RESOLVERS — Phase 155 (SEO-GEO-4.7, §7.1 #11)
+// ============================================================================
+//
+// Discovery audit (Phase 155): the hub pages were already well-linked OUT
+// (hub → spokes + cross-hubs + tools), but the detail ("spoke") pages only
+// linked within their own family — food pages never linked the tag
+// collections (which were discoverable almost exclusively through the
+// header nav), and exercise pages never linked their muscle/equipment hubs.
+// These resolvers make the spoke→hub direction deterministic and
+// data-driven: no content authoring, no AI, exact 1:1 field matches.
+
+/** Max collection links rendered on a single food page (hub hygiene). */
+export const MAX_COLLECTION_LINKS_PER_FOOD = 2;
+
+/** Muscle hub for an exercise's primary category (1:1 by design). */
+export function getMuscleHubByCategory(
+  category: ExerciseCategory,
+): MuscleHub | null {
+  return MUSCLE_HUBS.find((h) => h.category === category) ?? null;
+}
+
+/** Equipment hub for an exercise's equipment type (1:1 by design). */
+export function getEquipmentHubByEquipment(
+  equipment: Equipment,
+): EquipmentHub | null {
+  return EQUIPMENT_HUBS.find((h) => h.equipment === equipment) ?? null;
+}
+
+/**
+ * Food collections matching a food's tags, in FOOD_COLLECTIONS order
+ * (deterministic — the array order is the editorial priority), capped at
+ * MAX_COLLECTION_LINKS_PER_FOOD. Foods with no tags (the USDA long tail)
+ * return [] and render no collection links — honest linking only.
+ */
+export function getCollectionsForFoodTags(
+  tags: string[] | undefined | null,
+): FoodCollection[] {
+  if (!tags || tags.length === 0) return [];
+  const out: FoodCollection[] = [];
+  for (const c of FOOD_COLLECTIONS) {
+    if (tags.includes(c.tag)) {
+      out.push(c);
+      if (out.length >= MAX_COLLECTION_LINKS_PER_FOOD) break;
+    }
+  }
+  return out;
+}
+
+/**
+ * Tiny serializable link record passed to client detail components —
+ * keeps the (server-only) hub modules out of the client bundle while
+ * the pages still render exact bilingual anchors.
+ */
+export type HubLinkMini = {
+  href: string;
+  labelEn: string;
+  labelAr: string;
+};
+
+// ============================================================================
+// 5. EMPTY-HUB SITEMAP POLICY — Phase 155 (extends the A-5 crawl economy)
+// ============================================================================
+//
+// Library census (Phase 155, pinned by hub-linking.test.ts): the 868-row
+// exercise library contains ZERO rows with category "cardio" and ZERO rows
+// with equipment "none" — so /muscles/cardio and /equipment/none (EN+AR)
+// are live hub pages rendering an EMPTY grid. Per the A-5 precedent
+// ("don't advertise pages that cannot rank"), they stay live (slug law,
+// cross-linked from sibling hubs) but are NOT advertised in
+// sitemap-collections.xml until the library actually gains matching rows.
+// Re-admission is automatic: the helpers below flip to true the moment a
+// matching exercise ships.
+
+/** True when the hub's library filter yields at least one exercise. */
+export function isAdvertisedMuscleHub(hub: MuscleHub): boolean {
+  return getExercisesForMuscleHub(hub).length > 0;
+}
+
+/** True when the equipment hub's library filter yields at least one exercise. */
+export function isAdvertisedEquipmentHub(hub: EquipmentHub): boolean {
+  return getExercisesForEquipmentHub(hub).length > 0;
 }

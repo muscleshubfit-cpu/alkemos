@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getExerciseBySlug, getRelatedExercises } from "@/lib/exercises";
+import {
+  getMuscleHubByCategory,
+  getEquipmentHubByEquipment,
+  type HubLinkMini,
+} from "@/lib/hub-collections";
 import { getHowToSchema, getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import { CATEGORY_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import ExerciseDetailClient from "./ExerciseDetailClient";
@@ -112,6 +117,26 @@ export default async function Page({
       })
     : null;
 
+  // Phase 155 (SEO-GEO-4.7, §7.1 #11): spoke→hub internal links — every
+  // exercise page now links its muscle-group hub and equipment hub
+  // (deterministic 1:1 field matches, computed server-side so the
+  // server-only hub module stays out of the client bundle).
+  const muscleHub = exercise ? getMuscleHubByCategory(exercise.category) : null;
+  const equipmentHub = exercise ? getEquipmentHubByEquipment(exercise.equipment) : null;
+  const hubLinks: {
+    muscle: HubLinkMini | null;
+    equipment: HubLinkMini | null;
+  } | null = exercise
+    ? {
+        muscle: muscleHub
+          ? { href: `/muscles/${muscleHub.slug}`, labelEn: muscleHub.h1En, labelAr: muscleHub.h1Ar }
+          : null,
+        equipment: equipmentHub
+          ? { href: `/equipment/${equipmentHub.slug}`, labelEn: equipmentHub.h1En, labelAr: equipmentHub.h1Ar }
+          : null,
+      }
+    : null;
+
   return (
     <>
       {exerciseSchema && (
@@ -136,6 +161,7 @@ export default async function Page({
         exercise={exercise ?? null}
         slug={slug}
         related={exercise ? getRelatedExercises(exercise) : []}
+        hubLinks={hubLinks}
       />
     </>
   );
