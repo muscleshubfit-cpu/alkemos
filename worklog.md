@@ -3,6 +3,24 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-4.2-CACHE-RULE-2026-09-08
+Agent: Super Z (main)
+Task: أمر المالك «تم تحديث التوكين» — إنشاء قاعدة كاش Cloudflare «alkemos-public-html-cache» برمجيًا (آخر بند P1 متبقٍ من Quick Wins 148)
+
+Work Log:
+- إعادة اختبار التوكنين بعد تحديث المالك: توكن 1 (DNS سابقًا) أصبح يمر المصادقة إلى فحص JSON = صلاحية Cache Rules Edit ممنوحة · توكن 2 بقي قراءةً فقط
+- تصحيحات بناء REST (مختلفة عن اللوحة — موثقة في §12-هـ): `contains` عامل لا دالة → `not (http.request.uri.path contains ".")` · Edge TTL override = `edge_ttl:{mode:"override_origin",default:3600}` (حقل default لا value) · حقل enabled مرفوض في الإنشاء · serve_stale غير متاح في مخطط الباقة (فحصت enabled/on_failure/boolean كلها مرفوضة)
+- الإنشاء نجح: POST /zones/{z}/rulesets → ruleset `d9f2c38e782043369d0815caef91cb60` · rule `fa2632aaff104c509e806ecbee75e432` v1 · الشرط يستثني api/admin/auth/checkout/dashboard/questionnaires/progress/plans/profile/support/referral/preview/coach وكل المسارات ذات نقطة (ملفات)
+- تحقق حي على الإنتاج: / و /faq و /ar/tools/calorie-calculator: طلب أول MISS → التالي **cf-cache-status: HIT** · /dashboard و /auth/login و /api/health بقيت **DYNAMIC** (الخاصة غير مخزنة — السلامة مثبتة)
+- التوثيق: SEO-GEO-MASTER-PLAN §12-هـ (تم الإنجاز + بناء REST + التراجع) · STATE.md (149 بند ث + إغلاق بند P1) · هذا المدخل
+- البوابات: docs_audit ✓ (وثائق فقط — لا كود)
+
+Stage Summary:
+- **آخر بند P1 من Quick Wins أغلق**: كاش الحافة للصفحات العامة فعّال على الإنتاج بأول قاعدة كاش في تاريخ النطاق — متحقق HIT حيًا
+- المتبقي الوحيد على المالك: GSC UI إعادة إرسال الخرائط الست (30 ثانية — لا بديل برمجي لـGoogle)
+- الملفات: ~ docs/SEO-GEO-MASTER-PLAN.md · ~ STATE.md · ~ worklog.md
+
+---
 Task ID: SEO-GEO-4.1-SITEMAPS-2026-09-08
 Agent: Super Z (main)
 Task: Phase 149 (أمر المالك «اكتب السايت مابز المطلوب اضافتها ثم نفذ الباقى» + توكنات Vercel/Supabase/Cloudflare) — حصر السايت مابز المطلوبة وتنفيذ المتبقي من Quick Wins
