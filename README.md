@@ -384,7 +384,7 @@ alkemos/
 | **AI** | OpenRouter + Groq ONLY — unified layer (`src/lib/ai-provider.ts`), interleaved strongest-chain + Promise.any race + SSE streaming, budget-clamped ≤52s |
 | **Charts** | Recharts 3 (lazy-loaded) |
 | **Forms** | react-hook-form + zod |
-| **Email** | Nodemailer (tool results, newsletters, validation + daily 100/24h cap) |
+| **Email** | Brevo REST API (tool results over HTTPS, daily 100/24h code cap) + Supabase custom SMTP (auth emails via Brevo relay) |
 | **Payments** | PayPal (create/capture/webhook) + manual review (InstaPay/Vodafone Cash/bank) |
 | **Analytics** | Vercel Analytics + Speed Insights + GA4 (optional) |
 | **Ads** | Google AdSense (tier-gated, auto-suppressed on auth routes) |

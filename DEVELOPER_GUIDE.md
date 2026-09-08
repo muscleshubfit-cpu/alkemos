@@ -468,7 +468,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/plans/member-edit` | POST | User | تعديل العضو لخطته (تتبع التعديلات اليدوية — غير محدودة) |
 | `/api/plans/normalize` | POST | Coach/Admin | تطبيع نص خطة يدوية إلى بنية مهيكلة |
 | `/api/refund/request` | GET/POST | User | طلب استرداد العضو + فحص الأهلية (7 أيام + عدم استخدام المميزات من الدفاتر المحمية) |
-| `/api/send-email` | POST | Server (service-role) | إرسال بريد nodemailer + تحقق صارم + حد 100/24h |
+| `/api/send-email` | POST | Server (service-role) | إرسال بريد عبر Brevo REST API (HTTPS) + تحقق صارم + حد 100/24h |
 | `/api/subscription/cancel` | POST | User | إلغاء اشتراك (يمنح أهلية استرداد + عكس عمولات معلّقة) |
 | `/api/support/tickets` | GET/POST | User | تذاكر الدعم بين العميل والمدرب |
 | `/api/tools/lead` | POST | Public (rate-limited) | التقاط عميل محتمل من الأدوات الست |

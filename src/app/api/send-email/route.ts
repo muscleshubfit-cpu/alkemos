@@ -53,7 +53,8 @@ const EMAIL_MAX = 3;
  * «حد أقصى 100 رسالة في اليوم» — counted from the `tool_leads` rows created
  * by the email flow (type='tool') in the last 24 hours, checked BEFORE the
  * lead is saved and the email is sent. Reaching the cap → HTTP 429, the
- * Gmail/SMTP account is NOT touched (protects it from suspension).
+ * sending account is NOT touched (protects the shared Brevo free
+ * tier — 300/day — from suspension).
  */
 const DAILY_WINDOW = 24 * 60 * 60 * 1000;
 const DAILY_EMAIL_LIMIT = 100;

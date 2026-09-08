@@ -73,7 +73,7 @@ export function ContactView() {
               <h3 className="text-xs font-normal uppercase tracking-wide text-[var(--muted-foreground)]">
                 {isAr ? "البريد الإلكتروني" : "Email"}
               </h3>
-              <p className="mt-2 text-lg font-normal" dir="ltr">muscleshubfit@gmail.com</p>
+              <p className="mt-2 text-lg font-normal" dir="ltr">contact@alkemos.com</p>
             </div>
             <div>
               <h3 className="text-xs font-normal uppercase tracking-wide text-[var(--muted-foreground)]">

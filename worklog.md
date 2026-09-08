@@ -2184,3 +2184,22 @@ Stage Summary:
 - **دعوات Supabase تعمل عبر custom SMTP** (لوحة Supabase ليست على Vercel — SMTP متاح منها) — قالب الدعوة ثنائي اللغة
 - الترتيب النهائي للإرسال: Supabase (دعوة/استعادة/تأكيد) → Brevo relay SMTP · Vercel (نتائج الأدوات) → Brevo REST HTTPS — حد 300/يوم موحّد (الكود يحد 100/يوم للرسائل)
 - الملفات: ~ src/app/api/send-email/route.ts · ~ src/components/LeadCaptureCard.tsx (تعليق) · ~ package.json + lock (إزالة nodemailer) · ~ STATE.md · ~ worklog.md
+
+---
+Task ID: NEWSLETTER-IDENTITY-146-2026-09-08
+Agent: main (Super Z — GLM)
+Task: أمر المالك «نعدل الربط القديم للنشرة البريدية (كنا نستخدم gmail امسحه) ونستخدم بريد جديد (محتاج اسم بريد للنشرة)» — إنشاء هوية النشرة على الدومين + مسح Gmail الشامل
+
+Work Log:
+- فحص حي شامل أولًا (scripts/newsletter_status.py — UA curl لتجاوز حظر python-urllib): Brevo senders = no-reply@alkemos.com فقط (مُرسِل Gmail لم يعد موجودًا — انتهى مع جلسة P1) · Vercel envs = BREVO_API_KEY + EMAIL_FROM=no-reply + EMAIL_REPLY_TO (لا EMAIL_SERVER_*) · Supabase SMTP = مكتمل (relay + حد 30/ساعة + قالب 1688 حرفًا)
+- **الاسم المقترح والمُنفَّذ: `newsletter@alkemos.com`** (Alkemos Newsletter) — أُنشئ عبر POST /v3/senders → id=3، نشط فورًا بلا بريد تحقق (النطاق موثق DKIM: dkimError:false/spfError:false)
+- اختبار إيصال حي من المُرسِل الجديد إلى بريد المالك: requests 05:00:41Z → **delivered 05:00:42Z** (ثانية واحدة — سجل أحداث Brevo)
+- مسح Gmail من الكود والوثائق: صفحة /contact (ContactView:76) عرضت بريد Gmail علنًا → `contact@alkemos.com` (صندوق Zoho موجود) · تعليق send-email (حد 100/يوم) أُعيدت صياغته بلا ذكر Gmail · `.env.example`: قسم EMAIL_SERVER_* الميت → BREVO_API_KEY + EMAIL_FROM/EMAIL_REPLY_TO (الواقع الحي) · README جدول التقنيات: Nodemailer → Brevo REST API + Supabase custom SMTP · DEVELOPER_GUIDE جدول الـendpoints: كذلك
+- بقيا كما هما (قرار): auth.ts COACH_EMAILS fallback + SECURITY.md بريد المالك — هوية صلاحيات/تواصل شخصية، ليست ربط إرسال
+- البوابات كاملة: tsc 0 · eslint 0 · vitest 256/256 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ (صفر انجراف) · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- **هوية النشرة جاهزة تشغيليًا**: النشرات تُرسل من لوحة Brevo (Campaigns) بالمُرسِل `newsletter@alkemos.com` — الاشتراكات تُجمع تلقائيًا في tool_leads (type=newsletter) — المُرسلان الحاليان: no-reply (Auth/الأدوات) + newsletter (النشرة) — كلها على الدومين الموثق ضمن حد 300/يوم
+- **Gmail لم يعد له أي دور في الإرسال أو الواجهة**: المُرسِل محذوف من Brevo، صفحة التواصل على دومين الموقع، الوثائق مطابقة للواقع
+- ملاحظة تشغيلية للمالك: صندوق استقبال newsletter@ غير مُنشأ على Zoho — لو حابب الردود تيجي عليه أنشئه، أو خلي replyTo = support@alkemos.com في الحملات
+- الملفات: ~ src/components/views/ContactView.tsx · ~ src/app/api/send-email/route.ts (تعليق) · ~ .env.example · ~ README.md · ~ DEVELOPER_GUIDE.md · ~ STATE.md · ~ worklog.md — سكربتات الجلسة في scripts/ خارج المستودع (newsletter_status.py · newsletter_sender_setup.py)
