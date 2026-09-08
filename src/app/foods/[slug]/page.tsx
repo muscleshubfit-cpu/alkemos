@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFoodBySlug, getRelatedFoods } from "@/lib/foods";
-import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import FoodDetailClient from "./FoodDetailClient";
 
 /**
@@ -92,6 +92,16 @@ export default async function Page({
   // per-100g facts directly machine-readable for AI answer engines
   // ("calories in chicken breast" → parsed from here). Additive to the
   // breadcrumb schema; no existing signals change.
+  // Phase SEO-GEO-4.5 (§7.1 #6+#7): YMYL E-E-A-T — reviewedBy Person +
+  // lastReviewed date on the largest health-content surface (8,830 pages).
+  // Standalone WebPage node keeps the existing nutrition node untouched.
+  const reviewSchema = food
+    ? getReviewedWebPageSchema({
+        url: `https://alkemos.com/foods/${food.slug}`,
+        name: `${food.nameEn} — Nutrition Facts (per 100 g)`,
+      })
+    : null;
+
   const nutritionSchema = food
     ? {
         "@context": "https://schema.org",
@@ -117,6 +127,12 @@ export default async function Page({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(nutritionSchema) }}
+        />
+      )}
+      {reviewSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(reviewSchema) }}
         />
       )}
       <FoodDetailClient

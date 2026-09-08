@@ -344,19 +344,19 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 | # | المهمة | الجهد | التأثير | الحالة |
 |---|---|---|---|---|
-| 1 | إنشاء صفحات Hub/Collection (`/muscles/[group]`, `/equipment/[type]`, `/collections/[slug]`) | متوسط | 🔴 عالي | 🟡 قيد التنفيذ |
-| 2 | إضافة Hub Pages إلى `sitemap-pages.xml` | منخفض | 🔴 عالي | 🟡 قيد التنفيذ |
-| 3 | إضافة ItemList schema للـ Hub Pages | منخفض | متوسط | 🟡 قيد التنفيذ |
-| 4 | تفعيل `/api/og-image/[slug]` لكل صفحات المدوّنة بدلًا من Pexels | منخفض | متوسط | ⏳ معلّق |
-| 5 | إصلاح رؤوس HTTP للتخزين المؤقّت (Cache-Control) على الصفحات العامة | متوسط | متوسط | ⏳ معلّق |
-| 6 | إضافة "reviewedBy" Person schema للصفحات الطبية/الصحية | متوسط | متوسط | ⏳ معلّق |
-| 7 | إضافة تواريخ "lastReviewed" للمحتوى الصحي | منخفض | متوسط | ⏳ معلّق |
+| 1 | إنشاء صفحات Hub/Collection (`/muscles/[group]`, `/equipment/[type]`, `/collections/[slug]`) | متوسط | 🔴 عالي | ✅ تم (SEO-GEO-1 + حصر 12.9) |
+| 2 | إضافة Hub Pages إلى `sitemap-pages.xml` | منخفض | 🔴 عالي | ✅ تم (12.9 — كل العائلات مغطاة) |
+| 3 | إضافة ItemList schema للـ Hub Pages | منخفض | متوسط | ✅ تم (متحقق في hubs/collections/compare) |
+| 4 | تفعيل `/api/og-image/[slug]` لكل صفحات المدوّنة بدلًا من Pexels | منخفض | متوسط | ✅ تم (151 — OG مصلح EN+AR) |
+| 5 | إصلاح رؤوس HTTP للتخزين المؤقّت (Cache-Control) على الصفحات العامة | متوسط | متوسط | ✅ تم (148/149 — قاعدة Cloudflare حية) |
+| 6 | إضافة "reviewedBy" Person schema للصفحات الطبية/الصحية | متوسط | متوسط | ✅ تم 2026-09-09 (SEO-GEO-4.5 — الأطعمة والتمارين EN+AR) |
+| 7 | إضافة تواريخ "lastReviewed" للمحتوى الصحي | منخفض | متوسط | ✅ تم 2026-09-09 (SEO-GEO-4.5 — عقدة WebPage موحدة) |
 | 8 | إعادة تقييم إعلان 8,750 صفحة USDA في خريطة منفصلة (`sitemap-foods-long.xml`) | متوسط | 🔴 عالي | ⏳ معلّق (يحتاج 90 يوم بيانات Search Console أولاً) |
-| 9 | إنشاء صفحات `/collections/[tag]` للأطعمة (8 صفحات على الأقل) | متوسط | عالي | 🟡 قيد التنفيذ |
-| 10 | إضافة `SearchAction` schema للموقع | منخفض | متوسط | ⏳ معلّق |
+| 9 | إنشاء صفحات `/collections/[tag]` للأطعمة (8 صفحات على الأقل) | متوسط | عالي | ✅ تم (SEO-GEO-1 + حصر 12.9) |
+| 10 | إضافة `SearchAction` schema للموقع | منخفض | متوسط | ✅ تم (متحقق — WebSite schema في seo.ts) |
 | 11 | تحسين Internal Linking بين التمارين والأطعمة والمقالات | متوسط | عالي | ⏳ معلّق |
-| 12 | إنشاء `/sitemap-collections.xml` | منخفض | متوسط | 🟡 قيد التنفيذ |
-| 13 | إضافة `Speakable` schema للمقالات (للأوامر الصوتية) | منخفض | منخفض | ⏳ معلّق |
+| 12 | إنشاء `/sitemap-collections.xml` | منخفض | متوسط | ✅ تم (حية من السبع المضافة في GSC) |
+| 13 | إضافة `Speakable` schema للمقالات (للأوامر الصوتية) | منخفض | منخفض | ✅ تم (SEO-GEO-4 — مدونة EN+AR) |
 | 14 | تحسين `next-sitemap` لإضافة `<lastmod>` دقيقة | منخفض | منخفض | ⏳ معلّق |
 | 15 | مراجعة محتوى الـ 61 مقالًا الحالية وتحسينها (Content Pruning) | متوسط | متوسط | ⏳ معلّق |
 
@@ -844,6 +844,18 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 **الإصلاح (Phase 151):** ① التبديل إلى `next/og` المدمج (satori حديث بتشكيل harfbuzz + bidi — تحقق بصريًا: حروف متصلة واتجاه RTL سليم ومزج AR+EN سليم) ② خط **Cairo** (عربي+لاتيني، OFL) ذات الاستضافة في `public/fonts/og-cairo-{400,700}.ttf` (91KB لكل وزن) يُجلب same-origin مرة واحدة ويُخزَّن module-level لكل isolate — ومع فشل التحميل تراجع آمن للخط الافتراضي (الإنجليزية لا تتراجع أبدًا) ③ الشارة «M»→«A» ④ `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (البطاقات تُخزَّن حسب slug+lang) ⑤ إزالة اعتماد `@vercel/og` الميت من package.json.
 
 **التحقق:** محليًا (next start): EN 251KB · **AR 251KB** (كانت 0) بالرؤوس الجديدة — والجسد البصري للعربية مثالي. اختبار satori 0.33 معزول أثبت التشكيل قبل اعتماد الحل. القاعدة: أي مكون OG مستقبلًا يستخدم `next/og` فقط + خط ذا استضافة — ممنوع العودة لـ@vercel/og.
+
+### 12.12 — SEO-GEO-4.5: إشارات E-E-A-T على صفحات YMYL — الأطعمة والتمارين (2026-09-09 — أمر المالك «مرحلة الحسابات مؤجلة، ايه تانى ممكن تنفذة؟»)
+
+**السياق:** أجّل المالك مرحلة الحسابات الاجتماعية للنهاية، فكان البندان #6 و#7 من §7.1 (reviewedBy/lastReviewed) هما المتبقي الأعلى قيمة القابل للتنفيذ الكودي فورًا — لا يعتمدان على أي روابط خارجية.
+
+**الفجوة:** المدونة والمقارنات تحمل reviewedBy Person منذ SEO-GEO-2، لكن **أكبر أسطح المحتوى الصحي في الموقع كانت بلا أي إشارة E-E-A-T**: صفحات الأطعمة (8,830) والتمارين (868) بنسختيهما EN+AR ≈ **19,396 صفحة** تحمل فقط Breadcrumb + NutritionInformation/HowTo — وهي بالضبط الأسطح YMYL التي يبحث فيها مقيّمو Google عن إشارات الخبرة البشرية، والتي يقرر فيها محركا الإجابة هل المصدر قابل للاقتباس في أسئلة الصحة.
+
+**التنفيذ:** ① دالة `getReviewedWebPageSchema()` في `src/lib/seo.ts` — عقدة WebPage تحمل `lastReviewed` + `reviewedBy` (Person أحمد زكي عبر @id الثابت فيتكون كيان واحد في Knowledge Graph مع Article.author وOrganization.founder) ② الثابت `CONTENT_LAST_REVIEWED = "2026-09-09"` مصدر وحيد لتاريخ المراجعة (تاريخ مراجعة بشرية لا تاريخ تعديل محتوى — يُقدَّم مع كل دورة مراجعة مكتملة) ③ الحقن في الصفحات الأربع: `/foods/[slug]` و`/ar/foods/[slug]` و`/exercises/[slug]` و`/ar/exercises/[slug]` — عقدة إضافية مستقلة، عقدتا NutritionInformation/HowTo لم تُمسّا (صفر مخاطرة انحدار على 19 ألف صفحة) ④ 6 اختبارات vitest جديدة (ymyl-schema.test.ts) تقفل الصلاحية القياسية للعقدة ووحدة مصدر التاريخ وسلامة التسلسل مع الأسماء العربية.
+
+**قرار تقني موثق:** `lastReviewed` خاصية لـWebPage فقط، و`reviewedBy` خاصية لـCreativeWork — بينما NutritionInformation تحت Intangible وHowTo لا يحمل lastReviewed؛ لذا وُضعت المراجعة في عقدة WebPage مستقلة بدل ختم العقدتين القائمتين — صلاحية قياسية كاملة بلا تحذيرات validator وصفر مخاطرة. (Speakable #13 وSearchAction #10 وItemList #3 تحقق أنها منفذة سابقًا — مدونة EN+AR تستورد getSpeakableSchema وWebSite يحمل SearchAction.)
+
+**التحقق:** tsc 0 · eslint 0/0 · vitest **269/269** (+6) · next build ✓ — البوابات كاملة خضراء قبل الدفع.
 
 ---
 

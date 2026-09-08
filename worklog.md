@@ -3,6 +3,25 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-4.5-YMYL-EEAT-2026-09-09
+Agent: Super Z (main)
+Task: أمر المالك «مرحلة الحسابات مؤجلة، ايه تانى ممكن تنفذة؟» — تنفيذ أولوية §7.1 القابلة للكود فورًا: البندان #6 (reviewedBy Person schema) + #7 (lastReviewed) على صفحات YMYL
+
+Work Log:
+- بروتوكول الجلسة: STATE (151) + git fetch — SYNCED (ffbfa15) — جدول §7.1 مسوحيًا: المدونة والمقارنات تحملان reviewedBy منذ SEO-GEO-2 لكن الأطعمة (8,830) والتمارين (868) × 2 لغة ≈ 19,396 صفحة YMYL بلا أي إشارة خبرة بشرية
+- جرد ما قبل التنفيذ: تحقق أن #13 Speakable (مدونة EN+AR تستورد getSpeakableSchema) و#10 SearchAction (WebSite schema) و#3 ItemList (hubs/collections/compare) منفذة سابقًا — الفجوة الحقيقية #6+#7 فقط
+- التنفيذ: `getReviewedWebPageSchema()` في src/lib/seo.ts — عقدة WebPage مستقلة تحمل lastReviewed + reviewedBy (Person أحمد زكي عبر getPersonSchema — @id الثابت فيوحد الكيان مع Article.author وOrganization.founder) + `CONTENT_LAST_REVIEWED = "2026-09-09"` مصدر وحيد للتاريخ (تاريخ مراجعة بشرية لا تعديل محتوى)
+- الحقن في الصفحات الأربع: /foods/[slug] · /ar/foods/[slug] · /exercises/[slug] · /ar/exercises/[slug] — عقدة إضافية مستقلة؛ NutritionInformation/HowTo لم تُمسّا (صفر مخاطرة انحدار على 19 ألف صفحة)
+- قرار تقني موثق: lastReviewed خاصية WebPage فقط وreviewedBy خاصية CreativeWork — NutritionInformation تحت Intangible وHowTo لا يحمل lastReviewed → عقدة WebPage منفصلة هي المسار القياسي الصالح بلا تحذيرات validator
+- +6 اختبارات vitest (ymyl-schema.test.ts): نوع العقدة · مصدر التاريخ · التجاوز الصريح · كيان المراجع · مرآة AR عربية · سلامة jsonLd ضد breakout مع الأسماء العربية
+- §7.1 مُصحح بالكامل: الصفوف 1-5 و9-10 و12-13 موسومة ✅ بدليل كل منها — المتبقي الفعلي: #8 (يحتاج 90 يوم GSC) · #11 Internal Linking · #14 lastmod · #15 Content Pruning
+- البوابات: tsc 0 · eslint 0/0 · vitest 269/269 · next build ✓ · docs_audit · docs_parity · migration_audit --ci · stale-refs · ui-wiring — التوثيق: §12.12 + STATE (152) + هذا المدخل
+
+Stage Summary:
+- Phase 152: ~19,396 صفحة YMYL اكتسبت reviewedBy Person + lastReviewed — أقوى إشارة E-E-A-T آلية على أكبر أسطح المحتوى الصحي، ويوحد كيان المراجع في Knowledge Graph
+- على المالك: لا إجراء يدوي — تنشر Vercel تلقائيًا؛ المتبقي القابل للتنفيذ لاحقًا: Internal Linking (#11) وContent Pruning (#15) — بناء الكيان مؤجل بقرار المالك للنهاية
+
+---
 Task ID: SEO-GEO-4.4-AR-OG-FIX-2026-09-08
 Agent: Super Z (main)
 Task: أمر المالك «ابدأ الخطوة التالية» (بعد تأجيل الحسابات الاجتماعية للنهاية وتأكيد إضافة الخرائط في GSC) — اكتشاف وإصلاح خطأ إنتاجي: بطاقات OG العربية ترجع 0 بايت

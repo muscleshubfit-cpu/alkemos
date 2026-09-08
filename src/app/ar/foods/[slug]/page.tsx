@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFoodBySlug, getRelatedFoods } from "@/lib/foods";
-import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import FoodDetailClient from "@/app/foods/[slug]/FoodDetailClient";
 
 const SITE_URL = "https://alkemos.com";
@@ -95,6 +95,14 @@ export default async function Page({
   // GEO: Arabic NutritionInformation node — mirrors the EN page's schema
   // so AI answer engines can cite the ARABIC page for Arabic queries
   // ("كم سعرات صدور الفراخ").
+  // Phase SEO-GEO-4.5 (§7.1 #6+#7): YMYL E-E-A-T — same review node as the
+  // EN mirror, with the ARABIC page URL so the AR page earns its own signal.
+  const reviewSchema = food
+    ? getReviewedWebPageSchema({
+        url: `https://alkemos.com/ar/foods/${food.slug}`,
+        name: `${food.nameAr} — القيم الغذائية (لكل 100 جرام)`,
+      })
+    : null;
   const nutritionSchema = food
     ? {
         "@context": "https://schema.org",
@@ -120,6 +128,12 @@ export default async function Page({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(nutritionSchema) }}
+        />
+      )}
+      {reviewSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(reviewSchema) }}
         />
       )}
       <FoodDetailClient

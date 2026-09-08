@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExerciseBySlug, getRelatedExercises, EXERCISES, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
-import { getHowToSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getHowToSchema, getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import ExerciseDetailClient from "@/app/exercises/[slug]/ExerciseDetailClient";
 
 const SITE_URL = "https://alkemos.com";
@@ -106,6 +106,15 @@ export default async function Page({
       ])
     : null;
 
+  // Phase SEO-GEO-4.5 (§7.1 #6+#7): YMYL E-E-A-T — same review node as the
+  // EN mirror, with the ARABIC page URL so the AR page earns its own signal.
+  const reviewSchema = exercise
+    ? getReviewedWebPageSchema({
+        url: `https://alkemos.com/ar/exercises/${exercise.slug}`,
+        name: `${exercise.nameAr} — الأداء الصحيح والتعليمات`,
+      })
+    : null;
+
   return (
     <>
       {exerciseSchema && (
@@ -118,6 +127,12 @@ export default async function Page({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
+        />
+      )}
+      {reviewSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(reviewSchema) }}
         />
       )}
       <ExerciseDetailClient

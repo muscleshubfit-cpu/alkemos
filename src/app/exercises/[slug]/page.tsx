@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getExerciseBySlug, getRelatedExercises } from "@/lib/exercises";
-import { getHowToSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getHowToSchema, getBreadcrumbSchema, getReviewedWebPageSchema, jsonLd } from "@/lib/seo";
 import { CATEGORY_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import ExerciseDetailClient from "./ExerciseDetailClient";
 
@@ -101,6 +101,17 @@ export default async function Page({
       ])
     : null;
 
+  // Phase SEO-GEO-4.5 (§7.1 #6+#7): YMYL E-E-A-T — reviewedBy Person +
+  // lastReviewed date on the 868-page instruction library. Additive WebPage
+  // node; the HowTo node stays untouched (Google retired its rich results
+  // in Sept 2023, but it stays for other engines' understanding).
+  const reviewSchema = exercise
+    ? getReviewedWebPageSchema({
+        url: `https://alkemos.com/exercises/${exercise.slug}`,
+        name: `${exercise.nameEn} — Proper Form & Instructions`,
+      })
+    : null;
+
   return (
     <>
       {exerciseSchema && (
@@ -113,6 +124,12 @@ export default async function Page({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
+        />
+      )}
+      {reviewSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(reviewSchema) }}
         />
       )}
       <ExerciseDetailClient

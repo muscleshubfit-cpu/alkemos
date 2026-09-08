@@ -364,6 +364,56 @@ export function getSpeakableSchema(params: {
 }
 
 /**
+ * YMYL review date — Phase SEO-GEO-4.5 (2026-09-09).
+ *
+ * Single source for the "last reviewed for accuracy" date stamped on the
+ * static YMYL detail pages (foods + exercises, EN + AR mirrors). The date
+ * advances whenever a human review pass over these libraries completes —
+ * it is a REVIEW date, not a content-change date, so it must not be
+ * confused with `dateModified`. Platform policy (per /about, same policy
+ * behind the Article schema's reviewedBy): every published piece is
+ * reviewed by Ahmed Zake before it ships.
+ */
+export const CONTENT_LAST_REVIEWED = "2026-09-09";
+
+/**
+ * Reviewed WebPage schema — Phase SEO-GEO-4.5 (§7.1 items #6 + #7).
+ *
+ * The blog + comparison pages carried `reviewedBy` + `lastReviewed` since
+ * Phase SEO-GEO-2, but the LARGEST health-content surfaces on the site did
+ * not: the 8,830 food pages and 868 exercise pages (× 2 language mirrors ≈
+ * 19.4K pages) shipped only Breadcrumb + NutritionInformation / HowTo.
+ * Those are exactly the YMYL surfaces where Google's QRG raters look for
+ * human-expertise signals — and where AI answer engines decide whether a
+ * source is citable for health questions.
+ *
+ * Why a standalone WebPage node: `lastReviewed` is a property of WebPage
+ * (and `reviewedBy` of CreativeWork, which WebPage extends), while
+ * NutritionInformation sits under Intangible and HowTo cannot carry
+ * `lastReviewed` — stamping the review on a dedicated WebPage node keeps
+ * every property strictly schema.org-valid (no validator warnings) with
+ * zero risk to the existing nutrition / HowTo nodes on ~19K pages.
+ *
+ * `reviewedBy` resolves to the shared Ahmed Zake Person (@id-stable, so it
+ * collapses into the same Knowledge Graph entity already referenced by
+ * Article.author / Organization.founder).
+ */
+export function getReviewedWebPageSchema(params: {
+  url: string;
+  name: string;
+  lastReviewed?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    url: params.url,
+    name: params.name,
+    lastReviewed: params.lastReviewed ?? CONTENT_LAST_REVIEWED,
+    reviewedBy: getPersonSchema(AHMED_ZAKE),
+  };
+}
+
+/**
  * Exercise schema — for exercise detail pages.
  * Combines HowTo + Exercise schema.
  */
