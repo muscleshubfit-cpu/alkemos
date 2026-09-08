@@ -41,7 +41,7 @@
 ## ملخص جودة المرحلة (QA — Phase 155)
 - **تغييرات المرحلة:** كود (hub-collections: §4 محوّلات + §5 سياسة فارغة + CJK fix · exercises/foods detail EN+AR: أشرطة الربط · blog EN+AR: حقن الأدوات · blog-topics: CJK fix · sitemap-lastmod.ts جديد · 5 مسارات sitemap: lastmod + استثناء الفارغ) + اختبارات (+11) + docs (§12.14 + §7.1 #11/#14 + STATE + worklog)
 - **البوابات:** next build ✓ (1970 — الصفحات الفارغة بقيت حية بلا إعلان) · tsc 0 · eslint 0/0 · vitest **285/285** (+11: hub-linking 6 + sitemap-lastmod 5) · docs_audit · docs_parity · migration_audit --ci · stale-refs · ui-wiring
-- **التحقق الوظيفي:** كل تمرين يحل مركزيه (اختبار على صفوف الـ868 كاملة) وكل أكل موسوم يحل مجموعاته (1..2) — الروابط داخل فضاء اللغة الصحيح (/ar يسبقها العميل) — المصدر الواحد lastmod مثبت ضد الانجراف
+- **التحقق الوظيفي:** محلي (كل تمرين يحل مركزيه على صفوف الـ868 كاملة + كل أكل موسوم يحل مجموعاته + مصدر واحد lastmod) ثم **حي على الإنتاج بعد النشر (c458aa0):** تمرين 34-sit-up EN+AR «تصفّح حسب التصنيف» حي بروابط /muscles/core و/equipment/bodyweight (والمرآة /ar/…) · أكل chicken-breast EN+AR: المجموعات + مخطط الوجبات حية · سايت ماب collections: cardio/none مستثنيان (48 loc = 52−4) · lastmod حي: exercises/foods/pages 2026-09-09 · comparisons 2026-09-08 · مقال قديم EN: 3 روابط أدوات داخل المتن (calorie/macro/water) والمرآة العربية لمقال مزدوج: programs/meal-planner/calorie — كل البوابات خضراء
 - (محفوظ من 154): بلاغ مخطط الوجبات مغلق حيًا (2ebfde9) · (محفوظ من 153): sameAs + الفوتر · (من 152): reviewedBy/lastReviewed على ≈19,396 صفحة YMYL
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)

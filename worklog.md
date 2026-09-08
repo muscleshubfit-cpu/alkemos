@@ -24,6 +24,7 @@ Stage Summary:
 - **#11 مُغلق:** شبكة spoke→hub حتمية ثنائية اللغة — كل صفحة تمرين (1,736) ترتبط بمركزي عضلتها ومعداتها، كل أكل موسوم يرتبط بمجموعاته، كل صفحة أكل ترتبط بمخطط الوجبات، والمقالات الـ61 القديمة حصلت على روابط أدوات ضمانة (حد 3/مقال) — صفحات collections لم تعد يتيمة
 - **#14 مُغلق:** lastmod حقيقي لكل عائلة سايت ماب مع بروتوكول تحديث ومصدر واحد ضد الانجراف
 - **فجوة المحتوى الأولى المكتشفة آليًا:** المكتبة بلا كارديو نهائيًا — مركزا cardio/none فارغان منذ الإطلاق (مستثنيان من السايت ماب الآن بإعادة فتح تلقائية) — قرار مالك معلق
+- **التحقق الحي على الإنتاج (c458aa0):** تمرين 34-sit-up EN+AR الشريط حي (/muscles/core + /equipment/bodyweight ومرايا /ar) · chicken-breast EN+AR المجموعات + المخطط حية · sitemap-collections: cardio/none مستثنيان (48 loc = 52−4 بالضبط) · lastmod حي بالتواريخ الصحيحة لكل عائلة · مقال قديم EN: 3 روابط داخل المتن (calorie/macro/water) + مرآة AR لمقال مزدوج: programs/meal-planner/calorie — الروابط داخل المتن بنمط ماركداون المحلل (text-primary)
 - الملفات: ~ src/lib/hub-collections.ts · src/lib/sitemap-lastmod.ts (جديد) · src/lib/blog-topics.ts · ~ src/app/exercises/[slug]/{page,ExerciseDetailClient}.tsx · ~ src/app/ar/exercises/[slug]/page.tsx · ~ src/app/foods/[slug]/{page,FoodDetailClient}.tsx · ~ src/app/ar/foods/[slug]/page.tsx · ~ src/app/{blog,ar/blog}/[slug]/page.tsx · ~ 5× src/app/sitemap-*.xml/route.ts · + src/lib/__tests__/{hub-linking,sitemap-lastmod}.test.ts · ~ docs/SEO-GEO-MASTER-PLAN.md · ~ STATE.md · ~ worklog.md
 
 ---
