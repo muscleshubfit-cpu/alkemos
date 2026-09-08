@@ -1,5 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitemap-xml";
+import {
+  blogLastmod,
+  blogPairAlternates,
+  blogPostUrl,
+  type BlogSitemapPost,
+} from "@/lib/blog-sitemap";
 
 /**
  * GET /sitemap-blog.xml — published blog posts (EN + AR).
@@ -7,6 +13,16 @@ import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitema
  * The traffic-earning content gets its own sitemap (audit C2) so a
  * full blog recrawl never competes with 17K food pages. Live
  * Supabase query, ISR-cached for an hour (same freshness as before).
+ *
+ * Phase SEO-GEO-4.1 (2026-09-08): hreflang alternates for TRANSLATION
+ * PAIRS via the existing `linked_post_id` column. Audit C1 (2026-09-07)
+ * removed dangling hreflang because EN and AR posts were topically
+ * independent with zero pairing — its directive was "re-add ONLY when a
+ * real translation pairing exists". `linked_post_id` IS that pairing
+ * mechanism: reciprocal xhtml:link alternates are emitted ONLY when
+ * both posts are published and in opposite languages (rules live in
+ * src/lib/blog-sitemap.ts, unit-tested). Every unpaired post stays
+ * exactly as before — the dangling-hreflang bug cannot regress here.
  */
 
 export const revalidate = 3600;
@@ -26,27 +42,22 @@ export async function GET() {
       });
       const { data: posts } = await supabase
         .from("blog_posts")
-        .select("slug, language, published_at, updated_at")
+        .select("id, slug, language, published_at, updated_at, linked_post_id")
         .eq("is_published", true);
 
       if (posts) {
-        for (const post of posts) {
-          // M4 fix (audit 2026-09-07): lastmod = greatest(published_at,
-          // updated_at) so an updated post actually refreshes its lastmod
-          // (was published_at only — silent edits were invisible to
-          // crawlers). The trg_blog_posts_touch_updated trigger keeps
-          // updated_at accurate.
-          const published = post.published_at ? new Date(post.published_at) : null;
-          const updated = post.updated_at ? new Date(post.updated_at) : null;
-          const postDate =
-            published && updated
-              ? (published > updated ? published : updated)
-              : (published ?? updated ?? fallbackDate);
+        // Only PUBLISHED rows enter the map, so a linked target that is
+        // unpublished simply fails to resolve → no alternates (C1-safe).
+        const byId = new Map((posts as BlogSitemapPost[]).map((p) => [p.id, p]));
+
+        for (const post of posts as BlogSitemapPost[]) {
+          const alternates = blogPairAlternates(post, byId, base);
           urls.push({
-            loc: `${base}${post.language === "ar" ? "/ar/blog" : "/blog"}/${post.slug}`,
-            lastModified: postDate,
+            loc: blogPostUrl(base, post),
+            lastModified: blogLastmod(post, fallbackDate),
             changefreq: "monthly",
             priority: 0.7,
+            ...(alternates ? { alternates } : {}),
           });
         }
       }

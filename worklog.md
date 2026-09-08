@@ -3,6 +3,26 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-4.1-SITEMAPS-2026-09-08
+Agent: Super Z (main)
+Task: Phase 149 (أمر المالك «اكتب السايت مابز المطلوب اضافتها ثم نفذ الباقى» + توكنات Vercel/Supabase/Cloudflare) — حصر السايت مابز المطلوبة وتنفيذ المتبقي من Quick Wins
+
+Work Log:
+- حصر التغطية الكامل للخرائط السبع (§12.9 من الخطة): كل العائلات مغطاة — الاستبعادات موثقة عمدًا (المدربون noindex بأمر المالك، صور التمارين خارجية على GitHub free-exercise-db، ذيل أطعمة USDA سياسة 141) — الفجوة الوحيدة: sitemap-blog يخرج 59 مقالًا بلا hreflang
+- إقران ترجمات المدونة: `src/lib/blog-sitemap.ts` (دوال نقية: blogPostUrl/blogPairAlternates/blogLastmod) + إعادة كتابة sitemap-blog/route.ts عليها + `blog-sitemap.test.ts` (7 اختبارات) — القاعدة: hreflang متبادل فقط لهدف منشور باللغة المعاكسة عبر `linked_post_id` (المعلق/الذاتي/نفس اللغة يُتجاهل — خطأ C1 dangling-hreflang لا يمكن أن يرجع بالبناء) — المدونة غير مقترنة اليوم → الخرج مطابق للسابق؛ يتفعل تلقائيًا عند أول ربط ترجمة (تكليف محتوى: املأ linked_post_id في الاتجاهين)
+- ping حي للتحقق: Google sitemap ping = **404** (أُهلك رسميًا) · Bing ping = **410 Gone** — الطريق الحي الوحيد: IndexNow (202 متحقق) → مفتاح `public/916535a9e0e0c033e801ca256e71c2c6.txt` (32 hex — نمط المفتاح الثابت) — يغطي Bing/Copilot/Seznam/Yandex/Naver/Yep — الإرسال الفعلي بعد نشر الملف (سكربت خارج المستودع)
+- قاعدة كاش Cloudflare «alkemos-public-html-cache» (§12-هـ): محاولة تنفيذ برمجي فشلت بأمانة — التوكنان المتاحان: الأول DNS read/edit فقط، الثاني قراءة rulesets فقط (تحقق حي: /rulesets قائمة ناجحة بلا entrypoint كاش، POST = «request is not authorized») — لا ميجريشنز/تغييرات على القاعدة — الدليل اليدوي §12-هـ قائم (5 دقائق) أو توكن بصلاحية «Zone → Cache Rules → Edit»
+- Vercel API (توكن المالك): المشروع prj_y4pHM9B7NGBu50sfEmL9uxxeUP5O حي وآخر نشر production READY — env decrypt غير متاح برمجيًا (قيم مشفرة v2) — لا تغييرات env مطلوبة
+- التوثيق: SEO-GEO-MASTER-PLAN §12.9 (جدول حصر + قائمة السبع للإرسال) · STATE.md (مرحلة 149) · هذا المدخل
+- البوابات: tsc 0 · eslint 0/0 · vitest 263/263 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- السايت مابز السبع الآن «كاملة بمسوغاتها»: تغطية محصورة، فجوة واحدة مُصلحة بإقران آمن، واستبعادات موثقة بدل الصمت
+- IndexNow أصبح جاهزًا كقناة فهرسة فورية لـ Bing/Copilot (مكمّل llms.txt في استهداف GEO)
+- المتبقي على المالك: قاعدة كاش Cloudflare (يدوي 5 دقائق أو توكن بصلاحية Edit) + GSC UI إعادة إرسال (30 ثانية) — كلاهما بديل غير موجود برمجيًا
+- الملفات: ~ src/app/sitemap-blog.xml/route.ts · + src/lib/blog-sitemap.ts · + src/lib/__tests__/blog-sitemap.test.ts · + public/916535a9e0e0c033e801ca256e71c2c6.txt · ~ docs/SEO-GEO-MASTER-PLAN.md · ~ STATE.md · ~ worklog.md
+
+---
 Task ID: SEO-GEO-4-AUDIT-QUICKWINS-2026-09-08
 Agent: Super Z (main)
 Task: Phase 148 (أمر المالك «ابداء (ج) ثم (أ)») — (ج) فحص SEO/GEO حي شامل + توثيقه في SEO-GEO-MASTER-PLAN §12 · (أ) تنفيذ Quick Wins: حاسبات عربية + فهرس مقارنات + إصلاح عناوين AR المكررة + /faq EN + كاش الصفحات العامة + llms.txt عالمي
