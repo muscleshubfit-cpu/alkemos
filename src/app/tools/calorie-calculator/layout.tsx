@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://alkemos.com/tools/calorie-calculator",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR mirror.
+    languages: {
+      en: "https://alkemos.com/tools/calorie-calculator",
+      ar: "https://alkemos.com/ar/tools/calorie-calculator",
+      "x-default": "https://alkemos.com/tools/calorie-calculator",
+    },
   },
   openGraph: {
     title: "Calorie Calculator | Alkemos",

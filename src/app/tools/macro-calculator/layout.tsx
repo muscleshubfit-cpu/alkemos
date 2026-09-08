@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://alkemos.com/tools/macro-calculator",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR mirror.
+    languages: {
+      en: "https://alkemos.com/tools/macro-calculator",
+      ar: "https://alkemos.com/ar/tools/macro-calculator",
+      "x-default": "https://alkemos.com/tools/macro-calculator",
+    },
   },
   openGraph: {
     title: "Macro Calculator | Alkemos",

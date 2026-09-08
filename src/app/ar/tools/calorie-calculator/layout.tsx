@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+
+/**
+ * SEO-GEO-4 (2026-09-08): AR metadata for /ar/tools/calorie-calculator.
+ *
+ * Targets the highest-volume Arabic fitness query «حاسبة السعرات
+ * الحرارية» (live-verified SERP: MOH portals + generic media, no
+ * dedicated professional competitor). Title carries NO brand suffix —
+ * the /ar layout template appends exactly one "— Alkemos".
+ */
+export const metadata: Metadata = {
+  title: "حاسبة السعرات الحرارية — احسب احتياجك اليومي والماكروز | Alkemos",
+  description:
+    "احسب سعراتك الحرارية اليومية والماكروز (بروتين، كارب، دهون) مجانًا بناءً على وزنك وطولك وعمرك ونشاطك، بمعادلة Mifflin-St Jeor الأدق — نتائج فورية وشرح مبسط.",
+  keywords: [
+    "حاسبة السعرات الحرارية",
+    "حساب السعرات اليومية",
+    "حاسبة الكالوري",
+    "حاسبة TDEE",
+    "حاسبة BMR",
+    "السعرات الحرارية لتخسيس الوزن",
+    "حاسبة الماكروز",
+  ],
+  alternates: {
+    canonical: "https://alkemos.com/ar/tools/calorie-calculator",
+    languages: {
+      en: "https://alkemos.com/tools/calorie-calculator",
+      ar: "https://alkemos.com/ar/tools/calorie-calculator",
+      "x-default": "https://alkemos.com/tools/calorie-calculator",
+    },
+  },
+  openGraph: {
+    title: "حاسبة السعرات الحرارية | Alkemos",
+    description: "احسب احتياجك اليومي من السعرات والماكروز مجانًا وبنتائج فورية.",
+    type: "website",
+    locale: "ar_EG",
+    url: "https://alkemos.com/ar/tools/calorie-calculator",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "حاسبة السعرات الحرارية | Alkemos",
+    description: "احسب احتياجك اليومي من السعرات والماكروز مجانًا وبنتائج فورية.",
+  },
+};
+
+export default function ArCalorieLayout({ children }: { children: React.ReactNode }) {
+  return children;
+}

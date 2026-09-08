@@ -19,7 +19,9 @@ const SITE_URL = "https://alkemos.com";
  * Q&A data comes from the shared src/lib/faq-content.ts.
  */
 export const metadata: Metadata = {
-  title: "الأسئلة الشائعة — Alkemos | إجابات عن المنصة والعضويات",
+  // SEO-GEO-4: no brand suffix in title — the /ar layout template appends
+  // exactly one "— Alkemos" (the old string produced "… | Alkemos — Alkemos").
+  title: "الأسئلة الشائعة | إجابات عن المنصة والعضويات",
   description:
     "كل ما تريد معرفته عن Alkemos: ما هي المنصة، كيف يعمل مساعد EVO الذكي، الأسئلة عن العضويات والأسعار، طرق الدفع (PayPal و InstaPay و فودافون كاش)، أمان البيانات، ومتى تظهر النتائج.",
   alternates: {

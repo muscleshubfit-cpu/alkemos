@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { COMPARISONS, getComparisonBySlug } from "@/lib/comparisons";
-import { getArticleSchema, getBreadcrumbSchema, getItemListSchema, jsonLd } from "@/lib/seo";
+import { getArticleSchema, getBreadcrumbSchema, getItemListSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 
 /**
@@ -31,7 +31,8 @@ export async function generateMetadata({
   }
   const url = `https://alkemos.com/ar/compare/${comparison.slug}`;
   return {
-    title: comparison.titleAr,
+    // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+    title: stripTrailingBrandForArTemplate(comparison.titleAr),
     description: comparison.descriptionAr,
     alternates: {
       canonical: url,

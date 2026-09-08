@@ -7,7 +7,7 @@ import {
   getExercisesForEquipmentHub,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
-import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
  * /ar/equipment/[type] — Arabic mirror of /equipment/[type].
@@ -34,7 +34,8 @@ export async function generateMetadata({
   }
   const url = `https://alkemos.com/ar/equipment/${hub.slug}`;
   return {
-    title: hub.titleAr,
+    // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+    title: stripTrailingBrandForArTemplate(hub.titleAr),
     description: hub.descriptionAr,
     alternates: {
       canonical: url,

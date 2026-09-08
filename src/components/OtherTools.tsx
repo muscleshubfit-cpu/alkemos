@@ -40,6 +40,14 @@ export function OtherTools({ current }: { current: string }) {
   const normalizedCurrent = current.startsWith("/") ? current.replace(/^\//, "") : current;
   const others = ALL_TOOLS.filter((t) => t.slug !== normalizedCurrent);
 
+  // SEO-GEO-4 (2026-09-08): every tool now has an Arabic mirror — link to
+  // /ar/tools/* (and prefix absolute slugs with /ar) when the page renders
+  // in Arabic, so AR crawlers/visitors never bounce back to EN URLs.
+  const toolHref = (slug: string) => {
+    if (slug.startsWith("/")) return isAr ? `/ar${slug}` : slug;
+    return isAr ? `/ar/tools/${slug}` : `/tools/${slug}`;
+  };
+
   return (
     <div className="mt-8">
       <h3 className="text-lg font-semibold tracking-tight">
@@ -49,7 +57,7 @@ export function OtherTools({ current }: { current: string }) {
         {others.map((tool) => (
           <a
             key={tool.slug}
-            href={tool.slug.startsWith("/") ? tool.slug : `/tools/${tool.slug}`}
+            href={toolHref(tool.slug)}
             className="marble-card flex items-center gap-3 p-4 transition-opacity hover:opacity-90"
           >
             <EngravedIcon
@@ -64,7 +72,7 @@ export function OtherTools({ current }: { current: string }) {
           </a>
         ))}
         <a
-          href="/tools"
+          href={isAr ? "/ar/tools" : "/tools"}
           className="flex items-center gap-3 rounded-2xl bg-black p-4 text-white transition-opacity hover:opacity-90"
           style={{ boxShadow: "0 0 0 2px #C9CED3, var(--shadow)" }}
         >

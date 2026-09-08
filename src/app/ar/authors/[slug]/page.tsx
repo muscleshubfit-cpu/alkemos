@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AUTHORS, getAuthorBySlug, getProfilePageSchema } from "@/lib/authors";
-import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
  * /ar/authors/[slug] — Arabic mirror of /authors/[slug].
@@ -34,7 +34,8 @@ export async function generateMetadata({
   }
   const url = `https://alkemos.com/ar/authors/${author.slug}`;
   return {
-    title: `${author.nameAr} — ${author.jobTitleAr} | Alkemos`,
+    // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+    title: stripTrailingBrandForArTemplate(`${author.nameAr} — ${author.jobTitleAr} | Alkemos`),
     description: author.bioAr.slice(0, 160),
     alternates: {
       canonical: url,

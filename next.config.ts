@@ -145,6 +145,39 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)» — audit
+        // finding #5): PUBLIC HTML pages ship the framework's dynamic
+        // default `private, no-cache, no-store, max-age=0, must-revalidate`
+        // (the root layout reads headers()/cookies() → every page renders
+        // dynamically). LIVE-VERIFIED FACT (local `next start`): the route
+        // response's Cache-Control OVERRIDES both middleware- and page-set
+        // values, but next.config headers() wins — so THIS is the place the
+        // public cache policy is enforced:
+        //   - Browsers: max-age=0 + must-revalidate → revalidate every
+        //     visit (identical freshness to the old no-store behavior).
+        //   - CDN edge (Vercel / Cloudflare): s-maxage=3600 keeps the HTML
+        //     1h and stale-while-revalidate=86400 serves stale while
+        //     revalidating in background → faster TTFB, cheaper crawling,
+        //     fewer function invocations.
+        // Edge caching also requires NO Set-Cookie — the middleware now
+        // writes `mhe:locale` only when it changes (SEO-GEO-4), so the
+        // vast majority of public responses are cacheable.
+        // PRIVATE surfaces are EXCLUDED via the lookahead (api, admin,
+        // auth, checkout, dashboard, questionnaires, progress, plans,
+        // profile, support, referral, preview, coach — segment-exact so
+        // /coaching and /coaches/* stay public) and keep no-store. The
+        // [^.]* tail keeps file paths (robots.txt, sitemaps, llms.txt,
+        // rss.xml, assets) out — they have their own rules above.
+        source: "/((?!(?:api|admin|auth|checkout|dashboard|questionnaires|progress|plans|profile|support|referral|preview|coach)(?:/|$))[^.]*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
     ];
   },
 };

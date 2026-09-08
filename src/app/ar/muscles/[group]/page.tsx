@@ -7,7 +7,7 @@ import {
   getExercisesForMuscleHub,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
-import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
  * /ar/muscles/[group] — Arabic mirror of /muscles/[group].
@@ -41,7 +41,8 @@ export async function generateMetadata({
   }
   const url = `https://alkemos.com/ar/muscles/${hub.slug}`;
   return {
-    title: hub.titleAr,
+    // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+    title: stripTrailingBrandForArTemplate(hub.titleAr),
     description: hub.descriptionAr,
     alternates: {
       canonical: url,
@@ -205,10 +206,10 @@ export default async function ArabicMuscleHubPage({
           خطّط تدريبك بأدواتنا المجانية: السعرات، BMI، الماكروز، نسبة الدهون، والماء.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link href="/ar/muscles/../tools/calorie-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة السعرات</Link>
-          <Link href="/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة الماكروز</Link>
-          <Link href="/tools/bmi-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة BMI</Link>
-          <Link href="/tools/body-fat-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة نسبة الدهون</Link>
+          <Link href="/ar/tools/calorie-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة السعرات</Link>
+          <Link href="/ar/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة الماكروز</Link>
+          <Link href="/ar/tools/bmi-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة BMI</Link>
+          <Link href="/ar/tools/body-fat-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة نسبة الدهون</Link>
         </div>
       </section>
     </main>

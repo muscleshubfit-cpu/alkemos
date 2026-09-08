@@ -28,6 +28,33 @@ function isArabicPath(pathname: string): boolean {
   return pathname === "/ar" || pathname.startsWith("/ar/");
 }
 
+/**
+ * SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)» — audit finding
+ * #5): edge-cacheability for public HTML.
+ *
+ * TWO findings were live-verified locally (`next start`):
+ *   1. The route response's Cache-Control (framework dynamic default
+ *      `private, no-cache, no-store…`) OVERRIDES any Cache-Control set
+ *      here in middleware — middleware is the WRONG layer for it.
+ *   2. next.config.ts headers() DOES win over the framework default.
+ * The public Cache-Control therefore lives in next.config.ts headers()
+ * (single source of truth — see the SEO-GEO-4 rule there).
+ *
+ * What THIS file still owns: the `mhe:locale` cookie is now written ONLY
+ * when the value actually changes. The old unconditional write put
+ * Set-Cookie on EVERY response, and any response with Set-Cookie is
+ * uncacheable at every CDN edge — that made the next.config policy
+ * theoretical. With the change-only write, the vast majority of public
+ * responses carry no Set-Cookie and become edge-cacheable. Locale
+ * correctness never depends on this cookie for /ar paths (the
+ * x-pathname header wins in the root layout).
+ *
+ * The PRIVATE-path exclusion list (api/admin/auth/checkout/dashboard/
+ * questionnaires/progress/plans/profile/support/referral/preview/coach)
+ * lives in next.config.ts's SEO-GEO-4 headers rule — the single layer
+ * that wins over the framework's dynamic Cache-Control default.
+ */
+
 export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -70,14 +97,19 @@ export async function middleware(request: NextRequest) {
   // cleanest server-side way to know which URL the user requested.
   response.headers.set("x-pathname", pathname);
 
-  // Write a `mhe:locale` cookie on every request so the root layout can
-  // read it via `cookies()` as a fallback when the pathname doesn't
-  // determine the locale.
-  response.cookies.set("mhe:locale", isArabic ? "ar" : "en", {
-    path: "/",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 365, // 1 year — survives browser restarts
-  });
+  // Write a `mhe:locale` cookie so the root layout can read it via
+  // `cookies()` as a fallback when the pathname doesn't determine the
+  // locale. SEO-GEO-4: written ONLY when the value actually changes —
+  // an unconditional write put Set-Cookie on EVERY response, which
+  // makes the response uncacheable at any CDN edge.
+  const desiredLocale = isArabic ? "ar" : "en";
+  if (request.cookies.get("mhe:locale")?.value !== desiredLocale) {
+    response.cookies.set("mhe:locale", desiredLocale, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365, // 1 year — survives browser restarts
+    });
+  }
 
   // If Supabase isn't configured, skip session refresh (demo mode).
   // The locale headers/cookies above are already set — return now.
@@ -100,15 +132,19 @@ export async function middleware(request: NextRequest) {
         // Re-apply locale headers/cookies on the new response object
         // (the `setAll` callback creates a new `NextResponse` that
         // replaces the original, so we must re-set our locale headers
-        // on it to avoid losing them).
+        // on it to avoid losing them). SEO-GEO-4: same change-only
+        // cookie write as the main path (see the block comment above).
         const isAr = isArabicPath(pathname);
         response.headers.set("Content-Language", isAr ? "ar-EG" : "en-US");
         response.headers.set("x-pathname", pathname);
-        response.cookies.set("mhe:locale", isAr ? "ar" : "en", {
-          path: "/",
-          sameSite: "lax",
-          maxAge: 60 * 60 * 24 * 365,
-        });
+        const desired = isAr ? "ar" : "en";
+        if (request.cookies.get("mhe:locale")?.value !== desired) {
+          response.cookies.set("mhe:locale", desired, {
+            path: "/",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 365,
+          });
+        }
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),
         );

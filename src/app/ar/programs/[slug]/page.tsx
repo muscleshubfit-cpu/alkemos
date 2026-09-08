@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProgramBySlug, WORKOUT_PROGRAMS } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
-import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 import ProgramDetailClient from "@/app/programs/[slug]/ProgramDetailClient";
 
 const SITE_URL = "https://alkemos.com";
@@ -30,7 +30,9 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${program.nameAr} — برنامج تدريب | Alkemos`;
+  // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+  const title = stripTrailingBrandForArTemplate(`${program.nameAr} — برنامج تدريب | Alkemos`);
+  const ogTitle = `${program.nameAr} — برنامج تدريب | Alkemos`;
   const description = `${program.nameAr}: ${program.descriptionAr}`;
   const url = `${SITE_URL}/ar/programs/${program.slug}`;
 
@@ -48,7 +50,7 @@ export async function generateMetadata({
     openGraph: {
       type: "article",
       url,
-      title,
+      title: ogTitle,
       description,
       images: [{ url: program.image, width: 1200, height: 630 }],
       siteName: "Alkemos",

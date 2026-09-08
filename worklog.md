@@ -3,6 +3,29 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-4-AUDIT-QUICKWINS-2026-09-08
+Agent: Super Z (main)
+Task: Phase 148 (أمر المالك «ابداء (ج) ثم (أ)») — (ج) فحص SEO/GEO حي شامل + توثيقه في SEO-GEO-MASTER-PLAN §12 · (أ) تنفيذ Quick Wins: حاسبات عربية + فهرس مقارنات + إصلاح عناوين AR المكررة + /faq EN + كاش الصفحات العامة + llms.txt عالمي
+
+Work Log:
+- (ج) فحص حي مباشر: رئيسية EN/AR، robots، الخرائط السبع (~2,066 URL)، llms.txt، 21 صفحة رئيسية، صفحات عميقة، TTFB×3 (0.35–0.93s)، Schema صفحة طعام، RSS — + 17 استعلام بحث سوق/منافسين (MyFitnessPal/AI coaching market/AI Overviews CTR/Princeton GEO/llms adoption/SERPs عربية حية) — سُجل كاملاً في docs/SEO-GEO-MASTER-PLAN.md §12 (SEO-GEO-4) مع توثيق استدراكي لـ SEO-GEO-3 (صفحات المقارنة غير المسجلة سابقًا)
+- (أ-1) حاسبات عربية: src/app/ar/tools/{layout,page}.tsx + calorie|bmi|macro|body-fat|water-calculator {layout,page}.tsx + src/app/ar/meal-planner/{layout,page}.tsx — re-export لنفس صفحات العميل ثنائية اللغة (تُصيَّر عربيًا عبر urlLocale=ar) — metadata عربية مستهدفة (كلمات «حاسبة السعرات الحرارية» وغيرها) — hreflang متبادل أُضيف إلى 7 تخطيطات EN (5 أدوات + tools + meal-planner)
+- (أ-2) فهرس المقارنات: src/app/compare/page.tsx + src/app/ar/compare/page.tsx — ItemList + Breadcrumb + روابط مرايا — كانت /compare و /ar/compare ترجعان 404 بينما 6 صفحات تفصيلية حية
+- (أ-3) إصلاح تكرار العلامة AR («| Alkemos — Alkemos»): stripTrailingBrandForArTemplate() في src/lib/seo.ts — مطبق على ar/{muscles,equipment,collections,authors,compare,programs}/[param] + ar/faq + ar/about — ولأن القالب /ar لا يصل للتخطيطات المتداخلة عمقًا 3 (حقيقة معمارية متحققة حيًا): العلامة أُضيفت صراحة في عناوين الحاسبات الخمس + ar/for-coaches/register
+- (أ-4) /faq EN: عنوان ووصف إنجليزي + og:locale en_US (كانت صفحة إنجليزية canonical بعنوان عربي كامل)
+- (أ-5) كاش الصفحات العامة: حقيقتان متحققتان حيًا محليًا (next start): رأس Cache-Control من middleware يتجاوزه رأس إطار العمل، وnext.config headers() يتغلب عليه → القاعدة في next.config.ts: public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400 على العامة فقط (lookahead يستثني api/admin/auth/checkout/dashboard/questionnaires/progress/plans/profile/support/referral/preview/coach segment-exact + مسارات الملفات) — middleware: كوكي mhe:locale عند التغيّر فقط (كان Set-Cookie غير شرطي يمنع كاش الحافة) — isPrivatePath أُزيل من middleware بعد انتقال القاعدة (dead-code law)
+- (أ-6) llms.txt: تموضع عالمي («serving a global audience» بدل «built for the Egyptian and Arab market») + إضافة المقارنات والأدوات العربية + تعديل تعليمة اللهجة
+- (أ-7) LanguageToggle: mirror swaps للأدوات (/tools/* ↔ /ar/tools/*) والمقارنات (/compare/[slug] ↔ /ar/compare/[slug]) + MIRROR_ROUTES += tools/meal-planner/compare · OtherTools + ToolCard: روابط واعية باللغة · sitemap-pages.xml: أدوات AR + meal-planner AR + فهرس المقارنات (بزوجي alternates) · روابط الأدوات في ar/{muscles,collections} صُححت إلى /ar/*
+- (أ-8) التوثيق: STATE.md (مرحلة 148) · README (Arabic Tool Mirrors + Comparison Hub + بندا كاش وهوية العلامة في SEO & GEO) · هذا المدخل
+- البوابات: tsc 0 (بعد next-env.d.ts) · eslint 0/0 · vitest 256/256 · next build ✓ (كل المسارات الجديدة مسجلة) · docs_audit ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit --ci ✓
+- تحقق حي محلي (next start): مصفوفة رؤوس — / و/faq و/blog و/coaching و/coaches/* و/compare و/ar و/ar/tools/* و/tools/* كلها cacheable، و/dashboard و/auth و/admin/* و/coach و/api/* بقيت no-store · /robots.txt و/sitemap-pages.xml بقيتا بقواعدهما الخاصتين · كوكي: زيارة 2 بنفس اللغة بلا Set-Cookie، تبديل اللغة يكتب · عناوين: كل صفحات AR المكررة أصبحت بعلامة واحدة
+
+Stage Summary:
+- أكبر فرصة نمو عربية أصبحت كودًا حيًا (الحاسبات العربية) + فهرس المقارنات + عناوين نظيفة + كاش حافة ممكن لأول مرة
+- الأولوية الاستراتيجية الموثقة للمرحلة القادمة: بناء كيان العلامة (الفحص أثبت تضارب الاسم مع ضاحية Alkimos الأسترالية) — خطوات يدوية للمالك
+- Commit SHA: 5e721a8 · Push status: pushed
+
+---
 Task ID: VERCEL-CLEANUP-GHA-2026-09-08
 Agent: Super Z (main)
 Task: Phase 145 (أمر المالك «نفذ خيار أ») — GHA تنظيف نشرات Vercel التلقائي + حذف بند تدوير المفاتيح من STATE.md بأمر المالك الصريح («فقط الغِ التنبيه داخل المحادثات، والمفاتيح لا تُعرض في أي مكان حسب القوانين»)

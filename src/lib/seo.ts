@@ -420,4 +420,28 @@ export function renderJsonLd(schema: object) {
   return JSON.stringify(schema);
 }
 
+/**
+ * SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)»): AR title
+ * dedup fix.
+ *
+ * The `/ar` nested layout (src/app/ar/layout.tsx) declares the Next.js
+ * title template `%s — Alkemos`. Several Arabic pages were feeding it
+ * titles that ALREADY end with a brand suffix ("| Alkemos" / "— Alkemos"
+ * / "على Alkemos"), so the live <title> rendered the brand TWICE
+ * (live-verified: "…تمارين الصدر | Alkemos — Alkemos"). This helper
+ * strips the trailing brand so the template appends exactly ONE
+ * "— Alkemos". Mid-title brand mentions (e.g. "انضم كمدرب في Alkemos…")
+ * are intentionally preserved — only the duplicated SUFFIX is removed.
+ *
+ * Scope: ONLY the `metadata.title` value fed to the AR template. The
+ * og/twitter `title` fields bypass Next.js templates, so they keep the
+ * original suffixed strings.
+ */
+export function stripTrailingBrandForArTemplate(title: string): string {
+  return title
+    .replace(/\s*\|\s*Alkemos\s*$/u, "")
+    .replace(/\s*—\s*Alkemos\s*$/u, "")
+    .replace(/\s+على\s+Alkemos\s*$/u, "");
+}
+
 export { SITE_URL, SITE_NAME, SITE_LOGO };

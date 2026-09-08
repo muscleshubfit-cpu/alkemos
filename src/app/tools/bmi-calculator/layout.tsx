@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://alkemos.com/tools/bmi-calculator",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR mirror.
+    languages: {
+      en: "https://alkemos.com/tools/bmi-calculator",
+      ar: "https://alkemos.com/ar/tools/bmi-calculator",
+      "x-default": "https://alkemos.com/tools/bmi-calculator",
+    },
   },
   openGraph: {
     title: "BMI Calculator | Alkemos",

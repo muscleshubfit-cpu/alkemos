@@ -10,7 +10,10 @@ import type { Metadata } from "next";
 const SITE_URL = "https://alkemos.com";
 
 export const metadata: Metadata = {
-  title: "تسجيل مدرب — أنشئ حسابك المجاني على Alkemos",
+  // SEO-GEO-4: the intermediate /ar/for-coaches/layout.tsx title absorbs
+  // the /ar template chain, so the brand is appended explicitly here
+  // (live-verified: this deep layout receives NO template).
+  title: "تسجيل مدرب — أنشئ حسابك المجاني | Alkemos",
   description:
     "سجّل كمدرب على Alkemos في دقيقة: تفعيل فوري بدون انتظار، أضف عملاءك وحدد أسعارك بنفسك واحصل منهم مباشرة — بدون أي نسبة من دخلك.",
   keywords: ["تسجيل مدرب", "انشاء حساب كوتش", "انضم كمدرب"],

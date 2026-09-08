@@ -23,7 +23,7 @@ export async function GET() {
     { loc: `${base}/ar/foods`, changefreq: "weekly", priority: 0.9, alternates: { en: `${base}/foods`, ar: `${base}/ar/foods` } },
     { loc: `${base}/programs`, changefreq: "weekly", priority: 0.9, alternates: { en: `${base}/programs`, ar: `${base}/ar/programs` } },
     { loc: `${base}/ar/programs`, changefreq: "weekly", priority: 0.9, alternates: { en: `${base}/programs`, ar: `${base}/ar/programs` } },
-    { loc: `${base}/tools`, changefreq: "weekly", priority: 0.9 },
+    // (/tools moved to the tool detail block below — now with its AR mirror pair)
     { loc: `${base}/evo`, changefreq: "monthly", priority: 0.9 },
     { loc: `${base}/blog`, changefreq: "weekly", priority: 0.8, alternates: { en: `${base}/blog`, ar: `${base}/ar/blog` } },
     { loc: `${base}/ar/blog`, changefreq: "weekly", priority: 0.8, alternates: { en: `${base}/blog`, ar: `${base}/ar/blog` } },
@@ -36,13 +36,25 @@ export async function GET() {
     { loc: `${base}/ar/for-coaches`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/for-coaches`, ar: `${base}/ar/for-coaches` } },
     { loc: `${base}/for-coaches/register`, changefreq: "monthly", priority: 0.75, alternates: { en: `${base}/for-coaches/register`, ar: `${base}/ar/for-coaches/register` } },
     { loc: `${base}/ar/for-coaches/register`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/for-coaches/register`, ar: `${base}/ar/for-coaches/register` } },
-    // Tool detail pages
-    { loc: `${base}/tools/calorie-calculator`, changefreq: "monthly", priority: 0.8 },
-    { loc: `${base}/tools/bmi-calculator`, changefreq: "monthly", priority: 0.8 },
-    { loc: `${base}/tools/macro-calculator`, changefreq: "monthly", priority: 0.8 },
-    { loc: `${base}/tools/body-fat-calculator`, changefreq: "monthly", priority: 0.8 },
-    { loc: `${base}/tools/water-tracker`, changefreq: "monthly", priority: 0.8 },
-    { loc: `${base}/meal-planner`, changefreq: "monthly", priority: 0.8 },
+    // Tool detail pages (+ AR mirrors — SEO-GEO-4, 2026-09-08)
+    { loc: `${base}/tools`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools`, ar: `${base}/ar/tools` } },
+    { loc: `${base}/ar/tools`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools`, ar: `${base}/ar/tools` } },
+    { loc: `${base}/tools/calorie-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/calorie-calculator`, ar: `${base}/ar/tools/calorie-calculator` } },
+    { loc: `${base}/ar/tools/calorie-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/calorie-calculator`, ar: `${base}/ar/tools/calorie-calculator` } },
+    { loc: `${base}/tools/bmi-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/bmi-calculator`, ar: `${base}/ar/tools/bmi-calculator` } },
+    { loc: `${base}/ar/tools/bmi-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/bmi-calculator`, ar: `${base}/ar/tools/bmi-calculator` } },
+    { loc: `${base}/tools/macro-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/macro-calculator`, ar: `${base}/ar/tools/macro-calculator` } },
+    { loc: `${base}/ar/tools/macro-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/macro-calculator`, ar: `${base}/ar/tools/macro-calculator` } },
+    { loc: `${base}/tools/body-fat-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/body-fat-calculator`, ar: `${base}/ar/tools/body-fat-calculator` } },
+    { loc: `${base}/ar/tools/body-fat-calculator`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/body-fat-calculator`, ar: `${base}/ar/tools/body-fat-calculator` } },
+    { loc: `${base}/tools/water-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/water-tracker`, ar: `${base}/ar/tools/water-tracker` } },
+    { loc: `${base}/ar/tools/water-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/water-tracker`, ar: `${base}/ar/tools/water-tracker` } },
+    { loc: `${base}/meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/meal-planner`, ar: `${base}/ar/meal-planner` } },
+    { loc: `${base}/ar/meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/meal-planner`, ar: `${base}/ar/meal-planner` } },
+    // Comparison index pages — SEO-GEO-4 (2026-09-08): the detail pages
+    // live in sitemap-comparisons.xml; the index lives here.
+    { loc: `${base}/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },
+    { loc: `${base}/ar/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },
     // About / FAQ pairs
     { loc: `${base}/about`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/about`, ar: `${base}/ar/about` } },
     { loc: `${base}/ar/about`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/about`, ar: `${base}/ar/about` } },

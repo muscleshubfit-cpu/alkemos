@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/meal-planner",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR mirror
+    // (this file's old "No hreflang: no /ar mirror" note is superseded).
+    languages: {
+      en: "https://alkemos.com/meal-planner",
+      ar: "https://alkemos.com/ar/meal-planner",
+      "x-default": "https://alkemos.com/meal-planner",
+    },
   },
   openGraph: {
     title: "Meal Planner | Alkemos",

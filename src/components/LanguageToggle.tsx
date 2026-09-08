@@ -24,11 +24,15 @@ import { getBlogPost, getLinkedPost } from "@/lib/blog";
  *   /faq         <-> /ar/faq (AR expansion 2026-08-30)
  *   /coaches/[slug] <-> /ar/coaches/[slug] (same slug — multi-coach
  *                   public landing, migration 0032 i18n follow-up)
+ *   /tools       <-> /ar/tools (SEO-GEO-4, 2026-09-08 — every calculator
+ *                   now has an Arabic mirror: /ar/tools/* + /ar/meal-planner)
+ *   /compare     <-> /ar/compare (SEO-GEO-4, 2026-09-08 — comparison
+ *                   index + detail pages mirror by prefix swap)
  * 
- * Pages without Arabic mirrors (e.g. /coaching, /evo, /tools/*,
- * /privacy, /terms, /contact, /meal-planner, /affiliate): just
- * toggle the UI language (the page content is already bilingual via
- * useI18n, so the user sees the new language without a URL change).
+ * Pages without Arabic mirrors (e.g. /coaching, /evo, /privacy, /terms,
+ * /contact, /affiliate): just toggle the UI language (the page content
+ * is already bilingual via useI18n, so the user sees the new language
+ * without a URL change).
  */
 export function LanguageToggle() {
  const { lang, setLang } = useI18n();
@@ -84,6 +88,28 @@ export function LanguageToggle() {
  return;
  }
 
+ // Comparison pages: /compare/[slug] <-> /ar/compare/[slug] (same slug,
+ // static bilingual data — pure prefix swap). SEO-GEO-4, 2026-09-08.
+ const compareEnMatch = pathname.match(/^\/compare\/([^/]+)$/);
+ const compareArMatch = pathname.match(/^\/ar\/compare\/([^/]+)$/);
+ if (compareEnMatch || compareArMatch) {
+ const slug = (compareEnMatch || compareArMatch)![1];
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? `/ar/compare/${slug}` : `/compare/${slug}`);
+ return;
+ }
+
+ // Tools pages: /tools/[slug] <-> /ar/tools/[slug] (same slug, bilingual
+ // client pages — pure prefix swap). SEO-GEO-4, 2026-09-08.
+ const toolEnMatch = pathname.match(/^\/tools\/([^/]+)$/);
+ const toolArMatch = pathname.match(/^\/ar\/tools\/([^/]+)$/);
+ if (toolEnMatch || toolArMatch) {
+ const slug = (toolEnMatch || toolArMatch)![1];
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? `/ar/tools/${slug}` : `/tools/${slug}`);
+ return;
+ }
+
  // M31 fix: routes with known Arabic mirrors — navigate to the mirror URL.
  const MIRROR_ROUTES = [
  { en: "/", ar: "/ar" },
@@ -96,6 +122,9 @@ export function LanguageToggle() {
  { en: "/faq", ar: "/ar/faq" },
  { en: "/for-coaches", ar: "/ar/for-coaches" },
  { en: "/for-coaches/register", ar: "/ar/for-coaches/register" },
+ { en: "/tools", ar: "/ar/tools" },
+ { en: "/meal-planner", ar: "/ar/meal-planner" },
+ { en: "/compare", ar: "/ar/compare" },
  ];
 
  for (const route of MIRROR_ROUTES) {

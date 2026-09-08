@@ -110,9 +110,18 @@ export default function ToolsPage() {
 }
 
 function ToolCard({ tool, isAr }: { tool: (typeof tools)[number]; isAr: boolean }) {
+  // SEO-GEO-4 (2026-09-08): every tool has an Arabic mirror — /ar/tools/*
+  // + /ar/meal-planner. AR renders of this hub must link to the AR URLs.
+  const href = isAr
+    ? tool.slug.startsWith("/")
+      ? `/ar${tool.slug}`
+      : `/ar/tools/${tool.slug}`
+    : tool.slug.startsWith("/")
+      ? tool.slug
+      : `/tools/${tool.slug}`;
   return (
     <a
-      href={tool.slug.startsWith("/") ? tool.slug : `/tools/${tool.slug}`}
+      href={href}
       className="marble-card group flex items-center gap-4 p-6 transition-transform duration-300 hover:-translate-y-0.5"
     >
       {/* Engraved icon pair (Phase 127 identity — replaces emoji tiles) */}

@@ -7,7 +7,7 @@ import {
   getFoodsForCollection,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, TAG_LABELS, calculateNutrition } from "@/lib/foods-shared";
-import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
+import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
  * /ar/collections/[slug] — Arabic mirror of /collections/[slug].
@@ -38,7 +38,8 @@ export async function generateMetadata({
   }
   const url = `https://alkemos.com/ar/collections/${collection.slug}`;
   return {
-    title: collection.titleAr,
+    // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
+    title: stripTrailingBrandForArTemplate(collection.titleAr),
     description: collection.descriptionAr,
     alternates: {
       canonical: url,
@@ -205,9 +206,9 @@ export default async function ArabicFoodCollectionPage({
           احسب احتياجك اليومي من السعرات والماكروز، ثم خطّط وجباتك من هذه المجموعة.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link href="/tools/calorie-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة السعرات</Link>
-          <Link href="/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة الماكروز</Link>
-          <Link href="/meal-planner" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">مخطّط الوجبات بالذكاء الاصطناعي</Link>
+          <Link href="/ar/tools/calorie-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة السعرات</Link>
+          <Link href="/ar/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة الماكروز</Link>
+          <Link href="/ar/meal-planner" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">مخطّط الوجبات بالذكاء الاصطناعي</Link>
         </div>
       </section>
     </main>

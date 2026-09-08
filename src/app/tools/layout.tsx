@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://alkemos.com/tools",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR tools hub.
+    languages: {
+      en: "https://alkemos.com/tools",
+      ar: "https://alkemos.com/ar/tools",
+      "x-default": "https://alkemos.com/tools",
+    },
   },
   openGraph: {
     title: "Free Fitness Tools | Alkemos",

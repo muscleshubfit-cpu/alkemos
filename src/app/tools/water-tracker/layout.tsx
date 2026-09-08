@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/tools/water-tracker",
+    // SEO-GEO-4 (2026-09-08): reciprocal pair with the new AR mirror.
+    languages: {
+      en: "https://alkemos.com/tools/water-tracker",
+      ar: "https://alkemos.com/ar/tools/water-tracker",
+      "x-default": "https://alkemos.com/tools/water-tracker",
+    },
   },
   openGraph: {
     title: "Water Tracker | Alkemos",

@@ -717,6 +717,63 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 ---
 
+### 2026-09-08 — Phase SEO-GEO-3 (توثيق استدراكي): صفحات المقارنة
+
+> **ملاحظة توثيقية:** المرحلة نُفذت في نفس يوم SEO-GEO-1/2 ولم تُسجَّل هنا لحظتها — تُوثَّق استدراكيًا مع الفحص الحي أدناه.
+
+**الملفات:**
+- `src/lib/comparisons.ts` — 3 مقارنات ثنائية اللغة (vs MyFitnessPal · vs Freeletics · vs ExRx) ببيانات علنية موثقة `dataAsOf`
+- `src/app/compare/[slug]/page.tsx` + `src/app/ar/compare/[slug]/page.tsx` — صفحة تفصيلية EN/AR مع Article + ItemList + Breadcrumb schema و hreflang متبادل
+- `src/app/sitemap-comparisons.xml/route.ts` — 6 URLs (3 × لغتين) — مفعلة في robots.txt والفهرس
+
+---
+
+### 2026-09-08 — Phase SEO-GEO-4: فحص حي شامل (Live Audit) + تنفيذ Quick Wins (أوامر المالك «ابدأ (ج) ثم (أ)»)
+
+**المنهجية:** فحص حي مباشر للموقع (curl/SSL، 14:10 UTC — رئيسية EN/AR، robots، الخرائط السبع، llms.txt، 21 صفحة رئيسية، صفحات عميقة، TTFB×3، Schema، RSS) + 17 استعلام بحث سوق/منافسين. قانون «لا يُوثق رقم بلا مصدر حي» مطبق.
+
+**أ) ما تحقق حيًا ويعمل بامتياز (تأكيد §2.1):** TTFB 0.35–0.93s · hreflang EN/AR/x-default حي على الرئيسية والأقسام · الخرائط السبع 200 (pages 49 + exercises 1736 + foods 160 + blog 63 + collections 52 + comparisons 6) · صفحات Hub/Collection حية باللغتين · صفحة الكاتب حية · Schema غني على صفحات الأطعمة (NutritionInformation + Breadcrumb + SearchAction) · llms.txt + llms-full.txt حية · RSS EN+AR · صفحات USDA تُفهرس فعليًا رغم عدم إعلانها (site: تحقق) · robots موحد سليم.
+
+**ب) اكتشافات جديدة غير موجودة في §2.2 (كلها تحقق حيًا):**
+
+| # | الاكتشاف | الأثر | القرار |
+|---|---|---|---|
+| 1 | **لا توجد نسخة عربية لأي حاسبة** (`/ar/tools/*` و`/ar/meal-planner` كلها 404) — أعلى طلب بحث عربي («حاسبة السعرات الحرارية») يتصدره موقع وزارة الصحة السعودية والكونسلتو وتطبيقات متفرقة — لا منافس متخصص | 🔴 ضياع أقوى فرصة نمو عربية | **نُفذ في هذه المرحلة** |
+| 2 | **تكرار العلامة في عناوين AR**: قالب `/ar` layout هو `%s — Alkemos` وعناوين أطفال تحمل `\| Alkemos` أصلًا → «… \| Alkemos — Alkemos» على muscles/equipment/collections/authors/compare/programs + faq/about/register | 🟡 شكل غير احترافي يقلل CTR | **نُفذ في هذه المرحلة** |
+| 3 | **`/faq` الإنجليزية بعنوان عربي** + og:locale ar_EG على صفحة canonical إنجليزية | 🟡 يربك فهرسة الصفحة | **نُفذ في هذه المرحلة** |
+| 4 | **لا صفحة فهرس للمقارنات**: `/compare` و`/ar/compare` 404 بينما 6 صفحات تفصيلية حية | 🟡 روابط داخلية ضائعة | **نُفذ في هذه المرحلة** |
+| 5 | **Cache-Control: private, no-cache, no-store على كل HTML** (مؤكد حيًا) — السبب: root layout يقرأ `headers()/cookies()` → كل الصفحات dynamic والـ framework يفرض no-store افتراضيًا + الوسيط يكتب كوكي `mhe:locale` غير شرطيًا (Set-Cookie يمنع كاش الحافة) | 🟡 استنزاف crawl budget + تكلفة + LCP زائر متكرر | **نُفذ في هذه المرحلة** (كوكي عند التغير فقط + رأس كاش للصفحات العامة عبر middleware) — البديل الاحتياطي الموثق: Cloudflare Cache Rule (يتطلب قرار مالك) |
+| 6 | **llms.txt يوصف بأنه «للسوق المصري والعربي»** — يصنّف الذكاء الاصطناعي العلامة كإقليمية بينما الهدف عالمي | 🟡 يحدّ من اقتباس AI العالمي | **نُفذ في هذه المرحلة** |
+| 7 | **تضارب اسم العلامة (Entity)**: نتائج البحث عن «alkemos» تسيطر عليها ضاحية Alkimos الأسترالية وصالات تحمل اسمها — لا لوحة معرفة، لا حسابات اجتماعية مفهرسة | 🔴 العلامة لا تملك نتائج اسمها | §9.3 (بناء الكيان) = **الأولوية الاستراتيجية القصوى** — يبدأ فورًا (حسابات رسمية + Trustpilot/Product Hunt/Crunchbase) |
+| 8 | **حجم المحتوى vs المنافسين**: 63 مقالًا مقابل عشرات الآلاف لدى المنافسين — خط الـ 2/يوم صحيح ويحتاج استمرارية + رفع الجودة الاقتباسية | 🟡 طويل المدى | مستمر (Phase 119 slots) |
+
+**ج) خلاصة بحث السوق (17 استعلامًا — مصادر: Business of Apps، Seer Interactive، Ahrefs، Princeton GEO study، SE Ranking، Similarweb، SERPs حية):**
+
+- **السوق:** AI fitness coaching 2.04 مليار $ (2025) بنمو 32.7% سنويًا — أسرع قطاع لياقة نموًا · Online fitness 16.2→31.8 مليار $ (2032) · MyFitnessPal: 220 مليون مستخدم + إيرادات 310 مليون $ + 18 مليون طعام · MuscleWiki من أعلى 20 موقع لياقة عالميًا · calculator.net #1135 عالميًا
+- **AI Overviews:** هبوط CTR عضوي 58–65% على الاستعلامات الاستفسارية (Ahrefs ديسمبر 2025 −58% للمرتبة 1؛ Seer 1.76%→0.61%) ثم **ارتداد جزئي إلى 2.4% (فبراير 2026)** — الاستنتاج: نوّع (اقتباسات AI + يوتيوب + علامة) ولا تعتمد على النقر الكلاسيكي وحده
+- **أنماط الاقتباس:** ChatGPT يقتبس Wikipedia بنسبة 47.9% من استشهاداته، Perplexity يقتبس Reddit بنسبة 46.7% — الحضور في (موسوعات/Reddit/YouTube/أخبار) = بوابة الاقتباس · دراسة Princeton (10,000 استعلام): الإحصائيات + المراجع + الاقتباسات المباشرة ترفع الظهور في AI حتى **+40%**
+- **GEO:** اعتماد llms.txt عالميًا 10.13% فقط (SE Ranking، 300 ألف دومين) — الموقع متقدم على ~90% من السوق بالفعل
+- **العربي:** SERP «حاسبة السعرات الحرارية» = جهات حكومية (وزارة الصحة السعودية) + بوابات عامة + تطبيقات — بلا منصة متخصصة · SERP «تمارين الصدر» = مقال ويب طب (2019!) ومحتوى سطحي — **الاستثناء الوحيد النشط: Trainera.fit (ينشر بالعربية والإنجليزية معًا)** · يؤكد §3.5: السوق العربي مفتوح بالكامل
+
+**د) المنفذ في هذه المرحلة (أمر المالك (أ) — Quick Wins §10 المرحلة 1):**
+
+1. **حاسبات عربية**: `/ar/tools` (فهرس) + `/ar/tools/calorie-calculator|bmi-calculator|macro-calculator|body-fat-calculator|water-tracker` + `/ar/meal-planner` — metadata عربية كاملة + hreflang متبادل على نظيراتها EN + sitemap + LanguageToggle mirrors + إصلاح روابط الأدوات في صفحات الـ AR hub
+2. **صفحة فهرس المقارنات** `/compare` + `/ar/compare` — ItemList + Breadcrumb + sitemap-pages + toggle mirror
+3. **إصلاح تكرار العلامة AR** — عنوان بلا لاحقة علامة في صفحات الأطفال (القالب يضيفها مرة واحدة) + `stripTrailingBrandForArTemplate()` في seo.ts
+4. **`/faq` EN** — عنوان ووصف إنجليزي + og:locale en_US
+5. **كاش الصفحات العامة** — رأس `Cache-Control: public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400` في **next.config headers()** للمسارات العامة فقط (اختبار حي أثبت أن middleware يتجاوزه إطار العمل — انظر هـ) + كتابة كوكي `mhe:locale` عند التغيّر فقط في middleware (إزالة Set-Cookie غير الشرطي الذي يمنع كاش الحافة) — الخاصة/المصادقة تبقى no-store كما هي
+6. **llms.txt** — تموضع عالمي + إضافة المقارنات والأدوات العربية
+
+**هـ) التحقق (منفذ فعليًا):**
+- `tsc --noEmit` → 0 أخطاء (بعد توليد next-env.d.ts عبر build) · `eslint` → 0/0 · `vitest` → 256/256 · `next build` ✓ مع تسجيل كل المسارات الجديدة (/ar/tools + الحاسبات الخمس + /ar/meal-planner + /compare + /ar/compare)
+- **اختبار رؤوس حي محلي (next start):** كل الصفحات العامة (/, /faq, /blog, /coaching, /coaches/*, /compare, /ar, /ar/tools/*, /tools/*) ترجع `Cache-Control: public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400` — بينما /dashboard و/auth و/admin/* و/coach و/api/* بقيت no-store كما هي (مصفوفة كاملة موثقة في worklog)
+- **حقيقة معمارية موثقة:** رأس Cache-Control من middleware **يتجاوزه** رأس الـ framework للصفحات الديناميكية؛ القاعدة الفعالة الوحيدة هي next.config headers() — لذا مصدر الحقيقة الوحيد لسياسة الكاش هناك
+- **كوكي mhe:locale:** يُكتب عند التغير فقط (زيارة أولى/تبديل لغة) — الزيارات المتكررة بلا Set-Cookie → قابلة للكاش على الحافة (شرط لازم تحقق)
+- **اختبار عناوين حي:** كل صفحات AR المكررة أصبحت بعلامة واحدة (muscles/equipment/collections/authors/compare/programs/faq/about/register) + /faq الإنجليزية بعنوان إنجليزي — ملاحظة معمارية: العناوين في التخطيطات المتداخلة على عمق 3 مستويات لا يصلها قالب /ar (تُضاف العلامة صراحة)
+- `docs_audit` ✓ · `docs_parity` ✓ · `stale-refs` ✓ · `ui-wiring` ✓ · `migration_audit --ci` ✓ صفر انجراف
+
+---
+
 ## 13. الملاحق (Appendices)
 
 ### Appendix A — خريطة الموارد (Resource Map)

@@ -16,7 +16,9 @@ const SITE_URL = "https://alkemos.com";
  * (en→/about, ar→/ar/about, x-default→/about) is declared on BOTH sides.
  */
 export const metadata: Metadata = {
-  title: "عن Alkemos — من نحن، رؤيتنا ورسالتنا",
+  // SEO-GEO-4: no brand suffix in title — the /ar layout template appends
+  // exactly one "— Alkemos" (the old string produced "… — Alkemos — Alkemos").
+  title: "عن المنصة — من نحن، رؤيتنا ورسالتنا",
   description:
     "تعرّف على Alkemos: المنصة الرياضية المصرية التي تجمع مكتبة تمرين تضم أكثر من 868 تمريناً، وبرامج تدريب جاهزة، وحاسبات لياقة مجانية، وقاعدة أطعمة، ومساعد EVO الذكي، وكوتشينج أونلاين — رسالتنا أن نجعل اللياقة بمستوى الخبراء في متناول الجميع.",
   alternates: {

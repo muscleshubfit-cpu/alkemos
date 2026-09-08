@@ -3,25 +3,21 @@
 > **قانون (AGENTS.md §3.6):** ده أول ملف أي وكيل يقرأه قبل أي شغل — وبيتحدث إلزاميًا في نفس الفريم اللي بيغيّر الحالة.
 > الملف محدود بـ 100 سطر بوابةً (`scripts/docs_audit.py`) — اكتب مضغوط.
 > **قانون التوحيد (Phase 115):** الملف ده هو **المصدر الرسمي والوحيد** لحالة المشروع الحية — `PROGRESS.md` و`QA_CHECKLIST.md` مجمدون في `archive/`.
-> **آخر تحديث:** 2026-09-08 (المرحلة 147 — **الاختبار الحي الشامل لأنظمة البريد + lead capture**: 9 حسابات اختبار عبر الإنتاج الحي — الأدوات الست بريد delivered+opened، النشرة تسجيل lead، relay الاستعادة/Magic Link delivered أول مرة، tool_leads 45→54) — فوق مرحلة 146 (هوية النشرة + مسح Gmail)
+> **آخر تحديث:** 2026-09-08 (المرحلة 148 — **SEO-GEO-4: فحص SEO/GEO حي شامل + تنفيذ Quick Wins بأمر المالك «ابدأ (ج) ثم (أ)»**: حاسبات عربية /ar/tools/* + فهرس مقارنات /compare + إصلاح تكرار العلامة في عناوين AR + /faq EN بعنوان إنجليزي + كاش الصفحات العامة في next.config + كوكي عند التغيّر فقط + llms.txt تموضع عالمي) — فوق مرحلة 147 (الاختبار الحي لأنظمة البريد)
 
 ## المرحلة الحالية
-- **المرحلة:** 147 — الاختبار الحي الشامل (أمر المالك «ابداء تجربة حية لكل انظمة البريد بحسابات اختبار وتاكد ان جميع الادوات يعمل داخلها البريد وايضا يتم تسجيلهم فى قائمة ال lead capture» 2026-09-08) فوق مرحلة 146:
-- **(ز) 147 — اختبار حي شامل 9 حسابات (+tags على بريد المالك) عبر الإنتاج الحي — كلها خضراء:** ① الأدوات الست كلها POST /api/send-email → 200 `{ok,leadSaved:true}` + بريد Brevo REST **delivered+opened** (أحداث Brevo) + lead type=tool لكل أداة — ② النشرة POST /api/tools/lead → lead type=newsletter (بدون بريد بالتصميم) — ③ relay Supabase SMTP أول إثبات حي: استعادة كلمة المرور + Magic Link عبر `/auth/v1/recover` و`/auth/v1/otp` → **delivered** من no-reply@alkemos.com — ④ تسجيل عضوين `/auth/v1/signup` → فوري + lead type=member (تريغر handle_new_user_add_lead) — tool_leads 45→54 (9/9 صفوف سُجلت) — **ملاحظة تشغيلية موثقة:** التسجيل بلا بريد تأكيد بالتصميم (تريغر 0074 `alkemos_autoconfirm_email` يختم email_confirmed_at لحظة الإنشاء — تحقق حيًا رغم config autoconfirm=false) — حدود المعدل اختُبرت واقعيًا: send-email 5/10min/IP أجبرت الدفعتين (4+2) + 3/ساعة/بريد تجاوزت بوسوم +tags
-- **(و) 146 — هوية النشرة:** مُرسِل `newsletter@alkemos.com` (Alkemos Newsletter — id=3، نشط تلقائيًا بدل بريد تحقق لأن النطاق موثق dkimError:false) + إرسال اختبار حي **delivered** في ثانية واحدة إلى بريد المالك — مُرسِل Gmail لم يعد موجودًا في Brevo (القائمة: no-reply + newsletter فقط) — النشرات تُرسل من لوحة Brevo بالمُرسِل الجديد (الاشتراكات تُحفظ في tool_leads type=newsletter) · **مسح Gmail:** صفحة /contact تعرض `contact@alkemos.com` (كانت بريد Gmail علنًا) + تعليق send-email مُعاد صياغته + `.env.example` (EMAIL_SERVER_* → BREVO_API_KEY/EMAIL_FROM) + README/GUIDE (nodemailer → Brevo REST) · auth.ts COACH_EMAILS وSECURITY.md (هوية المالك) بقيا كما هما
-- **(هـ) 145 — GHA تنظيف النشرات:** `vercel-cleanup.yml` يوميًا 01:00 UTC (+workflow_dispatch مع خيار DRY RUN) يشغّل `scripts/vercel-cleanup/vercel-cleanup.mjs` (Node خالص بلا اعتماديات، نمط db-backup) — يحافظ دائمًا على نشر الإنتاج الحي المربوط بالـaliases + نافذة KEEP_HOURS (48 ساعة) + أحدث KEEP_PREVIEWS previews، ويحذف الباقي (خروج صادق: أحمر = فشل API) — **السكربت متحقق حيًا ضد الـAPI الحقيقي** (DRY RUN + حذف فعلي لنشر متجاوز) — **مفعّل: سر VERCEL_TOKEN أضيفه المالك وتحقق الـ workflow حيًا** (dispatch أخضر: preflight ✓ + خطة keep/purge صحيحة على الـ API الحقيقي + to purge: 0) — التنظيف الآن آلي يوميًا 01:00 UTC
-- **(أ) التسجيل الفوري (0074):** تريغر `alkemos_autoconfirm_email` (BEFORE INSERT على auth.users — محصّن بمعالج استثناء، نمط 0073) يختم email_confirmed_at عند الإنشاء + العميل يعيد تسجيل دخول فوري بكلمة المرور لو GoTrue حجب الجلسة (config ما زال mailer_autoconfirm=false) + فتح الحسابات العالقة قديمًا — التسجيل يدخل الداشبورد مباشرة بدل شاشة «افحص بريدك» الميتة
-- **(ب) كوكيز GDPR (بانر Phase 144):** فئات الكوكيز الأربع (ضرورية/تفضيلات/تحليلات/إعلانات) في `<details>` بلا JS + رابط سياسة الخصوصية داخل البانر + قبول/رفض متكافئ + سجل 365 يومًا + سحب الموافقة بضغطة من زر «إعدادات الكوكيز» بصفحة الخصوصية (حدث alkemos:consent-reopen) + قسم كوكيز دقيق ثنائي اللغة في /privacy — **الأداء:** سطح مصمت بلا marble-card (يقتل فخ الطبقات + LCP الصوري) + contain + حجز padding للـbody قبل الرسم (لا يغطي الأزرار أبدًا — إصلاح ملاحظة /auth) مع بقاء SSR-first-paint وإخفاء pre-paint للعائدين
-- **(ج) إصلاحات QA الحية:** 13 مفتاح ترجمة ناقص أُضيف للقاموسين (جذر «COACH.SUBSCRIPTION» الخام — t() كان يرجّع المفتاح نفسه) + جرس إشعارات الأدمن ثنائي اللغة (كان «إشعارات الكوتش» ثابتًا) + تحقق ظاهر ثنائي اللغة في حاسبتي BMI ونسبة الدهون (كان صامتًا)
-- **(د) 144.1 — Vercel Function Storage (أمر المالك «حل مشكله خطة فيرسال المجانية»):** بريد استنفاد 100% من حصة 10 GB → التشخيص: 123 نشرًا محتفظًا خلال أيام (كل push = نشر بحزم دوال كاملة) → حُذف 118 قديمًا عبر API (بقي نشر الإنتاج الحي + 2 preview) — alkemos.com وأقسامها 200 بعد التنظيف
-- **آخر كوميت متحقق منه:** 5de2f4c (المرحلة 146) · **الإنتاج:** alkemos.com حي · **CI:** البوابة خضراء على main
+- **المرحلة:** 148 — SEO-GEO-4 (أمر المالك 2026-09-08 «ابداء (ج) ثم (أ)»: (ج) توثيق الفحص الحي في SEO-GEO-MASTER-PLAN §12 + (أ) تنفيذ Quick Wins) فوق مرحلة 147:
+- **(ز) 148 — فحص حي + Quick Wins:** فحص مباشر للموقع الحي (رئيسية/خرائط/llms/عناوين/رؤوس/TTFB) + 17 استعلام سوق — النتائج والاكتشافات الثمانية موثقة في `docs/SEO-GEO-MASTER-PLAN.md` §12 (SEO-GEO-4) — أهمها: لا حاسبات عربية (نُفذت)، تكرار «Alkemos — Alkemos» في عناوين AR (أُصلح)، /faq EN بعنوان عربي (أُصلح)، /compare فهرس 404 (أُنشئ)، Cache-Control no-store على كل HTML (أُصلح)، تضارب الاسم مع ضاحية Alkimos الأسترالية (كيان العلامة = الأولوية الاستراتيجية القادمة)
+- **(و) 148 — الحاسبات العربية:** /ar/tools (فهرس) + /ar/tools/calorie|bmi|macro|body-fat|water + /ar/meal-planner — re-export لنفس صفحات العميل ثنائية اللغة (urlLocale=ar) + metadata عربية مستهدفة للكلمات العربية + hreflang متبادل على نظيراتها EN + sitemap-pages (زدادت التغطية) + LanguageToggle mirror swap للأدوات والمقارنات + روابط الأدوات في صفحات AR hub صُححت إلى /ar/*
+- **(هـ) 148 — كاش الصفحات العامة (حقيقة معمارية موثقة):** رأس Cache-Control من middleware **يتجاوزه** رأس إطار العمل للصفحات الديناميكية (متحقق حيًا محليًا) — القاعدة الفعالة في `next.config headers()`: `public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400` على العامة فقط (استثناءات: api/admin/auth/checkout/dashboard/questionnaires/progress/plans/profile/support/referral/preview/coach segment-exact + كل مسارات الملفات) — الخاصة بقيت no-store (مصفوفة رؤوس كاملة في worklog) — وكوكي `mhe:locale` يُكتب عند التغيّر فقط في middleware (كان Set-Cookie غير شرطي على كل استجابة يمنع كاش الحافة)
+- **آخر كوميت متحقق منه:** 779c05a (المرحلة 147) · **الإنتاج:** alkemos.com حي · **CI:** البوابة خضراء على main
 
 ## المفتوح الآن
-- **P1 SMTP/Brevo (مُهيأ بالكامل — باقي فحص الدعوة الحية):** مسار كامل عبر API: DNS (MX Zoho ×3 + SPF موحّد + CNAME DKIM) → المالك وثّق النطاق في Brevo → مُرسِلا `no-reply@alkemos.com` (Auth/الأدوات) و`newsletter@alkemos.com` (النشرة — مرحلة 146) → **Supabase custom SMTP** (Management API: بيانات كاملة + **rate_limit_email_sent 2→30** + قالب دعوة ثنائي اللغة RTL) — **Vercel serverless يحجب SMTP الصادر (25/465/587)** → **مسار `/api/send-email` على Brevo REST API عبر HTTPS** (env: `BREVO_API_KEY` + EMAIL_FROM/REPLY_TO، حُذفت EMAIL_SERVER_*) — البوابات: tsc 0 · eslint 0 · vitest 256/256 · build ✓ — **المتبقي:** دعوة عميل حقيقية من التطبيق (E2E للمالك — القالب موثق والrelay مثبت delivered في 147) + أول نشرة من لوحة Brevo بالمُرسِل الجديد · ملاحظة: صندوق استقبال `newsletter@` غير موجود على Zoho — للردود استخدم replyTo آخر أو أنشئ الصندوق
-- **CSP (وفق خطة موثقة):** RO منشور 2026-09-05 13:34Z → الفرض مؤجل لـ2026-09-12 مع إضافة paypal+google-analytics لـconnect-src (كما هو موثق)
+- **P1 بناء الكيان (أولوية استراتيجية من الفحص):** حسابات اجتماعية رسمية (FB/IG/X/LinkedIn/YouTube/TikTok) + Trustpilot/Product Hunt/Crunchbase + أول 10 تقييمات — يدوية للمالك بدليل مبسط (الفحص أثبت أن البحث عن «alkemos» تسيطر عليه ضاحية Alkimos الأسترالية)
+- **P1 SMTP/Brevo (مُهيأ بالكامل — باقي فحص الدعوة الحية):** مسار كامل عبر API — **المتبقي:** دعوة عميل حقيقية من التطبيق (E2E للمالك — القالب موثق والrelay مثبت delivered في 147) + أول نشرة من لوحة Brevo بالمُرسِل الجديد
+- **CSP (وفق خطة موثقة):** RO منشور 2026-09-05 13:34Z → الفرض مؤجل لـ2026-09-12 مع إضافة paypal+google-analytics لـconnect-src
 - **AdSense lazy-load (مقصود):** الموقع قيد مراجعة AdSense والوسم **يجب** أن يبقى server-rendered → بعد الموافقة فقط
-- **لاحق (هيكلي):** تأجيل عميل Supabase (68KB) = إعادة هيكلة 12+ وحدة auth · تقسيم hydration الرئيسية
-- **فحص حي لاحق (كوميت 144):** تسجيل حساب جديد حيًا → دخول فوري + بانر الكوكيز الجديد — يوثق في worklog بعد التحقق
+- **بعد النشر:** تحقق حي من الرؤوس الجديدة على alkemos.com (الكاش) + إعادة إرسال sitemap-pages المحدثة في GSC/Bing
 
 ## بانتظار موافقة المالك
 - Zod الموجات 2-3 (مسارات المستخدم/المدرب ثم الدفع وadmin وcron) — البنية جاهزة في `src/lib/validation/`
@@ -35,13 +31,10 @@
 - ممنوع إحياء `PROGRESS.md`/`QA_CHECKLIST.md` في الجذر — اتجمدوا في archive/ بأمر Phase 115
 - slug العمود لا يُمس أبدًا (قانون ثبات الروابط — المرحلة 121)
 
-## ملخص جودة المرحلة (QA — Phase 147)
-- **147 اختبار حي كامل:** 7/7 رسائل delivered+opened (6 أدوات REST + recovery + magic link relay) · 9/9 leads سُجلت في tool_leads (6 tool + 1 newsletter + 2 member) · حد 100/يوم لم يُمس (6 فقط) · سكربتات الجلسة خارج المستودع (live_e2e_147.py وغيرها على UA curl/8.5.0)
-- **(محفوظ من 145):** البوابات tsc 0 · eslint 0 · vitest 256/256 · build ✓ · docs_audit ✓ · GHA تنظيف النشرات مفعّل حيًا (dispatch أخضر) · (محفوظ من 144): أدوار 4/4 متحققة حيًا
-- **البوابات (كوميت 145):** tsc 0 · eslint 0/0 (جديد) · vitest 256/256 · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ (صفر انجراف — بلا ميجريشنز) · stale-refs ✓ · ui-wiring ✓
-- **145 تحقق حي:** السكربت ضد Vercel API الحقيقي — DRY RUN (خطة keep/purge سليمة على 4 نشرات) + KEEP_HOURS=0 حذف فعلي لنشر إنتاج متجاوز واحد (الإنتاج الحي + 2 preview بقوا، alkemos.com رقم 200 بعده) — مسار DELETE و429-backoff والخروج الصادق مغطاة
-- **145 تفعيل حي (بسر المالك):** dispatch أول أحمر 23:52 UTC (السر أُضيف بعدها بلحظات) → إعادة dispatch أخضر 23:57 UTC — preflight ✓ + خطة keep صحيحة (إنتاج حي 0h + 3 fresh ≤48h + 2 preview) + **to purge: 0** — الحالة الصحية لـ Function Storage مؤكدة، والتنظيف اليومي يعمل تلقائيًا
-- **(محفوظ من 144):** تدقيق اتساق i18n (0 ناقص) · 0074 محصّن بمعالج استثناء · أدوار 4/4 متحققة حيًا
+## ملخص جودة المرحلة (QA — Phase 148)
+- **البوابات:** tsc 0 · eslint 0/0 · vitest 256/256 · next build ✓ (المسارات الجديدة كلها مسجلة) · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ (صفر انجراف — بلا ميجريشنز) · stale-refs ✓ · ui-wiring ✓
+- **تحقق حي محلي (next start):** مصفوفة رؤوس كاملة — العامة الجديدة كلها cacheable + الخاصة بقيت no-store · كوكي mhe:locale يُكتب عند التغيّر فقط (زيارة 2 بلا Set-Cookie) · كل عناوين AR المكررة أصبحت بعلامة واحدة · /faq EN بعنوان إنجليزي
+- (محفوظ من 147): 7/7 رسائل delivered+opened · 9/9 leads في tool_leads · (محفوظ من 145): GHA تنظيف النشرات مفعّل حيًا
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)
 
@@ -53,6 +46,7 @@
 | حدود التحقق للطلبات | `src/lib/validation/schemas.ts` (A-7) |
 | الميجريشنز والترقيم | `supabase/migrations/INDEX.md` |
 | الحالة الراهنة | الملف ده (STATE.md) — المصدر الوحيد من Phase 115 |
+| خطة SEO/GEO وسجل تنفيذها | `docs/SEO-GEO-MASTER-PLAN.md` §12 |
 | التاريخ الكامل | `worklog.md` + `archive/` |
 | قوانين التشغيل | `AGENTS.md` |
 

@@ -15,9 +15,13 @@ import { FAQS_EN, FAQS_AR } from "@/lib/faq-content";
  */
 
 export const metadata: Metadata = {
-  title: "الأسئلة الشائعة — Alkemos | دليل شامل للمنصة",
+  // SEO-GEO-4 (2026-09-08): this is the ENGLISH canonical page — it was
+  // shipping an Arabic title + Arabic og:locale (live-verified defect),
+  // which mis-signals the page language to crawlers. EN metadata now;
+  // the Arabic twin /ar/faq carries the Arabic metadata + AR-first JSON-LD.
+  title: "FAQ — Complete Platform Guide | Alkemos",
   description:
-    "إجابات على أكثر الأسئلة شيوعاً حول Alkemos: كيف يعمل محرك EVO الذكي، باقات العضوية، طرق الدفع، أمان البيانات، دعم اللغة العربية، والجدول الزمني للنتائج.",
+    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, Arabic support, and when to expect results.",
   alternates: {
     canonical: "https://alkemos.com/faq",
     languages: {
@@ -27,12 +31,12 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "الأسئلة الشائعة — Alkemos",
+    title: "FAQ — Complete Platform Guide | Alkemos",
     description:
-      "إجابات شاملة حول منصة Alkemos: محرك EVO الذكي، العضويات، الدفع، الأمان، والمزيد.",
+      "Comprehensive answers about the Alkemos platform: EVO AI coach, memberships, payments, safety, and more.",
     url: "https://alkemos.com/faq",
     type: "website",
-    locale: "ar_EG",
+    locale: "en_US",
   },
 };
 
