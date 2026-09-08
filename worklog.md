@@ -2119,3 +2119,24 @@ Stage Summary:
 - وقاية Function Storage آلية كاملة: يوميًا 01:00 UTC — يحافظ على الإنتاج الحي المربوط بالـaliases + نافذة 48h + أحدث 2 preview، يحذف الباقي، خروج صادق أحمر عند أي فشل API
 - بند Vercel مغلق تمامًا: 144.1 (تحرير فوري) + 145 (وقاية تلقائية مفعّلة ومتحققة حيًا)
 - الملفات: ~ STATE.md (3 مواضع) + ~ worklog.md (هذا المدخل) — docs-only، بلا أي كود
+
+---
+Task ID: SMTP-BREVO-P1-2026-09-08
+Agent: main (Super Z — GLM)
+Task: أمر المالك «تهيئة SMTP — خدمات مجانية فقط» + توضيح: الإيميلات no-reply/support/contact/evo @alkemos.com اتعملت على مزود آخر (Zoho — حسب سجل zoho-verification) ولم تنجح إضافتها في Brevo
+
+Work Log:
+- تشخيص جذر فشل «إضافة المُرسل في Brevo»: DMARC للنطاق strict (p=reject) + النطاق غير موثق في Brevo + MX فارغ (RFC 7505) → بريد التحقق لا يستقبله صندوق أصلًا → Brevo ترفض: «DMARC requires your domain to be authenticated» (متحقق عبر POST /v3/senders)
+- Brevo API (مفتاح المالك، خارج المستودع): الحساب muscleshubfit@gmail.com على خطة free (300/يوم) — المُرسل الوحيد gmail
+- DNS عبر Cloudflare API (zone b4be55a0736831d9c5d9564788861076) — كلها success + تحقق DoH حي:
+  1. حذف NULL MX → إضافة MX Zoho ×3 (mx/mx2/mx3.zoho.com — 10/20/50) — صناديق المالك تستقبل الآن (تحقق DoH ✓)
+  2. SPF: `v=spf1 -all` → `v=spf1 include:spf.sendinblue.com include:zohomail.com -all` (لا يزال -all الأقوى)
+  3. CNAME DKIM: brevo1._domainkey → dkim1.sendinblue.com و brevo2 → dkim2.sendinblue.com (DNS-only، متحقق عبر Google DoH) — ⚠️ الأهداف العامة القديمة تُرجع مفتاحًا فارغًا (v=DKIM1; p=) → Brevo الحديثة تتطلب أهدافًا خاصة بالحساب تظهر فقط من لوحتها عند Add a domain → بانتظار لزقها من المالك لمطابقة السجلات
+  4. DMARC strict (adkim=s/aspf=s) يبقى كما هو — Brevo DKIM المتطابق d=alkemos.com يغطيه، والحماية من الانتحال محفوظة
+- تجهيزات جاهزة للمالك: قالب دعوة ثنائي اللغة RTL (download/supabase-invite-template.html) + جدول حقول Supabase SMTP (smtp-relay.brevo.com:587 / user muscleshubfit@gmail.com) + رفع Email sent per hour من 2 إلى 30
+- مفاتيح المالك (Brevo API + Cloudflare ×2 + Vercel ×2 + GitHub PAT + Supabase) محفوظة خارج المستودع في scripts/.secrets (chmod 600) — لا قيم في المستودع ولا في السجلات
+
+Stage Summary:
+- اكتمل: DNS البريد (استقبال Zoho + إرسال Brevo ينتظر توثيق النطاق فقط) — كل تحولات الـDNS متحققة حيًا
+- على المالك (3 نقرات): Brevo Domains → Add a domain alkemos.com → لزق السجلات لي → أطابقها → Verify + توليد SMTP key (xsmtpsib-)
+- بعدها أنا: مُرسلَي no-reply/support عبر API → EMAIL_* على Vercel → Supabase SMTP (الحقول جاهزة) → اختبار دعوة حقيقية حيًا
