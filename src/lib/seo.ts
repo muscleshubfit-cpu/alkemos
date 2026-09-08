@@ -23,6 +23,7 @@
  */
 
 import { AHMED_ZAKE, getPersonSchema, type AuthorProfile } from "./authors";
+import { SOCIAL_PROFILE_URLS } from "./social";
 
 const SITE_URL = "https://alkemos.com";
 const SITE_NAME = "Alkemos";
@@ -62,6 +63,13 @@ export function jsonLd(obj: unknown): string {
  * it tells Google's Knowledge Graph that a real human stands behind
  * the organization, not just an anonymous brand. Pairs with the
  * `author` Person on every Article schema (getArticleSchema).
+ *
+ * Phase SEO-GEO-4.6 (2026-09-09): `sameAs` now carries the REAL owned
+ * profiles (owner created them — §12.10 entity-building executed):
+ * Trustpilot · Product Hunt · Facebook · Instagram · X, from the single
+ * source src/lib/social.ts. This is the deferred technical attribution
+ * step — it gives the Knowledge Graph the brand-entity links that
+ * disambiguate Alkemos from the Alkimos suburb in brand queries.
  */
 export function getOrganizationSchema() {
   const founderPerson = getPersonSchema(AHMED_ZAKE);
@@ -73,9 +81,7 @@ export function getOrganizationSchema() {
     logo: SITE_LOGO,
     description:
       "منصة التدريب الرقمي المتكاملة: أكثر من 868 تمرينًا، 8830 أكلة بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
-    sameAs: [
-      "https://alkemos.com",
-    ],
+    sameAs: [SITE_URL, ...SOCIAL_PROFILE_URLS],
     areaServed: "Worldwide",
     knowsLanguage: ["ar", "en"],
     founder: founderPerson,

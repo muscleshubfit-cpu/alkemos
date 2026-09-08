@@ -82,9 +82,12 @@ export const AHMED_ZAKE: AuthorProfile = {
   ],
   sameAs: [
     // NOTE (per E-E-A-T framework §Authoritativeness): only include URLs
-    // of profiles that ACTUALLY exist and are publicly verifiable. Social
-    // profiles for Alkemos are pending owner setup (manual task in the
-    // SEO-GEO master plan §9.3) — leave this empty until they are real.
+    // of profiles that ACTUALLY exist and are publicly verifiable. This is
+    // the PERSON's own profile list — Ahmed Zake has no verifiable personal
+    // profiles yet, so it stays empty. The BRAND's social profiles (created
+    // 2026-09-09) live in Organization.sameAs via src/lib/social.ts — do
+    // not duplicate them here (Person.sameAs = person, Organization.sameAs
+    // = brand; mixing them blurs the entity graph).
     // Adding fake `sameAs` URLs is a Trust signal killer, not a booster.
   ],
   avatarUrl: "https://alkemos.com/images/coach-portrait.jpg",

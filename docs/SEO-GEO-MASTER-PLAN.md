@@ -857,6 +857,18 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **التحقق:** tsc 0 · eslint 0/0 · vitest **269/269** (+6) · next build ✓ — البوابات كاملة خضراء قبل الدفع.
 
+### 12.13 — SEO-GEO-4.6: التكليف التقني للكيان — sameAs + أيقونات الفوتر (2026-09-09 — المالك سلّم روابط الحسابات)
+
+**السياق:** المالك نفّذ بناء الكيان عمليًا وسلّم 5 روابط: Trustpilot (`/review/alkemos.com`) · Product Hunt (`/products/alkemos`) · فيسبوك (share link) · إنستجرام (`@aalkemos`) · X (`x.com/Alkemos`) — وهذا يفعّل التكليف التقني المؤجل من §12.10 (sameAs في Organization JSON-LD + أيقونات الفوتر).
+
+**التحقق الحي (متصفح آلي):** Trustpilot حي («Alkemos Reviews | Be the first to review») · فيسبوك حي وحُلّ رابط المشاركة إلى **القانوني** `facebook.com/people/Alkemos/61593989587279/` («Alkemos | Facebook») — روابط الـshare تحمل تتبعًا وقد تنتهي فلا تدخل sameAs أبدًا · X يرجع 200 · Product Hunt وإنستجرام خلف جدران anti-bot (403/429) فاعتمدت روابط المالك حرفيًا. **قواعد التطهير:** بلا query strings (حُذف `?launch=`) وhttps لكل الروابط.
+
+**التنفيذ:** ① `src/lib/social.ts` — مصدر وحيد للملفات الرسمية الخمس (name/url/labelEn/labelAr) مع توثيق التحقق ② `getOrganizationSchema()` في seo.ts: `sameAs = [الموقع, ...الخمسة]` — حلقة الكيان التي تربط العلامة بملفاتها في Knowledge Graph وتفصلها عن ضاحية Alkimos الأسترالية (§2.3) ③ صف أيقونات في فوتر الرئيسية (LandingView): 5 أيقونات SVG داخلية بلا اعتماديات جديدة — فيسبوك/إنستجرام/X بالشعارات الرسمية + نجمة للمراجعات + دائرة P محفورة (evenodd تناسب ثيمي الرخام) — روابط **بلا nofollow** (ملفات مملوكة: الرابط الزاحف هو الإشارة) مع aria-labels ثنائية اللغة ④ فصل موثق: Person.sameAs (أحمد زكي) يبقى فارغًا — ملفات العلامة في Organization.sameAs؛ خلطهما يشوّش رسم الكيان (تعليق authors.ts محدّث) ⑤ 5 اختبارات vitest: العدد والإسمات · التطهير (بلا ? ولا /share/) · شكل رابط فيسبوك القانوني · التسميات العربية · sameAs = الموقع + الخمسة بلا تكرار.
+
+**ملاحظة إكمال:** التكليف التقني من §12.10 **مُغلق**. المتبقي على المالك من بناء الكيان: أول 10 تقييمات حقيقية (Trustpilot يظهر 0 حاليًا) وGBP والحسابات الثلاثة الاختيارية (LinkedIn/YouTube/TikTok) — أي رابط جديد يُضاف لsocial.ts فقط فينتشر تلقائيًا للـschema والفوتر.
+
+**التحقق:** tsc 0 (بعد build أول استنساخ) · eslint 0/0 · vitest **274/274** (+5) · next build ✓ (1970 صفحة) · docs_audit · docs_parity · migration_audit --ci · stale-refs · ui-wiring.
+
 ---
 
 ## 13. الملاحق (Appendices)

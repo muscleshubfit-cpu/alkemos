@@ -3,6 +3,23 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-4.6-ENTITY-ATTRIBUTION-2026-09-09
+Agent: Super Z (main)
+Task: المالك سلّم روابط الحسابات الخمسة (Trustpilot · Product Hunt · فيسبوك · إنستجرام · X) — تنفيذ التكليف التقني المؤجل من §12.10: sameAs في Organization JSON-LD + أيقونات الفوتر
+
+Work Log:
+- بروتوكول الجلسة: STATE (152) + استنساخ جديد (مساحة العمل مُسحت بين الجلسات — القانون §3.6-4 أثبت قيمته: كل شيء محفوظ على origin) — SYNCED (c05146d)
+- تحقق حي بالمتصفح الآلي: Trustpilot حي («Alkemos Reviews | Be the first to review») · رابط فيسبوك share حُل إلى القانوني facebook.com/people/Alkemos/61593989587279/ («Alkemos | Facebook») — share links تحمل تتبعًا وقد تنتهي فمُنعت من sameAs · X: 200 · Product Hunt/إنستجرام خلف جدران anti-bot (403/429/Cloudflare challenge) فاعتمدت روابط المالك حرفيًا مع توثيق ذلك
+- التنفيذ ① `src/lib/social.ts` جديد — مصدر وحيد للملفات الخمس (name/url/labelEn/labelAr) مع قواعد التطهير: بلا query strings (حُذف ?launch=) وhttps ② seo.ts: `sameAs = [SITE_URL, ...SOCIAL_PROFILE_URLS]` (كان الموقع فقط) + docblock محدّث ③ LandingView فوتر الرئيسية: صف 5 أيقونات SVG داخلية (FB/IG/X شعارات + نجمة Trustpilot + دائرة P evenodd للـPH تناسب ثيمي الرخام) — روابط بلا nofollow (ملفات مملوكة: الرابط الزاحف هو الإشارة) + aria-labels ثنائية اللغة ④ authors.ts: تعليق sameAs محدّث — فصل موثق Person (يبقى فارغًا) عن Brand
+- +5 اختبارات (social-profiles.test.ts): العدد والإسمات بالترتيب · التطهير (بلا ? ولا /share/) · شكل رابط FB القانوني · التسميات العربية · sameAs = الموقع+الخمسة بلا تكرار
+- ملاحظة بيئة: أول tsc على استنساخ جديد يفشل على إعلانات .jpg (تُولَّد في .next/types) — الترتيب الصحيح: build ثم tsc
+- البوابات: tsc 0 (بعد build) · eslint 0/0 · vitest 274/274 · next build ✓ (1970) · docs gates ✓ — التوثيق: §12.13 + STATE (153) + هذا المدخل
+
+Stage Summary:
+- Phase 153: حلقة الكيان اكتملت — Knowledge Graph الآن يربط Alkemos بملفاتها الرسمية الخمسة (تفريقها عن ضاحية Alkimos) والفوتر يعرضها للبشر — التكليف التقني من §12.10 مُغلق
+- على المالك: أول 10 تقييمات Trustpilot (0 حاليًا) · GBP · LinkedIn/YouTube/TikTok اختيارية — أي رابط جديد: يُضاف لsocial.ts فقط وينتشر للـschema والفوتر تلقائيًا
+
+---
 Task ID: SEO-GEO-4.5-YMYL-EEAT-2026-09-09
 Agent: Super Z (main)
 Task: أمر المالك «مرحلة الحسابات مؤجلة، ايه تانى ممكن تنفذة؟» — تنفيذ أولوية §7.1 القابلة للكود فورًا: البندان #6 (reviewedBy Person schema) + #7 (lastReviewed) على صفحات YMYL
