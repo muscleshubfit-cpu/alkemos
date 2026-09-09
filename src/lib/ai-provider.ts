@@ -96,7 +96,7 @@ export const AI_PROVIDERS: Record<
   nvidia: {
     label: "NVIDIA NIM",
     baseUrl: "https://integrate.api.nvidia.com/v1",
-    defaultModel: "meta/llama-3.3-70b-instruct",
+    defaultModel: "nvidia/nemotron-3-super-120b-a12b",
     envKey: "NVIDIA_API_KEY",
     docsUrl: "https://build.nvidia.com",
     keyPrefix: "nvapi-",
@@ -723,10 +723,10 @@ const DEFAULT_CHAIN_MODELS = 2;
  * Order (strongest → weakest, interleaved):
  *   1. OpenRouter: nvidia/nemotron-3-ultra-550b (550B — strongest overall)
  *   2. Groq: openai/gpt-oss-120b (120B — Groq's strongest)
- *   3. NVIDIA: meta/llama-3.3-70b-instruct (70B — NIM flagship, strong Arabic)
+ *   3. NVIDIA: nvidia/nemotron-3-super-120b-a12b (120B MoE/12B active — NIM flagship, strong Arabic — live-verified 6s)
  *   4. OpenRouter: google/gemma-4-31b-it (31B — excellent Arabic)
  *   5. Groq: openai/gpt-oss-20b (20B — fast, good quality)
- *   6. NVIDIA: nvidia/llama-3.3-nemotron-super-49b-v1 (49B — balanced)
+ *   6. NVIDIA: nvidia/nemotron-3-ultra-550b-a55b (550B/55B active — strongest NIM, latency-tolerant slot)
  *   7. OpenRouter: google/gemma-4-26b-a4b-it (26B — balanced)
  *   8. Groq: qwen/qwen3.6-27b (27B — good Arabic)
  *   9. OpenRouter: nvidia/nemotron-3-super-120b (120B — balanced)
@@ -735,15 +735,20 @@ const DEFAULT_CHAIN_MODELS = 2;
  *
  * Groq free tier has an 8000 TPM limit; interleave spreads load across all
  * three providers instead of exhausting one before touching the next.
- * NVIDIA NIM entries (2026-09-09): stable long-lived NIM catalog ids.
+ * NVIDIA NIM entries (2026-09-09, LIVE-VERIFIED against integrate.api.nvidia.com
+ * with the owner key — run 34350583104): nemotron-3 ids are the DIRECT NIM twins
+ * of the OpenRouter :free ids above. LESSON (161.2): the original picks
+ * (meta/llama-3.3-70b-instruct · nvidia/llama-3.3-nemotron-super-49b-v1 ·
+ * meta/llama-3.1-8b-instruct) went END-OF-LIFE 2026-08-26 (HTTP 410 Gone) —
+ * catalog ids can retire at any time; verify by LIVE CALL, never by name.
  */
 const INTERLEAVED_STRONGEST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
   { provider: "openrouter", model: "nvidia/nemotron-3-ultra-550b-a55b:free" },
   { provider: "groq", model: "openai/gpt-oss-120b" },
-  { provider: "nvidia", model: "meta/llama-3.3-70b-instruct" },
+  { provider: "nvidia", model: "nvidia/nemotron-3-super-120b-a12b" },
   { provider: "openrouter", model: "google/gemma-4-31b-it:free" },
   { provider: "groq", model: "openai/gpt-oss-20b" },
-  { provider: "nvidia", model: "nvidia/llama-3.3-nemotron-super-49b-v1" },
+  { provider: "nvidia", model: "nvidia/nemotron-3-ultra-550b-a55b" },
   { provider: "openrouter", model: "google/gemma-4-26b-a4b-it:free" },
   { provider: "groq", model: "qwen/qwen3.6-27b" },
   { provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" },
@@ -765,7 +770,7 @@ let orKeyCursor = 0;
  */
 export const INTERLEAVED_FAST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
   { provider: "groq", model: "openai/gpt-oss-20b" }, // smallest — usually <1s TTFT
-  { provider: "nvidia", model: "meta/llama-3.1-8b-instruct" }, // NIM fast small (2026-09-09)
+  { provider: "nvidia", model: "nvidia/nemotron-3.5-lightning-30b-a3b" }, // NIM fast (3B active — live-verified 2026-09-09)
   { provider: "groq", model: "openai/gpt-oss-120b" },
   { provider: "openrouter", model: "nvidia/nemotron-3.5-lightning:free" },
   { provider: "groq", model: "qwen/qwen3.6-27b" },
