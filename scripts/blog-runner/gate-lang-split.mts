@@ -21,6 +21,7 @@ const ENV_BASE: Record<string, string> = {
   SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key",
   OPENROUTER_API: "dummy-or-key",
   GROQ_API_KEY: "dummy-groq-key",
+  NVIDIA_API_KEY: "dummy-nvidia-key",
 };
 
 function run(args: string[]) {

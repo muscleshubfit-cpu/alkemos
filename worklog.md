@@ -3,6 +3,25 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: AI-NVIDIA-PROVIDER-161-2026-09-09
+Agent: Super Z (main)
+Task: أمر المالك «تم اضافة مفتاح NVIDIA_API_KEY لاستخدامة مع باقة مفاتيح مزودى ال Ai» — دمج NVIDIA NIM كمزود ثالث في سلسلة الاحتياط
+
+Work Log:
+- **استكشاف البنية:** ai-provider.ts (928 سطرًا) هو الطبقة الوحيدة — نوع AIProvider (مزودان) + سجل AI_PROVIDERS + getEnvConfig بـfall-through ثنائي + callAI متوافق OpenAI + callFreeAIFallbackChain (سلسلة متناوبة أقوى-أولًا بتدوير رائد ثنائي + تجميع مفاتيح OpenRouter المزدوج + حارس حجم Groq) — نقاط الربط: 3 workflows (process-ai-jobs · blog-post-en/ar) + runnerان (process.mts · run-step.mts) + gate-lang-split (بيئات وهمية) + social-posts (provenance)
+- **التنفيذ في ai-provider.ts:** النوع +"nvidia" · سجل AI_PROVIDERS.nvidia (baseUrl integrate.api.nvidia.com/v1 · envKey NVIDIA_API_KEY · keyPrefix nvapi- · defaultModel meta/llama-3.3-70b-instruct) · getNvidiaKey() · getEnvConfig بأولوية ثلاثية openrouter→groq→nvidia مع fall-through كامل · **تدوير الرائد ثلاثي الاتجاه** لكل نداء (slots المزودين غير المهيأين تتحلل بلطف؛ fast chain تبقى groq-first بقانون السرعة) · strongest chain +2 نماذج NIM مستقرة طويلة العمر (meta/llama-3.3-70b-instruct · nvidia/llama-3.3-nemotron-super-49b-v1) · fast chain +meta/llama-3.1-8b-instruct · baseUrl عبر السجل بدل ternary · رسائل الأخطاء تحصي المفاتيح الثلاثة
+- **preflight صارم:** NVIDIA_API_KEY مطلوب في process-ai-jobs.yml + blog-post-en.yml + blog-post-ar.yml (env + حلقة preflight) وفي process.mts + run-step.mts (missing[] fail-fast exit 2) + dummy في gate-lang-split.mts
+- **provenance أصادق:** social-posts.ts تفكك provider من نتيجة السلسلة → `source: "${provider}:${model}"` بدل وسم "openrouter/groq" الثابت
+- **+14 اختبارًا (ai-provider.test.ts):** سجل nvidia كامل الشكل · السجل = 3 مزودين بالضبط · سلامة السلاسل (كل entry مزود مسجل + بلا تكرار) · قراءة المفتاح · fall-through بالأولوية (nvidia طلب بلا مفتاح→groq · nvidia الوحيد المُهيأ→nvidia) · AI_MODEL override · لا مفاتيح→null · حراسة انحدارية (dedupe مزدوج openrouter · maskKey بادئة nvapi)
+- **توثيق بنفس الفاز:** AGENTS §8 (PROVIDER LAYER + PROVIDER BALANCE بقانون الثلاثة) · README (المكدس + env بنموذج nvapi- + جدول التقنيات) · DEVELOPER_GUIDE (3 مواضع) · ممنوعات STATE: «مزودو AI: OpenRouter + Groq + NVIDIA NIM فقط — أي مزود رابع يحتاج أمر مالك صريح»
+- البوابات التسع: bun install --frozen-lockfile ✓ · tsc 0 · eslint 0/0 · vitest **345/345** (+14) · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- باقة المفاتيح أصبحت ثلاثية: OPENROUTER (حسابان) + GROQ + NVIDIA — سعة أكبر وتوزيع حمل أفقي على الثلاثة بتدوير الرائد، مع بقاء قوانين السرعة (fast chain) وحارس حجم Groq كما هي
+- **تذكير تشغيلي:** المالك أضاف NVIDIA_API_KEY لـGHA Secrets — يجب إضافتها أيضًا لـVercel Production env (قانون AGENTS §8: نفس مفاتيح GHA) حتى تستفيد مسارات EVO/الخطط على Vercel
+- ملاحظة معلوماتية: 3 نماذج NIM مختارة من الكتالوج المستقر طويل العمر — أول نداء حي يثبتها بفيض السلاسل (فشل نموذج = انتقال تلقائي للنموذج التالي بلا أي مساس)
+
+---
 Task ID: CI-LOCKFILE-SYNC-160-2026-09-09
 Agent: Super Z (main)
 Task: أمر المالك «العمليات تفشل» + رابط process-ai-jobs.yml — تشخيص فشل GHA وإصلاحه

@@ -1,14 +1,16 @@
 /**
  * Universal AI Provider — OpenAI-compatible client.
  *
- * OWNER DIRECTIVE (2026-08-27): the platform uses EXACTLY TWO AI providers:
- *   1. openrouter (default) → https://openrouter.ai/api/v1   (env: OPENROUTER_API)
- *   2. groq                → https://api.groq.com/openai/v1  (env: GROQ_API_KEY)
+ * OWNER DIRECTIVE (2026-08-27, extended 2026-09-09): the platform uses
+ * EXACTLY THREE AI providers:
+ *   1. openrouter (default) → https://openrouter.ai/api/v1       (env: OPENROUTER_API)
+ *   2. groq                 → https://api.groq.com/openai/v1     (env: GROQ_API_KEY)
+ *   3. nvidia (NIM)         → https://integrate.api.nvidia.com/v1 (env: NVIDIA_API_KEY)
  *
  * All previous direct-provider integrations (Gemini SDK / OpenAI /
  * Anthropic / DeepSeek) were removed. Any model that is reachable via
- * OpenRouter or Groq (including Google's Gemini family through OpenRouter
- * `google/*` slugs) must go through THIS file.
+ * OpenRouter, Groq or NVIDIA NIM (including Google's Gemini family through
+ * OpenRouter `google/*` slugs) must go through THIS file.
  *
  * All providers expose the OpenAI Chat Completions API shape:
  * POST {base_url}/chat/completions
@@ -16,7 +18,8 @@
  *
  * Resolution order (highest priority first):
  * 1. Runtime override (sent inline by the API caller via mergeOverride())
- * 2. Process.env (OPENROUTER_API || OPENROUTER_API_KEY / GROQ_API_KEY)
+ * 2. Process.env (OPENROUTER_API || OPENROUTER_API_KEY / GROQ_API_KEY /
+ *    NVIDIA_API_KEY)
  *
  * Vercel Hobby budget guarantee: callFreeAIFallbackChain() clamps its own
  * per-model timeout so that maxModels × timeoutMs never exceeds ~52s,
@@ -25,10 +28,10 @@
  * This file MUST be server-only — it never exposes API keys to the client.
  */
 
-export type AIProvider = "openrouter" | "groq";
+export type AIProvider = "openrouter" | "groq" | "nvidia";
 
 /**
- * Canonical env-var reader for the two allowed providers.
+ * Canonical env-var reader for the allowed providers.
  * OPENROUTER_API_KEY is accepted as a documented alias of OPENROUTER_API
  * (older docs used it) so both spellings always work.
  */
@@ -52,6 +55,15 @@ export function getOpenRouterKeys(): string[] {
 
 export function getGroqKey(): string {
   return process.env.GROQ_API_KEY || "";
+}
+
+/**
+ * NVIDIA NIM (2026-09-09 owner addition — third provider in the key bundle):
+ * OpenAI-compatible endpoint at integrate.api.nvidia.com. Keys start with
+ * `nvapi-`. Handled by the SAME fallback chain as the other two providers.
+ */
+export function getNvidiaKey(): string {
+  return process.env.NVIDIA_API_KEY || "";
 }
 
 export const AI_PROVIDERS: Record<
@@ -81,6 +93,14 @@ export const AI_PROVIDERS: Record<
     docsUrl: "https://console.groq.com/keys",
     keyPrefix: "gsk_",
   },
+  nvidia: {
+    label: "NVIDIA NIM",
+    baseUrl: "https://integrate.api.nvidia.com/v1",
+    defaultModel: "meta/llama-3.3-70b-instruct",
+    envKey: "NVIDIA_API_KEY",
+    docsUrl: "https://build.nvidia.com",
+    keyPrefix: "nvapi-",
+  },
 };
 
 export type AIConfig = {
@@ -104,29 +124,34 @@ export type AIConfigStatus = {
  * Override configs (from cookies/inline) are merged by callers via
  * `mergeOverride` below.
  *
- * Only the two allowed providers (openrouter | groq) are returned.
- * AI_PROVIDER values outside that set are ignored (default wins).
+ * Only the three allowed providers (openrouter | groq | nvidia) are
+ * returned. AI_PROVIDER values outside that set are ignored (default wins).
+ * If the requested provider has no key, fall through to the first
+ * configured one in priority order openrouter → groq → nvidia.
  */
+const PROVIDER_PRIORITY: AIProvider[] = ["openrouter", "groq", "nvidia"];
+
 export function getEnvConfig(): AIConfig | null {
   const requested = (process.env.AI_PROVIDER as AIProvider) || "openrouter";
-  const provider: AIProvider =
-    requested === "groq" || requested === "openrouter" ? requested : "openrouter";
-  const meta = AI_PROVIDERS[provider];
+  const provider: AIProvider = PROVIDER_PRIORITY.includes(requested)
+    ? requested
+    : "openrouter";
 
   const openrouterKey = getOpenRouterKey();
   const groqKey = getGroqKey();
+  const nvidiaKey = getNvidiaKey();
+  const keyFor = (p: AIProvider) =>
+    p === "openrouter" ? openrouterKey : p === "groq" ? groqKey : nvidiaKey;
 
-  // Resolve the key for the chosen provider; if it's missing but the OTHER
-  // provider has a key, transparently fall through to that provider.
-  let apiKey = provider === "openrouter" ? openrouterKey : groqKey;
+  // Resolve the key for the chosen provider; if it's missing fall through
+  // to the first configured provider by priority.
+  let apiKey = keyFor(provider);
   let resolvedProvider = provider;
   if (!apiKey) {
-    if (provider === "openrouter" && groqKey) {
-      resolvedProvider = "groq";
-      apiKey = groqKey;
-    } else if (provider === "groq" && openrouterKey) {
-      resolvedProvider = "openrouter";
-      apiKey = openrouterKey;
+    const fallback = PROVIDER_PRIORITY.find((p) => keyFor(p));
+    if (fallback) {
+      resolvedProvider = fallback;
+      apiKey = keyFor(fallback);
     }
   }
 
@@ -229,7 +254,7 @@ export async function callAI(
   const cfg = mergeOverride(configOverride);
   if (!cfg || !cfg.apiKey) {
     throw new Error(
-      "AI provider not configured. Set OPENROUTER_API in your environment variables.",
+      "AI provider not configured. Set OPENROUTER_API / GROQ_API_KEY / NVIDIA_API_KEY in your environment variables.",
     );
   }
 
@@ -246,8 +271,8 @@ export async function callAI(
     max_tokens: options.maxTokens ?? 4096,
   };
 
-  // Both allowed providers (OpenRouter + Groq) support response_format
-  // json_object mode reliably.
+  // All three allowed providers (OpenRouter + Groq + NVIDIA NIM) support
+  // response_format json_object mode.
   if (options.jsonMode) {
     body.response_format = { type: "json_object" };
   }
@@ -644,14 +669,14 @@ export async function callFreeOpenRouterRace(
 
 
 // ─────────────────────────────────────────────────────────────────────────
-// UNIFIED AI FALLBACK CHAIN — OpenRouter + Groq interleaved by strength
+// UNIFIED AI FALLBACK CHAIN — OpenRouter + Groq + NVIDIA interleaved by strength
 //
-// OWNER DIRECTIVE (2026-08-27): the ONLY sequential execution path in the
-// platform. Used by EVO chat, plan generation, article generation (EN+AR),
-// topic picking, research, and admin AI tools.
+// OWNER DIRECTIVE (2026-08-27; NVIDIA added 2026-09-09): the ONLY sequential
+// execution path in the platform. Used by EVO chat, plan generation, article
+// generation (EN+AR), topic picking, research, and admin AI tools.
 //
 // Strategy:
-//   Walk INTERLEAVED_STRONGEST_CHAIN in order — strongest model from EITHER
+//   Walk INTERLEAVED_STRONGEST_CHAIN in order — strongest model from ANY
 //   provider first. If a provider's key is missing its entries are skipped.
 //
 // Vercel Hobby budget guarantee (60s function cap):
@@ -698,22 +723,27 @@ const DEFAULT_CHAIN_MODELS = 2;
  * Order (strongest → weakest, interleaved):
  *   1. OpenRouter: nvidia/nemotron-3-ultra-550b (550B — strongest overall)
  *   2. Groq: openai/gpt-oss-120b (120B — Groq's strongest)
- *   3. OpenRouter: google/gemma-4-31b-it (31B — excellent Arabic)
- *   4. Groq: openai/gpt-oss-20b (20B — fast, good quality)
- *   5. OpenRouter: google/gemma-4-26b-a4b-it (26B — balanced)
- *   6. Groq: qwen/qwen3.6-27b (27B — good Arabic)
- *   7. OpenRouter: nvidia/nemotron-3-super-120b (120B — balanced)
- *   8. OpenRouter: nvidia/nemotron-3.5-lightning (fastest)
- *   9. Groq: compound-beta (compound system)
+ *   3. NVIDIA: meta/llama-3.3-70b-instruct (70B — NIM flagship, strong Arabic)
+ *   4. OpenRouter: google/gemma-4-31b-it (31B — excellent Arabic)
+ *   5. Groq: openai/gpt-oss-20b (20B — fast, good quality)
+ *   6. NVIDIA: nvidia/llama-3.3-nemotron-super-49b-v1 (49B — balanced)
+ *   7. OpenRouter: google/gemma-4-26b-a4b-it (26B — balanced)
+ *   8. Groq: qwen/qwen3.6-27b (27B — good Arabic)
+ *   9. OpenRouter: nvidia/nemotron-3-super-120b (120B — balanced)
+ *  10. OpenRouter: nvidia/nemotron-3.5-lightning (fastest)
+ *  11. Groq: compound-beta (compound system)
  *
- * Groq free tier has an 8000 TPM limit; interleave spreads load across both
- * providers instead of exhausting one before touching the other.
+ * Groq free tier has an 8000 TPM limit; interleave spreads load across all
+ * three providers instead of exhausting one before touching the next.
+ * NVIDIA NIM entries (2026-09-09): stable long-lived NIM catalog ids.
  */
 const INTERLEAVED_STRONGEST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
   { provider: "openrouter", model: "nvidia/nemotron-3-ultra-550b-a55b:free" },
   { provider: "groq", model: "openai/gpt-oss-120b" },
+  { provider: "nvidia", model: "meta/llama-3.3-70b-instruct" },
   { provider: "openrouter", model: "google/gemma-4-31b-it:free" },
   { provider: "groq", model: "openai/gpt-oss-20b" },
+  { provider: "nvidia", model: "nvidia/llama-3.3-nemotron-super-49b-v1" },
   { provider: "openrouter", model: "google/gemma-4-26b-a4b-it:free" },
   { provider: "groq", model: "qwen/qwen3.6-27b" },
   { provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" },
@@ -735,6 +765,7 @@ let orKeyCursor = 0;
  */
 export const INTERLEAVED_FAST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
   { provider: "groq", model: "openai/gpt-oss-20b" }, // smallest — usually <1s TTFT
+  { provider: "nvidia", model: "meta/llama-3.1-8b-instruct" }, // NIM fast small (2026-09-09)
   { provider: "groq", model: "openai/gpt-oss-120b" },
   { provider: "openrouter", model: "nvidia/nemotron-3.5-lightning:free" },
   { provider: "groq", model: "qwen/qwen3.6-27b" },
@@ -754,54 +785,66 @@ export async function callFreeAIFallbackChain(
 
   const openrouterKeys = getOpenRouterKeys();
   const groqKey = getGroqKey();
-  const openrouterBaseUrl = "https://openrouter.ai/api/v1";
-  const groqBaseUrl = "https://api.groq.com/openai/v1";
+  const nvidiaKey = getNvidiaKey();
 
-  if (openrouterKeys.length === 0 && !groqKey) {
+  if (openrouterKeys.length === 0 && !groqKey && !nvidiaKey) {
     throw new Error(
-      "[ai-fallback-chain] No AI providers configured. Set OPENROUTER_API and/or GROQ_API_KEY.",
+      "[ai-fallback-chain] No AI providers configured. Set OPENROUTER_API and/or GROQ_API_KEY and/or NVIDIA_API_KEY.",
     );
   }
 
-  // ── PROVIDER-LEAD ROTATION (2026-08-27 owner directive "parallel or alternating") ──
-  // Every call alternates which provider LEADS the chain. Without this,
-  // entry #1 of INTERLEAVED_STRONGEST_CHAIN (a strong OpenRouter model)
-  // succeeds almost every time → Groq is never reached and OpenRouter's
-  // ~50/day free budget gets burned while Groq idles. With rotation, call N
-  // leads OpenRouter, call N+1 leads Groq — keeping each provider's own
-  // strength order intact. Both orders remain strongest-available-first.
+  // ── PROVIDER-LEAD ROTATION (2026-08-27 owner directive "parallel or alternating"; 3-way since 2026-09-09) ──
+  // Every call rotates which provider LEADS the chain: openrouter → groq →
+  // nvidia → openrouter … Without this, entry #1 of
+  // INTERLEAVED_STRONGEST_CHAIN (a strong OpenRouter model) succeeds almost
+  // every time → the other providers are never reached and their free
+  // budgets idle while OpenRouter's ~50/day free ceiling burns. With
+  // rotation, each provider's own strength order stays intact and the load
+  // is spread across ALL configured keys. Lead slots of unconfigured
+  // providers degrade gracefully (the next configured provider's first
+  // entry simply leads). The fast chain keeps groq-first (speed law) and
+  // never rotates.
   chainCallSeq += 1;
 
   // GROQ BIG-PAYLOAD GUARD (hard data from dispatch logs): Groq free tier
   // enforces an 8000 TPM ceiling COUNTING both prompt and max_tokens
   // (observed 413s: 'Requested 16664', 'Requested 9094'). Estimate the
-  // request size conservatively; oversized calls run OpenRouter-only —
+  // request size conservatively; oversized calls run OpenRouter/NVIDIA-only —
   // normal-sized calls keep the alternating balance untouched.
   const estTokens =
     Math.ceil(prompt.length / 4) + (options.maxTokens ?? DEFAULT_CHAIN_MODELS * 1024) + 800;
   const skipGroq = options.chain !== "fast" && estTokens > 7_200;
   if (skipGroq)
     console.log(
-      `${LP} payload ~${estTokens}t exceeds Groq 8k TPM window → openrouter-only for this call`,
+      `${LP} payload ~${estTokens}t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call`,
     );
 
-  const groqLeads = options.chain !== "fast" && !skipGroq && chainCallSeq % 2 === 0 && !!groqKey;
   let activeChain0 =
     options.chain === "fast" ? INTERLEAVED_FAST_CHAIN : INTERLEAVED_STRONGEST_CHAIN;
-  if (groqLeads) {
-    const firstGroqIdx = activeChain0.findIndex((e) => e.provider === "groq");
-    if (firstGroqIdx > 0) {
-      activeChain0 = [
-        activeChain0[firstGroqIdx],
-        ...activeChain0.slice(0, firstGroqIdx),
-        ...activeChain0.slice(firstGroqIdx + 1),
-      ];
+  if (options.chain !== "fast") {
+    const LEAD_SEQ: AIProvider[] = ["openrouter", "groq", "nvidia"];
+    const leadProvider = LEAD_SEQ[(chainCallSeq - 1) % LEAD_SEQ.length];
+    const leadConfigured =
+      leadProvider === "openrouter"
+        ? openrouterKeys.length > 0
+        : leadProvider === "groq"
+          ? !!groqKey && !skipGroq
+          : !!nvidiaKey;
+    if (leadConfigured && leadProvider !== "openrouter") {
+      const firstIdx = activeChain0.findIndex((e) => e.provider === leadProvider);
+      if (firstIdx > 0) {
+        activeChain0 = [
+          activeChain0[firstIdx],
+          ...activeChain0.slice(0, firstIdx),
+          ...activeChain0.slice(firstIdx + 1),
+        ];
+      }
     }
+    if (skipGroq) activeChain0 = activeChain0.filter((e) => e.provider !== "groq");
+    console.log(
+      `${LP} lead=${leadConfigured ? leadProvider : "openrouter(fallback)"} (call #${chainCallSeq}, orKeys=${openrouterKeys.length})`,
+    );
   }
-  if (skipGroq) activeChain0 = activeChain0.filter((e) => e.provider !== "groq");
-  console.log(
-    `${LP} lead=${groqLeads ? "groq" : "openrouter"} (call #${chainCallSeq}, orKeys=${openrouterKeys.length})`,
-  );
 
   // ── Time-budget enforcement (Vercel Hobby guarantee) ──────────────────
   const requestedModels =
@@ -823,7 +866,7 @@ export async function callFreeAIFallbackChain(
   for (const { provider, model } of activeChain0) {
     if (attempted >= maxModels) break;
 
-    const baseUrl = provider === "openrouter" ? openrouterBaseUrl : groqBaseUrl;
+    const baseUrl = AI_PROVIDERS[provider].baseUrl;
     // DUAL-KEY POOL rotation: round-robin across every configured OpenRouter
     // account so the ~50/day free ceiling is shared instead of burned on one.
     let candidateKeys: string[] = [];
@@ -832,6 +875,8 @@ export async function callFreeAIFallbackChain(
       candidateKeys = [first, ...openrouterKeys.filter((k) => k !== first)];
     } else if (provider === "groq" && groqKey) {
       candidateKeys = [groqKey];
+    } else if (provider === "nvidia" && nvidiaKey) {
+      candidateKeys = [nvidiaKey];
     }
     if (candidateKeys.length === 0) {
       errors.push(`${provider}/${model}: key not configured`);
@@ -921,6 +966,7 @@ export async function callFreeAIFallbackChain(
       (options.tag ? ` (system: ${options.tag})\n` : "\n") +
       `OpenRouter keys configured: ${openrouterKeys.length}.\n` +
       `Groq key: ${groqKey ? "present" : "MISSING"}.\n` +
+      `NVIDIA key: ${nvidiaKey ? "present" : "MISSING"}.\n` +
       `Errors:\n  - ${errors.join("\n  - ")}`,
   );
   console.error(finalError.message);

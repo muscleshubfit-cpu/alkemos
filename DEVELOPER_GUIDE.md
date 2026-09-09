@@ -243,7 +243,7 @@ src/
 2. **Server-side auth**: `auth-server.ts` يقرأ session من cookies + يحلل الـ tier
 3. **Client-side tier resolution**: `useMembershipTier` hook يجلب الـ tier من `subscriptions` table
 4. **Navigation adapter**: `useNav` يحوّل `navigate("view")` إلى URL حقيقي
-5. **AI fallback chain**: `callAIWithFallback` يجرب سلسلة النماذج بالترتيب (OpenRouter + Groq)
+5. **AI fallback chain**: `callAIWithFallback` يجرب سلسلة النماذج بالترتيب (OpenRouter + Groq + NVIDIA NIM)
 6. **PDF export without libraries**: Canvas 2D → JPEG → minimal PDF 1.4
 
 ---
@@ -321,7 +321,7 @@ EvoFloatingWidget / ChatView (UI)
     → بوابة ميزات المشتركين (regex) على كل من ليس لديه paid tier فعلي
       (بما في ذلك حسابات Free المسجلة — إصلاح G5)
     → Platform search (تمارين، أكلات، برامج، أدوات) + بحث المدونة
-    → callFreeAIFallbackChain (OpenRouter + Groq interleaved، ≤52s budget)
+    → callFreeAIFallbackChain (OpenRouter + Groq + NVIDIA interleaved، ≤52s budget)
       — Phase 89: خيار onDelta يمرر قطع الرد الخام لحظياً
     → النجاح يُبث SSE (text/event-stream):
         event: delta  → قطع خام أول بأول (المستخدم يشوف الرد وهو بيتكتب)
@@ -795,7 +795,7 @@ hop — منذ pipeline v2/v3)، لكن إعادة المحاولة ما زال�
 
 ### 3. الأسعار والتكلفة
 
-كل الموديلات المستخدمة ضمن FREE tiers من OpenRouter + Groq؛ الميزانية
+كل الموديلات المستخدمة ضمن FREE tiers من OpenRouter + Groq + NVIDIA NIM؛ الميزانية
 الزمنية فوق هي أيضاً سقف لاستهلاك rate limits.
 
 ---

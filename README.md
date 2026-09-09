@@ -102,9 +102,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# === AI (OpenRouter + Groq ONLY — owner directive 2026-08-27) ===
+# === AI (OpenRouter + Groq + NVIDIA NIM — owner directive 2026-08-27, NVIDIA added 2026-09-09) ===
 OPENROUTER_API=sk-or-v1-xxxxxxxxxxxxx
 GROQ_API_KEY=gsk_xxxxxxxxxxxxx
+NVIDIA_API_KEY=nvapi-xxxxxxxxxxxxx
 
 # === Optional integrations ===
 NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxx
@@ -284,7 +285,7 @@ alkemos/
 │   │   ├── refund.ts           # 7-day refund eligibility (no-features-used, ledger-based)
 │   │   ├── affiliate-engine.ts # Affiliate engine + COMMISSION_RATE 20% + payout holds
 │   │   ├── auth-server.ts      # Server auth helpers (requireUser, requireCoach, requireAdmin)
-│   │   ├── ai-provider.ts      # Unified AI layer: OpenRouter + Groq ONLY (callAI, callAIWithFallback,
+│   │   ├── ai-provider.ts      # Unified AI layer: OpenRouter + Groq + NVIDIA NIM ONLY (callAI, callAIWithFallback,
 │   │   │                       #   callFreeOpenRouterRace, callFreeAIFallbackChain, callAIStream; ≤52s clamp)
 │   │   ├── exercises.ts        # 868 exercises dataset (yuhonas MIT-licensed)
 │   │   ├── foods.ts            # 8,830 foods dataset
@@ -383,7 +384,7 @@ alkemos/
 | **Framework** | Next.js 16 (App Router) |
 | **UI** | React 19, Tailwind CSS 4, shadcn/ui (new-york style) |
 | **Backend** | Supabase (Postgres, Auth, Storage, RLS + GitHub-integration auto-migrations) |
-| **AI** | OpenRouter + Groq ONLY — unified layer (`src/lib/ai-provider.ts`), interleaved strongest-chain + Promise.any race + SSE streaming, budget-clamped ≤52s |
+| **AI** | OpenRouter + Groq + NVIDIA NIM ONLY — unified layer (`src/lib/ai-provider.ts`), 3-way provider-lead rotation + interleaved strongest-chain + Promise.any race + SSE streaming, budget-clamped ≤52s |
 | **Charts** | Recharts 3 (lazy-loaded) |
 | **Forms** | react-hook-form + zod |
 | **Email** | Brevo REST API (tool results over HTTPS, daily 100/24h code cap) + Supabase custom SMTP (auth emails via Brevo relay) |

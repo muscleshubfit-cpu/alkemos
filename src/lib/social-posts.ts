@@ -162,7 +162,7 @@ export async function generateSocialPost(
 ): Promise<SocialPostResult> {
   const prompt = buildPrompt(input);
 
-  const { text, model } = await callFreeAIFallbackChain(
+  const { text, model, provider } = await callFreeAIFallbackChain(
     prompt,
     {
       tag: input.language === "ar" ? "social-posts:ar" : "social-posts:en",
@@ -209,6 +209,6 @@ export async function generateSocialPost(
       Array.isArray(parsed?.best_times) && parsed.best_times.length > 0
         ? parsed.best_times.map(String).slice(0, 4)
         : DEFAULT_TIMES[input.platform],
-    source: `openrouter/groq:${model}`,
+    source: `${provider}:${model}`,
   };
 }

@@ -63,6 +63,9 @@ jobs:
       OPENROUTER_API: ${{ secrets.OPENROUTER_API }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      # THIRD PROVIDER (2026-09-09 owner addition): NVIDIA NIM joins the
+      # fallback-chain key bundle (integrate.api.nvidia.com, nvapi- keys).
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
       # IMAGE BUNDLE (2026-08-28i): article_generate now sources its cover +
       # body photos through the safe Pexels pipeline inside this runner.
       # Optional: absent key degrades gracefully to imageless drafts.
@@ -76,7 +79,7 @@ jobs:
         run: |
           echo "=== Preflight: checking required GitHub Secrets ==="
           missing=0
-          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GROQ_API_KEY; do
+          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GROQ_API_KEY NVIDIA_API_KEY; do
             if [ -z "${!v}" ]; then
               echo "❌ Missing secret: $v"
               echo "   → add it under: Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret"

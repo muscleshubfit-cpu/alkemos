@@ -29,6 +29,7 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_
 if (!process.env.OPENROUTER_API && !process.env.OPENROUTER_API_KEY)
   missing.push("OPENROUTER_API (or OPENROUTER_API_KEY)");
 if (!process.env.GROQ_API_KEY) missing.push("GROQ_API_KEY");
+if (!process.env.NVIDIA_API_KEY) missing.push("NVIDIA_API_KEY");
 if (missing.length > 0) {
   console.error(`[ai-jobs] ❌ Missing required secrets/env: ${missing.join(", ")}`);
   process.exit(2);

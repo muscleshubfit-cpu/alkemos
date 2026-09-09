@@ -65,6 +65,7 @@ jobs:
       OPENROUTER_API: ${{ secrets.OPENROUTER_API }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
 
       # ── Optional image-provider fallbacks (pollinations is keyless) ──
       UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
@@ -79,7 +80,7 @@ jobs:
         run: |
           echo "=== Preflight [EN pipeline]: checking required GitHub Secrets ==="
           missing=0
-          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY CRON_SECRET GROQ_API_KEY; do
+          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY CRON_SECRET GROQ_API_KEY NVIDIA_API_KEY; do
             if [ -z "${!v}" ]; then
               echo "❌ Missing secret: $v"
               echo "   → add it under: Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret"
