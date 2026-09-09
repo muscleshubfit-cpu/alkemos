@@ -55,7 +55,15 @@ jobs:
 
     env:
       # ── Native-execution budget override (default on Vercel: 52000) ──
-      AI_CHAIN_TOTAL_BUDGET_MS: "180000"
+      # PHASE 161.4 (2026-09-09, owner article-generation failure forensics,
+      # run 34352443142): 180000 ÷ maxModels(5, article_generate) = 36s per
+      # model — silently below the 70s caller intent and below the ~120s a
+      # 1100-1400-word JSON article actually needs → every heavy model
+      # aborted ("This operation was aborted") and the job died permanently.
+      # The proven full-article baseline (blog-post-en.yml) runs 360000;
+      # 480000 here satisfies 480/4 = 120s × 4 buckets exactly. Small jobs
+      # are unaffected — their effTimeout stays caller-bound (45/60/70s).
+      AI_CHAIN_TOTAL_BUDGET_MS: "480000"
 
       # ── Required secrets (preflight fails fast naming missing ones) ──
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

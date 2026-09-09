@@ -792,12 +792,18 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
       // mandatory 1100-1400-word contract incl. reasoning overhead.
       maxTokens: 6000,
       jsonMode: true,
-      ...HEAVY,
-      // RATE RESILIENCE (2026-08-28h, run 33176102145): maxModels 3 stopped
-      // at nemotron/groq-120b/gemma-31b — exactly the three buckets that
-      // were simultaneously saturated. 5 reaches groq gpt-oss-20b + gemma
-      // 26b: two MORE independent rate buckets before giving up.
-      maxModels: 5 as const,
+      // PHASE 161.4 (2026-09-09, run 34352443142 forensics): heavy-article
+      // reality check — the chain clamps per-model time to
+      // AI_CHAIN_TOTAL_BUDGET_MS ÷ maxModels, so the old spread
+      // (HEAVY 70s intent · maxModels 5 · 180000 budget) silently granted
+      // 36s per model and EVERY model aborted before finishing a
+      // 1100-1400-word JSON article. New contract with the workflow budget
+      // 480000: timeoutMs 120s × maxModels 4 = exactly 480s — per-model
+      // time in the proven full-article class (blog content runs 150s) and
+      // still 4 independent rate buckets (2 nemotron + 2 gemma) for 429
+      // resilience. Small/light jobs keep HEAVY/LIGHT unchanged.
+      timeoutMs: 120_000 as const,
+      maxModels: 4 as const,
     },
   );
 
