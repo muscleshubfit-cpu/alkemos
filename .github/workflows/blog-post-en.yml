@@ -1,9 +1,18 @@
 name: Auto-publish EN article (pipeline v3 — language-split)
 
 # ============================================================
-# PIPELINE V3 (2026-08-27) — FULL LANGUAGE SEPARATION:
-#   One workflow per language, one article per run, independent
-#   topics, independent queues.
+# PIPELINE V3 (2026-08-27) — one workflow per language, one
+#   article per run, independent concurrency groups.
+#
+# PHASE 157 (SEO-GEO-5.0, owner «نفذ توصيتك» = Proposal 1):
+#   BILINGUAL PAIRING — ONE daily topic produces TWO queue rows
+#   (en + ar) sharing pair_id + a sealed sharedBrief. Each
+#   language STILL executes its FULL P1→P5 pipeline by itself,
+#   written from scratch (topic + shared angle only — never
+#   translation) in its own window below. When the later twin
+#   publishes, P5 fills linked_post_id BOTH ways → blog hreflang
+#   + LanguageToggle light up per pair. Any pairing failure
+#   degrades to the exact legacy independent-row behavior.
 #
 # PHASE 119 (owner directive 2026-09-04): exactly ONE EN article
 #   per day + ONE AR article per day, at DIFFERENT times, each

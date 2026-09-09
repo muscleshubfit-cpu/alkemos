@@ -2,11 +2,16 @@
  * Queue helpers for the blog generation pipeline.
  *
  * PIPELINE V3 (2026-08-27 lang split): one queue row == ONE article in
- * ONE language (`language` column: 'en' | 'ar'). The two language
- * workflows run on their own GitHub Actions schedules and never share
- * rows. Each step still processes a single queue item identified by
- * its UUID; the queueId is threaded from P0 (which inserts the row and
- * returns its id) through every subsequent step via `?queueId=<uuid>`.
+ * ONE language (`language` column: 'en' | 'ar'). Each step processes a
+ * single queue item identified by its UUID; the queueId is threaded from
+ * P0 (which inserts the row and returns its id) through every subsequent
+ * step via `?queueId=<uuid>`.
+ *
+ * PHASE 157 (SEO-GEO-5.0, owner «نفذ توصيتك»): the daily topic is ONE,
+ * but it produces TWO rows (en + ar) sharing a `pair_id` + a sealed
+ * `sharedBrief` — each language still executes its FULL P1→P5 pipeline
+ * by itself in its own window (AR 05:00 UTC · EN 22:00 UTC). Rows without
+ * pair_id are legacy/degraded independent runs and remain fully valid.
  *
  * This file centralizes:
  *   1. Reading the queueId + lang query params.
@@ -15,6 +20,11 @@
  *   4. Validating the queue row is in the EXPECTED status.
  *   5. Performing UPDATEs with explicit error checking
  *      (see MH-QUEUE-HANDOFF-007 root cause).
+ *   6. PHASE 157 pairing lookups: findAdoptablePairRow (my-language
+ *      researched twin row, ≤48h) + findRecentPairRows (both sides of a
+ *      pair_id for the JOIN path and the P5 handshake). Both DEGRADE to
+ *      null/[] on any error — including migration 0076 not applied — so
+ *      the pipeline falls back to the exact legacy V3 behavior.
  */
 
 import type { NextRequest } from "next/server";
@@ -39,6 +49,8 @@ export type QueueItem = {
   error_message: string | null;
   en_post_id: string | null;
   ar_post_id: string | null;
+  /** Phase 157: twin row link (0076) — null = legacy independent run. */
+  pair_id?: string | null;
   created_at: string;
 };
 
@@ -188,5 +200,78 @@ export async function markQueueItemFailed(
       .eq("id", queueId);
   } catch {
     // Best-effort — the queue item stays in its current status if this fails.
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 157 — pairing lookups (degrade to legacy on ANY failure)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * ADOPT path: the newest MY-language `researched` row that carries a
+ * pair_id (its twin's window created it for me). Returns null when no
+ * candidate exists OR on any error — including migration 0076 not yet
+ * applied (PostgREST rejects the unknown column) — in which case the
+ * route degrades to the exact legacy V3 single-row behavior.
+ *
+ * The caller validates freshness + the sealed brief via
+ * isAdoptablePairRow/extractSharedBrief (pure, unit-tested).
+ */
+export async function findAdoptablePairRow(
+  lang: "en" | "ar",
+): Promise<QueueItem | null> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return null;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("*")
+      .eq("language", lang)
+      .eq("status", "researched")
+      .not("pair_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    if (error) {
+      console.warn(
+        `[blog-queue] findAdoptablePairRow degraded: ${error.message} (0076 applied?)`,
+      );
+      return null;
+    }
+    return (data as QueueItem[] | null)?.[0] ?? null;
+  } catch (e) {
+    console.warn(
+      `[blog-queue] findAdoptablePairRow degraded: ${e instanceof Error ? e.message : e}`,
+    );
+    return null;
+  }
+}
+
+/**
+ * Both rows of a pair (P5 handshake + JOIN context). Never throws:
+ * any error → [] (the handshake is best-effort and the publish must
+ * never fail because of it). Includes MY row — callers filter.
+ */
+export async function findRecentPairRows(
+  pairId: string,
+): Promise<QueueItem[]> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return [];
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("*")
+      .eq("pair_id", pairId)
+      .order("created_at", { ascending: true })
+      .limit(4);
+    if (error) {
+      console.warn(
+        `[blog-queue] findRecentPairRows degraded: ${error.message} (0076 applied?)`,
+      );
+      return [];
+    }
+    return (data as QueueItem[] | null) ?? [];
+  } catch (e) {
+    console.warn(
+      `[blog-queue] findRecentPairRows degraded: ${e instanceof Error ? e.message : e}`,
+    );
+    return [];
   }
 }

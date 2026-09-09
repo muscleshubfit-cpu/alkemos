@@ -191,8 +191,13 @@ export async function buildOutline(
   lang: "en" | "ar",
   topic: string,
   research: LanguageResearch,
+  // PHASE 157: paired rows (sharedBrief) pre-agree ONE article angle for
+  // BOTH language twins — the brief's angleId is forced here. Invalid or
+  // missing ids fall back to the random rotation (legacy behavior).
+  opts?: { forcedAngle?: string },
 ): Promise<{ outline: OutlinePlan; source: string }> {
-  const angle = pickArticleAngle();
+  const forced = ARTICLE_ANGLES.find((a) => a.id === opts?.forcedAngle);
+  const angle = forced ?? pickArticleAngle();
   const angleLine = lang === "ar"
     ? `نوع المقال المطلوب: ${angle.ar} — صمّم أقسام H2 بحيث تناسب هذا النوع فعلاً (${angle.shapeAr})؛ ممنوع إعادة استخدام هيكل عام موحّد لكل المقالات.`
     : `ARTICLE TYPE: ${angle.en} — shape the H2 sections to genuinely fit this type (${angle.shapeEn}); do NOT reuse a generic one-size-fits-all skeleton.`;
@@ -398,9 +403,16 @@ export async function reviewAndEnhance(
   externalLinks: { url: string; anchorText: string }[];
   source: string;
 }> {
+  // PHASE 157 ROOT FIX (the 85-dead-links root cause): the internal-link
+  // candidates were ALWAYS rendered with a fixed /blog/ prefix — even for
+  // AR runs — so the review model planted EN-prefixed links inside AR
+  // articles (85 live 404s across 24 posts; Phase 156 sanitizes at render
+  // time, this kills the problem AT THE SOURCE). The prefix is now the
+  // run language's real blog mount: EN → /blog/ · AR → /ar/blog/.
+  const blogPrefix = lang === "ar" ? "/ar/blog" : "/blog";
   const candidates =
     internalCandidates.length > 0
-      ? internalCandidates.slice(0, 15).map((c) => `- /blog/${c.slug} → ${c.title}`).join("\n")
+      ? internalCandidates.slice(0, 15).map((c) => `- ${blogPrefix}/${c.slug} → ${c.title}`).join("\n")
       : "(no previous posts yet)";
 
   // PHASE 62 VARIETY — CTA ROTATION: the identical closing paragraph on
@@ -443,7 +455,7 @@ DO ALL OF THE FOLLOWING:
 1. Proofread: fix grammar/spelling, improve flow, remove repetition (merge duplicated points).
 2. Verify every main keyword & LSI term appears naturally at least once; add a sentence where missing.
 3. Fact-guard: remove or soften any specific citation that looks invented (paper names/authors/URLs that may not exist). Keep generic phrasing like "research shows".
-4. Add EXACTLY 2-4 internal links using [anchor](/blog/slug) format on fitting anchor text from the list above (only real slugs).
+4. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown).
 5. FREE-TOOL LINKS (owner directive 2026-09-01): wherever the text naturally mentions calories, macros/protein targets, body fat, BMI, water intake, or meal plans, link that phrase to the matching FREE tool in [anchor](url) format — ONLY these URLs, max 3 total, each used at most once:
    - calories → [anchor](/tools/calorie-calculator)
    - macros/protein needs → [anchor](/tools/macro-calculator)

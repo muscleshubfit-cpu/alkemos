@@ -10,6 +10,7 @@ import {
   markQueueItemFailed,
   type QueueItem,
 } from "@/lib/blog-queue";
+import { extractSharedBrief } from "@/lib/blog-pairing";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { getRecentPostsByLanguage, isDuplicateTopic } from "@/lib/blog-topics";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -23,6 +24,13 @@ export const maxDuration = 60;
  * language's recent posts) then builds: SEO title, subtitle, meta
  * description, slug base, 5-7 H2 outline, LSI keywords and a 3-5 image
  * plan. Bundle stays FLAT: { research0, outline }.
+ *
+ * PHASE 157: when the row carries a valid sealed sharedBrief (bilingual
+ * daily pair), the topic + article angle are ALREADY AGREED — the brief
+ * wins verbatim (both twins build around the same subject/angle, each in
+ * its own language, written from scratch). The dup-guard is skipped for
+ * briefed rows: the pairing candidates were already dup-filtered at P0.
+ * Legacy/unpaired rows behave EXACTLY as before.
  *
  * GET /api/cron/blog/p1-outline?queueId=<uuid>
  */
@@ -98,8 +106,14 @@ export async function GET(request: NextRequest) {
       throw new Error("research0 artifact missing on queue item — rerun p0-research");
     }
 
-    const topic = await guardDuplicate(lang, r0.topics);
-    const outlineResult = await buildOutline(lang, topic, r0);
+    // PHASE 157: a valid sealed brief pre-decides topic + angle (pair law).
+    const brief = extractSharedBrief(bundle);
+    const topic = brief
+      ? (lang === "ar" ? brief.topicAr : brief.topicEn)
+      : await guardDuplicate(lang, r0.topics);
+    const outlineResult = await buildOutline(lang, topic, r0, {
+      forcedAngle: brief?.angleId,
+    });
 
     const updatedBundle = JSON.stringify({
       ...bundle,

@@ -2,11 +2,16 @@
  * src/lib/blog-research.ts — PIPELINE V3 · PHASE 0 (language-split)
  *
  * Keyword & Topic Research (owner directive 2026-08-27, refined same
- * day: EN and AR pipelines are FULLY SEPARATE — one P0 call researches
- * exactly ONE language; the two language workflows never share a queue
- * row). Uses the strongest free models first (INTERLEAVED_STRONGEST_CHAIN:
- * OpenRouter + Groq, strongest-first, automatic fall-through to the next
- * model on failure) to produce, for that ONE language:
+ * day: one P0 call researches exactly ONE language — the per-language
+ * quality bar is untouched). PHASE 157 (SEO-GEO-5.0, owner «نفذ توصيتك»):
+ * the P0 ROUTE may research BOTH languages back-to-back to seal a daily
+ * bilingual pair (pair_id + sharedBrief), but each research artifact is
+ * still produced by its own single-language run with its own dedup —
+ * the two language pipelines keep their independent schedules
+ * (AR 05:00 UTC · EN 22:00 UTC). Uses the strongest free models first
+ * (INTERLEAVED_STRONGEST_CHAIN: OpenRouter + Groq, strongest-first,
+ * automatic fall-through to the next model on failure) to produce, for
+ * that ONE language:
  *   • top 10 search keywords (with estimated search volume)
  *   • top 10 common questions with short answers
  *   • 5 article topic suggestions based on the analysis

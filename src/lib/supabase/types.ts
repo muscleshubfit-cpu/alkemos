@@ -443,6 +443,8 @@ export type Database = {
           error_message: string | null;
           en_post_id: string | null;
           ar_post_id: string | null;
+          /** Phase 157: bilingual pair twin link (0076) — NULL = legacy independent run. */
+          pair_id: string | null;
           created_at: string;
           generated_at: string | null;
           published_at: string | null;
@@ -461,6 +463,8 @@ export type Database = {
           error_message?: string | null;
           en_post_id?: string | null;
           ar_post_id?: string | null;
+          /** Phase 157: set when this row is one side of a bilingual daily pair. */
+          pair_id?: string | null;
           created_at?: string;
           generated_at?: string | null;
           published_at?: string | null;
@@ -478,6 +482,7 @@ export type Database = {
           error_message?: string | null;
           en_post_id?: string | null;
           ar_post_id?: string | null;
+          pair_id?: string | null;
           created_at?: string;
           generated_at?: string | null;
           published_at?: string | null;

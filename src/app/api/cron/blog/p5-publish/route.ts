@@ -12,6 +12,7 @@ import {
   requireRowLang,
   updateQueueItem,
   markQueueItemFailed,
+  findRecentPairRows,
   type QueueItem,
 } from "@/lib/blog-queue";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -25,9 +26,12 @@ export const maxDuration = 60;
  * queue row published. The app's dynamic sitemap.ts picks up new posts
  * automatically on next request.
  *
- * NO cross-language linked_post_id: with fully separate pipelines an
- * EN article has no guaranteed AR twin anymore (independent topics +
- * independent schedules by owner directive).
+ * PHASE 157 — BILINGUAL HANDSHAKE: when the queue row carries a pair_id,
+ * the later-published twin fills its OWN linked_post_id AND the earlier
+ * twin's (bidirectional) — hreflang (blog-sitemap) + LanguageToggle light
+ * up automatically per pair. Best-effort in EVERY direction: any failure
+ * logs and moves on, the publish itself NEVER fails because of pairing.
+ * Unpaired (legacy/degraded) rows keep the exact pre-157 behavior.
  *
  * GET /api/cron/blog/p5-publish?queueId=<uuid>
  */
@@ -182,6 +186,50 @@ export async function GET(request: NextRequest) {
     });
     if (updateErr) throw new Error(updateErr);
 
+    // PHASE 157 — BILINGUAL HANDSHAKE (best-effort, never fails the
+    // publish): find the twin queue row by pair_id; if the twin already
+    // published, fill linked_post_id in BOTH directions.
+    let handshake: "bidirectional" | "first-of-pair" | "skipped" = "skipped";
+    if (qi.pair_id) {
+      try {
+        const rowId = qi.id; // narrowed snapshot (mutable let loses narrowing in callbacks)
+        const pairRows = await findRecentPairRows(qi.pair_id);
+        const twin = pairRows.find((r) => r.id !== rowId && r.language !== lang);
+        const twinPostId = twin
+          ? (lang === "en" ? twin.ar_post_id : twin.en_post_id)
+          : null;
+        if (twinPostId && publishedPostId) {
+          // I published second: point me → twin AND twin → me.
+          const mineErr = await supabaseAdmin
+            .from("blog_posts")
+            .update({ linked_post_id: twinPostId })
+            .eq("id", publishedPostId)
+            .then(({ error }) => error?.message ?? null);
+          const twinErr = await supabaseAdmin
+            .from("blog_posts")
+            .update({ linked_post_id: publishedPostId })
+            .eq("id", twinPostId)
+            .then(({ error }) => error?.message ?? null);
+          if (mineErr || twinErr) {
+            console.warn(
+              `[blog/p5-publish] handshake partial (mine=${mineErr ?? "ok"}, twin=${twinErr ?? "ok"})`,
+            );
+            handshake = mineErr && twinErr ? "skipped" : "bidirectional";
+          } else {
+            handshake = "bidirectional";
+            console.log(`[blog/p5-publish] pair linked ${qi.pair_id}: ${publishedPostId} ↔ ${twinPostId}`);
+          }
+        } else {
+          // I published first — the twin's P5 fills both directions later.
+          handshake = "first-of-pair";
+        }
+      } catch (e) {
+        console.warn(
+          `[blog/p5-publish] handshake degraded: ${e instanceof Error ? e.message : e}`,
+        );
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       step: "p5",
@@ -192,6 +240,7 @@ export async function GET(request: NextRequest) {
       title: row.title,
       slug,
       toolLinksInserted: toolLinkPass.inserted.length,
+      handshake,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

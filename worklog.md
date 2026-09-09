@@ -3,6 +3,28 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: SEO-GEO-5.0-BILINGUAL-PAIRING-157-2026-09-09
+Agent: Super Z (main)
+Task: قرار المالك «نفذ توصيتك» = المقترح 1 من دراسة التوليد ثنائي اللغة المُقدَّمة («توليد نفس المقالات باللغتين ولكن كل مقال بتنفذ منفصل وكل لغة بشكل متقن جدا ومراعاة كل امور ال seo/geo») + أمر مصاحب: «تأكد من عدم وجود أي توثيق قديم يلغى ما تم» — المرحلة 157
+
+Work Log:
+- **الدراسة (قبل التنفيذ حرف توجيه المالك):** فحص خط التوليد الفعلي كاملًا — workflows (EN 22:00 UTC · AR 05:00 UTC) → P0 blog-research (بحث لغة واحدة + dedup على تاريخ لغتها) → P1 blog-pipeline (زاوية عشوائية من 10، slugBase لاتيني قانون M15) → P2 → P3 → P4 reviewAndEnhance → P5 p5-publish (تعليقه الصريح: NO cross-language linked_post_id) — واكتشاف أن blog-generate.ts (1280 سطرًا) ميت كوديًا (صفر مستوردات) — PostgREST حي: 63 مقالًا (29 EN + 34 AR) صفر linked_post_id بالاتجاهين
+- **جذر روابط الـ85 المكتشف:** برومبت P4 (reviewAndEnhance) يعرض مرشحي الروابط ببادئة /blog/ ثابتة حتى للruns العربية — المصدر الذي ولّد الروابط الميتة التي رقعتها 156 وقت العرض فقط
+- **المعمارية المنفذة (المقترح 1):** موضوع واحد يوميًا → بحث اللغتين (runPhase0Research ×2) → استدعاء اقتران صغير (runPairingSelection ≤400 توكن) يختار topicEn (من مرشحات EN المدققة حرفيًا) + topicAr (مرشح AR أو صياغة عربية جديدة long-tail) + زاوية مشتركة من ids العشرة → صفان بـpair_id uuid مشترك + sharedBrief في article_bundle — كل لغة تنفذ P1→P5 كاملًا بنفسها في نافذتها (محتوى أصلي لا ترجمة، ميتا/كلمات/FAQs مستقلة)
+- **بروتوكول P0:** تبني (صف لغتي researched ≤48h) → انضمام (زوج اللغة الأخرى ≤30h وسطري لم يشغل → صفّي فقط) → إنشاء (أنا الأول: بحث اللغتين + اقتران + إدراج الصفين، الأخير best-effort) — سلّم تدهور كامل: أي فشل (اقتران/تحقق/عمود مفقود قبل تطبيق 0076) → السلوك الليجاسي V3 الحرفي (ممنوع الاقتران الأعمى — الزوج الخاطئ أسوأ من لا زوج) + حارس double-dispatch
+- **مصافحة P5:** الساق الثانية المنشورة تملأ linked_post_id بالاتجاهين فورًا؛ الأولى تُربك من p5 التوأم عند نشره — best-effort لا يسقط النشر أبدًا
+- **الملفات:** ميجريشن 20260909120000_0076_blog_queue_pair_id.sql (ADD COLUMN IF NOT EXISTS pair_id uuid + فهرس جزئي + COMMENT — idempotent، على المالك تطبيقها SQL Editor) · INDEX.md (0076 + العد) · types.ts (pair_id ×3 كتل) · blog-queue.ts (QueueItem.pair_id + findAdoptablePairRow + findRecentPairRows) · **blog-pairing.ts جديد** (SharedBrief/extractSharedBrief/isAdoptablePairRow/parsePairingJSON/runPairingSelection/isValidAngleId) · p0-research/p1-outline/p5-publish routes · blog-pipeline.ts (buildOutline forcedAngle + إصلاح P4 language-aware) · headers workflows ×2 · blog-research.ts header
+- **مسح التوثيق المُلغي (أمر المالك المصاحب):** rg شامل — حُدّثت: p5 «NO cross-language linked_post_id» → مصافحة 157 · blog-queue «never share rows» · blog-research «never share a queue row» · workflows «FULL LANGUAGE SEPARATION / independent topics» ×2 · AGENTS §8 سطر المدونة (أُلحق الإقران) · الخطة §12.9 «تكليف محتوى مستقبلي» و§12.15 «قرار مالك معلق» → مؤشرا تجاوز صريحان ل§12.16 (السجلات التاريخية سليمة) · §12.16 جديد كامل · STATE (157) · هذا الملف
+- +22 اختبارًا (blog-pairing.test.ts): extractSharedBrief 6 (صالح/نص خام/ليجاسي/قصير/حدود 48h بالحقن الزمني/زاوية مجهولة تُسقط) · isAdoptablePairRow 6 (مطابق/لغة/حالة/pair_id/الحد الأعلى/مشوه) · parsePairingJSON 8 (مرشحات حرفية/مطابقة مطبعة/عربية منقولة مقبولة/إنجليزية مرفوضة/قصيرة مرفوضة/topicEn خارج المرشحات/زاوية مجهولة/JSON تالف) · isValidAngleId 2
+- **حادثة الجلسة (قانون البقاء مُطبق حرفيًا):** مساحة العمل اتمسحت بعد تشغيل البوابات وقبل الكوميت — كل شغل 157 (staged غير مُدفع) فُقد؛ أُعيد الاستنساخ من origin/main (2720ad8 — 156) وأُعيد بناء المرحلة كاملة من مواصفاتها الموثقة أعلاه في نفس الجلسة ثم فُحصت بالبوابات التسع مجددًا — درس مؤكد: لا معرفة تعيش خارج كوميت مدفوع
+- البوابات التسع (قبل المسح وبعده): tsc 0 · eslint 0/0 · vitest **320/320** · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- **المقترح 1 حي كودًا:** يحفظ قرارين ماليكين معتمدين (جداول Phase 119 الجغرافية + جودة تنفيذ V3 لكل لغة) ويضيف طبقة الاقتران — hreflang المدونة وزر اللغة ينتفضان آليًا لأول زوج بعد تطبيق 0076
+- **صفر انحدار ممكن بالتصميم قبل تطبيق 0076:** كل مسارات الاقتران المطرقة تُلتقط وتتدهور للسلوك الحرفي السابق — الميجريشن على المالك (SQL Editor + NOTIFY pgrst)
+- **المتبقي الاختياري:** الإقران الرجعي للـ63 (المقترح 3 — قائمة اعتماد مالك) ومراقبة أول دورتين GHA
+
+---
 Task ID: SEO-GEO-4.8-CONTENT-PRUNING-156-2026-09-09
 Agent: Super Z (main)
 Task: أمر المالك «لا ابداء فى خطوه تالية اخرى» (بعد رفع قرار كتلة الكارديو) — البند الوحيد المتبقي القابل للتنفيذ في §7.1: #15 مراجعة محتوى المقالات وتحسينها (Content Pruning) = المرحلة 156
