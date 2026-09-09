@@ -1,0 +1,67 @@
+{
+  "_comment": "Phase 158 — Proposal 3 retroactive pairing (owner «نفذ المقترح ٣» 2026-09-09). Matched model-assisted across the 63 pre-157 posts (29 EN + 34 AR) using full titles + focus keywords + keywords. PAIRS = high-confidence semantic twins (same question, same angle, same audience — applied by scripts/retro-pair-blog.mjs). REVIEW_PAIRS = plausible but different angle — owner approval list, NEVER applied until the owner moves them into PAIRS. No-blind-pairing law (AGENTS §8) forbids pairing anything else: V3 generated the two libraries as independent topics by design, so most posts have no true twin.",
+  "pairs": [
+    {
+      "enSlug": "protein-per-day-muscle-build-plan",
+      "arSlug": "protein-intake-calculator-muscle-build",
+      "topic": "daily protein amount for muscle building",
+      "why": "same exact question — «كم كمية البروتين اليومية المثالية لبناء العضلات» ↔ «How much protein do you need per day to build muscle?»"
+    },
+    {
+      "enSlug": "calculate-daily-calories-fuel-fat-loss-bulking",
+      "arSlug": "calculate-daily-calories-weight-loss",
+      "topic": "daily calories for weight loss",
+      "why": "same exact question — «كم سعرة أحتاج يومياً لخسارة الوزن؟ طريقة حساب دقيقة» ↔ «How many calories should I eat to lose weight?»"
+    },
+    {
+      "enSlug": "quick-healthy-meal-ideas-busy-people",
+      "arSlug": "healthy-high-protein-meals-office",
+      "topic": "quick healthy (high-protein) meals for busy people",
+      "why": "same concept + audience — «أفكار وجبات صحية سريعة عالية البروتين للموظفين» ↔ «Quick Healthy Meal Ideas for Busy People»"
+    },
+    {
+      "enSlug": "sleep-better-faster-gym-results",
+      "arSlug": "sleep-muscle-recovery-gym",
+      "topic": "sleep for gym recovery & results",
+      "why": "same question + framing — «كم ساعة نوم تحتاجها لبناء العضلات وتحسين الاستشفاء في الجيم؟» ↔ «How to Sleep Better for Faster Gym Results»"
+    },
+    {
+      "enSlug": "12-week-progressive-overload-home-workout",
+      "arSlug": "muscle-building-home-workout-plan",
+      "topic": "no-equipment home muscle-building program",
+      "why": "both explicitly no-equipment home program design — «برنامج تمارين بناء العضلات في المنزل بدون معدات» ↔ «Home Workout No Equipment Plan»"
+    },
+    {
+      "enSlug": "12-week-dumbbell-band-muscle-plan",
+      "arSlug": "home-muscle-building-guide-simple-weights",
+      "topic": "home training with light equipment",
+      "why": "both home plans built on light equipment — «المنزل بأوزان بسيطة» ↔ «with Dumbbells & Bands»"
+    }
+  ],
+  "reviewPairs": [
+    {
+      "enSlug": "best-plant-based-protein-powder-muscle-gain-2026",
+      "arSlug": "protein-supplements-veg-animal-comparison",
+      "topic": "protein powder selection",
+      "whyDifferent": "AR = full plant-vs-animal comparison, EN = best plant-based only — same family, different angle"
+    },
+    {
+      "enSlug": "macro-tracking-meal-prep-1800-fat-loss",
+      "arSlug": "fat-burning-macro-diet-plan",
+      "topic": "macro-based fat loss diet",
+      "whyDifferent": "AR = step-by-step fat-loss macro plan (any calories), EN = meal prep on a fixed 1800 kcal"
+    },
+    {
+      "enSlug": "4-week-beginner-muscle-building-plan",
+      "arSlug": "muscle-building-beginners-step-by-step",
+      "topic": "beginner muscle building",
+      "whyDifferent": "AR = how-to-start guide, EN = concrete 4-week day-by-day program"
+    },
+    {
+      "enSlug": "progressive-overload-no-weight",
+      "arSlug": "muscle-building-bodyweight-home",
+      "topic": "bodyweight muscle building",
+      "whyDifferent": "AR = complete bodyweight home guide, EN = 4 plateau-beating overload techniques"
+    }
+  ]
+}

@@ -54,6 +54,8 @@ pnpm-lock.yaml
 #   scripts/docs_audit.py      → knowledge-system gate (docs-parity-gate.yml, Phase 107)
 #   scripts/db-backup.mjs      → daily DB snapshot (db-backup.yml, 2026-09-05)
 #   scripts/db-restore.mjs     → snapshot restore tool (db-backup.yml docs)
+#   scripts/retro-pair-blog.mjs → Proposal-3 retro pairing applier (retro-pair-blog.yml, 2026-09-09)
+#   scripts/retro-pair-blog.pairs.json → approved pairs + owner review list (retro-pair-blog.yml)
 #   scripts/vercel-cleanup/    → daily Vercel stale-deployment purge (vercel-cleanup.yml, Phase 145)
 /scripts/*
 !/scripts/blog-runner/
@@ -65,6 +67,8 @@ pnpm-lock.yaml
 !/scripts/docs_audit.py
 !/scripts/db-backup.mjs
 !/scripts/db-restore.mjs
+!/scripts/retro-pair-blog.mjs
+!/scripts/retro-pair-blog.pairs.json
 /skills/
 /tests/
 /examples/
