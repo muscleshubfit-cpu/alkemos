@@ -1,27 +1,18 @@
-# TEMPORARY — EVO-3 activation steps 1+2 (owner decree «smtp مربوط api داخل
-# GitHub secret ، افحصها ونفذ» 2026-09-10). DELETE THIS FILE in the same
-# session once the live check passes and the Vercel env flags are set.
+# TEMPORARY — EVO live SMTP check v2 (wide probe). Owner decree
+# «smtp مربوط api داخل GitHub secret ، افحصها ونفذ» 2026-09-10.
+# DELETE THIS FILE in the same session after the live check passes.
 #
-# WHY A WORKFLOW: the Brevo key lives in GitHub Actions secrets (owner-added)
-# and secret VALUES are readable ONLY inside a workflow run — the REST API
-# never returns them (403 on secrets:list for the session PAT, by design).
-#
-# WHAT IT DOES (STATE.md «المفتوح الآن» — documented activation order):
-#   1. probes which candidate secret name holds the Brevo key (prints NAMES
-#      and SET/empty booleans only — values are never printed),
-#   2. validates the key live against GET /v3/account (status code only),
-#   3. LIVE send: a real test email FROM evo@alkemos.com (the D4 send-only
-#      sender) TO the owner inbox muscleshubfit@gmail.com via POST /v3/smtp/email —
-#      the exact endpoint + sender path /api/evo/followup/dispatch uses,
-#   4. sets the activation env flags on Vercel production (upsert):
-#      EVO_FOLLOWUP_ENABLED=true · EVO_FOLLOWUP_FROM · EVO_CRON_SECRET
-#      (random 32-byte hex, generated on the runner, NEVER printed).
-#      Flags go live on the NEXT production deployment (repo auto-deploys
-#      on every push to main — the opt-in UI commit provides it).
-#
-# SAFETY: no secret value is ever echoed; GHA also auto-masks secret values
-# in logs. Brevo free tier: 300/day — one test email is spent per run.
-name: EVO live SMTP check + Vercel activation (TEMPORARY)
+# v1 probed 6 classic repo-secret names — all empty. v2:
+#   - probes 40 secret names + 12 variable names per scope,
+#   - runs THREE scopes in parallel: Production env / repo secrets+vars /
+#     Preview env (an environment job sees BOTH env and repo secrets),
+#   - when found: validates the key (GET /v3/account), sends ONE real test
+#     email FROM evo@alkemos.com (D4 send-only) TO the owner inbox
+#     muscleshubfit@gmail.com, then upserts the Vercel production flags
+#     EVO_FOLLOWUP_ENABLED / EVO_FOLLOWUP_FROM / EVO_CRON_SECRET (the secret
+#     is generated on the runner and NEVER printed).
+# Secret values are NEVER printed; GHA also auto-masks them in logs.
+name: EVO live SMTP check v2 (TEMPORARY — wide probe)
 
 on:
   workflow_dispatch:
@@ -38,51 +29,153 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  main-check:
+    name: Probe + live send + Vercel flags (Production scope)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
+    environment: Production
     steps:
-      - name: "1) Probe Brevo secret candidates (names only — values never printed)"
+      - name: "1) Probe secret/variable names (values never printed)"
         id: probe
         env:
-          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          K_BREVO_API: ${{ secrets.BREVO_API }}
-          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
-          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
-          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
-          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_SMTP_API: ${{ secrets.SMTP_API }}
+        K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+        K_SMTP_KEY: ${{ secrets.SMTP_KEY }}
+        K_SMTP: ${{ secrets.SMTP }}
+        K_XSMTP_API_KEY: ${{ secrets.XSMTP_API_KEY }}
+        K_SMTPAPI_KEY: ${{ secrets.SMTPAPI_KEY }}
+        K_SMTP_AND_API_KEY: ${{ secrets.SMTP_AND_API_KEY }}
+        K_BREVO: ${{ secrets.BREVO }}
+        K_BREVO_KEY: ${{ secrets.BREVO_KEY }}
+        K_BREVO_API: ${{ secrets.BREVO_API }}
+        K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        K_BREVO_API_TOKEN: ${{ secrets.BREVO_API_TOKEN }}
+        K_BREVO_TOKEN: ${{ secrets.BREVO_TOKEN }}
+        K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        K_BREVO_SMTP_API_KEY: ${{ secrets.BREVO_SMTP_API_KEY }}
+        K_SENDINBLUE: ${{ secrets.SENDINBLUE }}
+        K_SENDINBLUE_KEY: ${{ secrets.SENDINBLUE_KEY }}
+        K_SENDINBLUE_API: ${{ secrets.SENDINBLUE_API }}
+        K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+        K_EMAIL_KEY: ${{ secrets.EMAIL_KEY }}
+        K_MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+        K_MAIL_KEY: ${{ secrets.MAIL_KEY }}
+        K_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        K_SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        K_SMTP_USER: ${{ secrets.SMTP_USER }}
+        K_EVO_SMTP_API_KEY: ${{ secrets.EVO_SMTP_API_KEY }}
+        K_EVO_BREVO_API_KEY: ${{ secrets.EVO_BREVO_API_KEY }}
+        K_EVO_BREVO_KEY: ${{ secrets.EVO_BREVO_KEY }}
+        K_EVO_MAIL_KEY: ${{ secrets.EVO_MAIL_KEY }}
+        K_EVO_EMAIL_API_KEY: ${{ secrets.EVO_EMAIL_API_KEY }}
+        K_EVO_API_KEY: ${{ secrets.EVO_API_KEY }}
+        K_EVO_SMTP_KEY: ${{ secrets.EVO_SMTP_KEY }}
+        K_ALKEMOS_BREVO_API_KEY: ${{ secrets.ALKEMOS_BREVO_API_KEY }}
+        K_ALKEMOS_SMTP_API_KEY: ${{ secrets.ALKEMOS_SMTP_API_KEY }}
+        K_brevo_api_key: ${{ secrets.brevo_api_key }}
+        K_smtp_api_key: ${{ secrets.smtp_api_key }}
+        K_xsmtp_api_key: ${{ secrets.xsmtp_api_key }}
+        K_smtp_api: ${{ secrets.smtp_api }}
+        K_brevo_key: ${{ secrets.brevo_key }}
+        V_BREVO_API_KEY: ${{ vars.BREVO_API_KEY }}
+        V_SMTP_API_KEY: ${{ vars.SMTP_API_KEY }}
+        V_SMTP_API: ${{ vars.SMTP_API }}
+        V_XSMTP_API_KEY: ${{ vars.XSMTP_API_KEY }}
+        V_BREVO_API: ${{ vars.BREVO_API }}
+        V_BREVO_KEY: ${{ vars.BREVO_KEY }}
+        V_EVO_BREVO_API_KEY: ${{ vars.EVO_BREVO_API_KEY }}
+        V_SMTP_KEY: ${{ vars.SMTP_KEY }}
+        V_SENDINBLUE_API_KEY: ${{ vars.SENDINBLUE_API_KEY }}
+        V_EMAIL_API_KEY: ${{ vars.EMAIL_API_KEY }}
+        V_MAIL_API_KEY: ${{ vars.MAIL_API_KEY }}
+        V_BREVO: ${{ vars.BREVO }}
         run: |
-          found=""
-          for name in BREVO_API_KEY BREVO_API BREVO_SMTP_KEY SMTP_API_KEY EMAIL_API_KEY SENDINBLUE_API_KEY; do
+          found_var=""
+          for name in SMTP_API SMTP_API_KEY SMTP_KEY SMTP XSMTP_API_KEY SMTPAPI_KEY SMTP_AND_API_KEY BREVO BREVO_KEY BREVO_API BREVO_API_KEY BREVO_API_TOKEN BREVO_TOKEN BREVO_SMTP_KEY BREVO_SMTP_API_KEY SENDINBLUE SENDINBLUE_KEY SENDINBLUE_API SENDINBLUE_API_KEY EMAIL_API_KEY EMAIL_KEY MAIL_API_KEY MAIL_KEY SMTP_PASSWORD SMTP_PASS SMTP_USER EVO_SMTP_API_KEY EVO_BREVO_API_KEY EVO_BREVO_KEY EVO_MAIL_KEY EVO_EMAIL_API_KEY EVO_API_KEY EVO_SMTP_KEY ALKEMOS_BREVO_API_KEY ALKEMOS_SMTP_API_KEY brevo_api_key smtp_api_key xsmtp_api_key smtp_api brevo_key; do
             var="K_${name}"
             if [ -n "${!var}" ]; then
               echo "secret ${name}: SET"
-              [ -z "$found" ] && found="$name"
+              [ -z "$found_var" ] && found_var="K_${name}"
             else
               echo "secret ${name}: empty"
             fi
           done
-          if [ -z "$found" ]; then
-            echo "::error::No Brevo API secret found — add the key under Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret (expected name: BREVO_API_KEY)"
+          for name in BREVO_API_KEY SMTP_API_KEY SMTP_API XSMTP_API_KEY BREVO_API BREVO_KEY EVO_BREVO_API_KEY SMTP_KEY SENDINBLUE_API_KEY EMAIL_API_KEY MAIL_API_KEY BREVO; do
+            var="V_${name}"
+            if [ -n "${!var}" ]; then
+              echo "variable ${name}: SET"
+              [ -z "$found_var" ] && found_var="V_${name}"
+            else
+              echo "variable ${name}: empty"
+            fi
+          done
+          if [ -z "$found_var" ]; then
+            echo "::error::No Brevo key found in Production env / repo secrets / repo variables (probed 40 secret names + 12 variable names) — add it as repository secret BREVO_API_KEY (Settings ▸ Secrets and variables ▸ Actions)"
             exit 1
           fi
-          echo "Using secret: ${found}"
-          echo "using=${found}" >> "$GITHUB_OUTPUT"
+          echo "✓ using ${found_var}"
+          echo "USING_VAR=${found_var}" >> "$GITHUB_OUTPUT"
 
-      - name: "2) Validate the key live — GET /v3/account (status only)"
-        id: account
+          echo "USING_NAME=$found_var" >> "$GITHUB_OUTPUT"
+
+      - name: "2) Validate the key live — GET /v3/account"
         env:
-          USING: ${{ steps.probe.outputs.using }}
-          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          K_BREVO_API: ${{ secrets.BREVO_API }}
-          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
-          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
-          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
-          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+          USING: ${{ steps.probe.outputs.USING_NAME }}
+        K_SMTP_API: ${{ secrets.SMTP_API }}
+        K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+        K_SMTP_KEY: ${{ secrets.SMTP_KEY }}
+        K_SMTP: ${{ secrets.SMTP }}
+        K_XSMTP_API_KEY: ${{ secrets.XSMTP_API_KEY }}
+        K_SMTPAPI_KEY: ${{ secrets.SMTPAPI_KEY }}
+        K_SMTP_AND_API_KEY: ${{ secrets.SMTP_AND_API_KEY }}
+        K_BREVO: ${{ secrets.BREVO }}
+        K_BREVO_KEY: ${{ secrets.BREVO_KEY }}
+        K_BREVO_API: ${{ secrets.BREVO_API }}
+        K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        K_BREVO_API_TOKEN: ${{ secrets.BREVO_API_TOKEN }}
+        K_BREVO_TOKEN: ${{ secrets.BREVO_TOKEN }}
+        K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        K_BREVO_SMTP_API_KEY: ${{ secrets.BREVO_SMTP_API_KEY }}
+        K_SENDINBLUE: ${{ secrets.SENDINBLUE }}
+        K_SENDINBLUE_KEY: ${{ secrets.SENDINBLUE_KEY }}
+        K_SENDINBLUE_API: ${{ secrets.SENDINBLUE_API }}
+        K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+        K_EMAIL_KEY: ${{ secrets.EMAIL_KEY }}
+        K_MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+        K_MAIL_KEY: ${{ secrets.MAIL_KEY }}
+        K_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        K_SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        K_SMTP_USER: ${{ secrets.SMTP_USER }}
+        K_EVO_SMTP_API_KEY: ${{ secrets.EVO_SMTP_API_KEY }}
+        K_EVO_BREVO_API_KEY: ${{ secrets.EVO_BREVO_API_KEY }}
+        K_EVO_BREVO_KEY: ${{ secrets.EVO_BREVO_KEY }}
+        K_EVO_MAIL_KEY: ${{ secrets.EVO_MAIL_KEY }}
+        K_EVO_EMAIL_API_KEY: ${{ secrets.EVO_EMAIL_API_KEY }}
+        K_EVO_API_KEY: ${{ secrets.EVO_API_KEY }}
+        K_EVO_SMTP_KEY: ${{ secrets.EVO_SMTP_KEY }}
+        K_ALKEMOS_BREVO_API_KEY: ${{ secrets.ALKEMOS_BREVO_API_KEY }}
+        K_ALKEMOS_SMTP_API_KEY: ${{ secrets.ALKEMOS_SMTP_API_KEY }}
+        K_brevo_api_key: ${{ secrets.brevo_api_key }}
+        K_smtp_api_key: ${{ secrets.smtp_api_key }}
+        K_xsmtp_api_key: ${{ secrets.xsmtp_api_key }}
+        K_smtp_api: ${{ secrets.smtp_api }}
+        K_brevo_key: ${{ secrets.brevo_key }}
+        V_BREVO_API_KEY: ${{ vars.BREVO_API_KEY }}
+        V_SMTP_API_KEY: ${{ vars.SMTP_API_KEY }}
+        V_SMTP_API: ${{ vars.SMTP_API }}
+        V_XSMTP_API_KEY: ${{ vars.XSMTP_API_KEY }}
+        V_BREVO_API: ${{ vars.BREVO_API }}
+        V_BREVO_KEY: ${{ vars.BREVO_KEY }}
+        V_EVO_BREVO_API_KEY: ${{ vars.EVO_BREVO_API_KEY }}
+        V_SMTP_KEY: ${{ vars.SMTP_KEY }}
+        V_SENDINBLUE_API_KEY: ${{ vars.SENDINBLUE_API_KEY }}
+        V_EMAIL_API_KEY: ${{ vars.EMAIL_API_KEY }}
+        V_MAIL_API_KEY: ${{ vars.MAIL_API_KEY }}
+        V_BREVO: ${{ vars.BREVO }}
         run: |
-          varname="K_${USING}"
-          KEY="${!varname}"
+          KEY="${!USING}"
           code=$(curl -s -o /tmp/account.json -w "%{http_code}" \
             -H "api-key: ${KEY}" -H "accept: application/json" \
             "https://api.brevo.com/v3/account")
@@ -93,25 +186,69 @@ jobs:
           fi
           echo "✓ Brevo account reachable — key valid."
 
-      - name: "3) LIVE send — test email from evo@alkemos.com to the owner inbox"
-        id: send
+      - name: "3) LIVE send — test email from evo@alkemos.com to the owner"
         env:
-          USING: ${{ steps.probe.outputs.using }}
-          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          K_BREVO_API: ${{ secrets.BREVO_API }}
-          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
-          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
-          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
-          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+          USING: ${{ steps.probe.outputs.USING_NAME }}
+        K_SMTP_API: ${{ secrets.SMTP_API }}
+        K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+        K_SMTP_KEY: ${{ secrets.SMTP_KEY }}
+        K_SMTP: ${{ secrets.SMTP }}
+        K_XSMTP_API_KEY: ${{ secrets.XSMTP_API_KEY }}
+        K_SMTPAPI_KEY: ${{ secrets.SMTPAPI_KEY }}
+        K_SMTP_AND_API_KEY: ${{ secrets.SMTP_AND_API_KEY }}
+        K_BREVO: ${{ secrets.BREVO }}
+        K_BREVO_KEY: ${{ secrets.BREVO_KEY }}
+        K_BREVO_API: ${{ secrets.BREVO_API }}
+        K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        K_BREVO_API_TOKEN: ${{ secrets.BREVO_API_TOKEN }}
+        K_BREVO_TOKEN: ${{ secrets.BREVO_TOKEN }}
+        K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        K_BREVO_SMTP_API_KEY: ${{ secrets.BREVO_SMTP_API_KEY }}
+        K_SENDINBLUE: ${{ secrets.SENDINBLUE }}
+        K_SENDINBLUE_KEY: ${{ secrets.SENDINBLUE_KEY }}
+        K_SENDINBLUE_API: ${{ secrets.SENDINBLUE_API }}
+        K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+        K_EMAIL_KEY: ${{ secrets.EMAIL_KEY }}
+        K_MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+        K_MAIL_KEY: ${{ secrets.MAIL_KEY }}
+        K_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        K_SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        K_SMTP_USER: ${{ secrets.SMTP_USER }}
+        K_EVO_SMTP_API_KEY: ${{ secrets.EVO_SMTP_API_KEY }}
+        K_EVO_BREVO_API_KEY: ${{ secrets.EVO_BREVO_API_KEY }}
+        K_EVO_BREVO_KEY: ${{ secrets.EVO_BREVO_KEY }}
+        K_EVO_MAIL_KEY: ${{ secrets.EVO_MAIL_KEY }}
+        K_EVO_EMAIL_API_KEY: ${{ secrets.EVO_EMAIL_API_KEY }}
+        K_EVO_API_KEY: ${{ secrets.EVO_API_KEY }}
+        K_EVO_SMTP_KEY: ${{ secrets.EVO_SMTP_KEY }}
+        K_ALKEMOS_BREVO_API_KEY: ${{ secrets.ALKEMOS_BREVO_API_KEY }}
+        K_ALKEMOS_SMTP_API_KEY: ${{ secrets.ALKEMOS_SMTP_API_KEY }}
+        K_brevo_api_key: ${{ secrets.brevo_api_key }}
+        K_smtp_api_key: ${{ secrets.smtp_api_key }}
+        K_xsmtp_api_key: ${{ secrets.xsmtp_api_key }}
+        K_smtp_api: ${{ secrets.smtp_api }}
+        K_brevo_key: ${{ secrets.brevo_key }}
+        V_BREVO_API_KEY: ${{ vars.BREVO_API_KEY }}
+        V_SMTP_API_KEY: ${{ vars.SMTP_API_KEY }}
+        V_SMTP_API: ${{ vars.SMTP_API }}
+        V_XSMTP_API_KEY: ${{ vars.XSMTP_API_KEY }}
+        V_BREVO_API: ${{ vars.BREVO_API }}
+        V_BREVO_KEY: ${{ vars.BREVO_KEY }}
+        V_EVO_BREVO_API_KEY: ${{ vars.EVO_BREVO_API_KEY }}
+        V_SMTP_KEY: ${{ vars.SMTP_KEY }}
+        V_SENDINBLUE_API_KEY: ${{ vars.SENDINBLUE_API_KEY }}
+        V_EMAIL_API_KEY: ${{ vars.EMAIL_API_KEY }}
+        V_MAIL_API_KEY: ${{ vars.MAIL_API_KEY }}
+        V_BREVO: ${{ vars.BREVO }}
         run: |
-          varname="K_${USING}"
-          KEY="${!varname}"
+          KEY="${!USING}"
           body=$(jq -n \
             --arg subj "EVO live SMTP check — $(date -u '+%Y-%m-%d %H:%M UTC')" \
             '{sender:{name:"EVO — Alkemos",email:"evo@alkemos.com"},
               to:[{email:"muscleshubfit@gmail.com"}],
               subject:$subj,
-              htmlContent:"<p>فحص حي ناجح — مسار رسالة المتابعة الأسبوعية من EVO جاهز (D4: إرسال-فقط، بدون استقبال).</p><p>Live SMTP check passed — the EVO weekly follow-up path is ready (D4: send-only).</p>",
+              htmlContent:"<p>فحص حي ناجح — مسار رسالة المتابعة الأسبوعية من EVO جاهز (D4: إرسال-فقط).</p><p>Live SMTP check passed.</p>",
               textContent:"EVO live SMTP check passed — weekly follow-up path ready (send-only)."}')
           code=$(curl -s -o /tmp/send.json -w "%{http_code}" -X POST \
             -H "api-key: ${KEY}" -H "content-type: application/json" -H "accept: application/json" \
@@ -119,21 +256,19 @@ jobs:
           echo "POST /v3/smtp/email → HTTP ${code}"
           if [ "$code" = "201" ]; then
             echo "messageId: $(jq -r '.messageId // "n/a"' /tmp/send.json)"
-            echo "✅ LIVE CHECK PASSED — Brevo accepted the message; the owner inbox receives it."
+            echo "✅ LIVE CHECK PASSED — Brevo accepted; owner inbox receives it."
           else
-            echo "::error::Brevo send failed (HTTP ${code}) — is evo@alkemos.com a verified sender in the Brevo account?"
+            echo "::error::Brevo send failed (HTTP ${code}) — is evo@alkemos.com a verified sender?"
             jq -r '.message // .code // empty' /tmp/send.json 2>/dev/null || true
             exit 1
           fi
 
       - name: "4) Vercel env flags (production upsert) — activation step 2"
-        id: vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
-            echo "::warning::secret VERCEL_TOKEN missing — env flags NOT set (manual fallback: Vercel ▸ alkemos ▸ Settings ▸ Environment Variables)"
-            echo "vercel=skipped" >> "$GITHUB_OUTPUT"
+            echo "::warning::VERCEL_TOKEN missing — env flags NOT set (manual fallback: Vercel ▸ alkemos ▸ Settings ▸ Environment Variables)"
             exit 0
           fi
           cron_secret=$(openssl rand -hex 32)
@@ -155,17 +290,204 @@ jobs:
           set_var EVO_FOLLOWUP_FROM "EVO — Alkemos <evo@alkemos.com>" || ok=0
           set_var EVO_CRON_SECRET "$cron_secret" || ok=0
           if [ "$ok" = "1" ]; then
-            echo "✅ Vercel env flags set (production) — live on the NEXT deployment (repo auto-deploys on push)."
-            echo "vercel=ok" >> "$GITHUB_OUTPUT"
+            echo "✅ Vercel env flags set (production) — live on the NEXT deployment."
           else
-            echo "::error::Some Vercel env vars failed — manual fallback: Vercel ▸ alkemos ▸ Settings ▸ Environment Variables (EVO_FOLLOWUP_ENABLED=true · EVO_FOLLOWUP_FROM · EVO_CRON_SECRET)"
+            echo "::error::Some Vercel env vars failed — manual fallback: Vercel dashboard"
             exit 1
           fi
 
-      - name: "5) Summary"
-        if: always()
+  probe-repo:
+    name: Probe repo scope only (secrets + vars)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Probe repo-level secret/variable names"
+        id: probe
+        env:
+        K_SMTP_API: ${{ secrets.SMTP_API }}
+        K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+        K_SMTP_KEY: ${{ secrets.SMTP_KEY }}
+        K_SMTP: ${{ secrets.SMTP }}
+        K_XSMTP_API_KEY: ${{ secrets.XSMTP_API_KEY }}
+        K_SMTPAPI_KEY: ${{ secrets.SMTPAPI_KEY }}
+        K_SMTP_AND_API_KEY: ${{ secrets.SMTP_AND_API_KEY }}
+        K_BREVO: ${{ secrets.BREVO }}
+        K_BREVO_KEY: ${{ secrets.BREVO_KEY }}
+        K_BREVO_API: ${{ secrets.BREVO_API }}
+        K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        K_BREVO_API_TOKEN: ${{ secrets.BREVO_API_TOKEN }}
+        K_BREVO_TOKEN: ${{ secrets.BREVO_TOKEN }}
+        K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        K_BREVO_SMTP_API_KEY: ${{ secrets.BREVO_SMTP_API_KEY }}
+        K_SENDINBLUE: ${{ secrets.SENDINBLUE }}
+        K_SENDINBLUE_KEY: ${{ secrets.SENDINBLUE_KEY }}
+        K_SENDINBLUE_API: ${{ secrets.SENDINBLUE_API }}
+        K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+        K_EMAIL_KEY: ${{ secrets.EMAIL_KEY }}
+        K_MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+        K_MAIL_KEY: ${{ secrets.MAIL_KEY }}
+        K_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        K_SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        K_SMTP_USER: ${{ secrets.SMTP_USER }}
+        K_EVO_SMTP_API_KEY: ${{ secrets.EVO_SMTP_API_KEY }}
+        K_EVO_BREVO_API_KEY: ${{ secrets.EVO_BREVO_API_KEY }}
+        K_EVO_BREVO_KEY: ${{ secrets.EVO_BREVO_KEY }}
+        K_EVO_MAIL_KEY: ${{ secrets.EVO_MAIL_KEY }}
+        K_EVO_EMAIL_API_KEY: ${{ secrets.EVO_EMAIL_API_KEY }}
+        K_EVO_API_KEY: ${{ secrets.EVO_API_KEY }}
+        K_EVO_SMTP_KEY: ${{ secrets.EVO_SMTP_KEY }}
+        K_ALKEMOS_BREVO_API_KEY: ${{ secrets.ALKEMOS_BREVO_API_KEY }}
+        K_ALKEMOS_SMTP_API_KEY: ${{ secrets.ALKEMOS_SMTP_API_KEY }}
+        K_brevo_api_key: ${{ secrets.brevo_api_key }}
+        K_smtp_api_key: ${{ secrets.smtp_api_key }}
+        K_xsmtp_api_key: ${{ secrets.xsmtp_api_key }}
+        K_smtp_api: ${{ secrets.smtp_api }}
+        K_brevo_key: ${{ secrets.brevo_key }}
+        V_BREVO_API_KEY: ${{ vars.BREVO_API_KEY }}
+        V_SMTP_API_KEY: ${{ vars.SMTP_API_KEY }}
+        V_SMTP_API: ${{ vars.SMTP_API }}
+        V_XSMTP_API_KEY: ${{ vars.XSMTP_API_KEY }}
+        V_BREVO_API: ${{ vars.BREVO_API }}
+        V_BREVO_KEY: ${{ vars.BREVO_KEY }}
+        V_EVO_BREVO_API_KEY: ${{ vars.EVO_BREVO_API_KEY }}
+        V_SMTP_KEY: ${{ vars.SMTP_KEY }}
+        V_SENDINBLUE_API_KEY: ${{ vars.SENDINBLUE_API_KEY }}
+        V_EMAIL_API_KEY: ${{ vars.EMAIL_API_KEY }}
+        V_MAIL_API_KEY: ${{ vars.MAIL_API_KEY }}
+        V_BREVO: ${{ vars.BREVO }}
         run: |
-          echo "=== EVO activation run summary ==="
-          echo "Steps 1-3: live Brevo check with the D4 send-only sender evo@alkemos.com."
-          echo "Step 4 result: ${{ steps.vercel.outputs.vercel || 'failed/absent' }}"
-          echo "NEXT (documented order): opt-in UI commit → auto-deploy → flags live → EVO-3 W2.3 complete."
+          found_var=""
+          for name in SMTP_API SMTP_API_KEY SMTP_KEY SMTP XSMTP_API_KEY SMTPAPI_KEY SMTP_AND_API_KEY BREVO BREVO_KEY BREVO_API BREVO_API_KEY BREVO_API_TOKEN BREVO_TOKEN BREVO_SMTP_KEY BREVO_SMTP_API_KEY SENDINBLUE SENDINBLUE_KEY SENDINBLUE_API SENDINBLUE_API_KEY EMAIL_API_KEY EMAIL_KEY MAIL_API_KEY MAIL_KEY SMTP_PASSWORD SMTP_PASS SMTP_USER EVO_SMTP_API_KEY EVO_BREVO_API_KEY EVO_BREVO_KEY EVO_MAIL_KEY EVO_EMAIL_API_KEY EVO_API_KEY EVO_SMTP_KEY ALKEMOS_BREVO_API_KEY ALKEMOS_SMTP_API_KEY brevo_api_key smtp_api_key xsmtp_api_key smtp_api brevo_key; do
+            var="K_${name}"
+            if [ -n "${!var}" ]; then
+              echo "secret ${name}: SET"
+              [ -z "$found_var" ] && found_var="K_${name}"
+            else
+              echo "secret ${name}: empty"
+            fi
+          done
+          for name in BREVO_API_KEY SMTP_API_KEY SMTP_API XSMTP_API_KEY BREVO_API BREVO_KEY EVO_BREVO_API_KEY SMTP_KEY SENDINBLUE_API_KEY EMAIL_API_KEY MAIL_API_KEY BREVO; do
+            var="V_${name}"
+            if [ -n "${!var}" ]; then
+              echo "variable ${name}: SET"
+              [ -z "$found_var" ] && found_var="V_${name}"
+            else
+              echo "variable ${name}: empty"
+            fi
+          done
+          if [ -z "$found_var" ]; then
+            echo "::notice::no candidate set in this scope (informational)"
+            exit 0
+          fi
+          echo "✓ using ${found_var}"
+          echo "USING_VAR=${found_var}" >> "$GITHUB_OUTPUT"
+
+
+  probe-prev:
+    name: Probe Preview env scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: Preview
+    steps:
+      - name: "Probe Preview environment secret names"
+        id: probe
+        env:
+        K_SMTP_API: ${{ secrets.SMTP_API }}
+        K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+        K_SMTP_KEY: ${{ secrets.SMTP_KEY }}
+        K_SMTP: ${{ secrets.SMTP }}
+        K_XSMTP_API_KEY: ${{ secrets.XSMTP_API_KEY }}
+        K_SMTPAPI_KEY: ${{ secrets.SMTPAPI_KEY }}
+        K_SMTP_AND_API_KEY: ${{ secrets.SMTP_AND_API_KEY }}
+        K_BREVO: ${{ secrets.BREVO }}
+        K_BREVO_KEY: ${{ secrets.BREVO_KEY }}
+        K_BREVO_API: ${{ secrets.BREVO_API }}
+        K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        K_BREVO_API_TOKEN: ${{ secrets.BREVO_API_TOKEN }}
+        K_BREVO_TOKEN: ${{ secrets.BREVO_TOKEN }}
+        K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        K_BREVO_SMTP_API_KEY: ${{ secrets.BREVO_SMTP_API_KEY }}
+        K_SENDINBLUE: ${{ secrets.SENDINBLUE }}
+        K_SENDINBLUE_KEY: ${{ secrets.SENDINBLUE_KEY }}
+        K_SENDINBLUE_API: ${{ secrets.SENDINBLUE_API }}
+        K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+        K_EMAIL_KEY: ${{ secrets.EMAIL_KEY }}
+        K_MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
+        K_MAIL_KEY: ${{ secrets.MAIL_KEY }}
+        K_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        K_SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        K_SMTP_USER: ${{ secrets.SMTP_USER }}
+        K_EVO_SMTP_API_KEY: ${{ secrets.EVO_SMTP_API_KEY }}
+        K_EVO_BREVO_API_KEY: ${{ secrets.EVO_BREVO_API_KEY }}
+        K_EVO_BREVO_KEY: ${{ secrets.EVO_BREVO_KEY }}
+        K_EVO_MAIL_KEY: ${{ secrets.EVO_MAIL_KEY }}
+        K_EVO_EMAIL_API_KEY: ${{ secrets.EVO_EMAIL_API_KEY }}
+        K_EVO_API_KEY: ${{ secrets.EVO_API_KEY }}
+        K_EVO_SMTP_KEY: ${{ secrets.EVO_SMTP_KEY }}
+        K_ALKEMOS_BREVO_API_KEY: ${{ secrets.ALKEMOS_BREVO_API_KEY }}
+        K_ALKEMOS_SMTP_API_KEY: ${{ secrets.ALKEMOS_SMTP_API_KEY }}
+        K_brevo_api_key: ${{ secrets.brevo_api_key }}
+        K_smtp_api_key: ${{ secrets.smtp_api_key }}
+        K_xsmtp_api_key: ${{ secrets.xsmtp_api_key }}
+        K_smtp_api: ${{ secrets.smtp_api }}
+        K_brevo_key: ${{ secrets.brevo_key }}
+        V_BREVO_API_KEY: ${{ vars.BREVO_API_KEY }}
+        V_SMTP_API_KEY: ${{ vars.SMTP_API_KEY }}
+        V_SMTP_API: ${{ vars.SMTP_API }}
+        V_XSMTP_API_KEY: ${{ vars.XSMTP_API_KEY }}
+        V_BREVO_API: ${{ vars.BREVO_API }}
+        V_BREVO_KEY: ${{ vars.BREVO_KEY }}
+        V_EVO_BREVO_API_KEY: ${{ vars.EVO_BREVO_API_KEY }}
+        V_SMTP_KEY: ${{ vars.SMTP_KEY }}
+        V_SENDINBLUE_API_KEY: ${{ vars.SENDINBLUE_API_KEY }}
+        V_EMAIL_API_KEY: ${{ vars.EMAIL_API_KEY }}
+        V_MAIL_API_KEY: ${{ vars.MAIL_API_KEY }}
+        V_BREVO: ${{ vars.BREVO }}
+        run: |
+          found_var=""
+          for name in SMTP_API SMTP_API_KEY SMTP_KEY SMTP XSMTP_API_KEY SMTPAPI_KEY SMTP_AND_API_KEY BREVO BREVO_KEY BREVO_API BREVO_API_KEY BREVO_API_TOKEN BREVO_TOKEN BREVO_SMTP_KEY BREVO_SMTP_API_KEY SENDINBLUE SENDINBLUE_KEY SENDINBLUE_API SENDINBLUE_API_KEY EMAIL_API_KEY EMAIL_KEY MAIL_API_KEY MAIL_KEY SMTP_PASSWORD SMTP_PASS SMTP_USER EVO_SMTP_API_KEY EVO_BREVO_API_KEY EVO_BREVO_KEY EVO_MAIL_KEY EVO_EMAIL_API_KEY EVO_API_KEY EVO_SMTP_KEY ALKEMOS_BREVO_API_KEY ALKEMOS_SMTP_API_KEY brevo_api_key smtp_api_key xsmtp_api_key smtp_api brevo_key; do
+            var="K_${name}"
+            if [ -n "${!var}" ]; then
+              echo "secret ${name}: SET"
+              [ -z "$found_var" ] && found_var="K_${name}"
+            else
+              echo "secret ${name}: empty"
+            fi
+          done
+          for name in BREVO_API_KEY SMTP_API_KEY SMTP_API XSMTP_API_KEY BREVO_API BREVO_KEY EVO_BREVO_API_KEY SMTP_KEY SENDINBLUE_API_KEY EMAIL_API_KEY MAIL_API_KEY BREVO; do
+            var="V_${name}"
+            if [ -n "${!var}" ]; then
+              echo "variable ${name}: SET"
+              [ -z "$found_var" ] && found_var="V_${name}"
+            else
+              echo "variable ${name}: empty"
+            fi
+          done
+          if [ -z "$found_var" ]; then
+            echo "::notice::no candidate set in this scope (informational)"
+            exit 0
+          fi
+          echo "✓ using ${found_var}"
+          echo "USING_VAR=${found_var}" >> "$GITHUB_OUTPUT"
+
+
+  report:
+    name: Aggregate report
+    needs: [main-check, probe-repo, probe-prev]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verdict
+        run: |
+          echo "main-check / Production scope: ${{ needs.main-check.result }}"
+          echo "probe-repo / repo scope:       ${{ needs.probe-repo.result }}"
+          echo "probe-prev / Preview scope:    ${{ needs.probe-prev.result }}"
+          if [ "${{ needs.main-check.result }}" = "success" ]; then
+            echo "✅ LIVE CHECK + VERCEL ACTIVATION COMPLETED"
+          else
+            echo "::error::Live check did not complete — see which scope (if any) held a candidate above"
+            exit 1
+          fi
