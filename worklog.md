@@ -2852,3 +2852,12 @@ Work Log:
 
 Stage Summary:
 - EVO-4 كامل منفذ: منصة تتعلم من خططها الحقيقية مجهولة الهوية بأرضية صدق صارمة — التالي بأمر المالك: EVO-5 (eval harness · كاش · تصدير · لوحة تحليلات) — وW6 بابه مفتوح الآن بعد EVO-4 (توصية الوثيقة المعتمدة)
+
+Work Log (إغلاق 167 — إضافة):
+- كوميت 954f37f (50e1fbb..954f37f) مدفوع main بالتوكن عبر URL مؤقت بصيغة x-access-token — التوكن مُخفى بالمخرجات بsed ولا يُخزَّن
+- GHA على 954f37f (تحقق حي بالـsha الكامل): quality ✓ · parity ✓ · guard ✓ · Supabase Preview ✓ — الإنتاج ينتشر تلقائيًا
+- **الدورة التعليمية الأولى أُثبتت حيًا:** workflow_dispatch عبر API (HTTP 204) → run 34415547011 **success** — sources read: 9 (plans 3 · meal_plans 6 · external_plans 0) · drafts upserted: 7 · exemplar refreshed: yes · swap_volume rows: 0 (لا استبدالات بعد — صدق) — «✓ learning cycle complete — the generator now reads the refreshed knowledge»
+- STATE: «آخر كوميت متحقق منه» → 954f37f مع أرقام الدورة الحية — المرآة مُزامنة
+
+Stage Summary (الإغلاق):
+- 167 حية على main: EVO-4 كامل منفذ ومُثبت حيًا من أول دورة تعلم — المنصة الآن تتعلم أسبوعيًا من خططها الحقيقية مجهولة الهوية ويحقن المولد هذه المعرفة في كل خطة جديدة — التالي بأمر المالك: EVO-5 أو W6
