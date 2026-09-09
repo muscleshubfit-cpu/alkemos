@@ -1390,6 +1390,37 @@ export type Database = {
         };
         Relationships: [];
       };
+      evo_feedback: {
+        // EVO-1 (migration 0077) — 👍/👎 quality signal on EVO chat replies.
+        // Append-only: no UPDATE/DELETE policies by design (plan_swaps law).
+        // client_id null = anonymous rater. snippet = admin-review context.
+        Row: {
+          id: string;
+          client_id: string | null;
+          feedback: string;
+          reason: string | null;
+          message_id: string | null;
+          snippet: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id?: string | null;
+          feedback: string;
+          reason?: string | null;
+          message_id?: string | null;
+          snippet?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          client_id?: string | null;
+          feedback?: string;
+          reason?: string | null;
+          message_id?: string | null;
+          snippet?: Json | null;
+        };
+        Relationships: [];
+      };
       coach_presence: {
         // Phase 105: mirror corrected to the LIVE production shape proven
         // column-by-column in Phase 99-run (id · coach_id · last_seen ·

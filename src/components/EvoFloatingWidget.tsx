@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ThemeImg } from "@/components/ThemeImg";
 import { useEvoChat } from "@/lib/evo-chat-context";
 import { useI18n } from "@/lib/i18n";
-import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check } from "lucide-react";
+import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown } from "lucide-react";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -107,6 +107,50 @@ export function EvoFloatingWidget() {
   // member path runs server-side with ownership checks).
   const [savingPlanId, setSavingPlanId] = useState<string | null>(null);
   const [savedPlanIds, setSavedPlanIds] = useState<Set<string>>(new Set());
+
+  // EVO-1 (W5.1) — 👍/👎 quality signal on assistant replies.
+  // ratedIds is session-local UI state (NOT persisted — the ledger is the
+  // record of truth); reason input opens only for 👎 and is optional.
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
+  const [ratingInFlightId, setRatingInFlightId] = useState<string | null>(null);
+  const [reasonForId, setReasonForId] = useState<string | null>(null);
+  const [feedbackReason, setFeedbackReason] = useState("");
+  const sendFeedback = useCallback(
+    async (
+      msg: { id: string; content: string },
+      feedback: "up" | "down",
+      reason: string | null,
+    ) => {
+      if (ratingInFlightId) return;
+      setRatingInFlightId(msg.id);
+      // Context snippets for the admin weekly review: the last user message
+      // before this reply (same content already visible in chat_messages).
+      const ratedIdx = messages.findIndex((m) => m.id === msg.id);
+      const prevUser = [...messages.slice(0, ratedIdx < 0 ? messages.length : ratedIdx)]
+        .reverse()
+        .find((m) => m.role === "user");
+      try {
+        // Telemetry fire-and-forget: failures are silent — never disturb chat UX.
+        await fetch("/api/ai/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            feedback,
+            reason,
+            messageId: msg.id.slice(0, 80),
+            question: prevUser?.content?.slice(0, 500) ?? null,
+            reply: msg.content.slice(0, 500),
+          }),
+        }).catch(() => null);
+        setRatedIds((prev) => new Set(prev).add(msg.id));
+      } finally {
+        setRatingInFlightId(null);
+        setReasonForId(null);
+        setFeedbackReason("");
+      }
+    },
+    [messages, ratingInFlightId],
+  );
   const savePlan = useCallback(
     async (msg: { id: string; content: string; planKind?: string; planRequest?: string }) => {
       if (!msg.planKind || savingPlanId) return;
@@ -399,6 +443,81 @@ export function EvoFloatingWidget() {
                         ) : (
                           <MessageText content={msg.content} />
                         )}
+                        {/* EVO-1 (W5.1) — 👍/👎 on final assistant replies.
+                            Quota/error bubbles («⏰»/«عذراً») are not model
+                            output — rating them is noise for the review. */}
+                        {msg.role === "assistant" &&
+                          msg.content &&
+                          !msg.content.startsWith("⏰") &&
+                          !msg.content.startsWith("عذراً") && (
+                            <div className="mt-1.5">
+                              {ratedIds.has(msg.id) ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
+                                  <Check className="h-3 w-3" />
+                                  {isAr ? "شكرًا لتقييمك" : "Thanks for your feedback"}
+                                </span>
+                              ) : reasonForId === msg.id ? (
+                                <div className="flex flex-col gap-1.5">
+                                  <input
+                                    value={feedbackReason}
+                                    onChange={(e) => setFeedbackReason(e.target.value)}
+                                    maxLength={300}
+                                    dir="auto"
+                                    placeholder={
+                                      isAr
+                                        ? "إيه اللي ناقص في الرد؟ (اختياري)"
+                                        : "What was wrong? (optional)"
+                                    }
+                                    className="w-full rounded-lg border border-black/10 bg-transparent px-2.5 py-1.5 text-xs outline-none focus:border-[#0071e3]"
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        sendFeedback(msg, "down", feedbackReason.trim() || null)
+                                      }
+                                      disabled={ratingInFlightId === msg.id}
+                                      className="btn-chrome inline-flex items-center gap-1 px-2.5 py-1 text-[11px]"
+                                    >
+                                      {ratingInFlightId === msg.id ? (
+                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                      ) : (
+                                        <ThumbsDown className="h-3 w-3" />
+                                      )}
+                                      {isAr ? "أرسل" : "Send"}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setReasonForId(null);
+                                        setFeedbackReason("");
+                                      }}
+                                      className="px-2 py-1 text-[11px] text-[var(--muted-foreground)]"
+                                    >
+                                      {isAr ? "تخطي" : "Skip"}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1 opacity-50 transition-opacity hover:opacity-100">
+                                  <button
+                                    onClick={() => sendFeedback(msg, "up", null)}
+                                    disabled={ratingInFlightId === msg.id}
+                                    aria-label={isAr ? "رد مفيد" : "Helpful reply"}
+                                    className="p-1 text-[var(--muted-foreground)] hover:text-[#34c759]"
+                                  >
+                                    <ThumbsUp className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setReasonForId(msg.id)}
+                                    disabled={ratingInFlightId === msg.id}
+                                    aria-label={isAr ? "رد غير مفيد" : "Not helpful"}
+                                    className="p-1 text-[var(--muted-foreground)] hover:text-red-500"
+                                  >
+                                    <ThumbsDown className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         {/* PHASE 69 — «احفظ كخطة» on the reply that answered a
                             plan-creation request (paid tiers) */}
                         {msg.role === "assistant" && isSubscriber && msg.planKind && (

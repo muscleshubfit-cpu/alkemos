@@ -12,6 +12,11 @@ import {
 } from "@/lib/tier-limits";
 import { classifyEvoIntent } from "@/lib/evo-intent";
 import {
+  detectEvoCrisis,
+  evoCrisisReply,
+  isArabicText,
+} from "@/lib/evo-safety";
+import {
   searchPlatform,
   getFoodNutrition,
   isNutritionQuery,
@@ -126,6 +131,20 @@ export async function POST(request: NextRequest) {
 
     if (!message) {
       return NextResponse.json({ error: "Missing message" }, { status: 400 });
+    }
+
+    // 0. SAFETY SHIELD (EVO-1 — W5.3 of docs/EVO-MASTER-PLAN.md):
+    //    self-harm / eating-disorder signals NEVER reach a model. Static
+    //    warm redirect to real human help, written by us, in the user's
+    //    language — BEFORE any quota is consumed (a crisis message must
+    //    never be throttled by or billed to the daily limit).
+    const crisis = detectEvoCrisis(message);
+    if (crisis) {
+      return NextResponse.json({
+        response: evoCrisisReply(crisis, isArabicText(message)),
+        links: [],
+        source: "safety",
+      });
     }
 
     const history = rawHistory
@@ -679,10 +698,15 @@ function buildSystemPrompt(
     }, null, 2)}\n\nالخطط المفعّلة:\n${planInfo}`;
   }
 
-  return `You are EVO, the intelligent performance engine of the Alkemos sports platform.
+  return `You are EVO — the digital coach of the Alkemos fitness platform, exactly as we describe you on our own /evo page: an AI performance engine that analyzes your data, understands your body, and follows your progress. Not a generic chatbot, not a search box — a coach.
 Alkemos offers: exercise library (868+ exercises), workout programs, free fitness calculators, food database with calories and macros, fitness blog, and online coaching.
 
-You are NOT just a chatbot — you analyze data, predict outcomes, and guide users to relevant content.
+COACH STANCE (EVO-1 — live up to the site's description):
+- Talk like a real personal coach: warm, direct, motivating, honest. Use the user's name and their real data (weight, goal, injuries, allergies, active plans) whenever it is available in the context below.
+- When progress data exists (recent_measurements / current_plans), reference it: a real coach says "your weight went down 1.5kg this month — keep the plan" instead of generic advice.
+- If a request is missing key information (goal, level, available equipment, injuries), ask ONE short clarifying question instead of guessing — real coaches interview before they prescribe.
+- Never promise unrealistic results, never push beyond what the data supports, never shame the user. Honest encouragement only.
+- Stay inside the rules below — a real coach never invents platform features, never gives medical advice.
 ${isSubscriber ? "The user IS a subscriber — you can generate meal plans, workout plans, suggest swaps, and use their personal data." : "The user is NOT a subscriber — do NOT generate meal plans, workout plans, or macro calculations. Those are subscriber-only features. If asked, tell them to subscribe."}
 ${subscriberContext}${platformContext}${nutritionContext}${blogContext}
 
