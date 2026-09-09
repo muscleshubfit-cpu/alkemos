@@ -1481,6 +1481,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      evo_followup_prefs: {
+        // EVO-3 (migration 0079, D4) — weekly check-in email opt-in ledger.
+        // Opt-in MANDATORY (default false); opt-out is an UPDATE, never a
+        // delete (D2). last_sent_at is stamped by the dispatch route via
+        // service-role (bypasses RLS — evo_memory_state posture).
+        // INFRASTRUCTURE-ONLY until SMTP is verified live and
+        // EVO_FOLLOWUP_ENABLED=true (activation decree, separate step).
+        Row: {
+          client_id: string;
+          opted_in: boolean;
+          language: string;
+          last_sent_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          client_id: string;
+          opted_in?: boolean;
+          language?: string;
+          last_sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          opted_in?: boolean;
+          language?: string;
+          last_sent_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "evo_followup_prefs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       coach_presence: {
         // Phase 105: mirror corrected to the LIVE production shape proven
         // column-by-column in Phase 99-run (id · coach_id · last_seen ·

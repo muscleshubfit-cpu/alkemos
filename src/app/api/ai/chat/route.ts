@@ -39,6 +39,13 @@ import {
   type EvoMemoryFactDraft,
 } from "@/lib/evo-memory";
 import {
+  EVO_HISTORY_CAP_PAID,
+  EVO_FIRST_MEETING_PROTOCOL,
+  formatProgressForPrompt,
+  needsFirstMeetingInterview,
+  resolveHistoryCap,
+} from "@/lib/evo-coach";
+import {
   isSupabaseAdminConfigured,
   supabaseAdmin,
 } from "@/lib/supabase/admin";
@@ -84,7 +91,13 @@ export type { AuthUser };
 
 /** Hard input clamp — prevents multi-MB payloads burning provider tokens. */
 const MAX_MESSAGE_LENGTH = 4_000;
-const MAX_HISTORY_ITEMS = 10;
+/**
+ * EVO-3 (W2.4): the WIRE clamp is the LARGEST cap (paid). The effective
+ * per-request window is tier-resolved after auth — 16 messages for paid
+ * subscribers (owner-approved cost trade-off, master plan W2) and the
+ * unchanged 10 for everyone else (M-security clamps stay intact).
+ */
+const MAX_HISTORY_ITEMS = EVO_HISTORY_CAP_PAID;
 const MAX_HISTORY_ITEM_LENGTH = 2_000;
 
 /**
@@ -147,6 +160,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing message" }, { status: 400 });
     }
 
+    // ── Effective tier resolution (G5 fix) ────────────────────────────
+    // A paid-tier subscription resolves to "coaching"/"pro"/"premium"
+    // (unlimited EVO). Everything else — including AUTHENTICATED FREE
+    // accounts — is subject to the free daily limit AND the
+    // subscriber-only feature gate.
+    const isPaidTier =
+      !!userId && ["premium", "pro", "coaching"].includes(authTier || "");
+
+    // EVO-3 (W2.4) — tier-resolved history window: paid subscribers keep
+    // 16 turns of context, everyone else keeps the classic 10. The wire
+    // was already clamped to the paid cap; this slice enforces the tier.
+    const history = rawHistory
+      .slice(-resolveHistoryCap(isPaidTier))
+      .filter((m): m is { role: unknown; content: string } => {
+        if (!m || typeof m !== "object") return false;
+        return typeof (m as { content?: unknown }).content === "string";
+      })
+      .map((m) => ({
+        role: m.role === "user" ? ("user" as const) : ("assistant" as const),
+        content: String(m.content).slice(0, MAX_HISTORY_ITEM_LENGTH),
+      }));
+
     // 0. SAFETY SHIELD (EVO-1 — W5.3 of docs/EVO-MASTER-PLAN.md):
     //    self-harm / eating-disorder signals NEVER reach a model. Static
     //    warm redirect to real human help, written by us, in the user's
@@ -160,24 +195,6 @@ export async function POST(request: NextRequest) {
         source: "safety",
       });
     }
-
-    const history = rawHistory
-      .filter((m): m is { role: unknown; content: string } => {
-        if (!m || typeof m !== "object") return false;
-        return typeof (m as { content?: unknown }).content === "string";
-      })
-      .map((m) => ({
-        role: m.role === "user" ? ("user" as const) : ("assistant" as const),
-        content: String(m.content).slice(0, MAX_HISTORY_ITEM_LENGTH),
-      }));
-
-    // ── Effective tier resolution (G5 fix) ────────────────────────────
-    // A paid-tier subscription resolves to "coaching"/"pro"/"premium"
-    // (unlimited EVO). Everything else — including AUTHENTICATED FREE
-    // accounts — is subject to the free daily limit AND the
-    // subscriber-only feature gate.
-    const isPaidTier =
-      !!userId && ["premium", "pro", "coaching"].includes(authTier || "");
 
     // 1.5 Server-side daily limit check (C15+G1).
     //   Logged-in: tamper-proof evo_chat_usage ledger, verified tier.
@@ -379,12 +396,23 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Build the system prompt with platform context
+    // EVO-3 (W2.1) — FIRST-MEETING INTERVIEW gate: a paid subscriber who
+    // asks for a plan without the matching questionnaire gets a real
+    // coach interview (3-4 questions) instead of generation from nothing.
+    const firstMeeting = needsFirstMeetingInterview({
+      isSubscriber: clientContext.isSubscriber,
+      isPlanCreation: intent.isPlanCreation,
+      planDomain: intent.planDomain,
+      hasNutritionQuestionnaire: clientContext.nutrition != null,
+      hasFitnessQuestionnaire: clientContext.fitness != null,
+    });
     const systemPrompt = buildSystemPrompt(
       clientContext,
       platformResults,
       foodNutrition,
       blogResults,
       memoryFacts,
+      firstMeeting,
     );
 
     const messages = [
@@ -758,6 +786,10 @@ async function searchBlog(
 /**
  * Build the system prompt for the AI.
  * Includes platform context, search results, and blog articles.
+ * EVO-3 (W2): `firstMeeting` injects the coach-interview protocol for
+ * subscribers asking for a plan without a questionnaire; the subscriber
+ * block now carries the REAL logged measurements (W2.2 — the data was
+ * loaded but never serialized before this phase).
  */
 function buildSystemPrompt(
   ctx: EvoClientContext,
@@ -765,6 +797,7 @@ function buildSystemPrompt(
   foodNutrition: FoodNutritionInfo,
   blogResults: Array<{ title: string; url: string; excerpt: string }>,
   memoryFacts: EvoMemoryFactDraft[] = [],
+  firstMeeting = false,
 ): string {
   const isSubscriber = ctx.isSubscriber;
   const plans = ctx.current_plans || [];
@@ -844,6 +877,11 @@ function buildSystemPrompt(
       disliked_foods: nutrition.disliked,
       diet: nutrition.diet,
     }, null, 2)}\n\nالخطط المفعّلة:\n${planInfo}`;
+
+    // EVO-3 (W2.2) — the real logged measurements join the prompt block
+    // (computed delta included). Empty string when nothing is logged —
+    // the section never appears empty, never invents numbers.
+    subscriberContext += formatProgressForPrompt(ctx.recent_measurements);
   }
 
   // EVO-2 (W3) — permanent-memory injection («أعلى 15 حقيقة نشطة»):
@@ -857,12 +895,12 @@ Alkemos offers: exercise library (868+ exercises), workout programs, free fitnes
 COACH STANCE (EVO-1 — live up to the site's description):
 - Talk like a real personal coach: warm, direct, motivating, honest. Use the user's name and their real data (weight, goal, injuries, allergies, active plans) whenever it is available in the context below.
 - A real coach REMEMBERS his client: when the permanent-memory section below contains facts the user told you before, use them naturally ("last time you said your knee hurts — how is it today?") without claiming to be a different person or listing the facts back.
-- When progress data exists (recent_measurements / current_plans), reference it: a real coach says "your weight went down 1.5kg this month — keep the plan" instead of generic advice.
-- If a request is missing key information (goal, level, available equipment, injuries), ask ONE short clarifying question instead of guessing — real coaches interview before they prescribe.
+- When the «آخر قياسات المسجلة» progress section or the active plans exist below, reference the ACTUAL numbers: a real coach says "your weight went down 1.5kg this month — keep the plan" instead of generic advice. When no measurement is logged yet, invite the user to log one instead of guessing numbers.
+- If a request is missing key information (goal, level, available equipment, injuries), ask a short clarifying question instead of guessing — real coaches interview before they prescribe. When the FIRST-MEETING PROTOCOL is active above, IT overrides this line (up to 4 questions, one per reply).
 - Never promise unrealistic results, never push beyond what the data supports, never shame the user. Honest encouragement only.
 - Stay inside the rules below — a real coach never invents platform features, never gives medical advice.
 ${isSubscriber ? "The user IS a subscriber — you can generate meal plans, workout plans, suggest swaps, and use their personal data." : "The user is NOT a subscriber — do NOT generate meal plans, workout plans, or macro calculations. Those are subscriber-only features. If asked, tell them to subscribe."}
-${subscriberContext}${memoryContext}${platformContext}${nutritionContext}${blogContext}
+${firstMeeting ? EVO_FIRST_MEETING_PROTOCOL : ""}${subscriberContext}${memoryContext}${platformContext}${nutritionContext}${blogContext}
 
 CRITICAL — PLATFORM TRUTH LAW (never hallucinate features):
 - NEVER mention or imply that Alkemos (or any website) has a tool, feature, page, or capability unless it is listed in THIS prompt or in the platform context above. Inventing a feature is a critical error.
