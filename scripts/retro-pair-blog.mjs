@@ -71,7 +71,8 @@ async function setLinked(id, linkedId) {
 }
 
 async function main() {
-  const { pairs } = JSON.parse((await import("node:fs/promises")).readFile(new URL("./retro-pair-blog.pairs.json", import.meta.url), "utf8"));
+  const fs = await import("node:fs/promises");
+  const { pairs } = JSON.parse(await fs.readFile(new URL("./retro-pair-blog.pairs.json", import.meta.url), "utf8"));
   console.log(`retro-pair: ${pairs.length} approved pairs · mode=${dryRun ? "DRY_RUN" : "APPLY"}\n`);
 
   // ---- pre-flight: resolve + validate every post BEFORE any write ----
