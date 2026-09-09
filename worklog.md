@@ -19,6 +19,7 @@ Stage Summary:
 - bun.lock مُتزامن مع package.json — process-ai-jobs (كل 10 دقائق) وquality-gate (على push) يعودان أخضر بعد الدفع
 - صفر مساس بمصدر التطبيق أو بيانات الإنتاج — إصلاح بنية CI خالص
 - الدرس المؤسسي مثبت في worklog: حذف تبعية بلا bun.lock = كسر كل الـworkflows التي تثبت الاعتماديات
+- **مُثبت حيًا بعد الدفع (809ff59):** process-ai-jobs run 34344504588 (workflow_dispatch max_jobs=5) → **GREEN: done=0 failedPermanent=0** (الطابور فارغ — العامل يعود لخدمة المستخدمين) · quality-gate run 34344487322 (push) → **success** — قلبتا الفشل الأحمر 12 تشغيلًا منذ 2026-09-08 17:30 UTC
 
 ---
 Task ID: SEO-GEO-5.2-HUB-DEPTH-159-2026-09-09
