@@ -1,0 +1,41 @@
+# WHY: Proposal 3 (owner «نفذ المقترح ٣» 2026-09-09) — retroactively pair
+# the pre-Phase-157 blog library (29 EN + 34 AR posts) so hreflang
+# alternates + LanguageToggle light up for existing content, exactly like
+# the P5 handshake does for new pairs. Matching was model-assisted with
+# full titles + focus keywords; ONLY high-confidence semantic twins live
+# in scripts/retro-pair-blog.pairs.json (review pairs need owner approval).
+# Dispatch-only (no schedule) — safe to re-run: idempotent, never
+# overwrites an existing linked_post_id, pre-flight validates before any
+# write, DRY_RUN=1 (default) writes nothing.
+name: Retro blog pairing (Proposal 3 — dispatch-only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = validate only (no writes) · 0 = apply"
+        required: false
+        default: "1"
+
+concurrency:
+  group: retro-pair-blog
+  cancel-in-progress: false
+
+jobs:
+  pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main repo (for the script + pairs file)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Pair approved translation twins (bidirectional linked_post_id)
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '1' }}
+        run: node scripts/retro-pair-blog.mjs
