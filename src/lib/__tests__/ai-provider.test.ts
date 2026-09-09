@@ -6,6 +6,7 @@ import {
   getNvidiaKey,
   getOpenRouterKeys,
   maskKey,
+  parseJSON,
 } from "@/lib/ai-provider";
 
 /**
@@ -29,6 +30,71 @@ const ENV_KEYS = [
 function cleanEnv() {
   for (const k of ENV_KEYS) delete process.env[k];
 }
+
+describe("Phase 161.5 — parseJSON control-character hardening (live runs 34358207261/34361832706)", () => {
+  it("parses article JSON whose markdown field contains RAW newlines (the exact live failure)", () => {
+    // Soft json-mode models emit literal newlines inside string values.
+    const raw = '{"title": "دليل التمرين", "markdown": "## مقدمة\nالنص الأول هنا\n\n## القسم الثاني\nالمزيد من النص"}';
+    const parsed = parseJSON<Record<string, unknown>>(raw);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.title).toBe("دليل التمرين");
+    expect(String(parsed?.markdown)).toContain("## القسم الثاني");
+    expect(String(parsed?.markdown)).toContain("\n");
+  });
+
+  it("parses a TRUNCATED article JSON with raw newlines (string cut mid-sentence)", () => {
+    const raw =
+      '{"title": "Guide", "excerpt": "intro text", "markdown": "## Section\nfirst paragraph\n\n## Section Two\nthis sentence never finis';
+    const parsed = parseJSON<Record<string, unknown>>(raw);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.title).toBe("Guide");
+    expect(String(parsed?.markdown)).toContain("never finis");
+  });
+
+  it("escapes tabs and other control characters inside strings", () => {
+    // Real tab, real newline, real U+0001 — all raw inside string values.
+    const raw = '{"a": "x\ty", "b": "line\nbreak", "c": "ctl\u0001z"}';
+    const parsed = parseJSON<Record<string, unknown>>(raw);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.a).toBe("x\ty");
+    expect(parsed?.b).toBe("line\nbreak");
+    expect(parsed?.c).toBe("ctl\u0001z");
+  });
+
+  it("still respects REAL escaped sequences (backslash-n stays a newline, not literal n)", () => {
+    const raw = '{"text": "first\\nsecond"}';
+    const parsed = parseJSON<{ text: string }>(raw);
+    expect(parsed?.text).toBe("first\nsecond");
+  });
+
+  it("regression: fenced JSON, prose wrapper, and trailing commas all still parse", () => {
+    expect(parseJSON('```json\n{"a": 1,}\n```')).toEqual({ a: 1 });
+    expect(parseJSON('Here is your result: {"b": [1, 2]} hope it helps!')).toEqual({ b: [1, 2] });
+  });
+
+  it("regression: invalid non-JSON garbage still returns null", () => {
+    expect(parseJSON("")).toBeNull();
+    expect(parseJSON("no braces here at all")).toBeNull();
+  });
+
+  it("full article_generate-shaped payload with raw newlines inside markdown + faq array parses end-to-end", () => {
+    const payload = [
+      '{"title": "كيف أبدأ بناء العضلات؟",',
+      ' "slug": "muscle-building-guide",',
+      ' "markdown": "## مقدمة\n\nابدأ بالأساسيات\n\n## البرنامج\n\nالتمرين الأول",',
+      ' "excerpt": "دليل عملي",',
+      ' "meta_description": "دليل كامل",',
+      ' "tags": ["عضلات", "تمرين"],',
+      ' "faq": [{"question": "كم مرة؟", "answer": "ثلاث مرات أسبوعيًا\nبدون إفراط"}],',
+      ' "language": "ar"}',
+    ].join("\n");
+    const parsed = parseJSON<Record<string, unknown>>(payload);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.slug).toBe("muscle-building-guide");
+    const faq = parsed?.faq as Array<{ answer: string }>;
+    expect(faq[0].answer).toContain("بدون إفراط");
+  });
+});
 
 describe("Phase 161 — NVIDIA NIM provider contract", () => {
   beforeEach(() => cleanEnv());

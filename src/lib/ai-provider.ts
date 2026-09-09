@@ -549,21 +549,55 @@ function repairTruncatedJSON(s: string): string {
   let inString = false;
   let escape = false;
   const stack: string[] = [];
+  // PHASE 161.5 (2026-09-09, live runs 34358207261 + 34361832706): the
+  // old closure-only repair could NOT fix raw control characters INSIDE
+  // string values — a literal newline the model emitted in the markdown
+  // field makes JSON.parse throw «Bad control character» even after every
+  // bracket is closed, so article_generate failed permanently with
+  // «JSON غير صالح» twice AFTER the 161.4 timeout fix. The scan now builds
+  // the output incrementally and escapes control characters inside
+  // strings (\n \r \t, others as \uXXXX) — turning the most common
+  // soft-JSON-mode defect into a parseable document without discarding
+  // any content. Outside strings the scan is byte-exact as before.
+  let out = "";
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (escape) {
       escape = false;
+      out += ch;
       continue;
     }
     if (ch === "\\") {
       escape = true;
+      out += ch;
       continue;
     }
     if (ch === '"') {
       inString = !inString;
+      out += ch;
       continue;
     }
-    if (inString) continue;
+    if (inString) {
+      if (ch === "\n") {
+        out += "\\n";
+        continue;
+      }
+      if (ch === "\r") {
+        out += "\\r";
+        continue;
+      }
+      if (ch === "\t") {
+        out += "\\t";
+        continue;
+      }
+      const code = ch.charCodeAt(0);
+      if (code < 0x20) {
+        out += "\\u" + code.toString(16).padStart(4, "0");
+        continue;
+      }
+      out += ch;
+      continue;
+    }
     if (ch === "{" || ch === "[") stack.push(ch);
     else if (ch === "}" || ch === "]") {
       // pop matching opener if present
@@ -575,8 +609,8 @@ function repairTruncatedJSON(s: string): string {
         }
       }
     }
+    out += ch;
   }
-  let out = s;
   if (inString) out += '"'; // close dangling string
   // Close remaining open structures in reverse order.
   for (let i = stack.length - 1; i >= 0; i--) {
