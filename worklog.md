@@ -2636,3 +2636,23 @@ Stage Summary:
 **Documented limits:** adopted/joined pairs ignore the topic override; each coach CREATE orphans at most one unprocessed twin row (harmless researched dead weight — never leaks to the sitemap); the twin publishes + links in its own next window (≤48h adopt law); the single-shot draft generator remains the fallback on dispatch failure (no third path).
 
 **Stage summary:** coach generation now rides the EXACT automatic pipeline (research → content → images → review → publish + bilingual pairing handshake) — the owner's unlinked-article gap is closed structurally, and the automatic schedule is untouched. Commit: Phase 162.
+
+---
+
+## Phase 163 — خطة تطوير Evo الشاملة (أمر المالك 2026-09-10)
+
+**Task ID:** EVO-MASTER-PLAN-163 · **الوكيل:** GML (Super Z)
+
+**أمر المالك (حرفيًا):** «فى خطة التحسين للمشروع يجب تحسين المساعد الذكى ليتوافق مع وصفة فى الموقع وانه يتعامل كا مدرب حقيقى ويحفظ الاشخاص واشياء اخرى ، أيضاً يجب ان يتعلم من الخطط الغذائيه سواء المولده من المدربين او الادمن و من المستخدمين من خلال أداة مخطط الوجبات ، واقترح تحسينات اخرى يمكن تنفيذها ، وفى المستقبل القدره على ربطه فى مواقع و تطبيقات اخرى»
+
+**المنجز (توثيق فقط — صفر تغيير مصدري):**
+- تدقيق قراءة كامل لبنية Evo (api/ai/chat 773 سطر · evo-chat-context 622 · ai-provider · evo-search) — الحكم: يتذكر (3 طبقات) ولا يتعلم (صفر fine-tuning/feedback/extracted-memory) — موثق أعلاه EVO-AUDIT-LEARNING-2026-09-10
+- `docs/EVO-MASTER-PLAN.md` جديد — خريطة الطريق الوحيدة لتطوير Evo:
+  - §2 خط الأساس (9 قدرات موجودة/غائبة بملفاتها) · §3 فجوة وعد /evo مقابل الواقع (4 وعود غير محققة)
+  - §4 ستة مسارات: W1 شخصية الموقع (برومبت «المدرب الرقمي» + Platform Truth Law على النسخ نفسها) · W2 مدرب حقيقي (استيعاب أول لقاء + قراءة التقدم المسجل + متابعة دورية مشروطة بـSMTP) · W3 ذاكرة دائمة (ميجريشن evo_memory + استخلاص lightning بعد كل 10 رسائل + حقن top-15 + تحكم مستخدم «انسَ كل شيء») · W4 تعلم من الخطط بالاسترجاع (مصادر plans/meal_plans/external_plans + إشارتا plan_swaps/member-edit → E1 تجميع بلا LLM صفر تكلفة + E2 few-shot exemplars مجهولة + E3 تعلم من الاستبدال — الصدق الهندسي: أوزان API مجمدة، «التعلم» = استرجاع/تجميع/تغذية راجعة) · W5 ثمانية مقترحات (👍/👎 evo_feedback · eval harness أسبوعي · دروع سلامة YMYL إلزامية · كاش دلالي · إعادة صياغة · تصدير · أفعال زراعية · لوحة تحليلات) · W6 مستقبلي (API عام evo_api_keys + ويدجت تضمين + white-label + MCP — لا تصميم بلا أمر مالك)
+  - §5 ست مراحل EVO-1..6 بجهدها التقريبي ومعتمداتها · §6 القوانين الحاكمة (مزودون/ميجريشنز/RLS/خصوصية/نسخ/حدود) · §7 خمسة قرارات مطلوبة من المالك
+- STATE.md → المرحلة 163 (بانتظار الاعتماد في «بانتظار موافقة المالك») — 72 سطرًا
+
+**بوابة خاصة:** لا كود تغيّر — البوابات التسع تعمل على HEAD الوثيقي للتأكيد.
+
+**التالي:** اعتماد المالك للقرارات الخمسة (§7) → تنفيذ EVO-1 بالبروتوكول الكامل.
