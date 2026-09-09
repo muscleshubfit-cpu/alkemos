@@ -165,6 +165,25 @@ export function isAdoptablePairRow(
 }
 
 // ─────────────────────────────────────────────────────────────────
+// PHASE 162 — coach topic override (pure, unit-tested)
+// ─────────────────────────────────────────────────────────────────
+
+/**
+ * Seal the coach's topic into MY side of a sealed brief, immutably.
+ * The twin side, pairId, angleId and sealedAt are untouched — the pair
+ * stays fully valid (extractSharedBrief laws hold); only MY article's
+ * subject becomes the coach's. Pure so P0's CREATE path stays trivially
+ * testable without a DB.
+ */
+export function withCoachTopic(
+  brief: SharedBrief,
+  lang: "en" | "ar",
+  topic: string,
+): SharedBrief {
+  return lang === "ar" ? { ...brief, topicAr: topic } : { ...brief, topicEn: topic };
+}
+
+// ─────────────────────────────────────────────────────────────────
 // parsePairingJSON — validate the pairing model's JSON (hard laws)
 // ─────────────────────────────────────────────────────────────────
 

@@ -18,6 +18,10 @@ type GeneratedArticleJob = {
   status?: string;
   error_message?: string | null;
   result?: {
+    // PHASE 162: the job becomes a DISPATCH receipt when the article rides
+    // the automatic paired pipeline (done-at-dispatch, no draft result).
+    pipelineDispatched?: boolean;
+    workflow?: string;
     title?: string;
     markdown?: string;
     post_id?: string | number;
@@ -85,6 +89,22 @@ export function BlogAdminView() {
             writePendingArticleJob(null);
             setGenJob(null);
             const r = job.result || {};
+            // COACH PIPELINE PARITY (Phase 162, owner «مطلوب مسار الكوتش
+            // للتوليد يكون نفس مسار التوليد الالى»): the job is a DISPATCH
+            // receipt — the article is riding the SAME pipeline as the
+            // automatic generation (research → content → images → review →
+            // publish) and appears IN THE BLOG when published (~30-60 min).
+            // The twin-language article follows in its own window and P5
+            // links the pair (linked_post_id) automatically. No draft row
+            // and no editor hand-off — publishing is the pipeline's job.
+            if (r.pipelineDispatched) {
+              toast.success(
+                isAr
+                  ? "المقال دخل خط التوليد الآلي بالكامل 🔁 هينشر في المدونة تلقائيًا خلال ~30-60 دقيقة، والنسخة باللغة التانية هتتولد وترتبط به في نافذتها."
+                  : "Riding the automatic pipeline 🔁 It publishes to the blog in ~30-60 min; the twin-language article follows and links automatically.",
+              );
+              return;
+            }
             if (!r.title || !r.markdown) {
               toast.error("وصلت نتيجة غير مكتملة — حاول التوليد مرة أخرى.");
               return;

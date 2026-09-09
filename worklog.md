@@ -2613,3 +2613,26 @@ Stage Summary:
 - **lead capture شامل وموثوق**: كل مسار (أداة/نشرة/عضو جديد) سجّل صفًا صحيح النوع في tool_leads — 9/9
 - المتبقي الوحيد على المالك: دعوة عميل حقيقية من التطبيق (تحتاج دخول الأدمن) + أول نشرة من لوحة Brevo
 - الملفات: ~ STATE.md · ~ worklog.md — سكربتات الاختبار خارج المستودع (live_e2e_prep.py · live_e2e_147.py · final_verify_147.py)
+
+---
+
+## AI-COACH-PIPELINE-PARITY-162-2026-09-10
+
+**Owner directive:** «مطلوب مسار الكوتش للتوليد يكون نفس مسار التوليد الالى دون تعطيل للتوليد الالى» — unify the coach article-generation path with the automatic paired pipeline, without touching the automatic schedule.
+
+**Root insight:** the coach path (article_generate via ai_jobs → runArticleGenerate) was a SEPARATE single-shot system: no P0 research, no pairing, no linked_post_id, draft-only — exactly the gaps the owner reported (unlinked AR articles, duplicate topics). The automatic path (blog_generation_queue + blog-post-{lang}.yml workflows P0→P5) already delivers everything (pairing handshake, 1500-2500-word content, images, review, publish, sitemap). The unification = the coach request DISPATCHES the automatic workflow itself.
+
+**Work log:**
+- NEW `src/lib/blog-pipeline-dispatch.ts`: `usableCoachTopic()` (pure — trim/cap-300/≥10 chars = brief-sealable per blog-pairing MIN_TOPIC_CHARS law) + `dispatchBlogPipeline()` (workflow_dispatch on blog-post-{lang}.yml via the SAME GITHUB_DISPATCH_TOKEN law as ai-runner-dispatch.ts; inputs {topic?, job_id?}; HTTP 204 = accepted; FAIL-OPEN).
+- `POST /api/ai/jobs`: for article_generate → dispatch the language's pipeline; on success the ai_jobs row becomes a dispatch RECEIPT (done + result.pipelineDispatched + language + topic + workflow) and the response carries etaMinutes 45 + an Arabic explanation (publishes in ~30-60 min, twin follows + links). On dispatch failure → fall through to the LEGACY path (dispatchAiJobsRunner + single-shot draft generator) — generation never silently dies.
+- `blog-pairing.ts`: + `withCoachTopic()` pure helper — seals the coach topic into MY side of a SharedBrief immutably (twin keeps its researched topic; pairId/angle/sealedAt untouched → extractSharedBrief laws hold).
+- P0 `p0-research/route.ts`: + `getTopicParam()` (≥10 chars else null — automatic runs never send ?topic= so their behavior is byte-identical); CREATE path seals the override into MY brief side + uses it for myTopic/myKeyword (brief AND legacy AND the 0076-missing-column retry insert); ADOPT/JOIN ignore the override by design (briefs already sealed by an earlier window); response echoes topicOverride.
+- `run-step.sh` + `run-step.mts`: thread PIPELINE_TOPIC → --topic → `&topic=` on p0-research ONLY (later steps derive truth from the row).
+- `blog-post-ar.yml` + `blog-post-en.yml`: workflow_dispatch inputs {topic, job_id} + PIPELINE_TOPIC/PIPELINE_JOB_ID env + summary echo. The 05:00/22:00 UTC cron slots, concurrency groups (cancel-in-progress:false) and one-article-per-day quota UNTOUCHED — a dispatch only queues another run of the same workflow.
+- `BlogAdminView.tsx`: watcher handles the receipt (toast «دخل خط التوليد الآلي بالكامل…» + clears the pending entry BEFORE the draft-result checks; GeneratedArticleJob type widened).
+- Tests +15 (367/367): NEW `blog-pipeline-dispatch.test.ts` (11: sanitizer laws + dispatch contract — token gating, AR/EN workflow URLs, body shape ref+inputs, topic omitted when not sealable, job_id echo, fail-open on 403 AND network error) + `blog-pairing.test.ts` withCoachTopic (4: AR/EN sealing, pair validity via extractSharedBrief, immutability).
+- Gates 9/9 green: tsc 0 · eslint 0/0 · vitest 367/367 · next build ✓ · docs_audit · docs_parity · migration_audit --ci (zero new drift) · stale-refs · ui-wiring + YAML validation of both workflows.
+
+**Documented limits:** adopted/joined pairs ignore the topic override; each coach CREATE orphans at most one unprocessed twin row (harmless researched dead weight — never leaks to the sitemap); the twin publishes + links in its own next window (≤48h adopt law); the single-shot draft generator remains the fallback on dispatch failure (no third path).
+
+**Stage summary:** coach generation now rides the EXACT automatic pipeline (research → content → images → review → publish + bilingual pairing handshake) — the owner's unlinked-article gap is closed structurally, and the automatic schedule is untouched. Commit: Phase 162.

@@ -10,6 +10,7 @@ import {
   JobPayloadError,
 } from "@/lib/ai-jobs";
 import { dispatchAiJobsRunner } from "@/lib/ai-runner-dispatch";
+import { dispatchBlogPipeline, usableCoachTopic } from "@/lib/blog-pipeline-dispatch";
 
 /**
  * AI Jobs API — enqueue + poll.
@@ -224,6 +225,56 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: e.message }, { status: 400 });
       }
       throw e;
+    }
+
+    // ── COACH PIPELINE PARITY (Phase 162, owner directive 2026-09-10
+    // «مطلوب مسار الكوتش للتوليد يكون نفس مسار التوليد الالى دون تعطيل
+    // للتوليد الالى»): article_generate DISPATCHES the exact workflow the
+    // automatic daily generation uses (blog-post-{lang}.yml — research →
+    // outline → content → images → review → PUBLISH + pairing handshake).
+    // The ai_jobs row becomes the coach's RECEIPT (done + pipelineDispatched
+    // result); the pipeline's own queue (blog_generation_queue) tracks the
+    // real work. The automatic cron schedule is untouched — a dispatch only
+    // queues another run of the same workflow. FAIL-OPEN: dispatch failure
+    // falls through to the legacy path below (runner + single-shot draft
+    // generator), so generation never silently dies. Tone/audience/keywords
+    // stay in the payload for the fallback generator; the pipeline inherits
+    // its own (stronger) quality contract. ──
+    if (type === "article_generate") {
+      const lang = payload?.language === "en" ? "en" : "ar";
+      const pipelineDispatched = await dispatchBlogPipeline({
+        lang,
+        topic: String(payload?.topic ?? ""),
+        jobId: id,
+      });
+      if (pipelineDispatched) {
+        const { supabaseAdmin, isSupabaseAdminConfigured } = await import(
+          "@/lib/supabase/admin"
+        );
+        if (isSupabaseAdminConfigured && supabaseAdmin) {
+          await supabaseAdmin
+            .from("ai_jobs")
+            .update({
+              status: "done",
+              result: {
+                pipelineDispatched: true,
+                language: lang,
+                topic: usableCoachTopic(payload?.topic) ?? "",
+                workflow: lang === "en" ? "blog-post-en.yml" : "blog-post-ar.yml",
+              },
+              error_message: null,
+              finished_at: new Date().toISOString(),
+            })
+            .eq("id", id);
+        }
+        return NextResponse.json({
+          jobId: id,
+          pipelineDispatched: true,
+          etaMinutes: 45,
+          message:
+            "المقال دخل نفس خط التوليد الآلي (بحث ← محتوى ← صور ← مراجعة ← نشر) — هينشر في المدونة تلقائيًا خلال ~30-60 دقيقة، والنسخة باللغة التانية هتتولد وترتبط به في نافذتها.",
+        });
+      }
     }
 
     // ── Push-trigger the GHA runner (§8 EVENT-DRIVEN DISPATCH LAW). ────

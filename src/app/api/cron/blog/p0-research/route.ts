@@ -6,6 +6,7 @@ import {
   extractSharedBrief,
   isAdoptablePairRow,
   runPairingSelection,
+  withCoachTopic,
   JOIN_MAX_AGE_HOURS,
   type SharedBrief,
 } from "@/lib/blog-pairing";
@@ -74,6 +75,21 @@ function topicToKeyword(topic: string): string {
   return k || topic.slice(0, 60);
 }
 
+/**
+ * PHASE 162 — optional coach topic override (COACH PIPELINE PARITY).
+ * Rides workflow_dispatch inputs → PIPELINE_TOPIC → run-step.sh → here.
+ * Only topics long enough to be legally sealed into a shared brief
+ * (≥ 10 chars — the blog-pairing MIN_TOPIC_CHARS law) are honored; a
+ * shorter/absent topic keeps the EXACT automatic behavior (research
+ * picks the title). Adopted/JOINED pairs ignore the override by design:
+ * their briefs are already sealed by an earlier window.
+ */
+function getTopicParam(request: NextRequest): string | null {
+  const url = new URL(request.url);
+  const t = (url.searchParams.get("topic") || "").trim().slice(0, 300);
+  return t.length >= 10 ? t : null;
+}
+
 /** Insert one researched queue row; returns the row or a PostgREST error message. */
 async function insertResearchedRow(args: {
   language: PipelineLang;
@@ -121,6 +137,9 @@ export async function GET(request: NextRequest) {
   }
 
   const otherLang: PipelineLang = lang === "ar" ? "en" : "ar";
+  // PHASE 162: coach-supplied topic (may be null — the automatic runs
+  // never send ?topic=, so their behavior is byte-identical to before).
+  const coachTopic = getTopicParam(request);
 
   try {
     // ── 1) ADOPT (≤48h) — my side was pre-created by the twin's window.
@@ -214,13 +233,23 @@ export async function GET(request: NextRequest) {
       /* guard is best-effort */
     }
 
+    // PHASE 162: seal the coach's topic into MY side of the brief (the
+    // twin keeps its researched topic — the pair still shares pairId +
+    // angle + sealedAt and passes every extractSharedBrief law).
+    if (brief && coachTopic) {
+      brief = withCoachTopic(brief, lang, coachTopic);
+    }
+
     // MY row first (the pipeline continues on THIS queueId).
     const myTopic = brief
       ? (lang === "ar" ? brief.topicAr : brief.topicEn)
-      : (mineResearch.topics[0] || (lang === "ar" ? "مقال لياقة" : "fitness article"));
+      : ((coachTopic ?? mineResearch.topics[0]) ||
+        (lang === "ar" ? "مقال لياقة" : "fitness article"));
     const myKeyword = brief
       ? topicToKeyword(lang === "ar" ? brief.topicAr : brief.topicEn)
-      : (mineResearch.keywords[0]?.keyword || (lang === "ar" ? "لياقة" : "fitness"));
+      : (coachTopic
+          ? topicToKeyword(coachTopic)
+          : mineResearch.keywords[0]?.keyword || (lang === "ar" ? "لياقة" : "fitness"));
 
     let inserted = await insertResearchedRow({
       language: lang,
@@ -243,8 +272,11 @@ export async function GET(request: NextRequest) {
         brief = null;
         inserted = await insertResearchedRow({
           language: lang,
-          topic: mineResearch.topics[0] || (lang === "ar" ? "مقال لياقة" : "fitness article"),
-          focus_keyword: mineResearch.keywords[0]?.keyword || (lang === "ar" ? "لياقة" : "fitness"),
+          topic: (coachTopic ?? mineResearch.topics[0]) ||
+            (lang === "ar" ? "مقال لياقة" : "fitness article"),
+          focus_keyword: coachTopic
+            ? topicToKeyword(coachTopic)
+            : mineResearch.keywords[0]?.keyword || (lang === "ar" ? "لياقة" : "fitness"),
           category: mine.category,
           pairId: null,
           bundle: JSON.stringify({ research0: mineResearch }),
@@ -291,6 +323,7 @@ export async function GET(request: NextRequest) {
       pairMode: brief ? ("created" as const) : ("legacy" as const),
       pairId: brief?.pairId,
       twinInserted,
+      topicOverride: coachTopic ?? undefined,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

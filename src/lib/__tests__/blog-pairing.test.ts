@@ -12,8 +12,10 @@ import {
   isAdoptablePairRow,
   parsePairingJSON,
   isValidAngleId,
+  withCoachTopic,
   ADOPT_MAX_AGE_HOURS,
   JOIN_MAX_AGE_HOURS,
+  type SharedBrief,
 } from "@/lib/blog-pairing";
 
 const NOW = new Date("2026-09-09T12:00:00.000Z");
@@ -220,5 +222,47 @@ describe("isValidAngleId", () => {
   it("rejects unknown/non-string ids", () => {
     expect(isValidAngleId("not-an-angle")).toBe(false);
     expect(isValidAngleId(42)).toBe(false);
+  });
+});
+
+describe("withCoachTopic (Phase 162 coach pipeline parity)", () => {
+  const brief: SharedBrief = {
+    pairId: PAIR,
+    topicEn: EN_TOPIC,
+    topicAr: AR_TOPIC,
+    angleId: "guide",
+    sealedAt: NOW.toISOString(),
+  };
+  const COACH_AR = "روتين تمارين الكتف الآمن لمرضى الكتف المبتدئين";
+  const COACH_EN = "Shoulder-safe beginner workout routine at home";
+
+  it("seals the coach topic into the AR side and keeps the EN twin", () => {
+    const out = withCoachTopic(brief, "ar", COACH_AR);
+    expect(out.topicAr).toBe(COACH_AR);
+    expect(out.topicEn).toBe(EN_TOPIC);
+  });
+
+  it("seals the coach topic into the EN side and keeps the AR twin", () => {
+    const out = withCoachTopic(brief, "en", COACH_EN);
+    expect(out.topicEn).toBe(COACH_EN);
+    expect(out.topicAr).toBe(AR_TOPIC);
+  });
+
+  it("keeps pairId, angleId and sealedAt untouched (the pair stays valid)", () => {
+    const out = withCoachTopic(brief, "ar", COACH_AR);
+    expect(out.pairId).toBe(PAIR);
+    expect(out.angleId).toBe("guide");
+    expect(out.sealedAt).toBe(brief.sealedAt);
+    // The returned brief must still pass the full extraction law.
+    expect(
+      extractSharedBrief({ sharedBrief: out }, { now: NOW }),
+    ).toEqual(out);
+  });
+
+  it("does not mutate the original brief (immutability)", () => {
+    const snapshot = { ...brief };
+    withCoachTopic(brief, "ar", COACH_AR);
+    expect(brief).toEqual(snapshot);
+    expect(brief.topicAr).toBe(AR_TOPIC);
   });
 });

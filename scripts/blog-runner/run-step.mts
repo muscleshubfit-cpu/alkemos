@@ -12,14 +12,16 @@
  *
  * USAGE (called by run-step.sh):
  *   npx --no-install tsx scripts/blog-runner/run-step.mts \
- *     --step p0-research --lang en    [--queueId <uuid>]
+ *     --step p0-research --lang en    [--queueId <uuid>] [--topic <coach topic>]
  *
  * REQUIRED ENV (GitHub Secrets → job env):
  *   CRON_SECRET, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
  *   OPENROUTER_API (or OPENROUTER_API_KEY), GROQ_API_KEY
  * OPTIONAL ENV: UNSPLASH_ACCESS_KEY / PEXELS_API_KEY / PIXABAY_API_KEY,
  *   AI_CHAIN_TOTAL_BUDGET_MS, PIPELINE_LANG (en|ar — threaded by
- *   run-step.sh; required for p0-research, logged for all steps)
+ *   run-step.sh; required for p0-research, logged for all steps),
+ *   PIPELINE_TOPIC (Phase 162: coach topic override — p0-research only;
+ *   scheduled runs never set it, so their URLs are unchanged).
  *
  * EXIT CODES: 0 = ok:true · 1 = step reported failure · 2 = misconfig
  */
@@ -43,6 +45,9 @@ async function main(): Promise<void> {
   const step = arg("step");
   const queueId = arg("queueId");
   const langArg = arg("lang") ?? process.env.PIPELINE_LANG;
+  // PHASE 162: optional coach topic override — P0 seals it into the queue
+  // row + the shared brief; later steps ignore it (the row is their truth).
+  const topicArg = arg("topic") ?? process.env.PIPELINE_TOPIC;
 
   if (!step || !STEPS.includes(step as (typeof STEPS)[number])) {
     console.error(
@@ -121,8 +126,13 @@ async function main(): Promise<void> {
   const url = new URL(`http://actions-runner/api/cron/blog/${step}`);
   url.searchParams.set("lang", lang);
   if (queueId) url.searchParams.set("queueId", queueId);
+  if (step === "p0-research" && topicArg) url.searchParams.set("topic", topicArg);
 
-  console.log(`[runner] ▶ ${step} · lang=${lang}${queueId ? ` · queue=${queueId}` : ""}`);
+  console.log(
+    `[runner] ▶ ${step} · lang=${lang}${queueId ? ` · queue=${queueId}` : ""}${
+      step === "p0-research" && topicArg ? ` · topicOverride=yes` : ""
+    }`,
+  );
 
   const req = new NextRequest(url, {
     headers: { authorization: `Bearer ${secret}` },

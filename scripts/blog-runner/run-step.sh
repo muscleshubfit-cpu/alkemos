@@ -28,6 +28,11 @@ fi
 if [ -n "${PIPELINE_LANG:-}" ]; then
   ARGS+=(--lang "$PIPELINE_LANG")
 fi
+# PHASE 162 (coach pipeline parity): optional topic override — set only by
+# workflow_dispatch runs the coach triggered; scheduled runs never set it.
+if [ -n "${PIPELINE_TOPIC:-}" ]; then
+  ARGS+=(--topic "$PIPELINE_TOPIC")
+fi
 
 attempt=1
 while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do

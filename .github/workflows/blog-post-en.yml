@@ -35,7 +35,16 @@ name: Auto-publish EN article (pipeline v3 — language-split)
 on:
   schedule:
     - cron: "0 22 * * *"  # 18:00 ET (EDT) — the single daily EN slot (Phase 119)
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Optional coach topic override (Phase 162: >=10 chars seals into the shared brief; empty = research picks)"
+        required: false
+        default: ""
+      job_id:
+        description: "ai_jobs receipt id (coach traceability echo only)"
+        required: false
+        default: ""
 
 # SCHEDULE-RE-REGISTRATION 2026-08-27: GitHub silently stopped firing ALL
 # scheduled workflows repo-wide after 2026-08-26T16:39Z (dispatch runs kept
@@ -57,6 +66,13 @@ jobs:
 
       # ── Native-execution budget override (default on Vercel: 52000) ──
       AI_CHAIN_TOTAL_BUDGET_MS: "360000"
+
+      # ── PHASE 162: coach pipeline parity — optional topic override ──
+      # Set ONLY by workflow_dispatch runs the coach triggered from the
+      # articles dashboard; the 22:00 UTC scheduled run never carries them
+      # (empty inputs), so automatic behavior stays byte-identical.
+      PIPELINE_TOPIC: ${{ github.event.inputs.topic || '' }}
+      PIPELINE_JOB_ID: ${{ github.event.inputs.job_id || '' }}
 
       # ── Required secrets (preflight fails fast naming missing ones) ──
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -145,4 +161,6 @@ jobs:
           echo "=== EN pipeline run summary ==="
           echo "PIPELINE_LANG: $PIPELINE_LANG"
           echo "QUEUE_ID processed: ${QUEUE_ID:-<none>}"
+          echo "Topic override: ${PIPELINE_TOPIC:-<none — research picked>}"
+          echo "Coach receipt (ai_jobs): ${PIPELINE_JOB_ID:-<automatic scheduled run>}"
           echo "Full logs above — green ✓ = published (EN), red ❌ = copy last lines and report."
