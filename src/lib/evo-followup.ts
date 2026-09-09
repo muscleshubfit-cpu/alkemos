@@ -47,6 +47,60 @@ export function isFollowupDue(pref: FollowupPref, now: Date = new Date()): boole
 }
 
 /* ------------------------------------------------------------------ */
+/*  Opt-in UI write planner (EVO-3 activation step 3)                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The exact client write the /profile opt-in toggle should perform —
+ * mirrors migration 0079 RLS write paths (insert authed-own, update
+ * owner). Opt-out is an UPDATE, never a delete (D2).
+ */
+export type FollowupPrefWrite =
+  | {
+      mode: "insert";
+      values: { client_id: string; opted_in: true; language: "ar" | "en" };
+    }
+  | {
+      mode: "update";
+      values: { opted_in: boolean; language?: "ar" | "en"; updated_at: string };
+    };
+
+/**
+ * Plans the toggle write deterministically (pure, unit-tested):
+ *   - no row + opt-in   → INSERT (opted_in true + captured language);
+ *   - no row + opt-out  → null (default state is already opted-out);
+ *   - row + real change → UPDATE with updated_at stamped client-side
+ *     (0079 has no trigger; opting out keeps the captured language so a
+ *     future re-opt-in restores the user's prior choice in one tap);
+ *   - row + no change   → null (no write, no updated_at churn).
+ * Language is coerced to the 0079 check constraint domain ("ar"|"en").
+ */
+export function buildFollowupPrefWrite(
+  clientId: string,
+  existing: { opted_in: boolean; language?: string | null } | null | undefined,
+  action: { optedIn: boolean; language: "ar" | "en" },
+  now: Date = new Date(),
+): FollowupPrefWrite | null {
+  const language: "ar" | "en" = action.language === "en" ? "en" : "ar";
+  if (!existing) {
+    if (!action.optedIn) return null;
+    return {
+      mode: "insert",
+      values: { client_id: clientId, opted_in: true, language },
+    };
+  }
+  const languageChanged =
+    action.optedIn && existing.opted_in && (existing.language ?? "ar") !== language;
+  if (existing.opted_in === action.optedIn && !languageChanged) return null;
+  return {
+    mode: "update",
+    values: action.optedIn
+      ? { opted_in: true, language, updated_at: now.toISOString() }
+      : { opted_in: false, updated_at: now.toISOString() },
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Email content                                                      */
 /* ------------------------------------------------------------------ */
 

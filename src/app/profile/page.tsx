@@ -10,6 +10,7 @@ import { useNav } from "@/hooks/use-nav";
 import { SiteHeader } from "@/components/SiteHeader";
 import { openEvoFloatingChat } from "@/lib/evo-chat-context";
 import { supabase } from "@/lib/supabase/client";
+import { buildFollowupPrefWrite } from "@/lib/evo-followup";
 import { compressImageFile } from "@/lib/image-compress";
 import type { Database } from "@/lib/supabase/types";
 import { MEMBERSHIPS, getLimits, type MembershipTier } from "@/lib/memberships";
@@ -531,6 +532,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* EVO weekly follow-up opt-in — EVO-3/D4 activation step 3. The
+            card ships only now that EVO_FOLLOWUP_ENABLED is LIVE and the
+            Brevo send path is proven (no promise without backing — the
+            activation decree). Writes go client-direct under 0079 RLS
+            (insert authed-own / update owner); opt-out is an UPDATE,
+            never a delete (D2). */}
+        <EvoFollowupSection isAr={isAr} userId={profile?.id} />
+
         {/* Saved tool results */}
         <SavedResultsSection isAr={isAr} userId={profile?.id} />
 
@@ -625,6 +634,165 @@ export default function ProfilePage() {
           {isAr ? "تسجيل الخروج" : "Log out"}
         </button>
       </main>
+    </div>
+  );
+}
+
+// EVO weekly follow-up opt-in card — EVO-3/D4 activation step 3.
+// The opt-out surface the email footer points at («من صفحة حسابك») —
+// Platform Truth law: the promise in the email is backed by this card.
+function EvoFollowupSection({
+  isAr,
+  userId,
+}: {
+  isAr: boolean;
+  userId?: string;
+}) {
+  const [row, setRow] = useState<{
+    opted_in: boolean;
+    language: string;
+    last_sent_at: string | null;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const optedIn = !!row?.opted_in;
+  // No row yet → the captured language defaults to the current UI language.
+  const mailLang: "ar" | "en" = row
+    ? row.language === "en"
+      ? "en"
+      : "ar"
+    : isAr
+      ? "ar"
+      : "en";
+
+  useEffect(() => {
+    if (!userId || !supabase) {
+      setLoading(false);
+      return;
+    }
+    supabase
+      .from("evo_followup_prefs")
+      .select("opted_in, language, last_sent_at")
+      .eq("client_id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setRow(data ?? null);
+        setLoading(false);
+      });
+  }, [userId]);
+
+  const applyWrite = async (nextOptedIn: boolean, language: "ar" | "en") => {
+    if (!userId || !supabase) return;
+    const write = buildFollowupPrefWrite(userId, row, {
+      optedIn: nextOptedIn,
+      language,
+    });
+    if (!write) return; // no-op — no write, no updated_at churn
+    setBusy(true);
+    try {
+      const res =
+        write.mode === "insert"
+          ? await supabase.from("evo_followup_prefs").insert(write.values)
+          : await supabase
+              .from("evo_followup_prefs")
+              .update(write.values)
+              .eq("client_id", userId);
+      if (res.error) throw res.error;
+      setRow((prev) => ({
+        opted_in: nextOptedIn,
+        language: nextOptedIn ? language : (prev?.language ?? language),
+        last_sent_at: prev?.last_sent_at ?? null,
+      }));
+      toast.success(
+        nextOptedIn
+          ? isAr
+            ? "تم تفعيل المتابعة الأسبوعية من EVO — أول رسالة مع أول دورة إرسال"
+            : "Weekly EVO check-in enabled — first email with the next send cycle"
+          : isAr
+            ? "تم إيقاف المتابعة الأسبوعية"
+            : "Weekly EVO check-in disabled",
+      );
+    } catch {
+      toast.error(
+        isAr ? "حصل خطأ — جرب تاني" : "Something went wrong",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 rounded-3xl bg-white p-6 md:p-8">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {isAr ? "متابعة EVO الأسبوعية" : "Weekly EVO Check-in"}
+          </h2>
+          <p className="mt-1.5 max-w-xl text-sm font-normal leading-relaxed text-[#6e6e73]">
+            {isAr
+              ? "بريد أسبوعي من مدربك EVO (evo@alkemos.com) بملخص تقدمك الحقيقي المسجل على المنصة — أرقامك بس من غير حشو. تقدر توقفيه في أي وقت من هنا."
+              : "A weekly email from your coach EVO (evo@alkemos.com) summarizing your real logged progress — your numbers only, no filler. Turn it off anytime from here."}
+          </p>
+        </div>
+        {loading ? (
+          <Loader2 className="mt-1 h-6 w-6 shrink-0 animate-spin text-[#0071e3]" />
+        ) : (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => applyWrite(!optedIn, mailLang)}
+            aria-pressed={optedIn}
+            aria-label={
+              isAr
+                ? "تفعيل أو إيقاف متابعة EVO الأسبوعية"
+                : "Toggle the weekly EVO check-in"
+            }
+            className={cn(
+              "relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50",
+              optedIn ? "bg-[#34c759]" : "bg-[#d2d2d7]",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all",
+                optedIn ? "start-[22px]" : "start-0.5",
+              )}
+            />
+          </button>
+        )}
+      </div>
+
+      {optedIn && (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium">
+            {isAr ? "لغة البريد:" : "Email language:"}
+          </span>
+          <div className="flex overflow-hidden rounded-full border border-[#d2d2d7]">
+            {(["ar", "en"] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                disabled={busy}
+                onClick={() => applyWrite(true, l)}
+                className={cn(
+                  "px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50",
+                  mailLang === l
+                    ? "bg-[#0071e3] text-white"
+                    : "bg-white text-[#1d1d1f] hover:bg-[#f5f5f7]",
+                )}
+              >
+                {l === "ar" ? "عربي" : "English"}
+              </button>
+            ))}
+          </div>
+          {row?.last_sent_at && (
+            <span className="text-xs font-normal text-[#6e6e73]">
+              {isAr ? "آخر رسالة: " : "Last email: "}
+              {new Date(row.last_sent_at).toLocaleDateString(isAr ? "ar" : "en")}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

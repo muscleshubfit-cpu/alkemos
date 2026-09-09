@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   isFollowupDue,
   buildFollowupEmail,
+  buildFollowupPrefWrite,
   EVO_FOLLOWUP_INTERVAL_DAYS,
 } from "@/lib/evo-followup";
 
@@ -147,5 +148,96 @@ describe("buildFollowupEmail — real data only", () => {
   it("caps a very long name at 80 chars", () => {
     const mail = buildFollowupEmail({ ...base, name: "أ".repeat(200) });
     expect(mail.text).not.toContain("أ".repeat(81));
+  });
+});
+
+describe("buildFollowupPrefWrite — opt-in UI write planner (0079 RLS paths)", () => {
+  const UID = "11111111-1111-1111-1111-111111111111";
+
+  it("no row + opt-in → INSERT with the captured language", () => {
+    const write = buildFollowupPrefWrite(UID, null, {
+      optedIn: true,
+      language: "ar",
+    });
+    expect(write).toEqual({
+      mode: "insert",
+      values: { client_id: UID, opted_in: true, language: "ar" },
+    });
+  });
+
+  it("no row + opt-out → null (default state is already opted-out)", () => {
+    expect(
+      buildFollowupPrefWrite(UID, null, { optedIn: false, language: "ar" }),
+    ).toBeNull();
+  });
+
+  it("row off + opt-in → UPDATE turning it on with the language", () => {
+    const write = buildFollowupPrefWrite(
+      UID,
+      { opted_in: false, language: "ar" },
+      { optedIn: true, language: "en" },
+      new Date("2026-09-10T12:00:00Z"),
+    );
+    expect(write).toEqual({
+      mode: "update",
+      values: {
+        opted_in: true,
+        language: "en",
+        updated_at: "2026-09-10T12:00:00.000Z",
+      },
+    });
+  });
+
+  it("row on + opt-out → UPDATE only opted_in (language preserved for re-opt-in)", () => {
+    const write = buildFollowupPrefWrite(
+      UID,
+      { opted_in: true, language: "en" },
+      { optedIn: false, language: "ar" },
+      new Date("2026-09-10T12:00:00Z"),
+    );
+    expect(write).toEqual({
+      mode: "update",
+      values: { opted_in: false, updated_at: "2026-09-10T12:00:00.000Z" },
+    });
+    expect(write && write.mode === "update" && "language" in write.values).toBe(
+      false,
+    );
+  });
+
+  it("row on + opt-in same language → null (no write, no updated_at churn)", () => {
+    expect(
+      buildFollowupPrefWrite(
+        UID,
+        { opted_in: true, language: "ar" },
+        { optedIn: true, language: "ar" },
+      ),
+    ).toBeNull();
+  });
+
+  it("row on + opt-in language change → UPDATE with the new language only", () => {
+    const write = buildFollowupPrefWrite(
+      UID,
+      { opted_in: true, language: "ar" },
+      { optedIn: true, language: "en" },
+      new Date("2026-09-10T12:00:00Z"),
+    );
+    expect(write).toEqual({
+      mode: "update",
+      values: {
+        opted_in: true,
+        language: "en",
+        updated_at: "2026-09-10T12:00:00.000Z",
+      },
+    });
+  });
+
+  it("coerces language into the 0079 check domain (anything non-en is ar)", () => {
+    const write = buildFollowupPrefWrite(UID, null, {
+      optedIn: true,
+      language: "fr" as "ar" | "en",
+    });
+    expect(write && write.mode === "insert" && write.values.language).toBe(
+      "ar",
+    );
   });
 });
