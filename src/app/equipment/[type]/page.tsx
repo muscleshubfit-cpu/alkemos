@@ -7,6 +7,8 @@ import {
   getExercisesForEquipmentHub,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
+import { getHubDepth } from "@/lib/hub-depth";
+import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
 /**
@@ -75,6 +77,9 @@ export default async function EquipmentHubPage({
   if (!hub) notFound();
 
   const exercises = getExercisesForEquipmentHub(hub);
+  // Phase SEO-GEO-5.2: §6.3 template items 4+5 (guide + FAQ) — depth
+  // content exists for every populated equipment hub (none is exempt).
+  const depth = getHubDepth("equipment", hub.slug);
 
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "Home", url: "/" },
@@ -116,6 +121,8 @@ export default async function EquipmentHubPage({
           {hub.introEn}
         </p>
       </header>
+
+      {depth && <HubGuideSection depth={depth} lang="en" title="Training Guide" />}
 
       <section aria-label="All exercises" className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
@@ -189,6 +196,8 @@ export default async function EquipmentHubPage({
           ))}
         </div>
       </section>
+
+      {depth && <HubFaqSection depth={depth} lang="en" title="Frequently Asked Questions" />}
 
       <section aria-label="Workout programs" className="rounded-lg bg-muted/50 p-6">
         <h2 className="text-xl font-semibold mb-3">Workout Programs</h2>

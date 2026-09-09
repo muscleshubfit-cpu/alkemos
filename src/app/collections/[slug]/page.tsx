@@ -8,6 +8,8 @@ import {
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, TAG_LABELS } from "@/lib/foods-shared";
 import { calculateNutrition } from "@/lib/foods-shared";
+import { getHubDepth } from "@/lib/hub-depth";
+import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
 /**
@@ -82,6 +84,9 @@ export default async function FoodCollectionPage({
   if (!collection) notFound();
 
   const foods = getFoodsForCollection(collection);
+  // Phase SEO-GEO-5.2: §6.3 template items 4+5 (guide + FAQ) — every food
+  // collection has library rows, so depth content covers all ten slugs.
+  const depth = getHubDepth("collection", collection.slug);
   const tagLabel = TAG_LABELS[collection.tag];
 
   const breadcrumbSchema = getBreadcrumbSchema([
@@ -124,6 +129,8 @@ export default async function FoodCollectionPage({
           {collection.introEn}
         </p>
       </header>
+
+      {depth && <HubGuideSection depth={depth} lang="en" title="Nutrition Guide" />}
 
       <section aria-label="Food list" className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
@@ -207,6 +214,8 @@ export default async function FoodCollectionPage({
           ))}
         </div>
       </section>
+
+      {depth && <HubFaqSection depth={depth} lang="en" title="Frequently Asked Questions" />}
 
       <section aria-label="Plan your nutrition" className="rounded-lg bg-muted/50 p-6">
         <h2 className="text-xl font-semibold mb-3">Plan Your Nutrition</h2>

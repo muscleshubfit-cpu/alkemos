@@ -7,6 +7,8 @@ import {
   getFoodsForCollection,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, TAG_LABELS, calculateNutrition } from "@/lib/foods-shared";
+import { getHubDepth } from "@/lib/hub-depth";
+import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
@@ -75,6 +77,9 @@ export default async function ArabicFoodCollectionPage({
   if (!collection) notFound();
 
   const foods = getFoodsForCollection(collection);
+  // Phase SEO-GEO-5.2: §6.3 template items 4+5 — depth content covers all
+  // ten food collections (no empty collections in this family).
+  const depth = getHubDepth("collection", collection.slug);
 
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "الرئيسية", url: "/ar" },
@@ -116,6 +121,8 @@ export default async function ArabicFoodCollectionPage({
           {collection.introAr}
         </p>
       </header>
+
+      {depth && <HubGuideSection depth={depth} lang="ar" title="دليل التغذية" />}
 
       <section aria-label="قائمة الأطعمة" className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
@@ -199,6 +206,8 @@ export default async function ArabicFoodCollectionPage({
           ))}
         </div>
       </section>
+
+      {depth && <HubFaqSection depth={depth} lang="ar" title="أسئلة شائعة" />}
 
       <section aria-label="خطّط تغذيتك" className="rounded-lg bg-muted/50 p-6">
         <h2 className="text-xl font-semibold mb-3">خطّط تغذيتك</h2>

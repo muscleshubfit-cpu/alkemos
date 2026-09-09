@@ -7,6 +7,8 @@ import {
   getExercisesForEquipmentHub,
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
+import { getHubDepth } from "@/lib/hub-depth";
+import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
@@ -71,6 +73,9 @@ export default async function ArabicEquipmentHubPage({
   if (!hub) notFound();
 
   const exercises = getExercisesForEquipmentHub(hub);
+  // Phase SEO-GEO-5.2: §6.3 template items 4+5 — depth content for every
+  // populated equipment hub (none is exempt — empty library family).
+  const depth = getHubDepth("equipment", hub.slug);
 
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "الرئيسية", url: "/ar" },
@@ -112,6 +117,8 @@ export default async function ArabicEquipmentHubPage({
           {hub.introAr}
         </p>
       </header>
+
+      {depth && <HubGuideSection depth={depth} lang="ar" title="دليل التدريب" />}
 
       <section aria-label="كل التمارين" className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
@@ -185,6 +192,8 @@ export default async function ArabicEquipmentHubPage({
           ))}
         </div>
       </section>
+
+      {depth && <HubFaqSection depth={depth} lang="ar" title="أسئلة شائعة" />}
 
       <section aria-label="برامج التمارين" className="rounded-lg bg-muted/50 p-6">
         <h2 className="text-xl font-semibold mb-3">برامج التمارين</h2>
