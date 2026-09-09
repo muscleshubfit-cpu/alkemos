@@ -3,6 +3,21 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: AI-NVIDIA-ENV-VERIFY-161.1-2026-09-09
+Agent: Super Z (main)
+Task: رسالة المالك «تم اضافة المفت الى Environment Variables» — تحقق حي من تغذية NVIDIA_API_KEY بعد إضافته للبيئة
+
+Work Log:
+- **فحص البنية عبر GitHub API:** بيئات المستودع (Preview · Production) موجودة؛ قراءة variables/secrets الخاصة بالبيئات غير متاحة لصلاحيات الباتش (403) — الحسم انتقل للتشغيل الحي
+- **dispatch حي:** process-ai-jobs run **34347871167** على cad7976 → success كامل بخطواته الثماني — **preflight ✓**: `NVIDIA_API_KEY: ***` في حزمة env (مُقنَّع = قيمة غير فارغة) + «✓ All required secrets present» · **drain ✓**: `done=0 failedPermanent=0` (الطابور فارغ — العامل صحي والأخضر حقيقي)
+- **استنتاج بنيوي موثق:** الـworkflow لا يعلن `environment:` — يقرأ أسرار مستوى المستودع فقط؛ نجاح الـpreflight يثبت أن NVIDIA_API_KEY باقٍ Repository Secret سليمًا — إضافة المالك لـEnvironment Variables (الأرجح Vercel Production وفق تذكير 161) لا تعطل مسار GHA ولا تُقرأ منه (ولا حاجة لقراءتها منه)
+- **مسار Vercel:** متغيرات البيئة الجديدة تُلتقط عند الـbuild/deploy فقط — أول redeploy قادم يفعّلها لـruntime مسارات EVO/الخطط (لا إجراء إضافي على المالك) — لا توكن Vercel هنا لذا لا يمكن التحقق منها من هذه الجلسة
+
+Stage Summary:
+- **تغذية باقة المزودين الثلاثة مكتملة على المسارين:** GHA Secret (مُتحقق حيًا run 34347871167) + Environment Variables من المالك — openrouter→groq→nvidia جاهزة للتدوير في العامل، وVercel تستلم المفتاح مع أول deploy
+- صفر تغييرات كود — تحقق + توثيق فقط
+
+---
 Task ID: AI-NVIDIA-PROVIDER-161-2026-09-09
 Agent: Super Z (main)
 Task: أمر المالك «تم اضافة مفتاح NVIDIA_API_KEY لاستخدامة مع باقة مفاتيح مزودى ال Ai» — دمج NVIDIA NIM كمزود ثالث في سلسلة الاحتياط
