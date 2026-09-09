@@ -5,7 +5,10 @@ import Image from "next/image";
 import { ThemeImg } from "@/components/ThemeImg";
 import { useEvoChat } from "@/lib/evo-chat-context";
 import { useI18n } from "@/lib/i18n";
-import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase/client";
+import { buildFollowupPrefWrite } from "@/lib/evo-followup";
+import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown, Mail } from "lucide-react";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -101,6 +104,127 @@ export function EvoFloatingWidget() {
     toggleChat,
     sendMessage,
   } = useEvoChat();
+
+  // EVO-3/D4 (166.2) — the weekly check-in opt-in lives INSIDE the widget
+  // (owner request: «ضيف تفعيل المتابعه الاسبوعيه داخل ويدجيت ايفو نفسه
+  // بالاعلى») so a PHONE-ONLY, non-technical user can enable the feature
+  // and fire the real first email WITHOUT any terminal step: the
+  // «إرسال الآن» trigger is ADMIN-ONLY and calls the same documented
+  // dispatch endpoint with the admin session cookie (requireAdmin — the
+  // documented second caller, no x-cron-secret needed). Writes reuse the
+  // tested buildFollowupPrefWrite planner under 0079 RLS — the /profile
+  // card stays the full control surface (language + last-sent) and both
+  // reflect each other (same row, reloaded on every drawer open).
+  const { profile, isAdmin } = useAuth();
+  const [fuRow, setFuRow] = useState<{
+    opted_in: boolean;
+    language: string;
+    last_sent_at: string | null;
+  } | null>(null);
+  const [fuLoaded, setFuLoaded] = useState(false);
+  const [fuBusy, setFuBusy] = useState(false);
+  const [sendingNow, setSendingNow] = useState(false);
+  const fuOptedIn = !!fuRow?.opted_in;
+
+  const loadFollowupRow = useCallback(() => {
+    if (!profile?.id || !supabase) {
+      setFuRow(null);
+      setFuLoaded(true);
+      return;
+    }
+    supabase
+      .from("evo_followup_prefs")
+      .select("opted_in, language, last_sent_at")
+      .eq("client_id", profile.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setFuRow(data ?? null);
+        setFuLoaded(true);
+      });
+  }, [profile]);
+
+  useEffect(() => {
+    // reload on every drawer open — /profile edits reflect immediately
+    if (isOpen) {
+      setFuLoaded(false);
+      loadFollowupRow();
+    }
+  }, [isOpen, loadFollowupRow]);
+
+  const applyFollowupWrite = async (
+    nextOptedIn: boolean,
+    language: "ar" | "en",
+  ) => {
+    if (!profile?.id || !supabase) return;
+    const write = buildFollowupPrefWrite(profile.id, fuRow, {
+      optedIn: nextOptedIn,
+      language,
+    });
+    if (!write) return; // no-op — no write churn
+    setFuBusy(true);
+    try {
+      const res =
+        write.mode === "insert"
+          ? await supabase.from("evo_followup_prefs").insert(write.values)
+          : await supabase
+              .from("evo_followup_prefs")
+              .update(write.values)
+              .eq("client_id", profile.id);
+      if (res.error) throw res.error;
+      setFuRow((prev) => ({
+        opted_in: nextOptedIn,
+        language: nextOptedIn ? language : (prev?.language ?? language),
+        last_sent_at: prev?.last_sent_at ?? null,
+      }));
+      toast.success(
+        nextOptedIn
+          ? isAr
+            ? "تم تفعيل المتابعة الأسبوعية من EVO — أول رسالة مع أول دورة إرسال"
+            : "Weekly EVO check-in enabled — first email with the next send cycle"
+          : isAr
+            ? "تم إيقاف المتابعة الأسبوعية"
+            : "Weekly EVO check-in disabled",
+      );
+    } catch {
+      toast.error(isAr ? "حصل خطأ — جرب تاني" : "Something went wrong");
+    } finally {
+      setFuBusy(false);
+    }
+  };
+
+  // ADMIN-ONLY — the phone-friendly replacement for the terminal dispatch:
+  // same endpoint, same gates (admin session instead of x-cron-secret).
+  const sendFollowupNow = async () => {
+    setSendingNow(true);
+    try {
+      const res = await fetch("/api/evo/followup/dispatch", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body?.ok)
+        throw new Error(body?.error || "dispatch failed");
+      const { sent = 0, failed = 0, skipped = 0, scanned = 0 } = body;
+      if (scanned === 0) {
+        toast.success(
+          isAr
+            ? "لا يوجد مستلمون مستحقون الآن — فعّل المتابعة وتوصلك أول رسالة مع أول دورة"
+            : "No recipients due right now — enable the check-in and the first cycle will reach you",
+        );
+      } else {
+        toast.success(
+          isAr
+            ? `تم الإرسال: ${sent} · فشل: ${failed} · تخطي: ${skipped}`
+            : `Sent: ${sent} · failed: ${failed} · skipped: ${skipped}`,
+        );
+      }
+      loadFollowupRow(); // last_sent_at may have moved for this account
+    } catch {
+      toast.error(isAr ? "فشل الإرسال — جرب تاني" : "Send failed — try again");
+    } finally {
+      setSendingNow(false);
+    }
+  };
 
   // PHASE 69 — «احفظ كخطة»: persists the EVO plan text as a REAL plan row
   // via /api/plans/member-edit (plans RLS is coach-write-only, so the
@@ -351,6 +475,65 @@ export function EvoFloatingWidget() {
                 </button>
               </div>
             </div>
+
+            {/* EVO-3/D4 — weekly check-in opt-in INSIDE the widget (owner:
+                «ضيف تفعيل المتابعه الاسبوعيه داخل ويدجيت ايفو نفسه بالاعلى»).
+                Logged-in only (an account is required — anonymous has no
+                prefs row); admin gets the phone-friendly «إرسال الآن»
+                trigger — the same documented dispatch endpoint with his
+                admin session, replacing any terminal step. */}
+            {profile && (
+              <div
+                className="flex items-center gap-2 border-b border-[var(--edge)] px-4 py-2"
+                style={{ backgroundColor: "var(--bg)" }}
+              >
+                <Mail className="ai-accent h-3.5 w-3.5 shrink-0" />
+                <span
+                  className="flex-1 text-[11px] font-medium"
+                  style={{ color: "var(--text)" }}
+                >
+                  {isAr ? "المتابعة الأسبوعية" : "Weekly check-in"}
+                </span>
+                <button
+                  type="button"
+                  disabled={fuBusy || !fuLoaded}
+                  onClick={() =>
+                    applyFollowupWrite(!fuOptedIn, isAr ? "ar" : "en")
+                  }
+                  aria-pressed={fuOptedIn}
+                  aria-label={
+                    isAr
+                      ? "تفعيل أو إيقاف المتابعة الأسبوعية من EVO"
+                      : "Toggle the weekly EVO check-in"
+                  }
+                  className={`relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+                    fuOptedIn ? "bg-[#34c759]" : "bg-[#d2d2d7]"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${
+                      fuOptedIn ? "start-[18px]" : "start-0.5"
+                    }`}
+                  />
+                </button>
+                {isAdmin && fuOptedIn && (
+                  <button
+                    type="button"
+                    disabled={sendingNow}
+                    onClick={sendFollowupNow}
+                    className="shrink-0 rounded-full bg-[#0071e3] px-2.5 py-1 text-[10px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    {sendingNow
+                      ? isAr
+                        ? "جارٍ الإرسال…"
+                        : "Sending…"
+                      : isAr
+                        ? "إرسال الآن"
+                        : "Send now"}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* PHASE 69 — QUOTA METER: the advertised plan quotas are now
                 VISIBLE (same tamper-proof ledger the server counts).
