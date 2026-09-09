@@ -14,7 +14,9 @@ Work Log:
 - STATE (عنصر المقترح 3 → منفّذ + قائمة المراجعة) · الخطة §12.16 فقرة «الإقران الرجعي» + تصحيح «المتبقي الاختياري»
 
 Stage Summary:
-- 6 أزواج عالية الثقة تُطبق عبر dispatch (dry_run ثم apply) — hreflang + زر اللغة يستantan للـ12 مقالًا فورًا · 4 أزواج مراجعة بانتظار قرار المالك (نقلها إلى pairs + إعادة dispatch — idempotent)
+- **مُطبق حيًا ومُثبت:** dry_run (run 34297227925: 6/6 صفر فشل) → APPLY (run 34297307574: paired=6 · verified=6 · failed=0) → تحقق مستقل بنسخة db-backup جديدة (a371c8a0): **12 منشورًا مقترنًا bidirectionally** (6 AR + 6 EN) — hreflang + زر اللغة يعملان للقائمة القديمة فورًا
+- درسان أثناء التنفيذ (نمط .gitignore /scripts/*): الملفان سقطا من أول كوميت (9d31586) ففشل الـdry_run الأول بـ«module not found» → أُضيفا لقائمة السماح مع توثيق العُرف (8617203) · await fs.readFile مفقود فـJSON.parse استلم Promise (4ad9ace) — كلاهما مُمسك قبل أي كتابة DB بفضل DRY_RUN الافتراضي
+- 4 أزواج مراجعة بانتظار قرار المالك: نقلها من reviewPairs إلى pairs + إعادة dispatch (idempotent)
 
 ---
 Task ID: SEO-GEO-5.0-157-MIGRATION-LIVE-AUDIT-2026-09-09
