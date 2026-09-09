@@ -3,6 +3,24 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: CI-LOCKFILE-SYNC-160-2026-09-09
+Agent: Super Z (main)
+Task: أمر المالك «العمليات تفشل» + رابط process-ai-jobs.yml — تشخيص فشل GHA وإصلاحه
+
+Work Log:
+- **التشخيص من سجلات GHA الحية** (run 34336584740 و6 سابقات): الفشل ليس في معالجة الـAI jobs إطلاقًا — الـworkflow يقع عند خطوة «Install dependencies (frozen bun.lock)» بالخطأ `error: lockfile had changes, but lockfile is frozen` — سلسلة الفشل منذ **2026-09-08 17:30 UTC** (7 تشغيلات process-ai-jobs × 5 quality-gate — آخر نجاح على 779c05a)
+- **الجذر:** ffbfa15 (المرحلة 151) حذف `@vercel/og` من package.json (ترحيل ImageResponse إلى next/og) **دون إعادة توليد bun.lock ودون كوميتها** — الـlockfile بقي يحمل شجرة @vercel/og (سطرا 45+695) فاختلف عن package.json → كل `--frozen-lockfile` يفشل
+- **المفارقة الموثقة:** آخر كوميت لمس bun.lock كان 7042a2c «regenerate bun.lock after nodemailer removal» — **نفس فئة الحادثة تكررت**؛ الدرس: أي تغيير تبعيات = `bun install` وكوميت bun.lock في نفس الفاز
+- **الإصلاح:** `bun install` (bun 1.3.14 = نسخة CI نفسها) → فرق نظيف: bun.lock فقط، 47 سطرًا محذوفة (شجرة @vercel/og) — صفر تغيير مصدري؛ تحقق بإعادة `bun install --frozen-lockfile` → exit 0
+- **artifact استنساخ مُمسك:** أول تشغيل tsc فشل TS2307 على استيرادات الصور — next-env.d.ts gitignored (موثق في quality-gate step «Regenerate next-env.d.ts» من run 34078054217 التاريخي) → توليد الـstub → tsc نظيف
+- البوابات التسع على استنساخ جديد: tsc 0 · eslint 0/0 · vitest **331/331** · next build ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+Stage Summary:
+- bun.lock مُتزامن مع package.json — process-ai-jobs (كل 10 دقائق) وquality-gate (على push) يعودان أخضر بعد الدفع
+- صفر مساس بمصدر التطبيق أو بيانات الإنتاج — إصلاح بنية CI خالص
+- الدرس المؤسسي مثبت في worklog: حذف تبعية بلا bun.lock = كسر كل الـworkflows التي تثبت الاعتماديات
+
+---
 Task ID: SEO-GEO-5.2-HUB-DEPTH-159-2026-09-09
 Agent: Super Z (main)
 Task: أمر المالك «نكتفى بما تم فى الخطوه ٣، اقراء اولا ملفات التوثيق الخاصة بال seo وابداء فى الخطوه التالية» — قراءة توثيق SEO الأربعة ثم تنفيذ الخطوة التالية من الخطة (المرحلة 159)
