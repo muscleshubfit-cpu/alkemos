@@ -1,0 +1,84 @@
+name: EVO weekly learning (nutrition knowledge refresh)
+
+# ============================================================
+# EVO-4 (docs/EVO-MASTER-PLAN.md §4 W4, E1+E2+E3 — owner decree
+# 2026-09-10 «نعم يتعلم من كل شيء»):
+#
+#   E1  deterministic aggregation of the platform's real plans
+#       (approved coach/admin plans + user meal-planner plans +
+#       final external plans) into anonymized goal/meal/food
+#       patterns — ZERO LLM, zero AI cost;
+#   E2  one approved plan becomes the anonymized few-shot exemplar
+#       (deterministic structured skeleton — no free text, so no
+#       person name can leak by construction);
+#   E3  swap volume from plan_swaps (food-identity swap learning
+#       accumulates live from member-edit diffs — not this job).
+#
+# Everything lands in evo_nutrition_patterns (migration 0080) which
+# the plan generator injects as «معرفة المنصة الغذائية».
+#
+# DETERMINISTIC → the only secrets needed are the Supabase pair.
+# SUNDAY 21:00 UTC = MONDAY 00:00 Africa/Cairo — knowledge refreshes
+# right as the EVO follow-up week begins (dispatch cadence: 7 days).
+# ============================================================
+
+on:
+  schedule:
+    - cron: "0 21 * * 0"
+  workflow_dispatch: {}
+
+concurrency:
+  group: evo-weekly-learning
+  cancel-in-progress: false
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Preflight — Supabase secrets present (fails fast, names the missing ones)
+        run: |
+          echo "=== Preflight: checking required GitHub Secrets ==="
+          missing=0
+          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!v}" ]; then
+              echo "❌ Missing secret: $v"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            echo "❌ Preflight failed — fix the secrets above and re-run."
+            exit 1
+          fi
+          echo "✓ Supabase secrets present"
+
+      - name: Run the deterministic learning cycle (E1+E2+E3)
+        run: npx --no-install tsx scripts/ai-jobs-runner/evo-learning.mts
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== EVO weekly learning summary ==="
+          echo "GREEN run = knowledge refreshed (E1 patterns + E2 exemplar + E3 volume)."
+          echo "RED run   = hard failure OR soft source errors — read the ✗ lines above."
+          echo "Empty sources (new platform) exit GREEN with zero drafts — that is honest,"
+          echo "the honesty floor simply withholds every bucket until real plans exist."

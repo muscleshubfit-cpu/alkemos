@@ -2833,3 +2833,22 @@ Work Log (إغلاق 166.2 — إضافة):
 
 Stage Summary (الإغلاق):
 - 166.2 حية على main — مسار إغلاق D4 كله من هاتف المالك: ويدجيت EVO → تشغيل «المتابعة الأسبوعية» → «إرسال الآن» = أول بريد حقيقي من evo@alkemos.com = إغلاق D4/EVO-3 كاملًا
+
+---
+Task ID: EVO-4-IMPLEMENTATION-167
+Agent: Super Z (main)
+Task: أمر المالك «ممتاذ جربتها واشتغلت، ابدأ evo-4» — تأكيد إغلاق D4 E2E (أول بريد حقيقي من evo@alkemos.com وصل) ثم تنفيذ EVO-4 كاملًا: W4 (E1+E2+E3 + workflow أسبوعي + حقن المولد) وفق docs/EVO-MASTER-PLAN.md §4 وقرار المالك §7.3 «نعم يتعلم من كل شيء»
+
+Work Log:
+- ميجريشن `20260910230000_0080_evo_nutrition_patterns.sql`: جدول واحد idempotent — bucket مقيد بقيد ثماني (calories_by_goal/macros_by_goal/meal_count/food_frequency/exemplar/swap_volume/swap_removed/swap_added) · UNIQUE(bucket,key) · فهرس bucket · RLS مفعّل **صفر سياسات عميل عمدًا** (posture evo_memory_state المضاد للعبث — معرفة منصة مجمعة بلا صفوف ملكية يستهلكها المولد server-side بـservice-role) — انحراف موثق صراحة في ترويسة الملف وINDEX.md عن قانون مالك/كوتش لأنه لا ينطبق على جدول بلا مالك
+- `evo-nutrition-learning.ts` نقي client-safe (نمط evo-memory): classifyGoal بنفس عائلات regex computeNutritionTargets (الاتساق مع أرقام المولد الرسمية) · normalizeFoodName عائلة تطبيع evo-memory + شطف أداة التعريف الملتصقة بعد التطبيع («الأرز»→«الارز»→«ارز») · extractMealItems/extractNutritionNumbers يفهمان **شكلَي الخطط الحقيقيين** (plans content: meals[].items[].food/calories — meal_plans plan_data: meals[].items[].name/grams/per100g مع أرقام صف totals) · aggregateNutritionPatterns (E1): كالوري/ماكرو حسب الهدف بحارس هدف-مجهول (external_plans بلا استبيان لا يلوث maintain) · meal_count · food_frequency بdedupe لكل خطة — **أرضية صدق:** هدف ≥3 خطط · صنف ≥3 خطط · استبدال ≥3 أحداث وإلا **يُحجب** لا يُعرض كمعرفة
+- E2 حتمي (أرخص استخلاص ممكن — صفر LLM صفر PII-خطر): buildExemplarSkeleton من حقول مهيكلة فقط (daily_calories/macros/meals/items) — overview/notes/عناوين لا تدخل أبدًا فلا يمكن تسرب اسم شخص بالبناء + pickExemplarSource (معتمد 100 > origin > اكتمال الهيكل ×5 > حداثة)
+- E3 تعلم الاستبدال الحقيقي: plan_swaps يسجل النوع فقط (حد موثق — لا هوية أصناف) — **هوية الأصناف** من diffFoodNames(old,new) عند حفظ member-edit mode=swap (المسار الوحيد الذي يحمل قبل/بعد) — recordSwapLearning في المسار: read-modify-write دفعي service-role على swap_removed/swap_added مع display خام — **best-effort catch-all: فشل التعلم لا يعطل الاستبدال أبدًا**
+- `evo-learning-runner.ts` server-only + `scripts/ai-jobs-runner/evo-learning.mts` + workflow `evo-weekly-learning.yml` (أحد 21:00 UTC = إثنين 00:00 القاهرة — يبدأ أسبوع المتابعة بمعرفة منعشة · workflow_dispatch · **حتمي فلا يحتاج أي مفاتيح AI — سكريتا Supabase فقط**) — E1 حذف-عائلة+إدراج كلي (لا مفاتيح قديمة تعيش) · exemplar/swap_volume upsert (bucket,key) · swap_* لا يُمسا — exit صادق: 2 config / 1 hard+soft / 0 نظيف
+- حقن المولد fail-open: `evo-nutrition-knowledge.server.ts` ("" عند أي فشل/فراغ — التوليد لا يعتمد على التعلم أبدًا) → generateNutritionPlanAI بارامتر ثالث platformKnowledge (بعد buildVarietyBlock) + regenerateMeal بارامتر سادس (بعد avoidBlock) — عبر **كل** المتصلين: ai-job-processors (plan_nutrition + meal_regenerate) و admin/external-plans (توليد + regenerate_meal) — نص الحقن يصرّح: أرقام العميل الرسمية تبقى الحاكمة والمعرفة مرجع اتجاه
+- قانون النسخ (نفس الفاز إلزاميًا): /evo بطاقة «بيتعلم من خطط المنصة» (GraduationCap) + صف differences «معرفته ثابتة ↔ يتعلم أسبوعيًا (مجهولة الهوية)» + /coaching desc محدث — الوعد «بيدمج معرفة المدربين» صار مدعومًا بتنفيذ
+- مرآة types.ts (evo_nutrition_patterns) + INDEX.md 0080 + تحديث عداد الفهرس — +33 اختبارًا (evo-nutrition-learning.test.ts: 33 وحدة تغطي القوانين الثلاثة)
+- البوابات التسع محليًا: tsc 0 · eslint 0/0 · vitest **482/482** · build ✓ · docs_audit · docs_parity · migration_audit --ci · stale-refs · ui-wiring — STATE → 167
+
+Stage Summary:
+- EVO-4 كامل منفذ: منصة تتعلم من خططها الحقيقية مجهولة الهوية بأرضية صدق صارمة — التالي بأمر المالك: EVO-5 (eval harness · كاش · تصدير · لوحة تحليلات) — وW6 بابه مفتوح الآن بعد EVO-4 (توصية الوثيقة المعتمدة)

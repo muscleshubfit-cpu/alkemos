@@ -16,6 +16,7 @@ import {
   type ExternalMealPlan,
   type ExternalWorkoutPlan,
 } from "@/lib/external-plan-text";
+import { loadEvoNutritionKnowledge } from "@/lib/evo-nutrition-knowledge.server";
 
 /**
  * ADMIN EXTERNAL PLANS — Phase 71 (owner request 2026-09-01):
@@ -148,11 +149,16 @@ async function generateExternalPlanAI(
       recent_plan_names: [],
     };
 
-    const res = await generateNutritionPlanAI(ctx as never, {
-      targetCalories: calories > 0 ? calories : undefined,
-      mealsCount,
-      notes: details || undefined,
-    });
+    const { knowledgeBlock } = await loadEvoNutritionKnowledge();
+    const res = await generateNutritionPlanAI(
+      ctx as never,
+      {
+        targetCalories: calories > 0 ? calories : undefined,
+        mealsCount,
+        notes: details || undefined,
+      },
+      knowledgeBlock,
+    );
     const structured = res.content as ExternalMealPlan;
     return {
       ok: true,
@@ -459,12 +465,14 @@ async function handleRegenerationAction(
       .filter((_, i) => i !== mealIndex)
       .flatMap((m) => (m.items || []).map((it) => it.food));
     try {
+      const { swapBlock } = await loadEvoNutritionKnowledge();
       const out = await regenerateMeal(
         { name: meal.name, items: meal.items, notes: meal.notes },
         target,
         mealCtxFromParams(params) as never,
         details || undefined,
         avoidNames,
+        swapBlock,
       );
       const items = (out.meal.items || []).map((it: Record<string, unknown>) => ({
         food: String(it?.food ?? ""),

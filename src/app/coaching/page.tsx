@@ -151,8 +151,8 @@ export default function CoachingPage() {
       icon: Bot,
       titleAr: "EVO — مساعدك الذكي 24/7",
       titleEn: "EVO — Your AI Assistant 24/7",
-      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. مش مجرد شات بوت — محرك أداء ذكي بيتعلم من بياناتك.",
-      descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that learns from your data.",
+      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. مش مجرد شات بوت — محرك أداء ذكي بيتعلم من بياناتك ومن خطط المنصة الحقيقية (مجهولة الهوية).",
+      descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that learns from your data and from real platform plans (anonymized).",
       color: "#8b5cf6",
     },
   ];

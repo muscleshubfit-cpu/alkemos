@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { countThisMonthPlanUsage, type EvoPlanKind } from "@/lib/tier-limits";
+import { diffFoodNames, mergeSwapPayload } from "@/lib/evo-nutrition-learning";
+import type { Json } from "@/lib/supabase/types";
 
 /**
  * POST /api/plans/member-edit — Phase 69 (owner-approved).
@@ -26,6 +28,72 @@ import { countThisMonthPlanUsage, type EvoPlanKind } from "@/lib/tier-limits";
 const MAX_TITLE = 120;
 const MAX_TEXT = 20_000;
 const EVO_SAVE_MONTHLY_CAP = 30;
+
+/**
+ * EVO-4 (W4 E3) — record the food-identity diff of one member swap into
+ * the swap_removed / swap_added buckets of evo_nutrition_patterns (0080).
+ * Payload merges are read-modify-write (service-role) so concurrent swaps
+ * of different users accumulate; failures are logged and swallowed — this
+ * is analytics enrichment, never a user-facing dependency.
+ */
+async function recordSwapLearning(
+  oldContent: unknown,
+  newContent: unknown,
+): Promise<void> {
+  try {
+    const diff = diffFoodNames(oldContent, newContent);
+    const groups = [
+      { bucket: "swap_removed" as const, foods: diff.removed },
+      { bucket: "swap_added" as const, foods: diff.added },
+    ];
+    const now = new Date();
+    const updates: Array<{
+      bucket: string;
+      key: string;
+      payload: Json;
+      sample_size: number;
+    }> = [];
+    for (const group of groups) {
+      if (group.foods.length === 0) continue;
+      const { data } = await supabaseAdmin!
+        .from("evo_nutrition_patterns")
+        .select("key, payload")
+        .eq("bucket", group.bucket)
+        .in("key", group.foods.map((f) => f.key));
+      const existing = new Map<string, unknown>(
+        ((data ?? []) as Array<{ key: string; payload: unknown }>).map((r) => [r.key, r.payload]),
+      );
+      for (const food of group.foods) {
+        const merged = mergeSwapPayload(
+          existing.get(food.key) as Record<string, unknown> | null,
+          [food.key],
+          now,
+        );
+        updates.push({
+          bucket: group.bucket,
+          key: food.key,
+          payload: { ...merged, display: food.display } as Json,
+          sample_size: merged.count,
+        });
+      }
+    }
+    if (updates.length > 0) {
+      const { error: upErr } = await supabaseAdmin!
+        .from("evo_nutrition_patterns")
+        .upsert(updates, { onConflict: "bucket,key" });
+      if (upErr) {
+        console.warn("[api/plans/member-edit] swap-learning upsert failed:", upErr.message);
+        return;
+      }
+      console.log(`[api/plans/member-edit] swap learning recorded: ${updates.length} food signal(s)`);
+    }
+  } catch (e) {
+    console.warn(
+      "[api/plans/member-edit] swap learning (best-effort) failed:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   const auth = await requireUser(request);
@@ -112,7 +180,7 @@ export async function POST(request: NextRequest) {
     // swaps to HIS OWN plan rows
     const { data: plan } = await supabaseAdmin
       .from("plans")
-      .select("id, client_id")
+      .select("id, client_id, content")
       .eq("id", planId)
       .maybeSingle();
 
@@ -134,6 +202,16 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
+
+    // EVO-4 (W4 E3) — REAL swap learning: diff old vs new content to learn
+    // which foods users actually remove and which replacements they accept.
+    // plan_swaps only records the swap TYPE (documented limit) — this diff
+    // is the honest food-identity signal. BEST-EFFORT: a learning failure
+    // NEVER blocks or degrades the swap the user just made.
+    await recordSwapLearning(
+      (plan as { content: unknown }).content,
+      content,
+    ).catch(() => undefined);
 
     return NextResponse.json({ ok: true });
   }

@@ -1520,6 +1520,40 @@ export type Database = {
           },
         ];
       };
+      evo_nutrition_patterns: {
+        // EVO-4 (migration 0080, W4 E1+E2+E3) — anonymized PLATFORM-level
+        // nutrition knowledge injected into plan generation. Aggregate only;
+        // sources are existing plans/meal_plans/external_plans/plan_swaps.
+        // ZERO client policies by design (service-role only — the
+        // evo_memory_state anti-tamper posture): the generator/runner read
+        // and write server-side; nothing client-facing touches this table.
+        Row: {
+          id: string;
+          bucket: string;
+          key: string;
+          payload: Json;
+          sample_size: number;
+          computed_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bucket: string;
+          key: string;
+          payload?: Json;
+          sample_size?: number;
+          computed_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          bucket?: string;
+          key?: string;
+          payload?: Json;
+          sample_size?: number;
+          computed_at?: string;
+        };
+        Relationships: [];
+      };
       coach_presence: {
         // Phase 105: mirror corrected to the LIVE production shape proven
         // column-by-column in Phase 99-run (id · coach_id · last_seen ·

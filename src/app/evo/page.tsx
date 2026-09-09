@@ -13,6 +13,7 @@ import {
   Apple,
   BarChart3,
   Sparkles,
+  GraduationCap,
   ArrowRight,
   Info,
   Zap,
@@ -85,6 +86,14 @@ export default function EvoPage() {
       color: "#0071e3",
     },
     {
+      icon: GraduationCap,
+      titleAr: "بيتعلم من خطط المنصة",
+      titleEn: "Learns From Platform Plans",
+      descAr: "EVO بيستخلص أسبوعيًا المعرفة الغذائية من كل الخطط الحقيقية على المنصة (مجهولة الهوية بالكامل) — خطط المدربين المعتمدة وخطط المستخدمين وأنماط الاستبدال الفعلية — فخططك بتتطور مع سلوك حقيقي مش قوالب ثابتة.",
+      descEn: "EVO weekly distills nutrition knowledge from every real plan on the platform (fully anonymized) — approved coach plans, user plans, and actual swap behavior — so your plans evolve with real behavior, not static templates.",
+      color: "#af52de",
+    },
+    {
       icon: Sparkles,
       titleAr: "متاح للجميع",
       titleEn: "Available to Everyone",
@@ -100,6 +109,12 @@ export default function EvoPage() {
       chatbotEn: "Replies with generic answers",
       evoAr: "بيرد بناءً على بياناتك أنت",
       evoEn: "Replies based on YOUR data",
+    },
+    {
+      chatbotAr: "معرفته ثابتة ومش بتتغير",
+      chatbotEn: "Static knowledge that never grows",
+      evoAr: "بيتعلم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية)",
+      evoEn: "Learns weekly from real platform plans (anonymized)",
     },
     {
       chatbotAr: "مفيش ذاكرة لجسمك",

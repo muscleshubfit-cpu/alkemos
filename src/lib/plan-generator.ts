@@ -198,13 +198,18 @@ export type MealAlternative = {
 export async function generateNutritionPlanAI(
   ctx: ClientContext,
   overrides?: PlanOverrides,
+  /** EVO-4 (W4): optional «معرفة المنصة الغذائية» block built from the
+   *  anonymized evo_nutrition_patterns aggregates by the server-side
+   *  loader (evo-nutrition-knowledge.server.ts). Pure enhancement —
+   *  absent/empty renders the prompt exactly as before. */
+  platformKnowledge?: string,
 ): Promise<GeneratePlanResult> {
   const name = ctx.name || "العميل";
   const targets = computeNutritionTargets(ctx, overrides);
   // Add a randomization seed to the prompt so each generation produces
   // different meal/exercise choices even for the same client.
   const seed = Math.floor(Math.random() * 1000000);
-  const prompt = `${buildNutritionPrompt(ctx, name, overrides, targets)}${buildVarietyBlock("nutrition", seed, ctx.recent_plan_names ?? [])}`;
+  const prompt = `${buildNutritionPrompt(ctx, name, overrides, targets)}${buildVarietyBlock("nutrition", seed, ctx.recent_plan_names ?? [])}${platformKnowledge ?? ""}`;
 
   try {
     // Use callFreeAIFallbackChain — OpenRouter + Groq interleaved (owner
@@ -320,6 +325,9 @@ export async function regenerateMeal(
   clientContext?: ClientContext,
   coachNote?: string,
   avoidNames: string[] = [],
+  /** EVO-4 (W4 E3): optional swap-learning block (most-removed/most-added
+   *  foods, anonymized) built by evo-nutrition-knowledge.server.ts. */
+  platformKnowledge?: string,
 ): Promise<{ meal: RegeneratedMeal; suggestions: Array<Record<string, unknown>>; source: string }> {
   const totalCals =
     targetCalories ||
@@ -333,6 +341,7 @@ ${avoidNames.slice(0, 40).join("، ")}\n`
 
   const prompt = `أنت أخصائي تغذية محترف. أعد توليد وجبة بديلة بنفس السعرات (${totalCals} سعرة) ونفس نسب الماكروز قدر الإمكان.
 ${avoidBlock}
+${platformKnowledge ?? ""}
 ${
   clientContext
     ? `بيانات العميل (راعِ الحساسية والأطعمة غير المحببة):

@@ -35,6 +35,7 @@ import {
   type SourcedImage,
 } from "@/lib/blog-images";
 import { sanitizeImageQuery } from "@/lib/image-safety";
+import { loadEvoNutritionKnowledge } from "@/lib/evo-nutrition-knowledge.server";
 
 /* Shared quality knobs for heavy jobs (GHA sets AI_CHAIN_TOTAL_BUDGET_MS
  * = 180000 — three tries × generous timeouts, strongest models first). */
@@ -441,13 +442,21 @@ async function runPlanNutrition(payload: Record<string, unknown>) {
     mealsCount?: number;
     notes?: string;
   };
-  const res = await generateNutritionPlanAI(ctx, {
-    targetCalories: overrides.targetCalories,
-    macros: overrides.macros,
-    foods: overrides.foods,
-    mealsCount: overrides.mealsCount,
-    notes: overrides.notes,
-  });
+  // EVO-4 (W4): anonymized platform knowledge (E1 aggregates + E2 exemplar)
+  // steers the generation — fail-open to "" when the knowledge base is
+  // empty or unreadable (generation never depends on learning).
+  const { knowledgeBlock } = await loadEvoNutritionKnowledge();
+  const res = await generateNutritionPlanAI(
+    ctx,
+    {
+      targetCalories: overrides.targetCalories,
+      macros: overrides.macros,
+      foods: overrides.foods,
+      mealsCount: overrides.mealsCount,
+      notes: overrides.notes,
+    },
+    knowledgeBlock,
+  );
   const plan_id = await materializePlanDraftRow(payload, res.title, res.content, "meal");
   if (plan_id) console.log(`[plan_nutrition] draft materialized: plans#${plan_id}`);
   return {
@@ -490,12 +499,16 @@ async function runPlanWorkout(payload: Record<string, unknown>) {
 
 async function runMealRegenerate(payload: Record<string, unknown>) {
   const ctx = payload.clientContext ? pickClientContext(payload.clientContext) : undefined;
+  // EVO-4 (W4 E3): the swap-learning block (most-removed/most-accepted
+  // foods, anonymized) steers what the model stops suggesting — fail-open.
+  const { swapBlock } = await loadEvoNutritionKnowledge();
   const out = await regenerateMeal(
     (payload.meal || {}) as { name?: string; items?: Array<{ food: string; amount: string; calories: number }>; notes?: string },
     payload.targetCalories as number | undefined,
     ctx,
     payload.reason as string | undefined,
     Array.isArray(payload.avoid_names) ? (payload.avoid_names as string[]) : [],
+    swapBlock,
   );
   return {
     replacement: out.meal,
