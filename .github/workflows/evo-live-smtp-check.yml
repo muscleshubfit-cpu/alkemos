@@ -1,0 +1,171 @@
+# TEMPORARY — EVO-3 activation steps 1+2 (owner decree «smtp مربوط api داخل
+# GitHub secret ، افحصها ونفذ» 2026-09-10). DELETE THIS FILE in the same
+# session once the live check passes and the Vercel env flags are set.
+#
+# WHY A WORKFLOW: the Brevo key lives in GitHub Actions secrets (owner-added)
+# and secret VALUES are readable ONLY inside a workflow run — the REST API
+# never returns them (403 on secrets:list for the session PAT, by design).
+#
+# WHAT IT DOES (STATE.md «المفتوح الآن» — documented activation order):
+#   1. probes which candidate secret name holds the Brevo key (prints NAMES
+#      and SET/empty booleans only — values are never printed),
+#   2. validates the key live against GET /v3/account (status code only),
+#   3. LIVE send: a real test email FROM evo@alkemos.com (the D4 send-only
+#      sender) TO the owner inbox muscleshubfit@gmail.com via POST /v3/smtp/email —
+#      the exact endpoint + sender path /api/evo/followup/dispatch uses,
+#   4. sets the activation env flags on Vercel production (upsert):
+#      EVO_FOLLOWUP_ENABLED=true · EVO_FOLLOWUP_FROM · EVO_CRON_SECRET
+#      (random 32-byte hex, generated on the runner, NEVER printed).
+#      Flags go live on the NEXT production deployment (repo auto-deploys
+#      on every push to main — the opt-in UI commit provides it).
+#
+# SAFETY: no secret value is ever echoed; GHA also auto-masks secret values
+# in logs. Brevo free tier: 300/day — one test email is spent per run.
+name: EVO live SMTP check + Vercel activation (TEMPORARY)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/evo-live-smtp-check.yml"
+
+concurrency:
+  group: evo-live-smtp-check
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: "1) Probe Brevo secret candidates (names only — values never printed)"
+        id: probe
+        env:
+          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          K_BREVO_API: ${{ secrets.BREVO_API }}
+          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        run: |
+          found=""
+          for name in BREVO_API_KEY BREVO_API BREVO_SMTP_KEY SMTP_API_KEY EMAIL_API_KEY SENDINBLUE_API_KEY; do
+            var="K_${name}"
+            if [ -n "${!var}" ]; then
+              echo "secret ${name}: SET"
+              [ -z "$found" ] && found="$name"
+            else
+              echo "secret ${name}: empty"
+            fi
+          done
+          if [ -z "$found" ]; then
+            echo "::error::No Brevo API secret found — add the key under Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret (expected name: BREVO_API_KEY)"
+            exit 1
+          fi
+          echo "Using secret: ${found}"
+          echo "using=${found}" >> "$GITHUB_OUTPUT"
+
+      - name: "2) Validate the key live — GET /v3/account (status only)"
+        id: account
+        env:
+          USING: ${{ steps.probe.outputs.using }}
+          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          K_BREVO_API: ${{ secrets.BREVO_API }}
+          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        run: |
+          varname="K_${USING}"
+          KEY="${!varname}"
+          code=$(curl -s -o /tmp/account.json -w "%{http_code}" \
+            -H "api-key: ${KEY}" -H "accept: application/json" \
+            "https://api.brevo.com/v3/account")
+          echo "GET /v3/account → HTTP ${code}"
+          if [ "$code" != "200" ]; then
+            echo "::error::Brevo key rejected (HTTP ${code}) — check the secret value"
+            exit 1
+          fi
+          echo "✓ Brevo account reachable — key valid."
+
+      - name: "3) LIVE send — test email from evo@alkemos.com to the owner inbox"
+        id: send
+        env:
+          USING: ${{ steps.probe.outputs.using }}
+          K_BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          K_BREVO_API: ${{ secrets.BREVO_API }}
+          K_BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+          K_SMTP_API_KEY: ${{ secrets.SMTP_API_KEY }}
+          K_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+          K_SENDINBLUE_API_KEY: ${{ secrets.SENDINBLUE_API_KEY }}
+        run: |
+          varname="K_${USING}"
+          KEY="${!varname}"
+          body=$(jq -n \
+            --arg subj "EVO live SMTP check — $(date -u '+%Y-%m-%d %H:%M UTC')" \
+            '{sender:{name:"EVO — Alkemos",email:"evo@alkemos.com"},
+              to:[{email:"muscleshubfit@gmail.com"}],
+              subject:$subj,
+              htmlContent:"<p>فحص حي ناجح — مسار رسالة المتابعة الأسبوعية من EVO جاهز (D4: إرسال-فقط، بدون استقبال).</p><p>Live SMTP check passed — the EVO weekly follow-up path is ready (D4: send-only).</p>",
+              textContent:"EVO live SMTP check passed — weekly follow-up path ready (send-only)."}')
+          code=$(curl -s -o /tmp/send.json -w "%{http_code}" -X POST \
+            -H "api-key: ${KEY}" -H "content-type: application/json" -H "accept: application/json" \
+            -d "$body" "https://api.brevo.com/v3/smtp/email")
+          echo "POST /v3/smtp/email → HTTP ${code}"
+          if [ "$code" = "201" ]; then
+            echo "messageId: $(jq -r '.messageId // "n/a"' /tmp/send.json)"
+            echo "✅ LIVE CHECK PASSED — Brevo accepted the message; the owner inbox receives it."
+          else
+            echo "::error::Brevo send failed (HTTP ${code}) — is evo@alkemos.com a verified sender in the Brevo account?"
+            jq -r '.message // .code // empty' /tmp/send.json 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: "4) Vercel env flags (production upsert) — activation step 2"
+        id: vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::warning::secret VERCEL_TOKEN missing — env flags NOT set (manual fallback: Vercel ▸ alkemos ▸ Settings ▸ Environment Variables)"
+            echo "vercel=skipped" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          cron_secret=$(openssl rand -hex 32)
+          set_var() {
+            key="$1"; value="$2"
+            code=$(jq -n --arg k "$key" --arg v "$value" \
+              '{name:$k,value:$v,type:"encrypted",target:["production"]}' \
+              | curl -s -o /tmp/vres.json -w "%{http_code}" -X POST \
+                -H "Authorization: Bearer ${VERCEL_TOKEN}" -H "content-type: application/json" \
+                --data-binary @- "https://api.vercel.com/v10/projects/alkemos/env?upsert=true")
+            echo "set ${key} → HTTP ${code}"
+            if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+              head -c 300 /tmp/vres.json; echo
+              return 1
+            fi
+          }
+          ok=1
+          set_var EVO_FOLLOWUP_ENABLED "true" || ok=0
+          set_var EVO_FOLLOWUP_FROM "EVO — Alkemos <evo@alkemos.com>" || ok=0
+          set_var EVO_CRON_SECRET "$cron_secret" || ok=0
+          if [ "$ok" = "1" ]; then
+            echo "✅ Vercel env flags set (production) — live on the NEXT deployment (repo auto-deploys on push)."
+            echo "vercel=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Some Vercel env vars failed — manual fallback: Vercel ▸ alkemos ▸ Settings ▸ Environment Variables (EVO_FOLLOWUP_ENABLED=true · EVO_FOLLOWUP_FROM · EVO_CRON_SECRET)"
+            exit 1
+          fi
+
+      - name: "5) Summary"
+        if: always()
+        run: |
+          echo "=== EVO activation run summary ==="
+          echo "Steps 1-3: live Brevo check with the D4 send-only sender evo@alkemos.com."
+          echo "Step 4 result: ${{ steps.vercel.outputs.vercel || 'failed/absent' }}"
+          echo "NEXT (documented order): opt-in UI commit → auto-deploy → flags live → EVO-3 W2.3 complete."
