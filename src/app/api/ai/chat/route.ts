@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { createHash } from "crypto";
-import { callFreeAIFallbackChain } from "@/lib/ai-provider";
+import { callFreeAIFallbackChain, parseJSON } from "@/lib/ai-provider";
 import { requireUser, isAuthConfigured, type AuthUser } from "@/lib/auth-server";
 import { clientIp } from "@/lib/rate-limit";
 import {
@@ -28,6 +28,20 @@ import {
   sanitizeLatexToPlain,
   stripMarkdownSyntax,
 } from "@/lib/evo-chat-format";
+import {
+  buildEvoMemoryPrompt,
+  capTranscriptForExtraction,
+  formatEvoMemoryForPrompt,
+  shouldExtractMemory,
+  sanitizeStoredFacts,
+  validateMemoryFacts,
+  EVO_MEMORY_TOP_INJECT,
+  type EvoMemoryFactDraft,
+} from "@/lib/evo-memory";
+import {
+  isSupabaseAdminConfigured,
+  supabaseAdmin,
+} from "@/lib/supabase/admin";
 import type { Database, Json } from "@/lib/supabase/types";
 
 /**
@@ -342,12 +356,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 5.5 EVO-2 (W3, D1 of 163.1) — PERMANENT MEMORY for EVERY logged-in
+    // user (free included — D1 lifted the paid gate on this NEW layer only;
+    // the Phase-69 chat_messages restore gating is untouched). Anonymous
+    // visitors have no account → no memory (nothing to attach facts to).
+    // Fail-soft: a memory outage degrades to “no memory”, never to a
+    // failed chat.
+    let memoryFacts: EvoMemoryFactDraft[] = [];
+    if (userId && isSupabaseAdminConfigured && supabaseAdmin) {
+      try {
+        const { data: memRows } = await supabaseAdmin
+          .from("evo_memory")
+          .select("fact, category")
+          .eq("client_id", userId)
+          .eq("is_active", true)
+          .order("updated_at", { ascending: false })
+          .limit(EVO_MEMORY_TOP_INJECT);
+        if (memRows) memoryFacts = sanitizeStoredFacts(memRows);
+      } catch (e) {
+        console.warn("[api/ai/chat] memory load failed (fail-soft):", e instanceof Error ? e.message : e);
+      }
+    }
+
     // 6. Build the system prompt with platform context
     const systemPrompt = buildSystemPrompt(
       clientContext,
       platformResults,
       foodNutrition,
       blogResults,
+      memoryFacts,
     );
 
     const messages = [
@@ -391,10 +428,18 @@ export async function POST(request: NextRequest) {
     const localReplyFallback = () =>
       generateLocalReply(message, clientContext, platformResults, foodNutrition, blogResults);
 
+    // EVO-2 — the final reply text is captured so the post-response memory
+    // extraction (after() below) sees the complete last exchange.
+    let finalReplyText = "";
+
     const sseStream = new ReadableStream<Uint8Array>({
       async start(controller) {
         const send = (event: string, data: unknown) => {
           controller.enqueue(sseEncoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        };
+        const sendFinal = (response: string, source: string) => {
+          finalReplyText = response;
+          send("final", { response, links, source });
         };
         try {
           // OWNER DIRECTIVE #1 (2026-08-27): interactive chat uses the
@@ -486,13 +531,13 @@ export async function POST(request: NextRequest) {
             // 7. Final validation: too-short output falls back to local reply.
             if (cleanText.length < 10 || /^\s*\d+\.\s+\*\*?[A-Z]/.test(cleanText)) {
               console.warn("[api/ai/chat] Cleaned text still looks like reasoning, using local fallback");
-              send("final", { response: localReplyFallback(), links, source: "local" });
+              sendFinal(localReplyFallback(), "local");
             } else {
-              send("final", { response: cleanText, links, source: `${aiProvider}:${aiModel}` });
+              sendFinal(cleanText, `${aiProvider}:${aiModel}`);
             }
           } else {
             // Model returned an unusably short text → local fallback.
-            send("final", { response: localReplyFallback(), links, source: "local" });
+            sendFinal(localReplyFallback(), "local");
           }
         } catch (aiErr) {
           console.error("[api/ai/chat] AI fallback chain failed:", aiErr);
@@ -505,13 +550,26 @@ export async function POST(request: NextRequest) {
           } else {
             // Nothing streamed (providers failed before the first token) —
             // graceful local fallback, same as the pre-streaming era.
-            send("final", { response: localReplyFallback(), links, source: "local" });
+            sendFinal(localReplyFallback(), "local");
           }
         } finally {
           controller.close();
         }
       },
     });
+
+    // EVO-2 (W3) — memory bookkeeping runs AFTER the response completes
+    // (Next.js `after`): NEVER in the user's latency path, never delaying
+    // the stream close (the client renders the final bubble on close).
+    // Counter increments per dispatched message; every 10th (W3: «بعد كل
+    // 10 رسائل») triggers the cheap fast-chain extraction. Anonymous
+    // visitors: no account → no memory (D1).
+    if (userId) {
+      const uid = userId;
+      after(async () => {
+        await recordMemoryProgress(uid, history, message, finalReplyText);
+      });
+    }
 
     return new Response(sseStream, {
       headers: {
@@ -553,6 +611,95 @@ async function getQuestionnaireSafe(userId: string, type: "nutrition" | "fitness
     return q?.data ?? null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * EVO-2 (W3) — post-response memory bookkeeping (runs inside Next `after`,
+ * never in the user's latency path). Counter semantics:
+ *   1. read the per-user counter (service-role; evo_memory_state has ZERO
+ *      client policies — the browser can never see or reset it, anti-tamper
+ *      posture of the evo_chat_usage ledger family);
+ *   2. every EVO_MEMORY_EXTRACT_EVERY-th message → cheap fast-chain
+ *      extraction (3-provider law — no new provider) over the last
+ *      exchange → PII-denial-listed facts → dedup vs existing → insert;
+ *   3. reset the counter (extraction cadence restarts).
+ * Read-then-upsert tolerance: concurrent same-user dispatches may shift the
+ * trigger by ±1 message — harmless by design (documented in the worklog).
+ * EVERY failure is fail-soft: memory must never break chat.
+ */
+async function recordMemoryProgress(
+  userId: string,
+  history: { role: "user" | "assistant"; content: string }[],
+  message: string,
+  reply: string,
+): Promise<void> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
+  try {
+    const { data: state } = await supabaseAdmin
+      .from("evo_memory_state")
+      .select("messages_since_extract")
+      .eq("client_id", userId)
+      .maybeSingle();
+    const nextCount = (state?.messages_since_extract ?? 0) + 1;
+
+    if (!shouldExtractMemory(nextCount)) {
+      await supabaseAdmin.from("evo_memory_state").upsert({
+        client_id: userId,
+        messages_since_extract: nextCount,
+        updated_at: new Date().toISOString(),
+      });
+      return;
+    }
+
+    // Extraction — cheap fast chain (nemotron lightning / gpt-oss-20b class).
+    const transcript = capTranscriptForExtraction(history, message, reply);
+    const prompt = buildEvoMemoryPrompt(transcript);
+    if (prompt) {
+      const { text } = await callFreeAIFallbackChain(prompt, {
+        tag: "evo-memory",
+        chain: "fast",
+        maxModels: 2,
+        temperature: 0.2,
+        maxTokens: 400,
+        timeoutMs: 12_000,
+      });
+
+      // Dedup against a FRESH read of the user's active facts.
+      const { data: existing } = await supabaseAdmin
+        .from("evo_memory")
+        .select("fact")
+        .eq("client_id", userId)
+        .eq("is_active", true)
+        .limit(100);
+      const facts = validateMemoryFacts(
+        parseJSON(text),
+        (existing ?? []).map((r) => r.fact),
+      );
+
+      if (facts.length > 0) {
+        await supabaseAdmin.from("evo_memory").insert(
+          facts.map((f) => ({
+            client_id: userId,
+            fact: f.fact,
+            category: f.category,
+            source: "auto_extract",
+          })),
+        );
+      }
+    }
+
+    await supabaseAdmin.from("evo_memory_state").upsert({
+      client_id: userId,
+      messages_since_extract: 0,
+      last_extracted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.warn(
+      "[api/ai/chat] memory extraction skipped (fail-soft):",
+      e instanceof Error ? e.message : e,
+    );
   }
 }
 
@@ -617,6 +764,7 @@ function buildSystemPrompt(
   platformResults: SearchResult[],
   foodNutrition: FoodNutritionInfo,
   blogResults: Array<{ title: string; url: string; excerpt: string }>,
+  memoryFacts: EvoMemoryFactDraft[] = [],
 ): string {
   const isSubscriber = ctx.isSubscriber;
   const plans = ctx.current_plans || [];
@@ -698,17 +846,23 @@ function buildSystemPrompt(
     }, null, 2)}\n\nالخطط المفعّلة:\n${planInfo}`;
   }
 
+  // EVO-2 (W3) — permanent-memory injection («أعلى 15 حقيقة نشطة»):
+  // empty for anonymous / no-facts users, so the section never appears
+  // empty. Free users get it too (D1 — memory is free for all logged-in).
+  const memoryContext = formatEvoMemoryForPrompt(memoryFacts);
+
   return `You are EVO — the digital coach of the Alkemos fitness platform, exactly as we describe you on our own /evo page: an AI performance engine that analyzes your data, understands your body, and follows your progress. Not a generic chatbot, not a search box — a coach.
 Alkemos offers: exercise library (868+ exercises), workout programs, free fitness calculators, food database with calories and macros, fitness blog, and online coaching.
 
 COACH STANCE (EVO-1 — live up to the site's description):
 - Talk like a real personal coach: warm, direct, motivating, honest. Use the user's name and their real data (weight, goal, injuries, allergies, active plans) whenever it is available in the context below.
+- A real coach REMEMBERS his client: when the permanent-memory section below contains facts the user told you before, use them naturally ("last time you said your knee hurts — how is it today?") without claiming to be a different person or listing the facts back.
 - When progress data exists (recent_measurements / current_plans), reference it: a real coach says "your weight went down 1.5kg this month — keep the plan" instead of generic advice.
 - If a request is missing key information (goal, level, available equipment, injuries), ask ONE short clarifying question instead of guessing — real coaches interview before they prescribe.
 - Never promise unrealistic results, never push beyond what the data supports, never shame the user. Honest encouragement only.
 - Stay inside the rules below — a real coach never invents platform features, never gives medical advice.
 ${isSubscriber ? "The user IS a subscriber — you can generate meal plans, workout plans, suggest swaps, and use their personal data." : "The user is NOT a subscriber — do NOT generate meal plans, workout plans, or macro calculations. Those are subscriber-only features. If asked, tell them to subscribe."}
-${subscriberContext}${platformContext}${nutritionContext}${blogContext}
+${subscriberContext}${memoryContext}${platformContext}${nutritionContext}${blogContext}
 
 CRITICAL — PLATFORM TRUTH LAW (never hallucinate features):
 - NEVER mention or imply that Alkemos (or any website) has a tool, feature, page, or capability unless it is listed in THIS prompt or in the platform context above. Inventing a feature is a critical error.

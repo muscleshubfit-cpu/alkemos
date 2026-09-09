@@ -440,8 +440,16 @@ export default function EvoPage() {
                 subEn: "✓",
               },
               {
-                featAr: "الذاكرة عبر الجلسات",
-                featEn: "Cross-session memory",
+                featAr: "ذاكرة Evo الدائمة (أهدافك وتفضيلاتك)",
+                featEn: "EVO permanent memory (your goals & preferences)",
+                freeAr: "✓ (بحساب مجاني)",
+                freeEn: "✓ (with a free account)",
+                subAr: "✓",
+                subEn: "✓",
+              },
+              {
+                featAr: "استرجاع سجل المحادثة الكامل عبر الأجهزة",
+                featEn: "Full chat-history restore across devices",
                 freeAr: "✗",
                 freeEn: "✗",
                 subAr: "✓",

@@ -1390,6 +1390,66 @@ export type Database = {
         };
         Relationships: [];
       };
+      evo_memory: {
+        // EVO-2 (migration 0078) — permanent third-person facts extracted
+        // every 10th chat message (fast chain, PII denial-list in prompt).
+        // FREE for all logged-in users (D1 163.1); admin-only deletion (D2).
+        Row: {
+          id: string;
+          client_id: string;
+          fact: string;
+          category: string;
+          source: string;
+          confidence: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          fact: string;
+          category?: string;
+          source?: string;
+          confidence?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          fact?: string;
+          category?: string;
+          source?: string;
+          confidence?: number;
+          is_active?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      evo_memory_state: {
+        // EVO-2 (migration 0078) — server-side per-user extraction counter.
+        // Zero client-facing policies by design; service-role is the only
+        // writer (anti-tamper posture of the evo_chat_usage ledger family).
+        Row: {
+          client_id: string;
+          messages_since_extract: number;
+          last_extracted_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          client_id: string;
+          messages_since_extract?: number;
+          last_extracted_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          messages_since_extract?: number;
+          last_extracted_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       evo_feedback: {
         // EVO-1 (migration 0077) — 👍/👎 quality signal on EVO chat replies.
         // Append-only: no UPDATE/DELETE policies by design (plan_swaps law).
