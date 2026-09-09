@@ -1,0 +1,109 @@
+name: NVIDIA key live test (TEMPORARY — Phase 161.2, delete after run)
+
+# ============================================================
+# TEMPORARY DIAGNOSTIC — owner directive «نفذ إختبارات عملى للمفتاح
+# NVIDIA_API_KEY» (2026-09-09). Lives ONLY on branch
+# test/nvidia-key-161.2; deleted right after the evidence is captured.
+#
+# Three stations, real API calls to integrate.api.nvidia.com:
+#   1. Key shape     — nvapi- prefix + sane length (no key material printed)
+#   2. Auth/catalog  — GET /v1/models with Bearer (informational)
+#   3. LIVE GEN      — POST /v1/chat/completions on the EXACT 3 model ids
+#                      the production chains route through provider "nvidia"
+#                      (ai-provider.ts): meta/llama-3.3-70b-instruct (strongest
+#                      + registry default), nvidia/llama-3.3-nemotron-super-
+#                      49b-v1 (strongest), meta/llama-3.1-8b-instruct (fast).
+# Any chat-completion failure ⇒ step exits 1 ⇒ RED run.
+# ============================================================
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nvidia-key-test
+  cancel-in-progress: false
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+
+    steps:
+      - name: Station 1 — key shape (nvapi- prefix, no key material printed)
+        run: |
+          if [ -z "$NVIDIA_API_KEY" ]; then
+            echo "❌ NVIDIA_API_KEY is EMPTY in secrets"
+            exit 1
+          fi
+          if [[ "$NVIDIA_API_KEY" == nvapi-* ]]; then
+            echo "✓ key-shape PASS — starts with nvapi- (length ${#NVIDIA_API_KEY})"
+          else
+            echo "❌ key-shape FAIL — unexpected prefix (length ${#NVIDIA_API_KEY})"
+            exit 1
+          fi
+
+      - name: Station 2 — auth via GET /v1/models (catalog probe)
+        run: |
+          code=$(curl -s -o /tmp/models.json -w "%{http_code}" --max-time 60 \
+            "https://integrate.api.nvidia.com/v1/models" \
+            -H "Authorization: Bearer $NVIDIA_API_KEY" \
+            -H "Accept: application/json")
+          echo "GET /v1/models → HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "(informational only — chat completions below are the authoritative test)"
+            head -c 300 /tmp/models.json; echo
+          else
+            python3 -c "
+            import json
+            d = json.load(open('/tmp/models.json'))
+            ids = [m.get('id','') for m in d.get('data', [])]
+            print('catalog models visible to this key:', len(ids))
+            targets = ['meta/llama-3.3-70b-instruct',
+                       'nvidia/llama-3.3-nemotron-super-49b-v1',
+                       'meta/llama-3.1-8b-instruct']
+            for t in targets:
+                print(('IN-CATALOG  ' if t in ids else 'NOT-LISTED  ') + t)
+            "
+          fi
+
+      - name: Station 3 — LIVE generation on the 3 production NIM model ids
+        run: |
+          MODELS=("meta/llama-3.3-70b-instruct" "nvidia/llama-3.3-nemotron-super-49b-v1" "meta/llama-3.1-8b-instruct")
+          FAIL=0
+          for m in "${MODELS[@]}"; do
+            start=$(date +%s)
+            code=$(curl -s -o /tmp/resp.json -w "%{http_code}" --max-time 120 \
+              -X POST "https://integrate.api.nvidia.com/v1/chat/completions" \
+              -H "Authorization: Bearer $NVIDIA_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"model\":\"$m\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with exactly one word: OK\"}],\"max_tokens\":64,\"temperature\":0}")
+            end=$(date +%s)
+            lat=$((end - start))
+            if [ "$code" = "200" ]; then
+              snippet=$(python3 -c "
+              import json
+              try:
+                  d = json.load(open('/tmp/resp.json'))
+                  ch = d['choices'][0]
+                  txt = (ch.get('message') or {}).get('content') or ''
+                  print((txt[:60].replace(chr(10),' ') or '(empty content — finish_reason=' + str(ch.get('finish_reason')) + ')'))
+              except Exception as e:
+                  print('parse-note:', e)
+              ")
+              echo "✓ $m → HTTP 200 · ${lat}s · reply: $snippet"
+            else
+              echo "✗ $m → HTTP $code · ${lat}s · body(head): $(head -c 200 /tmp/resp.json)"
+              FAIL=1
+            fi
+          done
+          if [ "$FAIL" -eq 1 ]; then
+            echo "❌ NVIDIA LIVE TEST FAILED — at least one production model id did not answer"
+            exit 1
+          fi
+          echo "✅ NVIDIA LIVE TEST PASSED — key valid, all 3 production NIM models answered"
