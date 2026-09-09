@@ -17,7 +17,8 @@ name: EVO live SMTP check v2 (TEMPORARY — wide probe)
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/evo-live-smtp-check.yml"
 
@@ -475,7 +476,10 @@ jobs:
 
   report:
     name: Aggregate report
-    needs: [main-check, probe-repo, probe-prev]
+    needs:
+      - main-check
+      - probe-repo
+      - probe-prev
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
