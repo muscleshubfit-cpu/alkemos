@@ -1,0 +1,44 @@
+﻿2026-09-10T16:08:28.8736878Z ##[group]Run bash scripts/blog-runner/run-step.sh p1-outline 3
+2026-09-10T16:08:28.8737301Z [36;1mbash scripts/blog-runner/run-step.sh p1-outline 3[0m
+2026-09-10T16:08:28.8769783Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:08:28.8770026Z env:
+2026-09-10T16:08:28.8770221Z   PIPELINE_LANG: en
+2026-09-10T16:08:28.8770428Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:08:28.8770675Z   PIPELINE_TOPIC: 
+2026-09-10T16:08:28.8770875Z   PIPELINE_JOB_ID: 
+2026-09-10T16:08:28.8771238Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:08:28.8772386Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:08:28.8772658Z   CRON_SECRET: ***
+2026-09-10T16:08:28.8773003Z   OPENROUTER_API: ***
+2026-09-10T16:08:28.8773374Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:08:28.8773702Z   GROQ_API_KEY: ***
+2026-09-10T16:08:28.8774106Z   NVIDIA_API_KEY: ***
+2026-09-10T16:08:28.8774318Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:08:28.8774649Z   PEXELS_API_KEY: ***
+2026-09-10T16:08:28.8774852Z   PIXABAY_API_KEY: 
+2026-09-10T16:08:28.8775077Z   QUEUE_ID: b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:08:28.8775546Z ##[endgroup]
+2026-09-10T16:08:28.8838224Z --- [p1-outline] attempt 1 / 3 ---
+2026-09-10T16:08:29.4266685Z [runner] ▶ p1-outline · lang=en · queue=b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:08:30.3040056Z [ai-fallback-chain] [blog:pick-topic-en] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:08:52.9573063Z [ai-fallback-chain] [blog:pick-topic-en] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free succeeded
+2026-09-10T16:08:53.9189010Z [ai-fallback-chain] [blog:outline-en] lead=groq (call #2, orKeys=2)
+2026-09-10T16:09:02.6799903Z [ai-fallback-chain] [blog:outline-en] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:09:02.6800867Z [blog/p1-outline] Error: P1 en: invalid outline JSON from groq:openai/gpt-oss-120b
+2026-09-10T16:09:03.0651025Z HTTP 500
+2026-09-10T16:09:03.0651643Z {"error":"P1 en: invalid outline JSON from groq:openai/gpt-oss-120b"}
+2026-09-10T16:09:03.0841318Z ↻ [p1-outline] attempt 1 failed (exit 1)
+2026-09-10T16:09:03.0841889Z    retrying in 120s ...
+2026-09-10T16:11:03.0860916Z --- [p1-outline] attempt 2 / 3 ---
+2026-09-10T16:11:03.5672518Z [runner] ▶ p1-outline · lang=en · queue=b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:11:04.2158568Z [blog/p1-outline] Re-processing previously failed item b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:11:04.7782912Z [ai-fallback-chain] [blog:pick-topic-en] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:11:16.2122481Z [ai-fallback-chain] [blog:pick-topic-en] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free succeeded
+2026-09-10T16:11:17.0428397Z [ai-fallback-chain] [blog:outline-en] lead=groq (call #2, orKeys=2)
+2026-09-10T16:11:24.8573111Z [ai-fallback-chain] [blog:outline-en] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:11:24.8574076Z [blog-pipeline] P1 en done (groq:openai/gpt-oss-120b, angle: guide)
+2026-09-10T16:11:25.4469637Z HTTP 200
+2026-09-10T16:11:25.4471251Z {"ok":true,"step":"p1","queueId":"b7ca657b-777a-49b5-bc7d-8c200324815c","lang":"en","title":"How many calories should I eat to lose weight and build muscle?","sections":6,"lsi":11,"imagePlan":5,"source":"groq:openai/gpt-oss-120b"}
+2026-09-10T16:11:25.4472666Z [runner] ✓ p1-outline OK
+2026-09-10T16:11:25.4688313Z [p1-outline] captured QUEUE_ID=b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:11:25.4688993Z ✓ p1-outline succeeded

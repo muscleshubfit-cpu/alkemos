@@ -1,0 +1,88 @@
+﻿2026-09-10T16:06:51.8042744Z ##[group]Run actions/checkout@v5
+2026-09-10T16:06:51.8043521Z with:
+2026-09-10T16:06:51.8043991Z   repository: muscleshubfit-cpu/alkemos
+2026-09-10T16:06:51.8047786Z   token: ***
+2026-09-10T16:06:51.8048217Z   ssh-strict: true
+2026-09-10T16:06:51.8048655Z   ssh-user: git
+2026-09-10T16:06:51.8049088Z   persist-credentials: true
+2026-09-10T16:06:51.8049562Z   clean: true
+2026-09-10T16:06:51.8050004Z   sparse-checkout-cone-mode: true
+2026-09-10T16:06:51.8050508Z   fetch-depth: 1
+2026-09-10T16:06:51.8050940Z   fetch-tags: false
+2026-09-10T16:06:51.8051380Z   show-progress: true
+2026-09-10T16:06:51.8051821Z   lfs: false
+2026-09-10T16:06:51.8052242Z   submodules: false
+2026-09-10T16:06:51.8052697Z   set-safe-directory: true
+2026-09-10T16:06:51.8053204Z   allow-unsafe-pr-checkout: false
+2026-09-10T16:06:51.8053904Z env:
+2026-09-10T16:06:51.8054307Z   PIPELINE_LANG: en
+2026-09-10T16:06:51.8054771Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:06:51.8055621Z   PIPELINE_TOPIC: 
+2026-09-10T16:06:51.8056054Z   PIPELINE_JOB_ID: 
+2026-09-10T16:06:51.8056722Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:06:51.8058688Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:06:51.8059221Z   CRON_SECRET: ***
+2026-09-10T16:06:51.8059927Z   OPENROUTER_API: ***
+2026-09-10T16:06:51.8060654Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:06:51.8061290Z   GROQ_API_KEY: ***
+2026-09-10T16:06:51.8061992Z   NVIDIA_API_KEY: ***
+2026-09-10T16:06:51.8062440Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:06:51.8063112Z   PEXELS_API_KEY: ***
+2026-09-10T16:06:51.8063558Z   PIXABAY_API_KEY: 
+2026-09-10T16:06:51.8063982Z ##[endgroup]
+2026-09-10T16:06:51.8870199Z Syncing repository: muscleshubfit-cpu/alkemos
+2026-09-10T16:06:51.8871926Z ##[group]Getting Git version info
+2026-09-10T16:06:51.8872567Z Working directory is '/home/runner/work/alkemos/alkemos'
+2026-09-10T16:06:51.8873556Z [command]/usr/bin/git version
+2026-09-10T16:06:51.8914478Z git version 2.55.0
+2026-09-10T16:06:51.8938761Z ##[endgroup]
+2026-09-10T16:06:51.8943702Z Temporarily overriding HOME='/home/runner/work/_temp/1ed3f8b0-a19e-4f74-8175-48be01664bce' before making global git config changes
+2026-09-10T16:06:51.8945966Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-10T16:06:51.8948995Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/alkemos/alkemos
+2026-09-10T16:06:51.9003264Z Deleting the contents of '/home/runner/work/alkemos/alkemos'
+2026-09-10T16:06:51.9006550Z ##[group]Initializing the repository
+2026-09-10T16:06:51.9009813Z [command]/usr/bin/git init /home/runner/work/alkemos/alkemos
+2026-09-10T16:06:51.9136280Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-10T16:06:51.9137283Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-10T16:06:51.9138136Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-10T16:06:51.9138881Z hint: call:
+2026-09-10T16:06:51.9139276Z hint:
+2026-09-10T16:06:51.9139767Z hint: 	git config --global init.defaultBranch <name>
+2026-09-10T16:06:51.9140370Z hint:
+2026-09-10T16:06:51.9140929Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-10T16:06:51.9141789Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-10T16:06:51.9142478Z hint:
+2026-09-10T16:06:51.9142894Z hint: 	git branch -m <name>
+2026-09-10T16:06:51.9143353Z hint:
+2026-09-10T16:06:51.9143937Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-10T16:06:51.9148398Z Initialized empty Git repository in /home/runner/work/alkemos/alkemos/.git/
+2026-09-10T16:06:51.9159843Z [command]/usr/bin/git remote add origin https://github.com/muscleshubfit-cpu/alkemos
+2026-09-10T16:06:51.9196385Z ##[endgroup]
+2026-09-10T16:06:51.9197345Z ##[group]Disabling automatic garbage collection
+2026-09-10T16:06:51.9199517Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-10T16:06:51.9227041Z ##[endgroup]
+2026-09-10T16:06:51.9228162Z ##[group]Setting up auth
+2026-09-10T16:06:51.9232728Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-10T16:06:51.9266304Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-10T16:06:51.9616320Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-10T16:06:51.9646088Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-10T16:06:51.9833995Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-10T16:06:51.9864280Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-10T16:06:52.0050912Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-10T16:06:52.0083180Z ##[endgroup]
+2026-09-10T16:06:52.0083945Z ##[group]Fetching the repository
+2026-09-10T16:06:52.0090438Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a66d831388b0cf20d8cfdd5da1d6a457ac45ac30:refs/remotes/origin/main
+2026-09-10T16:06:53.6266338Z From https://github.com/muscleshubfit-cpu/alkemos
+2026-09-10T16:06:53.6267881Z  * [new ref]         a66d831388b0cf20d8cfdd5da1d6a457ac45ac30 -> origin/main
+2026-09-10T16:06:53.6270183Z ##[endgroup]
+2026-09-10T16:06:53.6270819Z ##[group]Determining the checkout info
+2026-09-10T16:06:53.6272282Z ##[endgroup]
+2026-09-10T16:06:53.6278006Z [command]/usr/bin/git sparse-checkout disable
+2026-09-10T16:06:53.6319644Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-10T16:06:53.6347490Z ##[group]Checking out the ref
+2026-09-10T16:06:53.6350829Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-09-10T16:06:53.7257896Z Switched to a new branch 'main'
+2026-09-10T16:06:53.7264901Z branch 'main' set up to track 'origin/main'.
+2026-09-10T16:06:53.7268382Z ##[endgroup]
+2026-09-10T16:06:53.7308813Z [command]/usr/bin/git log -1 --format=%H
+2026-09-10T16:06:53.7333087Z a66d831388b0cf20d8cfdd5da1d6a457ac45ac30

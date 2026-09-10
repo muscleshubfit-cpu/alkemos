@@ -1,0 +1,28 @@
+﻿2026-09-10T16:28:40.4053290Z ##[group]Run bash scripts/blog-runner/run-step.sh p5-publish 3
+2026-09-10T16:28:40.4053703Z [36;1mbash scripts/blog-runner/run-step.sh p5-publish 3[0m
+2026-09-10T16:28:40.4086278Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:28:40.4086513Z env:
+2026-09-10T16:28:40.4086700Z   PIPELINE_LANG: en
+2026-09-10T16:28:40.4086913Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:28:40.4087147Z   PIPELINE_TOPIC: 
+2026-09-10T16:28:40.4087341Z   PIPELINE_JOB_ID: 
+2026-09-10T16:28:40.4087664Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:28:40.4088811Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:28:40.4089070Z   CRON_SECRET: ***
+2026-09-10T16:28:40.4089413Z   OPENROUTER_API: ***
+2026-09-10T16:28:40.4089768Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:28:40.4090074Z   GROQ_API_KEY: ***
+2026-09-10T16:28:40.4090423Z   NVIDIA_API_KEY: ***
+2026-09-10T16:28:40.4090623Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:28:40.4090930Z   PEXELS_API_KEY: ***
+2026-09-10T16:28:40.4091123Z   PIXABAY_API_KEY: 
+2026-09-10T16:28:40.4091335Z   QUEUE_ID: b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:28:40.4091614Z ##[endgroup]
+2026-09-10T16:28:40.4152241Z --- [p5-publish] attempt 1 / 3 ---
+2026-09-10T16:28:40.9618357Z [runner] ▶ p5-publish · lang=en · queue=b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:28:42.6389575Z [blog-tool-links] inserted 2 tool link(s): programs-hub→/programs, exercises-hub→/exercises
+2026-09-10T16:28:43.7369941Z HTTP 200
+2026-09-10T16:28:43.7372059Z {"ok":true,"step":"p5","queueId":"b7ca657b-777a-49b5-bc7d-8c200324815c","lang":"en","postId":"6d52620d-0a35-4f80-a326-9e492c669b65","sitemap":"auto (dynamic sitemap.ts)","title":"How many calories should I eat to lose weight and build muscle?","slug":"calories-to-lose-weight-build-muscle-beginner","toolLinksInserted":2,"faqLifted":0,"handshake":"skipped"}
+2026-09-10T16:28:43.7374027Z [runner] ✓ p5-publish OK
+2026-09-10T16:28:43.7604933Z [p5-publish] captured QUEUE_ID=b7ca657b-777a-49b5-bc7d-8c200324815c
+2026-09-10T16:28:43.7605806Z ✓ p5-publish succeeded

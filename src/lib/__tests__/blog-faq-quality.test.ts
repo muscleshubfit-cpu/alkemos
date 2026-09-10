@@ -157,6 +157,54 @@ Closing CTA paragraph.
     const { faqs } = splitFaqSection("en", md);
     expect(faqs).toHaveLength(1);
   });
+
+  it("SINGLE-NEWLINE format (live run 34500011890 forensics — nemotron puts the answer on the next line, no blank line)", () => {
+    // The EXACT shape observed live: question bold line, answer immediately
+    // on the next line, next question right after.
+    const md = `Intro paragraph.
+
+## Step 1: Determine Your Daily Calorie Target
+
+Content about dosage.
+
+## Frequently Asked Questions
+
+**How many calories should I eat to lose weight and build muscle?**
+Start with 10-12 calories per pound of body weight, set protein at 0.7-1 g per pound.
+
+**Does cardio burn muscle?**
+Moderate cardio does not significantly reduce muscle mass.
+`;
+    const { body, faqs } = splitFaqSection("en", md);
+    expect(faqs).toHaveLength(2);
+    expect(faqs[0]).toEqual({
+      question: "How many calories should I eat to lose weight and build muscle?",
+      answer:
+        "Start with 10-12 calories per pound of body weight, set protein at 0.7-1 g per pound.",
+    });
+    expect(faqs[1]).toEqual({
+      question: "Does cardio burn muscle?",
+      answer: "Moderate cardio does not significantly reduce muscle mass.",
+    });
+    expect(body).toContain("## Step 1");
+    expect(body).not.toContain("Frequently Asked Questions");
+  });
+
+  it("multi-line answers join into one plain-text answer", () => {
+    const md = `Intro.\n\n## Frequently Asked Questions\n\n**How long to see results?**\nMost people see changes in 4-6 weeks\nwhen training is consistent.\n`;
+    const { faqs } = splitFaqSection("en", md);
+    expect(faqs[0].answer).toBe(
+      "Most people see changes in 4-6 weeks when training is consistent.",
+    );
+  });
+
+  it("bold label lines (trailing colon) stay answer text, not questions", () => {
+    const md = `Intro.\n\n## FAQ\n\n**Is creatine safe?**\nYes for healthy adults.\n**Note:**\nStay hydrated.\n`;
+    const { faqs } = splitFaqSection("en", md);
+    expect(faqs).toHaveLength(1);
+    expect(faqs[0].answer).toContain("Yes for healthy adults.");
+    expect(faqs[0].answer).toContain("Note: Stay hydrated.");
+  });
 });
 
 describe("splitFaqSection (AR)", () => {

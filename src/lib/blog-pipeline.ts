@@ -589,24 +589,33 @@ export function splitFaqSection(
   const sectionEnd = nextH2 ? sectionStart + nextH2.index : md.length;
   const section = md.slice(sectionStart, sectionEnd).trim();
 
+  // PHASE 172.1 (live-run 34500011890 forensics — faqLifted:0 on a correctly
+  // formatted FAQ): the writing model (nemotron) separates "**question**"
+  // from its answer with a SINGLE newline, not the blank line the contract
+  // shows. Parsing is therefore LINE-based, not block-based: any bold-only
+  // line (or ### subheading) inside the section opens a question; any other
+  // non-empty line appends to the open answer. Tolerates blank-line AND
+  // single-newline formats, and multiple Q/A pairs inside one block.
+  // `**Label:**` bold lines (trailing colon) stay answer text — they are
+  // emphasis, not questions.
   const faqs: ParsedFaq[] = [];
-  // Bold-only lines (or ### subheadings) are questions; the text until the
-  // next question is its answer.
-  const blocks = section.split(/\n{2,}/);
+  const BOLD_Q_LINE = /^\*\*(.+?)\*\*$/;
+  const H3_LINE = /^###[ \t]+(.+)$/;
   let current: ParsedFaq | null = null;
-  for (const block of blocks) {
-    const b = block.trim();
-    if (!b) continue;
-    const boldQ = /^\*\*(.+?)\*\*\s*$/.exec(b);
-    const h3Q = /^###[ \t]+(.+)$/.exec(b);
-    const qMatch = boldQ ?? h3Q;
-    if (qMatch) {
+  for (const line of section.split("\n")) {
+    const t = line.trim();
+    if (!t) continue;
+    const boldQ = BOLD_Q_LINE.exec(t);
+    const h3Q = H3_LINE.exec(t);
+    const qText = boldQ?.[1] ?? h3Q?.[1];
+    const isLabel = qText !== undefined && /[:：]\s*$/.test(qText.trim());
+    if (qText !== undefined && !isLabel) {
       if (current && current.question && current.answer) faqs.push(current);
-      current = { question: stripInlineMarkdown(qMatch[1]), answer: "" };
+      current = { question: stripInlineMarkdown(qText), answer: "" };
       continue;
     }
     if (current) {
-      current.answer = current.answer ? `${current.answer} ${b}` : b;
+      current.answer = current.answer ? `${current.answer} ${t}` : t;
     }
   }
   if (current && current.question && current.answer) faqs.push(current);
