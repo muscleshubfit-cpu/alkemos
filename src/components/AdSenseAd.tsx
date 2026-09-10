@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
@@ -58,6 +58,19 @@ export function AdSenseAd({
   const pathname = usePathname() || "";
   const { profile, isAdmin } = useAuth();
   const { tier } = useMembershipTier(profile);
+  // PHASE 173 (owner directive — dead space before the article FAQ):
+  // AdSense reserves layout space for its async host div (aswift_*_host)
+  // even when NO ad iframe ever fills the slot — measured live on the
+  // blog article page: a 280px unfilled block + the wrapper's my-8
+  // margins = ~344px of dead space between the article body and the FAQ
+  // section. Root fix (not a CSS hack): watch the slot's OFFICIAL fill
+  // signals — an injected <iframe> or ins[data-ad-status="filled"] — and
+  // collapse the wrapper entirely (display:none, margins included) when
+  // the slot is still unfilled after the grace window. The slot stays
+  // rendered during the window (hidden containers block ad serving); a
+  // late fill re-expands it via the MutationObserver. Filled ads keep
+  // the exact pre-173 layout (my-8 + responsive block).
+  const [adCollapsed, setAdCollapsed] = useState(false);
 
   // Publisher ID from env var — falls back to hardcoded value if env
   // isn't set (so the component keeps working during the migration
@@ -84,6 +97,31 @@ export function AdSenseAd({
     } catch (e) {
       // AdSense not loaded yet — silently fail
     }
+    // PHASE 173 unfilled-slot collapse (see component doc above).
+    const ins = adRef.current?.querySelector("ins") ?? null;
+    if (!ins) return;
+    const isFilled = () =>
+      ins.querySelectorAll("iframe").length > 0 ||
+      ins.getAttribute("data-ad-status") === "filled";
+    let graceElapsed = false;
+    const observer = new MutationObserver(() => {
+      if (isFilled()) setAdCollapsed(false);
+      else if (graceElapsed) setAdCollapsed(true);
+    });
+    const timer = window.setTimeout(() => {
+      graceElapsed = true;
+      if (!isFilled()) setAdCollapsed(true);
+    }, 4000);
+    observer.observe(ins, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-ad-status"],
+    });
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
   }, [shouldRenderAd]);
 
   if (!shouldRenderAd) {
@@ -91,7 +129,7 @@ export function AdSenseAd({
   }
 
   return (
-    <div ref={adRef} className={`my-8 ${className}`}>
+    <div ref={adRef} className={`${adCollapsed ? "hidden" : "my-8"} ${className}`}>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

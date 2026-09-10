@@ -192,7 +192,7 @@ export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = [])
 async function researchLanguage(lang: "en" | "ar"): Promise<{ data: LanguageResearch; source: string }> {
   const niche = lang === "ar" ? NICHE_AR : NICHE_EN;
   const outLang = lang === "ar"
-    ? 'Respond in ARABIC. All keywords, questions, answers and topic titles MUST be in natural Arabic (Egyptian/Gulf friendly MSA).'
+    ? 'Respond in ARABIC. All keywords, questions, answers and topic titles MUST be in natural, correct Modern Standard Arabic — clear and natural for every Arabic reader (Pan-Arab MSA, no local dialect, no dialect-only vocabulary, correct grammar and spelling).'
     : 'Respond in ENGLISH.';
 
   // PHASE 62 VARIETY FIX: P0 previously had ZERO memory of published

@@ -295,7 +295,7 @@ ${MARKER_NOTES}
       break;
 
     case "image_prompt":
-      prompt = `Write ONE detailed AI image-generation prompt in English for a professional cover image DIRECTLY representing THIS article's specific subject (never a generic gym scene):\nTitle: ${title || "Fitness"}\nCategory: ${category || "Fitness"}\nKeyword: ${keyword || content.slice(0, 120)}\nRequirements: cinematic, realistic lighting, no text/watermarks. Output ONLY the raw prompt string.`;
+      prompt = `Write ONE detailed AI image-generation prompt in English for a professional cover image DIRECTLY representing THIS article's specific subject (never a generic gym scene):\nTitle: ${title || "Fitness"}\nCategory: ${category || "Fitness"}\nKeyword: ${keyword || content.slice(0, 120)}\nRequirements: cinematic, realistic lighting, no text/watermarks. PHASE 173 OWNER LAW (absolute): the image must NEVER contain women or girls — if any person appears, an adult MAN only; otherwise use non-human subjects (equipment, food, anatomy illustration, empty gym scene). Output ONLY the raw prompt string.`;
       break;
 
     default:
@@ -715,7 +715,7 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
   }
 
   const sys = isAr
-    ? "أنت كاتب محتوى رياضي خبير لموقع Alkemos (مدونة لياقة وتغذية مصرية). تكتب بالعربية الفصحى المبسّطة بنبرة تحفيزية عملية، وتلتزم حرفياً بتعليمات الإخراج JSON. تكتب بعمق وتفصيل — المقالات السطحية القصيرة مرفوضة."
+    ? "أنت كاتب محتوى رياضي خبير لموقع Alkemos (منصة لياقة وتغذية لكل العرب). تكتب بالعربية الفصحى الحديثة السهلة الواضحة لجميع القراء العرب (Pan-Arab Modern Standard Arabic) — بلا لهجة محلية وبلا تعبيرات عامية (عشان، مش، ازاي، بتاع...) وبلا ترجمة حرفية عن الإنجليزية، بنحو وإملاء سليمين — وبنبرة تحفيزية عملية، وتلتزم حرفياً بتعليمات الإخراج JSON. تكتب بعمق وتفصيل — المقالات السطحية القصيرة مرفوضة."
     : "You are Alkemos's senior fitness & nutrition content writer (Egyptian fitness blog). Write in clear, practical English and follow the JSON output contract literally. Write with depth and detail — shallow short articles are rejected.";
 
   // ANTI-FORMULA OPENING (owner: «نفس العناوين الثابتة القديمة ومقال سيء»):
@@ -785,8 +785,8 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
       ? "تدقيق إلزامي قبل التسليم: عدد الكلمات 1100+، الأقسام 6-9، كل قسم فيه مثال أو رقم عملي، قسم أخطاء شائعة + قسم خطوة بخطوة موجودان، و2-3 روابط داخلية من القائمة أعلاه مستخدمة فعلاً."
       : "Mandatory self-check before answering: 1100+ words, 6-9 sections, every section carries a concrete example or number, common-mistakes + step-by-step sections present, and 2-3 internal links from the list above actually used.",
     isAr
-      ? "حقل slug إلزامي: 3-6 كلمات إنجليزية صغيرة مفصولة بشرطات (-) تُلخّص معنى الموضوع بالإنجليزية (ترجمة للمعنى وليس نقل لفظي) — مثال: best-home-workout-beginners. وحقل image_queries إلزامي: 4 عبارات بحث إنجليزية قصيرة (2-4 كلمات لكل عبارة) لمشاهد تصوير حقيقية آمنة ومحتشمة تمثل أقسام المقال (معدات، أكل، مشاهد تدريب عامة) — بلا أسماء أشخاص وبلا عبارات غير لائقة."
-      : "The slug field is mandatory: 3-6 lowercase English words hyphen-separated summarizing the topic's meaning — e.g. best-home-workout-beginners. The image_queries field is mandatory: 4 short English photo-search phrases (2-4 words each) describing safe modest real photo scenes matching the article's sections (equipment, food, training scenes) — no personal names, nothing inappropriate.",
+      ? "حقل slug إلزامي: 3-6 كلمات إنجليزية صغيرة مفصولة بشرطات (-) تُلخّص معنى الموضوع بالإنجليزية (ترجمة للمعنى وليس نقل لفظي) — مثال: best-home-workout-beginners. وحقل image_queries إلزامي: 4 عبارات بحث إنجليزية قصيرة (2-4 كلمات لكل عبارة) لمشاهد تصوير حقيقية آمنة ومحتشمة تمثل أقسام المقال (معدات، أكل، مشاهد تدريب عامة) — بلا أسماء أشخاص وبلا عبارات غير لائقة. قانون صارم (Phase 173): ممنوع تمامًا أي مشهد يضم نساء أو فتيات — إن لزم ظهور أشخاص فرجال بالغون فقط، وإلا فمشاهد بلا أشخاص (معدات، طعام، جيم فارغ)."
+      : "The slug field is mandatory: 3-6 lowercase English words hyphen-separated summarizing the topic's meaning — e.g. best-home-workout-beginners. The image_queries field is mandatory: 4 short English photo-search phrases (2-4 words each) describing safe modest real photo scenes matching the article's sections (equipment, food, training scenes) — no personal names, nothing inappropriate. STRICT LAW (Phase 173): never any scene featuring women or girls — adult men only if people are needed, otherwise people-free scenes (equipment, food, empty gym).",
     isAr
       ? "أعد JSON فقط بالشكل الحرفي (بدون أسوار كود):"
       : "Return ONLY JSON in this exact shape (no code fences):",

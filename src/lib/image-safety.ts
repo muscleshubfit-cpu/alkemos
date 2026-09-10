@@ -47,6 +47,28 @@ const IMMODEST_TOKENS_LATIN =
 const AR_NSFW_RE =
   /\S*(?:عارية|عاري|عاره|عري|إثارة|اثارة|مثيره?|مكشوف|مكشوفة|فضفاض|خليع)\S*/g;
 
+/**
+ * PHASE 173 OWNER LAW (2026-09-11) — NO WOMEN OR GIRLS IN NEW ARTICLE
+ * IMAGES: «ممنوع تمامًا توليد أو اختيار أو استخدام صور تحتوي على نساء
+ * أو فتيات في أي صور جديدة للمقالات». Female-subject vocabulary is
+ * STRIPPED from search queries (bias killed at the source — e.g. an AR
+ * title «كم ماء تحتاجه المرأة» no longer searches for women photos) and
+ * REJECTED in result alt-texts (the final no-vision verification: a
+ * Pexels/Unsplash/Pixabay photo whose alt text names a woman/girl is
+ * never selected; adult men and non-human subjects stay allowed).
+ * This is NOT a negative-prompt-only rule — it is an explicit condition
+ * in query generation, in the generation prompts (P1 IMAGE LAW,
+ * image_queries contract, image_prompt tool) and in this selection-time
+ * screen. Published legacy images are untouched.
+ */
+const FEMALE_TOKENS_LATIN =
+  /\b(?:women|woman|girls?|females?|lad(?:y|ies)|girlfriends?|mothers?|wife|wives|feminine|sportswom[ae]n|businesswom[ae]n|womens)\b/gi;
+
+/** Arabic female-subject words (prefix/suffix tolerant; المرأة/امرأة/
+ * مراه variants cover the definite article forms). */
+const AR_FEMALE_RE =
+  /\S*(?:امرأة|امرا[هة]|مرأ[ةه]|مرا[هة]|نساء|نسايا|نسائي[ةه]?|نسوان|فتا[ةه]|فتيات|بنات|بنت|سيد[ةه]|ستات|أنثى|انثى)\S*/g;
+
 /** Latin negation constructions — stripped (poison keyword search). */
 const NEGATION_LATIN = [
   /\bno\s+[a-z][a-z\-]*(?:\s+[a-z][a-z\-]*){0,3}/gi, // "no nudity", ...
@@ -96,6 +118,10 @@ export function sanitizeImageQuery(raw: string): SanitizeQueryResult {
     decoded = decoded.replace(NSFW_TOKENS_LATIN, " ");
     decoded = decoded.replace(AR_NSFW_RE, " ");
     decoded = decoded.replace(IMMODEST_TOKENS_LATIN, " ");
+    // PHASE 173 OWNER LAW: female-subject words are stripped from queries
+    // so no search biases toward women photos (men/non-human stay).
+    decoded = decoded.replace(FEMALE_TOKENS_LATIN, " ");
+    decoded = decoded.replace(AR_FEMALE_RE, " ");
     if (decoded !== before) nsfwRemoved = true;
   }
 
@@ -133,6 +159,19 @@ export function hasNsfwVocabulary(s: string): boolean {
 export function hasImmodestSignal(s: string): boolean {
   if (!s) return false;
   return new RegExp(IMMODEST_TOKENS_LATIN.source, "i").test(s);
+}
+
+/**
+ * PHASE 173 OWNER LAW: true when a text (query or result alt-text)
+ * names a female subject (woman/woman/girls/نساء/فتاة…) — the final
+ * selection-time verification that no new article image contains
+ * women or girls. Fresh NON-global regexes — /g lastIndex is mutable.
+ */
+export function hasFemaleSubjectSignal(s: string): boolean {
+  if (!s) return false;
+  if (new RegExp(FEMALE_TOKENS_LATIN.source, "i").test(s)) return true;
+  if (new RegExp(AR_FEMALE_RE.source, "i").test(s)) return true;
+  return false;
 }
 
 /** Deterministic string hash (djb2) → non-negative int. */

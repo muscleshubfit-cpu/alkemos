@@ -7,7 +7,10 @@
  * Sources (in order of priority):
  *   1. Pexels API (PEXELS_API_KEY) — PRIMARY. Real fitness photography,
  *      normal people ALLOWED, nudity screened out at query AND result
- *      level. `src.landscape` = 1200×627 auto=compress CDN URL → the
+ *      level. PHASE 173 OWNER LAW: no women or girls in any NEW article
+ *      image — female-subject alt-texts rejected, female words stripped
+ *      from queries; men-only or non-human subjects.
+ *      `src.landscape` = 1200×627 auto=compress CDN URL → the
  *      site's next/image system converts it to lightweight WebP.
  *   2. Unsplash API (optional key)
  *   3. Pixabay API (optional key, safesearch=true)
@@ -24,6 +27,7 @@ import {
   sanitizeImageQuery,
   hasNsfwVocabulary,
   hasImmodestSignal,
+  hasFemaleSubjectSignal,
   pickResultIndex,
   isExcludedImageUrl,
 } from "@/lib/image-safety";
@@ -33,10 +37,19 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * v3.1 RESULT SCREENING — combined modesty gate for alt-texts:
  * NSFW vocabulary AND immodest-signal wording ("flexing his muscles",
  * "shirtless", "six pack"…) both reject a candidate photo.
+ * PHASE 173 OWNER LAW: female-subject wording ("woman lifting
+ * dumbbells", "امرأة في الجيم", …) ALSO rejects the candidate — no new
+ * article image may contain women or girls. This is the FINAL
+ * selection-time verification for every source (Pexels, Unsplash,
+ * Pixabay) and therefore every consumer (P3 automated pipeline, coach
+ * editor suggest/swap flow, article materialization). When every
+ * candidate of a search is rejected the source returns null → the
+ * failover chain tries the next source → P3 falls back to its
+ * non-human FALLBACK_QUERIES (equipment/food/empty gym).
  */
 function altTextUnsafe(alt: string | null | undefined): boolean {
   if (!alt) return false;
-  return hasNsfwVocabulary(alt) || hasImmodestSignal(alt);
+  return hasNsfwVocabulary(alt) || hasImmodestSignal(alt) || hasFemaleSubjectSignal(alt);
 }
 
 export type SourcedImage = { url: string; alt: string; credit: string } | null;
@@ -103,8 +116,9 @@ async function searchPexels(
     if (!res.ok) return null;
     const data = (await res.json()) as { photos?: PexelsPhoto[] } | null;
     const photos = data?.photos ?? [];
-    // «لا عرى»: reject any result whose alt text carries NSFW or
-    // immodest-signal vocabulary (v3.1: caught the shirtless-back case).
+    // «لا عرى» + PHASE 173 «لا نساء»: reject any result whose alt text
+    // carries NSFW, immodest-signal, or female-subject vocabulary (the
+    // v3.1 shirtless-back catch + the no-women owner law).
     const candidates = photos
       .map((p) => ({
         photo: p,

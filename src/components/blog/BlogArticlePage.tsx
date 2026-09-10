@@ -232,8 +232,18 @@ export function BlogArticlePage({
             )}
 
             {/* Content — Apple-style typography */}
+            {/* PHASE 173 (owner directive — links inside article content must
+                be instantly discoverable): in-content links render in the
+                Alkemos brand blue (#0071e3 = --primary, the documented
+                link/CTA color) WITH a underline for accessible visual
+                distinction. The arbitrary [&_a] variants previously forced
+                muted-gray no-underline links (specificity .class a beats the
+                renderer's .text-primary), which made in-content links
+                visually indistinguishable from plain text. Hover deepens the
+                decoration from 40% opacity to solid + keeps the brand color.
+                URL/link LOGIC untouched — styling only. */}
             <div
-              className="prose prose-sm max-w-none text-[var(--text)] [&_a]:text-[var(--muted-2)] [&_a]:no-underline [&_a]:transition-opacity [&_a]:hover:opacity-70 [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_p]:my-5 [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-[var(--muted-2)] [&_p]:md:text-lg [&_p]:md:leading-relaxed [&_blockquote]:border-s-4 [&_blockquote]:border-[var(--chrome-edge)] [&_blockquote]:ps-5 [&_blockquote]:py-2 [&_blockquote]:my-6 [&_blockquote]:text-lg [&_blockquote]:font-normal [&_blockquote]:text-[var(--text)] [&_blockquote]:italic [&_code]:rounded [&_code]:bg-[var(--tint)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono [&_pre]:my-6 [&_pre]:rounded-2xl [&_pre]:bg-black [&_pre]:p-5 [&_pre]:text-sm [&_pre]:text-white [&_pre]:overflow-x-auto [&_table]:my-6 [&_table]:w-full [&_td]:border [&_td]:border-[var(--edge)] [&_td]:p-3 [&_th]:border [&_th]:border-[var(--edge)] [&_th]:p-3 [&_th]:bg-[var(--tint)] [&_th]:text-start [&_th]:font-semibold [&_ul]:my-5 [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:ps-6 [&_li]:my-2 [&_li]:text-base [&_li]:md:text-lg [&_li]:leading-relaxed"
+              className="prose prose-sm max-w-none text-[var(--text)] [&_a]:font-medium [&_a]:text-[#0071e3] [&_a]:underline [&_a]:decoration-[#0071e3]/40 [&_a]:decoration-2 [&_a]:underline-offset-4 [&_a]:transition-colors [&_a]:hover:text-[#0071e3] [&_a]:hover:decoration-[#0071e3] [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_p]:my-5 [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-[var(--muted-2)] [&_p]:md:text-lg [&_p]:md:leading-relaxed [&_blockquote]:border-s-4 [&_blockquote]:border-[var(--chrome-edge)] [&_blockquote]:ps-5 [&_blockquote]:py-2 [&_blockquote]:my-6 [&_blockquote]:text-lg [&_blockquote]:font-normal [&_blockquote]:text-[var(--text)] [&_blockquote]:italic [&_code]:rounded [&_code]:bg-[var(--tint)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono [&_pre]:my-6 [&_pre]:rounded-2xl [&_pre]:bg-black [&_pre]:p-5 [&_pre]:text-sm [&_pre]:text-white [&_pre]:overflow-x-auto [&_table]:my-6 [&_table]:w-full [&_td]:border [&_td]:border-[var(--edge)] [&_td]:p-3 [&_th]:border [&_th]:border-[var(--edge)] [&_th]:p-3 [&_th]:bg-[var(--tint)] [&_th]:text-start [&_th]:font-semibold [&_ul]:my-5 [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:ps-6 [&_li]:my-2 [&_li]:text-base [&_li]:md:text-lg [&_li]:leading-relaxed"
               dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
 

@@ -55,14 +55,22 @@ export type ReviewReport = {
   changesSummary: string[];
   keywordCoverage: "good" | "partial" | "poor";
   factCheckNotes: string;
-  ctaAdded: boolean;
 };
 
 export type InternalLinkCandidate = { slug: string; title: string };
 
+// PHASE 173 (owner directive — Arabic editorial law): Modern Standard
+// Arabic ONLY, natural and easy for EVERY Arabic reader (Pan-Arab). The
+// old rule asked for «بنبرة مصرية/خليجية ودّية» — that wording is what
+// produced Egyptian-dialect articles (live evidence: legacy AR posts use
+// عشان/مش/ازاي/بتاع; the AR title defect «كم ماء احتاج»). The law now
+// explicitly bans local dialects, dialect-only vocabulary, literal
+// translation, weak grammar/spelling, and malformed headings, without
+// imposing heavy literary Arabic or fixed sentence templates (no forced
+// repetition across articles — natural phrasing per context).
 const LANG_RULE: Record<"en" | "ar", string> = {
   en: "Write in ENGLISH for an international fitness audience.",
-  ar: "اكتب باللغة العربية الفصحى المبسطة بنبرة مصرية/خليجية ودّية. كل المحتوى بالعربية بالكامل (بما في ذلك العناوين والروابط النصية).",
+  ar: "اكتب باللغة العربية الفصحى الحديثة السهلة والواضحة — عربية سليمة طبيعية يفهمها كل قارئ عربي من أي بلد (Pan-Arab Modern Standard Arabic)، بنبرة ودية عملية. ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)، والتعبيرات العامية التي لا يفهمها إلا أهل بلد معين (مثل: عشان، مش، ازاي، بتاع، كده، ده، دي، خلاص، حاجة بمعنى «شيء»)، والترجمة الحرفية عن الإنجليزية، والتراكيب الركيكة، وأخطاء النحو والإملاء. صُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق (مثل: «كم من الماء أحتاج يوميًا؟» لا «كم ماء احتاج»). ليست لغة أدبية ثقيلة بل فصحى حديثة سهلة. كل المحتوى بالعربية بالكامل (بما في ذلك العناوين والروابط النصية).",
 };
 
 /** Compact JSON view of research fed to prompts (keeps token cost sane). */
@@ -265,7 +273,7 @@ Create the detailed article blueprint. Return STRICT JSON only:
   "slugBase": "short-url-slug-in-lowercase-english-even-for-arabic",
   "sections": ["H2 heading 1", "..."],            // exactly 5-7 H2s shaped for the article type above; at least TWO phrased as real long-tail search questions; NOT copying the section skeletons of the recent articles above
   "lsiKeywords": ["...", "..."],                   // 8-12 sub-keywords to weave in naturally; at least 5 must be 3+ word long-tail phrases
-  "imagePlan": [ {"subject": "exact visual subject", "type": "photo|infographic|diagram"} ] // 3-5 items matching the sections. IMAGE LAW: subjects MUST be ENGLISH physical OBJECTS or SCENES ONLY (equipment, food, interiors) — NEVER any person, body part, people word, or clothing wording
+  "imagePlan": [ {"subject": "exact visual subject", "type": "photo|infographic|diagram"} ] // 3-5 items matching the sections. IMAGE LAW: subjects MUST be ENGLISH physical OBJECTS or SCENES ONLY (equipment, food, interiors) — NEVER any person, body part, people word, or clothing wording. PHASE 173 OWNER LAW (absolute): NEVER any woman, girl, or female subject in any image — if a person is ever needed, adult MEN only; otherwise use non-human subjects (equipment, food, anatomy diagrams, empty gym scenes)
 }`;
   const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
     tag: `blog:outline-${lang}`,
@@ -670,28 +678,14 @@ export async function reviewAndEnhance(
       ? internalCandidates.slice(0, 15).map((c) => `- ${blogPrefix}/${c.slug} → ${c.title}`).join("\n")
       : "(no previous posts yet)";
 
-  // PHASE 62 VARIETY — CTA ROTATION: the identical closing paragraph on
-  // every article was one of the strongest "same article reworded"
-  // signals. Each run draws one of five closing CTA directives.
-  const CTA_VARIANTS: Record<"en" | "ar", string[]> = {
-    en: [
-      "Append a closing Call-to-Action paragraph inviting the reader to explore Alkemos's personalized online coaching with coach Ahmed Zake.",
-      "Append a closing Call-to-Action paragraph inviting the reader to try Alkemos's free tools (calorie calculator, meal planner) before considering coaching.",
-      "Append a closing Call-to-Action paragraph inviting the reader to join the Alkemos coaching program and get a plan built around their goal, schedule, and food preferences.",
-      "Append a closing Call-to-Action paragraph inviting the reader to follow Alkemos for weekly evidence-based fitness & nutrition guides.",
-      "Append a closing Call-to-Action paragraph inviting the reader to take the next step with Alkemos — whether reading a related guide or starting a tailored plan.",
-    ],
-    ar: [
-      "أضف فقرة ختامية تدعو القارئ لتجربة الكوتشينج أونلاين المخصص من Alkemos مع الكابتن أحمد زكي.",
-      "أضف فقرة ختامية تدعو القارئ لتجربة الأدوات المجانية على Alkemos (حاسبة السعرات، مخطط الوجبات) قبل التفكير في الكوتشينج.",
-      "أضف فقرة ختامية تدعو القارئ للانضمام لبرنامج الكوتشينج في Alkemos للحصول على خطة مبنية على هدفه وجدوله وأكله المفضل.",
-      "أضف فقرة ختامية تدعو القارئ لمتابعة Alkemos لكل أسبوع أدلة جديدة في اللياقة والتغذية مبنية على العلم.",
-      "أضف فقرة ختامية تدعو القارئ لاتخاذ الخطوة التالية مع Alkemos — إما قراءة دليل ذي صلة أو بدء خطة مخصصة له.",
-    ],
-  };
-  const ctaInstruction =
-    CTA_VARIANTS[lang][Math.floor(Math.random() * CTA_VARIANTS[lang].length)];
-
+  // PHASE 173 (owner directive — duplicate closing CTA removal): the
+  // review step used to instruct the model to append a closing CTA
+  // paragraph (the PHASE 62 CTA_VARIANTS rotation, five variants per
+  // language). The article page ALREADY renders the BlogMembershipCard
+  // after the article (coaching membership + plans + affiliate) — the
+  // in-text CTA was a duplicate CTA, so the instruction and its
+  // `ctaAdded` report field are REMOVED entirely. The editor article
+  // generator and every other CTA location are untouched.
   const prompt = `You are a senior editor doing FINAL QUALITY REVIEW of a fitness blog article.
 ${LANG_RULE[lang]}
 
@@ -722,8 +716,7 @@ DO ALL OF THE FOLLOWING:
    - water intake/hydration → [anchor](/tools/water-tracker)
    - meal plan/meal prep → [anchor](/meal-planner)
 9. Add at most 2 external links ONLY to well-known authoritative domains you are certain exist (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) in [anchor](https://...) format — each link must directly support the sentence it is attached to; do NOT add links for linking's sake.
-10. ${ctaInstruction}
-11. Keep all "## " section structure (including the FAQ section); output the COMPLETE final article.
+10. Keep all "## " section structure (including the FAQ section); output the COMPLETE final article. Do NOT append any closing call-to-action, marketing outro, or "join Alkemos" pitch paragraph — the website already renders its CTA cards after the article; the article itself must end with its content (the conclusion/summary).
 
 Return STRICT JSON only:
 {
@@ -731,7 +724,6 @@ Return STRICT JSON only:
   "changesSummary": ["short change notes"],
   "keywordCoverage": "good|partial|poor",
   "factCheckNotes": "what was removed/softened and why",
-  "ctaAdded": true,
   "internalLinks": [{"slug":"used-slug","anchorText":"anchor"}],
   "externalLinks": [{"url":"https://...","anchorText":"anchor"}]
 }`;
@@ -756,7 +748,6 @@ Return STRICT JSON only:
     keywordCoverage?: string;
     changesSummary?: unknown[];
     factCheckNotes?: string;
-    ctaAdded?: boolean;
     internalLinks?: unknown[];
     externalLinks?: unknown[];
   }>(text);
@@ -777,7 +768,6 @@ Return STRICT JSON only:
         : [],
       keywordCoverage: coverage,
       factCheckNotes: String(parsed?.factCheckNotes ?? ""),
-      ctaAdded: Boolean(parsed?.ctaAdded),
     },
     internalLinks: Array.isArray(parsed.internalLinks)
       ? parsed.internalLinks

@@ -7,7 +7,14 @@ import { useState, useEffect } from "react";
  * BlogMembershipCard — compact single-card CTA shown inside blog articles.
  *
  * Two sections:
- * 1. Coaching CTA — book a coaching session
+ * 1. Coaching membership CTA — join Alkemos Online Coaching
+ *    (PHASE 173 owner fix: the card used to say «Book a session /
+ *    احجز جلسة» — a single-session service that does NOT exist. The
+ *    real product is the Coaching MEMBERSHIP ($39.99/mo · $359/yr,
+ *    memberships.ts). Wording now sells the membership/subscription;
+ *    the /coaching link was already correct — that landing page sells
+ *    exactly this membership via /checkout?tier=coaching, so neither
+ *    the link nor any checkout logic changed.)
  * 2. Membership plans — Free / Premium / Pro tiers
  */
 export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
@@ -21,25 +28,25 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
 
  return (
  <div className="my-12 space-y-6">
- {/* Section 1: Coaching CTA */}
+ {/* Section 1: Coaching membership CTA */}
  <div className="overflow-hidden rounded-3xl border border-[#0071e3]/20 bg-gradient-to-br from-[#0071e3]/5 to-[#0071e3]/10 p-6 md:p-8">
  <div className="flex flex-col items-center text-center">
  <span className="grid mx-auto h-12 w-12 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)] text-[var(--muted-2)] shadow-lg">
  <Crown className="h-6 w-6" />
  </span>
  <h3 className="mt-4 text-xl font-semibold tracking-tight md:text-2xl">
- {isAr ? "احجز جلسة كوتشينج مع Alkemos" : "Book a Coaching Session with Alkemos"}
+ {isAr ? "اشترك في الكوتشينج الأونلاين مع Alkemos" : "Join Alkemos Online Coaching"}
  </h3>
  <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
  {isAr
- ? "احصل على خطة مخصصة من مدرب معتمد — تغذية + تمارين + متابعة أسبوعية. ابدأ رحلتك اليوم."
- : "Get a personalized plan from a certified coach — nutrition + training + weekly tracking. Start your journey today."}
+ ? "خطة مخصصة من مدرب معتمد — تغذية + تمارين + متابعة أسبوعية — ضمن عضوية كوتشينج شهرية مرنة تبدأ متى شئت."
+ : "A personalized plan from a certified coach — nutrition + training + weekly tracking — as a flexible monthly coaching membership."}
  </p>
  <a
  href="/coaching"
  className="btn-chrome mt-5 inline-flex items-center gap-2 px-6 py-2.5 text-sm"
  >
- {isAr ? "احجز جلسة الآن" : "Book a session"}
+ {isAr ? "اشترك الآن" : "Join now"}
  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
  </a>
  </div>

@@ -15,13 +15,26 @@ import {
 } from "../image-safety";
 
 describe("image-safety v3 — query sanitizer (people OK / NSFW never)", () => {
-  it("KEEPS normal-people fitness wording (owner law change 2026-08-28)", () => {
+  // PHASE 173 OWNER LAW UPDATE (2026-09-11): the people-OK law (2026-08-28)
+  // survives for MEN and non-human subjects, but female-subject wording is
+  // now STRIPPED from queries — no women or girls in any new article image
+  // (adult men only when people are needed, otherwise non-human subjects).
+  it("KEEPS male-people fitness wording (people-OK law, men side)", () => {
     const { query, nsfwRemoved } = sanitizeImageQuery(
-      "fit woman doing pushups in gym",
+      "fit man doing pushups in gym",
     );
-    expect(query).toMatch(/woman/i);
+    expect(query).toMatch(/man/i);
     expect(query).toMatch(/pushups/i);
     expect(nsfwRemoved).toBe(false);
+  });
+
+  it("v→173: STRIPS female-subject wording from queries (owner law change 2026-09-11)", () => {
+    const { query } = sanitizeImageQuery(
+      "fit woman doing pushups in gym",
+    );
+    expect(query).not.toMatch(/wom/i);
+    expect(query).toMatch(/pushups/i);
+    expect(query).toMatch(/gym/i);
   });
 
   it("strips NSFW vocabulary from queries", () => {
