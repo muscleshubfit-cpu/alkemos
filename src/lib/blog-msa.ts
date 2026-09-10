@@ -148,8 +148,15 @@ function extractHeadings(md: string): string[] {
  * calculate-daily-calories-weight-loss failed 3 batches because its
  * /meal-planner link lives INSIDE the «انضم الآن لبرنامج الكوتشينج»
  * closing paragraph — the model obeyed rule 7 and the validator
- * demanded the CTA-embedded link back). */
+ * demanded the CTA-embedded link back). Paragraph-aligned: the trailing
+ * paragraphs inside the last CTA_TAIL_CHARS characters. */
 const CTA_TAIL_CHARS = 600;
+
+function closingCtaRegion(md: string): string {
+  const tail = md.slice(-CTA_TAIL_CHARS);
+  const paraStart = tail.indexOf("\n\n");
+  return paraStart >= 0 ? tail.slice(paraStart + 2) : tail;
+}
 
 /** Phrases for the non-existent single-session service (174 honesty law). */
 const BANNED_SERVICE_PHRASES = ["احجز جلس", "Book a session", "book a session"];
@@ -225,10 +232,12 @@ export function validateMsaConversion(before: string, after: string): MsaValidat
   const linksB = [...new Set(extractLinkUrls(before))].sort();
   const linksA = [...new Set(extractLinkUrls(after))].sort();
   if (linksB.join("\n") !== linksA.join("\n")) {
-    // CTA-strip tolerance: rule 7 deletes the closing marketing paragraph,
+    // CTA-strip tolerance: rule 7 deletes the closing marketing paragraph(s),
     // and a link living ONLY inside that tail may legitimately vanish with
-    // it. Everything else must survive byte-exact.
-    const ctaTail = before.slice(-CTA_TAIL_CHARS);
+    // it. Everything else must survive byte-exact. The region is
+    // paragraph-aligned (the trailing paragraphs inside the last 600 chars)
+    // so a body link can never accidentally fall inside it on short texts.
+    const ctaTail = closingCtaRegion(before);
     const lost = linksB.filter((l) => !linksA.includes(l));
     const added = linksA.filter((l) => !linksB.includes(l));
     const illegitimateLost = lost.filter((l) => !ctaTail.includes(l));

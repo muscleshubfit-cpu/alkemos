@@ -35,13 +35,22 @@ const msaSrc = read(join(libDir, "blog-msa.ts"));
 const processorsSrc = read(join(libDir, "ai-job-processors.ts"));
 
 // A realistic legacy dialect paragraph (mirrors the live corpus:
-// عشان/مش/ده/هتلاقي + a markdown link + an image + headings).
+// عشان/مش/ده/هتلاقي + a markdown link + an image + headings, long
+// enough that body links sit OUTSIDE the closing-CTA region).
 const LEGACY_BEFORE = `## مقدمة
 
 النوم مش مجرد راحة، عشان الجسم بيصنع العضلات وأنت نايم وده السبب الرئيسي.
 لو [التمارين](/exercises) مش بتطلع بنتائج كتير، السبب غالبًا في قلة الاستشفاء.
 
 ![تدريب بالأثقال](https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg)
+
+### أهمية النوم العميق
+
+في النوم العميق الجسم بيفرز هرمون النمو بتركيز أعلى، وده اللي بيصلح الألياف العضلية المتمزقة من التمرين. قلة النوم العميق معناها استشفاء أقل ونتائج أبطأ على المدى الطويل.
+
+لازم تنام سبع لتسع ساعات كل ليلة بشكل منتظم، والمشكلة مش في عدد الساعات بس لكن في جودة النوم نفسه وانتظام مواعيده من يوم ليوم.
+
+قبل النوم ابتعد عن الشاشات ساعة على الأقل واهتم بتعتيم الغرفة، عشان الجسم يدخل في دورات النوم العميق من غير مقاطعة تكسر الترميم العضلي.
 
 ### الخلاصة
 
@@ -53,6 +62,14 @@ const MSA_AFTER = `## مقدمة
 إذا لم تُظهر [التمارين](/exercises) نتائج كثيرة، فالسبب غالبًا قلة الاستشفاء.
 
 ![تدريب بالأثقال](https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg)
+
+### أهمية النوم العميق
+
+في النوم العميق يفرز الجسم هرمون النمو بتركيز أعلى، وهو الذي يصلح الألياف العضلية المتمزقة من التمرين. قلة النوم العميق تعني استشفاءً أقل ونتائج أبطأ على المدى الطويل.
+
+يجب أن تنام سبعًا إلى تسع ساعات كل ليلة بانتظام، والمشكلة ليست في عدد الساعات فقط، بل في جودة النوم نفسه وانتظام مواعيده من يوم إلى يوم.
+
+قبل النوم ابتعد عن الشاشات ساعة على الأقل واهتم بتعتيم الغرفة، حتى يدخل الجسم في دورات النوم العميق دون مقاطعة تكسر الترميم العضلي.
 
 ### الخلاصة
 
@@ -102,8 +119,8 @@ describe("Phase 175 — dialect detector (deterministic, word-boundary aware)", 
 
   it("scanArabicDialect aggregates strong/weak with hit maps", () => {
     const scan = scanArabicDialect(LEGACY_BEFORE);
-    expect(scan.strong).toBe(3); // عشان + كتير + هتلاقي (نايم غير مدرج)
-    expect(scan.weak).toBe(2); // مش×2 — «وده» ملتحقة بالواو فلا تُعد «ده» مستقلة
+    expect(scan.strong).toBe(4); // عشان×2 + كتير + هتلاقي (نايم غير مدرج)
+    expect(scan.weak).toBe(3); // مش×3 — «وده» ملتحقة بالواو فلا تُعد «ده» مستقلة
     expect(scan.strongHits.map(([m]) => m)).toContain("عشان");
     expect(scan.weakHits.map(([m]) => m)).toContain("مش");
   });
