@@ -216,4 +216,22 @@ describe("Phase 175 — cleanup runner + workflow presence (canaries)", () => {
     expect(wf).toContain("secrets.GROQ_API_KEY");
     expect(wf).toContain("secrets.NVIDIA_API_KEY");
   });
+
+  it("the workflow funds FULL-ARTICLE conversion time (first apply run failed without it)", () => {
+    // The default 52s chain budget is the Vercel serverless cap — a
+    // ~1000-word article conversion needs the blog-post workflows' own
+    // 360s budget law, or every model aborts at ~17s and the chain dies.
+    const wf = read(join(process.cwd(), ".github", "workflows", "legacy-ar-cleanup.yml"));
+    expect(wf).toContain('AI_CHAIN_TOTAL_BUDGET_MS: "360000"');
+  });
+
+  it("the runner rides P2's proven full-article chain knobs and treats chain throws as retryable", () => {
+    const runner = read(join(process.cwd(), "scripts", "blog-runner", "legacy-ar-msa.mts"));
+    expect(runner).toContain("maxTokens: 6_400");
+    expect(runner).toContain("timeoutMs: 150_000");
+    expect(runner).toContain("maxModels: 2");
+    // Provider-outage throws (gemma 429 pool, nemotron aborts) are a
+    // RETRYABLE attempt — never a run crash.
+    expect(runner).toContain("chain-thrown (transient provider class)");
+  });
 });

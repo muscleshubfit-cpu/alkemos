@@ -114,20 +114,39 @@ interface ConvertFail {
   error: string;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function convertArticle(
   slug: string,
   content: string,
 ): Promise<ConvertOk | ConvertFail> {
   let violations: string[] | undefined;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const { text, model } = await callFreeAIFallbackChain(buildPrompt(content, violations), {
-      tag: `msa-cleanup:${slug}`,
-      systemPrompt: AR_MSA_EDITOR_LAW,
-      temperature: 0.3,
-      maxTokens: 10_000,
-      timeoutMs: 70_000,
-      maxModels: 3,
-    });
+    if (attempt > 1) await sleep(30_000); // provider-outage breath between attempts
+    let text = "";
+    let model = "";
+    try {
+      // P2's own proven full-article knobs (blog-pipeline generateFullArticle):
+      // maxTokens 6400 fits Groq's 8000-TPM ceiling (prompt counted), and
+      // timeoutMs 150s × maxModels 2 rides the workflow's 360s chain budget
+      // (AI_CHAIN_TOTAL_BUDGET_MS — missing it was the first run's failure).
+      ({ text, model } = await callFreeAIFallbackChain(buildPrompt(content, violations), {
+        tag: `msa-cleanup:${slug}`,
+        systemPrompt: AR_MSA_EDITOR_LAW,
+        temperature: 0.3,
+        maxTokens: 6_400,
+        timeoutMs: 150_000,
+        maxModels: 2,
+      }));
+    } catch (e) {
+      // The documented transient class (provider outage: gemma 429 pool,
+      // nemotron aborts) — a chain throw is a RETRYABLE attempt failure,
+      // never a run crash: the row stays untouched and the next attempt
+      // (after the backoff above) re-rolls the chain with its lead rotation.
+      violations = [e instanceof Error ? e.message : String(e)];
+      console.log(`    attempt ${attempt} chain-thrown (transient provider class): ${violations[0].slice(0, 160)}`);
+      continue;
+    }
     const candidate = parseSentinel(text);
     if (!candidate) {
       violations = ["الناتج بلا علامة ===CORRECTED=== الحرفية (خرق تنسيق الإخراج)"];
@@ -211,6 +230,7 @@ async function main(): Promise<number> {
   let ok = 0;
   let failed = 0;
   for (const { row, scan } of queue) {
+    if (ok + failed > 0) await sleep(5_000); // gentle pacing between articles
     const before = scan.strong * 3 + scan.weak;
     console.log(`\n→ ${row.slug} (S=${scan.strong} W=${scan.weak} severity=${before})`);
     const content = row.content || "";
