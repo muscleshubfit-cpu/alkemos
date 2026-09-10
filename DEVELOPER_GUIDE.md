@@ -418,6 +418,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/admin/coach-payments` | GET | Admin | سجل تفعيلات المدربين (coach_payments) |
 | `/api/admin/coach-support` | GET/POST | Admin | صندوق دعم المدربين (رد الأدمن) |
 | `/api/admin/evo-analytics` | GET | Admin | تحليلات EVO (EVO-5): نداءات/كاش/مزودون/نوايا/حصص/تقييم أسبوعي — قراءة service-role لجداول 0081 |
+| `/api/admin/evo-partners` | GET/POST/PATCH | Admin | مفاتيح الشركاء (EVO-6): قائمة + استخدام (شهر UTC/30 يومًا) · إنشاء (الخام يُعرض مرة واحدة — هاش SHA-256 فقط) · تحديث (اسم/حصة/ثيم مُصادق/إيقاف UPDATE لا delete) — service-role لجداول 0082 |
 | `/api/admin/external-plans` | POST/GET/PATCH/DELETE | Admin (RLS: is_admin) | خطط AI لغير الأعضاء + إعادة توليد (خطة/وجبة/صنف/يوم/تمرين) + سجل نسخ (5) + استرجاع |
 | `/api/admin/leads` | GET/PATCH/DELETE | Admin | قاعدة العملاء (leads من الأدوات + التسجيلات) |
 | `/api/admin/refunds` | GET/POST | Admin | طلبات الاسترداد 7 أيام + قرار الإدارة (إنهاء الاشتراك + عكس العمولة) |
@@ -437,6 +438,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/blog/fetch-images` | POST | Admin | جلب صور مقترحة للمقال |
 | `/api/blog/suggest-image` | POST | Admin | اقتراح وصف صورة للمقال بـ AI |
 | `/api/build-info` | GET | Public | معلومات البناء (commit الحالي) |
+| `/api/evo/v1/chat` | POST | Partner key | API الشركاء العام (EVO-6): محادثة عامة فقط (خطط/استبدال = 400) — علم `EVO_PARTNER_API_ENABLED` · مفاتيح `pk_live_` هاش-فقط · حصة شهرية + rate limit 30/د + درع الأزمة · الكاش بالمساعدين المشتركين — العقد: docs/EVO-PARTNER-API.md |
 | `/api/coach/ads` | GET/POST | Coach | إعلانات المدرب على صفحته |
 | `/api/coach/ai-usage` | GET | User (coach/admin) | استهلاك رصيد عميل (النافذتان الأسبوعية والشهرية) |
 | `/api/coach/claim` | POST | User | مطالبة مدرب بعميل عبر كود |
