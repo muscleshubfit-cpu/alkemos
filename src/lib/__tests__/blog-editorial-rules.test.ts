@@ -265,7 +265,17 @@ describe("Phase 174 — admin AI tools parity with the blog pipeline", () => {
   });
 
   it("the article_tool editor transforms carry the Pan-Arab MSA law (legacy-dialect input converts to MSA)", () => {
-    expect(processorsSrc).toContain("عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى");
+    // PHASE 175: the law text was EXTRACTED to src/lib/blog-msa.ts so the
+    // legacy-cleanup runner rides the exact same contract (no fork). The
+    // canary follows the text: the editor tools must IMPORT the law, and
+    // the law itself (with the dialect→MSA conversion clause) must stay
+    // intact in its new single source of truth. Behavioral coverage of
+    // the law text lives in blog-msa.test.ts.
+    expect(processorsSrc).toContain('AR_MSA_EDITOR_LAW } from "@/lib/blog-msa"');
+    expect(processorsSrc).toContain("? AR_MSA_EDITOR_LAW");
+    const msaLawSrc = read(join(libDir, "blog-msa.ts"));
+    expect(msaLawSrc).toContain("عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى");
+    expect(msaLawSrc).toContain("Pan-Arab Modern Standard Arabic");
   });
 
   it("the editor CTA tool sells only REAL products and bans the non-existent session wording", () => {

@@ -28,6 +28,7 @@ import type { SocialPlatform, SocialTone } from "@/lib/social-posts";
 import { VALID_CATEGORY_IDS } from "@/lib/blog";
 import { articleSlugFromTitle } from "@/lib/ai-jobs-client";
 import { resolveSlug, sanitizeModelSlug } from "@/lib/slug";
+import { AR_MSA_EDITOR_LAW } from "@/lib/blog-msa";
 import {
   fetchFeaturedImage,
   embedBodyImages,
@@ -227,9 +228,12 @@ ${content.slice(0, isAr ? 12_000 : 14_000)}`;
   // as the blog pipeline's LANG_RULE (Phase 173). Without it, running a
   // transform on a legacy Egyptian-dialect article kept the dialect, and
   // an MSA draft could drift — these tools are also the natural lever
-  // for the future Arabic Legacy Content Cleanup, so the law rides them.
+  // for the Arabic Legacy Content Cleanup. PHASE 175: the law text moved
+  // to src/lib/blog-msa.ts (single source — imported, never forked) so
+  // the legacy-cleanup runner scripts/blog-runner/legacy-ar-msa.mts
+  // rides the exact same contract.
   const sys = isAr
-    ? "أنت محرر لغوي وخبير SEO لموقع Alkemos الرياضي. تلتزم حرفياً بتعليمات الإخراج. قانون تحريري صارم: اكتب وحرّر بالعربية الفصحى الحديثة السهلة الواضحة لكل القراء العرب (Pan-Arab Modern Standard Arabic) — ممنوع منعًا باتًا أي لهجة محلية (مصرية أو خليجية أو غيرها) أو تعبيرات عامية لا يفهمها إلا أهل بلد معين (عشان، مش، ازاي، بتاع، كده، خلاص…) أو الترجمة الحرفية عن الإنجليزية؛ صحّح النحو والإملاء وصُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق. عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى الحديثة السهلة مع الحفاظ الكامل على المعنى."
+    ? AR_MSA_EDITOR_LAW
     : "You are Alkemos's senior editor & SEO specialist. Follow output instructions literally.";
 
   // Sentinel instructions reused by the three big-text transforms.

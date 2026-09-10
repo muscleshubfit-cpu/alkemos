@@ -1,0 +1,80 @@
+name: Legacy AR MSA cleanup (Phase 175 — staged repair, not deletion)
+
+# ============================================================
+# PHASE 175 (owner order «ابدا التنظيف» 2026-09-11): execute the
+# Arabic Legacy Content Cleanup recommendation recorded in STATE.md
+# at 174 — convert every published AR article still carrying
+# Egyptian/colloquial dialect into Pan-Arab Modern Standard Arabic.
+#
+# LAW: scripts/blog-runner/legacy-ar-msa.mts runs under the SAME
+# Phase-174 MSA law as the editor tools (imported from
+# src/lib/blog-msa.ts — no fork) and writes ONLY after the
+# deterministic validateMsaConversion gate (links/images/headings/
+# length/markers). Slug, title, publish state, images: never touched.
+#
+# One-off + staged: dispatch with dry_run first, then limit/slug
+# batches, then the full queue. Idempotent — clean articles are
+# skipped, so re-runs converge to a no-op. Production pages pick
+# the new content up via the 5-minute ISR revalidate.
+# ============================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "DRY_RUN — queue report only, zero AI calls, zero DB writes"
+        type: boolean
+        default: true
+      limit:
+        description: "Max queued articles to process (0 = the whole queue)"
+        type: number
+        default: 0
+      slugs:
+        description: "Comma-separated slug allowlist (empty = severity order)"
+        type: string
+        default: ""
+
+concurrency:
+  group: legacy-ar-msa
+  cancel-in-progress: false
+
+jobs:
+  msa-cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OPENROUTER_API: ${{ secrets.OPENROUTER_API }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Production-locked install (A-12): the same frozen bun.lock Vercel
+      # and local dev build from — no npm fresh-re-resolution drift.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Convert legacy AR articles to Pan-Arab MSA (validated before write)
+        run: npx --no-install tsx scripts/blog-runner/legacy-ar-msa.mts
+        env:
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          LIMIT: ${{ inputs.limit }}
+          SLUGS: ${{ inputs.slugs }}
+
+      - name: Summary
+        if: always()
+        run: echo "Legacy AR MSA cleanup pass finished — see the per-slug report above."
