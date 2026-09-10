@@ -3064,3 +3064,27 @@ bun install --frozen-lockfile ✓ · tsc --noEmit 0 (after regenerating the giti
 - P1 digest query pulls content for ≤10-12 rows — acceptable on the native GHA runner; degrades to title-blind on DB error.
 - Regeneration variety = prompt-level seed + temperature; no cross-run memory (per-owner-order scope: no engine rebuild).
 - EN/AR independence is structurally intact (separate P0→P5 per language, separate research); pairing still shares topic+angle per Phase 157 law — untouched by design.
+
+---
+
+## Phase 172 close — E2E live validation (both languages) + two smallest-safe fixes (172.1)
+
+**Date:** 2026-09-10 17:15 UTC · **Commits:** a66d831 (172) → caf3f96 (172.1 parser) → bbc71fd (172.1 P1 fail-fast) → d409d19 (log cleanup, gitignore *_logs/) · **CI:** 5/5 green on d409d19 · **Production:** alkemos.com on d409d19 (Vercel auto-deploy verified via /api/build-info)
+
+### E2E validation (the owner's 10-point checklist, run against REAL dispatched pipelines)
+- **EN generation (run 34500011890, natural quota path):** published «How many calories should I eat to lose weight and build muscle?» → /blog/calories-to-lose-weight-build-muscle-beginner. ANSWER-FIRST ✓ (opening = practical quotable numbers, no scenario warm-up — vs the pre-172 baseline's «You finish a heavy squat session…» hook) · QUESTION-style title ✓ (broke the «How to …» formula) · P0-P5 all green · answer-first + E-E-A-T + fact-guard lines executed.
+- **AR generation (run 34505780289, coach-topic dispatch after two provider-outage failures):** published «كم كمية الماء التي يحتاجها الرياضي يوميًا؟ دليل عملي للترطيب» → /ar/blog/water-intake-athlete-guide. Direct answer LITERALLY first («الإجابة المباشرة: 3-4 لتر يوميًا + 0.5-1 لتر في التدريب الشديد…» — atomic-answer spec §8.2) · context-dependent framing ✓ («الكمية الدقيقة تعتمد على وزن الجسم ومعدل العرق») · **faqLifted=5** — five WATER-specific questions (urine color check, sports drinks vs water, cold vs hot weather, pre-sleep water, adjusting for muscle gain), exactly ONE FAQ render ✓, zero generic filler ✓ · zero external links (≤2 allowed — none added for linking's sake) ✓ · zero fabricated studies/PMID/statistics ✓ · CTA rotation (coaching variant) ✓ · full schema stack (Article+Person+Breadcrumb+Speakable) ✓ · tool links inserted (3) ✓ · pairing handshake «first-of-pair» (EN twin adopts at 22:00 UTC tonight) ✓.
+- **EN/AR editorial independence ✓:** today's pair of articles = different subjects, different angles, different structures (EN step-plan vs AR practical guide); each language ran its own P0→P5.
+- **Semantic repetition check:** AR water article has no predecessor in the AR archive ✓. EN calories article is topic-ADJACENT to the 09-03 «calculate daily calories» article (both P0 runs degraded to the curated fallback today → its fixed keyword pool seeded both) — but intent/structure/H2s differ (question+step-plan vs calculator+planner-templates; one recycled belly-fat H2 traced to the shared fallback keyword). Guard passed it honestly; documented as the fallback-diversity limitation below.
+
+### The two live-found defects + smallest-safe fixes (owner rule «نفّذ أقل إصلاح آمن»)
+1. **FAQ parser (caf3f96):** first EN run logged faqLifted:0 despite a correctly written FAQ — the model separates `**question**` from its answer with ONE newline, not the blank line the contract shows; the block-based parser merged Q+A into one block. Fix: LINE-based parsing (bold-only line or ### opens a question; any other line appends to the open answer; `**Label:**` stays answer text). Validated against the REAL extracted markdown of the live article (7 FAQs parsed, body stripped). +3 tests (single-newline live format, multi-line join, bold-label edge) → 568/568.
+2. **P1 fail-fast on plan-less outlines (bbc71fd):** 2nd AR run wrote a full 1607-word article, then P3 failed ×3 on «p3: image plan missing» — the outline model (groq/gpt-oss-120b) had returned imagePlan:0 which P1 accepted (only title+sections were validated). Fix: P1 now throws on an empty image plan → the runner's existing ×3 retry redraws the outline instead of burning P2-P5 + the day's slot.
+
+### Known limitations / follow-ups (documented, NOT changed)
+- First EN article (16:28) keeps its double-FAQ render — published before the parser fix; production data untouched (§3.3).
+- Two AR dispatch failures today: provider outage (gemma 429 pool + nemotron aborts — the documented transient class) and the plan-less outline; failed queue rows stay as records (no auto-cleanup, per 171's documented behavior).
+- P0 fell back to the curated research pool in today's EN and AR windows (provider instability) — fallback mode narrows topic diversity (static keyword pool; one belly-fat H2 recurred across two calorie-adjacent articles). Future proposal: digest-aware fallback rotation.
+- Out-of-scope observations stand: linked_post_id null on the last published posts (pair handshake best-effort), AR category rotation picks before the topic is known, AR RSS <link> misses the /ar prefix, AR-article tool links go to unprefixed /tools (pre-existing blog-tool-links design).
+
+**Local gates at close:** tsc 0 · eslint 0/0 · vitest 568/568 · next build ✓ · docs_audit (phase=172) · docs_parity · migration_audit --ci · stale-refs · ui-wiring.
