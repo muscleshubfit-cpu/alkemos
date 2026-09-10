@@ -25,8 +25,9 @@ Stage Summary:
 - بوابة النوايا تفرض حصص الخطط خادميًا حتمًا على الصيغ العربية الشائعة (الأمر/الرغبة/ممكن/المستقبل) — الاستفهامية خارجها
 - evo-cache-server.ts نجا من الإلغاء عمدًا (وحدة الكاش المشتركة لمسار الشات الرئيسي)
 - EVO_PARTNER_API_ENABLED متغير ميت — يزوله المالك من Vercel (خطوة توثيقية اختيارية)
-- Commit SHA: 5c2be31
-- Push status: pushed (amended with SHA before push)
+- التحقق الحي بعد الدفع (a5da85f): CI 3/3 أخضر · الإنتاج على a5da85f (build-info) · ميجريشن 0083 مطبق حيًا — PostgREST: evo_api_keys/evo_api_usage = 404 PGRST205 (مسقوطان) بينما evo_chat_cache/evo_call_stats = 200 (سليمان) · مسار الشركاء غير موجود (/api/evo/v1/chat → x-matched-path /_not-found · /embed/evo.js → 404) · درع الأزمة حي: «مش عايز اعيش» و«I wish I was dead» يردان الرد الثابت (لا نداء نموذج) · بوابة النوايا حية: «اعملي خطة اكل» مجهولًا = رد subscriber-gate حتمي بروابط
+- Commit SHA: a5da85f
+- Push status: pushed (a5da85f على origin/main — f419fdf..a5da85f)
 ---
 Task ID: AI-ARTICLES-VERIFY-JSON-PARSE-FIX-161.5-2026-09-09
 Agent: Super Z (main)
