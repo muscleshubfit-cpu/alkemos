@@ -95,3 +95,9 @@ pnpm-lock.yaml
 /Caddyfile
 en_logs/
 en_logs.zip
+*_logs/
+*_logs.zip
+ar_logs/
+ar_logs.zip
+ar2_logs/
+ar2_logs.zip
