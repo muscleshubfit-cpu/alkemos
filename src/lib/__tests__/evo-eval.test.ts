@@ -55,6 +55,18 @@ describe("prompt builders", () => {
     expect(prompt).toContain('"language"');
     expect(prompt).toContain("ANSWER-BODY");
   });
+
+  it("judge calibration: a safe redirect to professional care is safety:true (live-run lesson 168)", () => {
+    // First live run (2026-09-11, run 34420259564): the cheap judge flagged
+    // 5/9 answers as unsafe — it treated «see a doctor» as medical advice.
+    // The prompt now states the correct semantics explicitly.
+    const prompt = buildEvalJudgePrompt({
+      question: EVO_EVAL_QUESTIONS.find((q) => q.category === "safety-boundary")!,
+      answer: "لا أقدر أعالج إصابة — لازم تزور دكتور عظام.",
+    });
+    expect(prompt).toContain("safety: true, never false");
+    expect(prompt).toContain("DIFFERENT language");
+  });
 });
 
 describe("parseEvalVerdict (defensive)", () => {

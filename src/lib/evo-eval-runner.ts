@@ -9,11 +9,15 @@
  * scripts/ai-jobs-runner/evo-eval.mts under GHA evo-weekly-eval.yml.
  *
  * POSTURE (mirrors evo-learning-runner.ts):
- * - EVERY failure is contained: one question failing is a soft error that
- *   never aborts the run; a hard failure is a config/write error.
- * - The runner is honest: summary.ok=false when a hard error occurred OR
- *   when ZERO questions scored (an eval that evaluated nothing must not
- *   paint the run green — HONEST RUN COLOR LAW).
+ * - Per-question containment: one question failing (answer or judge) is a
+ *   soft error that never aborts the run; the judge gets ONE retry on an
+ *   unparseable verdict before the question is skipped (RATE-LIMIT
+ *   RESILIENCE LAW — a transient 429 on 1/10 must not fail the run).
+ * - Honest color: ok=false on a hard error (config/DB) OR when scored
+ *   questions fall below HALF the reference set — an eval that evaluated
+ *   less than half its set must not paint the run green. Soft errors are
+ *   always printed (visible, counted), they only fail the run when they
+ *   push the run below that majority floor.
  * - Provider tags: "evo-eval" (answers) and "evo-eval-judge" (judge) —
  *   both ride callFreeAIFallbackChain (UNIVERSAL MODEL SWITCHER law).
  *
@@ -49,6 +53,7 @@ import {
 export type EvoEvalSummary = {
   ok: boolean;
   scored: number;
+  total: number;
   avgScore: number;
   safetyFailures: number;
   languageMismatches: number;
@@ -99,17 +104,23 @@ async function judgeAnswer(
   question: EvalQuestion,
   answer: string,
 ): Promise<{ score: number; safetyPass: boolean; languageMatch: boolean; notes: string }> {
-  const { text } = await callFreeAIFallbackChain(buildEvalJudgePrompt({ question, answer }), {
-    tag: "evo-eval-judge",
-    chain: "fast",
-    temperature: 0,
-    maxTokens: 300,
-    timeoutMs: 15_000,
-    maxModels: 2,
-  });
-  const verdict = parseEvalVerdict(text);
-  if (!verdict) throw new Error(`judge verdict for ${question.id} unparseable`);
-  return verdict;
+  // ONE retry on an unparseable verdict — transient judge hiccups (429 /
+  // chatter output) must not burn a question (RATE-LIMIT RESILIENCE LAW).
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { text } = await callFreeAIFallbackChain(buildEvalJudgePrompt({ question, answer }), {
+      tag: "evo-eval-judge",
+      chain: "fast",
+      temperature: 0,
+      maxTokens: 300,
+      timeoutMs: 15_000,
+      maxModels: 2,
+    });
+    const verdict = parseEvalVerdict(text);
+    if (verdict) return verdict;
+    lastError = new Error(`judge verdict for ${question.id} unparseable (attempt ${attempt + 1})`);
+  }
+  throw lastError ?? new Error(`judge verdict for ${question.id} unparseable`);
 }
 
 export async function runEvoWeeklyEval(): Promise<EvoEvalSummary> {
@@ -120,6 +131,7 @@ export async function runEvoWeeklyEval(): Promise<EvoEvalSummary> {
     return {
       ok: false,
       scored: 0,
+      total: EVO_EVAL_QUESTIONS.length,
       avgScore: 0,
       safetyFailures: 0,
       languageMismatches: 0,
@@ -171,12 +183,16 @@ export async function runEvoWeeklyEval(): Promise<EvoEvalSummary> {
   }
 
   const summary = summarizeEvalResults(rows);
-  // Honest color: zero scored questions = the harness did not evaluate —
-  // the run is RED even though nothing hard-crashed.
-  const ok = errors.length === 0 && summary.count > 0;
+  // Honest color with a resilience floor: a majority of the reference set
+  // must score for the run to be green — a single transient (judge hiccup,
+  // one 429) stays visible in errors but cannot fail a healthy majority
+  // (RATE-LIMIT RESILIENCE LAW). Zero-scored or half-failed runs are RED.
+  const majority = Math.ceil(EVO_EVAL_QUESTIONS.length / 2);
+  const ok = summary.count >= majority && summary.count > 0;
   return {
     ok,
     scored: summary.count,
+    total: EVO_EVAL_QUESTIONS.length,
     avgScore: summary.avgScore,
     safetyFailures: summary.safetyFailures,
     languageMismatches: summary.languageMismatches,

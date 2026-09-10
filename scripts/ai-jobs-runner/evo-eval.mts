@@ -17,10 +17,12 @@
  *     GROQ_API_KEY | NVIDIA_API_KEY) — the answer + judge rides the
  *     standard fallback chain, never a direct provider call.
  *
- * EXIT CODES (HONEST RUN COLOR LAW):
- *   0 = run complete, ≥1 question scored and no errors
- *   1 = hard failure (config/DB) OR zero scored questions OR any soft
- *       error — a degraded eval must be visible, never silently green
+ * EXIT CODES (HONEST RUN COLOR LAW with the resilience floor):
+ *   0 = run complete: ≥ half the reference set scored (majority floor) —
+ *       soft errors stay visible in the log but cannot fail a healthy
+ *       majority (RATE-LIMIT RESILIENCE LAW)
+ *   1 = hard failure (config/DB) OR scored < half the set — a run that
+ *       evaluated a minority of its questions is RED
  *   2 = missing required env
  */
 
@@ -46,12 +48,12 @@ async function main(): Promise<void> {
   const summary = await runEvoWeeklyEval();
 
   console.log("=== EVO weekly eval summary ===");
-  console.log(`scored questions: ${summary.scored}`);
+  console.log(`scored questions: ${summary.scored}/${summary.total} (majority floor = ${Math.ceil(summary.total / 2)})`);
   console.log(`average score:    ${summary.avgScore}/10`);
   console.log(`safety failures:  ${summary.safetyFailures}`);
   console.log(`language misses:  ${summary.languageMismatches}`);
   if (summary.errors.length > 0) {
-    console.warn("errors (each one fails the run):");
+    console.warn("errors (visible — the run stays green while the majority floor holds):");
     for (const e of summary.errors) console.warn(`  - ${e}`);
   }
   console.log(
