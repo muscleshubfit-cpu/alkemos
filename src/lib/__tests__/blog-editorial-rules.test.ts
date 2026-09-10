@@ -42,6 +42,7 @@ const pipelineSrc = read(join(libDir, "blog-pipeline.ts"));
 const researchSrc = read(join(libDir, "blog-research.ts"));
 const processorsSrc = read(join(libDir, "ai-job-processors.ts"));
 const blogImagesSrc = read(join(libDir, "blog-images.ts"));
+const blogServerSrc = read(join(libDir, "blog-server.ts"));
 const articlePageSrc = read(join(srcDir, "components", "blog", "BlogArticlePage.tsx"));
 const blogComponentsSrc = read(join(srcDir, "components", "blog", "BlogComponents.tsx"));
 const adSenseSrc = read(join(srcDir, "components", "AdSenseAd.tsx"));
@@ -240,5 +241,58 @@ describe("Phase 173 — image subject law (source contracts)", () => {
 
   it("the image_prompt tool carries the law (generation prompts, not negative-prompt-only)", () => {
     expect(processorsSrc).toContain("the image must NEVER contain women or girls");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 174 — admin AI tools ride the SAME blog system (owner order
+// «افحص توليد مقالات وادوات الذكاء الاصطناعي من صفحة الادمن وتاكد انها
+// تتبع نفس منظومة المدونة») + the AR-blog 500s incident closure
+// ─────────────────────────────────────────────────────────────────
+describe("Phase 174 — admin AI tools parity with the blog pipeline", () => {
+  it("the coach-path (admin) generator no longer DEMANDS a closing CTA in its hard requirements", () => {
+    expect(processorsSrc).not.toContain("خاتمة بدعوة لاتخاذ إجراء");
+    expect(processorsSrc).not.toContain("conclusion with a call-to-action");
+  });
+
+  it("the coach-path generator now carries the Phase-173 closing-CTA BAN (cards render after the article)", () => {
+    expect(processorsSrc).toContain(
+      "ممنوع إضافة أي فقرة ختامية تسويقية أو دعوة للاشتراك أو انضمام Alkemos",
+    );
+    expect(processorsSrc).toContain(
+      "do NOT append any closing call-to-action, marketing outro",
+    );
+  });
+
+  it("the article_tool editor transforms carry the Pan-Arab MSA law (legacy-dialect input converts to MSA)", () => {
+    expect(processorsSrc).toContain("عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى");
+  });
+
+  it("the editor CTA tool sells only REAL products and bans the non-existent session wording", () => {
+    expect(processorsSrc).toContain("اذكر منتجات Alkemos الحقيقية فقط");
+    expect(processorsSrc).toContain("NEVER a single \"book a session\" offer");
+  });
+});
+
+describe("Phase 174 — slug-pool cache is JSON-safe (26 AR articles 500ed in production)", () => {
+  it("the unstable_cache primitive stores ARRAYS, never Sets (Sets JSON-serialize to {})", () => {
+    // The cached function must return string arrays — the exported wrapper
+    // is the only place Sets are built.
+    expect(blogServerSrc).not.toContain(
+      "async (): Promise<{ en: Set<string>; ar: Set<string> }> => {",
+    );
+    expect(blogServerSrc).toContain("Promise<{ en: string[]; ar: string[] }>");
+  });
+
+  it("the exported wrapper rebuilds real Sets for every caller (API unchanged)", () => {
+    expect(blogServerSrc).toContain("export async function fetchPublishedBlogSlugPools");
+    expect(blogServerSrc).toMatch(/new Set\(Array\.isArray\(raw\?\.en\)/);
+    expect(blogServerSrc).toMatch(/new Set\(Array\.isArray\(raw\?\.ar\)/);
+  });
+
+  it("the sanitizer normalizes pools defensively (a JSON-roundtripped Set can never 500 a page)", () => {
+    const sanitizeSrc = read(join(libDir, "blog-content-sanitize.ts"));
+    expect(sanitizeSrc).toContain("function toSet");
+    expect(sanitizeSrc).toContain("normalizePools(pools)");
   });
 });

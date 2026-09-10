@@ -113,4 +113,54 @@ describe("sanitizeBlogContent (composed pipeline)", () => {
     ];
     for (const s of samples) expect(cjk.test(sanitizeBlogContent(s, "ar", POOLS))).toBe(false);
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  // PHASE 174 — LIVE INCIDENT REGRESSION (2026-09-11): 26/37 published
+  // AR articles served HTTP 500 in production. Root cause: the slug
+  // pools crossed `unstable_cache`, which JSON-serializes its cached
+  // value — a Set becomes {} — so `pools.ar.has` threw on every AR
+  // article whose content carries ](/blog/… links (the Phase-156 legacy
+  // corpus). These tests pin BOTH layers of the fix: the sanitizer's
+  // defensive pool normalization (below) and the JSON-safe pool cache
+  // (source-contract canary in blog-editorial-rules.test.ts).
+  // ═══════════════════════════════════════════════════════════════
+  describe("PHASE 174 — unstable_cache JSON roundtrip must never 500 the page", () => {
+    const LINKY_MD = "اقرأ [دليل الكرياتين](/blog/creatine-beginners-guide) و[دليل HIIT](/blog/hiit-home-workout-guide).";
+
+    it("the EXACT production repro: JSON-roundtripped Set pools (→ {}) do not throw", () => {
+      // This is precisely what unstable_cache hands back on a cache HIT.
+      const jsonRoundtripped = JSON.parse(
+        JSON.stringify({ en: POOLS.en, ar: POOLS.ar }),
+      ) as unknown as BlogSlugPools;
+      expect(() => fixCrossLanguageLinkPrefixes(LINKY_MD, "ar", jsonRoundtripped)).not.toThrow();
+      // Degraded pools = safe no-op: links stay unchanged (never 404).
+      expect(fixCrossLanguageLinkPrefixes(LINKY_MD, "ar", jsonRoundtripped)).toBe(LINKY_MD);
+      // And the composed entry point too (the page-level call).
+      expect(() => sanitizeBlogContent(LINKY_MD, "ar", jsonRoundtripped)).not.toThrow();
+    });
+
+    it("array-shaped pools (the JSON-safe cache fix) rewrite prefixes correctly", () => {
+      const arrayPools = {
+        en: [...POOLS.en],
+        ar: [...POOLS.ar],
+      } as unknown as BlogSlugPools;
+      expect(fixCrossLanguageLinkPrefixes(LINKY_MD, "ar", arrayPools)).toBe(
+        "اقرأ [دليل الكرياتين](/ar/blog/creatine-beginners-guide) و[دليل HIIT](/ar/blog/hiit-home-workout-guide).",
+      );
+    });
+
+    it("null/undefined-ish pools degrade to a no-op instead of crashing (never-500s law)", () => {
+      expect(() => sanitizeBlogContent(LINKY_MD, "ar", null as unknown as BlogSlugPools)).not.toThrow();
+      expect(() =>
+        sanitizeBlogContent(LINKY_MD, "ar", { en: null, ar: null } as unknown as BlogSlugPools),
+      ).not.toThrow();
+      expect(sanitizeBlogContent(LINKY_MD, "ar", null as unknown as BlogSlugPools)).toBe(LINKY_MD);
+    });
+
+    it("real Set pools keep working exactly as before (no behavior change on the happy path)", () => {
+      expect(fixCrossLanguageLinkPrefixes(LINKY_MD, "ar", POOLS)).toBe(
+        "اقرأ [دليل الكرياتين](/ar/blog/creatine-beginners-guide) و[دليل HIIT](/ar/blog/hiit-home-workout-guide).",
+      );
+    });
+  });
 });

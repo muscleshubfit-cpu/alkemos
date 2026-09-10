@@ -181,12 +181,26 @@ export const fetchBlogPostFull = unstable_cache(
  * deliberately cross-language target can never be turned into a 404.
  * Light select (slug, language only) + unstable_cache @300s aligned with
  * the blog pages' ISR window: at most one extra query per 5 minutes.
+ *
+ * ─────────────────────────────────────────────────────────────────────
+ * PHASE 174 (2026-09-11, live incident): `unstable_cache` JSON-serializes
+ * its cached value, and a `Set` serializes to `{}` — so every cache HIT
+ * handed the sanitizer `{en: {}, ar: {}}` instead of real Sets. The AR
+ * legacy corpus (26/37 published AR posts carry `](/blog/…)` links) then
+ * crashed the whole page render with `TypeError: pools.ar.has is not a
+ * function` → those 26 articles served HTTP 500 in production since
+ * Phase 156 (reproduced locally with `next build && next start`; perfect
+ * correlation: 26/26 broken posts have the links, 11/11 working have
+ * none). FIX: the CACHED primitive now stores JSON-safe string ARRAYS;
+ * the exported wrapper rebuilds real Sets on every call, so every
+ * consumer keeps the exact same `{en: Set, ar: Set}` contract.
+ * ─────────────────────────────────────────────────────────────────────
  */
-export const fetchPublishedBlogSlugPools = unstable_cache(
-  async (): Promise<{ en: Set<string>; ar: Set<string> }> => {
+const fetchPublishedBlogSlugPoolsCached = unstable_cache(
+  async (): Promise<{ en: string[]; ar: string[] }> => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const pools: { en: Set<string>; ar: Set<string> } = { en: new Set(), ar: new Set() };
+    const pools: { en: string[]; ar: string[] } = { en: [], ar: [] };
     if (!supabaseUrl || !supabaseAnonKey) return pools;
     try {
       const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -198,8 +212,8 @@ export const fetchPublishedBlogSlugPools = unstable_cache(
         .eq("is_published", true);
       if (error || !data) return pools;
       for (const row of data as Array<{ slug: string; language: string }>) {
-        if (row.language === "ar") pools.ar.add(row.slug);
-        else pools.en.add(row.slug);
+        if (row.language === "ar") pools.ar.push(row.slug);
+        else pools.en.push(row.slug);
       }
     } catch {
       // empty pools on failure — sanitizer degrades to a no-op (never 500s)
@@ -209,6 +223,18 @@ export const fetchPublishedBlogSlugPools = unstable_cache(
   ["blog-slug-pools"],
   { revalidate: 300 },
 );
+
+/** Cached wrapper → REAL Sets for every caller (API unchanged, JSON-safe). */
+export async function fetchPublishedBlogSlugPools(): Promise<{
+  en: Set<string>;
+  ar: Set<string>;
+}> {
+  const raw = await fetchPublishedBlogSlugPoolsCached();
+  return {
+    en: new Set(Array.isArray(raw?.en) ? raw.en : []),
+    ar: new Set(Array.isArray(raw?.ar) ? raw.ar : []),
+  };
+}
 
 // FAQ item moved to blog.ts (client-safe single source of truth — Phase 90)
 // and re-exported here for the existing blog-server import surface.

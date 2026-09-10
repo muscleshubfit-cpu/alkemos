@@ -221,8 +221,15 @@ ${isAr ? "الكلمة المفتاحية" : "Focus keyword"}: ${keyword || "-"}
 ${isAr ? "محتوى المقال" : "Article body"}:
 ${content.slice(0, isAr ? 12_000 : 14_000)}`;
 
+  // PHASE 174 (admin-tools parity — the owner's «نفس منظومة المدونة» order):
+  // the editor tools (paraphrase/proofread/improve/subheadings/…) rewrite
+  // article text, so they MUST carry the SAME Pan-Arab MSA editorial law
+  // as the blog pipeline's LANG_RULE (Phase 173). Without it, running a
+  // transform on a legacy Egyptian-dialect article kept the dialect, and
+  // an MSA draft could drift — these tools are also the natural lever
+  // for the future Arabic Legacy Content Cleanup, so the law rides them.
   const sys = isAr
-    ? "أنت محرر لغوي وخبير SEO لموقع Alkemos الرياضي. تلتزم حرفياً بتعليمات الإخراج."
+    ? "أنت محرر لغوي وخبير SEO لموقع Alkemos الرياضي. تلتزم حرفياً بتعليمات الإخراج. قانون تحريري صارم: اكتب وحرّر بالعربية الفصحى الحديثة السهلة الواضحة لكل القراء العرب (Pan-Arab Modern Standard Arabic) — ممنوع منعًا باتًا أي لهجة محلية (مصرية أو خليجية أو غيرها) أو تعبيرات عامية لا يفهمها إلا أهل بلد معين (عشان، مش، ازاي، بتاع، كده، خلاص…) أو الترجمة الحرفية عن الإنجليزية؛ صحّح النحو والإملاء وصُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق. عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى الحديثة السهلة مع الحفاظ الكامل على المعنى."
     : "You are Alkemos's senior editor & SEO specialist. Follow output instructions literally.";
 
   // Sentinel instructions reused by the three big-text transforms.
@@ -289,9 +296,15 @@ ${MARKER_NOTES}
       break;
 
     case "cta":
+      // PHASE 174 (honesty parity with the Phase-173 Coach Card law): the
+      // editor CTA tool suggests copy a coach may paste into an article —
+      // it must only reference Alkemos's REAL products (coaching
+      // membership / meal planner / free calculators / programs), never
+      // the non-existent single "book a session" service the coach card
+      // was corrected away from.
       prompt = isAr
-        ? `اكتب 3 دعوات لاتخاذ إجراء (CTA) مقنعة خاصة بـ Alkemos بناءً على المقال.\n\n${articleContext}\n\nأعد شكلاً حرفياً:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- ملاحظات`
-        : `Write 3 persuasive CTAs for Alkemos from this article.\n\n${articleContext}\n\nReply exactly:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- notes`;
+        ? `اكتب 3 دعوات لاتخاذ إجراء (CTA) مقنعة خاصة بـ Alkemos بناءً على المقال. القاعدة: اذكر منتجات Alkemos الحقيقية فقط — عضوية الكوتشينج الأونلاين الشهرية، أو مخطط الوجبات، أو الحاسبات المجانية (السعرات/الماكروز/مؤشر كتلة الجسم/نسبة الدهون/متتبع الماء)، أو برامج التدريب — وممنوع نهائيًا أي صياغة «احجز جلسة» أو «جلسة تدريب واحدة» (خدمة غير موجودة).\n\n${articleContext}\n\nأعد شكلاً حرفياً:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- ملاحظات`
+        : `Write 3 persuasive CTAs for Alkemos from this article. RULE: mention only Alkemos's REAL products — the monthly online-coaching membership, the meal planner, the free calculators (calories/macros/BMI/body-fat/water), or workout programs — NEVER a single "book a session" offer (that service does not exist).\n\n${articleContext}\n\nReply exactly:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- notes`;
       break;
 
     case "image_prompt":
@@ -778,9 +791,16 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
       (isAr
         ? `الكلمات المفتاحية التي يجب أن تظهر طبيعياً: ${keywords.join("، ")}.`
         : `Focus keywords to weave in naturally: ${keywords.join(", ")}.`),
+    // PHASE 174 (admin-tools parity with the P4 Phase-173 law): the old
+    // hard-requirements line here DEMANDED a closing marketing CTA
+    // paragraph — the exact duplicate-closing-CTA class the owner
+    // ordered removed (the article page already renders BlogMembershipCard
+    // after the content). The coach-path generator now carries the same
+    // ban as the pipeline's P4 instruction 10, so BOTH article surfaces
+    // ship one quality bar.
     isAr
-      ? "المتطلبات الصارمة: 1100-1400 كلمة (شرط إلزامي — المقالات الأقصر تُرفض وتُعاد الكتابة)، مقدمة غير نمطية (ممنوع البدء بـ«في عالم اللياقة» أو أي حشو عام)، 6-9 عناوين فرعية ## منظمة، أمثلة وأرقام عملية محددة داخل الأقسام، قسم «أخطاء شائعة»، قسم تطبيقي خطوة بخطوة قابل للتنفيذ فوراً، خاتمة بدعوة لاتخاذ إجراء. بدون جداول HTML وبدون صور وبدون صيغة LaTeX."
-      : "Hard requirements: 1100-1400 words (mandatory — shorter drafts are rejected and rewritten), a non-generic hook (never open with filler like 'In the world of fitness…'), 6-9 organized ## subheadings, concrete examples and practical numbers inside sections, a common-mistakes section, an immediately actionable step-by-step section, conclusion with a call-to-action. No HTML tables, no images, no LaTeX.",
+      ? "المتطلبات الصارمة: 1100-1400 كلمة (شرط إلزامي — المقالات الأقصر تُرفض وتُعاد الكتابة)، مقدمة غير نمطية (ممنوع البدء بـ«في عالم اللياقة» أو أي حشو عام)، 6-9 عناوين فرعية ## منظمة، أمثلة وأرقام عملية محددة داخل الأقسام، قسم «أخطاء شائعة»، قسم تطبيقي خطوة بخطوة قابل للتنفيذ فوراً، خاتمة تلخص جوهر المقال فقط — ممنوع إضافة أي فقرة ختامية تسويقية أو دعوة للاشتراك أو انضمام Alkemos في نهاية المقال (الموقع يعرض بطاقات الاشتراك بعد المقال تلقائياً). بدون جداول HTML وبدون صور وبدون صيغة LaTeX."
+      : "Hard requirements: 1100-1400 words (mandatory — shorter drafts are rejected and rewritten), a non-generic hook (never open with filler like 'In the world of fitness…'), 6-9 organized ## subheadings, concrete examples and practical numbers inside sections, a common-mistakes section, an immediately actionable step-by-step section, and a conclusion that ONLY summarizes the article's substance — do NOT append any closing call-to-action, marketing outro, or \"join Alkemos\" pitch paragraph (the website already renders its CTA cards after the article). No HTML tables, no images, no LaTeX.",
     isAr
       ? "تدقيق إلزامي قبل التسليم: عدد الكلمات 1100+، الأقسام 6-9، كل قسم فيه مثال أو رقم عملي، قسم أخطاء شائعة + قسم خطوة بخطوة موجودان، و2-3 روابط داخلية من القائمة أعلاه مستخدمة فعلاً."
       : "Mandatory self-check before answering: 1100+ words, 6-9 sections, every section carries a concrete example or number, common-mistakes + step-by-step sections present, and 2-3 internal links from the list above actually used.",

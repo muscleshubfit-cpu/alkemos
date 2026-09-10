@@ -29,6 +29,32 @@ export type BlogSlugPools = {
 };
 
 /**
+ * PHASE 174 (live incident defense): `unstable_cache` JSON-serializes its
+ * cached value — a `Set` silently becomes `{}`, and the AR legacy corpus
+ * (26/37 published AR posts carry `](/blog/…)` links) then crashed the
+ * whole page render with `TypeError: pools.ar.has is not a function`
+ * (HTTP 500 on those articles since Phase 156). This normalizer accepts
+ * ANY pool-shaped input (real Set, array, or the JSON-roundtripped `{}`
+ * cache artifact) and turns it back into a working ReadonlySet, so the
+ * sanitize layer can never take a page down — worst case it degrades to
+ * a no-op, exactly the documented "never 500s" contract.
+ */
+function toSet(raw: unknown): ReadonlySet<string> {
+  if (raw instanceof Set) return raw;
+  if (Array.isArray(raw)) return new Set(raw.filter((s): s is string => typeof s === "string"));
+  return new Set<string>(); // {} / null / anything else → safe empty pool
+}
+
+/** Normalize both pools defensively at the entry of the prefix rewriter. */
+function normalizePools(pools: BlogSlugPools | null | undefined): {
+  en: ReadonlySet<string>;
+  ar: ReadonlySet<string>;
+} {
+  const p = (pools ?? {}) as Record<string, unknown>;
+  return { en: toSet(p.en), ar: toSet(p.ar) };
+}
+
+/**
  * Known-corruption replacement map (audit 2026-09-09, U+ codes recorded
  * so future canaries can be extended without re-deriving them).
  * «超过» (U+8D85U+8FC7) = "exceed" → «أكثر من»   — rest-period AR post
@@ -85,13 +111,16 @@ export function fixCrossLanguageLinkPrefixes(
   lang: "en" | "ar",
   pools: BlogSlugPools,
 ): string {
+  // PHASE 174: normalize FIRST — a Set that survived a JSON cache
+  // roundtrip is `{}`, and `.has` on it would 500 the whole page.
+  const safe = normalizePools(pools);
   if (lang === "ar") {
     return content.replace(MD_LINK_TO_EN_PREFIX, (match, _url: string, slug: string) =>
-      pools.ar.has(slug) ? `](/ar/blog/${slug})` : match,
+      safe.ar.has(slug) ? `](/ar/blog/${slug})` : match,
     );
   }
   return content.replace(MD_LINK_TO_AR_PREFIX, (match, _url: string, slug: string) =>
-    pools.en.has(slug) ? `](/blog/${slug})` : match,
+    safe.en.has(slug) ? `](/blog/${slug})` : match,
   );
 }
 
