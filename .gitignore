@@ -93,3 +93,5 @@ pnpm-lock.yaml
 /file_*.png
 /.claude/
 /Caddyfile
+en_logs/
+en_logs.zip
