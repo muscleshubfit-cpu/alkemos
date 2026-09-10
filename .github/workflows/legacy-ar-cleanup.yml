@@ -41,7 +41,10 @@ concurrency:
 jobs:
   msa-cleanup:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # Batches of ~8 articles: successes take 2-4 min each, retries with
+    # backoff up to ~15 min worst-case per article — 120 min funds a full
+    # batch including transient-provider retries.
+    timeout-minutes: 120
 
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

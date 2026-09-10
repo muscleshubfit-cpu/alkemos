@@ -233,5 +233,9 @@ describe("Phase 175 — cleanup runner + workflow presence (canaries)", () => {
     // Provider-outage throws (gemma 429 pool, nemotron aborts) are a
     // RETRYABLE attempt — never a run crash.
     expect(runner).toContain("chain-thrown (transient provider class)");
+    // Degenerate payloads (zero Arabic chars — the nvidia reasoning-model
+    // "success" class observed live in run 34522943898) are rejected at
+    // the sentinel parser, never validated as content.
+    expect(runner).toContain("الناتج بلا محتوى عربي");
   });
 });

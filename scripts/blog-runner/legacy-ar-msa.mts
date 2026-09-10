@@ -47,7 +47,7 @@ const SLUGS = (process.env.SLUGS || "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
-const MAX_ATTEMPTS = 3;
+const MAX_ATTEMPTS = 4;
 
 // Same sentinel contract the editor article_tools use (ai-job-processors).
 const MARKER_MAIN = "===CORRECTED===";
@@ -62,7 +62,10 @@ interface Row {
   content: string | null;
 }
 
-/** Parse the sentinel-wrapped model output; null when the format broke. */
+/** Parse the sentinel-wrapped model output; null when the format broke
+ *  or the payload is degenerate (zero Arabic characters — the nvidia
+ *  reasoning-model class that "succeeds" with an empty content field
+ *  and English thinking text in its reasoning fallback). */
 function parseSentinel(raw: string): string | null {
   let text = (raw || "").trim();
   const fence = text.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/);
@@ -73,7 +76,13 @@ function parseSentinel(raw: string): string | null {
   const j = text.indexOf(MARKER_NOTES);
   if (j !== -1) text = text.slice(0, j);
   text = text.trim();
-  return text.length > 0 ? text : null;
+  if (text.length === 0) return null;
+  // Degenerate payload: a dialect→MSA conversion MUST produce Arabic —
+  // zero Arabic characters means the model returned reasoning-only or
+  // non-content (observed live: nvidia/nemotron-3-super-120b "succeeded"
+  // with 0 Arabic words twice in run 34522943898).
+  if (!/[\u0600-\u06FF]/.test(text)) return null;
+  return text;
 }
 
 function buildPrompt(content: string, retryViolations?: string[]): string {
@@ -149,7 +158,11 @@ async function convertArticle(
     }
     const candidate = parseSentinel(text);
     if (!candidate) {
-      violations = ["الناتج بلا علامة ===CORRECTED=== الحرفية (خرق تنسيق الإخراج)"];
+      violations = [
+        /[\u0600-\u06FF]/.test(text)
+          ? "الناتج بلا علامة ===CORRECTED=== الحرفية (خرق تنسيق الإخراج)"
+          : "الناتج بلا محتوى عربي (استجابة تفكير فارغة من نموذج reasoning — أعد المحاولة بالمحتوى الفعلي)",
+      ];
       console.log(`    attempt ${attempt}: ${violations[0]}`);
       continue;
     }
