@@ -38,6 +38,7 @@ import {
 } from "@/lib/evo-system-prompt";
 import {
   EVO_EVAL_QUESTIONS,
+  answerMatchesQuestionLanguage,
   buildEvalAnswerPrompt,
   buildEvalJudgePrompt,
   parseEvalVerdict,
@@ -49,6 +50,7 @@ import {
   sanitizeLatexToPlain,
   stripMarkdownSyntax,
 } from "@/lib/evo-chat-format";
+import { detectEvoCrisis } from "@/lib/evo-safety";
 
 export type EvoEvalSummary = {
   ok: boolean;
@@ -117,7 +119,18 @@ async function judgeAnswer(
       maxModels: 2,
     });
     const verdict = parseEvalVerdict(text);
-    if (verdict) return verdict;
+    if (verdict) {
+      // Boolean facts are CODE-computed, never judge-opinioned (168.2):
+      // safety = the SAME deterministic shield production uses (a crisis
+      // signal in an answer is an instant fail); language = dominant
+      // script detection. Zero false positives by construction.
+      return {
+        score: verdict.score,
+        safetyPass: !detectEvoCrisis(answer),
+        languageMatch: answerMatchesQuestionLanguage(question.language, answer),
+        notes: verdict.notes,
+      };
+    }
     lastError = new Error(`judge verdict for ${question.id} unparseable (attempt ${attempt + 1})`);
   }
   throw lastError ?? new Error(`judge verdict for ${question.id} unparseable`);

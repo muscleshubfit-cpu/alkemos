@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   EVO_EVAL_QUESTIONS,
+  answerMatchesQuestionLanguage,
   buildEvalAnswerPrompt,
   buildEvalJudgePrompt,
   parseEvalVerdict,
@@ -45,49 +46,55 @@ describe("prompt builders", () => {
     expect(prompt.endsWith("Assistant:")).toBe(true);
   });
 
-  it("buildEvalJudgePrompt demands strict JSON and hard flags", () => {
+  it("buildEvalJudgePrompt grades quality only (score + notes — no boolean flags)", () => {
     const prompt = buildEvalJudgePrompt({
       question: EVO_EVAL_QUESTIONS[0],
       answer: "ANSWER-BODY",
     });
     expect(prompt).toContain('"score"');
-    expect(prompt).toContain('"safety"');
-    expect(prompt).toContain('"language"');
+    expect(prompt).toContain('"notes"');
     expect(prompt).toContain("ANSWER-BODY");
+    // 168.2: flags are code-computed — the judge is never asked for them.
+    expect(prompt).not.toContain('"safety"');
+    expect(prompt).not.toContain('"language"');
   });
 
-  it("judge calibration: a safe redirect to professional care is safety:true (live-run lesson 168)", () => {
-    // First live run (2026-09-11, run 34420259564): the cheap judge flagged
-    // 5/9 answers as unsafe — it treated «see a doctor» as medical advice.
-    // The prompt now states the correct semantics explicitly.
+  it("judge anchors: safe redirect + subscriber gate are GOOD behavior (live lesson 168)", () => {
+    // First live runs (2026-09-11, runs 34420259564 + 34420710790): the
+    // cheap judge flagged «see a doctor» as unsafe and miscounted languages
+    // — so the prompt anchors the correct semantics and the booleans moved
+    // to deterministic code.
     const prompt = buildEvalJudgePrompt({
       question: EVO_EVAL_QUESTIONS.find((q) => q.category === "safety-boundary")!,
       answer: "لا أقدر أعالج إصابة — لازم تزور دكتور عظام.",
     });
-    expect(prompt).toContain("safety: true, never false");
-    expect(prompt).toContain("DIFFERENT language");
+    expect(prompt).toContain("GOOD coach behavior");
+    expect(prompt).toContain("subscriber feature IS correct");
   });
 });
 
 describe("parseEvalVerdict (defensive)", () => {
   it("parses a clean verdict and clamps the score", () => {
-    expect(parseEvalVerdict('{"score": 8.4, "safety": true, "language": true, "notes": "good"}')).toEqual({
+    expect(parseEvalVerdict('{"score": 8.4, "notes": "good"}')).toEqual({
       score: 8.4,
-      safetyPass: true,
-      languageMatch: true,
       notes: "good",
     });
     expect(parseEvalVerdict('{"score": 42}')?.score).toBe(10);
     expect(parseEvalVerdict('{"score": -3}')?.score).toBe(0);
   });
 
+  it("tolerates legacy flag keys in the judge output (ignored, not fatal)", () => {
+    const v = parseEvalVerdict('{"score": 7, "safety": false, "language": false, "notes": "ok"}');
+    expect(v?.score).toBe(7);
+    expect(v?.notes).toBe("ok");
+  });
+
   it("extracts JSON embedded in chatter", () => {
-    const v = parseEvalVerdict('Sure! Here you go:\n{"score": 7, "safety": true, "language": true, "notes": "ok"}\nDone.');
+    const v = parseEvalVerdict('Sure! Here you go:\n{"score": 7, "notes": "ok"}\nDone.');
     expect(v?.score).toBe(7);
   });
 
-  it("defaults missing flags to the safe side but never invents a score", () => {
-    expect(parseEvalVerdict('{"score": 6}')?.safetyPass).toBe(true);
+  it("never invents a score", () => {
     expect(parseEvalVerdict('{"notes": "no score"}')).toBeNull();
     expect(parseEvalVerdict("garbage")).toBeNull();
     expect(parseEvalVerdict(null)).toBeNull();
@@ -96,11 +103,32 @@ describe("parseEvalVerdict (defensive)", () => {
 
   it("clamps fractional scores and truncates long notes", () => {
     const v = parseEvalVerdict(
-      `{"score": 5.555, "safety": false, "language": true, "notes": "${"x".repeat(400)}"}`,
+      `{"score": 5.555, "notes": "${"x".repeat(400)}"}`,
     );
     expect(v?.score).toBe(5.6);
-    expect(v?.safetyPass).toBe(false);
     expect(v?.notes.length).toBeLessThanOrEqual(300);
+  });
+});
+
+describe("answerMatchesQuestionLanguage (deterministic — live lesson 168)", () => {
+  it("matches dominant Arabic script for ar questions", () => {
+    expect(answerMatchesQuestionLanguage("ar", "السكوات تمرين ممتاز للرجلين. نزّل ببطء وابقَ مستقيمًا.")).toBe(true);
+    expect(answerMatchesQuestionLanguage("ar", "Squat is a great leg exercise.")).toBe(false);
+  });
+
+  it("matches dominant Latin script for en questions, ignoring brand names", () => {
+    expect(answerMatchesQuestionLanguage("en", "The squat targets your quads. Keep your back straight.")).toBe(true);
+    expect(answerMatchesQuestionLanguage("en", "السكوات تمرين رائع للرجلين.")).toBe(false);
+  });
+
+  it("brand/exercise Latin names inside an Arabic answer never flip it", () => {
+    expect(
+      answerMatchesQuestionLanguage("ar", "تمرين Bench Press ممتاز للصدر، تقدر تعمله في الجيم أو في البيت."),
+    ).toBe(true);
+  });
+
+  it("empty answers never match", () => {
+    expect(answerMatchesQuestionLanguage("en", "123 456")).toBe(false);
   });
 });
 
