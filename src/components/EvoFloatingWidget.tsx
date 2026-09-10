@@ -8,7 +8,8 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase/client";
 import { buildFollowupPrefWrite } from "@/lib/evo-followup";
-import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown, Mail } from "lucide-react";
+import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown, Mail, Copy, FileDown } from "lucide-react";
+import { buildEvoPrintHtml, buildEvoTranscriptMarkdown } from "@/lib/evo-export";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -150,6 +151,37 @@ export function EvoFloatingWidget() {
       loadFollowupRow();
     }
   }, [isOpen, loadFollowupRow]);
+
+  // EVO-5 (W5.6) — conversation export: «نسخ» = clipboard markdown (the
+  // paste-able deliverable — TOOL RESULTS copy-vs-display law), «حفظ
+  // PDF" = a styled print window (every browser's print dialog offers
+  // "Save as PDF" — zero new dependencies, works on the owner's phone).
+  // READ-ONLY: no history writes, no API calls. Quota/error bubbles are
+  // excluded exactly like the 👍/👎 rating excludes them.
+  const handleCopyTranscript = useCallback(() => {
+    const md = buildEvoTranscriptMarkdown(messages, isAr ? "ar" : "en");
+    navigator.clipboard
+      .writeText(md)
+      .then(() => toast.success(isAr ? "تم نسخ المحادثة" : "Conversation copied"))
+      .catch(() => toast.error(isAr ? "تعذر النسخ — جرب تاني" : "Copy failed — try again"));
+  }, [messages, isAr]);
+
+  const handlePrintTranscript = useCallback(() => {
+    const win = window.open("", "_blank");
+    if (!win) {
+      toast.error(
+        isAr
+          ? "اسمح بالنوافذ المنبثقة عشان تحفظ PDF"
+          : "Allow pop-ups to save the PDF",
+      );
+      return;
+    }
+    win.document.open();
+    win.document.write(buildEvoPrintHtml(messages, isAr ? "ar" : "en"));
+    win.document.close();
+    win.focus();
+    win.print();
+  }, [messages, isAr]);
 
   const applyFollowupWrite = async (
     nextOptedIn: boolean,
@@ -466,6 +498,26 @@ export function EvoFloatingWidget() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
+                {/* EVO-5 (W5.6) — conversation export (real messages only;
+                    hidden while streaming — the final bubble is what exports). */}
+                {messages.length > 0 && !isTyping && (
+                  <>
+                    <button
+                      onClick={handleCopyTranscript}
+                      className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10"
+                      aria-label={isAr ? "نسخ المحادثة" : "Copy conversation"}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handlePrintTranscript}
+                      className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10"
+                      aria-label={isAr ? "حفظ المحادثة PDF" : "Save conversation as PDF"}
+                    >
+                      <FileDown className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={closeChat}
                   className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10"

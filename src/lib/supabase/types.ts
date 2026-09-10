@@ -1390,6 +1390,132 @@ export type Database = {
         };
         Relationships: [];
       };
+      evo_call_stats: {
+        // EVO-5 (migration 0081) — per-dispatch call telemetry for
+        // /admin/evo-analytics: provider success, cache hit rate, intent
+        // distribution, latency. Zero client policies by design (0080
+        // posture — service-role only; written best-effort in `after()`).
+        Row: {
+          id: string;
+          created_at: string;
+          user_id: string | null;
+          language: string;
+          intent: string;
+          provider: string;
+          cache_hit: boolean;
+          success: boolean;
+          latency_ms: number | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          user_id?: string | null;
+          language?: string;
+          intent?: string;
+          provider: string;
+          cache_hit?: boolean;
+          success?: boolean;
+          latency_ms?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string | null;
+          language?: string;
+          intent?: string;
+          provider?: string;
+          cache_hit?: boolean;
+          success?: boolean;
+          latency_ms?: number | null;
+        };
+        Relationships: [];
+      };
+      evo_chat_cache: {
+        // EVO-5 (migration 0081) — frequent-question answer cache, served
+        // ONLY to context-free requests (empty history, no subscriber
+        // context, no memory, no plan/swap intent, no crisis). «دلالي» =
+        // text normalization + pg_trgm similarity — no 4th provider.
+        // Zero client policies by design (0080 posture — service-role only).
+        Row: {
+          id: string;
+          question_hash: string;
+          question_norm: string;
+          language: string;
+          answer: string;
+          source: string;
+          hits: number;
+          created_at: string;
+          last_hit_at: string | null;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          question_hash: string;
+          question_norm: string;
+          language?: string;
+          answer: string;
+          source: string;
+          hits?: number;
+          created_at?: string;
+          last_hit_at?: string | null;
+          expires_at: string;
+        };
+        Update: {
+          question_hash?: string;
+          question_norm?: string;
+          language?: string;
+          answer?: string;
+          source?: string;
+          hits?: number;
+          last_hit_at?: string | null;
+          expires_at?: string;
+        };
+        Relationships: [];
+      };
+      evo_eval_runs: {
+        // EVO-5 (migration 0081) — weekly eval harness results (GHA
+        // evo-weekly-eval.yml): reference AR/EN questions answered via the
+        // REAL system prompt + provider chain, scored by a cheap judge.
+        // Zero client policies by design (0080 posture — service-role only).
+        Row: {
+          id: string;
+          created_at: string;
+          question_id: string;
+          language: string;
+          provider: string | null;
+          model: string | null;
+          score: number;
+          safety_pass: boolean;
+          language_match: boolean;
+          notes: string | null;
+          answer_excerpt: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          question_id: string;
+          language: string;
+          provider?: string | null;
+          model?: string | null;
+          score: number;
+          safety_pass?: boolean;
+          language_match?: boolean;
+          notes?: string | null;
+          answer_excerpt?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          question_id?: string;
+          language?: string;
+          provider?: string | null;
+          model?: string | null;
+          score?: number;
+          safety_pass?: boolean;
+          language_match?: boolean;
+          notes?: string | null;
+          answer_excerpt?: string | null;
+        };
+        Relationships: [];
+      };
       evo_memory: {
         // EVO-2 (migration 0078) — permanent third-person facts extracted
         // every 10th chat message (fast chain, PII denial-list in prompt).
@@ -1770,6 +1896,23 @@ export type Database = {
     };
     Views: {};
     Functions: {
+      // EVO-5 (migration 0081) — one round-trip cache lookup: exact hash
+      // first, else the most similar unexpired same-language row at/above
+      // the pg_trgm similarity floor. Caller: service-role only.
+      evo_cache_lookup: {
+        Args: {
+          p_hash: string;
+          p_norm: string;
+          p_lang: string;
+          p_min_sim?: number;
+        };
+        Returns: {
+          id: string;
+          question_hash: string;
+          answer: string;
+          source: string;
+        }[];
+      };
       // mirror RUN_ON_SUPABASE_0035 (PART 4) — the ONLY wallet writer;
       // signed amount, raises 'insufficient wallet balance' on over-debit.
       coach_adjust_wallet: {

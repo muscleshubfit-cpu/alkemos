@@ -2861,3 +2861,28 @@ Work Log (إغلاق 167 — إضافة):
 
 Stage Summary (الإغلاق):
 - 167 حية على main: EVO-4 كامل منفذ ومُثبت حيًا من أول دورة تعلم — المنصة الآن تتعلم أسبوعيًا من خططها الحقيقية مجهولة الهوية ويحقن المولد هذه المعرفة في كل خطة جديدة — التالي بأمر المالك: EVO-5 أو W6
+
+---
+Task ID: EVO-5-IMPLEMENTATION-168
+Agent: Super Z (main)
+Task: تنفيذ EVO-5 كاملًا (W5 المتبقي من docs/EVO-MASTER-PLAN.md: كاش الأسئلة الشائعة · مقياس الجودة الأسبوعي eval harness · تصدير المحادثة · لوحة تحليلات الأدمن) بأمر المالك «ابدأ evo 5»
+
+Work Log:
+- فتح الجلسة بالبروتوكول: STATE.md + AGENTS.md + آخر مدخلات worklog + git fetch (main = 77b3d70 متزامن نظيف)
+- استكشاف كامل لنقاط الدمج: /api/ai/chat (989 سطرًا) · EvoFloatingWidget · AdminShell/SECTIONS · نمط /api/admin/saved-results · evo-learning.mts + evo-weekly-learning.yml · INDEX.md + مرآة types.ts (بنية Functions موجودة)
+- **ميجريشن 0081** `20260911120000_0081_evo5_cache_eval_stats.sql`: CREATE EXTENSION pg_trgm + ثلاثة جداول RLS مفعّل صفر سياسات عميل (posture 0080 موثق): evo_chat_cache (question_hash UNIQUE · question_norm · language · answer · source · hits · expires_at · فهرسا gin trgm + expires_at) · evo_call_stats (provider/intent/cache_hit/success/latency_ms/user_id nullable · فهرس created desc) · evo_eval_runs (question_id/score 0-10 check/safety_pass/language_match/notes/answer_excerpt 400) + دالة evo_cache_lookup (SQL stable · search_path مثبت — hash أولًا ثم أعلى trigram بنفس اللغة غير المنتهي) — INDEX.md صف 0081 بعد 0080 + تصحيح عنوان الخريطة 0001→0081 + مرآة types.ts (3 جداول + دالة)
+- **استخراج برومبت النظام حرفيًا** من مسار الشات إلى `src/lib/evo-system-prompt.ts` (buildSystemPrompt + EvoClientContext + FoodNutritionInfo — صفر تغيير سلوكي) ليكون مصدرًا واحدًا يقرؤه المسار والتقييم — حذف النسخة المحلية (150 سطرًا من المسار)
+- **`src/lib/evo-cache.ts` نقي:** normalizeEvoQuestion حتمي (NFKC · lowercase · تشكيل وتطويل · أإآ→ا · ة→ه · ى→ي · ؤ→و · ئ→ي · أرقام عربية→لاتينية · ترقيم→مسافات) · isCacheEligibleMessage بوابة السياق-الصفر (تاريخ فارغ · بلا مشترك · بلا ذاكرة · بلا نية خطة/استبدال · بلا مقابلة · ≥12 حرفًا) · chunkForSse تقسيم على حدود الكلمات · ثوابت TTL 48س/تشابه 0.92/حدود 12و80 حرفًا
+- **حقن المسار** `/api/ai/chat`: خطوة 6.7 — الكاش بعد record-before-dispatch (الحصة تُستهلك كالعادة) وقبل النداء — fail-open لأي خطأ — إصابة الكاش تخدم SSE مقطعًا (pacing 15ms) ثم final بsource `cache:<original>` والروابط **حية محسوبة للسؤال الجديد** + after(): bump hits/last_hit_at + صف evo_call_stats — مسار النداء العادي: statProvider/statModel/statSuccess داخل فروع الرد + after(): صف evo_call_stats (local fallback = success=false) + تخزين الإجابات المؤهلة (≥80 حرفًا · نموذج حقيقي) بupsert ignoreDuplicates + تنظيف كسول لمنتهي ≥7 أيام — الردود الثابتة (أزمة/بوابة/429) لا صفوف تيمتري عمدًا
+- **eval harness:** `src/lib/evo-eval.ts` نقي (10 أسئلة مرجعية 6AR+4EN بسبع فئات تشمل safety-boundary وsubscriber-gate كإنذار رجوع · buildEvalAnswerPrompt · buildEvalJudgePrompt JSON صارم بأعلام أمان/لغة · parseEvalVerdict دفاعي — بلا درجة مختلقة أبدًا · summarizeEvalResults) + `src/lib/evo-eval-runner.ts` server (بلا import "server-only" عمدًا — يرمي تحت tsx العادي — نفس اتفاقية evo-learning-runner: يجيب بالبرومبت الحقيقي baseline مجهول tag evo-eval + قاضي رخيص tag evo-eval-judge من نفس السلسلة · تنظيف بنفس مسقمات المسار · insert لكل سؤال · صفر درجات = ok=false تشغيل أحمر) + `scripts/ai-jobs-runner/evo-eval.mts` (exit 2 config / 1 hard-or-zero / 0 نظيف) + `.github/workflows/evo-weekly-eval.yml` (خميس 21:00 UTC = جمعة 00:00 القاهرة — بعيد عن أحد التعلم · workflow_dispatch · preflight مفاتيح AI + Supabase)
+- **تصدير المحادثة (W5.6):** `src/lib/evo-export.ts` نقي — buildEvoTranscriptMarkdown (نسخ = المخرج القابل للصق بقانون copy-vs-display) + buildEvoPrintHtml (PDF عبر حوار الطباعة RTL/LTR — صفر اعتماديات جديدة، يعمل من هاتف المالك) — كلاهما يخطي فقاعات ⏰/عذراً مثل تقييم 👍/👎 — زران برأس الويدجت (Copy/FileDown h-8 w-8) يظهران بوجود رسائل وأثناء عدم البث — قراءة فقط: بلا كتابة تاريخ وبلا API
+- **لوحة تحليلات الأدمن (W5.8):** `/api/admin/evo-analytics` (authRequired + requireAdmin ثم service-role — 5 قراءات متوازية محدودة لآخر 30 يومًا + تجميع JS: نداءات/نسبة كاش/زمن/مزودون/نوايا/يومي + حصص من evo_chat_usage + 👍👎 من evo_feedback + أعلى كاش 8 + آخر دورة تقييم بنافذة 10 دقائق) + `/admin/evo-analytics` (AdminEvoAnalyticsView: 4 كروت KPI + 7 أقسام AR/EN بأسلوب Admin Panel 2.0) + إدخال AdminShell SECTIONS «🧠 تحليلات EVO» بالنظرة العامة
+- **النسخ:** /evo بطاقة «صدّر محادثتك بلمسة» (FileDown) + صف differences «محادثتك بتضيع…» · README (EVO AI Coach + Platform & Admin) · AGENTS §8 قانون EVO-5 CACHE/EVAL/ANALYTICS LAW · DEVELOPER_GUIDE صف /api/admin/evo-analytics
+- **+31 اختبارًا** (evo-cache 16 · evo-eval 12 · evo-export 3 ملفات) — تصحيح اختبار نصي واحد (النص الخام inert في الكليبورد لا يُصيَّر HTML)
+- البوابات التسع: tsc 0 · eslint 0/0 · vitest **513/513** · next build ✓ · docs_audit ✓ (STATE 84 سطرًا) · docs_parity ✓ · migration_audit --ci ✓ (صفر انجراف) · stale-refs ✓ · ui-wiring ✓ (9 أنواع ↔ 9 معالجات)
+
+Stage Summary:
+- EVO-5 كامل منفذ: الكاش يخفض تكلفة الردين المتكررين بلا لمس الحصص ولا الخصوصية (بوابة السياق-الصفر) · التقييم الأسبوعي يقدم منحنى جودة يرافق كل تغيير برومبت · التصدير لمسة هاتف · اللوحة تحول قرارات التكلفة إلى بيانات
+- قرار تصبح موثق: «دلالي» = تطبيع + trigram (لا embeddings — مزود رابع يحتاج أمر مالك صريح) · القاضي على نفس سلسلة المزودين الثلاثة · workflow eval يحتاج مفاتيح AI خلافًا لworkflow التعلم الحتمي
+- Commit SHA: <pending>
+- Push status: not-pushed

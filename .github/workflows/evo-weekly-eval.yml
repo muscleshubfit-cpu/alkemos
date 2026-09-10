@@ -1,0 +1,85 @@
+name: EVO weekly eval (quality harness)
+
+# ============================================================
+# EVO-5 (docs/EVO-MASTER-PLAN.md §4 W5.2 — eval harness):
+#
+#   A fixed reference set of AR/EN questions is answered with the REAL
+#   production system prompt (anonymous baseline) via the standard
+#   3-provider chain, then scored by a cheap judge model on the SAME
+#   chain. One evo_eval_runs row per question (migration 0081) — the
+#   quality curve that accompanies every prompt change, surfaced on
+#   /admin/evo-analytics.
+#
+#   NOT deterministic (calls live models) → needs the provider keys,
+#   same env family as process-ai-jobs.yml. THURSDAY 21:00 UTC = Friday
+#   00:00 Africa/Cairo — a mid-week curve point away from the Sunday
+#   knowledge refresh (evo-weekly-learning.yml).
+# ============================================================
+
+on:
+  schedule:
+    - cron: "0 21 * * 4"
+  workflow_dispatch: {}
+
+concurrency:
+  group: evo-weekly-eval
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OPENROUTER_API: ${{ secrets.OPENROUTER_API }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Preflight — Supabase + at least one provider key present
+        run: |
+          echo "=== Preflight: checking required GitHub Secrets ==="
+          missing=0
+          for v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!v}" ]; then
+              echo "❌ Missing secret: $v"
+              missing=1
+            fi
+          done
+          if [ -z "$OPENROUTER_API" ] && [ -z "$OPENROUTER_API_KEY" ] && [ -z "$GROQ_API_KEY" ] && [ -z "$NVIDIA_API_KEY" ]; then
+            echo "❌ Missing provider keys: need at least one of OPENROUTER_API | OPENROUTER_API_KEY | GROQ_API_KEY | NVIDIA_API_KEY"
+            missing=1
+          fi
+          if [ "$missing" -eq 1 ]; then
+            echo "❌ Preflight failed — fix the secrets above and re-run."
+            exit 1
+          fi
+          echo "✓ Supabase + provider keys present"
+
+      - name: Run the eval harness (answers + judge + persist)
+        run: npx --no-install tsx scripts/ai-jobs-runner/evo-eval.mts
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== EVO weekly eval summary ==="
+          echo "GREEN run = reference questions scored, rows persisted to evo_eval_runs."
+          echo "RED run   = missing env, judge/answer errors, or zero scored questions."
+          echo "The curve is visible on /admin/evo-analytics (EVO quality section)."

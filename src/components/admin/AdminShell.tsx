@@ -56,6 +56,10 @@ const SECTIONS: AdminNavSection[] = [
     en: "Overview",
     items: [
       { href: "/admin/dashboard", emoji: "🏛", ar: "الرئيسية", en: "Dashboard", exact: true },
+      // EVO-5 (W5.8): the data behind the cost/quality decisions —
+      // provider success · intent distribution · quota consumption ·
+      // cache hits · weekly eval curve.
+      { href: "/admin/evo-analytics", emoji: "🧠", ar: "تحليلات EVO", en: "EVO analytics" },
     ],
   },
   {

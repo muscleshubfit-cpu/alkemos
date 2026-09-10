@@ -417,6 +417,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/admin/coach-pages/notify` | POST | Admin | إشعار مدرب بقرار مراجعة صفحته |
 | `/api/admin/coach-payments` | GET | Admin | سجل تفعيلات المدربين (coach_payments) |
 | `/api/admin/coach-support` | GET/POST | Admin | صندوق دعم المدربين (رد الأدمن) |
+| `/api/admin/evo-analytics` | GET | Admin | تحليلات EVO (EVO-5): نداءات/كاش/مزودون/نوايا/حصص/تقييم أسبوعي — قراءة service-role لجداول 0081 |
 | `/api/admin/external-plans` | POST/GET/PATCH/DELETE | Admin (RLS: is_admin) | خطط AI لغير الأعضاء + إعادة توليد (خطة/وجبة/صنف/يوم/تمرين) + سجل نسخ (5) + استرجاع |
 | `/api/admin/leads` | GET/PATCH/DELETE | Admin | قاعدة العملاء (leads من الأدوات + التسجيلات) |
 | `/api/admin/refunds` | GET/POST | Admin | طلبات الاسترداد 7 أيام + قرار الإدارة (إنهاء الاشتراك + عكس العمولة) |

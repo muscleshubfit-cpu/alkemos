@@ -332,7 +332,7 @@ alkemos/
 - **Exercise Library:** 868 exercises with images (start + end positions), Arabic + English
 - **Food Database:** 8,830 foods with per-100g macros
 - **Workout Programs Library:** 7 structured programs (home, gym, HIIT…)
-- **EVO AI Coach:** Floating chat widget with SSE streaming (live typing) — free users get 10 msgs/day; subscribers unlimited
+- **EVO AI Coach:** Floating chat widget with SSE streaming (live typing) — free users get 10 msgs/day; subscribers unlimited. EVO-5 layer: frequent-question cache (zero-client-policy `evo_chat_cache` — served ONLY to context-free requests, quota unchanged), conversation export (copy + print-to-PDF buttons in the widget header — `evo-export.ts`), per-dispatch telemetry (`evo_call_stats`) and the weekly AR/EN eval harness (GHA `evo-weekly-eval.yml` → `evo_eval_runs`, judge-scored quality curve) — see `/admin/evo-analytics`
 - **Coach Directory:** public coach pages (`/coaches/[slug]`) with landing editor, featured API, and preview mode
 - **Blog:** AI-generated articles in Arabic + English (automated research→publish pipeline)
 - **Save Results:** Free saves 3 results; premium tiers save 50–200 + PDF export
@@ -360,6 +360,7 @@ alkemos/
 
 ### Platform & Admin (Admin Panel 2.0 — admin-only)
 - **Dedicated AdminShell:** replaces AppLayout inside `/admin` — sectioned sidebar with active-state identity, live pending badges (payment requests, coach-page reviews), mobile tappable button grid
+- **EVO Analytics `/admin/evo-analytics` (EVO-5):** dispatch volume + cache hit rate + avg latency + fallback share, provider success table, intent distribution, quota consumption (tamper-proof ledger), top cached questions, and the latest weekly eval run (avg score + per-question safety/language flags) — read-only, admin-gated route `/api/admin/evo-analytics` (service-role reads of the zero-client-policy 0081 tables)
 - **Unified Client Roster `/admin/clients`:** every person in ONE page — type filter buttons (الكل/أعضاء الموقع/عملاء مدربي B2B/مدربو الموقع/مدربو B2B/الإدارة), membership lifecycle tabs (نشط/ينتهي قريباً/منتهي/بانتظار الدفع/بدون اشتراك), tier badges, test filter, search/sort/pagination; served by the role-aware `get_admin_clients_paged` RPC (0067 + 0068 correct classification: B2B client ⇔ assignment onto a REAL coach; admin follow-up shows «متابعة الإدارة»). Phase 143 (owner directive «الضغط فى اى مكان فى صف العميل يفتح ادارة العميل»): clicking ANYWHERE on a client row opens the deep manager `/coach/<id>` (the Phase-54 law restored on the admin surface after the Phase-103 unification) — the per-row «تعليم تجريبي» test-mark and «مسح» delete buttons were REMOVED by the same directive, while the checkbox column, «تحديد كل الظاهر» and the floating «مسح كل المحدد» bulk-delete bar REMAIN (143.1 owner amendment «امسح الازرار المحدده فقط واترك عامود مربعات التحديد ومسح كل المحدد»; same guarded `/api/admin/accounts` batch endpoint, checkboxes stopPropagation so selecting never triggers row navigation)
 - **Finances `/admin/finances`:** SITE money (approved revenue, refunds, NET, pending + 6-month trend) separated from COACH money (prepaid wallet balances, top-ups, offline ledger + expected monthly bill)
 - **Members `/admin/members`:** membership-status table (legacy redirect → unified roster)

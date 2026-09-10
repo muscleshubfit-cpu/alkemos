@@ -19,6 +19,7 @@ import {
   Zap,
   Clock,
   Shield,
+  FileDown,
 } from "lucide-react";
 import Image from "next/image";
 import { ThemeImg } from "@/components/ThemeImg";
@@ -94,6 +95,14 @@ export default function EvoPage() {
       color: "#af52de",
     },
     {
+      icon: FileDown,
+      titleAr: "صدّر محادثتك بلمسة",
+      titleEn: "Export Your Chat In One Tap",
+      descAr: "احتفظ بنصائح EVO: انسخ المحادثة كاملة أو احفظها PDF من الهاتف مباشرة — تراجعها بعدين أو تبعته لمدربك.",
+      descEn: "Keep EVO's advice: copy the whole conversation or save it as PDF straight from your phone — review it later or share it with your coach.",
+      color: "#0071e3",
+    },
+    {
       icon: Sparkles,
       titleAr: "متاح للجميع",
       titleEn: "Available to Everyone",
@@ -139,6 +148,12 @@ export default function EvoPage() {
       chatbotEn: "Usually for subscribers only",
       evoAr: "متاح للجميع بـ limits مختلفة",
       evoEn: "Available to everyone with different limits",
+    },
+    {
+      chatbotAr: "محادثتك بتضيع أول ما تقفل الصفحة",
+      chatbotEn: "Your chat vanishes when you close the page",
+      evoAr: "تقدر تصدّر محادثتك نسخ أو PDF بلمسة",
+      evoEn: "Export your chat as copy or PDF in one tap",
     },
   ];
 
