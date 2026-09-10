@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { computeTopUp } from "@/lib/blog-pipeline-dispatch";
+import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const maxDuration = 60;
 
@@ -17,12 +19,17 @@ export const maxDuration = 60;
  *   owner directive 2026-09-04: exactly ONE article per language per
  *   day, at different geography-anchored times):
  *     EN slot 22 UTC (18:00 US Eastern) · AR slot 05 UTC (08:00 Cairo, EEST)
- *   A workflow is dispatched only when GitHub has NOT already run it today
- *   enough times (any event counts — manual/GitHub-scheduled/Vercel runs
- *   all count, because every run publishes exactly one article).
+ *   A workflow is dispatched only when the slot is genuinely UNserved:
+ *   coverage = max(non-failed runs today, posts published today) — any
+ *   event counts, because every run publishes exactly one article.
  *
- *   The Vercel cron fires at 23:00 UTC (AFTER both daily slots) so a
- *   missed slot in EITHER language can be topped up on the same day.
+ *   The Vercel cron fires at 23:40 UTC (Phase 171: was 23:00) so the EN
+ *   slot's 90-minute grace window (22:00 + 90 = 23:30) has FULLY elapsed
+ *   before the backstop looks — GitHub's documented 30–90 min scheduler
+ *   delay can no longer masquerade as a missed slot (the double-publish
+ *   race of 09-04/09-05: backstop dispatch + delayed scheduled run BOTH
+ *   published). A missed slot in EITHER language can still be topped up
+ *   on the same day.
  *
  * It also rescues the every-10-minutes ai-jobs worker when its last run is
  * stale (>15 min) — meaningful when an external cron calls this endpoint
@@ -54,6 +61,7 @@ const AI_JOBS_STALE_MS = 15 * 60 * 1000;
 type DispatchCheck = {
   workflow: string;
   runsToday: number;
+  postsToday: number | null;
   expectedThroughNow: number;
   dispatched: number;
   status: "dispatched" | "up-to-date" | "error";
@@ -105,6 +113,41 @@ async function lastRunAt(token: string, workflow: string): Promise<Date | null> 
   return at ? new Date(at) : null;
 }
 
+/**
+ * PHASE 171 (blog-audit proposal ج): ACTUAL posts published today for the
+ * language — the daily-quota law's source of truth (a post that landed by
+ * ANY path means the slot was served). Read-only SELECT, server-side.
+ * Returns null when the DB is unavailable (decision falls back to
+ * run-counting, the pre-171 behavior) — never throws.
+ */
+async function postsTodayFor(
+  lang: "en" | "ar",
+  utcNow: Date,
+): Promise<number | null> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return null;
+  try {
+    const dayStart = new Date(
+      Date.UTC(utcNow.getUTCFullYear(), utcNow.getUTCMonth(), utcNow.getUTCDate()),
+    ).toISOString();
+    const { count, error } = await supabaseAdmin
+      .from("blog_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("language", lang)
+      .eq("is_published", true)
+      .gte("published_at", dayStart);
+    if (error) {
+      console.warn(`[dispatch-pipelines] postsToday degraded (${lang}): ${error.message}`);
+      return null;
+    }
+    return count ?? 0;
+  } catch (e) {
+    console.warn(
+      `[dispatch-pipelines] postsToday degraded (${lang}): ${e instanceof Error ? e.message : e}`,
+    );
+    return null;
+  }
+}
+
 async function dispatchWorkflow(token: string, workflow: string): Promise<void> {
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/dispatches`,
@@ -137,7 +180,6 @@ export async function GET(request: NextRequest) {
   }
 
   const utcNow = new Date();
-  const hour = utcNow.getUTCHours();
   const results: DispatchCheck[] = [];
 
   // ── Language pipelines: top up to daily quota ───────────────────────
@@ -148,26 +190,40 @@ export async function GET(request: NextRequest) {
 
   for (const plan of plans) {
     try {
+      const lang = plan.workflow === EN_WORKFLOW ? "en" : "ar";
       const runsToday = await runsTodayFor(token, plan.workflow, utcNow);
-      const expectedThroughNow = plan.slots.filter((s) => s <= hour).length;
-      const missing = Math.max(0, expectedThroughNow - runsToday);
+      const postsToday = await postsTodayFor(lang, utcNow);
+      // PHASE 171: grace-aware expectation + coverage = max(runs, posts).
+      // A slot is "expected" only 90 min after its hour (GitHub's
+      // documented scheduler delay); a post that landed by ANY path
+      // covers the slot even if no run was counted.
+      const decision = computeTopUp({
+        slots: plan.slots,
+        utcHour: utcNow.getUTCHours(),
+        utcMinute: utcNow.getUTCMinutes(),
+        runsToday,
+        postsToday,
+      });
       let dispatched = 0;
-      for (let i = 0; i < missing; i++) {
+      for (let i = 0; i < decision.missing; i++) {
         await dispatchWorkflow(token, plan.workflow);
         dispatched += 1;
       }
       results.push({
         workflow: plan.workflow,
         runsToday,
-        expectedThroughNow,
+        postsToday,
+        expectedThroughNow: decision.expected,
         dispatched,
         status: dispatched > 0 ? "dispatched" : "up-to-date",
+        detail: decision.postsCountUnknown ? "posts count unavailable — runs-only decision" : undefined,
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       results.push({
         workflow: plan.workflow,
         runsToday: -1,
+        postsToday: -1,
         expectedThroughNow: -1,
         dispatched: 0,
         status: "error",
@@ -185,6 +241,7 @@ export async function GET(request: NextRequest) {
       results.push({
         workflow: AI_JOBS_WORKFLOW,
         runsToday: -1,
+        postsToday: null,
         expectedThroughNow: -1,
         dispatched: 1,
         status: "dispatched",
@@ -194,6 +251,7 @@ export async function GET(request: NextRequest) {
       results.push({
         workflow: AI_JOBS_WORKFLOW,
         runsToday: -1,
+        postsToday: null,
         expectedThroughNow: -1,
         dispatched: 0,
         status: "up-to-date",
@@ -205,6 +263,7 @@ export async function GET(request: NextRequest) {
     results.push({
       workflow: AI_JOBS_WORKFLOW,
       runsToday: -1,
+      postsToday: null,
       expectedThroughNow: -1,
       dispatched: 0,
       status: "error",

@@ -21,7 +21,7 @@
  * A deterministic curated fallback keeps the pipeline alive when every
  * model fails (never blocks the run).
  */
-import { callFreeAIFallbackChain } from "./ai-provider";
+import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
 import {
   getRecentPostsByLanguage,
   getRecentGeneratedTopics,
@@ -52,20 +52,17 @@ const NICHE_EN =
 const NICHE_AR =
   "التدريب والتغذية الرياضية عبر الإنترنت (Alkemos): التمارين، بناء العضلات، حرق الدهون، الأكل الصحي، المكملات، الاستشفاء";
 
-export function parseJSONLoose<T>(text: string): T | null {
-  try {
-    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-    return JSON.parse(cleaned) as T;
-  } catch {
-    const m = text.match(/\{[\s\S]*\}/);
-    if (!m) return null;
-    try {
-      return JSON.parse(m[0]) as T;
-    } catch {
-      return null;
-    }
-  }
-}
+// PHASE 171 (blog-audit proposal ب — 2026-09-10): the weak local
+// parseJSONLoose (strict JSON.parse + a {…} regex — NO truncation repair,
+// NO control-character escaping) was DELETED. P0/P1/P2/P4 in the
+// AUTOMATIC pipeline now parse through the 161.5-hardened parseJSON
+// from ai-provider.ts — the same parser the coach path already uses
+// (fence-stripping + prose extraction + truncation repair + raw
+// control-char escaping inside string values). Live evidence that
+// forced the unification: 3 failed EN runs «P1 en: invalid outline
+// JSON from openrouter:nvidia/nemotron-3-ultra-550b-a55b:free»
+// (09-06 dispatch · 09-07 dispatch · 09-09 SCHEDULED) — the same
+// soft-JSON failure family 161.5 fixed for the coach path.
 
 function asStringArray(v: unknown, max: number): string[] {
   if (!Array.isArray(v)) return [];
@@ -237,7 +234,7 @@ Return STRICT JSON only, no markdown fences:
       timeoutMs: 55_000,
       maxModels: 3,
     });
-    const parsed = parseJSONLoose<Record<string, unknown>>(text);
+    const parsed = parseJSON<Record<string, unknown>>(text);
     const data = parsed ? normalizeResearch(parsed) : null;
     if (data && data.topics.length > 0 && data.keywords.length >= 5) {
       console.log(`[blog-research] P0 ${lang} done (${provider}:${model}, kw:${data.keywords.length} faq:${data.faqs.length} topics:${data.topics.length})`);

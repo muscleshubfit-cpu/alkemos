@@ -82,7 +82,10 @@ jobs:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
 
-      # ── Optional image-provider fallbacks (pollinations is keyless) ──
+      # ── IMAGE SOURCE LAW v3 (Pexels-first real photography) ──
+      # PEXELS_API_KEY = PRIMARY (required per law v3); Unsplash/Pixabay
+      # = failover. Pollinations/AI generation RETIRED by law v3 —
+      # these three stock keys are the only image sources.
       UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
       PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}

@@ -13,6 +13,8 @@ import {
   updateQueueItem,
   markQueueItemFailed,
   findRecentPairRows,
+  countAutomatedPublishedToday,
+  bundleMarksCoachRequest,
   type QueueItem,
 } from "@/lib/blog-queue";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -32,6 +34,17 @@ export const maxDuration = 60;
  * up automatically per pair. Best-effort in EVERY direction: any failure
  * logs and moves on, the publish itself NEVER fails because of pairing.
  * Unpaired (legacy/degraded) rows keep the exact pre-157 behavior.
+ *
+ * PHASE 171 (blog-audit proposal ج — 2026-09-10): ONE-AUTOMATIC-ARTICLE/
+ * DAY/LANGUAGE LAW now enforced HERE, at the publish layer. Live race
+ * evidence: EN published two posts on 09-05 (23:07 + 23:33) — the 23:00
+ * backstop dispatched a top-up while GitHub's delayed scheduled run was
+ * still on its way; both runs published. The dispatch layer got grace +
+ * post-counting (dispatch-pipelines route), and THIS guard is the last
+ * line of defense: an AUTOMATIC row (bundle WITHOUT coachRequested) may
+ * not publish when another automated row of the same language, created
+ * the same UTC day, already published. Coach-requested rows (Phase 162
+ * owner override) are exempt — the owner asked for that article.
  *
  * GET /api/cron/blog/p5-publish?queueId=<uuid>
  */
@@ -114,6 +127,23 @@ export async function GET(request: NextRequest) {
     const images = (bundle.images ?? []) as { url: string; alt: string; credit: string }[];
     if (!outline?.title || !review?.markdown) {
       throw new Error("p5: missing reviewed artifacts — rerun p4-review");
+    }
+
+    // PHASE 171 (proposal ج) — DAILY QUOTA GUARD (publish-layer law):
+    // automated rows refuse to publish a SECOND article of the same UTC
+    // day for their language. Attribution = queue-row CREATION day (the
+    // run's day), so a late-night top-up publishing just after midnight
+    // does not eat the next day's slot. Coach rows are exempt. DB
+    // unavailable → guard degrades OPEN (never blocks publishing on an
+    // infra hiccup — the dispatch layer still prevents the race).
+    if (!bundleMarksCoachRequest(qi.article_bundle)) {
+      const publishedAutomated = await countAutomatedPublishedToday(lang);
+      if (publishedAutomated !== null && publishedAutomated >= 1) {
+        console.warn(
+          `[blog/p5-publish] daily quota already met for ${lang} (${publishedAutomated} automated row(s) created today published) — skipping ${qi.id}`,
+        );
+        return quotaSkip(qi.id, lang, publishedAutomated);
+      }
     }
 
     const safeCategory = normalizeCategory(qi.category);
@@ -262,4 +292,23 @@ async function dupSkip(queueId: string, title: string, lang: "en" | "ar") {
   });
   if (err) console.error(`[blog/p5-publish] Failed to mark skipped_duplicate: ${err}`);
   return NextResponse.json({ ok: true, step: "p5", queueId, lang, skipped: true, reason: `duplicate-${lang}-title`, title });
+}
+
+/** PHASE 171 (proposal ج): automated row refused — the day's automated
+ *  article already published (one-article/day law, Phase 119). */
+async function quotaSkip(queueId: string, lang: "en" | "ar", alreadyPublished: number) {
+  const err = await updateQueueItem(queueId, {
+    status: "skipped_daily_quota",
+    error_message: `p5: daily-quota-${lang} — ${alreadyPublished} automated article(s) created today already published (Phase 119 law, enforced 171)`,
+  });
+  if (err) console.error(`[blog/p5-publish] Failed to mark skipped_daily_quota: ${err}`);
+  return NextResponse.json({
+    ok: true,
+    step: "p5",
+    queueId,
+    lang,
+    skipped: true,
+    reason: "daily-quota-met",
+    alreadyPublished,
+  });
 }

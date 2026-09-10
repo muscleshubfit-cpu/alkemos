@@ -32,9 +32,12 @@
  * This module is intentionally split so every pure piece is unit-testable
  * without a DB (see __tests__/blog-pairing.test.ts — 22 tests).
  */
-import { callFreeAIFallbackChain } from "./ai-provider";
-import { parseJSONLoose, type LanguageResearch } from "./blog-research";
+import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
+import { type LanguageResearch } from "./blog-research";
 import { ARTICLE_ANGLES } from "./blog-pipeline";
+// PHASE 171 (blog-audit proposal ب): parsePairingJSON rides the
+// 161.5-hardened parseJSON from ai-provider (was the weak parseJSONLoose —
+// strict-only, no truncation repair / control-char escaping).
 
 // ─────────────────────────────────────────────────────────────────
 // Types
@@ -205,7 +208,7 @@ export function parsePairingJSON(
   text: string,
   ctx: { enCandidates: string[]; arCandidates: string[] },
 ): PairingChoice | null {
-  const parsed = parseJSONLoose<Record<string, unknown>>(text);
+  const parsed = parseJSON<Record<string, unknown>>(text);
   if (!parsed || typeof parsed !== "object") return null;
 
   const topicEn = typeof parsed.topicEn === "string" ? parsed.topicEn.trim() : "";

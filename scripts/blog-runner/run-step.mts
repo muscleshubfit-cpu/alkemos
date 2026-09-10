@@ -7,8 +7,9 @@
  *
  * WHY: /api/cron/blog/* routes were budget-clamped to ≤52s per call to
  * respect the Vercel Hobby limit. Running them natively here lets each
- * step use AI_CHAIN_TOTAL_BUDGET_MS (set to 180000 in the workflow) for
- * full-length article completions instead of truncated ones.
+ * step use AI_CHAIN_TOTAL_BUDGET_MS (360000 in the blog workflows since
+ * Phase 119; process-ai-jobs uses 480000 since 161.4) for full-length
+ * article completions instead of truncated ones.
  *
  * USAGE (called by run-step.sh):
  *   npx --no-install tsx scripts/blog-runner/run-step.mts \
@@ -16,12 +17,16 @@
  *
  * REQUIRED ENV (GitHub Secrets → job env):
  *   CRON_SECRET, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- *   OPENROUTER_API (or OPENROUTER_API_KEY), GROQ_API_KEY
- * OPTIONAL ENV: UNSPLASH_ACCESS_KEY / PEXELS_API_KEY / PIXABAY_API_KEY,
+ *   OPENROUTER_API (or OPENROUTER_API_KEY), GROQ_API_KEY, NVIDIA_API_KEY
+ * OPTIONAL ENV: UNSPLASH_ACCESS_KEY / PEXELS_API_KEY / PIXABAY_API_KEY
+ *   (IMAGE SOURCE LAW v3: Pexels primary — PEXELS_API_KEY required in
+ *   GHA secrets AND Vercel Production; Unsplash/Pixabay failover),
  *   AI_CHAIN_TOTAL_BUDGET_MS, PIPELINE_LANG (en|ar — threaded by
  *   run-step.sh; required for p0-research, logged for all steps),
  *   PIPELINE_TOPIC (Phase 162: coach topic override — p0-research only;
- *   scheduled runs never set it, so their URLs are unchanged).
+ *   scheduled runs never set it, so their URLs are unchanged),
+ *   PIPELINE_JOB_ID (Phase 171: ai_jobs receipt — marks the run
+ *   coach-requested; scheduled runs never set it).
  *
  * EXIT CODES: 0 = ok:true · 1 = step reported failure · 2 = misconfig
  */
@@ -48,6 +53,10 @@ async function main(): Promise<void> {
   // PHASE 162: optional coach topic override — P0 seals it into the queue
   // row + the shared brief; later steps ignore it (the row is their truth).
   const topicArg = arg("topic") ?? process.env.PIPELINE_TOPIC;
+  // PHASE 171 (blog-audit proposal ج): the ai_jobs receipt id — present
+  // ONLY on coach-triggered dispatches. P0 uses it to mark the run as
+  // owner-requested (the row then bypasses the P5 daily-quota guard).
+  const jobIdArg = (process.env.PIPELINE_JOB_ID || "").trim().slice(0, 64);
 
   if (!step || !STEPS.includes(step as (typeof STEPS)[number])) {
     console.error(
@@ -127,11 +136,12 @@ async function main(): Promise<void> {
   url.searchParams.set("lang", lang);
   if (queueId) url.searchParams.set("queueId", queueId);
   if (step === "p0-research" && topicArg) url.searchParams.set("topic", topicArg);
+  if (step === "p0-research" && jobIdArg) url.searchParams.set("job_id", jobIdArg);
 
   console.log(
     `[runner] ▶ ${step} · lang=${lang}${queueId ? ` · queue=${queueId}` : ""}${
       step === "p0-research" && topicArg ? ` · topicOverride=yes` : ""
-    }`,
+    }${step === "p0-research" && jobIdArg ? " · coachRun=yes" : ""}`,
   );
 
   const req = new NextRequest(url, {

@@ -643,10 +643,12 @@ async function materializeArticleDraft(r: {
 }
 
 /**
- * INTERNAL-LINK CANDIDATES (bundle parity with blog-generate.ts): the
- * automated pipeline weaves real internal links (insertLinksIntoArticle);
- * the coach generator must too. Returns recent PUBLISHED posts of the
- * same language as [slug, title] pairs for the prompt.
+ * INTERNAL-LINK CANDIDATES (bundle parity with the automated pipeline's
+ * insertLinksIntoArticle): the automated pipeline weaves real internal
+ * links; the coach generator must too. Returns recent PUBLISHED posts of
+ * the same language as [slug, title] pairs for the prompt.
+ * (Phase 171: the legacy reference target src/lib/blog-generate.ts was
+ * deleted as dead code — this is the parity law, not a code dependency.)
  */
 async function internalLinkCandidates(
   language: "ar" | "en",

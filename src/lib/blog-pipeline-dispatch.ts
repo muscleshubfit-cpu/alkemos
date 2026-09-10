@@ -41,6 +41,93 @@ const DISPATCH_TIMEOUT_MS = 8_000;
  * pipeline's research picks the title instead, exactly like automatic runs). */
 const MIN_TOPIC_CHARS = 10;
 
+// ═════════════════════════════════════════════════════════════════
+// PHASE 171 (blog-audit proposal ج — 2026-09-10): DOUBLE-PUBLISH RACE
+// CLOSURE. Live evidence: EN published TWO posts on 09-05 (23:07 + 23:33)
+// and 09-04; AR two on 09-04 — violating the Phase-119 one-article/day
+// law. Root cause: the 23:00 UTC backstop counted RUNS and saw GitHub's
+// documented 30–90 min cron delay as a "missed slot" → extra dispatch →
+// the delayed scheduled run then fired too → both published. Three
+// deterministic layers now close it:
+//   (1) GRACE: a slot only counts as "expected" once slot+90 min has
+//       passed (GitHub's documented worst-case scheduler delay), so a
+//       merely-late scheduled run is never mistaken for a missed one.
+//   (2) POST-COUNT COVERAGE: the backstop now counts ACTUAL published
+//       posts today (blog_posts) alongside runs — coverage is the max of
+//       the two. A post that already landed (any path) means the daily
+//       quota is met; no top-up is dispatched for it.
+//   (3) P5 publish-layer guard (blog-queue.ts countAutomatedPublishedToday
+//       + p5-publish route): even if two runs DO race through, the second
+//       AUTOMATIC publish of the same UTC day is refused
+//       (skipped_daily_quota) — coach-requested rows are exempt (owner
+//       override, Phase 162). The Vercel cron moved 23:00 → 23:40 UTC so
+//       the grace window has fully elapsed when the backstop fires.
+// ═════════════════════════════════════════════════════════════════
+
+/** GitHub's documented worst-case scheduled-run delay (high load). */
+export const SLOT_GRACE_MINUTES = 90;
+
+/**
+ * How many of the given UTC-hour slots count as "expected" through the
+ * given time. A slot enters the expectation only AFTER its grace window
+ * (slot + SLOT_GRACE_MINUTES) elapsed — before that, a missing run means
+ * "the scheduler is probably just late", NOT "the slot was missed".
+ * Pure: injected clock values, unit-testable.
+ */
+export function expectedSlotsThrough(
+  slots: readonly number[],
+  utcHour: number,
+  utcMinute: number,
+  graceMinutes: number = SLOT_GRACE_MINUTES,
+): number {
+  const nowMin = utcHour * 60 + utcMinute;
+  return slots.filter((s) => nowMin - s * 60 >= graceMinutes).length;
+}
+
+export type TopUpDecision = {
+  /** Slots whose grace window elapsed through the given time. */
+  expected: number;
+  /** Coverage = max(run-count, post-count) — either means "slot served". */
+  covered: number;
+  /** How many top-up dispatches are warranted (never negative). */
+  missing: number;
+  /** True when the post count was unavailable and runs alone decided. */
+  postsCountUnknown: boolean;
+};
+
+/**
+ * The backstop's dispatch decision (pure). Coverage semantics:
+ *   - runsToday: non-failed workflow runs created today (IN-FLIGHT runs
+ *     count — conclusion null — because a started run owns the slot).
+ *   - postsToday: blog_posts published today for the language (nullable —
+ *     DB unavailable → fall back to run-counting, the pre-171 behavior).
+ */
+export function computeTopUp(opts: {
+  slots: readonly number[];
+  utcHour: number;
+  utcMinute: number;
+  runsToday: number;
+  postsToday: number | null;
+  graceMinutes?: number;
+}): TopUpDecision {
+  const expected = expectedSlotsThrough(
+    opts.slots,
+    opts.utcHour,
+    opts.utcMinute,
+    opts.graceMinutes,
+  );
+  const covered = Math.max(
+    opts.runsToday,
+    opts.postsToday ?? opts.runsToday,
+  );
+  return {
+    expected,
+    covered,
+    missing: Math.max(0, expected - covered),
+    postsCountUnknown: opts.postsToday === null,
+  };
+}
+
 export type PipelineDispatchLang = "ar" | "en";
 
 /**

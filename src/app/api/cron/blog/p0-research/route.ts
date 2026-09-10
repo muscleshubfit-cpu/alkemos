@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runPhase0Research } from "@/lib/blog-research";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { getLangParam, findAdoptablePairRow, findRecentPairRows, type PipelineLang, type QueueItem } from "@/lib/blog-queue";
+import { getLangParam, findAdoptablePairRow, findRecentPairRows, markQueueRowCoachRequested, type PipelineLang, type QueueItem } from "@/lib/blog-queue";
 import {
   extractSharedBrief,
   isAdoptablePairRow,
@@ -90,6 +90,19 @@ function getTopicParam(request: NextRequest): string | null {
   return t.length >= 10 ? t : null;
 }
 
+/**
+ * PHASE 171 (blog-audit proposal ج): the ai_jobs receipt id threaded from
+ * workflow_dispatch → PIPELINE_JOB_ID → run-step.mts. Present ONLY on
+ * coach-triggered dispatches (blog-pipeline-dispatch.ts always sends it;
+ * scheduled runs carry empty inputs). Together with a coach topic it marks
+ * the run as owner-requested — such rows bypass the P5 daily quota.
+ */
+function getJobIdParam(request: NextRequest): string | null {
+  const url = new URL(request.url);
+  const j = (url.searchParams.get("job_id") || "").trim().slice(0, 64);
+  return j.length > 0 ? j : null;
+}
+
 /** Insert one researched queue row; returns the row or a PostgREST error message. */
 async function insertResearchedRow(args: {
   language: PipelineLang;
@@ -98,7 +111,20 @@ async function insertResearchedRow(args: {
   category: string;
   pairId: string | null;
   bundle: string;
+  /** PHASE 171 (proposal ج): stamp the coach-requested marker — this row
+   *  is EXEMPT from the P5 one-automated-article/day quota (Phase 162
+   *  owner-override semantics: the owner asked for THIS article). */
+  coachRequested?: boolean;
 }): Promise<{ row: QueueItem | null; error: string | null }> {
+  let bundleStr = args.bundle;
+  if (args.coachRequested) {
+    try {
+      const obj = JSON.parse(bundleStr) as Record<string, unknown>;
+      bundleStr = JSON.stringify({ ...obj, coachRequested: true });
+    } catch {
+      bundleStr = JSON.stringify({ coachRequested: true });
+    }
+  }
   const { data, error } = await supabaseAdmin!
     .from("blog_generation_queue")
     .insert({
@@ -109,7 +135,7 @@ async function insertResearchedRow(args: {
       status: "researched",
       created_at: new Date().toISOString(),
       ...(args.pairId ? { pair_id: args.pairId } : {}),
-      article_bundle: args.bundle,
+      article_bundle: bundleStr,
     })
     .select()
     .single();
@@ -140,6 +166,10 @@ export async function GET(request: NextRequest) {
   // PHASE 162: coach-supplied topic (may be null — the automatic runs
   // never send ?topic=, so their behavior is byte-identical to before).
   const coachTopic = getTopicParam(request);
+  // PHASE 171 (proposal ج): a run carrying a coach topic OR an ai_jobs
+  // receipt is owner-requested — its queue row is exempt from the P5
+  // one-automated-article/day law (scheduled runs have neither).
+  const coachRun = !!(coachTopic || getJobIdParam(request));
 
   try {
     // ── 1) ADOPT (≤48h) — my side was pre-created by the twin's window.
@@ -148,6 +178,10 @@ export async function GET(request: NextRequest) {
       if (candidate && isAdoptablePairRow(candidate, lang)) {
         const brief = briefOf(candidate);
         if (brief) {
+          // PHASE 171: a coach-triggered run consuming an adopted row
+          // marks it — the article is owner-requested and must not be
+          // counted against (nor blocked by) the automated daily quota.
+          if (coachRun) await markQueueRowCoachRequested(candidate.id);
           return NextResponse.json({
             ok: true,
             step: "p0",
@@ -170,6 +204,8 @@ export async function GET(request: NextRequest) {
     try {
       const joined = await tryJoinPair(lang, otherLang);
       if (joined) {
+        // PHASE 171: same coach-marker law as ADOPT (see above).
+        if (coachRun) await markQueueRowCoachRequested(joined.id);
         return NextResponse.json({
           ok: true,
           step: "p0",
@@ -217,6 +253,7 @@ export async function GET(request: NextRequest) {
       if (raced && isAdoptablePairRow(raced, lang)) {
         const racedBrief = briefOf(raced);
         if (racedBrief) {
+          if (coachRun) await markQueueRowCoachRequested(raced.id);
           return NextResponse.json({
             ok: true,
             step: "p0",
@@ -258,6 +295,7 @@ export async function GET(request: NextRequest) {
       category: mine.category,
       pairId: brief?.pairId ?? null,
       bundle: bundleWithBrief(mineResearch, brief),
+      coachRequested: coachRun || undefined,
     });
 
     // DEGRADATION LAW: a missing pair_id column (0076 not applied) must
@@ -280,6 +318,7 @@ export async function GET(request: NextRequest) {
           category: mine.category,
           pairId: null,
           bundle: JSON.stringify({ research0: mineResearch }),
+          coachRequested: coachRun || undefined,
         });
       }
     }
@@ -324,6 +363,7 @@ export async function GET(request: NextRequest) {
       pairId: brief?.pairId,
       twinInserted,
       topicOverride: coachTopic ?? undefined,
+      coachRun: coachRun || undefined,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

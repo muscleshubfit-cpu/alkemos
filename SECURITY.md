@@ -42,10 +42,17 @@ security model must therefore rely on:
 Any of the following:
 
 - Supabase URL, anon key, service-role key.
-- OpenRouter / Groq API keys (2026-08-27: these are the ONLY two AI
-  providers integrated — see §3.1).
+- OpenRouter / Groq / NVIDIA NIM API keys (three-provider law since
+  Phase 161, 2026-09-09 owner directive «تم اضافة مفتاح
+  NVIDIA_API_KEY» — see §3.1; pre-161 docs saying "the only two"
+  are stale).
+- Stock-photo provider keys: `PEXELS_API_KEY`, `UNSPLASH_ACCESS_KEY`,
+  `PIXABAY_API_KEY` (IMAGE SOURCE LAW v3 — blog images are real
+  photography, not AI-generated).
 - `CRON_SECRET` (used to authenticate GitHub Actions → Vercel cron
-  calls).
+  calls) and `GITHUB_DISPATCH_TOKEN` (fine-grained GitHub PAT for
+  workflow dispatch from `/api/cron/dispatch-pipelines` — this repo
+  only, Actions: Read+write).
 - Vercel / GitHub personal access tokens.
 - Any OAuth client ID + secret pair.
 - Any future `*_API_KEY` env var added to `.env.example`.
@@ -97,16 +104,21 @@ Any of the following:
 
 ### 3.1 AI provider keys
 
-> **Updated (2026-08-27, owner directive):** only TWO providers remain.
+> **Updated (2026-09-09, Phase 161 — owner directive «تم اضافة مفتاح
+> NVIDIA_API_KEY»):** THREE providers — OpenRouter, Groq, NVIDIA NIM.
+> (The 2026-08-27 "only two providers" note was superseded; any doc
+> still claiming two is stale.)
 
 - Stored as server-side env vars only (`OPENROUTER_API`, with
-  `OPENROUTER_API_KEY` accepted as an alias, and `GROQ_API_KEY`).
+  `OPENROUTER_API_KEY` accepted as an alias, `GROQ_API_KEY`, and
+  `NVIDIA_API_KEY` — NIM is OpenAI-compatible at
+  `integrate.api.nvidia.com`).
 - Gemini native SDK / OpenAI / Anthropic / DeepSeek integrations were
   REMOVED from the codebase. Never reintroduce a direct third-party AI
   HTTP call without owner approval (§7 category: new external call).
 - Read by `src/lib/ai-provider.ts` (`getOpenRouterKey()` /
-  `getGroqKey()` / `getEnvConfig()`) — server-only. This file must
-  NEVER be imported by a client component.
+  `getGroqKey()` / `getNvidiaKey()` / `getEnvConfig()`) — server-only.
+  This file must NEVER be imported by a client component.
 - The "AI Settings" page (admin-only) stores per-admin overrides in
   HTTP-only cookies on the admin's browser. The override path:
   `mergeOverride()` in `ai-provider.ts`. The key is never returned

@@ -15,5 +15,9 @@ export * from "./subscriptions";
 export * from "./chat";
 export * from "./questionnaires";
 export * from "./referrals";
-export * from "./blog";
+// NOTE (Phase 171 — blog-audit proposal أ): "./blog" is GONE. The legacy
+// client-side blog data layer (listBlogPosts/getBlogPost WITHOUT language)
+// was deleted — it collided by name with the LIVE lang-aware versions in
+// `@/lib/blog` and silently resurrected the old reading system when
+// imported from this barrel. Blog reads go through `@/lib/blog` only.
 export * from "./coach";

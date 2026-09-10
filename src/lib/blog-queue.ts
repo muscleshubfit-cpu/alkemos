@@ -204,6 +204,104 @@ export async function markQueueItemFailed(
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PHASE 171 (blog-audit proposal ج) — ONE-AUTOMATIC-ARTICLE/DAY LAW,
+// enforced at the PUBLISH layer. The marker `coachRequested` is stamped
+// into article_bundle by P0 when the run was coach-triggered (topic or
+// job_id present); it survives P1–P4 (every step spreads the bundle).
+// Coach rows are EXEMPT from the daily quota (Phase 162 owner override);
+// automated rows must refuse to publish when today's automated article
+// already landed (the double-publish race's last line of defense).
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Pure: does this queue row's bundle mark it as coach-requested?
+ * Defensive against every bundle shape (raw string / null / garbage).
+ */
+export function bundleMarksCoachRequest(bundleJson: string | null): boolean {
+  if (!bundleJson) return false;
+  try {
+    const parsed = JSON.parse(bundleJson) as { coachRequested?: unknown } | null;
+    return parsed !== null && typeof parsed === "object"
+      && (parsed as { coachRequested?: unknown }).coachRequested === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Stamp `coachRequested: true` onto a queue row's bundle (best-effort,
+ * never throws). Used by P0 when an ADOPTED/JOINED row is consumed by a
+ * coach-triggered run — the row then bypasses the P5 daily quota.
+ */
+export async function markQueueRowCoachRequested(queueId: string): Promise<void> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
+  try {
+    const { data } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("article_bundle")
+      .eq("id", queueId)
+      .maybeSingle();
+    const existing = (data as { article_bundle?: string | null } | null)?.article_bundle ?? null;
+    const base: Record<string, unknown> = {};
+    if (existing) {
+      try {
+        Object.assign(base, JSON.parse(existing) as Record<string, unknown>);
+      } catch {
+        /* unparseable bundle → start fresh, marker still stamps */
+      }
+    }
+    base.coachRequested = true;
+    await supabaseAdmin
+      .from("blog_generation_queue")
+      .update({ article_bundle: JSON.stringify(base) })
+      .eq("id", queueId);
+  } catch (e) {
+    console.warn(
+      `[blog-queue] markQueueRowCoachRequested degraded: ${e instanceof Error ? e.message : e}`,
+    );
+  }
+}
+
+/**
+ * How many AUTOMATIC (non-coach) queue rows for this language were
+ * created today (UTC) and reached status "published" — i.e. today's
+ * automated daily quota already consumed. Attribution is by the row's
+ * CREATION day (the run's day), NOT the publish timestamp: a late-night
+ * top-up run that publishes just after midnight still counts against
+ * the day it was dispatched for, so the next day's slot stays clean.
+ * Returns null when the DB is unavailable (caller degrades open).
+ */
+export async function countAutomatedPublishedToday(
+  lang: "en" | "ar",
+  now: Date = new Date(),
+): Promise<number | null> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return null;
+  try {
+    const dayStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    ).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("article_bundle")
+      .eq("language", lang)
+      .eq("status", "published")
+      .gte("created_at", dayStart)
+      .limit(50);
+    if (error) {
+      console.warn(`[blog-queue] countAutomatedPublishedToday degraded: ${error.message}`);
+      return null;
+    }
+    const rows = (data as Array<{ article_bundle: string | null }> | null) ?? [];
+    return rows.filter((r) => !bundleMarksCoachRequest(r.article_bundle)).length;
+  } catch (e) {
+    console.warn(
+      `[blog-queue] countAutomatedPublishedToday degraded: ${e instanceof Error ? e.message : e}`,
+    );
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 157 — pairing lookups (degrade to legacy on ANY failure)
 // ═══════════════════════════════════════════════════════════════
 

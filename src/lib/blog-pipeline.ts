@@ -16,10 +16,15 @@
  * strongest free models first, automatic fall-through to the next model
  * on failure). IMAGE MODESTY GUARD is enforced here on every prompt.
  */
-import { callFreeAIFallbackChain } from "./ai-provider";
-import { parseJSONLoose, type LanguageResearch } from "./blog-research";
+import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
+import { type LanguageResearch } from "./blog-research";
 import { getRecentPostsByLanguage, isDuplicateTopic } from "./blog-topics";
 import { sanitizeModelSlug } from "./slug";
+// PHASE 171 (blog-audit proposal ب): every model-JSON parse in P1/P2/P4
+// now uses the 161.5-hardened parseJSON from ai-provider (fence-strip +
+// truncation repair + control-char escaping) — the legacy weak
+// parseJSONLoose was deleted from blog-research.ts. Same parser as the
+// coach path: one JSON-recovery law for BOTH article systems.
 
 // ─────────────────────────────────────────────────────────────────
 // OWNER HARD RULE (2026-08-27 REVISED): PEOPLE-FREE AI imagery ONLY.
@@ -174,7 +179,7 @@ export async function pickTopicIndex(
       timeoutMs: 40_000,
       maxModels: 3,
     });
-    const parsed = parseJSONLoose<{ index?: number }>(text);
+    const parsed = parseJSON<{ index?: number }>(text);
     const idx = parsed?.index ? Number(parsed.index) - 1 : -1;
     if (idx >= 0 && idx < topics.length) return idx;
   } catch {
@@ -232,14 +237,22 @@ Create the detailed article blueprint. Return STRICT JSON only:
     // 2026-08-27 hardening: Groq's strict json mode HARD-FAILS when a
     // reasoning model (gpt-oss) burns completion tokens on hidden CoT
     // before finishing the document ("max completion tokens reached").
-    // We have our own tolerant extractor (parseJSONLoose) — drop
+    // We have our own tolerant extractor (161.5-hardened parseJSON) — drop
     // response_format so partial/fenced JSON can still be salvaged.
-    maxTokens: 2_600,
+    // PHASE 171 (2026-09-10, blog-audit proposal ب): 2_600 → 4_000.
+    // Live evidence: 3 failed EN runs «P1 en: invalid outline JSON from
+    // openrouter:nvidia/nemotron-3-ultra-550b-a55b:free» (09-06/07/09) —
+    // a verbose reasoning model burning hidden CoT against a 2_600 cap
+    // truncates the outline JSON mid-document. Headroom now matches the
+    // doc's real size (~700 JSON tokens) + reasoning-model CoT, and the
+    // hardened parser salvages any residual truncation that still slips
+    // through.
+    maxTokens: 4_000,
     jsonMode: false,
     timeoutMs: 70_000,
     maxModels: 2,
   });
-  const parsed = parseJSONLoose<{
+  const parsed = parseJSON<{
     title?: string;
     subtitle?: string;
     metaDescription?: string;
@@ -349,7 +362,7 @@ Return STRICT JSON only:
     timeoutMs: 150_000,
     maxModels: 2,
   });
-  const parsed = parseJSONLoose<{ articleMd?: string; article?: string }>(text);
+  const parsed = parseJSON<{ articleMd?: string; article?: string }>(text);
   const md = (parsed?.articleMd || parsed?.article || "").trim();
   const wc = countWords(md);
   if (!md || wc < 400) {
@@ -493,7 +506,7 @@ Return STRICT JSON only:
     timeoutMs: 110_000,
     maxModels: 5,
   });
-  const parsed = parseJSONLoose<{
+  const parsed = parseJSON<{
     articleMd?: string;
     keywordCoverage?: string;
     changesSummary?: unknown[];

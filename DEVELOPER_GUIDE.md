@@ -136,7 +136,7 @@ src/
 │   │   ├── admin/               # Admin (external-plans, accounts, wallets, refunds, staff, blog, …)
 │   │   ├── coach/               # B2B (clients/invite, wallet, subscriptions/activate, support, …)
 │   │   ├── tools/               # Tool endpoints (save-result, save-meal-plan, lead, …)
-│   │   ├── cron/                # Cron (dispatch-pipelines 23:00 UTC + blog p0-p5 + progress-reminder)
+│   │   ├── cron/                # Cron (dispatch-pipelines 23:40 UTC + blog p0-p5 + progress-reminder)
 │   │   ├── paypal/              # PayPal (create-order, capture-order, webhook)
 │   │   └── …                    # send-email, food-search, og-image, build-info, …
 │   ├── ar/                      # النسخة العربية (mirror)
@@ -179,7 +179,7 @@ src/
 │   ├── ai-provider.ts           # موفر AI موحد (OpenRouter + fallbacks)
 │   ├── exercises.ts             # 868 تمرين
 │   ├── foods.ts                 # 8,830 أكلة
-│   ├── blog-generate.ts         # توليد مقالات المدونة بـ AI
+│   ├── blog-pipeline.ts         # مراحل توليد المقالات (P1/P2/P4 + المحلل المحصّن)
 │   ├── blog-topics.ts           # اختيار مواضيع المدونة
 │   ├── blog-admin.ts            # أدوات تحرير المدونة
 │   ├── blog-server.ts           # جلب بيانات المدونة (server-side)
@@ -363,15 +363,19 @@ maxModels × timeoutMs ≤ 52 ثانية داخلياً في `ai-provider.ts`.
 
 ## 7. نظام المدونة + AI Generation
 
-### التدفق اليدوي
+### التدفق اليدوي (مسار الكوتش — Phase 162)
 
 ```
-Coach → /admin/blog/new → "Generate with AI" button
-  → /api/ai/generate-article (coach-only)
-  → generateArticleBundle() in blog-generate.ts
-  → callAIWithFallback() with ARTICLE_SYSTEM_PROMPT
-  → Returns: SEO data + EN article + AR article + FAQ + image prompts + social posts
-  → Coach reviews → saves draft → publishes
+Coach → لوحة المقالات → زر التوليد
+  → /api/ai/jobs (enqueue — لا نداء نموذج من Vercel)
+  → blog-pipeline-dispatch.ts يُرسل workflow_dispatch لنفس مسار الأتوماتيكي
+    (blog-post-{en|ar}.yml عبر GITHUB_DISPATCH_TOKEN — fail-open)
+  → نفس الأنابيب P0→P5 (بحث ← مخطط ← محتوى ← صور ← مراجعة ← نشر)
+  → موضوع الكوتش (≥10 أحرف) يُختم في جهته من الـsharedBrief
+  → صف ai_jobs = إيصال إرسال (done + pipelineDispatched)
+الاحتياط عند فشل الإرسال: المولد الأحادي runArticleGenerate داخل
+  ai-job-processors.ts (المحصّن 161.4/161.5) — لا مسار ثالث.
+(Phase 171: صفوف الكوتش معفاة من حصة المقال الآلي اليومي — أمر مالك).
 ```
 
 ### التدفق الآلي (Cron)
@@ -387,10 +391,13 @@ Each run drives that language's queue row through the pipeline steps
   p0-research → p1-outline → p2-content → p3-images → p4-review → p5-publish
   Row statuses: researched→outlined→writing→written→images_done→reviewed→published
 
-Vercel cron /api/cron/dispatch-pipelines (daily 23:00 UTC — AFTER both daily
-  slots) TOPS UP any missed slots only (counts successful runs today vs
-  expected-through-now; failure/cancelled runs don't count) — it never
-  exceeds the 1+1 quota (Phase 119: one article per language per day).
+Vercel cron /api/cron/dispatch-pipelines (daily 23:40 UTC — Phase 171: after
+  both daily slots AND past the 90-minute scheduler-delay grace window)
+  TOPS UP any genuinely missed slots only — a slot counts as expected 90 min
+  after its hour (GitHub's documented cron delay), coverage = max(non-failed
+  runs today, posts published today) — it never exceeds the 1+1 quota
+  (Phase 119: one article per language per day, now also enforced at P5
+  itself: an automated row cannot publish a second same-day article).
 
 State tracked in blog_generation_queue table (one row per language).
 ```
@@ -454,7 +461,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/cron/blog/p3-images` | GET | Cron (CRON_SECRET) | الصور (مرحلة 3) |
 | `/api/cron/blog/p4-review` | GET | Cron (CRON_SECRET) | المراجعة (مرحلة 4) |
 | `/api/cron/blog/p5-publish` | GET | Cron (CRON_SECRET) | النشر (مرحلة 5) |
-| `/api/cron/dispatch-pipelines` | GET | Cron (CRON_SECRET) | الموزع اليومي 23:00 UTC (مدونة + مهام AI + إشعارات) |
+| `/api/cron/dispatch-pipelines` | GET | Cron (CRON_SECRET) | الموزع اليومي 23:40 UTC (مدونة + مهام AI — فترة سماح 90 دقيقة وحصر 1+1 يفرضها P5) |
 | `/api/cron/progress-reminder` | GET | Cron (CRON_SECRET) | تذكير التقدم الأسبوعي (الأحد 07:00 UTC) |
 | `/api/exercise-image` | GET | Public | بروكسي صور التمارين |
 | `/api/file` | GET | User | قراءة ملف من التخزين للمستخدم المصرّح |
@@ -608,7 +615,7 @@ bun run build
 - **Views:** `PascalCase.tsx` (مثل `CoachView.tsx`, `LandingView.tsx`)
 - **Components:** `PascalCase.tsx` (مثل `SiteHeader.tsx`, `SaveResultButton.tsx`)
 - **Hooks:** `use-kebab-case.tsx` (مثل `use-auth.tsx`, `use-membership-tier.ts`)
-- **Libs:** `kebab-case.ts` (مثل `ai-provider.ts`, `blog-generate.ts`)
+- **Libs:** `kebab-case.ts` (مثل `ai-provider.ts`, `blog-pipeline.ts`)
 
 ### الـ Colors المستخدمة (Tailwind CSS 4)
 
@@ -773,7 +780,6 @@ maxModels افتراضي = 2 (يمكن تمريره عبر options.maxModels)
 | EVO chat | 3 | 16s | ~48s |
 | Article EN (blog p2-content) | 2 | 26s | ~52s |
 | Article AR (blog p2-content) | 2 | 26s | ~52s |
-| Links/social (blog-generate) | 2 | 22s | ~44s |
 | Topic pick | 2 | 22s | ~44s |
 | Research (LLM-based) | 2 | 26s | ~52s |
 | Plan nutrition/workout | 2 | 26s | ~52s |

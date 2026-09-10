@@ -14,8 +14,10 @@ the rename covers and how it works:
 
 - **Where it lives:** every user-visible brand string in the app comes from
   the code itself (UI copy in `src/**`, metadata in `src/app/metadata.ts`,
-  i18n brand keys in `src/lib/i18n.tsx`, blog generation prompts in
-  `src/lib/blog-generate.ts`, affiliate banners in `public/affiliate/*.svg`,
+  i18n brand keys in `src/lib/i18n.tsx`, blog generation prompts in the
+  pipeline modules (`src/lib/blog-pipeline.ts` · `src/lib/blog-research.ts`)
+  and the coach draft generator (`src/lib/ai-job-processors.ts`),
+  affiliate banners in `public/affiliate/*.svg`,
   PWA identity in `public/manifest.json`) — all now say Alkemos.
 - **Visual assets:** `public/logo.png` (header + OG), the app icons
   (`icon-512/192`, `apple-touch-icon`, `favicon.png/.ico`) and the animated
@@ -184,8 +186,8 @@ The app is configured for Vercel with (see [`vercel.json`](./vercel.json)):
 - **Build command:** `next build` (production — vercel.json override)
 - **Security headers:** HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 - **Caching:** 1-year immutable for `/_next/static` and `/images/*`
-- **Cron jobs (2):** weekly progress reminder (Sunday 07:00 UTC) + daily `dispatch-pipelines` (23:00 UTC — tops up missed blog slots + rescues the AI-jobs worker)
-- **Blog cadence:** 2 articles/day — 1 EN (`blog-post-en.yml` at 22:00 UTC = 18:00 US Eastern) + 1 AR (`blog-post-ar.yml` at 05:00 UTC = 08:00 Cairo EEST), at different times per audience geography (Phase 119 owner directive 2026-09-04); ONE workflow run == ONE article in ONE language, and the dispatcher only tops up missed slots (never exceeds 1+1)
+- **Cron jobs (2):** weekly progress reminder (Sunday 07:00 UTC) + daily `dispatch-pipelines` (23:40 UTC — tops up genuinely missed blog slots + rescues the AI-jobs worker; Phase 171: 90-min grace per slot so GitHub's scheduler delay is never mistaken for a missed slot, coverage counts actual published posts, and P5 refuses a second automated article the same day)
+- **Blog cadence:** 2 articles/day — 1 EN (`blog-post-en.yml` at 22:00 UTC = 18:00 US Eastern) + 1 AR (`blog-post-ar.yml` at 05:00 UTC = 08:00 Cairo EEST), at different times per audience geography (Phase 119 owner directive 2026-09-04); ONE workflow run == ONE article in ONE language, the dispatcher only tops up missed slots (never exceeds 1+1), and the one-automated-article/day/language law is enforced at the P5 publish layer itself (Phase 171 — coach-requested articles are exempt owner overrides)
 
 **Database migrations on deploy:** the Supabase GitHub integration
 auto-applies every auto-named migration (numeric + dated families) on
