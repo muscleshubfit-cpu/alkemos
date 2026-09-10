@@ -162,6 +162,61 @@ export async function getRecentPostsByLanguage(lang: "en" | "ar", limit = 100): 
   }));
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// RECENT-CONTENT DIGESTS (Phase 172 — GEO/E-E-A-T quality push, owner order
+// «حسّن جودة Blog Generation»: exclusion context beyond title dedup). The
+// P0/P1 prompts now see WHAT recent articles actually covered (focus
+// keyword + H2 structure), so a new article cannot quietly rewrite an
+// older one with a different title. Pure H2 extraction + one light DB
+// query — no signature changes anywhere.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** First N "## " H2 headings of a markdown body (pure; ordered as written). */
+export function extractH2s(content: string, max = 6): string[] {
+  if (!content) return [];
+  const matches = content.match(/^##[ \t]+(.+)$/gm) ?? [];
+  return matches
+    .map((s) => s.replace(/^##[ \t]+/, "").trim())
+    .filter((h) => h.length > 1)
+    .slice(0, max);
+}
+
+/** Compact per-post view fed into research/outline prompts. */
+export type RecentContentDigest = {
+  title: string;
+  focusKeyword: string;
+  category: string;
+  h2s: string[];
+};
+
+/**
+ * Recent published posts WITH their structural skeleton (focus keyword +
+ * first H2s). Content is heavy (10-30KB/row), so the default limit is
+ * deliberately small — enough context for differentiation, cheap to ship
+ * on the native GHA runner. Degrades to [] on any failure (prompts then
+ * fall back to the legacy titles-only block).
+ */
+export async function getRecentContentDigests(
+  lang: "en" | "ar",
+  limit = 12,
+): Promise<RecentContentDigest[]> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return [];
+  const { data, error } = await supabaseAdmin
+    .from("blog_posts")
+    .select("title, focus_keyword, category, content")
+    .eq("language", lang)
+    .eq("is_published", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data.map((p) => ({
+    title: p.title || "",
+    focusKeyword: p.focus_keyword || "",
+    category: p.category || "",
+    h2s: extractH2s(String(p.content || ""), 6),
+  }));
+}
+
 /**
  * ROTATION MEMORY (2026-08-28c, owner: «عايز يكون فى تدوير لنوع المقالات»):
  * published posts alone made pickRotationCategory DEGENERATE while the blog

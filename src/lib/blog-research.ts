@@ -25,6 +25,7 @@ import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
 import {
   getRecentPostsByLanguage,
   getRecentGeneratedTopics,
+  getRecentContentDigests,
   pickRotationCategory,
   isDuplicateTopic,
 } from "./blog-topics";
@@ -198,14 +199,34 @@ async function researchLanguage(lang: "en" | "ar"): Promise<{ data: LanguageRese
   // content — the same trending suggestions regenerated every run. Feed
   // recent published + generated titles into the research prompt so the
   // 5 suggestions are forced onto UNCOVERED angles.
-  const [recentPosts, recentJobs] = await Promise.all([
+  // PHASE 172 (owner order — anti-repetition «ليس title dedup فقط»): the
+  // exclusion context is now STRUCTURAL, not title-only — recent digests
+  // carry each article's focus keyword + H2 skeleton, and the prompt
+  // bans repetition at the search-intent/angle/structure level, not
+  // just the title wording.
+  const [recentPosts, recentJobs, digests] = await Promise.all([
     getRecentPostsByLanguage(lang, 30),
     getRecentGeneratedTopics(lang, 15),
+    getRecentContentDigests(lang, 12),
   ]);
   const recentTitles = [...recentPosts, ...recentJobs].map((p) => p.title).filter(Boolean);
+  const digestBlock = digests.length
+    ? digests
+        .slice(0, 12)
+        .map(
+          (d, i) =>
+            `${i + 1}. "${d.title}"${d.focusKeyword ? ` [focus: ${d.focusKeyword}]` : ""}${
+              d.h2s.length ? ` — covered sections: ${d.h2s.slice(0, 5).join(" | ")}` : ""
+            }`,
+        )
+        .join("\n")
+    : "";
   const recentBlock = recentTitles.length
     ? `THE BLOG HAS ALREADY PUBLISHED / GENERATED THESE RECENT TITLES (your 5 topic suggestions MUST cover NEW subjects or genuinely NEW angles — rewording any of these is a FAILURE):
-${recentTitles.slice(0, 35).map((t, i) => `${i + 1}. ${t}`).join("\n")}`
+${recentTitles.slice(0, 35).map((t, i) => `${i + 1}. ${t}`).join("\n")}
+${digestBlock ? `
+RECENT ARTICLES' ACTUAL COVERAGE (focus keyword + section structure already used — a suggestion that repeats any of these INTENTS, ANGLES or SECTION SKELETONS is a FAILURE even with a different title):
+${digestBlock}` : ""}`
     : "";
 
   const prompt = `You are an SEO research analyst. Niche: ${niche}.
@@ -221,7 +242,7 @@ Return STRICT JSON only, no markdown fences:
 {
   "keywords": [ {"keyword": "...", "searchVolume": "high|medium|low"} ],   // exactly 10 items — ≥6 long-tail (3+ words, real search phrasing)
   "faqs":     [ {"question": "...", "answer": "1-2 sentence direct answer"} ], // exactly 10 items — most-searched questions (People-Also-Ask style)
-  "topics":   [ "..." ]   // exactly 5 specific, non-generic article topic suggestions NOT overlapping with the recent titles above; EACH must target a long-tail keyword above; VARY the article types across the 5 (guide / myth-busting / comparison / step-by-step plan / science deep-dive)
+  "topics":   [ "..." ]   // exactly 5 specific, non-generic article topic suggestions NOT overlapping with the recent titles above; EACH must target a long-tail keyword above; VARY the article types across the 5 (guide / myth-busting / comparison / step-by-step plan / science deep-dive); suggestions must differ from the recent coverage at the SEARCH-INTENT and ANGLE level (different reader goal, not just different wording)
 }`;
 
   try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeCategory } from "@/lib/blog-server";
-import { countWords, type OutlinePlan } from "@/lib/blog-pipeline";
+import { countWords, splitFaqSection, type OutlinePlan } from "@/lib/blog-pipeline";
 import { embedBodyImages } from "@/lib/blog-images";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { slugifyAscii } from "@/lib/slug";
@@ -167,7 +167,19 @@ export async function GET(request: NextRequest) {
     // idempotent, max 3 links/article, never inside existing markdown
     // links. Runs AFTER the P4 review (so the review model cannot strip
     // these links) and BEFORE image embedding.
-    const toolLinkPass = insertToolLinks(review.markdown, lang);
+    //
+    // PHASE 172 (owner order — FAQ filler fix): the article-specific FAQ
+    // section written in the reviewed markdown is LIFTED into
+    // blog_posts.faq_json (the visual FAQ cards) and REMOVED from the
+    // body — pre-172 the page rendered the FAQ TWICE (body + cards) and
+    // the cards carried the niche-generic P0 FAQs instead of the
+    // article's own questions. The lift happens BEFORE the tool-link
+    // pass (FAQ card answers render as plain text — no markdown links
+    // should be planted in them). Degradation: no recognizable FAQ
+    // section → legacy behavior (faq_json from research0, body intact).
+    const { body: faqStrippedMd, faqs: parsedFaqs } = splitFaqSection(lang, review.markdown);
+    const toolLinkPass = insertToolLinks(faqStrippedMd, lang);
+    const finalFaqJson = parsedFaqs.length > 0 ? parsedFaqs : (bundle.research0?.faqs ?? []);
 
     const row = {
       language: lang,
@@ -197,7 +209,10 @@ export async function GET(request: NextRequest) {
       author: "Ahmed Zake",
       is_published: true,
       published_at: now,
-      faq_json: bundle.research0?.faqs ?? [],
+      // PHASE 172: article-specific FAQs lifted from the reviewed markdown
+      // (see the splitFaqSection block above); research0 fallback only in
+      // the degraded no-FAQ-section path.
+      faq_json: finalFaqJson,
     };
 
     const { data: post, error: insertErr } = await supabaseAdmin
@@ -270,6 +285,7 @@ export async function GET(request: NextRequest) {
       title: row.title,
       slug,
       toolLinksInserted: toolLinkPass.inserted.length,
+      faqLifted: parsedFaqs.length,
       handshake,
     });
   } catch (e) {

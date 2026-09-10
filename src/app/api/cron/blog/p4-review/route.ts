@@ -89,15 +89,19 @@ export async function GET(request: NextRequest) {
 
     const r = await reviewAndEnhance(lang, draft, outline, candidates);
 
-    // Deterministic safety net: guaranteed FAQ section from Phase-0 answers.
-    const withFaq = ensureFaqSection(lang, r.markdown, research);
+    // Deterministic safety net: article-specific FAQ section guaranteed.
+    // PHASE 172 (owner order — FAQ filler fix): relevance-filtered against
+    // the article's title/focus (≤6, zero-relevant → no FAQ at all) — the
+    // pre-172 net appended ALL niche-generic P0 FAQs (up to 10) to any
+    // article that lacked a model-written FAQ section.
+    const withFaq = ensureFaqSection(lang, r.markdown, research, outline.title);
 
     const review: LangReview = {
       markdown: withFaq.md,
       report: {
         ...r.report,
         changesSummary: withFaq.appended
-          ? [...r.report.changesSummary, "appended deterministic FAQ section from P0 answers"]
+          ? [...r.report.changesSummary, `appended ${withFaq.appendedCount} topic-relevant FAQ item(s) from P0 answers`]
           : r.report.changesSummary,
       },
       internalLinks: r.internalLinks,

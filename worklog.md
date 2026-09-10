@@ -3023,3 +3023,44 @@ Stage Summary (الإغلاق):
 - 169 حية ومكتملة: EVO-6 كامل (API الشركاء + التضمين + white-label + لوحة الشركاء) + التصدير أُلغي — EVO-1..6 كلها منفذة
 - على المالك: علم EVO_PARTNER_API_ENABLED على Vercel → أول مفتاح من /admin/evo-partners → تسليم سطر التضمين (docs/EVO-PARTNER-API.md)
 - المؤجل: MCP tool بأمر ملكي مستقل — تذكير دائم: تدوير توكن GitHub
+
+---
+
+## Phase 172 — Blog content quality: GEO answer-first + E-E-A-T without fabrication + fact guard + article-specific FAQ + structural anti-repetition
+
+**Date:** 2026-09-10 · **Owner order:** «حسّن جودة Blog Generation» — 14-point directive (audit first; improve, do not rebuild) · **Baseline:** HEAD ac45db1 (Phase 171)
+
+### The audit (read-only, live evidence — before any edit)
+- **Baseline articles (latest per language, per owner instruction):** EN = «How to Do a Creatine Loading Phase for Strength vs Hypertrophy» (09-09) · AR = «كيف أحسب سعراتي اليومية بدقة لخسارة الوزن أو التضخيم؟» (09-10). Older posts used as historical evidence only.
+- **FAQ filler ROOT CAUSE (3 layers, live-verified):** the EN baseline rendered a 10-question FAQ **twice** on the page (once inside the body markdown, once as faq_json cards) with 9/10 questions off-topic for creatine (protein per day, IF, deloads, joint supplements, whey isolate…). Chain: P2 never wrote an article FAQ → `ensureFaqSection` appended ALL niche-generic P0 FAQs (≤10) into the body → P5 stored `faq_json: research0.faqs` (the same generic set) → double render. The AR baseline carried the exact curated-fallback FAQs (P0 chain had degraded that day) — 3/4 off-topic for a calorie-calculation article.
+- **Not answer-first (live):** both baselines open with scenario hooks («You finish a heavy squat session…» / «تخيل إنك قاعد تفطر…»); the direct answer only arrives inside H2s. Master plan §8.2's atomic-answer spec never reached the article prompts.
+- **Repetition evidence (historical):** AR published 3 sleep articles in 6 days (09-04, 09-07, 09-09) + two near-identical beginner-muscle titles (09-06, 09-08); EN latest titles were a «How to …» formula ×6+ consecutive. P0/P1 exclusion context was titles-only; P1 (buildOutline) had NO recent-content context at all.
+- **Keyword stuffing (live):** EN baseline contained «…answering the common query of how many grams of protein per day to build muscle» — verbatim long-tail jammed mid-sentence.
+- **E-E-A-T/fact guards:** no fabrication guard existed in P2/P4 prompts (nothing fabricated yet in baselines — no guard either). External whitelist was 4 domains; no health-claims nuance rules.
+- **Out-of-scope observations (documented, NOT changed):** last 3 published posts have linked_post_id=null despite STATE-171's pair note (P5 handshake is best-effort) · AR 09-10 calorie article published under category «تمارين» (rotation category is picked before the topic) · AR RSS <link> values miss the /ar prefix. None of these are in the 14-point scope.
+
+### The changes (prompts + minimal publish-layer data-shaping — NO architecture change)
+1. **`src/lib/blog-topics.ts`** — NEW `extractH2s()` (pure) + `getRecentContentDigests()` (title/focus/category + H2 skeleton of ≤12 recent published posts; degrades to [] on failure).
+2. **`src/lib/blog-research.ts` (P0)** — exclusion context now structural: recent titles + each recent article's focus keyword + H2 coverage; topic suggestions must differ at the SEARCH-INTENT/ANGLE level, not just wording.
+3. **`src/lib/blog-pipeline.ts`**
+   - **P1 `buildOutline`:** injects the recent-content digests (differentiation at intent/angle/H2/examples/recommendations level) + TITLE VARIETY LAW (question / vs / number-led / myth-bust / descriptive — no fixed opening formula) + long-tail naturalness line. Angle engine untouched (random/forced exactly as before).
+   - **P2 `generateFullArticle`:** ANSWER-FIRST (first 1-2 paragraphs directly answer the title's intent; quotable 2-4 sentences) · E-E-A-T WITHOUT FABRICATION (no invented client stories/results/testimonials/experiences/credentials; no coach-name filler in body) · FACT GUARD (timing/dosage/outcomes as context-dependent ranges, never absolute rules; no invented studies/authors/URLs/statistics; generic evidence phrasing) · DEPTH OVER LENGTH + anti-repetition + keyword-naturalness + AR editorial-independence (natural Arabic, not a translation) · per-run VARIATION SEED (5 example-emphasis variants per language — regeneration genuinely changes content) · mandatory article-specific FAQ section in the exact contract format (heading + `**question?**` + plain-text answer).
+   - **`ensureFaqSection` (kept, hardened):** relevance-filtered against the article title/focus (stop-word-aware matcher), capped at 6, zero-relevant → no FAQ at all (no forced filler).
+   - **NEW `splitFaqSection` (pure):** lifts the FAQ Q/A pairs from the reviewed markdown (plain-text answers, ≤7) and removes the section from the body.
+   - **P4 `reviewAndEnhance`:** ANSWER-FIRST CHECK (rewrite non-answering intros) · E-E-A-T GUARD (delete fabricated anecdotes) · FACT GUARD hardened (health claims context-dependent; never add citations) · FAQ relevance instruction (4-7, delete off-topic) · dedup/filler rules · external whitelist extended to who.int · ncbi.nlm.nih.gov · pubmed.ncbi.nlm.nih.gov · ods.od.nih.gov · nccih.nih.gov · cdc.gov · mayoclinic.org · acsm.org · issn-online.org (count unchanged: ≤2, each must directly support its sentence). CTA rotation + internal-link + tool-link rules untouched.
+4. **`src/app/api/cron/blog/p4-review/route.ts`** — passes `outline.title` as the relevance hint to ensureFaqSection.
+5. **`src/app/api/cron/blog/p5-publish/route.ts`** — faq_json is now LIFTED from the reviewed markdown's own FAQ section (splitFaqSection) and the section is REMOVED from the published body (single FAQ render, article-specific questions; research0 fallback only when no recognizable FAQ section). Tool-link pass runs on the FAQ-stripped body. Response adds `faqLifted`. Everything else byte-identical (quota guard, pairing handshake, slug law, author, reading time).
+6. **`src/lib/ai-job-processors.ts` (coach path)** — same three quality laws (answer-first / E-E-A-T no-fabrication / fact guard) + FAQ topic-specificity added to the single-shot generator prompt (both languages). Provider eligibility unchanged (article calls already exceed the Groq est-token threshold pre-172).
+7. **Tests** — NEW `src/lib/__tests__/blog-faq-quality.test.ts` (+25): splitFaqSection EN/AR (lift+strip, question marks, link stripping, post-FAQ CTA preservation, 7-cap, no-section passthrough, `## FAQ` variant) · ensureFaqSection relevance (off-topic excluded, zero-relevant → none, 6-cap, no-op, round-trip with the parser) · extractH2s · prompt-contract source guards (answer-first/E-E-A-T/fact-guard/FAQ/VARIATION_SEED/differentiation/whitelist lines must stay in the live prompts + P5 must keep splitFaqSection and never revert to raw research0 faq_json).
+8. **Docs** — STATE.md → 172 · AGENTS.md quality-floor line (FAQ 4-7 article-specific per owner order) · SEO-GEO-MASTER-PLAN §12.18 · this worklog entry.
+
+### Gates (9/9 local, matching §3.5)
+bun install --frozen-lockfile ✓ · tsc --noEmit 0 (after regenerating the gitignored next-env.d.ts stub, exactly like CI) · eslint 0/0 · vitest **565/565** (540 baseline + 25 new) · next build ✓ · docs_audit (phase=172) ✓ · docs_parity ✓ · migration_audit --ci zero new drift ✓ · stale-refs ✓ · ui-wiring ✓
+
+### Limitations / boundaries (documented)
+- Prompt laws steer models; weak chain models can still drift (chain remains strongest-first per QUALITY-FIRST LAW; P4 is the backstop).
+- Degraded path: no recognizable FAQ section in the reviewed markdown → legacy faq_json from research0 (rare — the P2 contract + P4 check + ensureFaqSection net make three layers before this).
+- Reading time still counts the FAQ words (review.markdown) — harmless (FAQ renders as cards).
+- P1 digest query pulls content for ≤10-12 rows — acceptable on the native GHA runner; degrades to title-blind on DB error.
+- Regeneration variety = prompt-level seed + temperature; no cross-run memory (per-owner-order scope: no engine rebuild).
+- EN/AR independence is structurally intact (separate P0→P5 per language, separate research); pairing still shares topic+angle per Phase 157 law — untouched by design.

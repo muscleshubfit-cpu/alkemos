@@ -18,7 +18,7 @@
  */
 import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
 import { type LanguageResearch } from "./blog-research";
-import { getRecentPostsByLanguage, isDuplicateTopic } from "./blog-topics";
+import { getRecentPostsByLanguage, getRecentContentDigests, isDuplicateTopic } from "./blog-topics";
 import { sanitizeModelSlug } from "./slug";
 // PHASE 171 (blog-audit proposal ب): every model-JSON parse in P1/P2/P4
 // now uses the 161.5-hardened parseJSON from ai-provider (fence-strip +
@@ -206,18 +206,54 @@ export async function buildOutline(
   const angleLine = lang === "ar"
     ? `نوع المقال المطلوب: ${angle.ar} — صمّم أقسام H2 بحيث تناسب هذا النوع فعلاً (${angle.shapeAr})؛ ممنوع إعادة استخدام هيكل عام موحّد لكل المقالات.`
     : `ARTICLE TYPE: ${angle.en} — shape the H2 sections to genuinely fit this type (${angle.shapeEn}); do NOT reuse a generic one-size-fits-all skeleton.`;
+
+  // PHASE 172 (owner order — topic/structure differentiation «منع التكرار
+  // على مستوى search intent / angle / H2 structure / examples»): P1 now
+  // sees the recent articles' actual coverage (focus keyword + H2
+  // skeleton), not just their titles. The outline must differ at the
+  // structure and angle level — a new title over a recycled skeleton is
+  // the failure mode this block kills. Degrades to an empty string when
+  // the digest query fails (legacy title-blind behavior).
+  let recentContext = "";
+  try {
+    const digests = await getRecentContentDigests(lang, 10);
+    if (digests.length) {
+      const lines = digests
+        .slice(0, 10)
+        .map(
+          (d) =>
+            `- "${d.title}"${d.focusKeyword ? ` (focus: ${d.focusKeyword})` : ""}${
+              d.h2s.length ? ` — sections: ${d.h2s.slice(0, 5).join(" | ")}` : ""
+            }`,
+        )
+        .join("\n");
+      recentContext = lang === "ar"
+        ? `\nآخر المقالات المنشورة في نفس اللغة (ممنوع تكرار نيتها البحثية أو زاويتها أو هيكل عناوينها أو أمثلتها الرئيسية — اجعل هيكل أقسام هذا المقال مختلفًا فعليًا:\n${lines}\n`
+        : `\nRECENTLY PUBLISHED ARTICLES IN THIS LANGUAGE (do NOT repeat their search intent, angle, H2 structure, main examples, or practical recommendations — this article's section skeleton must be genuinely different):\n${lines}\n`;
+    }
+  } catch {
+    /* differentiation context is best-effort — outline proceeds title-blind */
+  }
+
+  const titleVarietyLine = lang === "ar"
+    ? `قانون تنويع العنوان: صيغة العنوان يجب أن تناسب نية البحث لا قالبًا ثابتًا — نوّع بين صيغة سؤال، أو «س مقابل ص»، أو قائمة مرقّمة، أو دحض خرافة، أو وصفًا مباشرًا. لا تجعل كل العناوين تبدأ بنفس الصيغة، ولا تفرض قالبًا واحدًا على كل المقالات.`
+    : `TITLE VARIETY LAW: the headline format must fit the search intent — rotate between a question, an "X vs Y" comparison, a number-led list, a myth-busting callout, or a plain descriptive phrase. Never lock every title into one opening formula (e.g. every title starting the same way); no fixed template.`;
+
   const prompt = `You are an expert SEO content planner for a fitness & nutrition blog.
 ${LANG_RULE[lang]}
 
 CHOSEN TOPIC: "${topic}"
 
 ${angleLine}
-
+${titleVarietyLine}
+${recentContext}
 LONG-TAIL SEO LAW (owner directive 2026-09-01): the title, at least TWO H2
 headings, and at least 5 of the LSI keywords must mirror REAL long-tail
 search phrasing — the exact question-style / how-to / "best X for Y" phrasings
 people type into Google and AI assistants (e.g. "how many calories to eat to
 lose weight" beats "calories"). Broad head-term titles are a FAILURE.
+LONG-TAIL NATURALNESS (Phase 172): keywords guide the phrasing, they must NEVER
+deform the language — H2s are written for human readers first.
 
 ${researchDigest(research)}
 
@@ -227,7 +263,7 @@ Create the detailed article blueprint. Return STRICT JSON only:
   "subtitle": "one engaging supporting line",
   "metaDescription": "140-155 chars including the long-tail keyword",
   "slugBase": "short-url-slug-in-lowercase-english-even-for-arabic",
-  "sections": ["H2 heading 1", "..."],            // exactly 5-7 H2s shaped for the article type above; at least TWO phrased as real long-tail search questions
+  "sections": ["H2 heading 1", "..."],            // exactly 5-7 H2s shaped for the article type above; at least TWO phrased as real long-tail search questions; NOT copying the section skeletons of the recent articles above
   "lsiKeywords": ["...", "..."],                   // 8-12 sub-keywords to weave in naturally; at least 5 must be 3+ word long-tail phrases
   "imagePlan": [ {"subject": "exact visual subject", "type": "photo|infographic|diagram"} ] // 3-5 items matching the sections. IMAGE LAW: subjects MUST be ENGLISH physical OBJECTS or SCENES ONLY (equipment, food, interiors) — NEVER any person, body part, people word, or clothing wording
 }`;
@@ -300,6 +336,35 @@ Create the detailed article blueprint. Return STRICT JSON only:
 // PHASE 2 — full content generation (1500–2500 words)
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * PHASE 172 (owner order — regeneration anti-repetition «إعادة توليد
+ * المقال نفسه لا تنتج نسخة شبه مطابقة»): a per-run VARIATION SEED is
+ * injected into the writing prompt. Same topic + same outline re-run
+ * still draws a different example-emphasis and framing, so a regenerated
+ * article genuinely changes content (search intent + facts preserved).
+ */
+const VARIATION_SEEDS: Record<"en" | "ar", string[]> = {
+  en: [
+    "EXAMPLE EMPHASIS: ground your advice in gym/equipment-based scenarios (barbells, machines, commercial-gym logistics).",
+    "EXAMPLE EMPHASIS: ground your advice in home/minimal-equipment scenarios (bodyweight, dumbbells, small spaces).",
+    "EXAMPLE EMPHASIS: lead sections with concrete numbers and quick math the reader can reproduce today (portions, grams, minutes).",
+    "EXAMPLE EMPHASIS: lead sections with food-first practicality (meals, groceries, kitchen logistics, budget options).",
+    "EXAMPLE EMPHASIS: frame sections around decision points the reader faces (choosing, adjusting, troubleshooting plateaus).",
+  ],
+  ar: [
+    "تركيز الأمثلة: سيناريوهات الجيم والمعدات (بار، أجهزة، إدارة وقت النادي).",
+    "تركيز الأمثلة: سيناريوهات المنزل والمعدات البسيطة (وزن الجسم، دمبل، مساحات صغيرة).",
+    "تركيز الأمثلة: أرقام وحسابات عملية يقدر القارئ تطبيقها اليوم (كميات، جرامات، دقائق).",
+    "تركيز الأمثلة: طعام أولًا (وجبات، مشتريات، تنظيم المطبخ، خيارات اقتصادية).",
+    "تركيز الأمثلة: بناء الأقسام حول قرارات حقيقية يواجهها القارئ (الاختيار، التعديل، حل الثبات).",
+  ],
+};
+
+const FAQ_SECTION_HEADING: Record<"en" | "ar", string> = {
+  en: "## Frequently Asked Questions",
+  ar: "## الأسئلة الشائعة",
+};
+
 export async function generateFullArticle(
   lang: "en" | "ar",
   outline: OutlinePlan,
@@ -313,8 +378,32 @@ export async function generateFullArticle(
   // queue bundle). Unknown/legacy outlines fall back to a random angle.
   const angle = ARTICLE_ANGLES.find((a) => a.id === outline.angle) ?? pickArticleAngle();
   const angleLine = lang === "ar"
-    ? `اكتب المقال كـ${angle.ar}: ${angle.shapeAr}. اجعل الافتتاحية تناسب هذا النوع (مثلاً: مشهد واقعي أو خرافة شائعة أو سؤال حقيقي) وليس تعريفاً عاماً.`
-    : `Write this as ${angle.en}: ${angle.shapeEn}. Open with a hook that fits this article type (a real scenario, a popular claim, or a striking question) — never a generic definition.`;
+    ? `اكتب المقال كـ${angle.ar}: ${angle.shapeAr}.`
+    : `Write this as ${angle.en}: ${angle.shapeEn}.`;
+
+  // PHASE 172: per-run variation seed (regeneration changes content).
+  const variationSeed =
+    VARIATION_SEEDS[lang][Math.floor(Math.random() * VARIATION_SEEDS[lang].length)];
+
+  const answerFirstLine = lang === "ar"
+    ? `الإجابة أولًا (قانون إلزامي): الفقرة الأولى أو الثانية يجب أن تجيب مباشرة عن نية البحث الأساسية التي يطرحها العنوان — إجابة محددة عملية قابلة للاقتباس (٢-٤ جمل)، ثم يتوسع المقال في التفاصيل. ممنوع: مقدمات عامة، أو حشو، أو إعادة صياغة العنوان، أو مشهد تمهيدي طويل قبل الإجابة.`
+    : `ANSWER-FIRST (mandatory): the first or second paragraph must DIRECTLY answer the core search intent behind the title — a specific, quotable, practical answer (2-4 sentences) — before the article expands into detail. FORBIDDEN: generic scene-setting intros, filler, restating the title, or a long warm-up story before the answer.`;
+
+  const eeatLine = lang === "ar"
+    ? `خبرة بلا اختلاق (E-E-A-T): يُسمح بمنظور تدريبي عملي واستنتاجات خبير، لكن ممنوع منعًا باتًّا اختلاق قصص عملاء أو نتائجهم أو شهادات أو تجارب شخصية أو مؤهلات أو تجارب تدريبية لم تحدث. لا تكرر اسم الكابتن أحمد زكي داخل النص كحشو لإظهار السلطة — الإسناد موجود في توقيع المقال نفسه.`
+    : `E-E-A-T WITHOUT FABRICATION: expert reasoning and a practical coaching perspective are welcome; FABRICATING client stories, client results, testimonials, personal experiences, coaching cases, credentials, or experiments is strictly FORBIDDEN. Do not repeat the coach's name inside the body as an authority filler — attribution lives in the byline, not the prose.`;
+
+  const factLine = lang === "ar"
+    ? `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. عند الاستشهاد بالأدلة: صياغة عامة فقط مثل «تشير الأدلة إلى...» دون تسمية مصادر محددة داخل المتن.`
+    : `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Reference evidence generically ("research suggests...", "evidence supports...") without naming specific sources inside the body.`;
+
+  const faqSectionLine = lang === "ar"
+    ? `قسم الأسئلة الشائعة (إلزامي في نهاية المقال): ٤-٧ أسئلة تخدم نية البحث الفعلية لهذا المقال تحديدًا — أسئلة يسألها باحث حقيقي عن هذا الموضوع، لا أسئلة عامة عن اللياقة. ممنوع إضافة أسئلة جانبية عن مواضيع لا يحتاجها المقال. الصيغة الحرفية: عنوان القسم «## الأسئلة الشائعة» ثم لكل سؤال سطر «**السؤال؟»» يليه فقرة الإجابة (إجابة نصية مباشرة بلا روابط وبلا جداول).`
+    : `FAQ SECTION (mandatory, at the END of the article): 4-7 questions serving THIS article's actual search intent — questions a real searcher of THIS topic would ask, not generic fitness questions. Do NOT pad with side questions the article doesn't need. EXACT format: the heading "## Frequently Asked Questions", then for each question one line "**The question?**" followed by a plain-text answer paragraph (no links, no tables inside answers).`;
+
+  const qualityLine = lang === "ar"
+    ? `العمق لا الطول: لا حشو لبلوغ عدد كلمات، لا تكرار النصيحة نفسها في أكثر من قسم، لا فقرات تحفيزية عامة، لا حشو كلمات مفتاحية يفسد اللغة — إن كانت المعلومة بسيطة أجب عنها ببساطة. استخدم الكلمة المفتاحية بصيغتها الحرفية فقط إذا بقيت الجملة طبيعية، وإلا فصياغة طبيعية قريبة منها. العربيّة يجب أن تكون عربية طبيعية مستقلة تحريريًا (جمهور عربي، أمثلة تناسب الثقافة) — ليست ترجمة حرفية عن مقال إنجليزي.`
+    : `DEPTH OVER LENGTH: no filler to hit a word count, no repeating the same advice in multiple sections, no generic motivational paragraphs, no keyword stuffing that deforms the language — if a point is simple, state it simply. Use a keyword verbatim ONLY when the sentence stays natural; otherwise rephrase naturally and closely. Write clean, quotable, information-dense prose (direct answers, clear definitions, concise factual statements, useful bullet lists, tables or clear comparisons only when they genuinely help).`;
 
   const prompt = `You are an elite fitness/nutrition copywriter. Write the FULL article.
 ${LANG_RULE[lang]}
@@ -325,24 +414,33 @@ MAIN KEYWORDS TO COVER NATURALLY: ${research.keywords.slice(0, 6).map((k) => k.k
 LSI KEYWORDS: ${outline.lsiKeywords.join("; ")}
 
 LONG-TAIL RULE: the keywords above are LONG-TAIL search phrases — include
-them VERBATIM (or near-verbatim) inside H2 headings and paragraph text where
-it reads naturally. These exact phrasings are what the article must rank for.
+them VERBATIM (or a natural near-verbatim phrasing) inside H2 headings and
+paragraph text ONLY where it reads naturally. These phrasings are what the
+article must rank for; natural language quality always wins over verbatim
+placement.
 
+${answerFirstLine}
 ${angleLine}
+${variationSeed}
+${eeatLine}
+${factLine}
+${qualityLine}
+${faqSectionLine}
 
 EXACT OUTLINE — follow it section by section:
-- Introduction (hook + what the reader will learn)
+- Introduction (ANSWER-FIRST: the direct answer, then what the reader will learn)
 ${outline.sections.map((s) => `- H2: ${s}`).join("\n")}
 - Conclusion
+- ${FAQ_SECTION_HEADING[lang]} (the article-specific FAQ section described above)
 
 REQUIREMENTS:
-1. Length: 1500-2500 words TOTAL (do NOT stop before 1500).
+1. Length: 1500-2500 words TOTAL (do NOT stop before 1500; do NOT pad past usefulness).
 2. Use "## " for each H2 exactly as outlined (keep the wording), short paragraphs (2-4 sentences), bullet lists where useful.
-3. Weave keywords + LSI terms NATURALLY (no stuffing).
-4. Answer these reader questions inside relevant sections:
+3. Weave keywords + LSI terms NATURALLY (never at the cost of readability).
+4. Where a researched question fits the article's intent, answer it inside the relevant section:
 ${faqBlock}
-5. Practical, evidence-aligned advice; when citing research, name the finding generically (e.g. "studies show...") — do NOT invent paper names, authors or URLs.
-6. No title repetition at the top — start directly with the introduction paragraph.
+5. Evidence-aligned practical advice; generic evidence phrasing only — do NOT invent paper names, authors, URLs, or statistics.
+6. No title repetition at the top — start directly with the ANSWER-FIRST introduction paragraph.
 
 Return STRICT JSON only:
 { "articleMd": "the full article in markdown (## headings, no # H1)" }`;
@@ -381,27 +479,151 @@ export function countWords(md: string): number {
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Deterministic safety net: if the enhanced draft is still short, append
- * an FAQ section built directly from Phase 0 research (real answers,
- * no hallucination). Used by p4 route after the model pass.
+ * Deterministic safety net: if the enhanced draft is still missing an FAQ
+ * section, append one built from Phase 0 research (real answers, no
+ * hallucination). Used by the p4 route after the model pass.
+ *
+ * PHASE 172 (owner order — «أصلح مشكلة FAQ filler»): the append is now
+ * RELEVANCE-FILTERED and CAPPED. P0 FAQs are niche-generic by design, so
+ * blindly appending all of them produced the live filler evidence (a
+ * creatine article carrying 9 off-topic FAQ cards, rendered twice). Only
+ * questions sharing meaningful vocabulary with the article's title/focus
+ * keyword are appended (≤6). Zero relevant questions → nothing appended —
+ * an absent FAQ is CORRECT when the research set doesn't serve the
+ * article's intent (no forced FAQ).
+ *
+ * Interrogatives/auxiliaries that match ANY fitness topic are stop-words
+ * here, so "How often should I deload?" never counts as related to a
+ * creatine-loading article merely via the word "how".
  */
+const FAQ_RELEVANCE_STOPWORDS = new Set([
+  // EN
+  "how", "what", "when", "where", "which", "why", "who", "the", "for", "with",
+  "and", "you", "your", "are", "can", "could", "does", "did", "should", "would",
+  "will", "need", "needs", "many", "much", "take", "per", "day", "days", "week",
+  "weeks", "all", "any", "from", "that", "this", "into", "only", "also", "get",
+  "gets", "have", "has", "had", "help", "helps", "about", "best", "top", "good",
+  "bad", "than", "then", "there", "their", "them", "its", "work", "works",
+  // AR
+  "كيف", "كم", "ما", "ماذا", "متى", "أين", "هل", "في", "على", "من", "الى",
+  "إلى", "عن", "مع", "هذا", "هذه", "ذلك", "تلك", "التي", "الذي", "كل", "بعض",
+  "يجب", "يمكن", "احتاج", "أحتاج", "تحتاج", "افضل", "أفضل", "متى", "لماذا",
+]);
+
+function faqRelevanceWords(s: string): Set<string> {
+  return new Set(
+    s
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter((w) => w.length > 2 && !FAQ_RELEVANCE_STOPWORDS.has(w)),
+  );
+}
+
 export function ensureFaqSection(
   lang: "en" | "ar",
   md: string,
   research: LanguageResearch,
-): { md: string; appended: boolean } {
-  const header =
-    lang === "ar" ? "## الأسئلة الشائعة" : "## Frequently Asked Questions";
-  if (/^##\s*(frequently asked|الأسئلة الشائعة)/im.test(md)) return { md, appended: false };
-  const items = research.faqs
-    .slice(0, Math.min(10, research.faqs.length))
-    .map((f) =>
-      lang === "ar"
-        ? `**${f.question}**\n\n${f.answer}`
-        : `**${f.question}**\n\n${f.answer}`,
-    );
-  if (items.length === 0) return { md, appended: false };
-  return { md: `${md}\n\n${header}\n\n${items.join("\n\n")}`, appended: true };
+  topicHint?: string,
+): { md: string; appended: boolean; appendedCount: number } {
+  const header = FAQ_SECTION_HEADING[lang];
+  if (FAQ_HEADING_RE.test(md)) return { md, appended: false, appendedCount: 0 };
+  const hintWords = faqRelevanceWords(topicHint ?? "");
+  const relevant = (hintWords.size >= 2
+    ? research.faqs.filter((f) => {
+        const words = faqRelevanceWords(`${f.question} ${f.answer}`);
+        return [...words].some((w) => hintWords.has(w));
+      })
+    : []
+  ).slice(0, 6);
+  if (relevant.length === 0) return { md, appended: false, appendedCount: 0 };
+  const items = relevant.map((f) => `**${f.question}**\n\n${f.answer}`);
+  return {
+    md: `${md}\n\n${header}\n\n${items.join("\n\n")}`,
+    appended: true,
+    appendedCount: items.length,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FAQ MARKDOWN CONTRACT (Phase 172) — P2 writes the article-specific
+// FAQ section into the markdown; P5 lifts it into blog_posts.faq_json
+// (the visual FAQ cards) and removes it from the body so the section
+// renders exactly ONCE (the pre-172 live pages rendered the generic
+// research FAQ twice: once inside the body, once as faq_json cards).
+// Heading + "**question**" + answer-paragraph is the shared contract.
+// ─────────────────────────────────────────────────────────────────
+
+/** Matches the FAQ section heading in either language (tolerant variants). */
+const FAQ_HEADING_RE = /^##[ \t]+(?:frequently[ \t]+asked|faq|الأسئلة[ \t]+الشائعة)/im;
+
+/** Strip inline markdown (bold/italic/links) so FAQ cards render plain text. */
+function stripInlineMarkdown(s: string): string {
+  return s
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1") // [text](url) → text
+    .replace(/\*\*([^*]+)\*\*/g, "$1") // **bold**
+    .replace(/\*([^*]+)\*/g, "$1") // *italic*
+    .trim();
+}
+
+type ParsedFaq = { question: string; answer: string };
+
+/**
+ * Split the FAQ section out of an article's markdown (pure). Returns the
+ * Q/A pairs (answers plain-text, inline markdown stripped, capped at 7 —
+ * owner range 4-7) and the body markdown with the FAQ section REMOVED —
+ * from the heading through the next H2 (or end of document). No
+ * recognizable FAQ section → unchanged body + empty list (the caller
+ * falls back to the legacy faq_json source).
+ */
+export function splitFaqSection(
+  lang: "en" | "ar",
+  md: string,
+): { body: string; faqs: ParsedFaq[] } {
+  const match = FAQ_HEADING_RE.exec(md);
+  if (!match) return { body: md, faqs: [] };
+  const start = match.index;
+  const afterHeading = md.indexOf("\n", match.index + match[0].length);
+  const sectionStart = afterHeading === -1 ? md.length : afterHeading + 1;
+  // The section ends at the next H2 heading (e.g. a post-FAQ CTA) or EOF.
+  const nextH2 = /^##[ \t]+/m.exec(md.slice(sectionStart));
+  const sectionEnd = nextH2 ? sectionStart + nextH2.index : md.length;
+  const section = md.slice(sectionStart, sectionEnd).trim();
+
+  const faqs: ParsedFaq[] = [];
+  // Bold-only lines (or ### subheadings) are questions; the text until the
+  // next question is its answer.
+  const blocks = section.split(/\n{2,}/);
+  let current: ParsedFaq | null = null;
+  for (const block of blocks) {
+    const b = block.trim();
+    if (!b) continue;
+    const boldQ = /^\*\*(.+?)\*\*\s*$/.exec(b);
+    const h3Q = /^###[ \t]+(.+)$/.exec(b);
+    const qMatch = boldQ ?? h3Q;
+    if (qMatch) {
+      if (current && current.question && current.answer) faqs.push(current);
+      current = { question: stripInlineMarkdown(qMatch[1]), answer: "" };
+      continue;
+    }
+    if (current) {
+      current.answer = current.answer ? `${current.answer} ${b}` : b;
+    }
+  }
+  if (current && current.question && current.answer) faqs.push(current);
+
+  const cleaned = faqs.slice(0, 7).map((f) => ({
+    question: f.question.endsWith("?") || f.question.endsWith("؟")
+      ? f.question
+      : `${f.question}${lang === "ar" ? "؟" : "?"}`,
+    answer: stripInlineMarkdown(f.answer),
+  }));
+  if (cleaned.length === 0) return { body: md, faqs: [] };
+
+  const rest = md.slice(sectionEnd).trim();
+  const body = rest
+    ? `${md.slice(0, start).trimEnd()}\n\n${rest}`
+    : md.slice(0, start).trim();
+  return { body, faqs: cleaned };
 }
 
 export async function reviewAndEnhance(
@@ -454,7 +676,7 @@ export async function reviewAndEnhance(
 ${LANG_RULE[lang]}
 
 ARTICLE TITLE: ${outline.title}
-TARGET LENGTH: 1500-2500 words (expand thin sections if needed).
+TARGET LENGTH: 1500-2500 words (expand thin sections if needed; NEVER pad with filler to reach the length — depth, not repetition).
 
 DRAFT (markdown):
 """
@@ -465,20 +687,23 @@ EXISTING SITE POSTS you may internally link to (slug → title):
 ${candidates}
 
 DO ALL OF THE FOLLOWING:
-1. Proofread: fix grammar/spelling, improve flow, remove repetition (merge duplicated points).
-2. Verify every main keyword & LSI term appears naturally at least once; add a sentence where missing.
-3. Fact-guard: remove or soften any specific citation that looks invented (paper names/authors/URLs that may not exist). Keep generic phrasing like "research shows".
-4. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown).
-5. FREE-TOOL LINKS (owner directive 2026-09-01): wherever the text naturally mentions calories, macros/protein targets, body fat, BMI, water intake, or meal plans, link that phrase to the matching FREE tool in [anchor](url) format — ONLY these URLs, max 3 total, each used at most once:
+1. Proofread: fix grammar/spelling, improve flow, remove repetition (merge advice that appears in more than one section into its single best home; delete generic motivational filler; if a point is simple, keep it simple).
+2. ANSWER-FIRST CHECK (mandatory): if the opening 1-2 paragraphs do not DIRECTLY answer the title's core question, rewrite them so they do — specific, quotable, 2-4 sentences, no scene-setting warm-up, no restating the title.
+3. Keyword coverage: verify every main keyword & LSI term appears naturally at least once; add a sentence ONLY where missing, and never at the cost of natural language (fix any sentence that reads as keyword stuffing).
+4. FACT GUARD (health claims): remove or soften any specific statistic, study, paper, author, URL, or clinical claim that cannot be verified — keep generic phrasing like "research suggests". Timing, dosage, and outcome claims (supplements, nutrition, training, recovery, weight loss, muscle gain) must read as commonly recommended, context-dependent ranges — never absolute rules. NEVER add new citations.
+5. E-E-A-T GUARD: delete any fabricated client story, testimonial, personal experience, coaching case, credential, or claimed experiment. Keep expert reasoning and the practical coaching perspective. Do not insert the coach's name into the body.
+6. FAQ SECTION: keep the "## " FAQ section — 4-7 questions serving THIS article's search intent; DELETE any off-topic or generic question the article doesn't need; answers stay plain text (no links inside FAQ answers).
+7. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown).
+8. FREE-TOOL LINKS (owner directive 2026-09-01): wherever the text naturally mentions calories, macros/protein targets, body fat, BMI, water intake, or meal plans, link that phrase to the matching FREE tool in [anchor](url) format — ONLY these URLs, max 3 total, each used at most once:
    - calories → [anchor](/tools/calorie-calculator)
    - macros/protein needs → [anchor](/tools/macro-calculator)
    - body fat → [anchor](/tools/body-fat-calculator)
    - BMI → [anchor](/tools/bmi-calculator)
    - water intake/hydration → [anchor](/tools/water-tracker)
    - meal plan/meal prep → [anchor](/meal-planner)
-6. Add at most 2 external links ONLY to well-known authoritative domains you are certain exist (who.int, ncbi.nlm.nih.gov, cdc.gov, mayoclinic.org) in [anchor](https://...) format.
-7. ${ctaInstruction}
-8. Keep all "## " section structure; output the COMPLETE final article.
+9. Add at most 2 external links ONLY to well-known authoritative domains you are certain exist (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) in [anchor](https://...) format — each link must directly support the sentence it is attached to; do NOT add links for linking's sake.
+10. ${ctaInstruction}
+11. Keep all "## " section structure (including the FAQ section); output the COMPLETE final article.
 
 Return STRICT JSON only:
 {
