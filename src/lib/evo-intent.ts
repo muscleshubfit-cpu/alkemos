@@ -30,12 +30,36 @@ const PLAN_CREATION_PATTERNS: RegExp[] = [
   /\bmeal\s+(plan|with|for)\s+\d+/i,
   /\d+\s*(calorie|kcal|cal)\s*(meal|plan|diet)/i,
   /\bworkout\s+(plan|program|routine)\s*(for|with)/i,
+  // EN want/need family (deep-audit closure 2026-09-10): "I want a meal
+  // plan" / "I need a workout program" — the article and domain noun
+  // are optional so "I want a plan" fires, but "I want to plan my week"
+  // (to-infinitive) stays free.
+  /\b(?:want|need|wanna)\s+(?:a|an|the|my)?\s*(?:meal|workout|diet|nutrition|training)?\s*(?:plans?|menus?|programs?|routines?)\b/i,
   /اعمل\s+(وجبة|خطة|برنامج|جدول|دايت|مينو)/i,
   /صمم\s+(وجبة|خطة|برنامج|جدول)/i,
   /انشئ\s+(وجبة|خطة|برنامج|جدول)/i,
   /خطة\s+(تغذية|تمارين|دايت)\s+/i,
   /وجبة\s+\d+\s*سعر/i,
   /\d+\s*سعرة\s*(وجبة|خطة|مينو)/i,
+  // AR — deep-audit closure (2026-09-10): 9 of 10 common plan-request
+  // phrasings bypassed the static gate and reached the model (cost +
+  // non-deterministic refusal language + quota bypass). The families
+  // below close the gap with HIGH-PRECISION shape rules — every pattern
+  // requires an explicit PLAN OBJECT noun (وجبة/خطة/برنامج/جدول/دايت/
+  // مينو) so informational questions («إزاي أعمل بنش بريس؟", «عايز أعرف
+  // إيه أفضل دايت؟") can never match.
+  // (a) Imperative family — masc/fem verb + optional «لي/لى» clitic
+  //     (attached اعمللي or spaced اعمل لي): «اعملي خطة»، «اعمللي
+  //     جدول»، «صممي برنامج»، «أنشئ لي مينو».
+  /(?:اعمل[ىي]?|صمم[ىي]?|[اأ]نشئ[ىي]?|جهز[ىي]?)\s*(?:لي|لى)?\s*(?:وجبه|وجبة|وجبات|خطه|خطة|خطط|برنامج|برامج|جدول|جداول|دايت|مينو)/i,
+  // (b) Want/need family — «عايز/عاوز/محتاج (+ة) / بدي / أريد / نفسي
+  //     في» + object: «عايز خطة»، «محتاجة جدول»، «بدي دايت».
+  /(?:عايز|عاوز|عايزه|عايزة|عاوزه|عاوزة|محتاج|محتاجه|محتاجة|بدي|نفسي في|[اأ]ريد)\s+(?:وجبه|وجبة|وجبات|خطه|خطة|خطط|برنامج|برامج|جدول|جداول|دايت|مينو)/i,
+  // (c) Polite «ممكن» family — verb optional: «ممكن تعمللي خطة»،
+  //     «ممكن تعملي برنامج»، «ممكن خطة تمارين».
+  /ممكن\s+(?:(?:تعمل|تعملي)\s*(?:لي|لى)?\s*)?(?:وجبه|وجبة|وجبات|خطه|خطة|خطط|برنامج|برامج|جدول|جداول|دايت|مينو)/i,
+  // (d) Future «ه/ح تعمل» family: «هتعمللي خطة»، «حتعمل جدول».
+  /(?:ه|ح)(?:تعمل|تعملي)\s*(?:لي|لى)?\s*(?:وجبه|وجبة|وجبات|خطه|خطة|خطط|برنامج|برامج|جدول|جداول|دايت|مينو)/i,
 ];
 
 /** Swap/regenerate intents — subscriber-only, but NOT monthly-quota'd. */

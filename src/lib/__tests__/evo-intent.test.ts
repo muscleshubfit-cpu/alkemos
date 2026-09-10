@@ -87,6 +87,53 @@ describe("classifyEvoIntent", () => {
     expect(i.isSubscriberOnly).toBe(false);
   });
 
+  // ── Deep-audit closure (2026-09-10): AR plan-request families ────────
+  it("classifies feminine imperative plan requests («اعملي» family)", () => {
+    expect(classifyEvoIntent("اعملي خطة").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("اعملى جدول تمارين").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("اعمللي خطة اكل").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("اعمل لي برنامج").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("اعمليلي مينو").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("صممي جدول").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("أنشئ لي خطة").isPlanCreation).toBe(true);
+  });
+
+  it("classifies want/need plan requests («عايز خطة» family)", () => {
+    expect(classifyEvoIntent("عايز خطة").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("عاوز خطة تمارين").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("عايزة جدول اكل").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("محتاج خطة").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("محتاجة برنامج").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("بدي دايت").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("أريد خطة تغذية").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("نفسي في مينو اكل صحي").isPlanCreation).toBe(true);
+  });
+
+  it("classifies polite/future plan requests («ممكن تعمللي» family)", () => {
+    expect(classifyEvoIntent("ممكن تعمللي خطة؟").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("ممكن تعمل لي جدول").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("ممكن تعملي برنامج").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("ممكن خطة تمارين؟").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("هتعمللي خطة؟").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("حتعمل جدول اسبوعي").isPlanCreation).toBe(true);
+  });
+
+  it("classifies EN want/need plan requests", () => {
+    expect(classifyEvoIntent("I want a meal plan").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("I need a workout program").isPlanCreation).toBe(true);
+    expect(classifyEvoIntent("I want a plan").isPlanCreation).toBe(true);
+  });
+
+  it("keeps informational questions free (precision law)", () => {
+    // «know/best» questions — the object must follow the verb directly.
+    expect(classifyEvoIntent("عايز أعرف إيه أفضل دايت؟").isPlanCreation).toBe(false);
+    expect(classifyEvoIntent("إزاي أعمل بنش بريس صح؟").isSubscriberOnly).toBe(false);
+    expect(classifyEvoIntent("I want to plan my own week").isPlanCreation).toBe(false);
+    expect(classifyEvoIntent("what is the best diet?").isPlanCreation).toBe(false);
+    // «زهقت»-style venting without an object stays free.
+    expect(classifyEvoIntent("ممكن سؤال؟").isPlanCreation).toBe(false);
+  });
+
   // ── Domain keyword precedence ────────────────────────────────────────
   it("food keywords win the domain when both appear", () => {
     const i = classifyEvoIntent("اعمل خطة أكل وتمارين");

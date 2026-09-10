@@ -1,0 +1,31 @@
+-- 0083: EVO-6 PARTNER API ROLLBACK — owner order «مطلوب الغاء فكره api
+-- الشركاء» (2026-09-10, deep-audit session): the partner API idea is
+-- CANCELLED. Phase 169 shipped it; this phase removes it entirely.
+--
+-- WHAT THIS DOES: drops the two tables created by 0082 —
+--   1. evo_api_usage first (it carries the FK evo_api_usage_api_key_id_fkey
+--      → evo_api_keys ON DELETE CASCADE; dropping keys first would work
+--      too via cascade, but usage-first is the explicit, order-stable
+--      form),
+--   2. evo_api_keys (the hash-only partner credentials).
+-- Table-owned indexes/RLS policies drop with their tables. Idempotent:
+-- safe on any database state (applied 0082 or not).
+--
+-- WHY A DROP, NOT "DORMANT TABLES": the feature is cancelled, not
+-- paused — dead schema is the same defect class as dead code
+-- (AGENTS.md §3.8: deleted in the same phase; git preserves history).
+-- evo_call_stats / evo_chat_cache / evo_eval_runs (0081, EVO-5) are
+-- NOT touched: they serve the platform chat, the cache and the weekly
+-- eval — unrelated to the partner surface. Any rows the cancelled
+-- surface wrote into evo_call_stats / evo_chat_cache (audit test
+-- traffic) remain harmless platform telemetry/cache entries.
+--
+-- CODE SIDE (same commit): /api/evo/v1/chat, /embed/evo.js,
+-- /embed/widget, /api/admin/evo-partners, /admin/evo-partners,
+-- evo-partner.ts, evo-embed-script.ts and their tests are deleted;
+-- EVO_PARTNER_API_ENABLED becomes dead config (owner removes it from
+-- Vercel — the code no longer reads it). The stale-refs guard bans the
+-- retired identifiers. Do NOT resurrect without a new owner order.
+
+drop table if exists public.evo_api_usage;
+drop table if exists public.evo_api_keys;

@@ -165,14 +165,13 @@ const nextConfig: NextConfig = {
         // vast majority of public responses are cacheable.
         // PRIVATE surfaces are EXCLUDED via the lookahead (api, admin,
         // auth, checkout, dashboard, questionnaires, progress, plans,
-        // profile, support, referral, preview, coach, embed — embed is
-        // EVO-6: /embed/widget renders PER-KEY partner themes server-side,
-        // so an edge-cached HTML could serve one partner's theme/branding
-        // to another — segment-exact so /coaching and /coaches/* stay
-        // public) and keep no-store. The [^.]* tail keeps file paths
-        // (robots.txt, sitemaps, llms.txt, rss.xml, assets) out — they
-        // have their own rules above.
-        source: "/((?!(?:api|admin|auth|checkout|dashboard|questionnaires|progress|plans|profile|support|referral|preview|coach|embed)(?:/|$))[^.]*)",
+        // profile, support, referral, preview, coach — segment-exact
+        // so /coaching and /coaches/* stay public) and keep no-store.
+        // (The former `embed` segment was the EVO-6 partner surface —
+        // removed 2026-09-10 by owner order.) The [^.]* tail keeps file
+        // paths (robots.txt, sitemaps, llms.txt, rss.xml, assets) out —
+        // they have their own rules above.
+        source: "/((?!(?:api|admin|auth|checkout|dashboard|questionnaires|progress|plans|profile|support|referral|preview|coach)(?:/|$))[^.]*)",
         headers: [
           {
             key: "Cache-Control",

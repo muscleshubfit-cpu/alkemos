@@ -60,9 +60,6 @@ const SECTIONS: AdminNavSection[] = [
       // provider success · intent distribution · quota consumption ·
       // cache hits · weekly eval curve.
       { href: "/admin/evo-analytics", emoji: "🧠", ar: "تحليلات EVO", en: "EVO analytics" },
-      // EVO-6 (W6): partner API keys + one-line embed widget management —
-      // raw keys shown ONCE, quota meter per key, is_active kill switch.
-      { href: "/admin/evo-partners", emoji: "🤝", ar: "شركاء EVO", en: "EVO partners" },
     ],
   },
   {

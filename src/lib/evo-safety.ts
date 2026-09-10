@@ -12,6 +12,15 @@
  *    myself / my life) or a concrete ED behavior. Gym hyperbole
  *    («التمرين ده قتلني», "this workout is killing me") must NOT fire —
  *    false positives would poison trust in a fitness product.
+ *  - Deep-audit closure (2026-09-10, owner-approved suggestions): the
+ *    live audit proved 5 of 8 real crisis phrasings reached the model —
+ *    «مش عايز اعيش»، «زهقت من الحياة»، «I do not want to live anymore»،
+ *    «I wish I was dead»، «مش عايز اكمل في الحياة». The families below
+ *    now close those gaps. Precision boundary, per family: the EN
+ *    not-want-to-live family REQUIRES "anymore" ("I don't want to live
+ *    in Cairo" is a housing complaint, not a crisis); the AR
+ *    counterparts carry the existential object explicitly («اعيش» /
+ *    «من الحياة» / «في الحياة» / «حياتي») so gym talk can never match.
  *  - Pure + client-safe: no DOM, no fetch, no Node APIs — usable from
  *    the API route and unit-testable in isolation.
  *  - Arabic normalization: strip diacritics/tatweel, unify alef/yaa/taa
@@ -45,11 +54,27 @@ const SELF_HARM_PATTERNS: readonly string[] = [
   "end my life", "end it all", "hurt myself", "harm myself",
   "self-harm", "self harm", "want to die", "wanna die",
   "better off dead", "no reason to live", "cut myself",
+  // EN — not-want-to-live family ("anymore" REQUIRED — precision
+  // boundary in the header) + wish-to-be-dead family (audit 2026-09-10)
+  "do not want to live anymore", "don't want to live anymore",
+  "dont want to live anymore",
+  "do not want to be here anymore", "don't want to be here anymore",
+  "dont want to be here anymore",
+  "wish i was dead", "wish i were dead", "wish to be dead",
+  "want to be dead",
   // AR — normalized forms (أ→ا ة→ه ى→ي)
   "انتحار", "انتحر", "قتل نفسي", "اذي نفسي", "اضرار نفسي",
   "انهي حياتي", "اختم حياتي", "عايز اموت", "عاوز اموت",
   "اريد ان اموت", "نفسي في الموت", "نفسي اموت", "ودي اموت",
   "اذي جسمي عمدا",
+  // AR — audit 2026-09-10 gap closure: dialect negation+live and
+  // fed-up-with-LIFE families (gender + dialect morphological variants)
+  "مش عايز اعيش", "مش عاوز اعيش", "مش عايزة اعيش", "مش عاوزة اعيش",
+  "مش ناوي اعيش", "مش ناوية اعيش",
+  "زهقت من الحياة", "زهقت من حياتي",
+  "مش عايز اكمل في الحياة", "مش عاوز اكمل في الحياة",
+  "مش عايز اكمل حياتي", "مش عاوز اكمل حياتي",
+  "لا اريد ان اعيش",
 ];
 
 const EATING_DISORDER_PATTERNS: readonly string[] = [

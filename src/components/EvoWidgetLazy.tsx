@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -17,14 +16,10 @@ import { useEffect, useState } from "react";
  * any eager useEvoChat consumer keeps working; only the widget UI is
  * deferred.
  *
- * EVO-6 (W6): the platform floating widget NEVER mounts on /embed/* —
- * those routes are the PARTNER embed surface rendered inside an iframe
- * (their page hosts OUR widget already); the platform drawer inside the
- * iframe would be a doubled chat UI (EVO_CHAT_SURFACE LAW — one surface
- * per context).
+ * (EVO-6 partner embed surface removed 2026-09-10 by owner order —
+ * /embed/* no longer exists; EVO_CHAT_SURFACE LAW: the floating widget
+ * is the ONE chat surface again.)
  */
-
-const EMBED_PATH_RE = /^\/embed(?:\/|$)/;
 
 const EvoFloatingWidget = dynamic(
   () =>
@@ -36,10 +31,8 @@ const EvoFloatingWidget = dynamic(
 
 export function EvoWidgetLazy() {
   const [ready, setReady] = useState(false);
-  const pathname = usePathname() || "";
 
   useEffect(() => {
-    if (EMBED_PATH_RE.test(pathname)) return;
     const load = () => setReady(true);
     if (typeof window.requestIdleCallback === "function") {
       const id = window.requestIdleCallback(load, { timeout: 3000 });
@@ -47,8 +40,8 @@ export function EvoWidgetLazy() {
     }
     const t = setTimeout(load, 1500);
     return () => clearTimeout(t);
-  }, [pathname]);
+  }, []);
 
-  if (!ready || EMBED_PATH_RE.test(pathname)) return null;
+  if (!ready) return null;
   return <EvoFloatingWidget />;
 }

@@ -75,6 +75,53 @@ describe("detectEvoCrisis — precision guards (MUST NOT fire)", () => {
   });
 });
 
+describe("detectEvoCrisis — deep-audit closure (2026-09-10)", () => {
+  // The live audit proved these 5 of 8 real crisis phrasings reached
+  // the model — the YMYL law («الأزمة لا تصل للنموذج أبداً») requires
+  // every one of them to fire the static shield instead.
+  it("fires on the 5 audit-proven gap forms (AR + EN)", () => {
+    expect(detectEvoCrisis("مش عايز اعيش")).toBe("self-harm");
+    expect(detectEvoCrisis("زهقت من الحياة")).toBe("self-harm");
+    expect(detectEvoCrisis("I do not want to live anymore")).toBe("self-harm");
+    expect(detectEvoCrisis("I wish I was dead")).toBe("self-harm");
+    expect(detectEvoCrisis("مش عايز اكمل في الحياة")).toBe("self-harm");
+  });
+
+  it("fires on gender/dialect morphological variants of the gap forms", () => {
+    expect(detectEvoCrisis("مش عاوزة اعيش")).toBe("self-harm");
+    expect(detectEvoCrisis("مش عايزة أعيش خلاص")).toBe("self-harm");
+    expect(detectEvoCrisis("مش ناوي اعيش")).toBe("self-harm");
+    expect(detectEvoCrisis("زهقت من حياتي")).toBe("self-harm");
+    expect(detectEvoCrisis("مش عاوز اكمل في الحياة")).toBe("self-harm");
+    expect(detectEvoCrisis("مش عايز اكمل حياتي")).toBe("self-harm");
+    expect(detectEvoCrisis("لا أريد أن أعيش")).toBe("self-harm");
+    expect(detectEvoCrisis("I don't want to live anymore")).toBe("self-harm");
+    expect(detectEvoCrisis("I wish I were dead")).toBe("self-harm");
+    expect(detectEvoCrisis("I want to be dead")).toBe("self-harm");
+    expect(detectEvoCrisis("I don't want to be here anymore")).toBe("self-harm");
+  });
+
+  it("keeps the precision law — fed-up/finish talk WITHOUT life stays free", () => {
+    // «زهقت» alone is everyday gym/diet frustration — only «من الحياة/
+    // حياتي» is the existential object.
+    expect(detectEvoCrisis("زهقت من الدايت")).toBeNull();
+    expect(detectEvoCrisis("زهقت من التمرين")).toBeNull();
+    expect(detectEvoCrisis("زهقت من الشغل")).toBeNull();
+    // «اكمل» without «في الحياة/حياتي» is a workout-set statement.
+    expect(detectEvoCrisis("مش عايز اكمل التمرين")).toBeNull();
+    expect(detectEvoCrisis("مش قادر اكمل السيت")).toBeNull();
+    // Positive living talk never fires.
+    expect(detectEvoCrisis("عايز اعيش حياة صحية")).toBeNull();
+    expect(detectEvoCrisis("نفسي اعيش حياة أفضل")).toBeNull();
+  });
+
+  it("keeps the precision law — EN not-want-to-live WITHOUT anymore stays free", () => {
+    expect(detectEvoCrisis("I don't want to live in Cairo")).toBeNull();
+    expect(detectEvoCrisis("I do not want to live far from the gym")).toBeNull();
+    expect(detectEvoCrisis("I want to live a healthy life")).toBeNull();
+  });
+});
+
 describe("evoCrisisReply", () => {
   it("mirrors the user's language — Arabic gets the Arabic reply", () => {
     const ar = evoCrisisReply("self-harm", true);

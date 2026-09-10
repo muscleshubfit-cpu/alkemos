@@ -112,6 +112,16 @@ for f in files:
             t, col = norm(m.group(1)), m.group(2).strip('"').lower()
             if t in mig_tables:
                 mig_tables[t].discard(col)
+        # drop table (Phase 170): a later migration may legitimately DROP
+        # a whole table an earlier one created (e.g. 0083 dropping the
+        # 0082 partner tables by owner order «الغاء فكرة api الشركاء») —
+        # same law as drop column: the effective migration shape is what
+        # remains, so retire the table from the expected set entirely
+        m = re.match(
+            r"(?i)drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([\w.\"']+)",
+            line)
+        if m:
+            mig_tables.pop(norm(m.group(1)), None)
         # alter rename column (Phase 106): 0012/0038 renamed
         # price_egp → price_usd — the FINAL name is what types.ts and
         # live production carry; without this the parser keeps reporting
@@ -210,9 +220,10 @@ print("\n[7] enums:", {k: v for k, v in enums.items()} or "none")
 # (per-table), so any brand-new phantom column on an accepted table is
 # still caught.
 ACCEPTED_MISSING_TABLES = {
-    # INDEX.md §3: audit_log has no live FK data path; gh_sync_probe is a
-    # probe table created and dropped during the GitHub-sync trials (0056)
-    "audit_log", "gh_sync_probe",
+    # INDEX.md §3: audit_log has no live FK data path. (gh_sync_probe was
+    # pruned in Phase 170 when the drop-table parser landed — 0056's DROP
+    # now retires it automatically.)
+    "audit_log",
 }
 ACCEPTED_MISSING_COLS = {
     # INDEX.md §3-family boundary: added in 0014, lives in production,
