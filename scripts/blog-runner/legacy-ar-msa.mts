@@ -86,11 +86,22 @@ function parseSentinel(raw: string): string | null {
 }
 
 function buildPrompt(content: string, retryViolations?: string[]): string {
+  // Concrete numeric targets (live batch evidence: models complied with
+  // explicit counts far better than with prose-only instructions — the
+  // compression failures all hit articles where the model had no target).
+  const arWords = (content.match(/[\u0600-\u06FF]+/g) || []).length;
+  const links = (content.match(/(?<!!)\[[^\]]*\]\([^)]+\)/g) || []).length;
+  const images = (content.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
   const retry = retryViolations?.length
     ? `\n\n⚠️ محاولة سابقة رُفضت بالتحقق الحتمي بسبب:\n- ${retryViolations.join("\n- ")}\nأعد التحويل معالجًا هذه المخالفات تحديدًا.`
     : "";
   return (
     `حوّل مقالة Alkemos التالية من العامية المصرية/اللغة غير المعيارية إلى العربية الفصحى الحديثة السهلة (Pan-Arab Modern Standard Arabic) بلا أي لهجة محلية.
+
+أهداف رقمية إلزامية للتحقق الحتمي:
+- عدد الكلمات العربية في الناتج يجب أن يكون في نطاق ±20% من: ${arWords} كلمة (الناتج المضغوط/المختصر مرفوض).
+- عدد الروابط في الناتج = ${links} بالضبط (لا حذف ولا إضافة — نفس المسارات والنصوص).
+- عدد الصور في الناتج = ${images} بالضبط (نفس الروابط ونفس النص البديل حرفيًا).
 
 قواعد التحويل الصارمة:
 1. حوّل كل كلمة أو تركيب عامي (عشان، مش، ازاي، بتاع، كده، عايز، هتلاقي، دلوقتي، كتير، برضه، مفيش، إيه…) إلى مرادفه الفصحى الطبيعي (لأن/حتى، ليس/لا، كيف، مِلْك/خاص، هكذا، يريد، ستجد، الآن، كثير، أيضًا، لا يوجد، ماذا…).
@@ -100,7 +111,7 @@ function buildPrompt(content: string, retryViolations?: string[]): string {
 5. حافظ حرفيًا على صور Markdown (![نص](رابط)) كما هي — لا تغيّر النص البديل ولا الرابط.
 6. حافظ على بنية العناوين (# و ## و ###) ومستوياتها وترتيبها كما هي — لا تُضف عناوين جديدة ولا تحذف عناوين.
 7. احذف أي فقرة ختامية تسويقية تدعو لحجز جلسة أو الانضمام إلى الكوتشينج إن وُجدت في نهاية المقال (الصفحة تعرض بطاقات CTA بعد المقال) — ولا تُضف أي خاتمة تسويقية جديدة.
-8. أعد المقال كاملًا من أوله إلى آخره — أي بتر للنص يجعل الناتج مرفوضًا.
+8. أعد المقال كاملًا من أوله إلى آخره — أي بتر أو اختصار للنص يجعل الناتج مرفوضًا.
 
 أعد النتيجة بهذا الشكل الحرفي (لا JSON ولا أسوار كود):
 ${MARKER_MAIN}
