@@ -2928,3 +2928,18 @@ Stage Summary:
 - **دروس المرحلة:** المفتاح الخام يعيش مرة واحدة في الاستجابة (الهاش هو الهوية) · صف success المتزامن استثناء موثق على نمط best-effort لسلامة الحصة · الاستخراج الحرفي للمساعدين المشتركين (cache-server) قبل إعادة استخدامهم في مسار ثانٍ منع الـfork
 - **على المالك للتفعيل (هاتفًا):** علم `EVO_PARTNER_API_ENABLED=true` على Vercel → أول مفتاح من /admin/evo-partners (الخام مرة واحدة) → تسليم سطر التضمين — العقد: docs/EVO-PARTNER-API.md
 - **المؤجل:** MCP tool (تعريض مكتبة التمارين/الأطعمة) بأمر ملكي مستقل — و**تذكير دائم: تدوير توكن GitHub**
+
+---
+Task ID: EVO6-CLOSE-169-2026-09-10
+Agent: Super Z (main)
+Task: إغلاق المرحلة 169 — التحقق الحي من CI بعد الدفع وتحديث «آخر كوميت متحقق منه»
+
+Work Log:
+- الدفع الحي: 22a2fc7..c49ea6e (main) بصيغة x-access-token والتوكن مخفيًا بsed في كل المخرجات
+- check-runs API بالsha الكامل c49ea6e7ec1e0ae1377f41e11cd78adaf9a24828: **4/4 success** — Supabase Preview (0082 عبرت المعاينة) · quality · parity · guard
+- STATE «آخر كوميت متحقق منه» → c49ea6e بأرقام حية — المرآة مُزامنة
+
+Stage Summary (الإغلاق):
+- 169 حية ومكتملة: EVO-6 كامل (API الشركاء + التضمين + white-label + لوحة الشركاء) + التصدير أُلغي — EVO-1..6 كلها منفذة
+- على المالك: علم EVO_PARTNER_API_ENABLED على Vercel → أول مفتاح من /admin/evo-partners → تسليم سطر التضمين (docs/EVO-PARTNER-API.md)
+- المؤجل: MCP tool بأمر ملكي مستقل — تذكير دائم: تدوير توكن GitHub
