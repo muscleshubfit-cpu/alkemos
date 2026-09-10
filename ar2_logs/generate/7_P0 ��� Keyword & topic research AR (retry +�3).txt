@@ -1,0 +1,36 @@
+﻿2026-09-10T16:44:04.3380149Z ##[group]Run bash scripts/blog-runner/run-step.sh p0-research 3
+2026-09-10T16:44:04.3380990Z [36;1mbash scripts/blog-runner/run-step.sh p0-research 3[0m
+2026-09-10T16:44:04.3430501Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:44:04.3430973Z env:
+2026-09-10T16:44:04.3431350Z   PIPELINE_LANG: ar
+2026-09-10T16:44:04.3432021Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:44:04.3432778Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:44:04.3433573Z   PIPELINE_JOB_ID: 
+2026-09-10T16:44:04.3434548Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:44:04.3437309Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:44:04.3437865Z   CRON_SECRET: ***
+2026-09-10T16:44:04.3438639Z   OPENROUTER_API: ***
+2026-09-10T16:44:04.3439462Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:44:04.3440186Z   GROQ_API_KEY: ***
+2026-09-10T16:44:04.3441001Z   NVIDIA_API_KEY: ***
+2026-09-10T16:44:04.3441458Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:44:04.3442320Z   PEXELS_API_KEY: ***
+2026-09-10T16:44:04.3442774Z   PIXABAY_API_KEY: 
+2026-09-10T16:44:04.3443156Z ##[endgroup]
+2026-09-10T16:44:04.3536678Z --- [p0-research] attempt 1 / 3 ---
+2026-09-10T16:44:05.6041140Z [runner] ▶ p0-research · lang=ar · topicOverride=yes
+2026-09-10T16:44:07.5038186Z [ai-fallback-chain] [blog:research] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:44:07.5907181Z [ai-fallback-chain] [blog:research] lead=groq (call #2, orKeys=2)
+2026-09-10T16:44:11.7407797Z [ai-fallback-chain] [blog:research] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:44:11.7412575Z [blog-research] P0 en done (groq:openai/gpt-oss-120b, kw:10 faq:10 topics:5)
+2026-09-10T16:45:02.5062370Z [ai-fallback-chain] [blog:research] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:45:07.5110596Z [ai-fallback-chain] [blog:research] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:45:07.5112372Z [blog-research] P0 ar done (groq:openai/gpt-oss-120b, kw:10 faq:10 topics:5)
+2026-09-10T16:45:08.9813634Z [ai-fallback-chain] [blog:pairing] lead=nvidia (call #3, orKeys=2)
+2026-09-10T16:45:16.1782493Z [ai-fallback-chain] [blog:pairing] nvidia/nvidia/nemotron-3-super-120b-a12b succeeded
+2026-09-10T16:45:16.1784795Z [blog/p0-research] pairing failed → legacy single row: pairing: invalid JSON from nvidia:nvidia/nemotron-3-super-120b-a12b
+2026-09-10T16:45:17.2370831Z HTTP 200
+2026-09-10T16:45:17.2382493Z {"ok":true,"step":"p0","queueId":"03f64a3e-f1a9-4128-bc20-a61864702d5a","lang":"ar","category":"fitness","keywords":10,"faqs":10,"topics":5,"source":"p0-ar:groq:openai/gpt-oss-120b","pairMode":"legacy","twinInserted":false,"topicOverride":"كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين","coachRun":true}
+2026-09-10T16:45:17.2384539Z [runner] ✓ p0-research OK
+2026-09-10T16:45:17.2923294Z [p0-research] captured QUEUE_ID=03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:45:17.2924409Z ✓ p0-research succeeded

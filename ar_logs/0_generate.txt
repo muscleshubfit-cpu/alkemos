@@ -1,0 +1,660 @@
+﻿2026-09-10T16:11:22.1378027Z Current runner version: '2.337.0'
+2026-09-10T16:11:22.1413578Z ##[group]Runner Image Provisioner
+2026-09-10T16:11:22.1415693Z Hosted Compute Agent
+2026-09-10T16:11:22.1416763Z Version: 20260828.587
+2026-09-10T16:11:22.1417991Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-10T16:11:22.1419419Z Build Date: 2026-08-28T16:44:25Z
+2026-09-10T16:11:22.1420846Z Worker ID: {e387d096-13e3-429a-b713-88ad615328ce}
+2026-09-10T16:11:22.1422546Z Azure Region: eastus
+2026-09-10T16:11:22.1423537Z ##[endgroup]
+2026-09-10T16:11:22.1426101Z ##[group]Operating System
+2026-09-10T16:11:22.1427315Z Ubuntu
+2026-09-10T16:11:22.1428405Z 24.04.5
+2026-09-10T16:11:22.1429384Z LTS
+2026-09-10T16:11:22.1430382Z ##[endgroup]
+2026-09-10T16:11:22.1431475Z ##[group]Runner Image
+2026-09-10T16:11:22.1433046Z Image: ubuntu-24.04
+2026-09-10T16:11:22.1434054Z Version: 20260907.300.1
+2026-09-10T16:11:22.1436395Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-10T16:11:22.1439369Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-10T16:11:22.1441237Z ##[endgroup]
+2026-09-10T16:11:22.1443781Z ##[group]GITHUB_TOKEN Permissions
+2026-09-10T16:11:22.1446970Z Contents: read
+2026-09-10T16:11:22.1448325Z Metadata: read
+2026-09-10T16:11:22.1449455Z Packages: read
+2026-09-10T16:11:22.1450578Z ##[endgroup]
+2026-09-10T16:11:22.1454208Z Secret source: Actions
+2026-09-10T16:11:22.1456060Z Cache mode: write
+2026-09-10T16:11:22.1457746Z Prepare workflow directory
+2026-09-10T16:11:22.2252313Z Prepare all required actions
+2026-09-10T16:11:22.2328261Z Getting action download info
+2026-09-10T16:11:22.4347484Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-09-10T16:11:22.5458881Z Download action repository 'actions/setup-node@v5' (SHA:a0853c24544627f65ddf259abe73b1d18a591444)
+2026-09-10T16:11:22.6720003Z Download action repository 'oven-sh/setup-bun@v2' (SHA:0c5077e51419868618aeaa5fe8019c62421857d6)
+2026-09-10T16:11:22.9158463Z Complete job name: generate
+2026-09-10T16:11:22.9983972Z ##[group]Run actions/checkout@v5
+2026-09-10T16:11:22.9985004Z with:
+2026-09-10T16:11:22.9985524Z   repository: muscleshubfit-cpu/alkemos
+2026-09-10T16:11:22.9989633Z   token: ***
+2026-09-10T16:11:22.9990119Z   ssh-strict: true
+2026-09-10T16:11:22.9990595Z   ssh-user: git
+2026-09-10T16:11:22.9991092Z   persist-credentials: true
+2026-09-10T16:11:22.9991624Z   clean: true
+2026-09-10T16:11:22.9992348Z   sparse-checkout-cone-mode: true
+2026-09-10T16:11:22.9992926Z   fetch-depth: 1
+2026-09-10T16:11:22.9993399Z   fetch-tags: false
+2026-09-10T16:11:22.9993886Z   show-progress: true
+2026-09-10T16:11:22.9994376Z   lfs: false
+2026-09-10T16:11:22.9994867Z   submodules: false
+2026-09-10T16:11:22.9995362Z   set-safe-directory: true
+2026-09-10T16:11:22.9995907Z   allow-unsafe-pr-checkout: false
+2026-09-10T16:11:22.9996778Z env:
+2026-09-10T16:11:22.9997236Z   PIPELINE_LANG: ar
+2026-09-10T16:11:22.9997751Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:22.9998587Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:22.9999398Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:23.0000107Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:23.0002593Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:23.0003214Z   CRON_SECRET: ***
+2026-09-10T16:11:23.0004030Z   OPENROUTER_API: ***
+2026-09-10T16:11:23.0004876Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:23.0005612Z   GROQ_API_KEY: ***
+2026-09-10T16:11:23.0006426Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:23.0006940Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:23.0007692Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:23.0008190Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:23.0008674Z ##[endgroup]
+2026-09-10T16:11:23.1063699Z Syncing repository: muscleshubfit-cpu/alkemos
+2026-09-10T16:11:23.1066424Z ##[group]Getting Git version info
+2026-09-10T16:11:23.1067642Z Working directory is '/home/runner/work/alkemos/alkemos'
+2026-09-10T16:11:23.1079162Z [command]/usr/bin/git version
+2026-09-10T16:11:23.1206919Z git version 2.55.0
+2026-09-10T16:11:23.1236156Z ##[endgroup]
+2026-09-10T16:11:23.1252808Z Temporarily overriding HOME='/home/runner/work/_temp/623b626f-1735-45be-ac59-6527870ae92d' before making global git config changes
+2026-09-10T16:11:23.1255529Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-10T16:11:23.1266673Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/alkemos/alkemos
+2026-09-10T16:11:23.1358293Z Deleting the contents of '/home/runner/work/alkemos/alkemos'
+2026-09-10T16:11:23.1361008Z ##[group]Initializing the repository
+2026-09-10T16:11:23.1362693Z [command]/usr/bin/git init /home/runner/work/alkemos/alkemos
+2026-09-10T16:11:23.1484108Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-10T16:11:23.1492145Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-10T16:11:23.1495870Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-10T16:11:23.1497764Z hint: call:
+2026-09-10T16:11:23.1498931Z hint:
+2026-09-10T16:11:23.1500171Z hint: 	git config --global init.defaultBranch <name>
+2026-09-10T16:11:23.1501625Z hint:
+2026-09-10T16:11:23.1504899Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-10T16:11:23.1507495Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-10T16:11:23.1509417Z hint:
+2026-09-10T16:11:23.1510619Z hint: 	git branch -m <name>
+2026-09-10T16:11:23.1512301Z hint:
+2026-09-10T16:11:23.1513965Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-10T16:11:23.1516798Z Initialized empty Git repository in /home/runner/work/alkemos/alkemos/.git/
+2026-09-10T16:11:23.1521082Z [command]/usr/bin/git remote add origin https://github.com/muscleshubfit-cpu/alkemos
+2026-09-10T16:11:23.1567806Z ##[endgroup]
+2026-09-10T16:11:23.1666954Z ##[group]Disabling automatic garbage collection
+2026-09-10T16:11:23.1669655Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-10T16:11:23.1676538Z ##[endgroup]
+2026-09-10T16:11:23.1679711Z ##[group]Setting up auth
+2026-09-10T16:11:23.1682324Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-10T16:11:23.1687188Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-10T16:11:23.2149263Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-10T16:11:23.2191114Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-10T16:11:23.2438495Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-10T16:11:23.2479084Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-10T16:11:23.2735550Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-10T16:11:23.2777102Z ##[endgroup]
+2026-09-10T16:11:23.2778728Z ##[group]Fetching the repository
+2026-09-10T16:11:23.2789336Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a66d831388b0cf20d8cfdd5da1d6a457ac45ac30:refs/remotes/origin/main
+2026-09-10T16:11:23.9994757Z From https://github.com/muscleshubfit-cpu/alkemos
+2026-09-10T16:11:23.9997044Z  * [new ref]         a66d831388b0cf20d8cfdd5da1d6a457ac45ac30 -> origin/main
+2026-09-10T16:11:24.0001373Z ##[endgroup]
+2026-09-10T16:11:24.0003752Z ##[group]Determining the checkout info
+2026-09-10T16:11:24.0006247Z ##[endgroup]
+2026-09-10T16:11:24.0012155Z [command]/usr/bin/git sparse-checkout disable
+2026-09-10T16:11:24.0067757Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-10T16:11:24.0107328Z ##[group]Checking out the ref
+2026-09-10T16:11:24.0111216Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-09-10T16:11:24.1251184Z Switched to a new branch 'main'
+2026-09-10T16:11:24.1255091Z branch 'main' set up to track 'origin/main'.
+2026-09-10T16:11:24.1266863Z ##[endgroup]
+2026-09-10T16:11:24.1314717Z [command]/usr/bin/git log -1 --format=%H
+2026-09-10T16:11:24.1343972Z a66d831388b0cf20d8cfdd5da1d6a457ac45ac30
+2026-09-10T16:11:24.1614749Z ##[group]Run echo "=== Preflight [AR pipeline]: checking required GitHub Secrets ==="
+2026-09-10T16:11:24.1617644Z [36;1mecho "=== Preflight [AR pipeline]: checking required GitHub Secrets ==="[0m
+2026-09-10T16:11:24.1619704Z [36;1mmissing=0[0m
+2026-09-10T16:11:24.1622396Z [36;1mfor v in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY CRON_SECRET GROQ_API_KEY NVIDIA_API_KEY; do[0m
+2026-09-10T16:11:24.1625094Z [36;1m  if [ -z "${!v}" ]; then[0m
+2026-09-10T16:11:24.1626565Z [36;1m    echo "❌ Missing secret: $v"[0m
+2026-09-10T16:11:24.1628883Z [36;1m    echo "   → add it under: Settings ▸ Secrets and variables ▸ Actions ▸ New repository secret"[0m
+2026-09-10T16:11:24.1631239Z [36;1m    missing=1[0m
+2026-09-10T16:11:24.1632741Z [36;1m  fi[0m
+2026-09-10T16:11:24.1633862Z [36;1mdone[0m
+2026-09-10T16:11:24.1635381Z [36;1mif [ -z "$OPENROUTER_API" ] && [ -z "$OPENROUTER_API_KEY" ]; then[0m
+2026-09-10T16:11:24.1638265Z [36;1m  echo "❌ Missing AI provider key — provide a secret named OPENROUTER_API (or OPENROUTER_API_KEY)"[0m
+2026-09-10T16:11:24.1640664Z [36;1m  missing=1[0m
+2026-09-10T16:11:24.1641979Z [36;1mfi[0m
+2026-09-10T16:11:24.1643134Z [36;1mif [ "$missing" -eq 1 ]; then[0m
+2026-09-10T16:11:24.1644978Z [36;1m  echo "❌ Preflight failed — fix the secrets above and re-run."[0m
+2026-09-10T16:11:24.1646857Z [36;1m  exit 1[0m
+2026-09-10T16:11:24.1647993Z [36;1mfi[0m
+2026-09-10T16:11:24.1649545Z [36;1mecho "✓ All required secrets present · language=$PIPELINE_LANG"[0m
+2026-09-10T16:11:24.1693888Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:11:24.1695265Z env:
+2026-09-10T16:11:24.1696344Z   PIPELINE_LANG: ar
+2026-09-10T16:11:24.1697583Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:24.1699491Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:24.1701500Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:24.1703902Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:24.1710626Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:24.1712450Z   CRON_SECRET: ***
+2026-09-10T16:11:24.1714526Z   OPENROUTER_API: ***
+2026-09-10T16:11:24.1716672Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:24.1718465Z   GROQ_API_KEY: ***
+2026-09-10T16:11:24.1720480Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:24.1721652Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:24.1723588Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:24.1724731Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:24.1725826Z ##[endgroup]
+2026-09-10T16:11:24.1825109Z === Preflight [AR pipeline]: checking required GitHub Secrets ===
+2026-09-10T16:11:24.1828703Z ✓ All required secrets present · language=ar
+2026-09-10T16:11:24.2048745Z ##[group]Run actions/setup-node@v5
+2026-09-10T16:11:24.2050095Z with:
+2026-09-10T16:11:24.2051044Z   node-version: 22
+2026-09-10T16:11:24.2052254Z   always-auth: false
+2026-09-10T16:11:24.2053320Z   check-latest: false
+2026-09-10T16:11:24.2063572Z   token: ***
+2026-09-10T16:11:24.2064611Z   package-manager-cache: true
+2026-09-10T16:11:24.2065774Z env:
+2026-09-10T16:11:24.2066706Z   PIPELINE_LANG: ar
+2026-09-10T16:11:24.2067810Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:24.2069571Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:24.2071434Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:24.2073237Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:24.2078943Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:24.2080285Z   CRON_SECRET: ***
+2026-09-10T16:11:24.2082525Z   OPENROUTER_API: ***
+2026-09-10T16:11:24.2084469Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:24.2086175Z   GROQ_API_KEY: ***
+2026-09-10T16:11:24.2088107Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:24.2089209Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:24.2090886Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:24.2092108Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:24.2093158Z ##[endgroup]
+2026-09-10T16:11:24.3685852Z Found in cache @ /opt/hostedtoolcache/node/22.23.2/x64
+2026-09-10T16:11:24.3689461Z (node:2257) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-10T16:11:24.3693172Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-10T16:11:24.3698023Z ##[group]Environment details
+2026-09-10T16:11:24.7414379Z node: v22.23.2
+2026-09-10T16:11:24.7415488Z npm: 10.9.8
+2026-09-10T16:11:24.7416145Z yarn: 1.22.22
+2026-09-10T16:11:24.7417380Z ##[endgroup]
+2026-09-10T16:11:24.7605755Z ##[group]Run oven-sh/setup-bun@v2
+2026-09-10T16:11:24.7606153Z with:
+2026-09-10T16:11:24.7606434Z   bun-version: 1.3.14
+2026-09-10T16:11:24.7606733Z   no-cache: false
+2026-09-10T16:11:24.7609487Z   token: ***
+2026-09-10T16:11:24.7609766Z env:
+2026-09-10T16:11:24.7610026Z   PIPELINE_LANG: ar
+2026-09-10T16:11:24.7610344Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:24.7610847Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:24.7611344Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:24.7612033Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:24.7613543Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:24.7613919Z   CRON_SECRET: ***
+2026-09-10T16:11:24.7614423Z   OPENROUTER_API: ***
+2026-09-10T16:11:24.7614958Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:24.7615417Z   GROQ_API_KEY: ***
+2026-09-10T16:11:24.7615930Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:24.7616229Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:24.7616725Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:24.7617023Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:24.7617317Z ##[endgroup]
+2026-09-10T16:11:25.0208142Z Cache hit for: bun-fR4r1tsFeXfPQkusQwkKD2kGnsE=
+2026-09-10T16:11:25.4177888Z Received 33843765 of 33843765 (100.0%), 98.4 MBs/sec
+2026-09-10T16:11:25.4179089Z Cache Size: ~32 MB (33843765 B)
+2026-09-10T16:11:25.4219412Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f06234e4-d221-4fc2-a28a-9aa5cae81eb3/cache.tzst -P -C /home/runner/work/alkemos/alkemos --use-compress-program unzstd
+2026-09-10T16:11:25.5893712Z Cache restored successfully
+2026-09-10T16:11:25.5916915Z [command]/home/runner/.bun/bin/bun --revision
+2026-09-10T16:11:25.5974874Z 1.3.14+0d9b296af
+2026-09-10T16:11:25.5978477Z Using a cached version of Bun: 1.3.14+0d9b296af
+2026-09-10T16:11:25.6139920Z ##[group]Run bun install --frozen-lockfile
+2026-09-10T16:11:25.6140416Z [36;1mbun install --frozen-lockfile[0m
+2026-09-10T16:11:25.6188692Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:11:25.6189055Z env:
+2026-09-10T16:11:25.6189346Z   PIPELINE_LANG: ar
+2026-09-10T16:11:25.6189677Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:25.6190213Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:25.6190769Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:25.6191420Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:25.6193283Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:25.6193697Z   CRON_SECRET: ***
+2026-09-10T16:11:25.6194218Z   OPENROUTER_API: ***
+2026-09-10T16:11:25.6194751Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:25.6195228Z   GROQ_API_KEY: ***
+2026-09-10T16:11:25.6195739Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:25.6196047Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:25.6196514Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:25.6219163Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:25.6219737Z ##[endgroup]
+2026-09-10T16:11:25.6335483Z bun install v1.3.14 (0d9b296a)
+2026-09-10T16:11:29.6409218Z 
+2026-09-10T16:11:29.6412530Z + @tailwindcss/postcss@4.3.3
+2026-09-10T16:11:29.6413547Z + @testing-library/jest-dom@7.0.1
+2026-09-10T16:11:29.6415521Z + @testing-library/react@16.3.2
+2026-09-10T16:11:29.6415916Z + @types/react@19.2.18
+2026-09-10T16:11:29.6416248Z + @types/react-dom@19.2.4
+2026-09-10T16:11:29.6416560Z + bun-types@1.4.0
+2026-09-10T16:11:29.6416844Z + eslint@9.39.5
+2026-09-10T16:11:29.6417128Z + eslint-config-next@16.3.2
+2026-09-10T16:11:29.6417443Z + jsdom@30.0.1
+2026-09-10T16:11:29.6417708Z + tailwindcss@4.3.3
+2026-09-10T16:11:29.6417968Z + tsx@4.23.12
+2026-09-10T16:11:29.6418231Z + tw-animate-css@1.4.0
+2026-09-10T16:11:29.6418519Z + typescript@5.9.3
+2026-09-10T16:11:29.6418777Z + vitest@4.1.11
+2026-09-10T16:11:29.6419098Z + @fontsource/cairo@5.3.0
+2026-09-10T16:11:29.6419413Z + @fontsource/inter@5.3.0
+2026-09-10T16:11:29.6419795Z + @fontsource/playfair-display@5.3.0
+2026-09-10T16:11:29.6420162Z + @hookform/resolvers@5.9.1
+2026-09-10T16:11:29.6420518Z + @paypal/react-paypal-js@10.3.0
+2026-09-10T16:11:29.6420885Z + @radix-ui/react-accordion@1.2.20
+2026-09-10T16:11:29.6421303Z + @radix-ui/react-alert-dialog@1.1.23
+2026-09-10T16:11:29.6422038Z + @radix-ui/react-aspect-ratio@1.1.15
+2026-09-10T16:11:29.6422457Z + @radix-ui/react-avatar@1.2.6
+2026-09-10T16:11:29.6422825Z + @radix-ui/react-checkbox@1.3.11
+2026-09-10T16:11:29.6423212Z + @radix-ui/react-collapsible@1.1.20
+2026-09-10T16:11:29.6423601Z + @radix-ui/react-context-menu@2.3.7
+2026-09-10T16:11:29.6423955Z + @radix-ui/react-dialog@1.1.23
+2026-09-10T16:11:29.6424317Z + @radix-ui/react-dropdown-menu@2.1.24
+2026-09-10T16:11:29.6424705Z + @radix-ui/react-hover-card@1.1.23
+2026-09-10T16:11:29.6425059Z + @radix-ui/react-label@2.1.15
+2026-09-10T16:11:29.6425389Z + @radix-ui/react-menubar@1.1.24
+2026-09-10T16:11:29.6425754Z + @radix-ui/react-navigation-menu@1.2.22
+2026-09-10T16:11:29.6426185Z + @radix-ui/react-popover@1.1.23
+2026-09-10T16:11:29.6426547Z + @radix-ui/react-progress@1.1.16
+2026-09-10T16:11:29.6426908Z + @radix-ui/react-radio-group@1.4.7
+2026-09-10T16:11:29.6427266Z + @radix-ui/react-scroll-area@1.2.18
+2026-09-10T16:11:29.6427610Z + @radix-ui/react-select@2.3.7
+2026-09-10T16:11:29.6427962Z + @radix-ui/react-separator@1.1.15
+2026-09-10T16:11:29.6428305Z + @radix-ui/react-slider@1.4.7
+2026-09-10T16:11:29.6428610Z + @radix-ui/react-slot@1.3.3
+2026-09-10T16:11:29.6428938Z + @radix-ui/react-switch@1.3.7
+2026-09-10T16:11:29.6429231Z + @radix-ui/react-tabs@1.1.21
+2026-09-10T16:11:29.6429553Z + @radix-ui/react-toast@1.2.23
+2026-09-10T16:11:29.6429878Z + @radix-ui/react-toggle@1.1.18
+2026-09-10T16:11:29.6430236Z + @radix-ui/react-toggle-group@1.1.19
+2026-09-10T16:11:29.6430606Z + @radix-ui/react-tooltip@1.2.16
+2026-09-10T16:11:29.6430909Z + @supabase/ssr@0.12.4
+2026-09-10T16:11:29.6431222Z + @supabase/supabase-js@2.112.3
+2026-09-10T16:11:29.6431555Z + @tanstack/react-query@5.101.4
+2026-09-10T16:11:29.6432379Z + @tanstack/react-table@8.21.3
+2026-09-10T16:11:29.6432731Z + @vercel/analytics@2.0.1
+2026-09-10T16:11:29.6433066Z + @vercel/speed-insights@2.0.0
+2026-09-10T16:11:29.6433451Z + class-variance-authority@0.7.1
+2026-09-10T16:11:29.6433744Z + clsx@2.1.1
+2026-09-10T16:11:29.6433976Z + cmdk@1.1.1
+2026-09-10T16:11:29.6434220Z + date-fns@4.4.0
+2026-09-10T16:11:29.6434499Z + embla-carousel-react@8.6.0
+2026-09-10T16:11:29.6434787Z + input-otp@1.5.0
+2026-09-10T16:11:29.6435052Z + lucide-react@0.525.0
+2026-09-10T16:11:29.6435309Z + next@16.3.2
+2026-09-10T16:11:29.6435553Z + next-themes@0.4.6
+2026-09-10T16:11:29.6435796Z + react@19.2.8
+2026-09-10T16:11:29.6436054Z + react-day-picker@9.14.0
+2026-09-10T16:11:29.6436344Z + react-dom@19.2.8
+2026-09-10T16:11:29.6436613Z + react-hook-form@7.85.0
+2026-09-10T16:11:29.6436906Z + react-markdown@10.1.0
+2026-09-10T16:11:29.6437227Z + react-resizable-panels@3.0.6
+2026-09-10T16:11:29.6437531Z + recharts@3.10.1
+2026-09-10T16:11:29.6437794Z + server-only@0.0.1
+2026-09-10T16:11:29.6438046Z + sharp@0.35.3
+2026-09-10T16:11:29.6438281Z + sonner@2.0.8
+2026-09-10T16:11:29.6438535Z + tailwind-merge@3.6.0
+2026-09-10T16:11:29.6438819Z + tailwindcss-animate@1.0.7
+2026-09-10T16:11:29.6439089Z + vaul@1.1.2
+2026-09-10T16:11:29.6439316Z + zod@4.4.3
+2026-09-10T16:11:29.6439538Z + zustand@5.0.15
+2026-09-10T16:11:29.6439827Z 
+2026-09-10T16:11:29.6440004Z 681 packages installed [4.01s]
+2026-09-10T16:11:29.6659640Z ##[group]Run bash scripts/blog-runner/run-step.sh p0-research 3
+2026-09-10T16:11:29.6660495Z [36;1mbash scripts/blog-runner/run-step.sh p0-research 3[0m
+2026-09-10T16:11:29.6709515Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:11:29.6709975Z env:
+2026-09-10T16:11:29.6710332Z   PIPELINE_LANG: ar
+2026-09-10T16:11:29.6710753Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:11:29.6711470Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:11:29.6712437Z   PIPELINE_JOB_ID: 
+2026-09-10T16:11:29.6713398Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:11:29.6716044Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:11:29.6716580Z   CRON_SECRET: ***
+2026-09-10T16:11:29.6717319Z   OPENROUTER_API: ***
+2026-09-10T16:11:29.6718090Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:11:29.6718791Z   GROQ_API_KEY: ***
+2026-09-10T16:11:29.6719548Z   NVIDIA_API_KEY: ***
+2026-09-10T16:11:29.6719985Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:11:29.6720700Z   PEXELS_API_KEY: ***
+2026-09-10T16:11:29.6721101Z   PIXABAY_API_KEY: 
+2026-09-10T16:11:29.6721482Z ##[endgroup]
+2026-09-10T16:11:29.6830598Z --- [p0-research] attempt 1 / 3 ---
+2026-09-10T16:11:32.7318624Z [runner] ▶ p0-research · lang=ar · topicOverride=yes
+2026-09-10T16:11:34.5979994Z [ai-fallback-chain] [blog:research] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:11:36.5319503Z [ai-fallback-chain] [blog:research] lead=groq (call #2, orKeys=2)
+2026-09-10T16:11:42.1652165Z [ai-fallback-chain] [blog:research] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:11:42.1658100Z [blog-research] P0 en done (groq:openai/gpt-oss-120b, kw:10 faq:10 topics:5)
+2026-09-10T16:12:29.6006166Z [ai-fallback-chain] [blog:research] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:12:35.1668912Z [ai-fallback-chain] [blog:research] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:12:35.1670635Z [blog-research] P0 ar invalid shape from groq:openai/gpt-oss-120b — using fallback
+2026-09-10T16:12:35.6998632Z [ai-fallback-chain] [blog:pairing] lead=nvidia (call #3, orKeys=2)
+2026-09-10T16:12:35.9437648Z [ai-fallback-chain] [blog:pairing] nvidia/nvidia/nemotron-3-super-120b-a12b notice, trying next: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:13:20.9445864Z [ai-fallback-chain] [blog:pairing] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:13:20.9447736Z [ai-fallback-chain] All AI providers failed. (system: blog:pairing)
+2026-09-10T16:13:20.9448692Z OpenRouter keys configured: 2.
+2026-09-10T16:13:20.9449454Z Groq key: present.
+2026-09-10T16:13:20.9450018Z NVIDIA key: present.
+2026-09-10T16:13:20.9450572Z Errors:
+2026-09-10T16:13:20.9452491Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:13:20.9454495Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:13:20.9456369Z [blog/p0-research] pairing failed → legacy single row: [ai-fallback-chain] All AI providers failed. (system: blog:pairing)
+2026-09-10T16:13:20.9457527Z OpenRouter keys configured: 2.
+2026-09-10T16:13:20.9458080Z Groq key: present.
+2026-09-10T16:13:20.9458566Z NVIDIA key: present.
+2026-09-10T16:13:20.9459008Z Errors:
+2026-09-10T16:13:20.9460445Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:13:20.9461944Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:13:21.9985471Z HTTP 200
+2026-09-10T16:13:21.9989033Z {"ok":true,"step":"p0","queueId":"a85182e2-df9b-471c-a1ad-d2df9f06c5b9","lang":"ar","category":"fitness","keywords":10,"faqs":4,"topics":2,"source":"p0-ar:curated-fallback","pairMode":"legacy","twinInserted":false,"topicOverride":"كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين","coachRun":true}
+2026-09-10T16:13:21.9991622Z [runner] ✓ p0-research OK
+2026-09-10T16:13:22.0542610Z [p0-research] captured QUEUE_ID=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:13:22.0543732Z ✓ p0-research succeeded
+2026-09-10T16:13:22.0579213Z ##[group]Run bash scripts/blog-runner/run-step.sh p1-outline 3
+2026-09-10T16:13:22.0579728Z [36;1mbash scripts/blog-runner/run-step.sh p1-outline 3[0m
+2026-09-10T16:13:22.0618049Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:13:22.0618338Z env:
+2026-09-10T16:13:22.0618568Z   PIPELINE_LANG: ar
+2026-09-10T16:13:22.0618823Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:13:22.0619274Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:13:22.0619730Z   PIPELINE_JOB_ID: 
+2026-09-10T16:13:22.0620196Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:13:22.0621943Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:13:22.0622461Z   CRON_SECRET: ***
+2026-09-10T16:13:22.0622924Z   OPENROUTER_API: ***
+2026-09-10T16:13:22.0623379Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:13:22.0623771Z   GROQ_API_KEY: ***
+2026-09-10T16:13:22.0624218Z   NVIDIA_API_KEY: ***
+2026-09-10T16:13:22.0624476Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:13:22.0624940Z   PEXELS_API_KEY: ***
+2026-09-10T16:13:22.0625199Z   PIXABAY_API_KEY: 
+2026-09-10T16:13:22.0625477Z   QUEUE_ID: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:13:22.0625821Z ##[endgroup]
+2026-09-10T16:13:22.0700746Z --- [p1-outline] attempt 1 / 3 ---
+2026-09-10T16:13:22.7278987Z [runner] ▶ p1-outline · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:13:23.4541061Z [ai-fallback-chain] [blog:pick-topic-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:14:03.4573359Z [ai-fallback-chain] [blog:pick-topic-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:14:04.0351588Z [ai-fallback-chain] [blog:pick-topic-ar] groq/openai/gpt-oss-120b notice, trying next: AI API error 400 from groq: {"error":{"message":"Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details.","type":"invalid_request_error","code":"json_validate_failed","failed_generation":""}}
+2026-09-10T16:14:04.0354017Z 
+2026-09-10T16:14:06.2648291Z [ai-fallback-chain] [blog:pick-topic-ar] nvidia/nvidia/nemotron-3-super-120b-a12b succeeded
+2026-09-10T16:14:07.3189322Z [ai-fallback-chain] [blog:outline-ar] lead=groq (call #2, orKeys=2)
+2026-09-10T16:14:14.0319358Z [ai-fallback-chain] [blog:outline-ar] groq/openai/gpt-oss-120b succeeded
+2026-09-10T16:14:14.0324465Z [blog-pipeline] P1 ar done (groq:openai/gpt-oss-120b, angle: plan)
+2026-09-10T16:14:14.6527851Z HTTP 200
+2026-09-10T16:14:14.6530674Z {"ok":true,"step":"p1","queueId":"a85182e2-df9b-471c-a1ad-d2df9f06c5b9","lang":"ar","title":"كم سعرة أحتاج يومياً لخسارة الوزن مع تحسين النوم للاستشفاء؟","sections":6,"lsi":10,"imagePlan":5,"source":"groq:openai/gpt-oss-120b"}
+2026-09-10T16:14:14.6533362Z [runner] ✓ p1-outline OK
+2026-09-10T16:14:14.6759286Z [p1-outline] captured QUEUE_ID=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:14:14.6760066Z ✓ p1-outline succeeded
+2026-09-10T16:14:14.6797652Z ##[group]Run bash scripts/blog-runner/run-step.sh p2-content 3
+2026-09-10T16:14:14.6798156Z [36;1mbash scripts/blog-runner/run-step.sh p2-content 3[0m
+2026-09-10T16:14:14.6835663Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:14:14.6835945Z env:
+2026-09-10T16:14:14.6836167Z   PIPELINE_LANG: ar
+2026-09-10T16:14:14.6836424Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:14:14.6836861Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:14:14.6837301Z   PIPELINE_JOB_ID: 
+2026-09-10T16:14:14.6837717Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:14:14.6839272Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:14:14.6839809Z   CRON_SECRET: ***
+2026-09-10T16:14:14.6840270Z   OPENROUTER_API: ***
+2026-09-10T16:14:14.6840746Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:14:14.6841149Z   GROQ_API_KEY: ***
+2026-09-10T16:14:14.6842127Z   NVIDIA_API_KEY: ***
+2026-09-10T16:14:14.6842427Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:14:14.6842889Z   PEXELS_API_KEY: ***
+2026-09-10T16:14:14.6843143Z   PIXABAY_API_KEY: 
+2026-09-10T16:14:14.6843427Z   QUEUE_ID: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:14:14.6843769Z ##[endgroup]
+2026-09-10T16:14:14.6917473Z --- [p2-content] attempt 1 / 3 ---
+2026-09-10T16:14:15.3514333Z [runner] ▶ p2-content · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:14:16.0767940Z [ai-fallback-chain] [blog:content-ar] payload ~8380t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call
+2026-09-10T16:14:16.0769823Z [ai-fallback-chain] [blog:content-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:16:46.0820303Z [ai-fallback-chain] [blog:content-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:18:06.6758756Z [ai-fallback-chain] [blog:content-ar] nvidia/nvidia/nemotron-3-super-120b-a12b succeeded
+2026-09-10T16:18:06.6767027Z [blog-pipeline] P2 ar done (nvidia:nvidia/nemotron-3-super-120b-a12b, ~1607 words)
+2026-09-10T16:18:07.3616008Z [blog/p2-content] ar done (~1607 words)
+2026-09-10T16:18:07.3624925Z HTTP 200
+2026-09-10T16:18:07.3626445Z {"ok":true,"step":"p2","queueId":"a85182e2-df9b-471c-a1ad-d2df9f06c5b9","lang":"ar","words":1607,"source":"nvidia:nvidia/nemotron-3-super-120b-a12b"}
+2026-09-10T16:18:07.3627828Z [runner] ✓ p2-content OK
+2026-09-10T16:18:07.3861022Z [p2-content] captured QUEUE_ID=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:07.3862170Z ✓ p2-content succeeded
+2026-09-10T16:18:07.3897579Z ##[group]Run bash scripts/blog-runner/run-step.sh p3-images 3
+2026-09-10T16:18:07.3898098Z [36;1mbash scripts/blog-runner/run-step.sh p3-images 3[0m
+2026-09-10T16:18:07.3934931Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:18:07.3935239Z env:
+2026-09-10T16:18:07.3935472Z   PIPELINE_LANG: ar
+2026-09-10T16:18:07.3935747Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:18:07.3936202Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:18:07.3936672Z   PIPELINE_JOB_ID: 
+2026-09-10T16:18:07.3937111Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:18:07.3938671Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:18:07.3939005Z   CRON_SECRET: ***
+2026-09-10T16:18:07.3939476Z   OPENROUTER_API: ***
+2026-09-10T16:18:07.3939951Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:18:07.3940395Z   GROQ_API_KEY: ***
+2026-09-10T16:18:07.3940858Z   NVIDIA_API_KEY: ***
+2026-09-10T16:18:07.3941133Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:18:07.3941580Z   PEXELS_API_KEY: ***
+2026-09-10T16:18:07.3942130Z   PIXABAY_API_KEY: 
+2026-09-10T16:18:07.3942411Z   QUEUE_ID: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:07.3942746Z ##[endgroup]
+2026-09-10T16:18:07.4016553Z --- [p3-images] attempt 1 / 3 ---
+2026-09-10T16:18:08.0684005Z [runner] ▶ p3-images · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:09.6318313Z HTTP 200
+2026-09-10T16:18:09.6319289Z {"ok":true,"step":"p3","queueId":"a85182e2-df9b-471c-a1ad-d2df9f06c5b9","lang":"ar","images":5}
+2026-09-10T16:18:09.6320993Z [runner] ✓ p3-images OK
+2026-09-10T16:18:09.6574657Z [p3-images] captured QUEUE_ID=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:09.6575576Z ✓ p3-images succeeded
+2026-09-10T16:18:09.6624581Z ##[group]Run bash scripts/blog-runner/run-step.sh p4-review 3
+2026-09-10T16:18:09.6625461Z [36;1mbash scripts/blog-runner/run-step.sh p4-review 3[0m
+2026-09-10T16:18:09.6663566Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:18:09.6663842Z env:
+2026-09-10T16:18:09.6664065Z   PIPELINE_LANG: ar
+2026-09-10T16:18:09.6664320Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:18:09.6664758Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:18:09.6665392Z   PIPELINE_JOB_ID: 
+2026-09-10T16:18:09.6665795Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:18:09.6667235Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:18:09.6667557Z   CRON_SECRET: ***
+2026-09-10T16:18:09.6667993Z   OPENROUTER_API: ***
+2026-09-10T16:18:09.6668437Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:18:09.6668823Z   GROQ_API_KEY: ***
+2026-09-10T16:18:09.6669262Z   NVIDIA_API_KEY: ***
+2026-09-10T16:18:09.6669505Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:18:09.6669993Z   PEXELS_API_KEY: ***
+2026-09-10T16:18:09.6670238Z   PIXABAY_API_KEY: 
+2026-09-10T16:18:09.6670498Z   QUEUE_ID: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:09.6670812Z ##[endgroup]
+2026-09-10T16:18:09.6749482Z --- [p4-review] attempt 1 / 3 ---
+2026-09-10T16:18:10.3109917Z [runner] ▶ p4-review · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:18:10.6524052Z [ai-fallback-chain] [blog:review-ar] payload ~10925t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call
+2026-09-10T16:18:10.6526156Z [ai-fallback-chain] [blog:review-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:19:22.6556683Z [ai-fallback-chain] [blog:review-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:19:22.8926346Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-super-120b-a12b notice, trying next: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:19:23.0716346Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:19:23.0720406Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:19:23.3106178Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:19:23.3111389Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:20:35.3103927Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-ultra-550b-a55b notice, trying next: This operation was aborted
+2026-09-10T16:20:35.5173785Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:35.5177788Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:20:35.7167652Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:35.7173244Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:20:35.7174663Z [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:20:35.7175519Z OpenRouter keys configured: 2.
+2026-09-10T16:20:35.7176044Z Groq key: present.
+2026-09-10T16:20:35.7176471Z NVIDIA key: present.
+2026-09-10T16:20:35.7176843Z Errors:
+2026-09-10T16:20:35.7177545Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:20:35.7179230Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:20:35.7184740Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:20:35.7192677Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:20:35.7196605Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:20:35.7200219Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:35.7205006Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:35.7207458Z [blog/p4-review] Error: [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:20:35.7208152Z OpenRouter keys configured: 2.
+2026-09-10T16:20:35.7208455Z Groq key: present.
+2026-09-10T16:20:35.7208710Z NVIDIA key: present.
+2026-09-10T16:20:35.7208943Z Errors:
+2026-09-10T16:20:35.7209364Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:20:35.7210341Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: AI API error 503 from nvidia: {"error":{"message":"Service temporarily overloaded","type":"Service Unavailable","code":503}}
+2026-09-10T16:20:35.7213412Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:20:35.7217528Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:20:35.7219716Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:20:35.7222407Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:35.7226612Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:20:36.2537223Z HTTP 500
+2026-09-10T16:20:36.2552450Z {"error":"[ai-fallback-chain] All AI providers failed. (system: blog:review-ar)\nOpenRouter keys configured: 2.\nGroq key: present.\nNVIDIA key: present.\nErrors:\n  - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted\n  - nvidia/nvidia/nemotron-3-super-120b-a12b: AI API error 503 from nvidia: {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout"}
+2026-09-10T16:20:36.2752006Z ↻ [p4-review] attempt 1 failed (exit 1)
+2026-09-10T16:20:36.2752917Z    retrying in 120s ...
+2026-09-10T16:22:36.2774167Z --- [p4-review] attempt 2 / 3 ---
+2026-09-10T16:22:36.8430359Z [runner] ▶ p4-review · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:22:37.6635755Z [ai-fallback-chain] [blog:review-ar] payload ~10926t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call
+2026-09-10T16:22:37.6637256Z [ai-fallback-chain] [blog:review-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:23:49.6663146Z [ai-fallback-chain] [blog:review-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:25:01.6672353Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-super-120b-a12b notice, trying next: This operation was aborted
+2026-09-10T16:25:01.8939827Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:25:01.8944876Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:25:02.0830543Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:25:02.0836588Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:26:14.0837947Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-ultra-550b-a55b notice, trying next: This operation was aborted
+2026-09-10T16:26:14.2717053Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.2723235Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:26:14.4667388Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.4673336Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:26:14.4674754Z [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:26:14.4675526Z OpenRouter keys configured: 2.
+2026-09-10T16:26:14.4676001Z Groq key: present.
+2026-09-10T16:26:14.4676411Z NVIDIA key: present.
+2026-09-10T16:26:14.4676796Z Errors:
+2026-09-10T16:26:14.4677500Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:26:14.4678564Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted
+2026-09-10T16:26:14.4683253Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:26:14.4690642Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:26:14.4693356Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:26:14.4695939Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.4700323Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.4702853Z [blog/p4-review] Error: [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:26:14.4703392Z OpenRouter keys configured: 2.
+2026-09-10T16:26:14.4703681Z Groq key: present.
+2026-09-10T16:26:14.4703931Z NVIDIA key: present.
+2026-09-10T16:26:14.4704170Z Errors:
+2026-09-10T16:26:14.4704584Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:26:14.4705187Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted
+2026-09-10T16:26:14.4707667Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:26:14.4711905Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:26:14.4714109Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:26:14.4716577Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.4722654Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:26:14.9338817Z HTTP 500
+2026-09-10T16:26:14.9358115Z {"error":"[ai-fallback-chain] All AI providers failed. (system: blog:review-ar)\nOpenRouter keys configured: 2.\nGroq key: present.\nNVIDIA key: present.\nErrors:\n  - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted\n  - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout"}
+2026-09-10T16:26:14.9541282Z ↻ [p4-review] attempt 2 failed (exit 1)
+2026-09-10T16:26:14.9542278Z    retrying in 240s ...
+2026-09-10T16:30:14.9557517Z --- [p4-review] attempt 3 / 3 ---
+2026-09-10T16:30:15.5192776Z [runner] ▶ p4-review · lang=ar · queue=a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:30:15.9932653Z [ai-fallback-chain] [blog:review-ar] payload ~10926t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call
+2026-09-10T16:30:15.9934166Z [ai-fallback-chain] [blog:review-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:31:27.9964502Z [ai-fallback-chain] [blog:review-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:32:39.9969761Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-super-120b-a12b notice, trying next: This operation was aborted
+2026-09-10T16:32:40.1871632Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:32:40.1877761Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:32:40.4146437Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-31b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:32:40.4152046Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-31b-it:free
+2026-09-10T16:33:52.4146826Z [ai-fallback-chain] [blog:review-ar] nvidia/nvidia/nemotron-3-ultra-550b-a55b notice, trying next: This operation was aborted
+2026-09-10T16:33:52.6015818Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:52.6020258Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:33:52.8264584Z [ai-fallback-chain] [blog:review-ar] openrouter/google/gemma-4-26b-a4b-it:free notice, trying next: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:52.8268905Z [ai-fallback-chain] [blog:review-ar] quota/auth error → switching OpenRouter account for google/gemma-4-26b-a4b-it:free
+2026-09-10T16:33:52.8270119Z [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:33:52.8270785Z OpenRouter keys configured: 2.
+2026-09-10T16:33:52.8271202Z Groq key: present.
+2026-09-10T16:33:52.8271564Z NVIDIA key: present.
+2026-09-10T16:33:52.8272024Z Errors:
+2026-09-10T16:33:52.8272632Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:33:52.8273772Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted
+2026-09-10T16:33:52.8277991Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:33:52.8283485Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:33:52.8285793Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:33:52.8288381Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:52.8292707Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:52.8295059Z [blog/p4-review] Error: [ai-fallback-chain] All AI providers failed. (system: blog:review-ar)
+2026-09-10T16:33:52.8295590Z OpenRouter keys configured: 2.
+2026-09-10T16:33:52.8295882Z Groq key: present.
+2026-09-10T16:33:52.8296130Z NVIDIA key: present.
+2026-09-10T16:33:52.8296367Z Errors:
+2026-09-10T16:33:52.8296790Z   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted
+2026-09-10T16:33:52.8297403Z   - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted
+2026-09-10T16:33:52.8299899Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:33:52.8304321Z   - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to
+2026-09-10T16:33:52.8306553Z   - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted
+2026-09-10T16:33:52.8309038Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:52.8313451Z   - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Google AI Studio","is_byok":false,"provider_error_code":"429","limit_source":"upstream_provider_shared_pool","remedy_hint":"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout
+2026-09-10T16:33:53.7100857Z HTTP 500
+2026-09-10T16:33:53.7122903Z {"error":"[ai-fallback-chain] All AI providers failed. (system: blog:review-ar)\nOpenRouter keys configured: 2.\nGroq key: present.\nNVIDIA key: present.\nErrors:\n  - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free: This operation was aborted\n  - nvidia/nvidia/nemotron-3-super-120b-a12b: This operation was aborted\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - openrouter/google/gemma-4-31b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to\n  - nvidia/nvidia/nemotron-3-ultra-550b-a55b: This operation was aborted\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout\n  - openrouter/google/gemma-4-26b-a4b-it:free: AI API error 429 from openrouter: {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-26b-a4b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Google AI Studio\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or rout"}
+2026-09-10T16:33:53.7303651Z ↻ [p4-review] attempt 3 failed (exit 1)
+2026-09-10T16:33:53.7304591Z ❌ [p4-review] failed after 3 attempts
+2026-09-10T16:33:53.7321285Z ##[error]Process completed with exit code 1.
+2026-09-10T16:33:53.7377424Z ##[group]Run echo "=== AR pipeline run summary ==="
+2026-09-10T16:33:53.7377881Z [36;1mecho "=== AR pipeline run summary ==="[0m
+2026-09-10T16:33:53.7378240Z [36;1mecho "PIPELINE_LANG: $PIPELINE_LANG"[0m
+2026-09-10T16:33:53.7378614Z [36;1mecho "QUEUE_ID processed: ${QUEUE_ID:-<none>}"[0m
+2026-09-10T16:33:53.7379083Z [36;1mecho "Topic override: ${PIPELINE_TOPIC:-<none — research picked>}"[0m
+2026-09-10T16:33:53.7379632Z [36;1mecho "Coach receipt (ai_jobs): ${PIPELINE_JOB_ID:-<automatic scheduled run>}"[0m
+2026-09-10T16:33:53.7380248Z [36;1mecho "Full logs above — green ✓ = published (AR), red ❌ = copy last lines and report."[0m
+2026-09-10T16:33:53.7416856Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:33:53.7417127Z env:
+2026-09-10T16:33:53.7417344Z   PIPELINE_LANG: ar
+2026-09-10T16:33:53.7417599Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:33:53.7418033Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:33:53.7418525Z   PIPELINE_JOB_ID: 
+2026-09-10T16:33:53.7418915Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:33:53.7420333Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:33:53.7420646Z   CRON_SECRET: ***
+2026-09-10T16:33:53.7421074Z   OPENROUTER_API: ***
+2026-09-10T16:33:53.7421516Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:33:53.7422201Z   GROQ_API_KEY: ***
+2026-09-10T16:33:53.7422645Z   NVIDIA_API_KEY: ***
+2026-09-10T16:33:53.7422893Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:33:53.7423276Z   PEXELS_API_KEY: ***
+2026-09-10T16:33:53.7423510Z   PIXABAY_API_KEY: 
+2026-09-10T16:33:53.7423773Z   QUEUE_ID: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:33:53.7424089Z ##[endgroup]
+2026-09-10T16:33:53.7483258Z === AR pipeline run summary ===
+2026-09-10T16:33:53.7483821Z PIPELINE_LANG: ar
+2026-09-10T16:33:53.7484482Z QUEUE_ID processed: a85182e2-df9b-471c-a1ad-d2df9f06c5b9
+2026-09-10T16:33:53.7485870Z Topic override: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:33:53.7487051Z Coach receipt (ai_jobs): <automatic scheduled run>
+2026-09-10T16:33:53.7488159Z Full logs above — green ✓ = published (AR), red ❌ = copy last lines and report.
+2026-09-10T16:33:53.7609006Z Post job cleanup.
+2026-09-10T16:33:53.8507942Z [command]/usr/bin/git version
+2026-09-10T16:33:53.8554759Z git version 2.55.0
+2026-09-10T16:33:53.8598085Z Temporarily overriding HOME='/home/runner/work/_temp/5aec62af-7fc4-41c8-a41a-434eb983d476' before making global git config changes
+2026-09-10T16:33:53.8599470Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-10T16:33:53.8612928Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/alkemos/alkemos
+2026-09-10T16:33:53.8644429Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-10T16:33:53.8679945Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-10T16:33:53.8933269Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-10T16:33:53.8964942Z http.https://github.com/.extraheader
+2026-09-10T16:33:53.8976797Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-10T16:33:53.9013503Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-10T16:33:53.9284536Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-10T16:33:53.9329996Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-10T16:33:53.9795834Z Cleaning up orphan processes

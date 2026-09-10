@@ -310,6 +310,17 @@ Create the detailed article blueprint. Return STRICT JSON only:
         .filter((i: ImagePlanItem) => i.subject.length > 2)
         .slice(0, 5)
     : [];
+  // PHASE 172.1 (live run 34503876025 forensics — AR outline landed with
+  // imagePlan:0): a plan-less outline was ACCEPTED here and the failure
+  // only surfaced at P3 («image plan missing») AFTER the full P2 article
+  // had been written — burning the whole run and the day's slot. Fail
+  // FAST at P1 instead: the runner's existing ×3 retry re-runs the
+  // outline (fresh model draw) and the plan comes back populated.
+  if (imagePlan.length === 0) {
+    throw new Error(
+      `P1 ${lang}: outline missing image plan (model dropped the field) from ${provider}:${model} — retrying draws a fresh outline`,
+    );
+  }
   const lsi: string[] = Array.isArray(parsed.lsiKeywords)
     ? parsed.lsiKeywords.filter((k: unknown): k is string => typeof k === "string").slice(0, 12)
     : [];

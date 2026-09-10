@@ -1,0 +1,33 @@
+﻿2026-09-10T16:46:11.5421136Z ##[group]Run bash scripts/blog-runner/run-step.sh p2-content 3
+2026-09-10T16:46:11.5421706Z [36;1mbash scripts/blog-runner/run-step.sh p2-content 3[0m
+2026-09-10T16:46:11.5459509Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:46:11.5459842Z env:
+2026-09-10T16:46:11.5460107Z   PIPELINE_LANG: ar
+2026-09-10T16:46:11.5460406Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:46:11.5460915Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:46:11.5461448Z   PIPELINE_JOB_ID: 
+2026-09-10T16:46:11.5462191Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:46:11.5463988Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:46:11.5464366Z   CRON_SECRET: ***
+2026-09-10T16:46:11.5464886Z   OPENROUTER_API: ***
+2026-09-10T16:46:11.5465427Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:46:11.5465897Z   GROQ_API_KEY: ***
+2026-09-10T16:46:11.5466456Z   NVIDIA_API_KEY: ***
+2026-09-10T16:46:11.5466748Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:46:11.5467220Z   PEXELS_API_KEY: ***
+2026-09-10T16:46:11.5467558Z   PIXABAY_API_KEY: 
+2026-09-10T16:46:11.5467882Z   QUEUE_ID: 03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:46:11.5468269Z ##[endgroup]
+2026-09-10T16:46:11.5542685Z --- [p2-content] attempt 1 / 3 ---
+2026-09-10T16:46:12.1994022Z [runner] ▶ p2-content · lang=ar · queue=03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:46:12.7201065Z [ai-fallback-chain] [blog:content-ar] payload ~8499t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call
+2026-09-10T16:46:12.7203277Z [ai-fallback-chain] [blog:content-ar] lead=openrouter (call #1, orKeys=2)
+2026-09-10T16:48:42.7271156Z [ai-fallback-chain] [blog:content-ar] openrouter/nvidia/nemotron-3-ultra-550b-a55b:free notice, trying next: This operation was aborted
+2026-09-10T16:50:31.0277981Z [ai-fallback-chain] [blog:content-ar] nvidia/nvidia/nemotron-3-super-120b-a12b succeeded
+2026-09-10T16:50:31.0282645Z [blog-pipeline] P2 ar done (nvidia:nvidia/nemotron-3-super-120b-a12b, ~1751 words)
+2026-09-10T16:50:34.0198354Z [blog/p2-content] ar done (~1751 words)
+2026-09-10T16:50:34.0207164Z HTTP 200
+2026-09-10T16:50:34.0208992Z {"ok":true,"step":"p2","queueId":"03f64a3e-f1a9-4128-bc20-a61864702d5a","lang":"ar","words":1751,"source":"nvidia:nvidia/nemotron-3-super-120b-a12b"}
+2026-09-10T16:50:34.0211002Z [runner] ✓ p2-content OK
+2026-09-10T16:50:34.0428135Z [p2-content] captured QUEUE_ID=03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:50:34.0440025Z ✓ p2-content succeeded

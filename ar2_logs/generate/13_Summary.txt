@@ -1,0 +1,31 @@
+﻿2026-09-10T16:56:40.4624818Z ##[group]Run echo "=== AR pipeline run summary ==="
+2026-09-10T16:56:40.4625280Z [36;1mecho "=== AR pipeline run summary ==="[0m
+2026-09-10T16:56:40.4625657Z [36;1mecho "PIPELINE_LANG: $PIPELINE_LANG"[0m
+2026-09-10T16:56:40.4626040Z [36;1mecho "QUEUE_ID processed: ${QUEUE_ID:-<none>}"[0m
+2026-09-10T16:56:40.4626508Z [36;1mecho "Topic override: ${PIPELINE_TOPIC:-<none — research picked>}"[0m
+2026-09-10T16:56:40.4627090Z [36;1mecho "Coach receipt (ai_jobs): ${PIPELINE_JOB_ID:-<automatic scheduled run>}"[0m
+2026-09-10T16:56:40.4627733Z [36;1mecho "Full logs above — green ✓ = published (AR), red ❌ = copy last lines and report."[0m
+2026-09-10T16:56:40.4664076Z shell: /usr/bin/bash -e {0}
+2026-09-10T16:56:40.4664369Z env:
+2026-09-10T16:56:40.4664606Z   PIPELINE_LANG: ar
+2026-09-10T16:56:40.4664883Z   AI_CHAIN_TOTAL_BUDGET_MS: 360000
+2026-09-10T16:56:40.4665542Z   PIPELINE_TOPIC: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:56:40.4666027Z   PIPELINE_JOB_ID: 
+2026-09-10T16:56:40.4666491Z   NEXT_PUBLIC_SUPABASE_URL: ***
+2026-09-10T16:56:40.4668115Z   SUPABASE_SERVICE_ROLE_KEY: ***
+2026-09-10T16:56:40.4668455Z   CRON_SECRET: ***
+2026-09-10T16:56:40.4668925Z   OPENROUTER_API: ***
+2026-09-10T16:56:40.4669423Z   OPENROUTER_API_KEY: ***
+2026-09-10T16:56:40.4669845Z   GROQ_API_KEY: ***
+2026-09-10T16:56:40.4670359Z   NVIDIA_API_KEY: ***
+2026-09-10T16:56:40.4670645Z   UNSPLASH_ACCESS_KEY: 
+2026-09-10T16:56:40.4671103Z   PEXELS_API_KEY: ***
+2026-09-10T16:56:40.4671390Z   PIXABAY_API_KEY: 
+2026-09-10T16:56:40.4671942Z   QUEUE_ID: 03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:56:40.4672357Z ##[endgroup]
+2026-09-10T16:56:40.4727799Z === AR pipeline run summary ===
+2026-09-10T16:56:40.4728413Z PIPELINE_LANG: ar
+2026-09-10T16:56:40.4728915Z QUEUE_ID processed: 03f64a3e-f1a9-4128-bc20-a61864702d5a
+2026-09-10T16:56:40.4730237Z Topic override: كم كمية الماء التي يحتاجها الرياضي يومياً؟ دليل عملي للترطيب قبل وأثناء وبعد التمرين
+2026-09-10T16:56:40.4731444Z Coach receipt (ai_jobs): <automatic scheduled run>
+2026-09-10T16:56:40.4732828Z Full logs above — green ✓ = published (AR), red ❌ = copy last lines and report.
