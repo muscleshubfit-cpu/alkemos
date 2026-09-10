@@ -142,6 +142,19 @@ describe("Phase 175 — validateMsaConversion (the pre-write gate)", () => {
     expect(check.violations.join(" ")).toContain("/exercises");
   });
 
+  it("tolerates a link that vanished WITH the deleted closing-CTA paragraph (live class)", () => {
+    // calculate-daily-calories-weight-loss failed 3 batches on exactly
+    // this: its /meal-planner link lives INSIDE the «انضم الآن لبرنامج
+    // الكوتشينج» closing marketing paragraph that rule 7 orders deleted.
+    const before =
+      LEGACY_BEFORE +
+      "\n\n**انضم الآن لبرنامج الكوتشينج في Alkemos** واحصل على [خطة غذائية](/meal-planner) مبنية على هدفك.";
+    const after =
+      MSA_AFTER; // CTA paragraph (and its link) legitimately deleted
+    const check = validateMsaConversion(before, after);
+    expect(check.ok).toBe(true);
+  });
+
   it("rejects a changed image URL (legacy images are untouchable — owner law)", () => {
     const bad = MSA_AFTER.replace(
       "https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg",

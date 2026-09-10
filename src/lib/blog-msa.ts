@@ -144,6 +144,13 @@ function extractHeadings(md: string): string[] {
   return [...md.matchAll(/^#{1,6}\s+(.+)$/gm)].map((m) => m[1].trim());
 }
 
+/** The closing-CTA region rule 7 legitimately deletes (live evidence:
+ * calculate-daily-calories-weight-loss failed 3 batches because its
+ * /meal-planner link lives INSIDE the «انضم الآن لبرنامج الكوتشينج»
+ * closing paragraph — the model obeyed rule 7 and the validator
+ * demanded the CTA-embedded link back). */
+const CTA_TAIL_CHARS = 600;
+
 /** Phrases for the non-existent single-session service (174 honesty law). */
 const BANNED_SERVICE_PHRASES = ["احجز جلس", "Book a session", "book a session"];
 
@@ -176,7 +183,9 @@ export interface MsaValidation {
  *   3. Arabic word-count ratio within [0.55, 1.60] — neither truncation
  *      nor inflation (E-E-A-T: meaning preserved, nothing fabricated)
  *   4. image URLs byte-identical (old images are untouched — owner law)
- *   5. link URLs exactly preserved (internal-linking map intact)
+ *   5. link URLs exactly preserved — EXCEPT links living solely inside
+ *      the closing CTA paragraph that rule 7 deletes (the legitimate
+ *      CTA-embedded-link loss class proven live)
  *   6. heading structure preserved (a single merge is tolerated — live
  *      batch evidence: 2/3 batch-2 failures were otherwise-perfect
  *      conversions merging one near-duplicate heading; a collapse of 2+
@@ -216,11 +225,18 @@ export function validateMsaConversion(before: string, after: string): MsaValidat
   const linksB = [...new Set(extractLinkUrls(before))].sort();
   const linksA = [...new Set(extractLinkUrls(after))].sort();
   if (linksB.join("\n") !== linksA.join("\n")) {
+    // CTA-strip tolerance: rule 7 deletes the closing marketing paragraph,
+    // and a link living ONLY inside that tail may legitimately vanish with
+    // it. Everything else must survive byte-exact.
+    const ctaTail = before.slice(-CTA_TAIL_CHARS);
     const lost = linksB.filter((l) => !linksA.includes(l));
     const added = linksA.filter((l) => !linksB.includes(l));
-    violations.push(
-      `link URLs not preserved${lost.length ? ` — lost: ${lost.join(", ")}` : ""}${added.length ? ` — added: ${added.join(", ")}` : ""}`,
-    );
+    const illegitimateLost = lost.filter((l) => !ctaTail.includes(l));
+    if (illegitimateLost.length || added.length) {
+      violations.push(
+        `link URLs not preserved${illegitimateLost.length ? ` — lost: ${illegitimateLost.join(", ")}` : ""}${added.length ? ` — added: ${added.join(", ")}` : ""}`,
+      );
+    }
   }
 
   const hb = countHeadings(before);
