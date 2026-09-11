@@ -3190,3 +3190,25 @@ bun install --frozen-lockfile ✓ · tsc --noEmit 0 (after regenerating the giti
 - Out-of-scope observations stand: linked_post_id null on the last published posts (pair handshake best-effort), AR category rotation picks before the topic is known, AR RSS <link> misses the /ar prefix, AR-article tool links go to unprefixed /tools (pre-existing blog-tool-links design).
 
 **Local gates at close:** tsc 0 · eslint 0/0 · vitest 568/568 · next build ✓ · docs_audit (phase=172) · docs_parity · migration_audit --ci · stale-refs · ui-wiring.
+
+---
+Task ID: AI-PROVIDER-AUDIT-2026-09-11
+Agent: Super Z (main)
+Task: أمر المالك: «افحص نسبة نجاح وفشل مزودى AI الخاصين بالمشروع» — تدقيق قراءة فقط، لا تغييرات كود
+
+Work Log:
+- **المصدر:** سجلات GitHub Actions (المنفذ الوحيد لكل دفعات AI — أمر المالك 2026-08-27)؛ 470 تشغيلًا AI-related خلال 14 يومًا (950 ملف سجل) عبر سكربت تحليل دائم scripts خارج المستودع + ذاكرة تخزين مؤقت للسجلات؛ EVO chat (على Vercel) غير مشمول — إحصاؤه في جدول evo_call_stats
+- **نهج التحليل:** تحليل أسطر [ai-fallback-chain] الفعلية (succeeded / notice, trying next / All AI providers failed) — محاولة-بمحاولة، موزعة على المزوّد والموديل والنظام الفرعي (tag) واليوم
+- **النتائج على مستوى المزوّد (14 يومًا):** Groq 84.6% (292/345) · NVIDIA NIM 69.8% (113/162) · OpenRouter 30.0% فقط (344/1148) — 412 فشل rate-limit-429 + 263 timeout + 117 استجابة فارغة
+- **موديلات ميتة عمليًا داخل السلسلة:** openrouter/google/gemma-4-31b-it:free نجاح 1/263 (0.4%) وgemma-4-26b-a4b-it:free نجاح 0/146 — 408 محاولات محروقة على 429 upstream مشترك دائم؛ openrouter/nvidia/nemotron-3.5-lightning:free 0/26 (timeout + «DEGRADED function cannot be invoked» 400 من مزود Nvidia عبر OpenRouter)
+- **حصان العمل:** groq/openai/gpt-oss-120b نجاح 85.3% (أفضل موديل) لكن 332 استدعاءً ثقيلًا استبعدته قسرًا (حارس payload >7.2k token لحد 8k TPM) — أي أن أثقل المهام (blog:content/review) لا تصل إلى أصلب مزوّد
+- **أثر إضافة NVIDIA (2026-09-09):** معدل المحاولة اليومي قفز من ~30% (متوسط 08-28→09-08) إلى 43.2% ثم 56.3% ثم 76.6% (09-09→09-11)
+- **توزيع 239 حدث فشل كلي (All providers failed):** blog:content-ar 57 + blog:review-ar 45 + pick-topic-ar 12 = 114 (48% من كل الفشل الكلي على خط العربية) · ai-job:article-generate 26 · blog:review-en 15 · plan:item-regen 14 · ai-job:meta_desc 14 · plan:nutrition 10
+- **تشخيص Groq 400 (35 حالة):** json_validate_failed على استدعاءات jsonMode — فشل التحقق من JSON داخل Groq وليس انقطاع خدمة
+- **توزيع من خدمّ الطلب فعليًا (749 نجاح سلسلة):** OpenRouter 46% · Groq 39% · NVIDIA 15% (رغم أن NVIDIA أصغر عدد محاولات لأنه أُضيف متأخرًا)
+- **ملف النتائج الكامل:** JSON مفصل محفوظ خارج المستودع (download/ai_provider_stats.json في مساحة العمل)
+
+Stage Summary:
+- **الخلاصة للمالك:** Groq هو الأصلب (85%) يليه NVIDIA (70%) ثم OpenRouter (30% — تُحرق محاولاته على موديلات ميتة)؛ سلسلة التراجع تعمل لكنها تسير بخطوات ميتة (gemma:free وlightning:free) قبل الوصول للمزوّد الصالح؛ خط مدونة العربية يستنزف نصف الفشل الكلي؛ إضافة NVIDIA حسّن الاتجاه اليومي بشكل واضح
+- **مرشحات تحسين (لم تُنفذ — تنتظر أمر المالك):** ① خفض ترتيب أو إزالة gemma:free وlightning:free من السلسلة (توفير ~430 محاولة محروقة/14يوم) ② رفع حد timeout لموديلات 550b على GHA (220 abort) ③ مراجعة استبعاد Groq من الاستدعاءات الثقيلة (332 استبعادًا) ④ معالجة jsonMode-400 على Groq (35)
+- **لا تغييرات كود** — تدقيق قراءة فقط + هذه المرآة
