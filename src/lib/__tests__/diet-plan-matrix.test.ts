@@ -150,14 +150,17 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(needsMsaRepair(blob)).toBe(false);
   });
 
-  it("METADATA: unique title+description per cell; titles ≤70 incl. brand", () => {
+  it("METADATA: unique title+description per cell; anti-double-brand law", () => {
+    // The /ar layout template appends exactly one " — Alkemos" (11 chars)
+    // to these string titles — so the RAW title must carry NO brand
+    // (eadb3e7 law) and raw + suffix must stay ≤70 chars.
     const titles = new Set<string>();
     const descs = new Set<string>();
     for (const lv of DIET_LEVELS) {
       for (const sys of DIET_SYSTEMS) {
         const { title, description } = buildCellMetadata(lv, sys);
-        expect(title.length, `${lv}/${sys.slug} title ≤70`).toBeLessThanOrEqual(70);
-        expect(title).toContain("| Alkemos");
+        expect(title, `${lv}/${sys.slug}: no brand in raw title`).not.toContain("Alkemos");
+        expect(title.length + 11, `${lv}/${sys.slug} title + template suffix ≤70`).toBeLessThanOrEqual(70);
         expect(title).toContain(String(lv));
         titles.add(title);
         descs.add(description);

@@ -468,12 +468,14 @@ export function buildCellIntro(
   return [LEVEL_GUIDANCE[level], SYSTEM_GUIDANCE[system.slug], numbersPara];
 }
 
-/** Unique title/description per cell (≤70 chars incl. template suffix). */
+/** Unique title/description per cell — NO brand (the /ar layout
+ * template appends exactly one " — Alkemos"; eadb3e7 anti-double-brand
+ * law). Raw title + template suffix must stay ≤70 chars. */
 export function buildCellMetadata(
   level: DietLevel,
   system: DietSystem,
 ): { title: string; description: string } {
-  const title = `نظام ${level} سعرة ${system.nameAr} — خطة يوم كامل بالغرامات | Alkemos`;
+  const title = `نظام ${level} سعرة ${system.nameAr} — خطة يوم كامل بالغرامات`;
   const description = `خطة غذائية عربية جاهزة بنظام ${system.nameAr} على ${level} سعرة يومياً: فطور وغداء وعشاء وسناك بالغرامات والسعرات، مع توزيع الماكروز وخطوة تخصيصها مجاناً.`;
   return { title, description };
 }

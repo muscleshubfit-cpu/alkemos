@@ -14,7 +14,9 @@ const SITE_URL = "https://alkemos.com";
  * posts (P0-4). No FAQPage schema, no ratings, no fabricated signals.
  */
 export const metadata: Metadata = {
-  title: "خطط غذائية عربية جاهزة بالسعرات — من 1200 إلى 3000 سعرة | Alkemos",
+  // No brand in title — the /ar layout template appends exactly one
+  // " — Alkemos" (anti-double-brand law, eadb3e7).
+  title: "خطط غذائية عربية جاهزة بالسعرات — من 1200 إلى 3000 سعرة",
   description:
     "مصفوفة خطط الطعام العربية: 24 خطة يوم جاهزة (6 مستويات سعرات × 4 أنظمة — متوازن، عالي البروتين، كيتو، نباتي) بالغرامات والسعرات، مع خطوة تخصيصها مجاناً بلا تسجيل.",
   alternates: {
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "خطط غذائية عربية جاهزة بالسعرات | Alkemos",
+    title: "خطط غذائية عربية جاهزة بالسعرات — Alkemos",
     description:
       "24 خطة يوم كاملة بالغرامات: من 1200 إلى 3000 سعرة × 4 أنظمة غذائية.",
     url: `${SITE_URL}/ar/diet-plan`,

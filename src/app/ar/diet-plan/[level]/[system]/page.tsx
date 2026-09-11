@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       languages: { ar: url, "x-default": url },
     },
     openGraph: {
-      title,
+      title: `${title} — Alkemos`,
       description,
       url,
       type: "website",
