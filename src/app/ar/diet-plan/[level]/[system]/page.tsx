@@ -24,8 +24,8 @@ const SITE_URL = "https://alkemos.com";
  *
  * LAWS (see src/lib/diet-plan-matrix.ts header):
  *   - Unique intro per cell + computed day plan within ±10 kcal.
- *   - AR-only per the plan; hreflang = self ar + x-default self (the
- *     honest-unpaired pattern, P0-4). BreadcrumbList schema only —
+ *   - §12.27: the EN twin (/diet-plan/{level}/{system}) now exists — full
+ *     hreflang pair (ar + en + x-default→en). BreadcrumbList schema only —
  *     no FAQPage, no ratings.
  *   - Free-planner CTA (no registration needed — free tier: 3 meals).
  */
@@ -53,7 +53,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     description,
     alternates: {
       canonical: url,
-      languages: { ar: url, "x-default": url },
+      languages: {
+        ar: url,
+        en: `${SITE_URL}/diet-plan/${lv}/${sys.slug}`,
+        "x-default": `${SITE_URL}/diet-plan/${lv}/${sys.slug}`,
+      },
     },
     openGraph: {
       title: `${title} — Alkemos`,
@@ -220,22 +224,25 @@ export default async function DietPlanCellPage({ params }: Params) {
             {SYSTEM_GUIDANCE[sys.slug]}
           </p>
 
-          {/* ── Free customization CTA (the embedded tool path) ── */}
+          {/* ── Free customization CTA (the embedded tool path — §12.28: AI generator first, manual planner for exact grams) ── */}
           <div className="mt-10 rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6">
             <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
               اجعلها خطتك أنت — مجاناً وبلا تسجيل
             </h2>
             <p className="mt-2 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               الخطة أعلاه مرسومة على مقاس {lv} سعرة عموماً؛ وأرقامك أنت تستحق
-              قياساً خاصاً. افتح{" "}
+              قياساً خاصاً. أسرع طريق:{" "}
+              <Link href="/ar/ai-meal-planner" className="font-medium underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
+                خطّط وجباتك بالذكاء الاصطناعي
+              </Link>{" "}
+              — أدخل رقمك ونظامك وملاحظاتك فتُولَّد لك خطة يوم كاملة بالغرامات
+              في ثوانٍ، مجاناً للجميع بلا حساب. وللتحكم اليدوي الدقيق افتح{" "}
               <Link href="/ar/meal-planner" className="font-medium underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
                 مخطط الوجبات
               </Link>{" "}
               — يعمل للزوار مجاناً دون أي حساب — وأدخل أصناف هذه الخطة
               بغراماتك، فترى الإجماليات تتجمع لحظياً لكل وجبة ولكل يوم، وعدّل
-              الغرامات حتى يهبط يومك على هدفك بالضبط. ميزة الزائر المجانية
-              تكفي لتخطيط يوم كامل من ثلاث وجبات بحسابات حية، والتوسّع في
-              الحفظ والتصدير يأتي مع العضويات لمن يحتاجه.
+              الغرامات حتى يهبط يومك على هدفك بالضبط.
             </p>
             <p className="mt-2 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               وإن لم تكن متأكداً أن {lv} سعرة هي رقمك أصلاً، فابدأ من{" "}

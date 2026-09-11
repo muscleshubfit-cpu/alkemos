@@ -72,6 +72,10 @@ const LAYOUT_FILES = [
   ]),
   "src/app/meal-planner/layout.tsx",
   "src/app/ar/meal-planner/layout.tsx",
+  // §12.28: the AI meal-planner trial pair renders the same layered
+  // schema (WebApplication + Offer($0) + BreadcrumbList + HowTo).
+  "src/app/ai-meal-planner/layout.tsx",
+  "src/app/ar/ai-meal-planner/layout.tsx",
 ];
 
 /** Every paragraph of ≥25 words in one language, normalized. */
@@ -122,8 +126,10 @@ describe("tool reference content (SEO-GEO-6.5 §12.19 P1-6)", () => {
   it("six standalone tool modules exist with matching slugs", () => {
     expect(TOOLS).toHaveLength(6);
     for (const [slug, ref] of TOOLS) expect(ref.slug).toBe(slug);
+    // §12.28: the six reference-content tools PLUS the AI meal-planner
+    // trial page (schema-only entry — no deep-content module).
     expect(Object.keys(TOOL_SCHEMA_DATA).sort()).toEqual(
-      TOOLS.map(([s]) => s).sort(),
+      [...TOOLS.map(([s]) => s), "ai-meal-planner"].sort(),
     );
   });
 
@@ -244,7 +250,7 @@ describe("tool schema layer (SEO-GEO-6.5 §12.19 P1-6)", () => {
     }
   });
 
-  it("all 12 layouts render ToolSchemaScripts with the right tool+lang", () => {
+  it("all 14 layouts render ToolSchemaScripts with the right tool+lang", () => {
     for (const file of LAYOUT_FILES) {
       const src = readFileSync(file, "utf8");
       expect(src, `${file} must import ToolSchemaScripts`).toContain(

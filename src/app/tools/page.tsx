@@ -56,6 +56,25 @@ const tools = [
     descEn: "Build meals from 8,830+ foods and track macros",
     icon: "mealplanner",
   },
+  // §12.28: the AI meal-planner trial — free generation, no signup.
+  {
+    slug: "/ai-meal-planner",
+    nameAr: "مخطط الوجبات بالذكاء الاصطناعي",
+    nameEn: "AI Meal Planner",
+    descAr: "ولّد خطة يوم كاملة بالغرامات في ثوانٍ",
+    descEn: "Generate a full day plan in seconds",
+    icon: "evo",
+  },
+  // §12.27: the diet-plan matrix — discoverable from the tools hub (owner
+  // directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم»).
+  {
+    slug: "/diet-plan",
+    nameAr: "خطط غذائية جاهزة",
+    nameEn: "Diet Plan Library",
+    descAr: "٢٤ خطة يوم جاهزة بالغرامات (6 مستويات × 4 أنظمة)",
+    descEn: "24 ready-made daily plans in grams",
+    icon: "fruits",
+  },
   // DELIVERY 0050: content libraries cross-linked from the tools hub
   {
     slug: "/exercises",

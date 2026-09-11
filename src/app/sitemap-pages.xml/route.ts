@@ -55,6 +55,9 @@ export async function GET() {
     { loc: `${base}/ar/tools/water-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/tools/water-tracker`, ar: `${base}/ar/tools/water-tracker` } },
     { loc: `${base}/meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/meal-planner`, ar: `${base}/ar/meal-planner` } },
     { loc: `${base}/ar/meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/meal-planner`, ar: `${base}/ar/meal-planner` } },
+    // §12.28: the AI meal-planner trial pair (free generation, no signup).
+    { loc: `${base}/ai-meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-meal-planner`, ar: `${base}/ar/ai-meal-planner` } },
+    { loc: `${base}/ar/ai-meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-meal-planner`, ar: `${base}/ar/ai-meal-planner` } },
     // Comparison index pages — SEO-GEO-4 (2026-09-08): the detail pages
     // live in sitemap-comparisons.xml; the index lives here.
     { loc: `${base}/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },
@@ -95,16 +98,41 @@ export async function GET() {
     });
   }
 
-  // Phase SEO-GEO-6.6 (§12.19 P1-8): the Arabic diet-plan matrix —
-  // 1 hub + 24 leaf cells. AR-only surface (EN later per the plan), so
-  // no en/ar alternates: each URL declares itself.
-  urls.push({ loc: `${base}/ar/diet-plan`, changefreq: "monthly", priority: 0.8 });
+  // Phase SEO-GEO-6.6 (§12.19 P1-8) + §12.27 (owner directive «بند ٨ تم
+  // تنفيذ عربى فقط مطلوب انجليزى»): the diet-plan matrix is now BILINGUAL —
+  // EN hub + 24 EN cells mirror the AR surface, each entry declaring the
+  // full en/ar alternates pair.
+  urls.push({
+    loc: `${base}/diet-plan`,
+    changefreq: "monthly",
+    priority: 0.8,
+    alternates: { en: `${base}/diet-plan`, ar: `${base}/ar/diet-plan` },
+  });
+  urls.push({
+    loc: `${base}/ar/diet-plan`,
+    changefreq: "monthly",
+    priority: 0.8,
+    alternates: { en: `${base}/diet-plan`, ar: `${base}/ar/diet-plan` },
+  });
   for (const level of DIET_LEVELS) {
     for (const system of DIET_SYSTEMS) {
+      urls.push({
+        loc: `${base}/diet-plan/${level}/${system.slug}`,
+        changefreq: "monthly",
+        priority: 0.7,
+        alternates: {
+          en: `${base}/diet-plan/${level}/${system.slug}`,
+          ar: `${base}/ar/diet-plan/${level}/${system.slug}`,
+        },
+      });
       urls.push({
         loc: `${base}/ar/diet-plan/${level}/${system.slug}`,
         changefreq: "monthly",
         priority: 0.7,
+        alternates: {
+          en: `${base}/diet-plan/${level}/${system.slug}`,
+          ar: `${base}/ar/diet-plan/${level}/${system.slug}`,
+        },
       });
     }
   }

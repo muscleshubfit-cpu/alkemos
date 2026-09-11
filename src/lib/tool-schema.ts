@@ -370,6 +370,65 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
       },
     },
   },
+  // §12.28: the AI meal-planner trial page — WebApplication + Offer($0) +
+  // BreadcrumbList + HowTo, same layered law as the six standalone tools.
+  "ai-meal-planner": {
+    url: {
+      en: `${SITE}/ai-meal-planner`,
+      ar: `${SITE}/ar/ai-meal-planner`,
+    },
+    name: { en: "AI Meal Planner", ar: "مخطط الوجبات بالذكاء الاصطناعي" },
+    description: {
+      en: "Free AI meal planner trial: generate a complete day plan in grams and calories from your target, diet system, and preferences in seconds — no signup, nothing saved.",
+      ar: "تجربة مجانية لمخطط الوجبات بالذكاء الاصطناعي: ولّد خطة يوم كاملة بالغرامات والسعرات من رقمك ونظامك وملاحظاتك في ثوانٍ — بلا تسجيل وبلا حفظ.",
+    },
+    features: {
+      en: [
+        "One-click generation of a full day in grams",
+        "The site's four diet systems (balanced, high-protein, keto, vegetarian)",
+        "Optional preferences respected in the prompt",
+        "Strict shape and calorie-closure validation on every plan",
+        "Free trial for everyone: 3 generations per day, no account",
+      ],
+      ar: [
+        "توليد يوم كامل بالغرامات بضغطة واحدة",
+        "أنظمة الموقع الأربعة (متوازن، عالي البروتين، كيتو، نباتي)",
+        "ملاحظات اختيارية تُحترم في التوليد",
+        "تحقق صارم من الشكل وإغلاق السعرات لكل خطة",
+        "تجربة مجانية للجميع: 3 توليدات يومياً بلا حساب",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "AI Meal Planner", url: "/ai-meal-planner" }],
+      ar: [{ name: "مخطط الوجبات بالذكاء الاصطناعي", url: "/ar/ai-meal-planner" }],
+    },
+    howTo: {
+      name: {
+        en: "How to generate an AI meal plan",
+        ar: "كيف تولّد خطة وجبات بالذكاء الاصطناعي",
+      },
+      description: {
+        en: "Turn your calorie target into a generated day plan with grams and validated totals using the free Alkemos AI meal planner trial.",
+        ar: "حوّل هدف سعراتك إلى خطة يوم مولّدة بغرامات وإجماليات مُتحققة باستخدام تجربة مخطط الوجبات بالذكاء الاصطناعي المجانية من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Enter your daily calorie target.",
+          "Pick one of the four diet systems.",
+          "Add optional preferences if you have any.",
+          "Generate and read the plan, item by item in grams.",
+          "Copy it, adjust it to your table, and verify on the weekly trend.",
+        ],
+        ar: [
+          "أدخل هدفك اليومي من السعرات.",
+          "اختر أحد الأنظمة الأربعة.",
+          "أضف ملاحظات اختيارية إن كانت لديك.",
+          "ولّد واقرأ الخطة صنفاً صنفاً بالغرامات.",
+          "انسخها وعدّلها على مائدتك وتحقق بالاتجاه الأسبوعي.",
+        ],
+      },
+    },
+  },
 };
 
 /** Build the three schema objects for one tool in one language. */

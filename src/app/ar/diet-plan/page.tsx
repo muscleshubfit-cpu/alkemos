@@ -9,9 +9,9 @@ const SITE_URL = "https://alkemos.com";
 /**
  * /ar/diet-plan — the Arabic diet-plan matrix HUB (Phase SEO-GEO-6.6,
  * §12.19 P1-8). The 24 leaf cells live under /ar/diet-plan/{level}/{system}.
- * AR-only surface per the plan («النسخة EN لاحقًا»): hreflang = self ar +
- * x-default self — the same honest-unpaired pattern as unpaired blog
- * posts (P0-4). No FAQPage schema, no ratings, no fabricated signals.
+ * §12.27: the EN twin (/diet-plan) now exists — full hreflang pair
+ * (ar + en + x-default→en) replaces the old honest-unpaired self pattern.
+ * No FAQPage schema, no ratings, no fabricated signals.
  */
 export const metadata: Metadata = {
   // No brand in title — the /ar layout template appends exactly one
@@ -23,7 +23,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/ar/diet-plan`,
     languages: {
       ar: `${SITE_URL}/ar/diet-plan`,
-      "x-default": `${SITE_URL}/ar/diet-plan`,
+      en: `${SITE_URL}/diet-plan`,
+      "x-default": `${SITE_URL}/diet-plan`,
     },
   },
   openGraph: {
@@ -71,10 +72,12 @@ export default function DietPlanHubPage() {
             أصلاً، والنباتي لمن غذاؤه بقول وحبوب وألبان وبيض.
           </p>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-            كل صفحة خطة تنتهي بخطوة التخصيص: افتح مخطط الوجبات — يعمل مجاناً
-            بلا تسجيل — وأدخل الأصناف نفسها بغراماتك أنت، فتحصل على إجماليات
-            حية لكل وجبة ولكل يوم، ثم عدّل الغرامات حتى يهبط اليوم على هدفك
-            بالضبط. الخطة الجاهزة تفتح لك الباب؛ والتخصيص يجعلها بيتك.
+            كل صفحة خطة تنتهي بخطوة التخصيص: خطّط وجباتك بالذكاء الاصطناعي —
+            يولّد لك يوماً كاملاً من رقمك ونظامك وملاحظاتك مجاناً بلا تسجيل —
+            أو افتح مخطط الوجبات اليدوي وأدخل الأصناف نفسها بغراماتك أنت،
+            فتحصل على إجماليات حية لكل وجبة ولكل يوم، ثم عدّل الغرامات حتى
+            يهبط اليوم على هدفك بالضبط. الخطة الجاهزة تفتح لك الباب؛
+            والتخصيص يجعلها بيتك.
           </p>
 
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">

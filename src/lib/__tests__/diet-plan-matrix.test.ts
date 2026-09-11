@@ -7,6 +7,12 @@ import {
   SYSTEM_GUIDANCE,
   buildCellIntro,
   buildCellMetadata,
+  FOOD_NAMES_EN,
+  LEVEL_GUIDANCE_EN,
+  MEAL_NAME_EN,
+  SYSTEM_GUIDANCE_EN,
+  buildCellIntroEn,
+  buildCellMetadataEn,
   getDietSystem,
   isDietLevel,
   macroTargets,
@@ -17,30 +23,38 @@ import { scanArabicDialect, needsMsaRepair } from "@/lib/blog-msa";
 /**
  * Phase SEO-GEO-6.6 canaries (§12.19 P1-8) — the Arabic diet-plan
  * programmatic matrix: /ar/diet-plan/{level}/{system} (6 levels × 4
- * systems = 24 leaves + hub).
+ * systems = 24 leaves + hub) — now BILINGUAL (§12.27): /diet-plan/{level}/
+ * {system} EN twins, one engine, identical numbers.
  *
  * LAWS GUARDED:
  *   1. MATRIX SHAPE: exactly 6 × 4 cells; unknown levels/systems are
  *      rejected (no accidental infinite thin pages).
  *   2. QUALITY FLOOR (§12.19 DO-NOT «لا آلاف الصفحات الهزيلة»): every
  *      cell solves to within ±10 kcal of its level on INTEGER displayed
- *      totals, carries a UNIQUE intro, and its macro targets sum to the
- *      level.
+ *      totals, carries a UNIQUE intro (AR AND EN), and its macro targets
+ *      sum to the level.
  *   3. MACRO SPLITS MATCH THE SITE: balanced 30/40/30 · high-protein
  *      45/35/20 · keto 25/5/70 mirror the macro calculator presets
  *      (canary-pinned); vegetarian 25/50/25 is matrix-only.
- *   4. MSA: all matrix copy passes the blog dialect scanner.
- *   5. METADATA: unique title/description per cell; titles ≤70 chars
- *      (brand suffix included — these are depth-3 pages).
+ *   4. MSA on the AR surface + complete EN display coverage (every food
+ *      key and meal name has an EN rendering — bilingual-by-construction).
+ *   5. METADATA: unique title/description per cell in BOTH languages;
+ *      AR raw titles ≤70 chars (brand suffix included), EN titles ≤60.
  *   6. SCHEMA LAWS: leaves emit BreadcrumbList only — no FAQPage, no
  *      aggregateRating anywhere in the surface.
  *   7. FREE CTA: every leaf links to the meal planner (works without
- *      registration — the honest «توليد أول مجاني بلا تسجيل»).
+ *      registration — the honest «توليد أول مجاني بلا تسجيل») — in BOTH
+ *      languages.
+ *   8. HREFLANG (§12.27): the EN twin exists — all four page files
+ *      declare the full en/ar/x-default pair.
  */
 
 const LEAF_FILE =
   "src/app/ar/diet-plan/[level]/[system]/page.tsx";
 const HUB_FILE = "src/app/ar/diet-plan/page.tsx";
+const LEAF_FILE_EN =
+  "src/app/diet-plan/[level]/[system]/page.tsx";
+const HUB_FILE_EN = "src/app/diet-plan/page.tsx";
 const SITEMAP_FILE = "src/app/sitemap-pages.xml/route.ts";
 
 describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
@@ -117,6 +131,49 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(new Set(DIET_SYSTEMS.map((s) => SYSTEM_GUIDANCE[s.slug])).size).toBe(4);
   });
 
+  it("§12.27 QUALITY (EN): unique intro per cell + natural-English prose", () => {
+    const seen = new Set<string>();
+    const levelFirsts = new Map<string, number>();
+    for (const lv of DIET_LEVELS) {
+      for (const sys of DIET_SYSTEMS) {
+        const intro = buildCellIntroEn(lv, sys, macroTargets(lv, sys));
+        expect(intro).toHaveLength(3);
+        const joined = intro.join("\n");
+        expect(seen.has(joined), `duplicate EN cell intro: ${lv}/${sys.slug}`).toBe(false);
+        seen.add(joined);
+        levelFirsts.set(intro[0], (levelFirsts.get(intro[0]) ?? 0) + 1);
+        const all = intro.join(" ");
+        expect(all).toContain(String(lv));
+        // System guidance names the system in natural prose ("the
+        // balanced system") — case-insensitive match.
+        expect(all.toLowerCase()).toContain(sys.nameEn.toLowerCase());
+        // EN prose must not be an Arabic-mirror accident.
+        expect(/[\u0600-\u06FF]/.test(all)).toBe(false);
+      }
+    }
+    expect(seen.size).toBe(24);
+    expect(levelFirsts.size).toBe(6);
+    for (const count of levelFirsts.values()) expect(count).toBe(4);
+    expect(new Set(DIET_LEVELS.map((l) => LEVEL_GUIDANCE_EN[l])).size).toBe(6);
+    expect(new Set(DIET_SYSTEMS.map((s) => SYSTEM_GUIDANCE_EN[s.slug])).size).toBe(4);
+  });
+
+  it("§12.27 BILINGUAL COVERAGE: every food key and meal name renders in EN", () => {
+    // One engine, one solve — the EN pages print the SAME numbers; the
+    // display layer must cover every food that can appear in any solve.
+    for (const sys of DIET_SYSTEMS) {
+      for (const lv of DIET_LEVELS) {
+        const day = solveDayPlan(lv, sys);
+        for (const meal of day.meals) {
+          expect(MEAL_NAME_EN[meal.name], `meal EN name: ${meal.name}`).toBeTruthy();
+          for (const item of meal.items) {
+            expect(FOOD_NAMES_EN[item.food], `food EN name: ${item.food}`).toBeTruthy();
+          }
+        }
+      }
+    }
+  });
+
   it("MACRO SPLITS MATCH THE SITE: preset canaries + split sums to 100", () => {
     const bySlug = Object.fromEntries(DIET_SYSTEMS.map((s) => [s.slug, s.split]));
     expect(bySlug["balanced"]).toEqual({ protein: 30, carbs: 40, fat: 30 });
@@ -170,24 +227,49 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(descs.size).toBe(24);
   });
 
-  it("HREFLANG: AR-only surface declares self ar + x-default self (no dangling en)", () => {
+  it("§12.27 METADATA (EN): unique per cell; total title ≤60 (EN budget)", () => {
+    // The EN root layout has NO title template — the brand is written
+    // inside the string, so the TOTAL must respect the EN ≤60 budget.
+    const titles = new Set<string>();
+    const descs = new Set<string>();
+    for (const lv of DIET_LEVELS) {
+      for (const sys of DIET_SYSTEMS) {
+        const { title, description } = buildCellMetadataEn(lv, sys);
+        expect(title.length, `${lv}/${sys.slug} EN title ≤60`).toBeLessThanOrEqual(60);
+        expect(title).toContain(String(lv));
+        expect(title).toContain("Alkemos");
+        expect(description.length).toBeGreaterThanOrEqual(120);
+        titles.add(title);
+        descs.add(description);
+      }
+    }
+    expect(titles.size).toBe(24);
+    expect(descs.size).toBe(24);
+  });
+
+  it("HREFLANG (§12.27): EN twin exists — full en/ar/x-default pairs everywhere", () => {
     // Strip comments first (the law comments mention the patterns).
     const strip = (s: string) =>
       s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
     const leaf = strip(readFileSync(LEAF_FILE, "utf8"));
     const hub = strip(readFileSync(HUB_FILE, "utf8"));
-    // Leaf: variables; Hub: literal URLs.
+    const leafEn = strip(readFileSync(LEAF_FILE_EN, "utf8"));
+    const hubEn = strip(readFileSync(HUB_FILE_EN, "utf8"));
+    // AR leaf: declares its ar self + the EN twin + x-default→EN.
     expect(leaf).toContain("ar: url");
-    expect(leaf).toContain('"x-default": url');
+    expect(leaf).toContain("en: `${SITE_URL}/diet-plan/${lv}/${sys.slug}`");
+    expect(leaf).toContain('"x-default": `${SITE_URL}/diet-plan/${lv}/${sys.slug}`');
+    // AR hub: same pairing, literal URLs.
     expect(hub).toContain("ar: `${SITE_URL}/ar/diet-plan`");
-    expect(hub).toContain('"x-default": `${SITE_URL}/ar/diet-plan`');
-    // AR-only per the plan — must NOT declare an en counterpart.
-    for (const [name, src] of [
-      ["leaf", leaf],
-      ["hub", hub],
-    ] as const) {
-      expect(src, `${name}: no dangling en alternate`).not.toMatch(/languages:\s*\{\s*en:/);
-    }
+    expect(hub).toContain("en: `${SITE_URL}/diet-plan`");
+    expect(hub).toContain('"x-default": `${SITE_URL}/diet-plan`');
+    // EN leaf + hub: reciprocal pairs.
+    expect(leafEn).toContain("en: url");
+    expect(leafEn).toContain("ar: `${SITE_URL}/ar/diet-plan/${lv}/${sys.slug}`");
+    expect(leafEn).toContain('"x-default": url');
+    expect(hubEn).toContain("en: `${SITE_URL}/diet-plan`");
+    expect(hubEn).toContain("ar: `${SITE_URL}/ar/diet-plan`");
+    expect(hubEn).toContain('"x-default": `${SITE_URL}/diet-plan`');
   });
 
   it("SCHEMA LAWS: BreadcrumbList only — no FAQPage, no aggregateRating", () => {
@@ -198,6 +280,8 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     for (const [name, file] of [
       ["leaf", LEAF_FILE],
       ["hub", HUB_FILE],
+      ["leaf-en", LEAF_FILE_EN],
+      ["hub-en", HUB_FILE_EN],
     ] as const) {
       const src = strip(readFileSync(file, "utf8"));
       expect(src, `${name}: breadcrumb schema`).toContain("getBreadcrumbSchema");
@@ -215,16 +299,42 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     // same system (eatthismuch-style programmatic cross-linking).
     expect(leaf).toContain("DIET_SYSTEMS.filter");
     expect(leaf).toContain("DIET_LEVELS.filter");
+    // §12.27: the EN twin carries the same honest free CTA + mesh.
+    const leafEn = readFileSync(LEAF_FILE_EN, "utf8");
+    expect(leafEn).toContain('href="/meal-planner"');
+    expect(leafEn).toContain("without any account");
+    expect(leafEn).toContain('href="/tools/calorie-calculator"');
+    expect(leafEn).toContain("DIET_SYSTEMS.filter");
+    expect(leafEn).toContain("DIET_LEVELS.filter");
   });
 
-  it("SITEMAP: hub + all 24 cells are indexed", () => {
+  it("§12.27 DISCOVERABILITY: the matrix is linked from user-facing sections", () => {
+    // Owner directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم» —
+    // the matrix must be reachable from the tools hub, the bottom-of-page
+    // tool nav, the meal planner, and the homepage (grid + footer).
+    const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
+    expect(toolsHub).toContain('slug: "/diet-plan"');
+    const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
+    expect(otherTools).toContain('slug: "/diet-plan"');
+    const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
+    expect(mealPlanner).toContain('"/ar/diet-plan"');
+    expect(mealPlanner).toContain('"/diet-plan"');
+    const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
+    expect(landing).toContain('href: "/diet-plan"');
+    expect(landing).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
+  });
+
+  it("SITEMAP: hub + all 24 cells indexed in BOTH languages with alternates", () => {
     const src = readFileSync(SITEMAP_FILE, "utf8");
     expect(src).toContain("/ar/diet-plan");
+    expect(src).toContain("`${base}/diet-plan`");
     expect(src).toContain("DIET_LEVELS");
     expect(src).toContain("DIET_SYSTEMS");
-    // The double loop emits 6×4 leaf locs.
-    const leafLocs = src.match(/\/ar\/diet-plan\/\$\{level\}\/\$\{system\.slug\}/g);
-    expect(leafLocs).toBeTruthy();
+    // The double loop emits 6×4 leaf locs in BOTH trees.
+    expect(src).toContain("`${base}/diet-plan/${level}/${system.slug}`");
+    expect(src).toContain("`${base}/ar/diet-plan/${level}/${system.slug}`");
+    // Every matrix entry declares the en/ar alternates pair.
+    expect(src.match(/alternates: \{[^}]*en: `\$\{base\}\/diet-plan/g)).toBeTruthy();
   });
 
   it("HUB: matrix table links every cell + canonical self", () => {
@@ -232,5 +342,11 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(hub).toContain("canonical: `${SITE_URL}/ar/diet-plan`");
     expect(hub).toContain("DIET_LEVELS.map");
     expect(hub).toContain("DIET_SYSTEMS.map");
+    // §12.27: the EN hub mirrors the structure.
+    const hubEn = readFileSync(HUB_FILE_EN, "utf8");
+    expect(hubEn).toContain("canonical: `${SITE_URL}/diet-plan`");
+    expect(hubEn).toContain("DIET_LEVELS.map");
+    expect(hubEn).toContain("DIET_SYSTEMS.map");
+    expect(hubEn).toContain("s.nameEn");
   });
 });

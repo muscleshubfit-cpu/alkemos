@@ -592,6 +592,11 @@ export function LandingView() {
               { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدمك بمقاييس حقيقية مش بس بالميزان.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
               { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجل كوبساتك يومياً", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "ابني وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
+              // §12.28: the AI meal-planner trial on the homepage grid.
+              { slug: "ai-meal-planner", nameAr: "مخطط بالذكاء الاصطناعي", nameEn: "AI Meal Planner", descAr: "خطة يوم كاملة تُولّد في ثوانٍ.", descEn: "A full day plan, generated", icon: "evo", href: "/ai-meal-planner" },
+              // §12.27: the diet-plan matrix on the homepage grid (owner
+              // directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم»).
+              { slug: "diet-plan", nameAr: "خطط غذائية جاهزة", nameEn: "Ready Diet Plans", descAr: "٢٤ خطة يوم كاملة بالغرامات والسعرات.", descEn: "24 complete daily plans", icon: "fruits", href: "/diet-plan" },
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
                 <LandingToolCard tool={tool} isAr={isAr} />
@@ -1397,12 +1402,17 @@ export function LandingView() {
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات" : "Tools"}</p>
               <ul className="mt-3 space-y-2 text-xs">
-                <li><a href="/tools/bmi-calculator" className="hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
-                <li><a href="/tools/body-fat-calculator" className="hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
-                <li><a href="/tools/calorie-calculator" className="hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
-                <li><a href="/tools/macro-calculator" className="hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
-                <li><a href="/tools/water-tracker" className="hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
-                <li><a href="/meal-planner" className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+                {/* §12.27: locale-aware mirrors + the diet-plan matrix entry
+                    (owner directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى
+                    اى قسم» — the matrix is now reachable from the homepage
+                    footer in both languages). */}
+                <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
+                <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
+                <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
+                <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
+                <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
+                <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+                <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "خطط غذائية جاهزة" : "Ready Diet Plans"}</a></li>
               </ul>
             </div>
 
@@ -1541,9 +1551,12 @@ type LandingFoodCategory = {
 // ─── Helper components (conditional rendering — no display:none in DOM) ───
 
 function LandingToolCard({ tool, isAr }: { tool: LandingTool; isAr: boolean }) {
+  // §12.27: every tool href now resolves its locale-aware mirror — an AR
+  // homepage visitor stays inside the Arabic tree (same law as the footer).
+  const href = isAr ? `/ar${tool.href}` : tool.href;
   return (
     <a
-      href={tool.href}
+      href={href}
       className="marble-card group flex items-center gap-4 p-6 transition-transform duration-300 hover:-translate-y-0.5"
     >
       {/* Engraved icon pair (mission §6: flame / scale / pie / silhouette+% / cup / plate) */}

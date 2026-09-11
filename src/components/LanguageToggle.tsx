@@ -124,6 +124,10 @@ export function LanguageToggle() {
  { en: "/for-coaches/register", ar: "/ar/for-coaches/register" },
  { en: "/tools", ar: "/ar/tools" },
  { en: "/meal-planner", ar: "/ar/meal-planner" },
+ // §12.27: the diet-plan matrix is bilingual — the toggle swaps trees.
+ { en: "/diet-plan", ar: "/ar/diet-plan" },
+ // §12.28: the AI meal-planner trial pair.
+ { en: "/ai-meal-planner", ar: "/ar/ai-meal-planner" },
  { en: "/compare", ar: "/ar/compare" },
  // SEO-GEO-6.4 (P1-9): evo + coaching now have Arabic mirrors.
  { en: "/evo", ar: "/ar/evo" },
@@ -141,6 +145,20 @@ export function LanguageToggle() {
  router.push(nextLang === "ar" ? route.ar : route.en);
  return;
  }
+ }
+
+ // §12.27: the diet-plan matrix CELLS are server components on dynamic
+ // mirror routes (/diet-plan/{level}/{system} ↔ /ar/diet-plan/…) — exact
+ // matching can't cover 24 pairs, so the subtree swaps by prefix.
+ if (pathname.startsWith("/diet-plan/")) {
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? `/ar${pathname}` : pathname);
+ return;
+ }
+ if (pathname.startsWith("/ar/diet-plan/")) {
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, ""));
+ return;
  }
 
  // Pages without Arabic mirrors: just toggle the UI language.

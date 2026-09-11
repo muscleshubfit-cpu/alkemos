@@ -14,6 +14,10 @@ const ALL_TOOLS = [
   // meal-planner + water-tracker are top-level routes (/meal-planner, /tools/water-tracker),
   // so we mark them with an absolute path prefix.
   { slug: "/meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", icon: "mealplanner" },
+  // §12.28: the AI meal-planner trial joins the bottom-of-page tool nav.
+  { slug: "/ai-meal-planner", nameAr: "مخطط الوجبات بالذكاء الاصطناعي", nameEn: "AI Meal Planner", icon: "evo" },
+  // §12.27: the diet-plan matrix joins the bottom-of-page tool nav.
+  { slug: "/diet-plan", nameAr: "خطط غذائية جاهزة", nameEn: "Diet Plans", icon: "fruits" },
   { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", icon: "hydration" },
   // DELIVERY 0050: content libraries are site pages too — owner asked for
   // «صفحات اخرى من الموقع» at the bottom of every tool page.

@@ -18,11 +18,14 @@
  *     (balanced 30/40/30 · high-protein 45/35/20 · keto 25/5/70);
  *     vegetarian 25/50/25 is documented here as the site's matrix-only
  *     preset.
- *   - MSA Arabic throughout (blog dialect scanner runs in the tests).
+ *   - MSA Arabic on the AR surface (blog dialect scanner runs in the tests);
+ *     natural-English prose on the EN surface — NOT literal translations
+ *     (the §12.19 «لا ترجمة مباشرة» law, applied in both directions).
  *   - NO fabricated ratings, NO FAQPage schema — BreadcrumbList only.
- *   - AR-only surface per the plan («النسخة EN لاحقًا لسد عنق
- *     strongrfastr»): hreflang = self ar + x-default self (the same
- *     honest-unpaired pattern the blog uses, P0-4).
+ *   - §12.27 (owner directive «بند ٨ تم تنفيذ عربى فقط مطلوب انجليزى»):
+ *     the matrix is now BILINGUAL — /diet-plan/{level}/{system} (EN) +
+ *     /ar/diet-plan/{level}/{system} (AR) as full hreflang pairs; one
+ *     engine, one solve, identical printed numbers on both surfaces.
  */
 
 export interface MacroSplit {
@@ -76,6 +79,9 @@ export interface SolvedDay {
 export interface DietSystem {
   slug: string;
   nameAr: string;
+  /** §12.27: the EN matrix surface (owner directive «بند ٨ تم تنفيذ عربى
+   * فقط مطلوب انجليزى» — EN cells live at /diet-plan/{level}/{system}). */
+  nameEn: string;
   split: MacroSplit;
   /** Item used to close the calorie gap (high-kcal, easy to adjust). */
   meals: MatrixMeal[];
@@ -121,10 +127,61 @@ const FOODS: Record<string, FoodItem> = {
   "لبن كامل الدسم": { kcal: 61, protein: 3.2, carbs: 4.8, fat: 3.3 },
 };
 
+/** EN display names for the meal slots (§12.27 — bilingual-by-construction). */
+export const MEAL_NAME_EN: Record<string, string> = {
+  "الفطور": "Breakfast",
+  "الغداء": "Lunch",
+  "العشاء": "Dinner",
+  "سناك": "Snack",
+};
+
+/**
+ * EN display names for the food keys (§12.27). The engine keeps the Arabic
+ * food keys as the single identity (one solve, one set of numbers — EN/AR
+ * pages MUST print identical arithmetic); this map is the display layer for
+ * the EN surface. Guarded: every FOODS key must have an EN name.
+ */
+export const FOOD_NAMES_EN: Record<string, string> = {
+  "بيض مسلوق": "Boiled eggs",
+  "بياض بيض مسلوق": "Boiled egg whites",
+  "خبز بلدي": "Baladi (pita) bread",
+  "خبز أسمر": "Whole-wheat bread",
+  "جبنة قريش": "Cottage cheese",
+  "جبن تشيدر": "Cheddar cheese",
+  "خيار": "Cucumber",
+  "طماطم": "Tomato",
+  "صدر دجاج مشوي": "Grilled chicken breast",
+  "أرز أبيض مطبوخ": "Cooked white rice",
+  "سلطة خضراء": "Green salad",
+  "زيت زيتون": "Olive oil",
+  "سمك بلطي مشوي": "Grilled tilapia",
+  "سلمون مطبوخ": "Cooked salmon",
+  "بطاطس مشوية": "Baked potato",
+  "خضار مشكلة مطبوخة": "Cooked mixed vegetables",
+  "زبادي يوناني خالي الدسم": "Fat-free Greek yogurt",
+  "موز": "Banana",
+  "تفاح": "Apple",
+  "لوز": "Almonds",
+  "جوز": "Walnuts",
+  "لحم بقري قليل الدهن مطبوخ": "Cooked lean beef",
+  "تونة معلبة بالماء": "Canned tuna in water",
+  "زبدة": "Butter",
+  "أفوكادو": "Avocado",
+  "بروكلي مطبوخ": "Cooked broccoli",
+  "سبانخ مطبوخة": "Cooked spinach",
+  "فول مدمس": "Fava beans (ful medames)",
+  "عدس مطبوخ": "Cooked lentils",
+  "حمص مطبوخ": "Cooked chickpeas",
+  "توفو متماسك": "Firm tofu",
+  "شوفان جاف": "Dry oats",
+  "لبن كامل الدسم": "Whole milk",
+};
+
 export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "balanced",
     nameAr: "متوازن",
+    nameEn: "Balanced",
     split: { protein: 30, carbs: 40, fat: 30 },
     meals: [
       {
@@ -171,6 +228,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "high-protein",
     nameAr: "عالي البروتين",
+    nameEn: "High-Protein",
     split: { protein: 45, carbs: 35, fat: 20 },
     meals: [
       {
@@ -217,6 +275,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "keto",
     nameAr: "كيتو",
+    nameEn: "Keto",
     split: { protein: 25, carbs: 5, fat: 70 },
     meals: [
       {
@@ -261,6 +320,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "vegetarian",
     nameAr: "نباتي",
+    nameEn: "Vegetarian",
     split: { protein: 25, carbs: 50, fat: 25 },
     meals: [
       {
@@ -477,5 +537,69 @@ export function buildCellMetadata(
 ): { title: string; description: string } {
   const title = `نظام ${level} سعرة ${system.nameAr} — خطة يوم كامل بالغرامات`;
   const description = `خطة غذائية عربية جاهزة بنظام ${system.nameAr} على ${level} سعرة يومياً: فطور وغداء وعشاء وسناك بالغرامات والسعرات، مع توزيع الماكروز وخطوة تخصيصها مجاناً.`;
+  return { title, description };
+}
+
+/* ══════════════════════ §12.27 — THE EN MATRIX SURFACE ══════════════════════
+ * Owner directive (2026-09-12): «بند ٨ تم تنفيذ عربى فقط مطلوب انجليزى» —
+ * the EN cells close the strongrfastr chokepoint per the §12.19 plan
+ * («النسخة EN لاحقًا لسد عنق strongrfastr»). One engine, one solve: the EN
+ * pages print the SAME numbers as their AR twins (bilingual-by-construction
+ * parity, like tool-reference.ts) — only the display layer switches.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+/** Long-form guidance per level — EN (distinct prose, not a translation). */
+export const LEVEL_GUIDANCE_EN: Record<DietLevel, string> = {
+  1200:
+    "A 1200-calorie plan is the lowest rung of this matrix, and it is a genuine deficit that should only be started by someone who is very light or almost sedentary; at this level the margin for error shrinks until every protein serving and every gram of fiber becomes a necessity rather than a luxury. If you are considering this level boldly, the honest move is to run the calorie calculator first and confirm it is truly your number — and to review it with a professional if you carry any medical condition, because here safety outranks speed.",
+  1500:
+    "The 1500-calorie plan is the classic working zone for fat loss among most women and lighter men: a moderate deficit that respects muscle and still leaves room for meals that resemble an actual life. At this level protein remains the protective ceiling, and generous fiber and vegetables remain the difference between a day that passes quietly and one that ends with an uncounted bite after sunset.",
+  1800:
+    "The 1800-calorie plan is the safest middle level in the matrix: gentle loss for many men, comfortable maintenance for many active women, and a balanced starting point for anyone who wants to learn nutritional structure before diving into deep customization. At this number the budget widens enough for real variety — which makes adherence dramatically easier than any crash diet.",
+  2000:
+    "The 2000-calorie plan is the reference level of the whole matrix — the number the base meals were built on before being scaled up and down. For many moderately active adults it is a near-perfect maintenance figure: full energy for thinking and training, reasonable social room, and daily totals that read easily off any food label.",
+  2500:
+    "The 2500-calorie plan enters the land of active adults: anyone training four or more times a week, working a physical job, or pursuing measured muscle gain without a calorie flood. At this level carbohydrates stop being a source of anxiety and become deliberate fuel placed around training, and distributing meals across the day turns into a performance tool rather than mere appetite management.",
+  3000:
+    "The 3000-calorie plan is building ground: an inverted deficit for anyone intending to gain muscular weight at a disciplined pace, or maintenance heat for an athlete whose training volume is simply very large. The real problem here is not restriction but volume — three thousand calories of clean food means facing fullness, which is why this plan is built on smart calorie density rather than on drowning meals in random fats.",
+};
+
+/** Long-form guidance per system — EN (distinct prose, not a translation). */
+export const SYSTEM_GUIDANCE_EN: Record<string, string> = {
+  balanced:
+    "The balanced system (30% protein · 40% carbs · 30% fat) is the default recommended for anyone who does not know where to start: a split that fights no nutrient, supports mixed training, and leaves every meal with a familiar structure — a protein source, a starch, vegetables, and a cooking fat. If this is your first organized plan, start here and customize later, once you know how your body actually responds.",
+  "high-protein":
+    "The high-protein system (45% of calories from protein) is designed for the fat-loss phase or for anyone who puts muscle building at the top of their priorities: high protein guards muscle in an energy deficit, satiates more per calorie, and costs the body extra calories just to digest. If you plan to stand at this level for a long time, watch variety inside your protein sources so the plan never turns deadly boring.",
+  keto:
+    "The ketogenic system (25% protein · 5% carbs · 70% fat) is the most demanding on adherence in the whole matrix: it restricts carbohydrates to the point that shifts metabolism onto ketones, pushing the body through well-known adaptation weeks before the feeling settles. Choose it because your food life genuinely works better inside it — not because it supposedly burns faster; energy balance still governs everyone.",
+  vegetarian:
+    "The vegetarian system (25% protein · 50% carbs · 25% fat) builds its day on legumes, grains, dairy, and eggs — the legume-plus-grain pairing covers the essential amino acids the same way fava beans with bread have done for generations. The numbers that deserve attention here are iron and vitamin B12 for long-term vegetarians, and the practical answer is a periodic assessment with a blood test.",
+};
+
+/** Unique-per-cell intro — EN: level paragraph + system paragraph + numbers. */
+export function buildCellIntroEn(
+  level: DietLevel,
+  system: DietSystem,
+  targets: ReturnType<typeof macroTargets>,
+): string[] {
+  const numbersPara =
+    `At ${level} calories per day, this system's split means roughly ${targets.protein} g of protein ` +
+    `(${Math.round((level * system.split.protein) / 100)} calories), around ${targets.carbs} g of carbs ` +
+    `(${Math.round((level * system.split.carbs) / 100)} calories), and about ${targets.fat} g of fat ` +
+    `(${Math.round((level * system.split.fat) / 100)} calories) — and the plan below is built in grams to approach these targets from real food.`;
+  return [LEVEL_GUIDANCE_EN[level], SYSTEM_GUIDANCE_EN[system.slug], numbersPara];
+}
+
+/**
+ * Unique title/description per cell — EN. The EN root layout has NO title
+ * template, so the brand is written explicitly and the TOTAL must stay
+ * ≤60 chars (the repo's EN SERP title budget — clampMetaTitle law).
+ */
+export function buildCellMetadataEn(
+  level: DietLevel,
+  system: DietSystem,
+): { title: string; description: string } {
+  const title = `${level} Calorie ${system.nameEn} Meal Plan in Grams | Alkemos`;
+  const description = `A ready ${system.nameEn.toLowerCase()} day plan at ${level} calories: breakfast, lunch, dinner, and a snack in grams and calories, with a macro table and a free customization step.`;
   return { title, description };
 }
