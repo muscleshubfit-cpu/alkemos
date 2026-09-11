@@ -54,6 +54,15 @@ export type BlogOGData = {
   image: string;
   articleUrl: string;
   locale: "en_US" | "ar_EG";
+  /**
+   * Phase SEO-GEO-6.5 (§12.19 P0-4): the language twin of this post, when
+   * the Phase-157/158 `linked_post_id` pairing links it to a PUBLISHED
+   * counterpart. Used by the blog pages' generateMetadata to emit
+   * en/ar/x-default hreflang — `null` on unpaired posts (the page then
+   * declares self + x-default only, never a dangling counterpart URL).
+   */
+  twinSlug?: string | null;
+  twinLang?: "en" | "ar" | null;
   publishedAt?: string | null;
   /**
    * Phase SEO-GEO-4 (2026-09-08): the article schema's dateModified +
@@ -97,13 +106,32 @@ const fetchBlogForOGUncached = async (
     const { data } = await supabase
       .from("blog_posts")
       .select(
-        "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author",
+        "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author, linked_post_id",
       )
       .eq("slug", slug)
       .eq("language", lang)
       .eq("is_published", true)
       .maybeSingle();
     if (!data) return null;
+
+    // Phase SEO-GEO-6.5 (§12.19 P0-4): resolve the language twin ONLY when
+    // the twin is itself published (sitemap C1 law — a draft/deleted twin
+    // must never be declared in hreflang). One extra lightweight query,
+    // cached with the OG payload for 5 minutes.
+    let twinSlug: string | null = null;
+    let twinLang: "en" | "ar" | null = null;
+    if (data.linked_post_id) {
+      const { data: twin } = await supabase
+        .from("blog_posts")
+        .select("slug, language")
+        .eq("id", data.linked_post_id)
+        .eq("is_published", true)
+        .maybeSingle();
+      if (twin) {
+        twinSlug = twin.slug;
+        twinLang = twin.language === "ar" ? "ar" : "en";
+      }
+    }
 
     const baseUrl = "https://alkemos.com";
     const articleUrl = `${baseUrl}${lang === "ar" ? "/ar/blog" : "/blog"}/${data.slug}`;
@@ -113,6 +141,8 @@ const fetchBlogForOGUncached = async (
       image: data.featured_image || `${baseUrl}/logo.png`,
       articleUrl,
       locale: lang === "ar" ? "ar_EG" : "en_US",
+      twinSlug,
+      twinLang,
       publishedAt: data.published_at,
       updatedAt: data.updated_at,
       author: data.author,
@@ -128,6 +158,37 @@ export const fetchBlogForOG = unstable_cache(
   ["blog-og"],
   { revalidate: 300 },
 );
+
+/**
+ * Phase SEO-GEO-6.5 (§12.19 P0-4) — hreflang map for a blog article page.
+ *
+ * PAIRED post (live linked_post_id twin): emits the full en/ar pair with
+ * x-default → the EN URL. UNPAIRED post: emits self + x-default → self —
+ * the page never declares a counterpart URL that does not exist (the C1
+ * dangling-hreflang law stands; what changed since C1 is that the
+ * Phase-157/158 pairing now supplies REAL twins worth declaring).
+ *
+ * Single source for both /blog/[slug] and /ar/blog/[slug] generateMetadata
+ * so the two mirrors can never drift apart.
+ */
+export function buildBlogHreflang(og: BlogOGData): Record<string, string> {
+  const selfLang = og.locale === "ar_EG" ? "ar" : "en";
+  if (og.twinSlug && og.twinLang) {
+    const twinUrl =
+      og.twinLang === "ar"
+        ? `https://alkemos.com/ar/blog/${og.twinSlug}`
+        : `https://alkemos.com/blog/${og.twinSlug}`;
+    const languages: Record<string, string> = {
+      [selfLang]: og.articleUrl,
+      [og.twinLang]: twinUrl,
+    };
+    // x-default points at the EN variant whenever one exists in the pair.
+    languages["x-default"] = languages.en ?? og.articleUrl;
+    return languages;
+  }
+  return { [selfLang]: og.articleUrl, "x-default": og.articleUrl };
+}
+
 
 /**
  * M28 fix: fetch a published blog post's FULL content server-side.

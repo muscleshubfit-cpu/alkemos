@@ -137,11 +137,10 @@ export function getCoachingServiceSchema() {
       highPrice: "40",
       offerCount: "2",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "500",
-    },
+    // Phase SEO-GEO-6.4 (§12.19 P0-5): the hardcoded aggregateRating
+    // (4.8 / 500 reviews) was REMOVED — it had no visible review source,
+    // which is a fabricated-signal risk on YMYL pages. Re-add ONLY with a
+    // real, linkable review source (Trustpilot / app store) — §12.19 P1-7.
   };
 }
 
@@ -164,11 +163,9 @@ export function getEVOApplicationSchema() {
       priceCurrency: "USD",
       description: "مجاني للجميع",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      reviewCount: "300",
-    },
+    // Phase SEO-GEO-6.4 (§12.19 P0-5): hardcoded aggregateRating (4.9 /
+    // 300) removed — same fabricated-signal law as the Service schema
+    // above; re-enable only with a real, linkable review source.
     featureList: [
       "بناء خطط تغذية وتمارين مخصصة من بياناتك",
       "استشارات لياقة وتغذية فورية 24/7",

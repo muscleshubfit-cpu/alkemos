@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeCategory } from "@/lib/blog-server";
-import { countWords, splitFaqSection, filterFaqsByRelevance, type OutlinePlan } from "@/lib/blog-pipeline";
+import { countWords, splitFaqSection, filterFaqsByRelevance, clampMetaTitle, type OutlinePlan } from "@/lib/blog-pipeline";
 import { scanLatinContamination } from "@/lib/blog-msa";
 import { embedBodyImages } from "@/lib/blog-images";
 import { insertToolLinks } from "@/lib/blog-tool-links";
@@ -243,7 +243,10 @@ export async function GET(request: NextRequest) {
       // are inserted into the article markdown at section boundaries (was:
       // dropped entirely → every post was a wall of text).
       content: embedBodyImages(toolLinkPass.md, images),
-      meta_title: `${outline.title}`.slice(0, 60),
+      // Phase SEO-GEO-6.3 (§12.19 P0-3): word-boundary clamp replaces the
+      // old `.slice(0, 60)` mid-word hard cut (23/31 EN titles were landing
+      // in the SERP truncated mid-word; AR budget is wider at 70).
+      meta_title: clampMetaTitle(outline.title, lang),
       meta_description: outline.metaDescription,
       focus_keyword: qi.focus_keyword,
       keywords: outline.lsiKeywords,

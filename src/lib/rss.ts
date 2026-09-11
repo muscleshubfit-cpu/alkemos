@@ -37,8 +37,13 @@ function esc(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function item(post: BlogFeedItem, baseUrl: string): string {
-  const link = `${baseUrl}/blog/${post.slug}`;
+function item(post: BlogFeedItem, baseUrl: string, lang: "en" | "ar"): string {
+  // Phase SEO-GEO-6.2 (§12.19 P0-2): Arabic feed items MUST link to the
+  // Arabic article URLs (/ar/blog/…) — the live audit found all 39 AR
+  // feed links pointing at the English /blog/ tree (Arabic subscribers
+  // landed on EN pages). The locale prefix is derived from the feed's own
+  // language, matching articleUrl construction in blog-server.ts.
+  const link = `${baseUrl}${lang === "ar" ? "/ar" : ""}/blog/${post.slug}`;
   const pub = post.published_at || post.updated_at;
   const description = post.excerpt || post.meta_description || post.title;
   return `    <item>
@@ -64,7 +69,7 @@ export type RssChannel = {
 
 export async function buildRss(channel: RssChannel): Promise<string> {
   const posts = await listPublishedPostsForFeed(channel.lang, MAX_ITEMS);
-  const items = posts.map((p) => item(p, RSS_SITE_URL)).join("\n");
+  const items = posts.map((p) => item(p, RSS_SITE_URL, channel.lang)).join("\n");
   const lastBuild = posts[0]
     ? new Date(posts[0].published_at || posts[0].updated_at).toUTCString()
     : new Date().toUTCString();

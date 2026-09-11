@@ -3244,3 +3244,23 @@ tsc 0 · eslint 0/0 · vitest **680/680** (666 baseline + 14 new) · next build 
 - Strongest model (ultra-550b) gets real windows on P0/P1/HEAVY calls → fewer truncation-aborts, deeper articles/answers.
 - Groq json_validate_failed 400s (35/14d) → 0 (prompt-instructed JSON + tolerant parser instead).
 - The AR pipeline (48% of all total failures: content-ar 57 + review-ar 45 + pick-topic-ar 12) benefits from all three fixes directly.
+
+## Phase SEO-GEO-6.1 — External-audit P0 execution batch (owner order «ادفع ثم ابدأ تنفيذ المقترحات»)
+
+**Date:** 2026-09-12 · **Parent plan:** §12.19 (SEO-GEO-6, the independent external audit's P0–P3 execution plan) · **Predecessor:** §12.19 docs commit c8bb41b (pushed to origin/main, CI green)
+
+### The changes (4 code fixes + 17 regression tests — vitest 680→697)
+1. **`src/lib/rss.ts` — Arabic RSS links (P0-2):** `item()` built `${baseUrl}/blog/${slug}` for BOTH languages; the live audit found 39/39 `/ar/rss.xml` item links pointing at the EN tree. Links now derive the `/ar` prefix from the feed's own language (mirrors `articleUrl` in blog-server). Guard: `rss-ar-links.test.ts` ×3.
+2. **`src/lib/blog-pipeline.ts` + `p5-publish/route.ts` — SERP title clamp (P0-3):** root cause of the mid-word truncation was `meta_title: title.slice(0, 60)` at publish time. New `clampMetaTitle()`: EN≤60/AR≤70 budgets · word-boundary cut · trailing-brand-suffix strip (incl. the audited doubled suffix) · never ends on a separator · mid-title brand kept. Guard: `blog-meta-title.test.ts` ×8.
+3. **`src/lib/blog-server.ts` + both blog article pages — hreflang (P0-4):** `fetchBlogForOG` now resolves the published `linked_post_id` twin (cached with the OG payload); new `buildBlogHreflang()`: paired posts emit en+ar+x-default→EN, unpaired posts emit self+x-default→self. The C1 no-dangling-counterpart law STANDS — what changed since C1 is that Phase 157/158 pairing now supplies real twins. Guard: `blog-hreflang.test.ts` ×4.
+4. **`src/lib/seo.ts` — fabricated ratings removed (P0-5):** hardcoded aggregateRating (4.8/500 Service · 4.9/300 EVO SoftwareApplication) deleted — no visible review source exists (fabricated-signal risk on YMYL). Re-add ONLY with a real linkable source (P1-7). Guard: `schema-rating-law.test.ts` ×2.
+
+### Production data remediation (one-shot script OUTSIDE the repo, same clamp law)
+- **meta_title recomputed for all 70 published posts:** self-check against the 8 test vectors before any write; auto-cut rows (prefix-of-title signature) recomputed from title, hand-crafted divergent meta_titles PRESERVED (suffix/budget cleaned only). **27 rows patched** (26 auto-cut + the doubled-brand article `optimal-rest-periods-resistance-training`) · 3 hand-crafted kept · 39 unchanged. Only the `meta_title` column touched.
+- **Retro-pair verification (DRY_RUN):** all 6 approved pairs bidirectionally live in production ("already paired" ×6, zero writes); the 4 review pairs remain dropped by owner decision.
+
+### Gates (all local, before push)
+tsc 0 · eslint 0/0 · vitest **697/697** · next build exit 0 (full 102-page route table, prod env) · docs_audit ✓ · docs_parity ✓
+
+### Remaining from P0
+Item 1 — unblocking the 9 AI crawlers in the Cloudflare-managed robots.txt section (dashboard/API change outside the repo) — being executed in the same session via Cloudflare API; will be documented here with its result.

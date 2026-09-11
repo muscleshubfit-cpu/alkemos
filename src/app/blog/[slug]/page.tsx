@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
-import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools } from "@/lib/blog-server";
+import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools, buildBlogHreflang } from "@/lib/blog-server";
 import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
@@ -37,12 +37,14 @@ export async function generateMetadata({
     description: og.description,
     alternates: {
       canonical: og.articleUrl,
-      // SEO audit C1 fix (2026-09-07): the hreflang `languages` block was
-      // REMOVED — live DB verification proved EN and AR posts are
-      // topically independent (27 EN / 32 AR, ZERO slug pairing), so every
-      // declared counterpart URL 404'd. Dangling hreflang across the whole
-      // blog cluster made Google distrust the signals. Re-add ONLY when a
-      // real translation pairing (e.g. a translation_of column) exists.
+      // Phase SEO-GEO-6.5 (§12.19 P0-4): hreflang restored with REAL
+      // pairing. The C1 removal (2026-09-07) was correct when zero pairs
+      // existed and every declared counterpart 404'd — since then the
+      // Phase-157/158 `linked_post_id` pairing supplies true twins: paired
+      // posts emit the full en/ar/x-default set, unpaired posts declare
+      // self + x-default only (never a dangling URL). Single source:
+      // buildBlogHreflang() in blog-server.ts (shared with the AR mirror).
+      languages: buildBlogHreflang(og),
     },
     openGraph: {
       type: "article",

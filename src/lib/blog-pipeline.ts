@@ -516,6 +516,69 @@ export function countWords(md: string): number {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// Phase SEO-GEO-6.3 (§12.19 P0-3) — SERP-safe meta title clamp
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * SERP title budgets. Google renders ~60 latin chars / ~70 Arabic chars
+ * before pixel-truncation; the live audit (2026-09-11) found the p5
+ * publisher hard-cutting `meta_title` with `.slice(0, 60)` mid-word on
+ * 23/31 EN articles — degrading SERP CTR and keyword completeness.
+ */
+const META_TITLE_MAX: Record<"en" | "ar", number> = { en: 60, ar: 70 };
+
+/** Trailing brand suffix (incl. doubled "— Alkemos — Alkemos") — the
+ * page template/branding already carries the brand, so the stored title
+ * must not repeat it (audit: one AR title shipped a doubled suffix). */
+const BRAND_SUFFIX_RE = /[\s]*[—–\-|·]+\s*(Alkemos|ألكيموس)\s*$/i;
+
+/** Trailing separators/punctuation left behind after a word cut. */
+const TRAILING_JUNK_RE = /[\s]*[,،;؛:\-—–|·؟?!.…]+\s*$/;
+
+/**
+ * Clamp a generated article title into the SERP budget WITHOUT cutting
+ * words in half and WITHOUT duplicating the trailing brand.
+ *
+ * Laws:
+ *   1. Strip any trailing brand suffix first (looped — handles doubles).
+ *   2. Titles already within budget pass through unchanged (minus suffix).
+ *   3. Over-budget titles are cut at the LAST WORD BOUNDARY that fits;
+ *      only a pathological single-word over-budget title falls back to a
+ *      hard cut.
+ *   4. Trailing separators are trimmed so the clamp never ends on "… —".
+ *
+ * Used by the p5 publisher (new posts) and by the one-shot legacy
+ * meta_title remediation — same single source of truth.
+ */
+export function clampMetaTitle(rawTitle: string, lang: "en" | "ar"): string {
+  const max = META_TITLE_MAX[lang];
+  let t = rawTitle.trim();
+  if (!t) return t;
+
+  // Law 1 — strip trailing brand suffix (doubled suffixes need >1 pass).
+  for (let pass = 0; pass < 3; pass += 1) {
+    const stripped = t.replace(BRAND_SUFFIX_RE, "");
+    if (stripped === t) break;
+    t = stripped.trim();
+  }
+  if (!t) return rawTitle.trim(); // brand-only title: keep the original
+
+  // Law 2 — already within budget.
+  if (t.length <= max) return t;
+
+  // Law 3 — word-boundary cut.
+  const cut = t.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  const floor = Math.floor(max / 2);
+  const clipped = lastSpace >= floor ? cut.slice(0, lastSpace) : cut;
+
+  // Law 4 — never end on a dangling separator.
+  const cleaned = clipped.replace(TRAILING_JUNK_RE, "").trim();
+  return cleaned || cut.trim();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 4 — quality review & enhancement
 // ═══════════════════════════════════════════════════════════════
 

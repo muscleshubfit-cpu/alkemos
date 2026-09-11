@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
-import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools } from "@/lib/blog-server";
+import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools, buildBlogHreflang } from "@/lib/blog-server";
 import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
@@ -31,10 +31,10 @@ export async function generateMetadata({
     description: og.description,
     alternates: {
       canonical: og.articleUrl,
-      // SEO audit C1 fix (2026-09-07): hreflang `languages` removed — the
-      // declared EN counterpart `/blog/${slug}` never existed (EN and AR
-      // posts are topically independent in the live DB; zero slug pairs),
-      // so every alternate URL 404'd. Re-add only with a real pairing.
+      // Phase SEO-GEO-6.5 (§12.19 P0-4): hreflang restored with REAL
+      // pairing (linked_post_id twins) — see the EN mirror for the full
+      // rationale. Single source: buildBlogHreflang() in blog-server.ts.
+      languages: buildBlogHreflang(og),
     },
     openGraph: {
       type: "article",
