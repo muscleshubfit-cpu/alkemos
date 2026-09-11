@@ -9,6 +9,8 @@ import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { MEAL_PLANNER_CONTENT } from "@/lib/content/meal-planner";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import {
   Plus,
@@ -470,22 +472,10 @@ export default function MealPlannerPage() {
         <AdSenseAd format="auto" />
         <OtherTools current="meal-planner" />
 
-        {/* SEO content */}
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-            {isAr ? "إزاي تبني خطة وجبات؟" : "How to build a meal plan?"}
-          </h2>
-          <p>
-            {isAr
-              ? "مخطط الوجبات بيخليك تختار الأكلات من قاعدة بيانات ضخمة (٨٨٣٠+ أكلة محلية ومنتجات عالمية). بتكتب الجرام باليد والماكروز بتتحسب تلقائياً حسب المعادلة: السعرات = (سعرات ١٠٠جم ÷ ١٠٠) × الجرام. ده بيديك تحكم كامل بدل ما تعتمد على خطط جاهزة."
-              : "The Meal Planner lets you pick foods from a large database (8,830+ local foods and global products). You enter the grams by hand and the macros are calculated automatically using: calories = (calories per 100g ÷ 100) × grams. This gives you full control instead of relying on pre-made plans."}
-          </p>
-          <p>
-            {isAr
-              ? "كل وجبة ليها إجمالي مستقل، والإجمالي الكلي بيجمع كل الوجبات. تقدر تحفظ الخطط حسب عضويتك: العضو المجاني يحفظ جدول واحد، البريميوم ١٠، والبرو ٥٠."
-              : "Each meal has its own total, and the grand total sums all meals together. You can save plans based on your membership: Free saves 1 plan, Premium 10, Pro 50."}
-          </p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={MEAL_PLANNER_CONTENT} />
       </main>
     </div>
   );

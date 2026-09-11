@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
   title: "Body Fat Calculator | Alkemos — Calculate Your Body Fat %",
@@ -30,5 +31,10 @@ export const metadata: Metadata = {
 };
 
 export default function BodyFatLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="body-fat-calculator" lang="en" />
+      {children}
+    </>
+  );
 }

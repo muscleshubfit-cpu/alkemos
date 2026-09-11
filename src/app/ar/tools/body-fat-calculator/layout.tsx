@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * SEO-GEO-4 (2026-09-08): AR metadata for /ar/tools/body-fat-calculator.
@@ -39,5 +40,10 @@ export const metadata: Metadata = {
 };
 
 export default function ArBodyFatLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="body-fat-calculator" lang="ar" />
+      {children}
+    </>
+  );
 }

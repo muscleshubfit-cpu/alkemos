@@ -10,6 +10,8 @@ import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { SaveResultButton } from "@/components/SaveResultButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { BODY_FAT_CALCULATOR_CONTENT } from "@/lib/content/body-fat-calculator";
 
 type Gender = "male" | "female";
 
@@ -236,10 +238,10 @@ export default function BodyFatCalculatorPage() {
         {/* DELIVERY 0050: other-tools links always visible at the bottom (owner request) */}
         <OtherTools current="body-fat-calculator" />
 
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">{isAr ? "إزاي تحسب نسبة الدهون؟" : "How to calculate body fat?"}</h2>
-          <p>{isAr ? "حاسبتنا بتستخدم طريقة البحرية الأمريكية (Navy Method) اللي بتعتمد على محيط الخصر والرقبة (والورك للإناث) والطول. الطريقة دي دقيقة ومش محتاجة معدات خاصة." : "Our calculator uses the US Navy Method, which relies on waist, neck (and hip for females) circumference plus height. It's accurate and requires no special equipment."}</p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={BODY_FAT_CALCULATOR_CONTENT} />
       </main>
     </div>
   );

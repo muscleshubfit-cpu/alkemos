@@ -180,6 +180,48 @@ export function getEVOApplicationSchema() {
 }
 
 /**
+ * WebApplication schema — for the six standalone tool pages
+ * (§12.19 P1-6 "المعيار المزدوج": calculator.net-style reference
+ * content + arvo-style schema density).
+ *
+ * SEO-SCHEMA-REFERENCE.md lists WebApplication under "Active: Recommend
+ * freely" (browser-based SaaS). Localized per language (name/description/
+ * featureList/inLanguage) so each URL serves its own-language entity —
+ * the EN layout emits English, the AR mirror layout emits Arabic.
+ *
+ * Law: NO aggregateRating (P0-5 / §12.20 — fabricated signals removed;
+ * re-enable only with a real, linkable review source).
+ */
+export function getToolWebApplicationSchema(params: {
+  name: string;
+  description: string;
+  url: string;
+  inLanguage: "en" | "ar";
+  featureList: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: params.name,
+    url: params.url,
+    description: params.description,
+    applicationCategory: "HealthApplication",
+    applicationSubCategory: "Calculator",
+    browserRequirements: "Requires JavaScript",
+    inLanguage: params.inLanguage,
+    isAccessibleForFree: true,
+    featureList: params.featureList,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description:
+        params.inLanguage === "ar" ? "مجاني بالكامل" : "Free to use",
+    },
+  };
+}
+
+/**
  * FAQPage schema — for FAQ sections.
  *
  * ⚠️ DEPRECATED (per SEO-SCHEMA-REFERENCE.md, May 2026):

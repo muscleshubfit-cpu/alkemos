@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * FULL-SITE AUDIT FIX (2026-08-30): /tools/water-tracker previously had
@@ -44,5 +45,10 @@ export default function WaterTrackerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="water-tracker" lang="en" />
+      {children}
+    </>
+  );
 }

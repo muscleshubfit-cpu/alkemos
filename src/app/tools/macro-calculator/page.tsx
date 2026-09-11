@@ -10,6 +10,8 @@ import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { SaveResultButton } from "@/components/SaveResultButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { MACRO_CALCULATOR_CONTENT } from "@/lib/content/macro-calculator";
 
 type DietType = "balanced" | "low_carb" | "high_protein" | "keto" | "low_fat";
 
@@ -154,10 +156,10 @@ export default function MacroCalculatorPage() {
         {/* DELIVERY 0050: other-tools links always visible at the bottom (owner request) */}
         <OtherTools current="macro-calculator" />
 
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">{isAr ? "إيه هي الماكروز؟" : "What are macros?"}</h2>
-          <p>{isAr ? "الماكروز هي العناصر الغذائية الكبرى: البروتين (4 سعرات/جرام)، الكاربوهيدرات (4 سعرات/جرام)، والدهون (9 سعرات/جرام). توزيع الماكروز بيحدد نوع نظامك الغذائي — زي الكيتو (عالي دهون) أو عالي البروتين (لكمال الأجسام)." : "Macros are the three main nutrients: Protein (4 cal/g), Carbohydrates (4 cal/g), and Fat (9 cal/g). Your macro split determines your diet type — like Keto (high fat) or High Protein (for bodybuilding)."}</p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={MACRO_CALCULATOR_CONTENT} />
       </main>
     </div>
   );

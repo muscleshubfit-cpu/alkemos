@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * FULL-SITE AUDIT FIX (2026-08-30): /meal-planner previously had no
@@ -44,5 +45,10 @@ export default function MealPlannerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="meal-planner" lang="en" />
+      {children}
+    </>
+  );
 }

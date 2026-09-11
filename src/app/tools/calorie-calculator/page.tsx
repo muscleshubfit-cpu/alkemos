@@ -10,6 +10,8 @@ import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { SaveResultButton } from "@/components/SaveResultButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { CALORIE_CALCULATOR_CONTENT } from "@/lib/content/calorie-calculator";
 
 type Gender = "male" | "female";
 type Activity = "sedentary" | "light" | "moderate" | "active" | "very_active";
@@ -362,22 +364,10 @@ export default function CalorieCalculatorPage() {
         {/* DELIVERY 0050: other-tools links always visible at the bottom (owner request) */}
         <OtherTools current="calorie-calculator" />
 
-        {/* SEO content */}
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-            {isAr ? "إزاي تحسب السعرات الحرارية؟" : "How to calculate calories?"}
-          </h2>
-          <p>
-            {isAr
-              ? "حاسبة السعرات الحرارية بتستخدم معادلة Mifflin-St Jeor — وهي أدق معادلة لحساب معدل الأيض الأساسي (BMR). المعادلة بتعتمد على الوزن والطول والعمر والجنس. بعدين بناخد الـ BMR ونضربه في معامل النشاط عشان نحسب الاحتياج اليومي الكلي من الطاقة (TDEE)."
-              : "Our calorie calculator uses the Mifflin-St Jeor equation — the most accurate formula for calculating Basal Metabolic Rate (BMR). It takes into account your weight, height, age, and gender. We then multiply BMR by your activity factor to get your Total Daily Energy Expenditure (TDEE)."}
-          </p>
-          <p>
-            {isAr
-              ? "لو هدفك خسارة الوزن، بنطرح 500 سعرة من الـ TDEE (يفقد حوالي 0.5 كجم/أسبوع). لو هدفك زيادة الوزن، بنضيف 400 سعرة. ولو عايز تثبت وزنك، استخدم الـ TDEE كما هو."
-              : "For weight loss, we subtract 500 calories from TDEE (about 0.5kg/week loss). For weight gain, we add 400 calories. To maintain weight, use your TDEE as-is."}
-          </p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={CALORIE_CALCULATOR_CONTENT} />
       </main>
     </div>
   );

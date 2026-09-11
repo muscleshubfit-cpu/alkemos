@@ -10,6 +10,8 @@ import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { WATER_TRACKER_CONTENT } from "@/lib/content/water-tracker";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { Bookmark, Download, Loader2, Check, Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -532,22 +534,10 @@ export default function WaterTrackerPage() {
         <AdSenseAd format="auto" />
         <OtherTools current="water-tracker" />
 
-        {/* SEO content */}
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-            {isAr ? "ليه لازم تشرب ماء كفاية؟" : "Why drink enough water?"}
-          </h2>
-          <p>
-            {isAr
-              ? "الماء بيأثر على كل وظيفة في جسمك: تنظيم الحرارة، نقل العناصر الغذائية، تزييت المفاصل، وحماية الأنسجة. الجفاف الخفيف (1-2%) بيقلل التركيز والطاقة والأداء الرياضي."
-              : "Water affects every function in your body: temperature regulation, nutrient transport, joint lubrication, and tissue protection. Even mild dehydration (1-2%) reduces focus, energy, and athletic performance."}
-          </p>
-          <p>
-            {isAr
-              ? "القاعدة العامة: 35 مل لكل كجم من وزنك. الرياضيون محتاجين أكتر بسبب العرق. لو بتشرب قهوة أو شاي كحلو، زود استهلاك الماء. خزن السجل يومياً عشان تتابع نمطك خلال الأسبوع."
-              : "General rule: 35 ml per kg of body weight. Athletes need more due to sweat. If you drink coffee or sweet tea, increase water intake. Log daily to track your weekly pattern."}
-          </p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={WATER_TRACKER_CONTENT} />
       </main>
     </div>
   );

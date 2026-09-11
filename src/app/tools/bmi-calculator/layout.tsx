@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
   title: "BMI Calculator | Alkemos — Calculate Your Ideal Weight",
@@ -31,5 +32,10 @@ export const metadata: Metadata = {
 };
 
 export default function BMILayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="bmi-calculator" lang="en" />
+      {children}
+    </>
+  );
 }

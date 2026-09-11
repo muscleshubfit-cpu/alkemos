@@ -1,0 +1,399 @@
+/**
+ * Tool schema data — Phase SEO-GEO-6.5 (§12.19 P1-6).
+ *
+ * One localized schema package per standalone tool page: WebApplication +
+ * Offer($0) + BreadcrumbList + HowTo, emitted by BOTH the EN layout and the
+ * AR mirror layout in their own language (each URL serves its own-language
+ * entity — arvo-style schema density).
+ *
+ * LAWS:
+ *   - WebApplication: "Active: Recommend freely" (SEO-SCHEMA-REFERENCE.md).
+ *   - HowTo: Google rich results retired Sept 2023 — included for
+ *     non-Google (AI/GEO) semantic value only, per the §12.19 plan that
+ *     explicitly lists it. Do NOT expect SERP features.
+ *   - FAQPage: FORBIDDEN (§12.19 DO-NOT list) — FAQ on these pages is
+ *     visible text in the ToolReferenceContent renderer, never schema.
+ *   - NO aggregateRating anywhere (P0-5 / §12.20 fabricated-signal law).
+ */
+
+import {
+  getToolWebApplicationSchema,
+  getBreadcrumbSchema,
+  getHowToSchema,
+} from "./seo";
+
+type Lang = "en" | "ar";
+
+interface ToolSchemaData {
+  url: Record<Lang, string>;
+  name: Record<Lang, string>;
+  description: Record<Lang, string>;
+  features: Record<Lang, string[]>;
+  /** Breadcrumb trail WITHOUT the leading Home entry (added here). */
+  crumbs: Record<Lang, Array<{ name: string; url: string }>>;
+  howTo: {
+    name: Record<Lang, string>;
+    description: Record<Lang, string>;
+    steps: Record<Lang, string[]>;
+  };
+}
+
+const SITE = "https://alkemos.com";
+
+export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
+  "calorie-calculator": {
+    url: {
+      en: `${SITE}/tools/calorie-calculator`,
+      ar: `${SITE}/ar/tools/calorie-calculator`,
+    },
+    name: {
+      en: "Calorie Calculator",
+      ar: "حاسبة السعرات الحرارية",
+    },
+    description: {
+      en: "Free calorie calculator using the Mifflin-St Jeor equation: computes BMR, TDEE, and daily calorie targets for losing, maintaining, or gaining weight, with a starter macro split.",
+      ar: "حاسبة سعرات حرارية مجانية بمعادلة Mifflin-St Jeor: تحسب معدل الأيض الأساسي والإنفاق اليومي الكلي وأهداف السعرات اليومية للخسارة أو التثبيت أو الزيادة، مع توزيع ماكروز افتتاحي.",
+    },
+    features: {
+      en: [
+        "Mifflin-St Jeor BMR equation",
+        "Five activity-level multipliers",
+        "Weight-loss and weight-gain targets",
+        "Starter macro split (40/30/30)",
+        "Works in metric and imperial units",
+      ],
+      ar: [
+        "معادلة Mifflin-St Jeor لمعدل الأيض الأساسي",
+        "خمسة معاملات لمستوى النشاط",
+        "أهداف خسارة الوزن وزيادته",
+        "توزيع ماكروز افتتاحي (40/30/30)",
+        "تعمل بالوحدات المترية والإمبراطورية",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Tools", url: "/tools" }, { name: "Calorie Calculator", url: "/tools/calorie-calculator" }],
+      ar: [{ name: "الأدوات", url: "/ar/tools" }, { name: "حاسبة السعرات الحرارية", url: "/ar/tools/calorie-calculator" }],
+    },
+    howTo: {
+      name: {
+        en: "How to calculate your daily calorie needs",
+        ar: "كيف تحسب احتياجك اليومي من السعرات الحرارية",
+      },
+      description: {
+        en: "Compute BMR, TDEE, and your calorie target in under a minute with the free Alkemos calorie calculator.",
+        ar: "احسب معدل الأيض الأساسي والإنفاق اليومي الكلي وهدف سعراتك في أقل من دقيقة مع حاسبة السعرات المجانية من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Enter your age, weight, and height.",
+          "Select your sex and honest activity level.",
+          "Choose your goal: lose, maintain, or gain weight.",
+          "Press Calculate to get your BMR, TDEE, and daily target.",
+          "Use the starter macros or refine them with the macro calculator.",
+        ],
+        ar: [
+          "أدخل عمرك ووزنك وطولك.",
+          "اختر جنسك ومستوى نشاطك بصدق.",
+          "اختر هدفك: خسارة أو تثبيت أو زيادة الوزن.",
+          "اضغط «احسب» للحصول على معدل الأيض الأساسي والإنفاق اليومي والهدف.",
+          "استخدم الماكروز الافتتاحية أو نقّحها بحاسبة الماكروز.",
+        ],
+      },
+    },
+  },
+  "macro-calculator": {
+    url: {
+      en: `${SITE}/tools/macro-calculator`,
+      ar: `${SITE}/ar/tools/macro-calculator`,
+    },
+    name: { en: "Macro Calculator", ar: "حاسبة الماكروز" },
+    description: {
+      en: "Split your daily calories into protein, carbohydrate, and fat grams across five diet presets — balanced, low-carb, high-protein, keto, and low-fat.",
+      ar: "وزّع سعراتك اليومية إلى غرامات بروتين وكربوهيدرات ودهون عبر خمسة أنماط غذائية — متوازن، قليل الكارب، عالي البروتين، كيتو، قليل الدهون.",
+    },
+    features: {
+      en: [
+        "Five named diet presets",
+        "Gram conversion at 4/4/9 kcal per gram",
+        "Calorie and gram breakdown per macro",
+        "Free, instant, no signup",
+      ],
+      ar: [
+        "خمسة أنماط غذائية مسماة",
+        "تحويل إلى غرامات بمعاملات 4/4/9 سعرة للغرام",
+        "تفصيل السعرات والغرامات لكل مغذٍّ",
+        "مجانية وفورية وبلا تسجيل",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Tools", url: "/tools" }, { name: "Macro Calculator", url: "/tools/macro-calculator" }],
+      ar: [{ name: "الأدوات", url: "/ar/tools" }, { name: "حاسبة الماكروز", url: "/ar/tools/macro-calculator" }],
+    },
+    howTo: {
+      name: {
+        en: "How to calculate your macros",
+        ar: "كيف تحسب الماكروز",
+      },
+      description: {
+        en: "Turn your daily calorie budget into protein, carb, and fat grams in seconds with the free Alkemos macro calculator.",
+        ar: "حوّل ميزانية سعراتك اليومية إلى غرامات بروتين وكارب ودهون في ثوانٍ مع حاسبة الماكروز المجانية من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Get your daily calorie target from the calorie calculator.",
+          "Enter that calorie budget.",
+          "Pick a diet preset: balanced, low-carb, high-protein, keto, or low-fat.",
+          "Press Calculate for protein, carb, and fat grams.",
+        ],
+        ar: [
+          "احصل على هدف سعراتك اليومي من حاسبة السعرات.",
+          "أدخل ميزانية السعرات.",
+          "اختر نمطاً غذائياً: متوازن أو قليل الكارب أو عالي البروتين أو كيتو أو قليل الدهون.",
+          "اضغط «احسب» لغرامات البروتين والكارب والدهون.",
+        ],
+      },
+    },
+  },
+  "bmi-calculator": {
+    url: {
+      en: `${SITE}/tools/bmi-calculator`,
+      ar: `${SITE}/ar/tools/bmi-calculator`,
+    },
+    name: { en: "BMI Calculator", ar: "حاسبة مؤشر كتلة الجسم" },
+    description: {
+      en: "Free BMI calculator: computes Body Mass Index from weight and height, classifies it on the WHO scale, and derives your healthy weight range — metric or imperial.",
+      ar: "حاسبة مؤشر كتلة الجسم المجانية: تحسب المؤشر من الوزن والطول، وتصنفه على سلم منظمة الصحة العالمية، وتستخرج نطاق وزنك الصحي — بالوحدات المترية أو الإمبراطورية.",
+    },
+    features: {
+      en: [
+        "WHO category classification",
+        "Healthy weight range for your height",
+        "Metric and imperial units",
+        "Instant results, no signup",
+      ],
+      ar: [
+        "تصنيف فئات منظمة الصحة العالمية",
+        "نطاق الوزن الصحي لطولك",
+        "الوحدات المترية والإمبراطورية",
+        "نتائج فورية بلا تسجيل",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Tools", url: "/tools" }, { name: "BMI Calculator", url: "/tools/bmi-calculator" }],
+      ar: [{ name: "الأدوات", url: "/ar/tools" }, { name: "حاسبة مؤشر كتلة الجسم", url: "/ar/tools/bmi-calculator" }],
+    },
+    howTo: {
+      name: {
+        en: "How to calculate your BMI",
+        ar: "كيف تحسب مؤشر كتلة جسمك",
+      },
+      description: {
+        en: "Compute your Body Mass Index and healthy weight range in seconds with the free Alkemos BMI calculator.",
+        ar: "احسب مؤشر كتلة جسمك ونطاق وزنك الصحي في ثوانٍ مع حاسبة Alkemos المجانية.",
+      },
+      steps: {
+        en: [
+          "Choose metric or imperial units.",
+          "Enter your weight and height.",
+          "Press Calculate to get your BMI and WHO category.",
+          "Read your healthy weight range for your height.",
+        ],
+        ar: [
+          "اختر الوحدات المترية أو الإمبراطورية.",
+          "أدخل وزنك وطولك.",
+          "اضغط «احسب» للحصول على المؤشر وفئة منظمة الصحة.",
+          "اقرأ نطاق وزنك الصحي لطولك.",
+        ],
+      },
+    },
+  },
+  "body-fat-calculator": {
+    url: {
+      en: `${SITE}/tools/body-fat-calculator`,
+      ar: `${SITE}/ar/tools/body-fat-calculator`,
+    },
+    name: { en: "Body Fat Calculator", ar: "حاسبة نسبة دهون الجسم" },
+    description: {
+      en: "Free body fat calculator using the US Navy circumference method: estimates body fat percentage from height, neck, waist, and hip measurements with category interpretation.",
+      ar: "حاسبة نسبة دهون الجسم المجانية بطريقة محيطات البحرية الأمريكية: تقدّر النسبة من الطول والرقبة والخصر والورك مع تفسير الفئات.",
+    },
+    features: {
+      en: [
+        "US Navy circumference method",
+        "Separate formulas for men and women",
+        "Body fat category interpretation",
+        "No equipment beyond a tape measure",
+      ],
+      ar: [
+        "طريقة محيطات البحرية الأمريكية",
+        "صيغتان منفصلتان للذكور والإناث",
+        "تفسير فئات دهون الجسم",
+        "لا عتاد يتجاوز شريط قياس",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Tools", url: "/tools" }, { name: "Body Fat Calculator", url: "/tools/body-fat-calculator" }],
+      ar: [{ name: "الأدوات", url: "/ar/tools" }, { name: "حاسبة نسبة دهون الجسم", url: "/ar/tools/body-fat-calculator" }],
+    },
+    howTo: {
+      name: {
+        en: "How to estimate your body fat percentage",
+        ar: "كيف تقدّر نسبة دهون جسمك",
+      },
+      description: {
+        en: "Estimate body fat at home with a tape measure and the US Navy method via the free Alkemos body fat calculator.",
+        ar: "قدّر دهون جسمك منزلياً بشريط قياس وطريقة البحرية الأمريكية عبر حاسبة Alkemos المجانية.",
+      },
+      steps: {
+        en: [
+          "Measure your neck below the larynx.",
+          "Measure your waist at the navel, relaxed.",
+          "Women: also measure the hips at the widest point.",
+          "Enter height and measurements, then press Calculate.",
+          "Read your percentage and its category.",
+        ],
+        ar: [
+          "قس رقبتك أسفل الحنجرة.",
+          "قس خصرك عند السرة مسترخياً.",
+          "الإناث: قسن الورك أيضاً عند أوسع نقطة.",
+          "أدخل الطول والقياسات ثم اضغط «احسب».",
+          "اقرأ نسبتك وفئتها.",
+        ],
+      },
+    },
+  },
+  "water-tracker": {
+    url: {
+      en: `${SITE}/tools/water-tracker`,
+      ar: `${SITE}/ar/tools/water-tracker`,
+    },
+    name: { en: "Water Tracker", ar: "متتبع شرب الماء" },
+    description: {
+      en: "Free daily water tracker: sets a goal of 35 ml per kg of body weight (2–4.5 L safe range), logs cups with one tap, and keeps a seven-day history — no account needed.",
+      ar: "متتبع ماء يومي مجاني: يضبط هدفاً 35 مل لكل كجم من وزن الجسم (نطاق آمن 2–4.5 لتر)، ويسجل الأكواب بلمسة، ويحفظ تاريخاً لأسبوع — بلا حساب.",
+    },
+    features: {
+      en: [
+        "Weight-scaled daily goal (35 ml/kg)",
+        "One-tap cup logging and custom amounts",
+        "Seven-day hydration history",
+        "Runs in the browser without an account",
+      ],
+      ar: [
+        "هدف يومي مقيس بالوزن (35 مل/كجم)",
+        "تسجيل الأكواب بلمسة ومقادير مخصصة",
+        "تاريخ ترطيب سبعة أيام",
+        "يعمل في المتصفح بلا حساب",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Tools", url: "/tools" }, { name: "Water Tracker", url: "/tools/water-tracker" }],
+      ar: [{ name: "الأدوات", url: "/ar/tools" }, { name: "متتبع شرب الماء", url: "/ar/tools/water-tracker" }],
+    },
+    howTo: {
+      name: {
+        en: "How to track your daily water intake",
+        ar: "كيف تتبع استهلاكك اليومي من الماء",
+      },
+      description: {
+        en: "Set a weight-scaled hydration goal and log every glass with one tap using the free Alkemos water tracker.",
+        ar: "اضبط هدف ترطيب مقيساً بوزنك وسجّل كل كأس بلمسة باستخدام متتبع الماء المجاني من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Enter your body weight once.",
+          "Accept the recommended goal or adjust it.",
+          "Tap the cup button as you drink through the day.",
+          "Check the ring and the seven-day history.",
+        ],
+        ar: [
+          "أدخل وزن جسمك مرة واحدة.",
+          "اقبل الهدف الموصى به أو عدّله.",
+          "اكبس زر الكوب كلما شربت عبر اليوم.",
+          "راقب الحلقة وتاريخ الأيام السبعة.",
+        ],
+      },
+    },
+  },
+  "meal-planner": {
+    url: {
+      en: `${SITE}/meal-planner`,
+      ar: `${SITE}/ar/meal-planner`,
+    },
+    name: { en: "Meal Planner", ar: "مخطط الوجبات" },
+    description: {
+      en: "Free meal planner: build meals from a searchable food database, set portions in grams, and watch calories and protein total per meal and per day in real time.",
+      ar: "مخطط وجبات مجاني: ابنِ وجباتك من قاعدة أطعمة قابلة للبحث، وحدّد الحصص بالغرامات، وشاهد السعرات والبروتين يتجمعان لكل وجبة ولكل يوم لحظياً.",
+    },
+    features: {
+      en: [
+        "Searchable food database with local foods",
+        "Per-100g nutrition scaled to your portions",
+        "Per-meal and daily macro totals",
+        "Draft auto-save without an account",
+      ],
+      ar: [
+        "قاعدة أطعمة قابلة للبحث بأطعمة محلية",
+        "تغذية كل 100 غرام مقيسة على حصصك",
+        "إجماليات ماكروز لكل وجبة وليوم",
+        "حفظ تلقائي للمسودة بلا حساب",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "Meal Planner", url: "/meal-planner" }],
+      ar: [{ name: "مخطط الوجبات", url: "/ar/meal-planner" }],
+    },
+    howTo: {
+      name: {
+        en: "How to build a meal plan",
+        ar: "كيف تبني خطة وجبات",
+      },
+      description: {
+        en: "Turn your calorie target into real meals with grams and live macro totals using the free Alkemos meal planner.",
+        ar: "حوّل هدف سعراتك إلى وجبات حقيقية بغرامات وإجماليات ماكروز حية باستخدام مخطط الوجبات المجاني من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Add a meal: breakfast, lunch, dinner, or custom.",
+          "Search the database and add foods to the meal.",
+          "Set each portion in grams.",
+          "Watch per-meal and daily totals build live.",
+          "Adjust grams until the day lands on your target.",
+        ],
+        ar: [
+          "أضف وجبة: فطور أو غداء أو عشاء أو مخصصة.",
+          "ابحث في قاعدة البيانات وأضف الأطعمة للوجبة.",
+          "حدّد كل حصة بالغرامات.",
+          "راقب إجماليات الوجبة واليوم تُبنى لحظياً.",
+          "عدّل الغرامات حتى يهبط اليوم على هدفك.",
+        ],
+      },
+    },
+  },
+};
+
+/** Build the three schema objects for one tool in one language. */
+export function getToolSchemas(tool: string, lang: Lang) {
+  const d = TOOL_SCHEMA_DATA[tool];
+  if (!d) throw new Error(`getToolSchemas: unknown tool ${tool}`);
+  return [
+    getToolWebApplicationSchema({
+      name: d.name[lang],
+      description: d.description[lang],
+      url: d.url[lang],
+      inLanguage: lang,
+      featureList: d.features[lang],
+    }),
+    getBreadcrumbSchema([
+      { name: lang === "ar" ? "الرئيسية" : "Home", url: lang === "ar" ? "/ar" : "/" },
+      ...d.crumbs[lang],
+    ]),
+    getHowToSchema({
+      name: d.howTo.name[lang],
+      description: d.howTo.description[lang],
+      steps: d.howTo.steps[lang],
+      tool: [d.name[lang]],
+      estimatedCost: "0",
+    }),
+  ];
+}

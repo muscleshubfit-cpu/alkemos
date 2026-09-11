@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * SEO-GEO-4 (2026-09-08): AR metadata for /ar/meal-planner.
@@ -40,5 +41,10 @@ export const metadata: Metadata = {
 };
 
 export default function ArMealPlannerLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="meal-planner" lang="ar" />
+      {children}
+    </>
+  );
 }

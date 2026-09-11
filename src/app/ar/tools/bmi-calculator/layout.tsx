@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * SEO-GEO-4 (2026-09-08): AR metadata for /ar/tools/bmi-calculator.
@@ -40,5 +41,10 @@ export const metadata: Metadata = {
 };
 
 export default function ArBmiLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="bmi-calculator" lang="ar" />
+      {children}
+    </>
+  );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
   title: "Macro Calculator | Alkemos — Calculate Protein, Carbs & Fat",
@@ -31,5 +32,10 @@ export const metadata: Metadata = {
 };
 
 export default function MacroLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="macro-calculator" lang="en" />
+      {children}
+    </>
+  );
 }

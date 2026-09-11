@@ -10,6 +10,8 @@ import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { SaveResultButton } from "@/components/SaveResultButton";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ToolReferenceContent } from "@/components/ToolReferenceContent";
+import { BMI_CALCULATOR_CONTENT } from "@/lib/content/bmi-calculator";
 
 type Unit = "metric" | "imperial";
 
@@ -286,22 +288,10 @@ export default function BMICalculatorPage() {
         {/* DELIVERY 0050: other-tools links always visible at the bottom (owner request) */}
         <OtherTools current="bmi-calculator" />
 
-        {/* SEO content */}
-        <div className="mt-12 space-y-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-            {isAr ? "إيه هو مؤشر كتلة الجسم (BMI)؟" : "What is Body Mass Index (BMI)?"}
-          </h2>
-          <p>
-            {isAr
-              ? "مؤشر كتلة الجسم (BMI) هو مقياس بيستخدم الطول والوزن لتقدير كمية الدهون في الجسم. البي إم آي بيساعد على تحديد هل وزنك في النطاق الصحي أم لا. معادلة BMI هي: الوزن بالكيلوجرام ÷ (الطول بالمتر × الطول بالمتر)."
-              : "Body Mass Index (BMI) is a measure that uses your height and weight to estimate body fat. BMI helps determine if your weight is in a healthy range. The formula is: weight (kg) ÷ height (m)²."}
-          </p>
-          <p>
-            {isAr
-              ? "رغم إن BMI أداة مفيدة، إلا إنها مش بتفرّق بين العضلات والدهون. الرياضيون ممكن يكون عندهم BMI عالي بسبب كتلة العضلات مش الدهون. الأفضل تستخدم BMI كنقطة بداية وتراجع مختص لو محتاج تقييم أدق."
-              : "While BMI is a useful tool, it doesn't distinguish between muscle and fat. Athletes may have a high BMI due to muscle mass, not fat. Use BMI as a starting point and consult a professional for a more accurate assessment."}
-          </p>
-        </div>
+        {/* Deep reference content — Phase SEO-GEO-6.5 (§12.19 P1-6):
+            calculator.net-standard deep content, bilingual, standalone per
+            tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
+        <ToolReferenceContent content={BMI_CALCULATOR_CONTENT} />
       </main>
     </div>
   );

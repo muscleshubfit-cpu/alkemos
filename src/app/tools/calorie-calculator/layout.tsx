@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 /**
  * M30 fix: English-first metadata for /tools/calorie-calculator.
@@ -40,5 +41,10 @@ export const metadata: Metadata = {
 };
 
 export default function ToolsLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <ToolSchemaScripts tool="calorie-calculator" lang="en" />
+      {children}
+    </>
+  );
 }
