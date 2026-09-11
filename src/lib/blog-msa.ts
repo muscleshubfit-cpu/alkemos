@@ -201,7 +201,22 @@ export interface MsaValidation {
  *      the original heading list)
  *   7. no NEW banned session-service wording (174 honesty law)
  */
-export function validateMsaConversion(before: string, after: string): MsaValidation {
+export interface MsaValidationOptions {
+  /** CTA-tail link tolerance (default true — the whole-article mode where
+ *  rule 7 legitimately deletes the closing marketing paragraph). CHUNK
+ *  callers disable it EXCEPT for the final chunk: a mid-article chunk's
+ *  own tail is NOT the article's CTA region (the ramadan lesson — its
+ *  /tools links dropped from a middle chunk's tail and the per-chunk
+ *  tolerance leaked them through until the assembled check caught it). */
+  ctaLinkTolerance?: boolean;
+}
+
+export function validateMsaConversion(
+  before: string,
+  after: string,
+  options: MsaValidationOptions = {},
+): MsaValidation {
+  const ctaTolerance = options.ctaLinkTolerance !== false;
   const violations: string[] = [];
 
   const sb = scanArabicDialect(before);
@@ -241,10 +256,11 @@ export function validateMsaConversion(before: string, after: string): MsaValidat
     // it. Everything else must survive byte-exact. The region is
     // paragraph-aligned (the trailing paragraphs inside the last 600 chars)
     // so a body link can never accidentally fall inside it on short texts.
-    const ctaTail = closingCtaRegion(before);
     const lost = linksB.filter((l) => !linksA.includes(l));
     const added = linksA.filter((l) => !linksB.includes(l));
-    const illegitimateLost = lost.filter((l) => !ctaTail.includes(l));
+    const illegitimateLost = ctaTolerance
+      ? lost.filter((l) => !closingCtaRegion(before).includes(l))
+      : lost;
     if (illegitimateLost.length || added.length) {
       violations.push(
         `link URLs not preserved${illegitimateLost.length ? ` — lost: ${illegitimateLost.join(", ")}` : ""}${added.length ? ` — added: ${added.join(", ")}` : ""}`,

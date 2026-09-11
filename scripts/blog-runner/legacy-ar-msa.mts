@@ -135,7 +135,7 @@ function buildPrompt(content: string, retryViolations?: string[], scope: "articl
 ${MARKER_MAIN}
 ${scope === "section" ? "النص النهائي للمقطع كاملًا بصيغة Markdown" : "النص النهائي كاملًا بصيغة Markdown"}
 ${MARKER_NOTES}
-- أهم التغييرات (٢-٥ نقاط)` +
+- أهم التغييرات (٢-٥ نقاط)${scope === "section" ? `\n\nتذكير أخير: حجم المقطع الأصلي ${arWords} كلمة عربية — الناتج بنفس الحجم تمامًا (${Math.round(arWords * 0.8)}-${Math.round(arWords * 1.2)} كلمة).` : ""}` +
     retry +
     `\n\n${scope === "section" ? "المقطع الأصلي" : "المقال الأصلي"} (حوّله كاملًا):\n\n${content}`
   );
@@ -243,6 +243,7 @@ async function convertChunk(
   idx: number,
   total: number,
 ): Promise<string | null> {
+  const isLastChunk = idx === total - 1;
   let violations: string[] | undefined;
   for (let attempt = 1; attempt <= CHUNK_ATTEMPTS; attempt++) {
     if (attempt > 1) await sleep(15_000);
@@ -253,7 +254,10 @@ async function convertChunk(
           tag: `msa-cleanup:${slug}:c${idx}`,
           systemPrompt: AR_MSA_EDITOR_LAW,
           temperature: 0.3,
-          maxTokens: 4_000,
+          // Tight output ceiling (175.9): a section is 150-350 words —
+          // generous headroom without room to EXPAND into a new article
+          // (the live failure: a 121-word section returned as 838 words).
+          maxTokens: 1_800,
           timeoutMs: 150_000,
           maxModels: 2,
         },
@@ -263,7 +267,12 @@ async function convertChunk(
         violations = [/[\u0600-\u06FF]/.test(text) ? "خرق تنسيق الإخراج" : "ناتج غير عربي"];
         continue;
       }
-      const check = validateMsaConversion(chunk, candidate);
+      // STRICT links for every chunk EXCEPT the last (the article's real
+      // CTA tail lives only in the final chunk — a mid-article chunk's
+      // own tail must never absorb link drops: the ramadan lesson).
+      const check = validateMsaConversion(chunk, candidate, {
+        ctaLinkTolerance: isLastChunk,
+      });
       if (check.ok) return candidate;
       violations = check.violations;
     } catch (e) {

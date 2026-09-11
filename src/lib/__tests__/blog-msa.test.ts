@@ -172,6 +172,19 @@ describe("Phase 175 — validateMsaConversion (the pre-write gate)", () => {
     expect(check.ok).toBe(true);
   });
 
+  it("strictLinks mode (mid-article CHUNKS) rejects even CTA-adjacent link drops", () => {
+    // The ramadan lesson: a middle chunk's own tail is NOT the article's
+    // CTA region — its link drops are violations even though the chunk's
+    // tail would have absorbed them in tolerant mode.
+    const before =
+      LEGACY_BEFORE +
+      "\n\n**انضم الآن لبرنامج الكوتشينج في Alkemos** واحصل على [خطة غذائية](/meal-planner) مبنية على هدفك.";
+    const after = MSA_AFTER;
+    const check = validateMsaConversion(before, after, { ctaLinkTolerance: false });
+    expect(check.ok).toBe(false);
+    expect(check.violations.join(" ")).toContain("/meal-planner");
+  });
+
   it("rejects a changed image URL (legacy images are untouchable — owner law)", () => {
     const bad = MSA_AFTER.replace(
       "https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg",
