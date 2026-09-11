@@ -113,6 +113,17 @@ describe("ai meal planner trial (§12.28)", () => {
       expect(ok.value.kcal).toBe(ok.value.meals.reduce((s, m) => s + m.kcal, 0));
       expect(Math.abs(ok.value.kcal - 2000)).toBeLessThanOrEqual(2000 * DEMO_CALORIE_DRIFT);
     }
+    // Common free-model wrappers are tolerated ({plan:{meals}} etc.).
+    expect(validateDemoPlan({ plan: validPlan(2000) }, 2000).ok).toBe(true);
+    expect(validateDemoPlan({ day_plan: validPlan(2000) }, 2000).ok).toBe(true);
+    // Alternate item keys tolerated; totals still recomputed.
+    const alt = {
+      meals: validPlan(2000).meals.map((m) => ({
+        name: m.name,
+        foods: m.items.map((i) => ({ name: i.food, grams: i.grams, calories: i.kcal })),
+      })),
+    };
+    expect(validateDemoPlan(alt, 2000).ok).toBe(true);
     expect(validateDemoPlan(null, 2000).ok).toBe(false);
     expect(validateDemoPlan({ meals: [] }, 2000).ok).toBe(false);
     expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 5, kcal: 20 }] }] }, 2000).ok).toBe(false);

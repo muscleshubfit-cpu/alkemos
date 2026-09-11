@@ -130,36 +130,53 @@ export type DemoPlanVerdict =
  * STRICT response validator — a drifted or hallucinated payload is
  * REJECTED (the route answers 422) rather than shown to the visitor.
  * Totals are recomputed server-side from the items; model-provided
- * totals are never trusted.
+ * totals are never trusted. Free-tier models often WRAP the plan object
+ * ({plan:…}, {day_plan:…}) or emit a one-item snack — the extractor
+ * below tolerates the wrappers; the item bounds stay honest.
  */
+function unwrapMeals(raw: unknown): unknown[] | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.meals)) return obj.meals;
+  // Common model wrappers — descend one level.
+  for (const key of ["plan", "day_plan", "dayPlan", "day", "result", "data"]) {
+    const inner = obj[key];
+    if (inner && typeof inner === "object") {
+      const meals = (inner as Record<string, unknown>).meals;
+      if (Array.isArray(meals)) return meals;
+    }
+  }
+  return null;
+}
+
 export function validateDemoPlan(
   raw: unknown,
   targetCalories: number,
 ): DemoPlanVerdict {
-  const obj = raw as { meals?: unknown } | null;
-  if (!obj || typeof obj !== "object" || !Array.isArray(obj.meals)) {
+  const meals = unwrapMeals(raw);
+  if (!meals) {
     return { ok: false, error: "model returned no meals array" };
   }
-  const meals = obj.meals;
   if (meals.length < 3 || meals.length > 5) {
     return { ok: false, error: "plan must carry 3 to 5 meals" };
   }
   const out: DemoMeal[] = [];
   for (const m of meals) {
-    const meal = m as { name?: unknown; items?: unknown };
+    const meal = m as { name?: unknown; items?: unknown; foods?: unknown };
     const name = typeof meal.name === "string" ? meal.name.trim() : "";
     if (!name || name.length > 60) {
       return { ok: false, error: "every meal needs a name (≤60 chars)" };
     }
-    if (!Array.isArray(meal.items) || meal.items.length < 2 || meal.items.length > 6) {
-      return { ok: false, error: `meal "${name}" must carry 2 to 6 items` };
+    const rawItems = Array.isArray(meal.items) ? meal.items : Array.isArray(meal.foods) ? meal.foods : null;
+    if (!rawItems || rawItems.length < 1 || rawItems.length > 8) {
+      return { ok: false, error: `meal "${name}" must carry 1 to 8 items` };
     }
     const items: DemoMealItem[] = [];
-    for (const it of meal.items) {
-      const item = it as { food?: unknown; grams?: unknown; kcal?: unknown };
-      const food = typeof item.food === "string" ? item.food.trim() : "";
+    for (const it of rawItems) {
+      const item = it as { food?: unknown; name?: unknown; grams?: unknown; kcal?: unknown; calories?: unknown };
+      const food = typeof item.food === "string" ? item.food.trim() : typeof item.name === "string" ? item.name.trim() : "";
       const grams = Number(item.grams);
-      const kcal = Number(item.kcal);
+      const kcal = Number(item.kcal ?? item.calories);
       if (!food || food.length > 60) {
         return { ok: false, error: `item in "${name}" has no valid food name` };
       }

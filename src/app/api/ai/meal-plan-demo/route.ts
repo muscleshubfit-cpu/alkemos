@@ -6,6 +6,7 @@ import {
   DEMO_RATE_LIMIT,
   validateDemoPlan,
   validateDemoRequest,
+  type DemoPlanVerdict,
 } from "@/lib/ai-meal-planner";
 
 /**
@@ -68,17 +69,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── One synchronous free-chain call (EVO's interactive pattern). ──
+    // ── One synchronous free-chain call (EVO's interactive pattern),
+    // with a single bounded retry when the model misses the JSON shape
+    // (free-tier models drift; the retry stays inside the SAME request
+    // so the visitor's rate-limit slot is spent once). ──
     const prompt = buildDemoPrompt(req);
-    const { text, model } = await callFreeAIFallbackChain(prompt, {
+    const callOpts = {
       maxTokens: 1600,
       temperature: 0.4,
       tag: "meal-demo",
-      timeoutMs: 45_000,
-    });
+      timeoutMs: 28_000,
+      jsonMode: true,
+      systemPrompt:
+        "You are a JSON-only meal-plan generator. Your ENTIRE reply is a single JSON object — no prose, no markdown fences, no commentary.",
+    };
 
-    const parsed = parseJSON<unknown>(text);
-    const plan = validateDemoPlan(parsed, req.calories);
+    let model = "";
+    let plan: DemoPlanVerdict = { ok: false, error: "chain call failed" };
+
+    const first = await callFreeAIFallbackChain(prompt, callOpts).catch(() => null);
+    if (first) {
+      model = first.model;
+      plan = validateDemoPlan(parseJSON<unknown>(first.text), req.calories);
+    }
+    if (!plan.ok) {
+      // Retry #1 — same request, harder nudge. Still inside the rate slot.
+      const second = await callFreeAIFallbackChain(
+        prompt +
+          '\n\nREMINDER: reply with ONE JSON object exactly like {"meals":[{"name":"…","items":[{"food":"…","grams":120,"kcal":180}]}]} — nothing else.',
+        callOpts,
+      ).catch(() => null);
+      if (second) {
+        model = second.model;
+        plan = validateDemoPlan(parseJSON<unknown>(second.text), req.calories);
+      }
+    }
     if (!plan.ok) {
       // Model drift is a retry-able client-visible outcome, not a crash.
       return NextResponse.json(
