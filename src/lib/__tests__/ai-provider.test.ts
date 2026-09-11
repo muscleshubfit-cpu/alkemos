@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   AI_PROVIDERS,
   INTERLEAVED_FAST_CHAIN,
+  INTERLEAVED_STRONGEST_CHAIN,
+  FREE_OPENROUTER_MODELS,
+  callAI,
   getEnvConfig,
   getNvidiaKey,
   getOpenRouterKeys,
@@ -194,5 +197,168 @@ describe("Phase 161 — NVIDIA NIM provider contract", () => {
     it("maskKey shows nvapi prefix + last 4", () => {
       expect(maskKey("nvapi-abcdefgh1234")).toBe("nvap…1234");
     });
+  });
+});
+
+describe("Phase 177 — dead-model purge (14-day live audit, owner order «الجودة القصوى»)", () => {
+  // Measured per-attempt success over 470 GHA runs / 14 days:
+  // gemma-4-31b 0.4% · gemma-4-26b 0% · lightning:free 0% — ~435 burned slots.
+  const DEAD_IDS = [
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3.5-lightning:free",
+  ];
+
+  describe("INTERLEAVED_STRONGEST_CHAIN (now exported for regression guarding)", () => {
+    it("no dead entries survive (0-0.4% live success = dead weight)", () => {
+      for (const entry of INTERLEAVED_STRONGEST_CHAIN) {
+        expect(DEAD_IDS).not.toContain(entry.model);
+      }
+    });
+
+    it("strongest-first law intact — openrouter ultra-550b leads", () => {
+      expect(INTERLEAVED_STRONGEST_CHAIN[0].provider).toBe("openrouter");
+      expect(INTERLEAVED_STRONGEST_CHAIN[0].model).toBe("nvidia/nemotron-3-ultra-550b-a55b:free");
+    });
+
+    it("best live performer sits in slot 2 (groq/gpt-oss-120b, 85.3%)", () => {
+      expect(INTERLEAVED_STRONGEST_CHAIN[1].provider).toBe("groq");
+      expect(INTERLEAVED_STRONGEST_CHAIN[1].model).toBe("openai/gpt-oss-120b");
+    });
+
+    it("all three providers are represented (interleave + rotation inputs)", () => {
+      const providers = new Set(INTERLEAVED_STRONGEST_CHAIN.map((e) => e.provider));
+      expect(providers.has("openrouter")).toBe(true);
+      expect(providers.has("groq")).toBe(true);
+      expect(providers.has("nvidia")).toBe(true);
+    });
+
+    it("no duplicate (provider, model) pairs", () => {
+      const keys = INTERLEAVED_STRONGEST_CHAIN.map((e) => `${e.provider}/${e.model}`);
+      expect(new Set(keys).size).toBe(keys.length);
+    });
+
+    it("every entry names a registered provider and a non-empty model", () => {
+      for (const entry of INTERLEAVED_STRONGEST_CHAIN) {
+        expect(AI_PROVIDERS[entry.provider]).toBeDefined();
+        expect(entry.model.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe("INTERLEAVED_FAST_CHAIN (EVO chat + eval speed tier)", () => {
+    it("no dead entries survive", () => {
+      for (const entry of INTERLEAVED_FAST_CHAIN) {
+        expect(DEAD_IDS).not.toContain(entry.model);
+      }
+    });
+
+    it("gpt-oss-120b outranks lightning-30b-a3b (85.3% vs 33.3% live)", () => {
+      const idx120 = INTERLEAVED_FAST_CHAIN.findIndex((e) => e.model === "openai/gpt-oss-120b");
+      const idxLightning = INTERLEAVED_FAST_CHAIN.findIndex(
+        (e) => e.model === "nvidia/nemotron-3.5-lightning-30b-a3b",
+      );
+      expect(idx120).toBeGreaterThan(-1);
+      expect(idxLightning).toBeGreaterThan(-1);
+      expect(idx120).toBeLessThan(idxLightning);
+    });
+
+    it("speed law intact — gpt-oss-20b (fastest TTFT) still leads", () => {
+      expect(INTERLEAVED_FAST_CHAIN[0].model).toBe("openai/gpt-oss-20b");
+      expect(INTERLEAVED_FAST_CHAIN[0].provider).toBe("groq");
+    });
+  });
+
+  describe("FREE_OPENROUTER_MODELS (shared list — future wiring protection)", () => {
+    it("purged of dead ids so nothing can resurrect them", () => {
+      for (const model of FREE_OPENROUTER_MODELS) {
+        expect(DEAD_IDS).not.toContain(model);
+      }
+    });
+  });
+});
+
+describe("Phase 177 — Groq json-mode 400 guard (35 live json_validate_failed failures)", () => {
+  type Captured = { url?: string; body?: Record<string, unknown> };
+
+  function stubFetch(captured: Captured) {
+    const fake = vi.fn(async (url: string, init?: RequestInit) => {
+      captured.url = url;
+      captured.body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      return {
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: "PONG" } }] }),
+      } as unknown as Response;
+    });
+    vi.stubGlobal("fetch", fake);
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("groq + jsonMode → response_format NOT sent (server-side validation 400s)", async () => {
+    const captured: Captured = {};
+    stubFetch(captured);
+    await callAI(
+      "Reply with JSON",
+      { jsonMode: true, maxTokens: 10 },
+      {
+        provider: "groq",
+        apiKey: "gsk_test_key",
+        model: "openai/gpt-oss-120b",
+        baseUrl: "https://api.groq.com/openai/v1",
+      },
+    );
+    expect(captured.url).toContain("api.groq.com");
+    expect(captured.body?.response_format).toBeUndefined();
+  });
+
+  it("openrouter + jsonMode → response_format json_object IS sent", async () => {
+    const captured: Captured = {};
+    stubFetch(captured);
+    await callAI(
+      "Reply with JSON",
+      { jsonMode: true, maxTokens: 10 },
+      {
+        provider: "openrouter",
+        apiKey: "sk-or-test_key",
+        model: "nvidia/nemotron-3-ultra-550b-a55b:free",
+        baseUrl: "https://openrouter.ai/api/v1",
+      },
+    );
+    expect(captured.body?.response_format).toEqual({ type: "json_object" });
+  });
+
+  it("nvidia + jsonMode → response_format json_object IS sent", async () => {
+    const captured: Captured = {};
+    stubFetch(captured);
+    await callAI(
+      "Reply with JSON",
+      { jsonMode: true, maxTokens: 10 },
+      {
+        provider: "nvidia",
+        apiKey: "nvapi-test_key",
+        model: "nvidia/nemotron-3-super-120b-a12b",
+        baseUrl: "https://integrate.api.nvidia.com/v1",
+      },
+    );
+    expect(captured.body?.response_format).toEqual({ type: "json_object" });
+  });
+
+  it("groq WITHOUT jsonMode → no response_format either (unchanged path)", async () => {
+    const captured: Captured = {};
+    stubFetch(captured);
+    await callAI(
+      "Reply plainly",
+      { maxTokens: 10 },
+      {
+        provider: "groq",
+        apiKey: "gsk_test_key",
+        model: "openai/gpt-oss-120b",
+        baseUrl: "https://api.groq.com/openai/v1",
+      },
+    );
+    expect(captured.body?.response_format).toBeUndefined();
   });
 });

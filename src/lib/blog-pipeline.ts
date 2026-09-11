@@ -187,9 +187,14 @@ export async function pickTopicIndex(
     const { text } = await callFreeAIFallbackChain(prompt, {
       tag: `blog:pick-topic-${lang}`,
       temperature: 0.4,
+      // PHASE 177 (2026-09-11 audit): 40s killed the strongest model's CoT —
+      // 220 aborts in 14d lived exactly here; the ultra-550b regularly needs
+      // 30-90s of thinking before its tiny 120-token answer. GHA budget
+      // 360s/3 = 120s allows 90s comfortably; the deterministic fallback pick
+      // still guards the worst case.
       maxTokens: 120,
       jsonMode: true,
-      timeoutMs: 40_000,
+      timeoutMs: 90_000,
       maxModels: 3,
     });
     const parsed = parseJSON<{ index?: number }>(text);
@@ -298,7 +303,10 @@ Create the detailed article blueprint. Return STRICT JSON only:
     // through.
     maxTokens: 4_000,
     jsonMode: false,
-    timeoutMs: 70_000,
+    // PHASE 177 (2026-09-11 audit): 70s → 110s — the ultra-550b outline
+    // attempts aborted at 70s repeatedly (220 timeout/abort class across
+    // the window); 360s GHA budget / 2 models = 180s leaves headroom.
+    timeoutMs: 110_000,
     maxModels: 2,
   });
   const parsed = parseJSON<{
@@ -814,15 +822,15 @@ Return STRICT JSON only:
     temperature: 0.4,
     // Review embeds the FULL draft → big payload runs openrouter-only via
     // the chain guard. DEEP LADDER FIX (2026-08-27 AR dispatch forensics):
-    // with maxModels=2 the review died when BOTH leading models hiccuped
-    // (ultra 150s abort + gemma upstream 429 shared pool) WITHOUT reaching
-    // lightning/super which were healthy. maxModels=5 walks the full
-    // openrouter ladder — the chain self-clamps eff windows so Vercel stays
-    // Hobby-safe (52s) while native GHA (360s budget) gets real depth.
+    // with maxModels=2 the review died when BOTH leading models hiccuped.
+    // PHASE 177 (2026-09-11 audit): the ladder's gemma/lightning:free steps
+    // are now PURGED (0-0.4% live success) so every walked entry is healthy
+    // — 4 models × 90s (360s GHA budget) gives the strongest entries real
+    // depth instead of 5 × 72s with 2 dead steps. Vercel self-clamps to 52s.
     maxTokens: 6_400,
     jsonMode: false,
     timeoutMs: 110_000,
-    maxModels: 5,
+    maxModels: 4,
   });
   const parsed = parseJSON<{
     articleMd?: string;

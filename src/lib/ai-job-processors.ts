@@ -39,9 +39,15 @@ import { sanitizeImageQuery } from "@/lib/image-safety";
 import { loadEvoNutritionKnowledge } from "@/lib/evo-nutrition-knowledge.server";
 
 /* Shared quality knobs for heavy jobs (GHA sets AI_CHAIN_TOTAL_BUDGET_MS
- * = 180000 — three tries × generous timeouts, strongest models first). */
-const HEAVY = { timeoutMs: 70_000 as const, maxModels: 3 as const };
-const LIGHT = { timeoutMs: 45_000 as const, maxModels: 2 as const };
+ * = 480000 in process-ai-jobs.yml — generous per-model windows, strongest
+ * models first).
+ * PHASE 177 (2026-09-11, 14-day audit «الجودة القصوى»): HEAVY 70s→120s and
+ * LIGHT 45s→70s — the old caller caps were the BINDING constraint (budget
+ * ÷ maxModels allowed 160s/240s per model), and the strongest entries
+ * (ultra-550b class) aborted at 70s 220× in the window. 120s × 3 = 360s
+ * and 70s × 2 = 140s both stay well inside the 480s runner budget. */
+const HEAVY = { timeoutMs: 120_000 as const, maxModels: 3 as const };
+const LIGHT = { timeoutMs: 70_000 as const, maxModels: 2 as const };
 
 /* ─────────────────── Slug + image enrichment helpers ───────────────────
  *
@@ -850,9 +856,11 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
       // 36s per model and EVERY model aborted before finishing a
       // 1100-1400-word JSON article. New contract with the workflow budget
       // 480000: timeoutMs 120s × maxModels 4 = exactly 480s — per-model
-      // time in the proven full-article class (blog content runs 150s) and
-      // still 4 independent rate buckets (2 nemotron + 2 gemma) for 429
-      // resilience. Small/light jobs keep HEAVY/LIGHT unchanged.
+      // time in the proven full-article class (blog content runs 150s).
+      // PHASE 177 (2026-09-11 audit): the ladder's gemma steps are purged,
+      // so the 4 walked entries are now all live-verified (nemotron ultra +
+      // super × 2 providers) instead of 2 nemotron + 2 dead gemma buckets.
+      // Small/light jobs keep the (Phase-177 raised) HEAVY/LIGHT knobs.
       timeoutMs: 120_000 as const,
       maxModels: 4 as const,
     },

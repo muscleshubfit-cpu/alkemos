@@ -3212,3 +3212,35 @@ Stage Summary:
 - **الخلاصة للمالك:** Groq هو الأصلب (85%) يليه NVIDIA (70%) ثم OpenRouter (30% — تُحرق محاولاته على موديلات ميتة)؛ سلسلة التراجع تعمل لكنها تسير بخطوات ميتة (gemma:free وlightning:free) قبل الوصول للمزوّد الصالح؛ خط مدونة العربية يستنزف نصف الفشل الكلي؛ إضافة NVIDIA حسّن الاتجاه اليومي بشكل واضح
 - **مرشحات تحسين (لم تُنفذ — تنتظر أمر المالك):** ① خفض ترتيب أو إزالة gemma:free وlightning:free من السلسلة (توفير ~430 محاولة محروقة/14يوم) ② رفع حد timeout لموديلات 550b على GHA (220 abort) ③ مراجعة استبعاد Groq من الاستدعاءات الثقيلة (332 استبعادًا) ④ معالجة jsonMode-400 على Groq (35)
 - **لا تغييرات كود** — تدقيق قراءة فقط + هذه المرآة
+
+---
+
+## Phase 177 — Provider chain quality purge (owner order «الجودة القصوى»)
+
+**Date:** 2026-09-11 · **Owner order:** «اهم شىء الجوده القصوى للمحتوى (المقالات، الخطط، ادوات الذكاء الاصطناعي، اجابات المساعد الذكي، وكل النتائج) يجب تنفيذ الحلول على هذا الأساس» — follows the same-day read-only provider audit (470 GHA runs / 14d / 1655 attempts: Groq 84.6% · NVIDIA 69.8% · OpenRouter 30.0%)
+
+### The changes (smallest change, maximum content quality — NO engine/architecture change)
+1. **`src/lib/ai-provider.ts` — dead-model purge:**
+   - `INTERLEAVED_STRONGEST_CHAIN` 11→8 entries: removed `google/gemma-4-31b-it:free` (1/263 live = 0.4%, permanent upstream shared-pool 429), `google/gemma-4-26b-a4b-it:free` (0/146), `nvidia/nemotron-3.5-lightning:free` (0/26 — OpenRouter Nvidia backend 400 «DEGRADED function cannot be invoked» + timeouts). ~435 burned chain slots/14d. Chain now exported for regression guarding.
+   - `INTERLEAVED_FAST_CHAIN` (EVO chat + eval speed tier) 6→4: purged the same 2 dead OpenRouter steps; **promoted groq/gpt-oss-120b (85.3% live, LPU-fast) above nvidia/lightning-30b-a3b (33.3%)** — speed law kept (gpt-oss-20b still leads); added `openrouter/nemotron-3-super-120b-a12b:free` as provider-diversity tail.
+   - `FREE_OPENROUTER_MODELS` 5→2 (live-verified survivors only — no future wiring can resurrect a dead id).
+   - **GROQ JSON-MODE 400 GUARD in `callAI`:** response_format json_object is now sent for OpenRouter + NVIDIA only; Groq validates JSON server-side and hard-fails 400 json_validate_failed (35 live failures/14d) — Groq relies on prompt instructions + the 161.5-hardened parseJSON (same pattern P1 already uses for its truncation-side failures).
+2. **`src/lib/blog-pipeline.ts` — caller timeouts (the audit showed the GHA budgets 360-480s were NOT the constraint; the caller caps were):** P0 pick-topic 40s→90s (the strongest model's CoT needs 30-90s before its tiny 120-token answer — 220 aborts lived here) · P1 outline 70s→110s · P4 review maxModels 5→4 (with dead steps purged, 4 walked entries are ALL live-verified; 4×90s instead of 5×72s with 2 dead steps). P2 content 150s×2 unchanged (already the proven class).
+3. **`src/lib/ai-job-processors.ts`:** HEAVY 70s→120s (×3=360s ≤ 480s runner budget — old cap was binding at 70s while budget allowed 160s/model) · LIGHT 45s→70s. ARTICLE special case (120s×4=480s) unchanged.
+4. **Tests (+15, `ai-provider.test.ts`):** dead-id purge pinned on all three lists · strongest-first law (ultra-550b leads, gpt-oss-120b slot 2) · three providers represented · no duplicate pairs · fast chain: 120b outranks lightning-30b, speed law intact · Groq json-mode guard ×4 (fetch-stub: groq+jsonMode→NO response_format; openrouter/nvidia+jsonMode→json_object; groq w/o jsonMode→none).
+
+### Gates (9/9 local)
+tsc 0 · eslint 0/0 · vitest **680/680** (665 baseline + 15 new) · next build exit 0 · docs_audit (phase=177) ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+
+### Deliberately NOT changed (documented boundaries)
+- Provider count/identities (owner 3-provider law: OpenRouter + Groq + NVIDIA NIM only) — untouched.
+- Fallback/rotation/quota policy, lead rotation, dual-key pool, empty-retry, Groq big-payload guard (>7.2k est tokens → 332 skips/14d — kept: the 8k TPM free-tier ceiling is real; heavy calls now get deeper windows on the strongest models instead).
+- Workflows (budgets 360s/480s were already sufficient — the caller caps were the real constraint).
+- Vercel path (52s Hobby clamp untouched — all timeouts only matter on the GHA runner where the AI actually runs).
+- EVO chat streaming contract, cache, crisis path — untouched; only its fast chain entries got healthier.
+
+### Expected live effect (tomorrow's GHA runs)
+- Zero chain steps burned on dead models (~435/14d wasted slots → 0) → higher chain success rate (was 76.1% per 749/235).
+- Strongest model (ultra-550b) gets real windows on P0/P1/HEAVY calls → fewer truncation-aborts, deeper articles/answers.
+- Groq json_validate_failed 400s (35/14d) → 0 (prompt-instructed JSON + tolerant parser instead).
+- The AR pipeline (48% of all total failures: content-ar 57 + review-ar 45 + pick-topic-ar 12) benefits from all three fixes directly.

@@ -271,9 +271,15 @@ export async function callAI(
     max_tokens: options.maxTokens ?? 4096,
   };
 
-  // All three allowed providers (OpenRouter + Groq + NVIDIA NIM) support
-  // response_format json_object mode.
-  if (options.jsonMode) {
+  // GROQ JSON-MODE 400 GUARD (PHASE 177, 2026-09-11 — 14-day audit: 35 live
+  // failures `code:"json_validate_failed"`): Groq validates json_object
+  // output SERVER-SIDE and hard-rejects with HTTP 400 when a reasoning model
+  // wraps output in prose or burns CoT. OpenRouter + NVIDIA NIM accept the
+  // flag without server-side validation, so only they keep strict mode;
+  // Groq relies on prompt JSON instructions + the 161.5-hardened parseJSON
+  // (fenced/prose/truncation-tolerant extractor). Same pattern P1 already
+  // uses (jsonMode:false) for its truncation-side failures.
+  if (options.jsonMode && cfg.provider !== "groq") {
     body.response_format = { type: "json_object" };
   }
 
@@ -625,20 +631,19 @@ function repairTruncatedJSON(s: string): string {
 
 /**
  * Free OpenRouter models available to both execution paths.
- * Order: LARGEST/STRONGEST first. Verified on OpenRouter as of Aug 2026.
+ * Order: LARGEST/STRONGEST first.
  *
- *   - nvidia/nemotron-3-ultra-550b-a55b : 550B total / 55B active, 1M ctx → STRONGEST
- *   - google/gemma-4-31b-it             : 31B, 262K ctx     → excellent Arabic + creative writing
- *   - google/gemma-4-26b-a4b-it         : 26B MoE, 262K ctx → balanced (good Arabic, faster)
- *   - nvidia/nemotron-3-super-120b-a12b : 120B / 12B active  → MIDDLE (balanced)
- *   - nvidia/nemotron-3.5-lightning     : compact variant, 1M ctx → FASTEST
+ * PHASE 177 (2026-09-11 audit): the two gemma ids (0.4% / 0% live success
+ * — permanently 429'd upstream shared pool) and nemotron-3.5-lightning:free
+ * (0% — «DEGRADED» 400s) were REMOVED so no future wiring can resurrect a
+ * dead id from this list. Live-verified survivors only.
+ *
+ *   - nvidia/nemotron-3-ultra-550b-a55b : 550B total / 55B active, 1M ctx → STRONGEST (48% live)
+ *   - nvidia/nemotron-3-super-120b-a12b : 120B / 12B active  → MIDDLE (48% live)
  */
 export const FREE_OPENROUTER_MODELS = [
   "nvidia/nemotron-3-ultra-550b-a55b:free",
-  "google/gemma-4-31b-it:free",
-  "google/gemma-4-26b-a4b-it:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
-  "nvidia/nemotron-3.5-lightning:free",
 ];
 
 /**
@@ -754,18 +759,30 @@ const DEFAULT_CHAIN_MODELS = 2;
 /**
  * Interleaved strongest-free-models chain.
  *
+ * PHASE 177 (2026-09-11, 14-day live audit of 470 GHA runs / 1655 chain
+ * attempts — owner order «الجودة القصوى»): three entries were PURGED as
+ * dead weight. Their measured per-attempt success over the window:
+ *   - google/gemma-4-31b-it:free        1/263  (0.4%) — Google AI Studio
+ *     upstream shared pool permanently 429-rate-limited
+ *   - google/gemma-4-26b-a4b-it:free    0/146  (0.0%) — same dead pool
+ *   - nvidia/nemotron-3.5-lightning:free 0/26  (0.0%) — OpenRouter's Nvidia
+ *     backend rejects it with 400 «DEGRADED function cannot be invoked»
+ *     plus per-attempt timeouts
+ * They burned ~435 chain slots in 14 days BEFORE the ladder ever reached a
+ * healthy provider. Purging them = every fallback step is now live-verified
+ * reachable (Groq 84.6% · NVIDIA NIM 69.8% · OpenRouter strongest-entry
+ * 48.1%). Catalog ids retire silently (lesson 161.2) — re-audit by LIVE
+ * CALL data before ever re-adding one.
+ *
  * Order (strongest → weakest, interleaved):
- *   1. OpenRouter: nvidia/nemotron-3-ultra-550b (550B — strongest overall)
- *   2. Groq: openai/gpt-oss-120b (120B — Groq's strongest)
- *   3. NVIDIA: nvidia/nemotron-3-super-120b-a12b (120B MoE/12B active — NIM flagship, strong Arabic — live-verified 6s)
- *   4. OpenRouter: google/gemma-4-31b-it (31B — excellent Arabic)
- *   5. Groq: openai/gpt-oss-20b (20B — fast, good quality)
- *   6. NVIDIA: nvidia/nemotron-3-ultra-550b-a55b (550B/55B active — strongest NIM, latency-tolerant slot)
- *   7. OpenRouter: google/gemma-4-26b-a4b-it (26B — balanced)
- *   8. Groq: qwen/qwen3.6-27b (27B — good Arabic)
- *   9. OpenRouter: nvidia/nemotron-3-super-120b (120B — balanced)
- *  10. OpenRouter: nvidia/nemotron-3.5-lightning (fastest)
- *  11. Groq: compound-beta (compound system)
+ *   1. OpenRouter: nvidia/nemotron-3-ultra-550b-a55b (550B — strongest overall; 48% live)
+ *   2. Groq: openai/gpt-oss-120b (120B — best live success 85.3%)
+ *   3. NVIDIA: nvidia/nemotron-3-super-120b-a12b (120B MoE/12B active — NIM flagship, strong Arabic — 77.8% live)
+ *   4. Groq: openai/gpt-oss-20b (20B — fast, good quality — 82.6% live)
+ *   5. NVIDIA: nvidia/nemotron-3-ultra-550b-a55b (550B/55B active — strongest NIM, latency-tolerant slot)
+ *   6. Groq: qwen/qwen3.6-27b (27B — good Arabic)
+ *   7. OpenRouter: nvidia/nemotron-3-super-120b (120B — balanced; 47.9% live)
+ *   8. Groq: compound-beta (compound system)
  *
  * Groq free tier has an 8000 TPM limit; interleave spreads load across all
  * three providers instead of exhausting one before touching the next.
@@ -776,17 +793,14 @@ const DEFAULT_CHAIN_MODELS = 2;
  * meta/llama-3.1-8b-instruct) went END-OF-LIFE 2026-08-26 (HTTP 410 Gone) —
  * catalog ids can retire at any time; verify by LIVE CALL, never by name.
  */
-const INTERLEAVED_STRONGEST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
+export const INTERLEAVED_STRONGEST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
   { provider: "openrouter", model: "nvidia/nemotron-3-ultra-550b-a55b:free" },
   { provider: "groq", model: "openai/gpt-oss-120b" },
   { provider: "nvidia", model: "nvidia/nemotron-3-super-120b-a12b" },
-  { provider: "openrouter", model: "google/gemma-4-31b-it:free" },
   { provider: "groq", model: "openai/gpt-oss-20b" },
   { provider: "nvidia", model: "nvidia/nemotron-3-ultra-550b-a55b" },
-  { provider: "openrouter", model: "google/gemma-4-26b-a4b-it:free" },
   { provider: "groq", model: "qwen/qwen3.6-27b" },
   { provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" },
-  { provider: "openrouter", model: "nvidia/nemotron-3.5-lightning:free" },
   { provider: "groq", model: "compound-beta" },
 ];
 
@@ -801,14 +815,22 @@ let orKeyCursor = 0;
  * (same ids as the strong chain — no untested endpoints), starting from
  * the smallest/lowest-latency entries. Interactive streaming paths opt in
  * explicitly via options.chain="fast"; default behavior is unchanged.
+ *
+ * PHASE 177 (2026-09-11 audit): purged the two dead entries
+ * (openrouter/nemotron-3.5-lightning:free 0/26 «DEGRADED» 400s ·
+ * openrouter/google/gemma-4-26b-a4b-it:free 0/146 upstream 429s) and
+ * promoted groq/gpt-oss-120b (85.3% live success — the platform's best)
+ * ABOVE nvidia/lightning-30b-a3b (33.3% live): gpt-oss-120b rides Groq's
+ * LPU so its TTFT (~1-2s) still honors the speed law while its accuracy
+ * is strictly better. lightning-30b-a3b keeps a slot as the Groq-quota
+ * relief valve. Small chat payloads fit Groq's 8k TPM easily, so two
+ * consecutive Groq entries up front are safe (a 429 falls through fast).
  */
 export const INTERLEAVED_FAST_CHAIN: Array<{ provider: AIProvider; model: string }> = [
-  { provider: "groq", model: "openai/gpt-oss-20b" }, // smallest — usually <1s TTFT
-  { provider: "nvidia", model: "nvidia/nemotron-3.5-lightning-30b-a3b" }, // NIM fast (3B active — live-verified 2026-09-09)
-  { provider: "groq", model: "openai/gpt-oss-120b" },
-  { provider: "openrouter", model: "nvidia/nemotron-3.5-lightning:free" },
-  { provider: "groq", model: "qwen/qwen3.6-27b" },
-  { provider: "openrouter", model: "google/gemma-4-26b-a4b-it:free" },
+  { provider: "groq", model: "openai/gpt-oss-20b" }, // smallest — usually <1s TTFT (82.6% live)
+  { provider: "groq", model: "openai/gpt-oss-120b" }, // quality slot, still LPU-fast (85.3% live)
+  { provider: "nvidia", model: "nvidia/nemotron-3.5-lightning-30b-a3b" }, // NIM fast (3B active — 33.3% live)
+  { provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" }, // provider diversity tail (47.9% live)
 ];
 
 export async function callFreeAIFallbackChain(
