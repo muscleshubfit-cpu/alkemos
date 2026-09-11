@@ -388,14 +388,14 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "The site's four diet systems (balanced, high-protein, keto, vegetarian)",
         "Optional preferences respected in the prompt",
         "Strict shape and calorie-closure validation on every plan",
-        "Free trial for everyone: 3 generations per day, no account",
+        "Free trial for everyone: 5 generations per day, no account",
       ],
       ar: [
         "توليد يوم كامل بالغرامات بضغطة واحدة",
         "أنظمة الموقع الأربعة (متوازن، عالي البروتين، كيتو، نباتي)",
         "ملاحظات اختيارية تُحترم في التوليد",
         "تحقق صارم من الشكل وإغلاق السعرات لكل خطة",
-        "تجربة مجانية للجميع: 3 توليدات يومياً بلا حساب",
+        "تجربة مجانية للجميع: 5 توليدات يومياً بلا حساب",
       ],
     },
     crumbs: {

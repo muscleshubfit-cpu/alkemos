@@ -176,8 +176,8 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(page).toContain("useI18n");
     expect(page).toContain("meal-plan-demo");
     expect(page).toContain("ReviewInviteCard");
-    expect(page).toContain("3 توليدات يومياً");
-    expect(page).toContain("3 generations per day");
+    expect(page).toContain("5 توليدات يومياً");
+    expect(page).toContain("5 generations per day");
     const en = readFileSync(LAYOUT_EN, "utf8");
     expect(en).toContain('canonical: "https://alkemos.com/ai-meal-planner"');
     expect(en).toContain("ar: \"https://alkemos.com/ar/ai-meal-planner\"");
@@ -248,7 +248,7 @@ describe("ai meal planner trial (§12.28)", () => {
 
   it("HONEST COPY: the trial states its limits (3/day, ephemeral, memberships keep the rest)", () => {
     const page = readFileSync(PAGE_FILE, "utf8");
-    expect(page).toContain("3 generations per day");
+    expect(page).toContain("5 generations per day");
     expect(page).toContain("not saved");
     expect(page).toContain("membership paths");
     expect(page).toContain("مسارات العضويات");

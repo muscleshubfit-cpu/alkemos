@@ -85,7 +85,7 @@ export default function AiMealPlannerPage() {
           </p>
           <div className="seal-chip mt-4 inline-flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-[var(--muted-2)]" aria-hidden="true" />
-            {isAr ? "تجربة مجانية: 3 توليدات يومياً لكل زائر" : "Free trial: 3 generations per day per visitor"}
+            {isAr ? "تجربة مجانية: 5 توليدات يومياً لكل زائر" : "Free trial: 5 generations per day per visitor"}
           </div>
         </div>
 

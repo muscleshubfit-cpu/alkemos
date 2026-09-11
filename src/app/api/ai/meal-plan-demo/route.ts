@@ -83,7 +83,10 @@ export async function POST(request: NextRequest) {
       maxTokens: 3000,
       temperature: 0.4,
       tag: "meal-demo",
-      timeoutMs: 28_000,
+      // TWO attempts (first + retry) must fit the 60s function budget —
+      // 20s per chain call leaves ~20s for rate limiting + parsing + I/O
+      // (the 504 live incident: 2×28s overshot maxDuration).
+      timeoutMs: 20_000,
       jsonMode: true,
       systemPrompt:
         "You are a JSON-only meal-plan generator. Your ENTIRE reply is a single JSON object — no prose, no reasoning, no step-by-step calculation, no markdown fences, no commentary. Output the JSON immediately.",
