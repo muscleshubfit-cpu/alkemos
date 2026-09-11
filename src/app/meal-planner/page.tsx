@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ShareButtons } from "@/components/ShareButtons";
+import { ReviewInviteCard } from "@/components/ReviewInviteCard";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import {
   Plus,
@@ -461,6 +462,9 @@ export default function MealPlannerPage() {
             }
           />
         </div>
+
+        {/* Review invite (SEO-GEO-6.3 §12.22) — after-plan-generation, dismissible, compliant */}
+        <ReviewInviteCard />
 
         {/* AdSense */}
         <AdSenseAd format="auto" />

@@ -9,6 +9,7 @@ import { OtherTools } from "@/components/OtherTools";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { SaveResultButton } from "@/components/SaveResultButton";
 import { ShareButtons } from "@/components/ShareButtons";
+import { ReviewInviteCard } from "@/components/ReviewInviteCard";
 
 type Gender = "male" | "female";
 type Activity = "sedentary" | "light" | "moderate" | "active" | "very_active";
@@ -349,6 +350,9 @@ export default function CalorieCalculatorPage() {
                 }
               />
             </div>
+
+            {/* Review invite (SEO-GEO-6.3 §12.22) — after-results, dismissible, compliant */}
+            <ReviewInviteCard />
 
             {/* AdSense */}
             <AdSenseAd format="auto" />

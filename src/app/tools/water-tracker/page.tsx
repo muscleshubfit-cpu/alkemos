@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ShareButtons } from "@/components/ShareButtons";
+import { ReviewInviteCard } from "@/components/ReviewInviteCard";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
 import { Bookmark, Download, Loader2, Check, Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -523,6 +524,9 @@ export default function WaterTrackerPage() {
             }
           />
         </div>
+
+        {/* Review invite (SEO-GEO-6.3 §12.22) — after-results, dismissible, compliant */}
+        <ReviewInviteCard />
 
         {/* AdSense */}
         <AdSenseAd format="auto" />
