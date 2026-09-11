@@ -41,6 +41,10 @@ on:
         description: "APPLY manual MSA patches from scripts/legacy-msa-patches (validated by the same gate before any write)"
         type: boolean
         default: false
+      faq_hygiene:
+        description: "FAQ_HYGIENE (Phase 176) — deterministic faq_json repair pass: strip «السؤال؟» labels + drop off-topic questions vs title/focus + drop contaminated answers. No AI, never touches content."
+        type: boolean
+        default: false
 
 concurrency:
   group: legacy-ar-msa
@@ -92,6 +96,7 @@ jobs:
           SLUGS: ${{ inputs.slugs }}
           CHUNKED: ${{ inputs.chunked && '1' || '0' }}
           PATCH_DIR: ${{ inputs.apply_patches && 'scripts/legacy-msa-patches' || '' }}
+          FAQ_HYGIENE: ${{ inputs.faq_hygiene && '1' || '0' }}
 
       - name: Summary
         if: always()
