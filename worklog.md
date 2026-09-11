@@ -3264,3 +3264,14 @@ tsc 0 · eslint 0/0 · vitest **697/697** · next build exit 0 (full 102-page ro
 
 ### Remaining from P0
 Item 1 — unblocking the 9 AI crawlers in the Cloudflare-managed robots.txt section (dashboard/API change outside the repo) — being executed in the same session via Cloudflare API; will be documented here with its result.
+
+### Post-deploy live verification (2026-09-12, production build-info=7a44527)
+- `/ar/rss.xml` item links → `/ar/blog/*` (was EN `/blog/*`) ✓ · EN `/rss.xml` unchanged ✓
+- `<title>` word-boundary: "…for Strength vs" (was mid-word "Hypertrop") ✓
+- hreflang live: paired article emits en+ar+x-default→EN; unpaired emits self+x-default ✓ — `llms-full.txt`'s "hreflang on every page" claim is now TRUE for the blog
+- AggregateRating gone from `/evo` + `/coaching` schemas ✓
+- Doubled-brand article resolved: stored suffix stripped + `ar/layout.tsx` template supplies exactly ONE "— Alkemos" ✓
+- CI: 3/3 workflows green on both c8bb41b and 7a44527 · Vercel production deployment READY/PROMOTED
+
+### P0-1 investigation result (Cloudflare API, same session)
+`GET /zones/{id}/ai-audit/robots` (AI Audit API) confirms the managed rules live; **no public write endpoint exists** for AI Crawl Control per-crawler actions / Managed robots.txt (dashboard-only per Cloudflare docs). `http_request_firewall_custom` phase is EMPTY — the block is advisory-only via robots.txt; pages already return HTTP 200 for GPTBot/ClaudeBot UAs (verified live). Owner's 2-minute dashboard procedure + verification command documented in §12.20.

@@ -1012,7 +1012,7 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **البوابات (محلياً قبل الدفع):** tsc 0 · eslint 0/0 · vitest **697/697** · next build exit 0 · docs_audit ✓ · docs_parity ✓.
 
-**المتبقي من P0:** البند 1 (فك حظر زواحف AI في Cloudflare) — تغيير لوحة خارج الريبو يجري تنفيذه عبر API بنفس الجلسة، وتوثيقه هنا لاحقاً بنتيجته.
+**المتبقي من P0 — البند 1 (فك حظر زواحف AI):** تحقيق API مكتمل بنفس الجلسة: قراءة `GET /zones/{id}/ai-audit/robots` تنجح وتؤكد القواعد المُدارة حية، لكن **لا نقطة كتابة عامة** للميزة (AI Crawl Control = لوحة فقط وفق توثيق Cloudflare الرسمي) · لا قاعدة WAF مخصصة موجودة أصلاً (طور `http_request_firewall_custom` فارغ) — الحظر **استشاري عبر robots.txt فقط** والصفحات نفسها ترجع 200 لزواحف GPTBot/ClaudeBot (متحقق حياً). **إجراء المالك المطلوب (دقيقتان في لوحة Cloudflare):** المنطقة alkemos.com → Security → AI Crawl Control → تبويب Crawlers → للزواحف التسعة (GPTBot · ClaudeBot · CCBot · Google-Extended · Amazonbot · Applebot-Extended · Bytespider · meta-externalagent · CloudflareBrowserRenderingCrawler) اختر **Allow** من عمود Actions — أو تبويب Settings/Signals → عطّل **Managed robots.txt** بالكامل (يزيل القسم المُدار وسطر Content-Signal) · **التحقق بعد التنفيذ:** `curl -s https://alkemos.com/robots.txt | grep -c 'Disallow: /$'` يجب أن يرجع 0 (تبقى فقط قواعد المسارات الخاصة الخاصة بالمستودع).
 
 ## 13. الملاحق (Appendices)
 
