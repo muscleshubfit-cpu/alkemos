@@ -8,6 +8,7 @@ import {
   DEMO_RATE_LIMIT,
   buildDemoPrompt,
   demoSystemOptions,
+  parseDemoPlanText,
   validateDemoPlan,
   validateDemoRequest,
 } from "@/lib/ai-meal-planner";
@@ -131,6 +132,24 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 100, kcal: "lots" }] }] }, 2000).ok).toBe(false);
     // Calorie drift beyond ±20% of the target → reject, never display.
     expect(validateDemoPlan(validPlan(2000), 4000).ok).toBe(false);
+  });
+
+  it("REASONING SALVAGE: chain-of-thought text before the JSON still parses", () => {
+    // Live-diagnosed free-model behavior (§12.28): reasoning arithmetic
+    // precedes the plan JSON — the salvage parser recovers the plan from
+    // the LAST {"meals"…} start instead of failing the whole reply.
+    const planJson = JSON.stringify(validPlan(2000));
+    const noisy =
+      "We need 45% protein of 2000 kcal = 900 kcal {macro math}. Let's compute.\n" +
+      "Total grams: protein 225 g, carbs 175 g, fat 44 g.\n\n" +
+      planJson;
+    const salvaged = parseDemoPlanText(noisy, 2000);
+    expect(salvaged.ok).toBe(true);
+    if (salvaged.ok) expect(salvaged.value.kcal).toBe(2000);
+    // A clean reply parses directly (no salvage needed).
+    expect(parseDemoPlanText(planJson, 2000).ok).toBe(true);
+    // Genuinely meal-less text stays rejected.
+    expect(parseDemoPlanText("no json here at all", 2000).ok).toBe(false);
   });
 
   it("COST + ISOLATION: the route rate-limits by IP before any provider call, and touches no quota", () => {

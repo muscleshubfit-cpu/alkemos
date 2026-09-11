@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callFreeAIFallbackChain, parseJSON } from "@/lib/ai-provider";
+import { callFreeAIFallbackChain } from "@/lib/ai-provider";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import {
   buildDemoPrompt,
   DEMO_RATE_LIMIT,
-  validateDemoPlan,
+  parseDemoPlanText,
   validateDemoRequest,
   type DemoPlanVerdict,
 } from "@/lib/ai-meal-planner";
@@ -74,14 +74,19 @@ export async function POST(request: NextRequest) {
     // (free-tier models drift; the retry stays inside the SAME request
     // so the visitor's rate-limit slot is spent once). ──
     const prompt = buildDemoPrompt(req);
+    // Live diagnosis (§12.28): reasoning-capable free models emit their
+    // chain-of-thought arithmetic as CONTENT before the JSON — 1600 max
+    // tokens truncated mid-reasoning and the JSON never arrived. The
+    // budget now covers reasoning + plan, and the prompt forbids written
+    // reasoning outright.
     const callOpts = {
-      maxTokens: 1600,
+      maxTokens: 3000,
       temperature: 0.4,
       tag: "meal-demo",
       timeoutMs: 28_000,
       jsonMode: true,
       systemPrompt:
-        "You are a JSON-only meal-plan generator. Your ENTIRE reply is a single JSON object — no prose, no markdown fences, no commentary.",
+        "You are a JSON-only meal-plan generator. Your ENTIRE reply is a single JSON object — no prose, no reasoning, no step-by-step calculation, no markdown fences, no commentary. Output the JSON immediately.",
     };
 
     let model = "";
@@ -92,7 +97,7 @@ export async function POST(request: NextRequest) {
     if (first) {
       model = first.model;
       rawText = first.text;
-      plan = validateDemoPlan(parseJSON<unknown>(first.text), req.calories);
+      plan = parseDemoPlanText(first.text, req.calories);
     }
     if (!plan.ok) {
       // Retry #1 — same request, harder nudge. Still inside the rate slot.
@@ -104,7 +109,7 @@ export async function POST(request: NextRequest) {
       if (second) {
         model = second.model;
         rawText = second.text;
-        plan = validateDemoPlan(parseJSON<unknown>(second.text), req.calories);
+        plan = parseDemoPlanText(second.text, req.calories);
       }
     }
     if (!plan.ok) {
@@ -124,7 +129,6 @@ export async function POST(request: NextRequest) {
               ? "خرج التوليد عن الشكل المطلوب — جرّب مرة أخرى (الزرر فوق)."
               : "The generated plan missed the required shape — try again (button above).",
           detail: plan.error,
-          debugRaw: rawText.slice(0, 400),
         },
         { status: 422 },
       );

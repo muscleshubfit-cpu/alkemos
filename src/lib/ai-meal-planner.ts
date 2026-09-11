@@ -22,6 +22,7 @@
  */
 
 import { DIET_SYSTEMS, getDietSystem } from "./diet-plan-matrix";
+import { parseJSON } from "./ai-provider";
 
 export const DEMO_CALORIE_MIN = 1200;
 export const DEMO_CALORIE_MAX = 4000;
@@ -207,4 +208,41 @@ export function demoSystemOptions(lang: "en" | "ar") {
     slug: s.slug,
     label: lang === "ar" ? s.nameAr : s.nameEn,
   }));
+}
+
+/**
+ * Parse a model reply into a plan — with REASONING SALVAGE (live fix,
+ * §12.28): reasoning-capable free models prefix chain-of-thought text
+ * before the JSON (sometimes with stray braces that break the outermost
+ * slice). When the direct parse yields no meals, re-parse from the LAST
+ * plausible {"meals"…} start — the plan itself, wherever the model put it.
+ */
+export function parseDemoPlanText(
+  text: string,
+  targetCalories: number,
+): DemoPlanVerdict {
+  const direct = validateDemoPlan(parseJSON<unknown>(text), targetCalories);
+  if (direct.ok) return direct;
+
+  const idx = text.lastIndexOf('{"meals"');
+  if (idx > 0) {
+    const salvaged = validateDemoPlan(
+      parseJSON<unknown>(text.slice(idx)),
+      targetCalories,
+    );
+    if (salvaged.ok) return salvaged;
+  }
+  // Fallback: an enclosing brace just before a "meals" key anywhere.
+  const keyIdx = text.lastIndexOf('"meals"');
+  if (keyIdx > 0) {
+    const brace = text.lastIndexOf("{", keyIdx);
+    if (brace >= 0 && brace < keyIdx) {
+      const salvaged = validateDemoPlan(
+        parseJSON<unknown>(text.slice(brace)),
+        targetCalories,
+      );
+      if (salvaged.ok) return salvaged;
+    }
+  }
+  return direct;
 }
