@@ -7,6 +7,10 @@ import { EngravedIcon } from "@/components/ThemeImg";
 
 // Phase 127 «Marble & Chrome» identity: engraved icon pairs (mission §6
 // zero-emoji law) replace the old Apple-style emoji-fallback tiles.
+//
+// §12.33 (owner directive «انقل خطط غذائيه جاهزة الى المكتبات باسم مكتبة
+// الخطط الغذاييه الجاهزه»): the hub now renders TWO clusters — the tools,
+// then the content libraries under their own labeled section.
 const tools = [
   {
     slug: "calorie-calculator",
@@ -65,17 +69,21 @@ const tools = [
     descEn: "Generate a full day plan in seconds",
     icon: "evo",
   },
-  // §12.27: the diet-plan matrix — discoverable from the tools hub (owner
-  // directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم»).
+  // §12.32: the AI workout-planner trial — free generation, no signup
+  // (owner directive «ضيف أداة جديده مخطط التمارين بالذكاء الاصطناعي»).
   {
-    slug: "/diet-plan",
-    nameAr: "خطط غذائية جاهزة",
-    nameEn: "Diet Plan Library",
-    descAr: "٢٤ خطة يوم جاهزة بالغرامات (6 مستويات × 4 أنظمة)",
-    descEn: "24 ready-made daily plans in grams",
-    icon: "fruits",
+    slug: "/ai-workout-planner",
+    nameAr: "مخطط التمارين بالذكاء الاصطناعي",
+    nameEn: "AI Workout Planner",
+    descAr: "ولّد نظاماً تدريبياً أسبوعياً في ثوانٍ",
+    descEn: "Generate a weekly split in seconds",
+    icon: "dumbbell",
   },
-  // DELIVERY 0050: content libraries cross-linked from the tools hub
+];
+
+// The content libraries cluster — its own labeled section on the hub
+// (DELIVERY 0050 cross-links + §12.33 move of the ready-made diet plans).
+const libraries = [
   {
     slug: "/exercises",
     nameAr: "مكتبة التمارين",
@@ -91,6 +99,16 @@ const tools = [
     descAr: "8,830+ أكلة بالسعرات والماكروز",
     descEn: "8,830+ foods with calories and macros",
     icon: "protein",
+  },
+  // §12.33: moved from the tools grid into the libraries, renamed per the
+  // owner's directive (was «خطط غذائية جاهزة / Diet Plan Library» as a tool).
+  {
+    slug: "/diet-plan",
+    nameAr: "مكتبة الخطط الغذائية الجاهزة",
+    nameEn: "Diet Plan Library",
+    descAr: "٢٤ خطة يوم جاهزة بالغرامات (6 مستويات × 4 أنظمة)",
+    descEn: "24 ready-made daily plans in grams",
+    icon: "fruits",
   },
 ];
 
@@ -120,6 +138,22 @@ export default function ToolsPage() {
 
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {tools.map((tool) => (
+            <ToolCard key={tool.slug} tool={tool} isAr={isAr} />
+          ))}
+        </div>
+
+        {/* §12.33: the libraries cluster — its own labeled section (owner
+            directive «انقل خطط غذائيه جاهزة الى المكتبات»). */}
+        <h2 className="mt-12 text-2xl font-semibold tracking-tight md:text-3xl">
+          {isAr ? "المكتبات" : "Libraries"}
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
+          {isAr
+            ? "محتوى جاهز للتصفح: خطط وتمارين وأطعمة."
+            : "Ready-to-browse content: plans, exercises, and foods."}
+        </p>
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {libraries.map((tool) => (
             <ToolCard key={tool.slug} tool={tool} isAr={isAr} />
           ))}
         </div>

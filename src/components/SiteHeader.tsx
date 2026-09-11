@@ -230,6 +230,21 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         icon: Pizza,
         href: "/meal-planner",
       },
+      // §12.31: the AI meal planner joins the nav tools group under its
+      // full unified name (owner directive «عدل الاسم الى مخطط الوجبات
+      // بالذكاء الاصطناعي» — it was missing from the drawer entirely).
+      {
+        label: isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner",
+        icon: Sparkles,
+        href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner",
+      },
+      // §12.32: the AI workout planner (owner directive «ضيف أداة جديده
+      // مخطط التمارين بالذكاء الاصطناعي").
+      {
+        label: isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner",
+        icon: Sparkles,
+        href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner",
+      },
     ],
   });
 
@@ -260,6 +275,14 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         label: isAr ? "مكتبة الأكلات" : "Foods",
         icon: Utensils,
         href: "/foods",
+      },
+      // §12.33: the ready-made diet plans join the content libraries
+      // under the owner's name (owner directive «انقل خطط غذائيه جاهزة
+      // الى المكتبات باسم مكتبة الخطط الغذاييه الجاهزه»).
+      {
+        label: isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans",
+        icon: Pizza,
+        href: isAr ? "/ar/diet-plan" : "/diet-plan",
       },
       {
         label: isAr ? "مجموعات الأطعمة" : "Food Collections",

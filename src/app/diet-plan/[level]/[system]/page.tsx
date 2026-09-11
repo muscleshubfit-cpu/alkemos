@@ -83,7 +83,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
 
   const breadcrumb = getBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Diet Plans", url: "/diet-plan" },
+    { name: "Diet Plan Library", url: "/diet-plan" },
     { name: `${lv} Calories`, url: `/diet-plan/${lv}/${sys.slug}` },
   ]);
 
@@ -119,7 +119,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
         <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
           <nav aria-label="Breadcrumb" className="text-sm text-[var(--muted-foreground)]">
             <Link href="/diet-plan" className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
-              Diet Plans
+              Diet Plan Library
             </Link>
             <span className="px-1.5">/</span>
             <span>
@@ -361,7 +361,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
           </div>
           <p className="mt-6 text-sm font-normal text-[var(--muted-foreground)]">
             <Link href="/diet-plan" className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
-              The full matrix — every level and system
+              The full library — every level and system
             </Link>
             {" · "}
             <Link href={url} className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">

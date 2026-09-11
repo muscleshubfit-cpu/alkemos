@@ -429,6 +429,65 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
       },
     },
   },
+  // §12.32: the AI workout-planner trial page — WebApplication + Offer($0) +
+  // BreadcrumbList + HowTo, same layered law as the AI meal planner.
+  "ai-workout-planner": {
+    url: {
+      en: `${SITE}/ai-workout-planner`,
+      ar: `${SITE}/ar/ai-workout-planner`,
+    },
+    name: { en: "AI Workout Planner", ar: "مخطط التمارين بالذكاء الاصطناعي" },
+    description: {
+      en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — no signup, nothing saved.",
+      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — بلا تسجيل وبلا حفظ.",
+    },
+    features: {
+      en: [
+        "One-click generation of a full weekly split",
+        "Four goals, three levels, three equipment worlds",
+        "The split always matches your requested training days exactly",
+        "Strict shape validation on every generated plan",
+        "Free trial for everyone: 5 generations per day, no account",
+      ],
+      ar: [
+        "توليد نظام أسبوعي كامل بضغطة واحدة",
+        "أربعة أهداف وثلاثة مستويات وثلاثة عوالم تجهيز",
+        "النظام يطابق أيام تدريبك المطلوبة بالضبط دائماً",
+        "تحقق صارم من الشكل لكل نظام مولّد",
+        "تجربة مجانية للجميع: 5 توليدات يومياً بلا حساب",
+      ],
+    },
+    crumbs: {
+      en: [{ name: "AI Workout Planner", url: "/ai-workout-planner" }],
+      ar: [{ name: "مخطط التمارين بالذكاء الاصطناعي", url: "/ar/ai-workout-planner" }],
+    },
+    howTo: {
+      name: {
+        en: "How to generate an AI workout plan",
+        ar: "كيف تولّد خطة تمارين بالذكاء الاصطناعي",
+      },
+      description: {
+        en: "Turn your goal, level, days, and equipment into a generated weekly split with validated structure using the free Alkemos AI workout planner trial.",
+        ar: "حوّل هدفك ومستواك وأيامك وتجهيزتك إلى نظام أسبوعي مولّد ببنية مُتحققة باستخدام تجربة مخطط التمارين بالذكاء الاصطناعي المجانية من Alkemos.",
+      },
+      steps: {
+        en: [
+          "Pick your training goal.",
+          "Set your experience level.",
+          "Choose how many days per week you train.",
+          "Pick the equipment you actually have.",
+          "Generate, read the split day by day, and copy it.",
+        ],
+        ar: [
+          "اختر هدفك التدريبي.",
+          "حدد مستوى خبرتك.",
+          "اختر عدد أيام تدريبك في الأسبوع.",
+          "حدد التجهيزة المتاحة لك فعلاً.",
+          "ولّد واقرأ النظام يوماً يوماً وانسخه.",
+        ],
+      },
+    },
+  },
 };
 
 /** Build the three schema objects for one tool in one language. */

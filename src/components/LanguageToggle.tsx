@@ -128,6 +128,8 @@ export function LanguageToggle() {
  { en: "/diet-plan", ar: "/ar/diet-plan" },
  // §12.28: the AI meal-planner trial pair.
  { en: "/ai-meal-planner", ar: "/ar/ai-meal-planner" },
+ // §12.32: the AI workout-planner trial pair.
+ { en: "/ai-workout-planner", ar: "/ar/ai-workout-planner" },
  { en: "/compare", ar: "/ar/compare" },
  // SEO-GEO-6.4 (P1-9): evo + coaching now have Arabic mirrors.
  { en: "/evo", ar: "/ar/evo" },

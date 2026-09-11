@@ -222,7 +222,9 @@ describe("ai meal planner trial (§12.28)", () => {
   it("LLMS SYNC: both GEO files point the AI Meal Planner at the trial page", () => {
     const short = readFileSync(LLMS, "utf8");
     expect(short).toContain("[AI Meal Planner](https://alkemos.com/ai-meal-planner)");
-    expect(short).toContain("[Diet Plan Matrix](https://alkemos.com/diet-plan)");
+    // §12.33: the library label (owner directive «باسم مكتبة الخطط
+    // الغذاييه الجاهزه»).
+    expect(short).toContain("[Diet Plan Library](https://alkemos.com/diet-plan)");
     const full = readFileSync(LLMS_FULL, "utf8");
     expect(full).toContain("${SITE}/ai-meal-planner");
     expect(full).toContain("${SITE}/diet-plan");
@@ -244,6 +246,14 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(otherTools).toContain('slug: "/ai-meal-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
     expect(landing).toContain('href: "/ai-meal-planner"');
+    // §12.31 (owner directive «عدل الاسم الى مخطط الوجبات بالذكاء
+    // الاصطناعي»): the homepage grid carries the FULL name — the
+    // abbreviated «مخطط بالذكاء الاصطناعي» is gone from every surface.
+    expect(landing).toContain("مخطط الوجبات بالذكاء الاصطناعي");
+    expect(landing).not.toContain("مخطط بالذكاء الاصطناعي");
+    const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
+    expect(header).toContain("مخطط الوجبات بالذكاء الاصطناعي");
+    expect(header).toContain('isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"');
   });
 
   it("HONEST COPY: the trial states its limits (3/day, ephemeral, memberships keep the rest)", () => {

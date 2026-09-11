@@ -7,19 +7,29 @@ import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 const SITE_URL = "https://alkemos.com";
 
 /**
- * /diet-plan — the English diet-plan matrix HUB (§12.27, owner directive
- * «بند ٨ تم تنفيذ عربى فقط مطلوب انجليزى» — the EN surface the §12.19
- * plan scheduled "later to close strongrfastr's chokepoint"). The 24 EN
- * leaf cells live under /diet-plan/{level}/{system}.
+ * /diet-plan — the English diet-plan LIBRARY hub (§12.27 EN twin ·
+ * §12.33+§12.34 owner directives «انقل خطط غذائيه جاهزة الى المكتبات باسم
+ * مكتبة الخطط الغذاييه الجاهزه ، عدل شكل وتوزيع الخطط الغذاييه الجاهزه
+ * الى كارت لكل نوع واسفل منه اختيارات السعرات»). The 24 EN leaf cells
+ * live under /diet-plan/{level}/{system}; the hub now presents them as
+ * one card per system with the six calorie options below it.
  *
- * Full hreflang pair with the AR twin (ar/diet-plan) — the surface is
- * bilingual now, so the honest-unpaired pattern no longer applies.
- * No FAQPage schema, no ratings, no fabricated signals.
+ * Full hreflang pair with the AR twin (ar/diet-plan). No FAQPage schema,
+ * no ratings, no fabricated signals.
  */
+
+/** One honest line per system — the card's subtitle (§12.34). */
+const SYSTEM_LINES: Record<string, string> = {
+  balanced: "The safe starting point for everyone — a 30/40/30 calorie split (protein/carbs/fat).",
+  "high-protein": "The fat-loss and muscle-building arm — 45/35/20 with protein leading.",
+  keto: "High fat, near-zero carbs — 25/5/70.",
+  vegetarian: "Legumes, grains, dairy, and eggs — 25/50/25 (a library-only preset).",
+};
+
 export const metadata: Metadata = {
-  title: "Ready-Made Diet Plans by Calories (1200–3000) | Alkemos",
+  title: "Diet Plan Library: Ready-Made Plans by Calories | Alkemos",
   description:
-    "The diet-plan matrix: 24 complete daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories, plus a free customization step.",
+    "The Diet Plan Library: 24 complete daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories per item, plus a free customization step.",
   alternates: {
     canonical: `${SITE_URL}/diet-plan`,
     languages: {
@@ -29,7 +39,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Ready-Made Diet Plans by Calories — Alkemos",
+    title: "Diet Plan Library — Ready-Made Plans by Calories | Alkemos",
     description:
       "24 complete daily plans in grams: from 1200 to 3000 calories × 4 diet systems.",
     url: `${SITE_URL}/diet-plan`,
@@ -40,7 +50,7 @@ export const metadata: Metadata = {
 export default function DietPlanHubPageEn() {
   const breadcrumb = getBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Diet Plans", url: "/diet-plan" },
+    { name: "Diet Plan Library", url: "/diet-plan" },
   ]);
 
   return (
@@ -53,10 +63,10 @@ export default function DietPlanHubPageEn() {
         <SiteHeader variant="landing" />
         <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-            Ready-Made Diet Plans — the Calorie &amp; System Matrix
+            Diet Plan Library — Ready-Made Plans by Calories
           </h1>
           <p className="mt-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
-            This matrix turns your calorie number into an actual day of food:
+            This library turns your calorie number into an actual day of food:
             twenty-four ready plans, each built for one calorie level (from
             1200 to 3000) across four diet systems — balanced, high-protein,
             keto, and vegetarian. Every plan is written in grams and calories
@@ -67,14 +77,14 @@ export default function DietPlanHubPageEn() {
           </p>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
             Start from your number: if you already know your daily calories,
-            pick your level straight from the matrix below; if you do not, run
-            the calorie calculator first — a 1500-calorie plan fits a person
-            burning 2400 very differently than one burning 1800. Then choose
-            the system that resembles your life: balanced is the safe starting
-            point for everyone, high-protein serves the fat-loss and
-            muscle-building phases, keto suits people who already live that
-            way, and vegetarian is built for days of legumes, grains, dairy,
-            and eggs.
+            pick your system from the cards below, then your level from its
+            calorie options; if you do not, run the calorie calculator first —
+            a 1500-calorie plan fits a person burning 2400 very differently
+            than one burning 1800. Then choose the system that resembles your
+            life: balanced is the safe starting point for everyone,
+            high-protein serves the fat-loss and muscle-building phases, keto
+            suits people who already live that way, and vegetarian is built
+            for days of legumes, grains, dairy, and eggs.
           </p>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
             Every plan page ends with the customization step: plan your meals
@@ -87,42 +97,41 @@ export default function DietPlanHubPageEn() {
           </p>
 
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">
-            The full matrix — pick your level and system
+            The library — one card per system, calorie options below
           </h2>
-          <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--edge)]">
-            <table className="w-full min-w-[560px] border-collapse text-sm font-normal">
-              <thead>
-                <tr className="bg-[var(--tint)]">
-                  <th scope="col" className="border-b border-[var(--edge)] px-3 py-2 text-start font-medium text-[var(--text)]">
-                    Level / System
-                  </th>
-                  {DIET_SYSTEMS.map((s) => (
-                    <th key={s.slug} scope="col" className="border-b border-[var(--edge)] px-3 py-2 text-center font-medium text-[var(--text)]">
-                      {s.nameEn}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {DIET_LEVELS.map((lv) => (
-                  <tr key={lv} className="odd:bg-[var(--tint)]/40">
-                    <td className="border-b border-[var(--edge)]/60 px-3 py-2 font-medium text-[var(--text)]">
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {DIET_SYSTEMS.map((s) => (
+              <div key={s.slug} className="marble-card flex flex-col p-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg font-semibold tracking-tight text-[var(--text)]">
+                    {s.nameEn}
+                  </h3>
+                  <span
+                    className="whitespace-nowrap text-xs font-normal text-[var(--muted-foreground)]"
+                    dir="ltr"
+                  >
+                    {s.split.protein}/{s.split.carbs}/{s.split.fat}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
+                  {SYSTEM_LINES[s.slug]}
+                </p>
+                <p className="mt-4 text-xs font-medium text-[var(--text)]">
+                  Calorie options:
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {DIET_LEVELS.map((lv) => (
+                    <Link
+                      key={lv}
+                      href={`/diet-plan/${lv}/${s.slug}`}
+                      className="rounded-full border border-[var(--edge)] px-3.5 py-1.5 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]"
+                    >
                       {lv} calories
-                    </td>
-                    {DIET_SYSTEMS.map((s) => (
-                      <td key={s.slug} className="border-b border-[var(--edge)]/60 px-3 py-2 text-center">
-                        <Link
-                          href={`/diet-plan/${lv}/${s.slug}`}
-                          className="text-[var(--muted-foreground)] underline decoration-[var(--edge)] underline-offset-4 transition-colors hover:text-[var(--text)]"
-                        >
-                          Plan
-                        </Link>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">
@@ -145,7 +154,7 @@ export default function DietPlanHubPageEn() {
             adults. If you live with a chronic condition — diabetes, kidney
             disease, pregnancy, or an eating disorder — the right number for
             you is set with a professional who sees your full file, and this
-            matrix is an excellent conversation piece with them, never a
+            library is an excellent conversation piece with them, never a
             replacement.
           </p>
         </main>

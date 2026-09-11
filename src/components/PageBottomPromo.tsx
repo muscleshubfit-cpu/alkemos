@@ -20,7 +20,7 @@ import { EngravedIcon } from "@/components/ThemeImg";
  * Arabic via the page's langProp while the context may report "en".
  */
 
-type ExploreKey = "exercises" | "foods" | "meal-planner" | "programs" | "tools" | "blog";
+type ExploreKey = "exercises" | "foods" | "diet-plan" | "meal-planner" | "programs" | "tools" | "blog";
 
 const EXPLORE_ITEMS: {
   key: ExploreKey;
@@ -48,6 +48,18 @@ const EXPLORE_ITEMS: {
     descAr: "8,830+ أكلة بالسعرات والماكروز",
     descEn: "8,830+ foods with calories and macros",
     icon: "protein",
+  },
+  // §12.33: the ready-made diet plans join the libraries cluster under
+  // the owner's name (owner directive «انقل خطط غذائيه جاهزة الى المكتبات
+  // باسم مكتبة الخطط الغذاييه الجاهزه»).
+  {
+    key: "diet-plan",
+    href: "/diet-plan",
+    nameAr: "مكتبة الخطط الغذائية الجاهزة",
+    nameEn: "Diet Plan Library",
+    descAr: "٢٤ خطة يوم جاهزة بالغرامات والسعرات",
+    descEn: "24 ready-made daily plans in grams",
+    icon: "fruits",
   },
   {
     key: "meal-planner",

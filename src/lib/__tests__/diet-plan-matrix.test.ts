@@ -47,6 +47,13 @@ import { scanArabicDialect, needsMsaRepair } from "@/lib/blog-msa";
  *      languages.
  *   8. HREFLANG (§12.27): the EN twin exists — all four page files
  *      declare the full en/ar/x-default pair.
+ *   9. §12.33 LIBRARY MOVE: the ready-made plans live in the LIBRARIES
+ *      cluster (nav resources group, tools-hub libraries section,
+ *      OtherTools libraries, homepage footer Resources column) under
+ *      the owner's name «مكتبة الخطط الغذائية الجاهزة».
+ *  10. §12.34 CARD LAYOUT: the hub renders ONE CARD PER SYSTEM with the
+ *      six calorie options below it (owner directive «كارت لكل نوع
+ *      واسفل منه اختيارات السعرات») — in both languages.
  */
 
 const LEAF_FILE =
@@ -308,20 +315,30 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(leafEn).toContain("DIET_LEVELS.filter");
   });
 
-  it("§12.27 DISCOVERABILITY: the matrix is linked from user-facing sections", () => {
-    // Owner directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم» —
-    // the matrix must be reachable from the tools hub, the bottom-of-page
-    // tool nav, the meal planner, and the homepage (grid + footer).
+  it("§12.27+§12.33 DISCOVERABILITY: the library is linked from the libraries clusters", () => {
+    // Owner directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم» (§12.27)
+    // + «انقل خطط غذائيه جاهزة الى المكتبات» (§12.33) — the library must
+    // be reachable from the nav drawer resources group, the tools hub's
+    // libraries section, the bottom-of-page library nav, the meal planner,
+    // and the homepage footer Resources column — under the owner's name.
     const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
     expect(toolsHub).toContain('slug: "/diet-plan"');
+    expect(toolsHub).toContain("مكتبة الخطط الغذائية الجاهزة");
+    expect(toolsHub).toContain("const libraries = [");
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/diet-plan"');
+    expect(otherTools).toContain("مكتبة الخطط الغذائية الجاهزة");
+    expect(otherTools).toContain("const LIBRARIES = [");
     const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
     expect(mealPlanner).toContain('"/ar/diet-plan"');
     expect(mealPlanner).toContain('"/diet-plan"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    expect(landing).toContain('href: "/diet-plan"');
     expect(landing).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
+    expect(landing).toContain("مكتبة الخطط الغذائية الجاهزة");
+    // §12.33: the nav drawer resources group carries the library entry.
+    const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
+    expect(header).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
+    expect(header).toContain("مكتبة الخطط الغذائية الجاهزة");
   });
 
   it("SITEMAP: hub + all 24 cells indexed in BOTH languages with alternates", () => {
@@ -337,16 +354,36 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(src.match(/alternates: \{[^}]*en: `\$\{base\}\/diet-plan/g)).toBeTruthy();
   });
 
-  it("HUB: matrix table links every cell + canonical self", () => {
+  it("§12.34 HUB: one card per system with the calorie options below + canonical self", () => {
     const hub = readFileSync(HUB_FILE, "utf8");
     expect(hub).toContain("canonical: `${SITE_URL}/ar/diet-plan`");
     expect(hub).toContain("DIET_LEVELS.map");
     expect(hub).toContain("DIET_SYSTEMS.map");
-    // §12.27: the EN hub mirrors the structure.
+    // §12.33: the hub carries the library identity (owner's name).
+    expect(hub).toContain("مكتبة الخطط الغذائية الجاهزة");
+    // §12.34: card layout — a marble card per system, the calorie
+    // options BELOW it (owner directive «كارت لكل نوع واسفل منه اختيارات
+    // السعرات»), and no table.
+    expect(hub).toContain("marble-card");
+    expect(hub).toContain("اختيارات السعرات");
+    expect(hub).not.toContain("<table");
+    expect(hub).toContain("مكتبة الخطط الغذائية الجاهزة");
+    // §12.27 + §12.34: the EN hub mirrors the card structure.
     const hubEn = readFileSync(HUB_FILE_EN, "utf8");
     expect(hubEn).toContain("canonical: `${SITE_URL}/diet-plan`");
     expect(hubEn).toContain("DIET_LEVELS.map");
     expect(hubEn).toContain("DIET_SYSTEMS.map");
     expect(hubEn).toContain("s.nameEn");
+    expect(hubEn).toContain("Diet Plan Library");
+    expect(hubEn).toContain("marble-card");
+    expect(hubEn).toContain("Calorie options:");
+    expect(hubEn).not.toContain("<table");
+  });
+
+  it("§12.33 LEAF LABELS: cells point back at the library by its name", () => {
+    const leaf = readFileSync(LEAF_FILE, "utf8");
+    expect(leaf).toContain("مكتبة الخطط الغذائية الجاهزة");
+    const leafEn = readFileSync(LEAF_FILE_EN, "utf8");
+    expect(leafEn).toContain("Diet Plan Library");
   });
 });

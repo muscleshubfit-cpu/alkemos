@@ -126,10 +126,10 @@ describe("tool reference content (SEO-GEO-6.5 §12.19 P1-6)", () => {
   it("six standalone tool modules exist with matching slugs", () => {
     expect(TOOLS).toHaveLength(6);
     for (const [slug, ref] of TOOLS) expect(ref.slug).toBe(slug);
-    // §12.28: the six reference-content tools PLUS the AI meal-planner
-    // trial page (schema-only entry — no deep-content module).
+    // §12.28 + §12.32: the six reference-content tools PLUS the two AI
+    // trial pages (schema-only entries — no deep-content modules).
     expect(Object.keys(TOOL_SCHEMA_DATA).sort()).toEqual(
-      [...TOOLS.map(([s]) => s), "ai-meal-planner"].sort(),
+      [...TOOLS.map(([s]) => s), "ai-meal-planner", "ai-workout-planner"].sort(),
     );
   });
 

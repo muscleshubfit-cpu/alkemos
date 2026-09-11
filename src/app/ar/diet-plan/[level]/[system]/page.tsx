@@ -82,7 +82,7 @@ export default async function DietPlanCellPage({ params }: Params) {
 
   const breadcrumb = getBreadcrumbSchema([
     { name: "الرئيسية", url: "/ar" },
-    { name: "خطط الأنظمة الغذائية", url: "/ar/diet-plan" },
+    { name: "مكتبة الخطط الغذائية الجاهزة", url: "/ar/diet-plan" },
     { name: `${lv} سعرة`, url: `/ar/diet-plan/${lv}/${sys.slug}` },
   ]);
 
@@ -118,7 +118,7 @@ export default async function DietPlanCellPage({ params }: Params) {
         <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
           <nav aria-label="مسار التنقل" className="text-sm text-[var(--muted-foreground)]">
             <Link href="/ar/diet-plan" className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
-              خطط الأنظمة الغذائية
+              مكتبة الخطط الغذائية الجاهزة
             </Link>
             <span className="px-1.5">/</span>
             <span>
@@ -349,7 +349,7 @@ export default async function DietPlanCellPage({ params }: Params) {
           </div>
           <p className="mt-6 text-sm font-normal text-[var(--muted-foreground)]">
             <Link href="/ar/diet-plan" className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
-              المصفوفة كاملة — كل المستويات والأنظمة
+              المكتبة كاملة — كل المستويات والأنظمة
             </Link>
             {" · "}
             <Link href={url} className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">

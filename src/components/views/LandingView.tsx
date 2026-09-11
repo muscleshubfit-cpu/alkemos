@@ -592,11 +592,15 @@ export function LandingView() {
               { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدمك بمقاييس حقيقية مش بس بالميزان.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
               { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجل كوبساتك يومياً", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "ابني وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
-              // §12.28: the AI meal-planner trial on the homepage grid.
-              { slug: "ai-meal-planner", nameAr: "مخطط بالذكاء الاصطناعي", nameEn: "AI Meal Planner", descAr: "خطة يوم كاملة تُولّد في ثوانٍ.", descEn: "A full day plan, generated", icon: "evo", href: "/ai-meal-planner" },
-              // §12.27: the diet-plan matrix on the homepage grid (owner
-              // directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى اى قسم»).
-              { slug: "diet-plan", nameAr: "خطط غذائية جاهزة", nameEn: "Ready Diet Plans", descAr: "٢٤ خطة يوم كاملة بالغرامات والسعرات.", descEn: "24 complete daily plans", icon: "fruits", href: "/diet-plan" },
+              // §12.31: the AI meal-planner trial on the homepage grid —
+              // under its FULL unified name (owner directive «عدل الاسم الى
+              // مخطط الوجبات بالذكاء الاصطناعي» — the grid previously
+              // carried the truncated form, missing «الوجبات»).
+              { slug: "ai-meal-planner", nameAr: "مخطط الوجبات بالذكاء الاصطناعي", nameEn: "AI Meal Planner", descAr: "خطة يوم كاملة تُولّد في ثوانٍ.", descEn: "A full day plan, generated", icon: "evo", href: "/ai-meal-planner" },
+              // §12.32: the AI workout-planner trial on the homepage grid
+              // (owner directive «ضيف أداة جديده مخطط التمارين بالذكاء
+              // الاصطناعي").
+              { slug: "ai-workout-planner", nameAr: "مخطط التمارين بالذكاء الاصطناعي", nameEn: "AI Workout Planner", descAr: "نظام تدريبي أسبوعي يُولّد في ثوانٍ.", descEn: "A weekly split, generated", icon: "dumbbell", href: "/ai-workout-planner" },
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
                 <LandingToolCard tool={tool} isAr={isAr} />
@@ -1412,17 +1416,22 @@ export function LandingView() {
                 <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
                 <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
                 <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
-                <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "خطط غذائية جاهزة" : "Ready Diet Plans"}</a></li>
+                <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
+                <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
               </ul>
             </div>
 
-            {/* List 4: Resources */}
+            {/* List 4: Resources — §12.33: the ready-made diet plans moved
+                into the libraries cluster under the owner's name (owner
+                directive «انقل خطط غذائيه جاهزة الى المكتبات باسم مكتبة
+                الخطط الغذاييه الجاهزه»). */}
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المحتوى" : "Resources"}</p>
               <ul className="mt-3 space-y-2 text-xs">
                 <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
                 <li><a href="/programs" className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
                 <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأكلات" : "Foods"}</a></li>
+                <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
                 <li><a href={isAr ? "/ar/blog" : "/blog"} className="hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
               </ul>
             </div>

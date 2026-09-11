@@ -48,7 +48,7 @@ export async function GET(): Promise<Response> {
 
   const body = `# Alkemos (llms-full)
 
-> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for the Egyptian and Arab market: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, six free fitness calculators, an AI meal planner, the EVO AI coach, and human online coaching. This file extends the short /llms.txt with the latest articles per language.
+> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for the Egyptian and Arab market: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, six free fitness calculators, an AI meal planner, an AI workout planner, the EVO AI coach, and human online coaching. This file extends the short /llms.txt with the latest articles per language.
 
 - Platform: ${SITE}
 - Arabic homepage: ${SITE}/ar
@@ -61,8 +61,8 @@ export async function GET(): Promise<Response> {
 - [Exercise Library](${SITE}/exercises): 868+ exercises with proper form; detail pages under /exercises/[slug]. Arabic: /ar/exercises
 - [Workout Programs](${SITE}/programs): ready training plans (home & gym, beginner to advanced); detail pages under /programs/[slug]
 - [Food Database](${SITE}/foods): 8,830+ foods with calories and macros per 100g; detail pages under /foods/[slug]. Arabic: /ar/foods
-- [Fitness Tools](${SITE}/tools): free calculators — Calorie/TDEE ${SITE}/tools/calorie-calculator, BMI ${SITE}/tools/bmi-calculator, Macro ${SITE}/tools/macro-calculator, Body Fat ${SITE}/tools/body-fat-calculator, Water Tracker ${SITE}/tools/water-tracker, plus the manual Meal Planner ${SITE}/meal-planner and the AI Meal Planner ${SITE}/ai-meal-planner (free trial generation, no signup; Arabic: ${SITE}/ar/ai-meal-planner)
-- [Diet Plan Matrix](${SITE}/diet-plan): 24 ready-made daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories; Arabic: ${SITE}/ar/diet-plan
+- [Fitness Tools](${SITE}/tools): free calculators — Calorie/TDEE ${SITE}/tools/calorie-calculator, BMI ${SITE}/tools/bmi-calculator, Macro ${SITE}/tools/macro-calculator, Body Fat ${SITE}/tools/body-fat-calculator, Water Tracker ${SITE}/tools/water-tracker, plus the manual Meal Planner ${SITE}/meal-planner, the AI Meal Planner ${SITE}/ai-meal-planner (free trial generation, no signup; Arabic: ${SITE}/ar/ai-meal-planner), and the AI Workout Planner ${SITE}/ai-workout-planner (free weekly split generation, no signup; Arabic: ${SITE}/ar/ai-workout-planner)
+- [Diet Plan Library](${SITE}/diet-plan): 24 ready-made daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories, one card per system with its calorie options; Arabic: ${SITE}/ar/diet-plan
 - [Fitness Blog](${SITE}/blog): evidence-based training and nutrition articles; Arabic articles at ${SITE}/ar/blog
 - [Online Coaching](${SITE}/coaching): human coaches and nutrition specialists
 - [EVO — AI Fitness Coach](${SITE}/evo): the platform's AI performance engine

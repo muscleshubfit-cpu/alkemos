@@ -6,6 +6,11 @@ import { EngravedIcon } from "@/components/ThemeImg";
 // Phase 132 (owner feedback: «باقي الموقع إعادة التنسيق ليتبع هوية الصفحة
 // الرئيسية»): engraved icon pairs replace the emoji tiles (zero-emoji law)
 // and the tile colors go neutral (Marble & Chrome identity).
+
+// §12.33 (owner directive «انقل خطط غذائيه جاهزة الى المكتبات باسم مكتبة
+// الخطط الغذاييه الجاهزه»): the bottom-of-page nav is now TWO clusters —
+// the tools, then the content libraries (exercises / foods / the
+// ready-made diet-plans library under the owner's name).
 const ALL_TOOLS = [
   { slug: "calorie-calculator", nameAr: "حاسبة السعرات", nameEn: "Calorie Calculator", icon: "calories" },
   { slug: "bmi-calculator", nameAr: "حاسبة BMI", nameEn: "BMI Calculator", icon: "bmi" },
@@ -16,19 +21,23 @@ const ALL_TOOLS = [
   { slug: "/meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", icon: "mealplanner" },
   // §12.28: the AI meal-planner trial joins the bottom-of-page tool nav.
   { slug: "/ai-meal-planner", nameAr: "مخطط الوجبات بالذكاء الاصطناعي", nameEn: "AI Meal Planner", icon: "evo" },
-  // §12.27: the diet-plan matrix joins the bottom-of-page tool nav.
-  { slug: "/diet-plan", nameAr: "خطط غذائية جاهزة", nameEn: "Diet Plans", icon: "fruits" },
   { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", icon: "hydration" },
-  // DELIVERY 0050: content libraries are site pages too — owner asked for
-  // «صفحات اخرى من الموقع» at the bottom of every tool page.
-  { slug: "/exercises", nameAr: "مكتبة التمارين", nameEn: "Exercise Library", icon: "dumbbell" },
-  { slug: "/foods", nameAr: "مكتبة الأكلات", nameEn: "Food Library", icon: "protein" },
+  // §12.32: the AI workout-planner trial joins the bottom-of-page tool nav.
+  { slug: "/ai-workout-planner", nameAr: "مخطط التمارين بالذكاء الاصطناعي", nameEn: "AI Workout Planner", icon: "dumbbell" },
 ];
 
+// The content libraries cluster (DELIVERY 0050 + §12.33).
+const LIBRARIES = [
+  { slug: "/exercises", nameAr: "مكتبة التمارين", nameEn: "Exercise Library", icon: "dumbbell" },
+  { slug: "/foods", nameAr: "مكتبة الأكلات", nameEn: "Food Library", icon: "protein" },
+  // §12.33: moved from the tools list into the libraries, renamed per the
+  // owner's directive.
+  { slug: "/diet-plan", nameAr: "مكتبة الخطط الغذائية الجاهزة", nameEn: "Diet Plan Library", icon: "fruits" },
+];
 
 /**
- * OtherTools — shows navigation buttons to all other tools.
- * Place at the bottom of each tool's result page.
+ * OtherTools — shows navigation buttons to all other tools, then the
+ * content libraries. Place at the bottom of each tool's result page.
  *
  * Props:
  *   current: the slug of the current tool (to exclude it from the list)
@@ -43,6 +52,7 @@ export function OtherTools({ current }: { current: string }) {
   // Normalize "current" — handle both relative slugs and absolute paths
   const normalizedCurrent = current.startsWith("/") ? current.replace(/^\//, "") : current;
   const others = ALL_TOOLS.filter((t) => t.slug !== normalizedCurrent);
+  const libraries = LIBRARIES.filter((t) => t.slug !== normalizedCurrent);
 
   // SEO-GEO-4 (2026-09-08): every tool now has an Arabic mirror — link to
   // /ar/tools/* (and prefix absolute slugs with /ar) when the page renders
@@ -87,6 +97,31 @@ export function OtherTools({ current }: { current: string }) {
             {isAr ? "كل الأدوات" : "All Tools"}
           </span>
         </a>
+      </div>
+
+      {/* §12.33: the libraries cluster — its own labeled section so the
+          classification is visible, not just implied by order. */}
+      <h3 className="mt-8 text-lg font-semibold tracking-tight">
+        {isAr ? "المكتبات" : "Libraries"}
+      </h3>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {libraries.map((lib) => (
+          <a
+            key={lib.slug}
+            href={toolHref(lib.slug)}
+            className="marble-card flex items-center gap-3 p-4 transition-opacity hover:opacity-90"
+          >
+            <EngravedIcon
+              name={lib.icon}
+              alt=""
+              size={40}
+              className="h-10 w-10 shrink-0"
+            />
+            <span className="text-sm font-medium">
+              {isAr ? lib.nameAr : lib.nameEn}
+            </span>
+          </a>
+        ))}
       </div>
     </div>
   );

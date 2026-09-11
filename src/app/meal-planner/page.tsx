@@ -477,23 +477,24 @@ export default function MealPlannerPage() {
         <AdSenseAd format="auto" />
         <OtherTools current="meal-planner" />
 
-        {/* §12.27: ready-made plans cross-link — the diet-plan matrix is one
-            click from the builder (owner directive «لا يوجد رابط واضح
-            للمستخدم ولا ذكر فى اى قسم»). */}
+        {/* §12.33: ready-made plans cross-link — the diet-plan library is
+            one click from the builder (§12.27 owner directive «لا يوجد رابط
+            واضح للمستخدم ولا ذكر فى اى قسم» · §12.33 move to the libraries
+            under the owner's name). */}
         <div className="marble-card mt-8 p-5 md:p-6">
           <h3 className="text-lg font-semibold tracking-tight text-[var(--text)]">
             {isAr ? "تبحث عن خطة جاهزة بدل البناء بنفسك؟" : "Prefer a ready-made plan?"}
           </h3>
           <p className="mt-2 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
             {isAr
-              ? "مصفوفة خطط الطعام: ٢٤ خطة يوم كاملة (٦ مستويات سعرات × ٤ أنظمة) بالغرامات والسعرات لكل صنف — اختر رقمك وابدأ اليوم، ثم خصّصها هنا بالغرامات."
-              : "The diet-plan matrix: 24 complete daily plans (6 calorie levels × 4 systems) with grams and calories per item — pick your number, start today, then fine-tune it here."}
+              ? "مكتبة الخطط الغذائية الجاهزة: ٢٤ خطة يوم كاملة (٦ مستويات سعرات × ٤ أنظمة) بالغرامات والسعرات لكل صنف — اختر رقمك وابدأ اليوم، ثم خصّصها هنا بالغرامات."
+              : "The Diet Plan Library: 24 complete daily plans (6 calorie levels × 4 systems) with grams and calories per item — pick your number, start today, then fine-tune it here."}
           </p>
           <a
             href={isAr ? "/ar/diet-plan" : "/diet-plan"}
             className="btn-chrome mt-4 inline-flex items-center gap-2 px-5 py-2.5 text-sm"
           >
-            {isAr ? "تصفّح الخطط الجاهزة" : "Browse the ready plans"}
+            {isAr ? "تصفّح مكتبة الخطط الجاهزة" : "Browse the Diet Plan Library"}
             <span aria-hidden="true">›</span>
           </a>
         </div>

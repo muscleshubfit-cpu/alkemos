@@ -58,6 +58,9 @@ export async function GET() {
     // §12.28: the AI meal-planner trial pair (free generation, no signup).
     { loc: `${base}/ai-meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-meal-planner`, ar: `${base}/ar/ai-meal-planner` } },
     { loc: `${base}/ar/ai-meal-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-meal-planner`, ar: `${base}/ar/ai-meal-planner` } },
+    // §12.32: the AI workout-planner trial pair (free generation, no signup).
+    { loc: `${base}/ai-workout-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-workout-planner`, ar: `${base}/ar/ai-workout-planner` } },
+    { loc: `${base}/ar/ai-workout-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-workout-planner`, ar: `${base}/ar/ai-workout-planner` } },
     // Comparison index pages — SEO-GEO-4 (2026-09-08): the detail pages
     // live in sitemap-comparisons.xml; the index lives here.
     { loc: `${base}/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },
