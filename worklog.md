@@ -3227,10 +3227,10 @@ Stage Summary:
    - **GROQ JSON-MODE 400 GUARD in `callAI`:** response_format json_object is now sent for OpenRouter + NVIDIA only; Groq validates JSON server-side and hard-fails 400 json_validate_failed (35 live failures/14d) — Groq relies on prompt instructions + the 161.5-hardened parseJSON (same pattern P1 already uses for its truncation-side failures).
 2. **`src/lib/blog-pipeline.ts` — caller timeouts (the audit showed the GHA budgets 360-480s were NOT the constraint; the caller caps were):** P0 pick-topic 40s→90s (the strongest model's CoT needs 30-90s before its tiny 120-token answer — 220 aborts lived here) · P1 outline 70s→110s · P4 review maxModels 5→4 (with dead steps purged, 4 walked entries are ALL live-verified; 4×90s instead of 5×72s with 2 dead steps). P2 content 150s×2 unchanged (already the proven class).
 3. **`src/lib/ai-job-processors.ts`:** HEAVY 70s→120s (×3=360s ≤ 480s runner budget — old cap was binding at 70s while budget allowed 160s/model) · LIGHT 45s→70s. ARTICLE special case (120s×4=480s) unchanged.
-4. **Tests (+15, `ai-provider.test.ts`):** dead-id purge pinned on all three lists · strongest-first law (ultra-550b leads, gpt-oss-120b slot 2) · three providers represented · no duplicate pairs · fast chain: 120b outranks lightning-30b, speed law intact · Groq json-mode guard ×4 (fetch-stub: groq+jsonMode→NO response_format; openrouter/nvidia+jsonMode→json_object; groq w/o jsonMode→none).
+4. **Tests (+14, `ai-provider.test.ts`):** dead-id purge pinned on all three lists · strongest-first law (ultra-550b leads, gpt-oss-120b slot 2) · three providers represented · no duplicate pairs · fast chain: 120b outranks lightning-30b, speed law intact · Groq json-mode guard ×4 (fetch-stub: groq+jsonMode→NO response_format; openrouter/nvidia+jsonMode→json_object; groq w/o jsonMode→none).
 
 ### Gates (9/9 local)
-tsc 0 · eslint 0/0 · vitest **680/680** (665 baseline + 15 new) · next build exit 0 · docs_audit (phase=177) ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
+tsc 0 · eslint 0/0 · vitest **680/680** (666 baseline + 14 new) · next build exit 0 · docs_audit (phase=177) ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓
 
 ### Deliberately NOT changed (documented boundaries)
 - Provider count/identities (owner 3-provider law: OpenRouter + Groq + NVIDIA NIM only) — untouched.

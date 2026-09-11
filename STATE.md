@@ -8,7 +8,7 @@
 ## المرحلة الحالية
 - **المرحلة:** 177 (أمر المالك «الجودة القصوى للمحتوى — نفّذ الحلول على هذا الأساس» بعد تدقيق 14 يومًا لنسب نجاح مزودي AI) فوق 176 فوق 175 فوق 174 فوق 173 فوق 172 فوق 171 فوق 170:
 - **(أ) 177 — التدقيق الحي (للقراءة فقط، 470 تشغيل GHA):** نجاح المحاولة: Groq 84.6% · NVIDIA 69.8% · OpenRouter 30.0% فقط؛ ثلاثة موديلات ميتة: gemma-4-31b:free (1/263) · gemma-4-26b:free (0/146) · lightning:free (0/26 «DEGRADED») — 435 خانة محروقة/14ي · 220 abort لموتيد 550b بسبب timeoutMs المتصل (الميزانيات GHA 360-480ث لم تكن القيد) · 35 فشل groq 400 json_validate_failed · 48% من الفشل الكلي على خط AR (content-ar 57 + review-ar 45)
-- **(ب) 177 — الإصلاح (أصغر تغيير، أعلى جودة):** `ai-provider.ts`: حذف الموديلات الميتة من `INTERLEAVED_STRONGEST_CHAIN` (11→8 كلها حية — أصبحت مصدّرة لحماية الانحدار) و`INTERLEAVED_FAST_CHAIN` (6→4: ترقية gpt-oss-120b فوق lightning-30b) و`FREE_OPENROUTER_MODELS` (5→2) + حراسة Groq json-mode (إرسال response_format للمزودين الداعمين فقط — نفس نمط P1) · `blog-pipeline.ts`: P0 40→90ث · P1 70→110ث · P4 5×2 ث→ 4×90ث (كل خطوة الآن حية) · `ai-job-processors.ts`: HEAVY 70→120ث · LIGHT 45→70ث · +15 اختبار انحدار (تطهير الموتيد + قانون strongest-first + حراسة json-mode بfetch mock)
+- **(ب) 177 — الإصلاح (أصغر تغيير، أعلى جودة):** `ai-provider.ts`: حذف الموديلات الميتة من `INTERLEAVED_STRONGEST_CHAIN` (11→8 كلها حية — أصبحت مصدّرة لحماية الانحدار) و`INTERLEAVED_FAST_CHAIN` (6→4: ترقية gpt-oss-120b فوق lightning-30b) و`FREE_OPENROUTER_MODELS` (5→2) + حراسة Groq json-mode (إرسال response_format للمزودين الداعمين فقط — نفس نمط P1) · `blog-pipeline.ts`: P0 40→90ث · P1 70→110ث · P4 5×2 ث→ 4×90ث (كل خطوة الآن حية) · `ai-job-processors.ts`: HEAVY 70→120ث · LIGHT 45→70ث · +14 اختبار انحدار (تطهير الموتيد + قانون strongest-first + حراسة json-mode بfetch mock)
 - **(ج) 176 (محفوظ):** فجوات «اختفاء التعديلات» أُغلقت (كاشف لاتيني + FAQ بالموضوع + فولباك متنوع) · **175:** تنظيف AR 23/23 · **174:** توحيد الأدمن · **173:** روابط مرئية · بلا CTA نصي · Coach Card · صور بلا نساء · **172:** answer-first + E-E-A-T
 - **آخر كوميت متحقق منه:** 780feb3 (تدقيق المزودين — CI 4/4 أخضر: Supabase Preview · quality · parity · guard)
 
@@ -31,7 +31,7 @@
 - API/ويدجت الشركاء (EVO-6) ممنوع الإحياء (170) · `auth.users` يدويًا فقط · مزودو AI: OpenRouter + Groq + NVIDIA NIM فقط · ممنوع تعديل ميجريشنز مطبَّقة · ممنوع أرقام متغيرة داخل README/DEVELOPER_GUIDE · ممنوع إحياء PROGRESS/QA في الجذر · slug العمود لا يُمس أبدًا — workflow التنظيف يكتب content/reading_time/updated_at فقط (+faq_json في وضع FAQ_HYGIENE=1 الصريح اختياريًا 176)
 
 ## ملخص جودة المرحلة (QA — Phase 177)
-- **البوابات التسع:** tsc 0 · eslint 0/0 · vitest **680/680** (+15: تطهير الموتيد ×3 قوائم + strongest-first + ترتيب fast بالبيانات + حراسة json-mode ×4 حالات بfetch mock) · next build exit 0 · docs_audit (phase=177) · docs_parity · migration_audit --ci · stale-refs · ui-wiring
+- **البوابات التسع:** tsc 0 · eslint 0/0 · vitest **680/680** (+14: تطهير الموتيد ×3 قوائم + strongest-first + ترتيب fast بالبيانات + حراسة json-mode ×4 حالات بfetch mock) · next build exit 0 · docs_audit (phase=177) · docs_parity · migration_audit --ci · stale-refs · ui-wiring
 - **النطاق المحفوظ:** صفر ميجريشنز · صفر تغيير منطق التراجع/الدوران/قوانين المزودين الثلاثة · صفر مساس workflows (الميزانيات كانت كافية أصلًا) · صفر مساس checkout/business
 - **حدود موثقة:** استبعاد Groq من الاستدعاءات الثقيلة يبقى (حد 8k TPM الفعلي للمجاني — 332 استبعادًا/14ي) — أثقل المهام يخدمها أقوى الموتيد بنوافذ أعمق الآن
 
