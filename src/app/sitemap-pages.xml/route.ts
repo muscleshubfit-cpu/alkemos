@@ -1,6 +1,7 @@
 import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitemap-xml";
 import { familyLastmod } from "@/lib/sitemap-lastmod";
 import { WORKOUT_PROGRAMS } from "@/lib/workout-programs";
+import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 
 /**
  * GET /sitemap-pages.xml — static pages, tools, and programs.
@@ -92,6 +93,20 @@ export async function GET() {
         ar: `${base}/ar/programs/${prog.slug}`,
       },
     });
+  }
+
+  // Phase SEO-GEO-6.6 (§12.19 P1-8): the Arabic diet-plan matrix —
+  // 1 hub + 24 leaf cells. AR-only surface (EN later per the plan), so
+  // no en/ar alternates: each URL declares itself.
+  urls.push({ loc: `${base}/ar/diet-plan`, changefreq: "monthly", priority: 0.8 });
+  for (const level of DIET_LEVELS) {
+    for (const system of DIET_SYSTEMS) {
+      urls.push({
+        loc: `${base}/ar/diet-plan/${level}/${system.slug}`,
+        changefreq: "monthly",
+        priority: 0.7,
+      });
+    }
   }
 
   // Phase 155 (#14): truthful per-family lastmod (see sitemap-lastmod.ts).
