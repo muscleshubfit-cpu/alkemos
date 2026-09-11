@@ -3,9 +3,11 @@ import {
   reviewAndEnhance,
   ensureFaqSection,
   countWords,
+  repairArabicLatinContamination,
   type OutlinePlan,
   type ReviewReport,
 } from "@/lib/blog-pipeline";
+import { scanLatinContamination } from "@/lib/blog-msa";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import type { LanguageResearch } from "@/lib/blog-research";
 import { getRecentPostsByLanguage } from "@/lib/blog-topics";
@@ -96,13 +98,37 @@ export async function GET(request: NextRequest) {
     // article that lacked a model-written FAQ section.
     const withFaq = ensureFaqSection(lang, r.markdown, research, outline.title);
 
+    // PHASE 176 — Arabic Latin-contamination repair (the 09-11 incident:
+    // "يُ marketed" / "لا توجد evidences" shipped inside AR prose because
+    // weak chain models ignore prompt laws). Deterministic DETECTION → one
+    // targeted AI repair → deterministic RE-VALIDATION (links/headings/
+    // images/length preserved + zero dialect + zero Latin). A failing
+    // repair THROWS → markQueueItemFailed → the runner's ×3 retry re-runs
+    // P4 on a fresh model draw. EN articles skip (Latin is their prose).
+    let finalMd = withFaq.md;
+    let latinRepairNote: string | null = null;
+    if (lang === "ar") {
+      const latin = scanLatinContamination(finalMd);
+      if (latin.count > 0) {
+        console.log(
+          `[blog/p4-review] latin contamination detected (${latin.count} tokens) — repair pass engaged`,
+        );
+        finalMd = await repairArabicLatinContamination(finalMd, latin.tokens);
+        latinRepairNote = `latin-repair: ${latin.count} bare Latin token(s) arabized deterministically-gated`;
+      }
+    }
+
     const review: LangReview = {
-      markdown: withFaq.md,
+      markdown: finalMd,
       report: {
         ...r.report,
-        changesSummary: withFaq.appended
-          ? [...r.report.changesSummary, `appended ${withFaq.appendedCount} topic-relevant FAQ item(s) from P0 answers`]
-          : r.report.changesSummary,
+        changesSummary: [
+          ...r.report.changesSummary,
+          ...(withFaq.appended
+            ? [`appended ${withFaq.appendedCount} topic-relevant FAQ item(s) from P0 answers`]
+            : []),
+          ...(latinRepairNote ? [latinRepairNote] : []),
+        ],
       },
       internalLinks: r.internalLinks,
       externalLinks: r.externalLinks,
@@ -123,6 +149,7 @@ export async function GET(request: NextRequest) {
       words: countWords(review.markdown),
       coverage: review.report.keywordCoverage,
       source: review.source,
+      ...(latinRepairNote ? { latinRepair: latinRepairNote } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -108,24 +108,176 @@ function normalizeResearch(rawInput: unknown): LanguageResearch {
 
 /**
  * Deterministic curated fallback (pipeline never dies on provider outage).
- * VARIETY FIX (Phase 62): topics now ROTATE per run (random offset) and
- * non-duplicate topics against the provided recent titles are preferred,
- * so even the outage path no longer serves the same 5 ideas every time.
+ * VARIETY FIX (Phase 62): topics ROTATE per run (random offset) and
+ * non-duplicate topics against the provided recent titles are preferred.
+ *
+ * PHASE 176 (owner report «التعديلات الجديدة اختفت مرة أخرى» — live
+ * evidence, 09-11: the AR dispatch fell back to the pool and published a
+ * 4th sleep article; the EN dispatch fell back and P5 dup-skipped the
+ * SAME title as yesterday's article): the pool grew 5 → 15 topics per
+ * language AND the old freshness check (≥0.7 whole-phrase word overlap)
+ * is replaced by CONCEPT-tag matching — each curated topic carries its
+ * core concept roots, and a topic is fresh only when NONE of its
+ * concepts appear in any recent title (substring, so Arabic
+ * ال/و/بال/لل affixing never hides a repeat, and EN plurals never hide
+ * one either: "calorie" matches "calories"). A concept-level repeat
+ * with different wording was exactly the 09-11 failure («الاستشفاء
+ * والنوم: المفتاح المنسي» vs «كم ساعة نوم يحتاج الرياضي» shared the
+ * نوم/استشفاء concepts but only 1-2 exact words). Fewer than 2 fresh
+ * topics → the rotated full pool (same degraded semantics as before —
+ * the pipeline never dies, P1/P5 guards stay the backstop).
  */
+interface CuratedTopic {
+  topic: string;
+  /** Core concept roots — a hit against any recent title = duplicate. */
+  concepts: string[];
+}
+
+const FALLBACK_TOPICS_AR: CuratedTopic[] = [
+  {
+    topic: "الدليل الكامل لبناء العضلات للمبتدئين: من أين تبدأ خطوة بخطوة",
+    concepts: ["مبتدئ", "بناء العضلات"],
+  },
+  {
+    topic: "كيف تحسب سعراتك اليومية بدقة لخسارة الوزن أو التضخيم",
+    concepts: ["سعرات", "حساب"],
+  },
+  {
+    topic: "أخطاء شائعة تمنعك من حرق الدهون رغم التمرين اليومي",
+    concepts: ["حرق الدهون", "أخطاء"],
+  },
+  {
+    topic: "أفكار وجبات صحية سريعة عالية البروتين للموظفين",
+    concepts: ["وجبات", "الموظفين"],
+  },
+  {
+    topic: "الاستشفاء والنوم: المفتاح المنسي لنتائج أسرع في الجيم",
+    concepts: ["نوم", "استشفاء"],
+  },
+  {
+    topic: "التدرج في الأوزان: كيف تزيد الحمل بأمان كل أسبوع لبناء العضلات",
+    concepts: ["تدرج", "الأوزان"],
+  },
+  {
+    topic: "أسبوع التخفيف (Deload): متى وكيف تأخذ راحة من التمرين دون خسارة تقدمك",
+    concepts: ["تخفيف", "ديلود"],
+  },
+  {
+    topic: "كم مرة تدرب كل مجموعة عضلية في الأسبوع؟ التردد الأمثل للنمو",
+    concepts: ["تردد", "المجموعة العضلية"],
+  },
+  {
+    topic: "برنامج الدفع والسحب والأرجل (Push Pull Legs): دليل تقسيم أسبوعي كامل",
+    concepts: ["دفع", "سحب"],
+  },
+  {
+    topic: "تجهيز جيم منزلي بميزانية محدودة: ما تحتاجه فعلًا وما يمكنك تجاهله",
+    concepts: ["جيم منزلي", "منزلي"],
+  },
+  {
+    topic: "الإحماء قبل التمرين: هل هو ضروري فعلًا؟ روتين دقائق يحميك من الإصابات",
+    concepts: ["إحماء", "الإحماء"],
+  },
+  {
+    topic: "الكارديو وعضلاتك: كيف تدمج تمارين القلب دون خسارة الكتلة العضلية",
+    concepts: ["كارديو"],
+  },
+  {
+    topic: "تحضير الوجبات الأسبوعي: دليل عملي لتوفير الوقت والمال مع أهداف لياقية",
+    concepts: ["تحضير الوجبات"],
+  },
+  {
+    topic: "زيادة الوزن للنحافين: خطة سعرات وتمارين عملية للوزن الصحي",
+    concepts: ["نحاف", "زيادة الوزن"],
+  },
+  {
+    topic: "البروتين النباتي: هل يكفي لبناء العضلات؟ أفضل المصادر وكيف تجمعها",
+    concepts: ["نباتي"],
+  },
+];
+
+const FALLBACK_TOPICS_EN: CuratedTopic[] = [
+  {
+    topic: "The Complete Beginner's Guide to Building Muscle: Where to Start Step by Step",
+    concepts: ["beginner", "build muscle"],
+  },
+  {
+    topic: "How to Calculate Your Daily Calories Accurately for Fat Loss or Bulking",
+    concepts: ["calorie", "calculate"],
+  },
+  {
+    topic: "Common Mistakes That Block Fat Loss Despite Daily Workouts",
+    concepts: ["fat loss", "mistake"],
+  },
+  {
+    topic: "Quick High-Protein Meal Ideas for Busy Professionals",
+    concepts: ["meal", "protein"],
+  },
+  {
+    topic: "Recovery and Sleep: The Forgotten Key to Faster Gym Results",
+    concepts: ["sleep", "recovery"],
+  },
+  {
+    topic: "Progressive Overload Explained: How to Add Weight Safely Every Week",
+    concepts: ["overload", "progressive"],
+  },
+  {
+    topic: "The Deload Week: When and How to Back Off Without Losing Gains",
+    concepts: ["deload"],
+  },
+  {
+    topic: "How Often Should You Train Each Muscle Group Per Week? The Optimal Frequency",
+    concepts: ["frequency", "muscle group"],
+  },
+  {
+    topic: "Push Pull Legs Split: A Complete Weekly Routine Guide",
+    concepts: ["push pull", "split"],
+  },
+  {
+    topic: "Building a Home Gym on a Budget: What You Actually Need",
+    concepts: ["home gym", "budget"],
+  },
+  {
+    topic: "Warming Up Before Lifting: Is It Really Necessary? A 5-Minute Routine",
+    concepts: ["warm up", "warmup"],
+  },
+  {
+    topic: "Cardio and Muscle: How to Endure Without Losing Your Gains",
+    concepts: ["cardio", "muscle"],
+  },
+  {
+    topic: "Weekly Meal Prep: A Practical Guide to Saving Time and Money",
+    concepts: ["meal prep"],
+  },
+  {
+    topic: "Gaining Weight as a Skinny Guy: A Practical Calories and Training Plan",
+    concepts: ["skinny", "underweight"],
+  },
+  {
+    topic: "Plant-Based Protein: Is It Enough to Build Muscle? Best Sources and Combining",
+    concepts: ["plant", "vegan"],
+  },
+];
+
+function curatedFallbackTopics(
+  pool: CuratedTopic[],
+  recentTitles: string[],
+): string[] {
+  if (pool.length < 2) return pool.map((t) => t.topic);
+  // Concept-level freshness: a topic is fresh when NONE of its concept
+  // roots appears in ANY recent title (substring match — Arabic affixes
+  // and EN plurals cannot hide a repeat).
+  const recentLower = recentTitles.map((t) => t.toLowerCase());
+  const fresh = (t: CuratedTopic) =>
+    !recentLower.some((r) => t.concepts.some((c) => r.includes(c.toLowerCase())));
+  const offset = Math.floor(Math.random() * pool.length);
+  const rotated = pool.slice(offset).concat(pool.slice(0, offset));
+  const surviving = rotated.filter(fresh);
+  const chosen = surviving.length >= 2 ? surviving : rotated;
+  return chosen.map((t) => t.topic);
+}
+
 export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = []): LanguageResearch {
-  const rotate = (topics: string[]): string[] => {
-    if (topics.length < 2) return topics;
-    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s\u0600-\u06FF]/g, " ").replace(/\s+/g, " ").trim();
-    const recentNorm = recentTitles.map(norm);
-    const fresh = (t: string) => {
-      const tNorm = norm(t);
-      const words = tNorm.split(" ").filter((w) => w.length > 2);
-      return !recentNorm.some((r) => r.includes(tNorm) || (words.length >= 2 && words.filter((w) => r.includes(w)).length / words.length >= 0.7));
-    };
-    const offset = Math.floor(Math.random() * topics.length);
-    const rotated = topics.slice(offset).concat(topics.slice(0, offset));
-    return [...rotated].sort((a, b) => Number(fresh(b)) - Number(fresh(a)));
-  };
   if (lang === "ar") {
     return {
       keywords: [
@@ -139,6 +291,10 @@ export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = [])
         { keyword: "كيف أنشف بطني بدون فقدان عضلات", searchVolume: "عالي" },
         { keyword: "أفضل مكملات زيادة الوزن للنحاف", searchVolume: "متوسط" },
         { keyword: "النوم وبناء العضلات كم ساعة أحتاج", searchVolume: "منخفض" },
+        { keyword: "مبدأ التدرج في الأحمال لزيادة القوة", searchVolume: "منخفض" },
+        { keyword: "تمارين كارديو بدون معدات في المنزل", searchVolume: "متوسط" },
+        { keyword: "أفضل أطعمة عالية البروتين النباتي", searchVolume: "متوسط" },
+        { keyword: "متى آخذ أسبوع راحة من التمرين", searchVolume: "منخفض" },
       ],
       faqs: [
         { question: "كم مرة أتدرب في الأسبوع لبناء العضلات؟", answer: "3-5 أيام أسبوعيًا تكفي مع تدرج في الأوزان." },
@@ -146,13 +302,7 @@ export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = [])
         { question: "ما أفضل وقت للتمرين؟", answer: "أي وقت يناسب جدولك باستمرار هو الأفضل." },
         { question: "كم سعرة أحتاج يومياً لخسارة الوزن؟", answer: "يعتمد على وزنك ونشاطك — احسبها بحاسبة السعرات ثم اطرح 300-500 سعرة." },
       ],
-      topics: rotate([
-        "الدليل الكامل لبناء العضلات للمبتدئين: من أين تبدأ خطوة بخطوة",
-        "كيف تحسب سعراتك اليومية بدقة لخسارة الوزن أو التضخيم",
-        "أخطاء شائعة تمنعك من حرق الدهون رغم التمرين اليومي",
-        "أفكار وجبات صحية سريعة عالية البروتين للموظفين",
-        "الاستشفاء والنوم: المفتاح المنسي لنتائج أسرع في الجيم",
-      ]),
+      topics: curatedFallbackTopics(FALLBACK_TOPICS_AR, recentTitles),
     };
   }
   return {
@@ -167,6 +317,10 @@ export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = [])
       { keyword: "push pull legs routine for beginners", searchVolume: "medium" },
       { keyword: "how to lose belly fat without losing muscle", searchVolume: "high" },
       { keyword: "best supplements for muscle gain for beginners", searchVolume: "medium" },
+      { keyword: "progressive overload how to add weight safely", searchVolume: "medium" },
+      { keyword: "deload week when to take rest from training", searchVolume: "low" },
+      { keyword: "cardio vs weights for fat loss and muscle", searchVolume: "medium" },
+      { keyword: "plant based protein sources for muscle building", searchVolume: "medium" },
     ],
     faqs: [
       { question: "How many days a week should I train to build muscle?", answer: "3–5 sessions per week with progressive overload is enough." },
@@ -174,13 +328,7 @@ export function fallbackResearch(lang: "en" | "ar", recentTitles: string[] = [])
       { question: "What is the best time to work out?", answer: "Any time you can train consistently is the best time." },
       { question: "How many calories should I eat to lose weight?", answer: "Estimate your maintenance with a calorie calculator, then subtract 300–500 kcal." },
     ],
-    topics: rotate([
-      "The Complete Beginner's Guide to Building Muscle: Where to Start Step by Step",
-      "How to Calculate Your Daily Calories Accurately for Fat Loss or Bulking",
-      "Common Mistakes That Block Fat Loss Despite Daily Workouts",
-      "Quick High-Protein Meal Ideas for Busy Professionals",
-      "Recovery and Sleep: The Forgotten Key to Faster Gym Results",
-    ]),
+    topics: curatedFallbackTopics(FALLBACK_TOPICS_EN, recentTitles),
   };
 }
 

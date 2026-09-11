@@ -20,6 +20,11 @@ import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
 import { type LanguageResearch } from "./blog-research";
 import { getRecentPostsByLanguage, getRecentContentDigests, isDuplicateTopic } from "./blog-topics";
 import { sanitizeModelSlug } from "./slug";
+import {
+  AR_MSA_EDITOR_LAW,
+  scanLatinContamination,
+  validateMsaConversion,
+} from "./blog-msa";
 // PHASE 171 (blog-audit proposal ب): every model-JSON parse in P1/P2/P4
 // now uses the 161.5-hardened parseJSON from ai-provider (fence-strip +
 // truncation repair + control-char escaping) — the legacy weak
@@ -70,7 +75,7 @@ export type InternalLinkCandidate = { slug: string; title: string };
 // repetition across articles — natural phrasing per context).
 const LANG_RULE: Record<"en" | "ar", string> = {
   en: "Write in ENGLISH for an international fitness audience.",
-  ar: "اكتب باللغة العربية الفصحى الحديثة السهلة والواضحة — عربية سليمة طبيعية يفهمها كل قارئ عربي من أي بلد (Pan-Arab Modern Standard Arabic)، بنبرة ودية عملية. ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)، والتعبيرات العامية التي لا يفهمها إلا أهل بلد معين (مثل: عشان، مش، ازاي، بتاع، كده، ده، دي، خلاص، حاجة بمعنى «شيء»)، والترجمة الحرفية عن الإنجليزية، والتراكيب الركيكة، وأخطاء النحو والإملاء. صُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق (مثل: «كم من الماء أحتاج يوميًا؟» لا «كم ماء احتاج»). ليست لغة أدبية ثقيلة بل فصحى حديثة سهلة. كل المحتوى بالعربية بالكامل (بما في ذلك العناوين والروابط النصية).",
+  ar: "اكتب باللغة العربية الفصحى الحديثة السهلة والواضحة — عربية سليمة طبيعية يفهمها كل قارئ عربي من أي بلد (Pan-Arab Modern Standard Arabic)، بنبرة ودية عملية. ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)، والتعبيرات العامية التي لا يفهمها إلا أهل بلد معين (مثل: عشان، مش، ازاي، بتاع، كده، ده، دي، خلاص، حاجة بمعنى «شيء»)، والترجمة الحرفية عن الإنجليزية، والتراكيب الركيكة، وأخطاء النحو والإملاء. صُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق (مثل: «كم من الماء أحتاج يوميًا؟» لا «كم ماء احتاج»). ليست لغة أدبية ثقيلة بل فصحى حديثة سهلة. كل المحتوى بالعربية بالكامل (بما في ذلك العناوين والروابط النصية). ممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية (PHASE 176 — دليل حي: «يُ marketed»، «لا توجد evidences»، «shake مصل اللبن»): كل مصطلح يُكتب بالعربية أو يُعرَّب صوتيًا (الليوسين، الكازين، مشروب البروتين، ألكالين، الأدلة، البساطة، «مقابل» بدل vs)، والاستثناء الوحيد إشارة لاتينية بين قوسين بعد المصطلح العربي (مثل: «مصل اللبن (Whey)») أو أسماء العلامات (Alkemos).",
 };
 
 /** Compact JSON view of research fed to prompts (keeps token cost sane). */
@@ -389,7 +394,16 @@ export async function generateFullArticle(
   outline: OutlinePlan,
   research: LanguageResearch,
 ): Promise<{ markdown: string; wordCount: number; source: string }> {
-  const faqBlock = research.faqs
+  // PHASE 176 (owner report «التعديلات الجديدة اختفت مرة أخرى» — live
+  // evidence: the 09-11 protein-timing article force-fitted CREATINE and
+  // INTERMITTENT-FASTING questions because the prompt dumped ALL ten
+  // niche-generic P0 FAQs into instruction 4 and a weak P2 model answered
+  // every one of them as body sections + FAQ cards): only research
+  // questions that share vocabulary with THIS article's title ride into
+  // the writing prompt at all (the same relevance matcher the
+  // ensureFaqSection append path already used — one shared law).
+  const relevantResearchFaqs = relevantResearchFaqsForTitle(research.faqs, outline.title);
+  const faqBlock = relevantResearchFaqs
     .map((f) => `- ${f.question}`)
     .join("\n");
 
@@ -530,12 +544,60 @@ const FAQ_RELEVANCE_STOPWORDS = new Set([
 ]);
 
 function faqRelevanceWords(s: string): Set<string> {
+  // PHASE 176 — Arabic definite-article/prefix normalization: exact-token
+  // matching missed real overlaps («بروتين» never matched «البروتين»,
+  // «عضلي» never matched «عضلات»-bearing titles' «العضلي»). Stripping the
+  // leading article (ال/وال/بال/لل…) lets the FAQ relevance filter
+  // recognize the SAME concept word in either form.
+  const stripArabicPrefix = (w: string) => w.replace(/^(?:وال|بال|فال|كال|لل|ال)/, "");
   return new Set(
     s
       .toLowerCase()
       .split(/[^\p{L}\p{N}]+/u)
+      .map((w) => (w.length > 2 && /[\u0600-\u06FF]/.test(w) ? stripArabicPrefix(w) : w))
       .filter((w) => w.length > 2 && !FAQ_RELEVANCE_STOPWORDS.has(w)),
   );
+}
+
+/** Shared relevance matcher (the ensureFaqSection append path AND the
+ * PHASE 176 P2 prompt-injection + P5 lift filters ride this one law):
+ * research FAQs are relevant to a title when they share at least one
+ * meaningful vocabulary word. */
+function relevantResearchFaqsForTitle(
+  faqs: { question: string; answer: string }[],
+  titleHint: string,
+): { question: string; answer: string }[] {
+  const hintWords = faqRelevanceWords(titleHint);
+  if (hintWords.size < 2) return faqs;
+  return faqs.filter((f) => {
+    const words = faqRelevanceWords(`${f.question} ${f.answer}`);
+    return [...words].some((w) => hintWords.has(w));
+  });
+}
+
+/**
+ * PHASE 176 — deterministic FAQ relevance filter for the P5 lift (and
+ * the research0 fallback faq_json). Live evidence: the 09-11
+ * protein-timing article lifted SIX questions of which creatine-forms,
+ * intermittent-fasting, and basal-metabolism questions were off-topic
+ * for a protein-TIMING article — P4's model-ignored instruction alone
+ * could not stop them. A question survives only when it shares ≥2
+ * meaningful (prefix-normalized) words with the article's title+focus
+ * hint. Degradation: an unusable hint (<2 words) keeps everything
+ * (never false-drop on a broken hint). This FILTERS; it never adds.
+ */
+export function filterFaqsByRelevance<T extends { question: string; answer: string }>(
+  faqs: T[],
+  hint: string,
+): T[] {
+  const hintWords = faqRelevanceWords(hint);
+  if (hintWords.size < 2) return faqs;
+  return faqs.filter((f) => {
+    const words = faqRelevanceWords(`${f.question} ${f.answer}`);
+    let shared = 0;
+    for (const w of words) if (hintWords.has(w)) shared++;
+    return shared >= 2;
+  });
 }
 
 export function ensureFaqSection(
@@ -546,12 +608,11 @@ export function ensureFaqSection(
 ): { md: string; appended: boolean; appendedCount: number } {
   const header = FAQ_SECTION_HEADING[lang];
   if (FAQ_HEADING_RE.test(md)) return { md, appended: false, appendedCount: 0 };
-  const hintWords = faqRelevanceWords(topicHint ?? "");
-  const relevant = (hintWords.size >= 2
-    ? research.faqs.filter((f) => {
-        const words = faqRelevanceWords(`${f.question} ${f.answer}`);
-        return [...words].some((w) => hintWords.has(w));
-      })
+  // PHASE 176: the matcher logic moved to the shared
+  // relevantResearchFaqsForTitle helper (the P2 prompt-injection filter
+  // rides the exact same law — one implementation, no fork).
+  const relevant = (faqRelevanceWords(topicHint ?? "").size >= 2
+    ? relevantResearchFaqsForTitle(research.faqs, topicHint ?? "")
     : []
   ).slice(0, 6);
   if (relevant.length === 0) return { md, appended: false, appendedCount: 0 };
@@ -594,6 +655,21 @@ type ParsedFaq = { question: string; answer: string };
  * recognizable FAQ section → unchanged body + empty list (the caller
  * falls back to the legacy faq_json source).
  */
+/**
+ * PHASE 176 — strip the copied «السؤال؟» / "The question?" label prefix
+ * from an FAQ question (live evidence: the 09-11 protein-timing article
+ * rendered every FAQ card as «السؤال؟ ما هو أفضل وقت…» because the
+ * writing model read the contract's literal «**السؤال؟**» example as a
+ * prefix to copy). Shared by splitFaqSection AND the legacy cleanup
+ * runner's FAQ-hygiene mode (one law, no fork).
+ */
+export function stripFaqQuestionLabel(q: string): string {
+  return q
+    .trim()
+    .replace(/^(?:السؤال|question|the\s+question)\s*[؟?]*\s*[:：]?\s*/i, "")
+    .trim();
+}
+
 export function splitFaqSection(
   lang: "en" | "ar",
   md: string,
@@ -639,12 +715,17 @@ export function splitFaqSection(
   }
   if (current && current.question && current.answer) faqs.push(current);
 
-  const cleaned = faqs.slice(0, 7).map((f) => ({
-    question: f.question.endsWith("?") || f.question.endsWith("؟")
-      ? f.question
-      : `${f.question}${lang === "ar" ? "؟" : "?"}`,
-    answer: stripInlineMarkdown(f.answer),
-  }));
+  const cleaned = faqs.slice(0, 7).map((f) => {
+    // PHASE 176 — label-prefix strip (stripFaqQuestionLabel, shared with
+    // the legacy cleanup runner's FAQ-hygiene mode).
+    const question = stripFaqQuestionLabel(stripInlineMarkdown(f.question));
+    return {
+      question: question.endsWith("?") || question.endsWith("؟")
+        ? question
+        : `${question}${lang === "ar" ? "؟" : "?"}`,
+      answer: stripInlineMarkdown(f.answer),
+    };
+  });
   if (cleaned.length === 0) return { body: md, faqs: [] };
 
   const rest = md.slice(sectionEnd).trim();
@@ -787,4 +868,93 @@ Return STRICT JSON only:
       : [],
     source: `${provider}:${model}`,
   };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHASE 176 — Arabic Latin-contamination repair pass (P4 backstop).
+//
+// Owner report «التعديلات الجديدة اختفت مرة أخرى» — the 09-11 AR
+// article shipped bare English INSIDE Arabic sentences ("يُ marketed"،
+// "لا توجد evidences"، "shake مصل اللبن"، "الكرياتين alkalin").
+// Prompt laws steer models; the weak free chain still drifts. This is
+// the deterministic CODE side (the Phase-168 doctrine: facts belong to
+// code, language belongs to the model):
+//   1. scanLatinContamination (blog-msa.ts) detects the tokens
+//   2. ONE targeted AI repair call replaces ONLY those tokens
+//   3. validateMsaConversion re-gates the result deterministically
+//      (links/images/headings/length preserved + zero dialect + zero
+//      Latin) — a failing repair THROWS so the runner's ×3 retry
+//      re-runs P4 with a fresh model draw
+// ═══════════════════════════════════════════════════════════════
+
+const LATIN_REPAIR_MAIN = "===CORRECTED===";
+const LATIN_REPAIR_NOTES = "===NOTES===";
+
+export async function repairArabicLatinContamination(
+  markdown: string,
+  offendingTokens: string[],
+): Promise<string> {
+  const tokens = offendingTokens.slice(0, 40);
+  const prompt = `المقال التالي بالعربية يحتوي كلمات لاتينية/إنجليزية سائبة داخل جُمله العربية — قائمة المخالفات المكتشفة آليًا:
+${tokens.map((t) => `- ${t}`).join("\n")}
+
+مهمتك: أعد المقال كاملًا بعد استبدال كل كلمة من هذه القائمة (وأي كلمة لاتينية سائبة أخرى تجدها) بمقابلها العربي الطبيعي أو تعريبها الصوتي عند غياب مقابل شائع (مثل: leucine → الليوسين، casein → الكازين، shake → مشروب، marketed → يُسوَّق، evidences → أدلة، simplicity → البساطة، alkalin → ألكالين، vs → مقابل).
+
+قواعد صارمة:
+1. لا تغيّر أي شيء آخر — المعنى والأرقام والحقائق كما هي.
+2. حافظ حرفيًا على كل روابط Markdown وصورها وعناوينها (#/##/###) وبنيتها — لا تحذف ولا تضف.
+3. الإشارة اللاتينية بين قوسين بعد المصطلح العربي (مثل: مصل اللبن (Whey)) تبقى كما هي — لا تحذف القوسين ولا تحوّلها.
+4. أصلح أي دمج فاسد بين حروف عربية ولاتينية (مثل: كريAlkaline) إلى مصطلح عربي سليم.
+5. أعد المقال كاملًا من أوله إلى آخره بنفس الطول تقريبًا (±10%).
+
+أعد النتيجة بهذا الشكل الحرفي (لا JSON ولا أسوار كود):
+${LATIN_REPAIR_MAIN}
+المقال النهائي كاملًا بصيغة Markdown
+${LATIN_REPAIR_NOTES}
+- أهم الاستبدالات (٢-٥ نقاط)
+
+المقال الأصلي:
+${markdown}`;
+
+  const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
+    tag: "blog:latin-repair-ar",
+    systemPrompt: AR_MSA_EDITOR_LAW,
+    temperature: 0.2,
+    maxTokens: 6_400,
+    jsonMode: false,
+    timeoutMs: 110_000,
+    maxModels: 3,
+  });
+
+  // Sentinel parsing (same contract as the legacy cleanup runner).
+  let body = (text || "").trim();
+  const fence = body.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/);
+  if (fence) body = fence[1].trim();
+  const i = body.indexOf(LATIN_REPAIR_MAIN);
+  if (i >= 0) {
+    body = body.slice(i + LATIN_REPAIR_MAIN.length);
+    const j = body.indexOf(LATIN_REPAIR_NOTES);
+    if (j >= 0) body = body.slice(0, j);
+  }
+  body = body.trim();
+  if (!body || !/[\u0600-\u06FF]/.test(body)) {
+    throw new Error(`latin-repair: degenerate payload from ${provider}:${model}`);
+  }
+
+  // Deterministic gate: everything preserved + zero dialect + zero Latin.
+  const check = validateMsaConversion(markdown, body, { ctaLinkTolerance: false });
+  const latinAfter = scanLatinContamination(body);
+  if (!check.ok || latinAfter.count > 0) {
+    const violations = [
+      ...check.violations,
+      ...(latinAfter.count > 0
+        ? [`latin contamination remains: ${latinAfter.tokens.slice(0, 10).join(", ")}`]
+        : []),
+    ];
+    throw new Error(`latin-repair failed validation: ${violations.join(" | ")}`);
+  }
+  console.log(
+    `[blog-pipeline] latin-repair ar done (${provider}:${model}) — ${tokens.length} token(s) arabized`,
+  );
+  return body;
 }

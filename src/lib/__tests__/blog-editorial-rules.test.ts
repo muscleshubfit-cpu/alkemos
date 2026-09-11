@@ -306,3 +306,55 @@ describe("Phase 174 — slug-pool cache is JSON-safe (26 AR articles 500ed in pr
     expect(sanitizeSrc).toContain("normalizePools(pools)");
   });
 });
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 176 — closing the "disappearing fixes" gaps (owner report
+// «التعديلات الجديدة اختفت مرة أخرى — الدليل آخر توليد مقالين»):
+// Latin contamination law, fallback pool concept-diversity, and the
+// coach single-shot generator's Latin clause.
+// ─────────────────────────────────────────────────────────────────
+import { fallbackResearch } from "@/lib/blog-research";
+
+describe("Phase 176 — Latin-contamination law reaches every prompt surface", () => {
+  it("LANG_RULE.ar (P1 + P2 + P4) bans raw Latin mixing inside Arabic prose", () => {
+    expect(pipelineSrc).toContain("ممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية");
+    expect(pipelineSrc).toContain("مصل اللبن (Whey)");
+  });
+  it("the coach single-shot generator (dispatch-fallback path) carries the same clause", () => {
+    expect(processorsSrc).toContain("بلا خلط كلمات إنجليزية/لاتينية سائبة");
+  });
+  it("the shared law (blog-msa.ts) carries the clause the editor tools + cleanup runner ride", () => {
+    const msaSrc = read(join(libDir, "blog-msa.ts"));
+    expect(msaSrc).toContain("خلط كلمات إنجليزية/لاتينية سائبة");
+  });
+});
+
+describe("Phase 176 — curated fallback pool: concept-level diversity (the duplicate-topic fix)", () => {
+  it("both language pools carry 15 diverse topics (the live failure: 5 topics → 4th sleep article)", () => {
+    expect(researchSrc).toContain("FALLBACK_TOPICS_AR");
+    expect(researchSrc).toContain("FALLBACK_TOPICS_EN");
+    const arCount = (researchSrc.match(/topic: "/g) || []).length;
+    expect(arCount).toBeGreaterThanOrEqual(30); // 15 AR + 15 EN
+  });
+
+  it("a sleep-covered recent list filters the sleep fallback topic OUT (the 09-11 AR failure)", () => {
+    const recent = [
+      "كم ساعة نوم أحتاج لتنمية العضلات؟",
+      "كم ساعة نوم يحتاج الرياضي لبناء العضلات؟ دليل للنتائج",
+      "النوم والاستشفاء: المفتاح المنسي لنتائج أسرع في الجيم",
+    ];
+    const out = fallbackResearch("ar", recent).topics;
+    expect(out).not.toContain("الاستشفاء والنوم: المفتاح المنسي لنتائج أسرع في الجيم");
+  });
+
+  it("a calories-covered recent list filters the calories fallback topic OUT (the 09-11 EN failure)", () => {
+    const recent = ["How many calories should I eat to lose weight and build muscle?"];
+    const out = fallbackResearch("en", recent).topics;
+    expect(out).not.toContain("How to Calculate Your Daily Calories Accurately for Fat Loss or Bulking");
+  });
+
+  it("an empty recent list returns the full rotated pool (fresh blog startup path)", () => {
+    const out = fallbackResearch("ar", []).topics;
+    expect(out.length).toBeGreaterThanOrEqual(10);
+  });
+});

@@ -11,14 +11,19 @@
  *
  * HARD SAFETY CONTRACT (per run, per article):
  *   - SELECT published AR posts only; writes touch content/reading_time/
- *     updated_at ONLY — never slug (Phase 121), never title, never
- *     is_published, never images.
+ *     updated_at ONLY (Phase 121 slug/title/is_published/images stay
+ *     untouchable) — with ONE explicit opt-in extension: FAQ_HYGIENE=1
+ *     also fixes faq_json (label-prefix strip + deterministic relevance
+ *     filter — never content) because the 09-11 incident shipped
+ *     off-topic FAQ cards + «السؤال؟» label prefixes (PHASE 176).
  *   - A conversion reaches the DB only after validateMsaConversion() passes
- *     (zero strong markers, weak strictly improved, length within bounds,
- *     image+link URLs byte-preserved, headings preserved, no banned
- *     session-service wording). Failed validation → retry with the
- *     violations listed → still failing → row untouched, run exits 1.
- *   - Idempotent: needsMsaRepair() gates the queue — clean articles are
+ *     (zero strong markers, weak strictly improved, zero bare Latin
+ *     tokens, length within bounds, image+link URLs byte-preserved,
+ *     headings preserved, no banned session-service wording). Failed
+ *     validation → retry with the violations listed → still failing →
+ *     row untouched, run exits 1.
+ *   - Idempotent: needsMsaRepair() OR needsLatinRepair() gate the queue
+ *     (PHASE 176 — dialect OR Latin contamination) — clean articles are
  *     skipped, re-runs converge to a no-op.
  *   - Staged: LIMIT / SLUGS inputs allow incremental dispatches.
  *
@@ -27,9 +32,14 @@
  * ENV:
  *   NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
  *   OPENROUTER_API(+_KEY), GROQ_API_KEY, NVIDIA_API_KEY
- *   DRY_RUN=1   — queue report only, zero AI calls, zero writes
- *   LIMIT=N     — process at most N queued articles (0 = all)
- *   SLUGS=a,b   — restrict to these slugs (severity order otherwise)
+ *   DRY_RUN=1       — queue report only, zero AI calls, zero writes
+ *   LIMIT=N         — process at most N queued articles (0 = all)
+ *   SLUGS=a,b       — restrict to these slugs (severity order otherwise)
+ *   FAQ_HYGIENE=1   — PHASE 176 opt-in: deterministic faq_json repair pass
+ *                     (strip «السؤال؟» labels + drop off-topic questions
+ *                     vs the article's title/focus + drop contaminated
+ *                     answers) for ALL published AR posts — no AI, never
+ *                     touches content
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -38,10 +48,16 @@ import { callFreeAIFallbackChain } from "../../src/lib/ai-provider";
 import {
   AR_MSA_EDITOR_LAW,
   scanArabicDialect,
+  scanLatinContamination,
   needsMsaRepair,
+  needsLatinRepair,
   validateMsaConversion,
   countArabicWords,
 } from "../../src/lib/blog-msa";
+import {
+  filterFaqsByRelevance,
+  stripFaqQuestionLabel,
+} from "../../src/lib/blog-pipeline";
 
 const DRY_RUN = process.env.DRY_RUN === "1";
 const LIMIT = Math.max(0, Number(process.env.LIMIT || "0") || 0);
@@ -49,6 +65,9 @@ const SLUGS = (process.env.SLUGS || "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+// PHASE 176 — FAQ-hygiene opt-in mode (deterministic faq_json repair,
+// never content). Default OFF keeps the exact Phase-175 write surface.
+const FAQ_HYGIENE = process.env.FAQ_HYGIENE === "1";
 const MAX_ATTEMPTS = 4;
 // CHUNKED mode (175.7): split the article at ## boundaries and convert
 // section-by-section — the stubborn-article fix (compression + format
@@ -114,6 +133,9 @@ function buildPrompt(content: string, retryViolations?: string[], scope: "articl
   const arWords = (content.match(/[\u0600-\u06FF]+/g) || []).length;
   const links = (content.match(/(?<!!)\[[^\]]*\]\([^)]+\)/g) || []).length;
   const images = (content.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
+  // PHASE 176 — concrete numeric target for the Latin cleanup too (the
+  // 09-11 evidence: models comply with explicit counts).
+  const latinTokens = scanLatinContamination(content).count;
   const retry = retryViolations?.length
     ? `\n\n⚠️ محاولة سابقة رُفضت بالتحقق الحتمي بسبب:\n- ${retryViolations.join("\n- ")}\nأعد التحويل معالجًا هذه المخالفات تحديدًا.`
     : "";
@@ -129,6 +151,7 @@ function buildPrompt(content: string, retryViolations?: string[], scope: "articl
 - عدد الكلمات العربية في الناتج يجب أن يكون في نطاق ±20% من: ${arWords} كلمة (الناتج المضغوط/المختصر مرفوض).
 - عدد الروابط في الناتج = ${links} ما عدا روابط داخل فقرة CTA ختامية تُحذف وفق القاعدة 7 (لا حذف ولا إضافة غير ذلك — نفس المسارات).
 - عدد الصور في الناتج = ${images} بالضبط (نفس الروابط ونفس النص البديل حرفيًا).
+- عدد الكلمات اللاتينية السائبة في الناتج = 0 (العدد الحالي في النص: ${latinTokens} — الإشارة اللاتينية بين قوسين بعد مصطلح عربي — مثل «مصل اللبن (Whey)» — وأسماء العلامات مثل Alkemos مستثناة ومسموحة).
 
 قواعد التحويل الصارمة:
 1. حوّل كل كلمة أو تركيب عامي (عشان، مش، ازاي، بتاع، كده، عايز، هتلاقي، دلوقتي، كتير، برضه، مفيش، إيه…) إلى مرادفه الفصحى الطبيعي (لأن/حتى، ليس/لا، كيف، مِلْك/خاص، هكذا، يريد، ستجد، الآن، كثير، أيضًا، لا يوجد، ماذا…).
@@ -138,7 +161,8 @@ function buildPrompt(content: string, retryViolations?: string[], scope: "articl
 5. حافظ حرفيًا على صور Markdown (![نص](رابط)) كما هي — لا تغيّر النص البديل ولا الرابط.
 6. حافظ على بنية العناوين (# و ## و ###) ومستوياتها وترتيبها كما هي — لا تُضف عناوين جديدة ولا تحذف عناوين.
 7. احذف أي فقرة ختامية تسويقية تدعو لحجز جلسة أو الانضمام إلى الكوتشينج إن وُجدت في نهاية المقال (الصفحة تعرض بطاقات CTA بعد المقال) — ولا تُضف أي خاتمة تسويقية جديدة.
-8. ${whole} — أي بتر أو اختصار للنص يجعل الناتج مرفوضًا.
+8. استبدل كل كلمة إنجليزية/لاتينية سائبة داخل الجمل العربية بمقابلها العربي الطبيعي أو تعريبها الصوتي عند غياب مقابل شائع (leucine → الليوسين، casein → الكازين، shake → مشروب، marketed → يُسوَّق، evidences → أدلة، simplicity → البساطة، alkalin → ألكالين، vs → مقابل) — وأصلح أي دمج فاسد بين حروف عربية ولاتينية (مثل كريAlkaline). الإشارة اللاتينية بين قوسين بعد المصطلح العربي تبقى كما هي.
+9. ${whole} — أي بتر أو اختصار للنص يجعل الناتج مرفوضًا.
 
 أعد النتيجة بهذا الشكل الحرفي (لا JSON ولا أسوار كود):
 ${MARKER_MAIN}
@@ -155,6 +179,7 @@ interface ConvertOk {
   model: string;
   attempts: number;
   weakAfter: number;
+  latinAfter: number;
   wordsAfter: number;
 }
 interface ConvertFail {
@@ -211,6 +236,7 @@ async function convertArticle(
         model,
         attempts: attempt,
         weakAfter: check.metrics.weakAfter,
+        latinAfter: check.metrics.latinAfter,
         wordsAfter: check.metrics.wordsAfter,
       };
     }
@@ -328,7 +354,10 @@ async function main(): Promise<number> {
   }
   const { data, error } = await supabaseAdmin
     .from("blog_posts")
-    .select("id,slug,title,reading_time,created_at,content")
+    .select(
+      "id,slug,title,reading_time,created_at,content" +
+        (FAQ_HYGIENE ? ",focus_keyword,faq_json" : ""),
+    )
     .eq("language", "ar")
     .eq("is_published", true)
     .order("created_at", { ascending: true })
@@ -345,13 +374,19 @@ async function main(): Promise<number> {
   const scanned = rows.map((row) => ({
     row,
     scan: scanArabicDialect(row.content || ""),
+    latin: scanLatinContamination(row.content || ""),
   }));
 
-  let queue = scanned.filter((s) => needsMsaRepair(s.row.content || ""));
+  // PHASE 176 — the queue gate is dialect OR Latin contamination (the
+  // 09-11 protein-timing article was dialect-clean but shipped "يُ
+  // marketed" / "لا توجد evidences" mid-sentence).
+  let queue = scanned.filter(
+    (s) => needsMsaRepair(s.row.content || "") || needsLatinRepair(s.row.content || ""),
+  );
   const cleanCount = scanned.length - queue.length;
   queue = queue.sort(
     (a, b) =>
-      b.scan.strong * 3 + b.scan.weak - (a.scan.strong * 3 + a.scan.weak),
+      b.scan.strong * 3 + b.scan.weak + b.latin.count - (a.scan.strong * 3 + a.scan.weak + a.latin.count),
   );
   if (SLUGS.length) {
     queue = queue.filter((s) => SLUGS.includes(s.row.slug));
@@ -360,17 +395,90 @@ async function main(): Promise<number> {
   if (LIMIT > 0) queue = queue.slice(0, LIMIT);
 
   console.log(
-    `queue: ${queue.length} articles need MSA repair · ${cleanCount} clean (skip — 173 law already holding)\n`,
+    `queue: ${queue.length} articles need MSA/Latin repair · ${cleanCount} clean (skip — 173/176 laws already holding)\n`,
   );
 
+  // ── PHASE 176 — FAQ_HYGIENE pass (deterministic, no AI, never
+  // content): strip «السؤال؟» label prefixes, drop off-topic questions
+  // (the protein-timing article carried creatine/IF/metabolism cards),
+  // drop answers still carrying bare Latin tokens. Runs over ALL
+  // published AR posts; a row's faq_json is written ONLY when something
+  // actually changed (idempotent — re-runs converge to a no-op).
+  if (FAQ_HYGIENE) {
+    let faqFixed = 0;
+    for (const { row } of scanned) {
+      const raw = (row as Row & { faq_json?: unknown; focus_keyword?: string | null }).faq_json;
+      if (!Array.isArray(raw) || raw.length === 0) continue;
+      const faqs = (raw as { question?: unknown; answer?: unknown }[])
+        .filter(
+          (f): f is { question: string; answer: string } =>
+            typeof f?.question === "string" && typeof f?.answer === "string",
+        )
+        .map((f) => ({ question: f.question, answer: f.answer }));
+      if (faqs.length === 0) continue;
+
+      // 1. label-prefix strip
+      let changed = false;
+      let cleaned = faqs.map((f) => {
+        const q = stripFaqQuestionLabel(f.question);
+        if (q !== f.question) changed = true;
+        return { ...f, question: q };
+      });
+
+      // 2. deterministic relevance filter (title + focus hint)
+      const hint = `${row.title ?? ""} ${(row as Row & { focus_keyword?: string | null }).focus_keyword ?? ""}`;
+      const relevant = filterFaqsByRelevance(cleaned, hint);
+      if (relevant.length < cleaned.length) {
+        console.log(
+          `  FAQ-HYGIENE ${row.slug}: ${cleaned.length - relevant.length} off-topic question(s) dropped`,
+        );
+        changed = true;
+        cleaned = relevant;
+      }
+
+      // 3. drop contaminated answers (belt-and-braces for the content
+      // repair — an answer still carrying bare Latin tokens is dropped,
+      // never published dirty)
+      const cleanAnswers = cleaned.filter(
+        (f) =>
+          scanLatinContamination(f.question).count === 0 &&
+          scanLatinContamination(f.answer).count === 0,
+      );
+      if (cleanAnswers.length < cleaned.length) {
+        console.log(
+          `  FAQ-HYGIENE ${row.slug}: ${cleaned.length - cleanAnswers.length} contaminated answer(s) dropped`,
+        );
+        changed = true;
+        cleaned = cleanAnswers;
+      }
+
+      if (!changed) continue;
+      if (DRY_RUN) {
+        console.log(`  DRY FAQ-HYGIENE ${row.slug}: would write (${faqs.length} → ${cleaned.length})`);
+        continue;
+      }
+      const { error: faqErr } = await supabaseAdmin
+        .from("blog_posts")
+        .update({ faq_json: cleaned, updated_at: new Date().toISOString() })
+        .eq("id", row.id);
+      if (faqErr) {
+        console.log(`  FAQ-HYGIENE DB WRITE ERROR (row untouched): ${faqErr.message}`);
+        continue;
+      }
+      faqFixed += 1;
+      console.log(`  ✓ FAQ-HYGIENE ${row.slug}: faq_json ${faqs.length} → ${cleaned.length}`);
+    }
+    console.log(`\nFAQ_HYGIENE pass: ${faqFixed} row(s) fixed.`);
+  }
+
   if (DRY_RUN) {
-    for (const { row, scan } of queue) {
+    for (const { row, scan, latin } of queue) {
       const top = [...scan.strongHits, ...scan.weakHits]
         .slice(0, 6)
         .map(([m, c]) => `${m}×${c}`)
         .join(", ");
       console.log(
-        `  DRY ${row.slug}  S=${scan.strong} W=${scan.weak}  words≈${(row.content || "").split(/\s+/).filter(Boolean).length}  [${top}]`,
+        `  DRY ${row.slug}  S=${scan.strong} W=${scan.weak} L=${latin.count}  words≈${(row.content || "").split(/\s+/).filter(Boolean).length}  [${top}]${latin.count ? ` latin:[${latin.tokens.slice(0, 6).join(",")}]` : ""}`,
       );
     }
     console.log(`\nDRY_RUN complete — zero AI calls, zero writes.`);
@@ -379,10 +487,10 @@ async function main(): Promise<number> {
 
   let ok = 0;
   let failed = 0;
-  for (const { row, scan } of queue) {
+  for (const { row, scan, latin } of queue) {
     if (ok + failed > 0) await sleep(5_000); // gentle pacing between articles
-    const before = scan.strong * 3 + scan.weak;
-    console.log(`\n→ ${row.slug} (S=${scan.strong} W=${scan.weak} severity=${before})`);
+    const before = scan.strong * 3 + scan.weak + latin.count;
+    console.log(`\n→ ${row.slug} (S=${scan.strong} W=${scan.weak} L=${latin.count} severity=${before})`);
     const content = row.content || "";
     if (!content.trim()) {
       console.log("  SKIP: empty content");
@@ -406,6 +514,7 @@ async function main(): Promise<number> {
           model: "manual-patch",
           attempts: 1,
           weakAfter: check.metrics.weakAfter,
+          latinAfter: check.metrics.latinAfter,
           wordsAfter: check.metrics.wordsAfter,
         };
         via = "patch";
@@ -443,7 +552,7 @@ async function main(): Promise<number> {
     }
     ok += 1;
     console.log(
-      `  ✓ repaired (model=${result.model} attempts=${result.attempts}) — S ${scan.strong}→0 · W ${scan.weak}→${result.weakAfter} · words ${countArabicWords(content)}→${result.wordsAfter} · reading_time ${row.reading_time ?? "-"}→${reading_time}`,
+      `  ✓ repaired (model=${result.model} attempts=${result.attempts}) — S ${scan.strong}→0 · W ${scan.weak}→${result.weakAfter} · L ${latin.count}→${result.latinAfter} · words ${countArabicWords(content)}→${result.wordsAfter} · reading_time ${row.reading_time ?? "-"}→${reading_time}`,
     );
   }
 

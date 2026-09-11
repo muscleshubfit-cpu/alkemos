@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeCategory } from "@/lib/blog-server";
-import { countWords, splitFaqSection, type OutlinePlan } from "@/lib/blog-pipeline";
+import { countWords, splitFaqSection, filterFaqsByRelevance, type OutlinePlan } from "@/lib/blog-pipeline";
+import { scanLatinContamination } from "@/lib/blog-msa";
 import { embedBodyImages } from "@/lib/blog-images";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { slugifyAscii } from "@/lib/slug";
@@ -177,9 +178,61 @@ export async function GET(request: NextRequest) {
     // pass (FAQ card answers render as plain text — no markdown links
     // should be planted in them). Degradation: no recognizable FAQ
     // section → legacy behavior (faq_json from research0, body intact).
+    //
+    // PHASE 176 (owner report «التعديلات الجديدة اختفت مرة أخرى» — live
+    // evidence: the 09-11 protein-timing article lifted creatine +
+    // intermittent-fasting + metabolism questions into a protein-TIMING
+    // article's FAQ cards): the lifted questions AND the research0
+    // fallback now pass the DETERMINISTIC relevance filter
+    // (filterFaqsByRelevance — ≥2 shared meaningful words with the
+    // article's title+focus; P4's model-ignored instruction was not
+    // enough). Relevant-but-fewer beats padded-but-off-topic; zero
+    // relevant → no FAQ cards at all (the Phase-172 no-forced-filler
+    // law). AR answers that still carry bare Latin tokens are dropped
+    // the same way (belt-and-braces for the P4 repair gate).
     const { body: faqStrippedMd, faqs: parsedFaqs } = splitFaqSection(lang, review.markdown);
+    const relevanceHint = `${outline.title} ${qi.focus_keyword ?? ""}`;
+    const relevantFaqs = filterFaqsByRelevance(parsedFaqs, relevanceHint);
+    const faqRelevanceDropped = parsedFaqs.length - relevantFaqs.length;
+    if (faqRelevanceDropped > 0) {
+      console.log(
+        `[blog/p5-publish] FAQ relevance filter: ${faqRelevanceDropped} off-topic question(s) dropped (of ${parsedFaqs.length} lifted)`,
+      );
+    }
+    let finalFaqs = relevantFaqs;
+    if (lang === "ar" && finalFaqs.length > 0) {
+      const beforeDrop = finalFaqs.length;
+      finalFaqs = finalFaqs.filter(
+        (f) =>
+          scanLatinContamination(f.question).count === 0 &&
+          scanLatinContamination(f.answer).count === 0,
+      );
+      if (finalFaqs.length < beforeDrop) {
+        console.log(
+          `[blog/p5-publish] FAQ latin gate: ${beforeDrop - finalFaqs.length} contaminated answer(s) dropped`,
+        );
+      }
+    }
     const toolLinkPass = insertToolLinks(faqStrippedMd, lang);
-    const finalFaqJson = parsedFaqs.length > 0 ? parsedFaqs : (bundle.research0?.faqs ?? []);
+    const finalFaqJson =
+      finalFaqs.length > 0
+        ? finalFaqs
+        : filterFaqsByRelevance(bundle.research0?.faqs ?? [], relevanceHint);
+
+    // PHASE 176 — final deterministic Latin gate (publish-layer law,
+    // mirror of the 171 daily-quota guard): an AR article whose BODY
+    // still carries bare Latin tokens after the P4 repair did not pass
+    // fails HONESTLY here — the row is marked failed with the token
+    // list and the 23:40 dispatch backstop tops the day's slot up. EN
+    // articles skip (Latin is their prose).
+    if (lang === "ar") {
+      const bodyLatin = scanLatinContamination(toolLinkPass.md);
+      if (bodyLatin.count > 0) {
+        throw new Error(
+          `p5: latin contamination in final body (${bodyLatin.count} tokens: ${bodyLatin.tokens.slice(0, 10).join(", ")}) — rerun p4-review`,
+        );
+      }
+    }
 
     const row = {
       language: lang,
@@ -285,7 +338,8 @@ export async function GET(request: NextRequest) {
       title: row.title,
       slug,
       toolLinksInserted: toolLinkPass.inserted.length,
-      faqLifted: parsedFaqs.length,
+      faqLifted: finalFaqs.length,
+      ...(faqRelevanceDropped > 0 ? { faqRelevanceDropped } : {}),
       handshake,
     });
   } catch (e) {

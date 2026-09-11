@@ -403,3 +403,103 @@ describe("Phase 172 prompt contracts (source guards)", () => {
     expect(route).not.toContain("faq_json: bundle.research0?.faqs ?? [],");
   });
 });
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 176 — FAQ label-prefix strip + deterministic lift-time
+// relevance filter (owner report «التعديلات الجديدة اختفت مرة أخرى»;
+// live evidence: the 09-11 protein-timing article rendered every FAQ
+// card as «السؤال؟ ما هو…» and lifted creatine/IF/metabolism questions
+// into a protein-TIMING article).
+// ─────────────────────────────────────────────────────────────────
+import {
+  filterFaqsByRelevance,
+  stripFaqQuestionLabel,
+} from "@/lib/blog-pipeline";
+
+describe("Phase 176 — stripFaqQuestionLabel (the «السؤال؟» prefix artifact)", () => {
+  it("strips the Arabic label prefix the live article shipped", () => {
+    expect(stripFaqQuestionLabel("السؤال؟ ما هو أفضل وقت لتناول البروتين؟")).toBe(
+      "ما هو أفضل وقت لتناول البروتين؟",
+    );
+  });
+  it("strips EN label variants (The question? / Question:)", () => {
+    expect(stripFaqQuestionLabel("The question? How much protein?")).toBe("How much protein?");
+    expect(stripFaqQuestionLabel("Question: How much protein?")).toBe("How much protein?");
+  });
+  it("leaves clean questions untouched", () => {
+    expect(stripFaqQuestionLabel("كم جرام بروتين أحتاج؟")).toBe("كم جرام بروتين أحتاج؟");
+  });
+  it("splitFaqSection output carries NO label prefix (live contract)", () => {
+    const md = `## المقدمة\n\nنص عربي.\n\n## الأسئلة الشائعة\n\n**السؤال؟ ما هو أفضل وقت لتناول البروتين؟**\nالإجابة المباشرة هنا.\n`;
+    const { faqs } = splitFaqSection("ar", md);
+    expect(faqs.length).toBe(1);
+    expect(faqs[0].question).toBe("ما هو أفضل وقت لتناول البروتين؟");
+  });
+});
+
+describe("Phase 176 — filterFaqsByRelevance (the P5 lift-time gate)", () => {
+  const TITLE = "ما هو أفضل وقت لتناول البروتين بعد التمرين لزيادة العضلات؟";
+  const faqs = [
+    { question: "ما هو أفضل وقت لتناول البروتين بعد التمرين؟", answer: "خلال 30-60 دقيقة." },
+    { question: "هل يمكن بناء العضلات دون مكملات بروتين؟", answer: "نعم من الغذاء الكافي." },
+    { question: "ما الفرق بين الكرياتين مونوهيدرات وكرياتين ألكالين؟", answer: "فرق ضئيل." },
+    { question: "كيف تؤثر الصيام المتقطع على بناء العضلات؟", answer: "لا يمنع." },
+    { question: "كيف يمكن زيادة معدل الأيض الأساسي دون تمارين شديدة؟", answer: "بالحركة اليومية." },
+  ];
+
+  it("keeps the on-topic questions (prefix-normalized matching: البروتين ≡ بروتين)", () => {
+    const kept = filterFaqsByRelevance(faqs, TITLE);
+    expect(kept.map((f) => f.question)).toContain("ما هو أفضل وقت لتناول البروتين بعد التمرين؟");
+    expect(kept.map((f) => f.question)).toContain("هل يمكن بناء العضلات دون مكملات بروتين؟");
+  });
+
+  it("drops the LIVE off-topic questions (creatine + IF + metabolism)", () => {
+    const kept = filterFaqsByRelevance(faqs, TITLE);
+    expect(kept.map((f) => f.question)).not.toContain(
+      "ما الفرق بين الكرياتين مونوهيدرات وكرياتين ألكالين؟",
+    );
+    expect(kept.map((f) => f.question)).not.toContain("كيف تؤثر الصيام المتقطع على بناء العضلات؟");
+    expect(kept.map((f) => f.question)).not.toContain(
+      "كيف يمكن زيادة معدل الأيض الأساسي دون تمارين شديدة؟",
+    );
+  });
+
+  it("a broken hint (<2 words) keeps everything (never false-drop on degraded input)", () => {
+    expect(filterFaqsByRelevance(faqs, "").length).toBe(5);
+    expect(filterFaqsByRelevance(faqs, "؟").length).toBe(5);
+  });
+
+  it("answers contribute to relevance (a question alone may be thin)", () => {
+    const kept = filterFaqsByRelevance(
+      [{ question: "هل هذا مهم؟", answer: "تناول البروتين بعد التمرين يسرّع الاستشفاء العضلي." }],
+      TITLE,
+    );
+    expect(kept.length).toBe(1);
+  });
+});
+
+describe("Phase 176 — P5 route rides the relevance filter + Latin gate (source canaries)", () => {
+  const read = (p: string) => readFileSync(p, "utf-8");
+  const route = read(join(process.cwd(), "src", "app", "api", "cron", "blog", "p5-publish", "route.ts"));
+
+  it("the lift passes filterFaqsByRelevance with title+focus hint", () => {
+    expect(route).toContain("filterFaqsByRelevance");
+    expect(route).toContain("relevanceHint");
+  });
+  it("the research0 fallback faq_json is relevance-filtered too", () => {
+    expect(route).toContain("filterFaqsByRelevance(bundle.research0?.faqs ?? [], relevanceHint)");
+  });
+  it("AR-only final Latin gate fails the publish honestly", () => {
+    expect(route).toContain("scanLatinContamination");
+    expect(route).toContain("latin contamination in final body");
+  });
+  it("P4 route carries the repair pass", () => {
+    const p4 = read(join(process.cwd(), "src", "app", "api", "cron", "blog", "p4-review", "route.ts"));
+    expect(p4).toContain("repairArabicLatinContamination");
+    expect(p4).toContain("scanLatinContamination");
+  });
+  it("P2 no longer dumps ALL research FAQs into the writing prompt", () => {
+    const pipeline = read(join(process.cwd(), "src", "lib", "blog-pipeline.ts"));
+    expect(pipeline).toContain("relevantResearchFaqsForTitle(research.faqs, outline.title)");
+  });
+});

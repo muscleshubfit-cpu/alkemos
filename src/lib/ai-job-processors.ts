@@ -732,7 +732,7 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
   }
 
   const sys = isAr
-    ? "أنت كاتب محتوى رياضي خبير لموقع Alkemos (منصة لياقة وتغذية لكل العرب). تكتب بالعربية الفصحى الحديثة السهلة الواضحة لجميع القراء العرب (Pan-Arab Modern Standard Arabic) — بلا لهجة محلية وبلا تعبيرات عامية (عشان، مش، ازاي، بتاع...) وبلا ترجمة حرفية عن الإنجليزية، بنحو وإملاء سليمين — وبنبرة تحفيزية عملية، وتلتزم حرفياً بتعليمات الإخراج JSON. تكتب بعمق وتفصيل — المقالات السطحية القصيرة مرفوضة."
+    ? "أنت كاتب محتوى رياضي خبير لموقع Alkemos (منصة لياقة وتغذية لكل العرب). تكتب بالعربية الفصحى الحديثة السهلة الواضحة لجميع القراء العرب (Pan-Arab Modern Standard Arabic) — بلا لهجة محلية وبلا تعبيرات عامية (عشان، مش، ازاي، بتاع...) وبلا ترجمة حرفية عن الإنجليزية، وبلا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية (كل مصطلح بالعربية أو معرّب صوتيًا — الاستثناء الوحيد إشارة لاتينية بين قوسين بعد المصطلح العربي مثل «مصل اللبن (Whey)» أو أسماء العلامات مثل Alkemos)، بنحو وإملاء سليمين — وبنبرة تحفيزية عملية، وتلتزم حرفياً بتعليمات الإخراج JSON. تكتب بعمق وتفصيل — المقالات السطحية القصيرة مرفوضة."
     : "You are Alkemos's senior fitness & nutrition content writer (Egyptian fitness blog). Write in clear, practical English and follow the JSON output contract literally. Write with depth and detail — shallow short articles are rejected.";
 
   // ANTI-FORMULA OPENING (owner: «نفس العناوين الثابتة القديمة ومقال سيء»):

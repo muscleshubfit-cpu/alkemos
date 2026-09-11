@@ -327,3 +327,132 @@ describe("Phase 175 — cleanup runner + workflow presence (canaries)", () => {
     expect(wfChunk).toContain("CHUNKED: ${{ inputs.chunked");
   });
 });
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 176 — Latin contamination (owner report «التعديلات الجديدة
+// اختفت مرة أخرى»; live evidence: the 09-11 AR article
+// best-protein-timing-after-workout shipped "يُ marketed"، "لا توجد
+// evidences"، "shake مصل اللبن"، "الكرياتين alkalin"، the corrupted
+// glued token «كريAlkaline)», and "vs" inside an Arabic H2).
+// ─────────────────────────────────────────────────────────────────
+import {
+  scanLatinContamination,
+  needsLatinRepair,
+} from "@/lib/blog-msa";
+
+describe("Phase 176 — Latin contamination detector (deterministic)", () => {
+  it("flags the LIVE incident tokens: bare English inside Arabic sentences", () => {
+    const live = [
+      "الكرياتين ألالين يُ marketed على أنه أكثر استقراراً في الحامض المعدي.",
+      "لا توجد evidences واضحة عن آثار سلبية طويلة المدى للكرياتين.",
+      "خلال 0-30 دقيقة بعد التمرين: shake مصل اللبن أو وجبة صلبة سريعة الهضم.",
+      "إذا كنت تبحث عن simplicity وتكلفة منخفضة، اختر المونوهيدرات.",
+    ].join("\n");
+    const scan = scanLatinContamination(live);
+    expect(scan.count).toBeGreaterThanOrEqual(4);
+    for (const t of ["marketed", "evidences", "shake", "simplicity"]) {
+      expect(scan.tokens).toContain(t);
+    }
+    expect(needsLatinRepair(live)).toBe(true);
+  });
+
+  it("flags 'vs' inside an Arabic H2 heading (should be «مقابل»)", () => {
+    const scan = scanLatinContamination("## مقارنة الكرياتين مونوهيدرات vs كرياتين ألكالين");
+    expect(scan.tokens).toContain("vs");
+  });
+
+  it("flags the GLUED corrupted token كريAlkaline even inside a gloss parenthesis", () => {
+    const scan = scanLatinContamination(
+      "الكرياتين ألكالين (يُسمّى أيضاً كرياتين بوفّر أو كريAlkaline) يُسوَّق على أنه أكثر استقراراً.",
+    );
+    expect(scan.count).toBe(1);
+    expect(scan.tokens).toContain("alkaline");
+  });
+
+  it("allows the accepted MSA gloss convention: «مصل اللبن (Whey)»", () => {
+    const scan = scanLatinContamination(
+      "مصل اللبن (Whey) المركّز أو المعزول: يُهضم بسرعة ويوفر الليوسين بكمية كافية.",
+    );
+    expect(scan.count).toBe(0);
+  });
+
+  it("ignores image markdown (Pexels alt texts are English BY DESIGN)", () => {
+    const scan = scanLatinContamination(
+      "![A spacious gym featuring benches and weights](https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg)\n\nالتمرين التالي يقوي الصدر.",
+    );
+    expect(scan.count).toBe(0);
+  });
+
+  it("strips link TARGETS but still scans the ANCHOR text (visible prose)", () => {
+    const clean = scanLatinContamination("اقرأ [دليل التمارين](/exercises) للمزيد.");
+    expect(clean.count).toBe(0);
+    const dirty = scanLatinContamination("اقرأ [the complete guide](/blog/x) للمزيد.");
+    expect(dirty.tokens).toContain("the");
+  });
+
+  it("whitelists brands/units/acronyms with no Arabic running form", () => {
+    const scan = scanLatinContamination(
+      "Alkemos و EVO هما منصة Alkemos، مقياس BMI، تدريبات HIIT، جرام kg واحد.",
+    );
+    expect(scan.count).toBe(0);
+  });
+
+  it("flags a fully-English line inside an AR article", () => {
+    const scan = scanLatinContamination("The anabolic window is approximately 30 minutes long.");
+    expect(scan.count).toBeGreaterThanOrEqual(4);
+  });
+
+  it("skips fenced code blocks entirely", () => {
+    const scan = scanLatinContamination("```\nconsole.log('hello world');\n```\n\nالنص العربي بعده.");
+    expect(scan.count).toBe(0);
+  });
+
+  it("empty input scans clean and the gate stays closed", () => {
+    expect(scanLatinContamination("").count).toBe(0);
+    expect(needsLatinRepair("نص عربي سليم تمامًا بدون أي خلط.")).toBe(false);
+    expect(needsLatinRepair("يُ marketed")).toBe(true);
+  });
+});
+
+describe("Phase 176 — validateMsaConversion Latin clause (pre-write gate extension)", () => {
+  it("accepts the clean MSA fixture (0→0 Latin passes — clean input stays clean)", () => {
+    const check = validateMsaConversion(LEGACY_BEFORE, MSA_AFTER);
+    expect(check.ok).toBe(true);
+    expect(check.metrics.latinBefore).toBe(0);
+    expect(check.metrics.latinAfter).toBe(0);
+  });
+
+  it("rejects a conversion that still carries bare Latin tokens", () => {
+    const contaminated = `${MSA_AFTER}\n\nيُ marketed على أنه أكثر استقراراً في الحامض المعدي.`;
+    const check = validateMsaConversion(LEGACY_BEFORE, contaminated);
+    expect(check.ok).toBe(false);
+    expect(check.violations.join(" ")).toContain("latin contamination");
+  });
+
+  it("rejects a conversion that INTRODUCES Latin into a clean input (0→N)", () => {
+    const contaminated = `${MSA_AFTER}\n\nلا توجد evidences واضحة.`;
+    const check = validateMsaConversion(LEGACY_BEFORE, contaminated);
+    expect(check.ok).toBe(false);
+    expect(check.metrics.latinAfter).toBe(1);
+  });
+});
+
+describe("Phase 176 — law + runner contracts (canaries against silent deletion)", () => {
+  it("AR_MSA_EDITOR_LAW bans raw Latin mixing inside Arabic prose (the 176 clause)", () => {
+    expect(AR_MSA_EDITOR_LAW).toContain("خلط كلمات إنجليزية/لاتينية سائبة");
+    expect(AR_MSA_EDITOR_LAW).toContain("مصل اللبن (Whey)");
+  });
+
+  it("the cleanup runner gates the queue on dialect OR Latin and carries the Latin replacement rule", () => {
+    const runner = read(join(process.cwd(), "scripts", "blog-runner", "legacy-ar-msa.mts"));
+    expect(runner).toContain("needsLatinRepair");
+    expect(runner).toContain("scanLatinContamination");
+    expect(runner).toContain("عدد الكلمات اللاتينية السائبة في الناتج = 0");
+    expect(runner).toContain("كريAlkaline");
+    // The deterministic FAQ-hygiene mode is OPT-IN (default keeps the
+    // exact Phase-175 write surface).
+    expect(runner).toContain('process.env.FAQ_HYGIENE === "1"');
+    expect(runner).toContain("filterFaqsByRelevance");
+    expect(runner).toContain("stripFaqQuestionLabel");
+  });
+});

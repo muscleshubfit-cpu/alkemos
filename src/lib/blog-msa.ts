@@ -34,9 +34,19 @@ const ARABIC_LETTER_CLASS = "[\\u0621-\\u0652]";
 /**
  * The Pan-Arab MSA editorial law (Phase 173/174), single source of truth.
  * Byte-exact extraction from the ai-job-processors editor sys prompt.
+ *
+ * PHASE 176 (2026-09-11 — owner report «التعديلات الجديدة اختفت مرة أخرى»,
+ * live evidence: the protein-timing article shipped "يُ marketed"،
+ * "لا توجد evidences"، "shake مصل اللبن"، "الكرياتين alkalin" mid-sentence):
+ * the law now ALSO bans raw Latin/English words inside Arabic prose —
+ * every term must be Arabic or transliterated; a Latin gloss INSIDE
+ * parentheses after the Arabic term stays allowed (مصل اللبن (Whey)) —
+ * the same clause text propagates to the editor tools, the coach
+ * single-shot generator, and the legacy cleanup runner through this
+ * single constant (no fork).
  */
 export const AR_MSA_EDITOR_LAW =
-  "أنت محرر لغوي وخبير SEO لموقع Alkemos الرياضي. تلتزم حرفياً بتعليمات الإخراج. قانون تحريري صارم: اكتب وحرّر بالعربية الفصحى الحديثة السهلة الواضحة لكل القراء العرب (Pan-Arab Modern Standard Arabic) — ممنوع منعًا باتًا أي لهجة محلية (مصرية أو خليجية أو غيرها) أو تعبيرات عامية لا يفهمها إلا أهل بلد معين (عشان، مش، ازاي، بتاع، كده، خلاص…) أو الترجمة الحرفية عن الإنجليزية؛ صحّح النحو والإملاء وصُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق. عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى الحديثة السهلة مع الحفاظ الكامل على المعنى.";
+  "أنت محرر لغوي وخبير SEO لموقع Alkemos الرياضي. تلتزم حرفياً بتعليمات الإخراج. قانون تحريري صارم: اكتب وحرّر بالعربية الفصحى الحديثة السهلة الواضحة لكل القراء العرب (Pan-Arab Modern Standard Arabic) — ممنوع منعًا باتًا أي لهجة محلية (مصرية أو خليجية أو غيرها) أو تعبيرات عامية لا يفهمها إلا أهل بلد معين (عشان، مش، ازاي، بتاع، كده، خلاص…) أو الترجمة الحرفية عن الإنجليزية؛ وممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية: كل مصطلح له مقابل عربي يُكتب بالعربية (الليوسين، الكازين، مشروب البروتين، ألكالين، الأدلة، البساطة، مقابل بدل vs)، أو يُعرَّب صوتيًا عند غياب مقابل شائع، والاستثناء الوحيد إشارة لاتينية بين قوسين بعد المصطلح العربي (مثل: مصل اللبن (Whey)) أو أسماء العلامات (Alkemos). صحّح النحو والإملاء وصُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق. عند إعادة صياغة نص موجود بالعامية حوّله إلى الفصحى الحديثة السهلة مع الحفاظ الكامل على المعنى، واستبدل أي كلمة لاتينية سائبة فيه بمقابلها العربي.";
 
 /**
  * STRONG dialect markers — unambiguously Egyptian/colloquial. Any single
@@ -127,6 +137,102 @@ export function countArabicWords(text: string): number {
   return (text.match(/[\u0600-\u06FF]+/g) || []).length;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// PHASE 176 — Latin contamination detector (deterministic, pure).
+//
+// Owner report «التعديلات الجديدة اختفت مرة أخرى» — live evidence:
+// the 09-11 AR article best-protein-timing-after-workout shipped
+// bare English words INSIDE Arabic sentences: "يُ marketed"،
+// "لا توجد evidences واضحة"، "shake مصل اللبن"، "تبحث عن
+// simplicity"، "الكرياتين alkalin"، plus the corrupted token
+// "كريAlkaline)". The Phase-173 MSA law banned dialect and
+// translation-ese but NOT code-switching into English — and no
+// deterministic detector existed. "Facts belong to code" (the
+// Phase-168 law): this detector is the code side of the fix.
+//
+// Counting rule (per markdown line, after stripping):
+//   - fenced code blocks are skipped entirely
+//   - image markdown ![alt](url) is removed (Pexels alt texts are
+//     English BY DESIGN — IMAGE SOURCE LAW v3 — and are not prose)
+//   - link targets are removed but link ANCHOR text stays (an
+//     English anchor inside an AR article is visible contamination)
+//   - (a) Arabic↔Latin GLUED letter adjacency counts even inside
+//     parentheses (the corrupted «كريAlkaline» class hides in gloss
+//     parens — a real gloss always separates with spaces/parens)
+//   - (b) parenthesized segments containing Latin letters are removed
+//     (the accepted MSA gloss convention: «مصل اللبن (Whey)»), then
+//     every remaining Latin token of 2+ chars NOT in the whitelist
+//     counts — whether or not the line also carries Arabic (a fully
+//     English sentence inside an AR article is contamination too)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Latin tokens that legitimately appear in Arabic fitness prose:
+ * brand names, acronyms with no common Arabic running-text form,
+ * and measurement units. Everything else must be Arabic or
+ * transliterated (leucine → الليوسين, casein → الكازين…).
+ */
+const LATIN_WHITELIST = new Set([
+  "alkemos", "evo", "ai", "who", "bmi", "mtor", "pubmed", "ahmed",
+  "zake", "hiit", "kg", "mg", "ml", "cm", "km", "kcal", "bpm",
+]);
+
+export interface LatinContaminationScan {
+  /** Total bare Latin tokens found (non-whitelisted, non-gloss). */
+  count: number;
+  /** Unique offending tokens, lowercase. */
+  tokens: string[];
+}
+
+export function scanLatinContamination(md: string): LatinContaminationScan {
+  if (!md) return { count: 0, tokens: [] };
+  const tokens = new Map<string, number>();
+  const bump = (t: string) => {
+    if (t) tokens.set(t, (tokens.get(t) ?? 0) + 1);
+  };
+  // Fenced code blocks are lifted out before line scanning.
+  const withoutCode = md.replace(/```[\s\S]*?```/g, "\n");
+  for (const line of withoutCode.split("\n")) {
+    // Stage 1 — strip images / link targets / bare URLs (keeping link
+    // ANCHOR text — visible prose), WITHOUT touching parentheses yet.
+    const linkStripped = line
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/https?:\/\/\S+/g, " ");
+    // (a) GLUED Arabic-Latin adjacency — checked BEFORE the gloss
+    // stripping because the corrupted «كريAlkaline» class hides INSIDE
+    // a gloss parenthesis. A real gloss always separates the Latin word
+    // with spaces/parens; direct letter adjacency is never legitimate.
+    // LETTERS only (the repo's ARABIC_LETTER_CLASS) — the \u0600-\u06FF
+    // block also contains Arabic punctuation (، ؟ ؛) which would
+    // false-positive on every whitelisted token before an Arabic comma.
+    const GLUED_RE = new RegExp(
+      `${ARABIC_LETTER_CLASS}([A-Za-z]+)|([A-Za-z]+)${ARABIC_LETTER_CLASS}`,
+      "g",
+    );
+    for (const m of linkStripped.matchAll(GLUED_RE)) {
+      bump((m[1] ?? m[2] ?? "").toLowerCase());
+    }
+    // (b) BARE Latin tokens surviving the parenthetical-gloss strip.
+    const scanned = linkStripped.replace(/\([^)]*[A-Za-z][^)]*\)/g, " ");
+    for (const m of scanned.matchAll(/[A-Za-z]{2,}/g)) {
+      const t = m[0].toLowerCase();
+      if (LATIN_WHITELIST.has(t)) continue;
+      bump(t);
+    }
+  }
+  const entries = [...tokens.entries()];
+  return {
+    count: entries.reduce((n, [, c]) => n + c, 0),
+    tokens: entries.map(([t]) => t),
+  };
+}
+
+/** Latin-repair gate: any single bare Latin token in AR prose. */
+export function needsLatinRepair(md: string): boolean {
+  return scanLatinContamination(md).count > 0;
+}
+
 function extractImageUrls(md: string): string[] {
   return [...md.matchAll(/!\[[^\]]*\]\(([^)\s]+)[^)]*\)/g)].map((m) => m[1]);
 }
@@ -186,6 +292,8 @@ export interface MsaValidation {
     strongAfter: number;
     weakBefore: number;
     weakAfter: number;
+    latinBefore: number;
+    latinAfter: number;
     wordsBefore: number;
     wordsAfter: number;
     ratio: number;
@@ -199,18 +307,22 @@ export interface MsaValidation {
  *   1. zero STRONG dialect markers remain
  *   2. weak markers strictly improved (fewer than before) — only when
  *      the input carried any (a clean chunk must pass 0→0)
- *   3. Arabic word-count ratio within [0.55, 1.60] — neither truncation
+ *   3. zero bare Latin tokens remain (PHASE 176 — the
+ *      protein-timing article shipped "يُ marketed" / "لا توجد
+ *      evidences" mid-sentence; code-switching is a defect, glosses
+ *      in parentheses stay allowed by the detector)
+ *   4. Arabic word-count ratio within [0.55, 1.60] — neither truncation
  *      nor inflation (E-E-A-T: meaning preserved, nothing fabricated)
- *   4. image URLs byte-identical (old images are untouched — owner law)
- *   5. link URLs exactly preserved — EXCEPT links living solely inside
+ *   5. image URLs byte-identical (old images are untouched — owner law)
+ *   6. link URLs exactly preserved — EXCEPT links living solely inside
  *      the closing CTA paragraph that rule 7 deletes (the legitimate
  *      CTA-embedded-link loss class proven live)
- *   6. heading structure preserved (a single merge is tolerated — live
+ *   7. heading structure preserved (a single merge is tolerated — live
  *      batch evidence: 2/3 batch-2 failures were otherwise-perfect
  *      conversions merging one near-duplicate heading; a collapse of 2+
  *      headings is a structure violation and the retry prompt receives
  *      the original heading list)
- *   7. no NEW banned session-service wording (174 honesty law)
+ *   8. no NEW banned session-service wording (174 honesty law)
  */
 export interface MsaValidationOptions {
   /** CTA-tail link tolerance (default true — the whole-article mode where
@@ -243,6 +355,17 @@ export function validateMsaConversion(
   if (before.trim() && sb.weak > 0 && sa.weak >= sb.weak) {
     violations.push(
       `weak markers did not improve (${sb.weak} → ${sa.weak}: ${sa.weakHits.map(([m, c]) => `${m}×${c}`).join(", ")})`,
+    );
+  }
+
+  // PHASE 176 — Latin contamination: the converted text must carry ZERO
+  // bare Latin tokens (glosses/links/images/whitelist are already excluded
+  // by the detector). 0→0 passes (a clean input stays clean).
+  const lb = scanLatinContamination(before);
+  const la = scanLatinContamination(after);
+  if (la.count > 0) {
+    violations.push(
+      `latin contamination remains: ${la.count} token(s): ${la.tokens.slice(0, 10).join(", ")}`,
     );
   }
 
@@ -299,6 +422,8 @@ export function validateMsaConversion(
       strongAfter: sa.strong,
       weakBefore: sb.weak,
       weakAfter: sa.weak,
+      latinBefore: lb.count,
+      latinAfter: la.count,
       wordsBefore: wb,
       wordsAfter: wa,
       ratio,
