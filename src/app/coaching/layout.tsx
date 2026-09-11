@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://alkemos.com/coaching",
+    // SEO-GEO-6.4 (P1-9): full hreflang pair now that /ar/coaching exists.
+    languages: {
+      en: "https://alkemos.com/coaching",
+      ar: "https://alkemos.com/ar/coaching",
+      "x-default": "https://alkemos.com/coaching",
+    },
   },
 };
 

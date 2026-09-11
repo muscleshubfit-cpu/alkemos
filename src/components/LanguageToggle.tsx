@@ -125,6 +125,9 @@ export function LanguageToggle() {
  { en: "/tools", ar: "/ar/tools" },
  { en: "/meal-planner", ar: "/ar/meal-planner" },
  { en: "/compare", ar: "/ar/compare" },
+ // SEO-GEO-6.4 (P1-9): evo + coaching now have Arabic mirrors.
+ { en: "/evo", ar: "/ar/evo" },
+ { en: "/coaching", ar: "/ar/coaching" },
  ];
 
  for (const route of MIRROR_ROUTES) {

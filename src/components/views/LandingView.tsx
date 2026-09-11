@@ -834,7 +834,7 @@ export function LandingView() {
           </Reveal>
           <Reveal delay={250}>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <a href="/coaching" className="btn-chrome px-6 py-2.5 text-sm">
+              <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-chrome px-6 py-2.5 text-sm">
                 {isAr ? "اعرف أكثر ›" : "Learn more ›"}
               </a>
               <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-outline px-6 py-2.5 text-sm font-normal">
@@ -1378,9 +1378,9 @@ export function LandingView() {
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الخدمات المدفوعة" : "Paid Services"}</p>
               <ul className="mt-3 space-y-2 text-xs">
-                <li><a href="/coaching" className="hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
+                <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
                 <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
-                <li><a href="/evo" className="hover:underline">EVO AI Coach</a></li>
+                <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
               </ul>
             </div>
 

@@ -113,9 +113,14 @@ describe("Phase 173 — coach card sells the coaching membership", () => {
   });
 
   it("the /coaching link + checkout logic stay untouched (the landing sells exactly this membership)", () => {
-    expect(blogComponentsSrc).toContain('href="/coaching"');
-    const membershipCardHref = blogComponentsSrc.match(/href="\/coaching"/g) ?? [];
-    expect(membershipCardHref.length).toBeGreaterThan(0);
+    // SEO-GEO-6.4 (§12.23): the href is now locale-aware — AR blog
+    // readers land on /ar/coaching, EN on /coaching. The card still
+    // links to the coaching landing (never to checkout directly).
+    expect(blogComponentsSrc).toContain('"/coaching"');
+    expect(blogComponentsSrc).toContain('"/ar/coaching"');
+    expect(blogComponentsSrc).toContain("isAr ? \"/ar/coaching\" : \"/coaching\"");
+    // The CTA must NOT deep-link into the checkout flow.
+    expect(blogComponentsSrc).not.toContain('href="/checkout');
   });
 });
 

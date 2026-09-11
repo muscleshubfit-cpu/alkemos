@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://alkemos.com/evo",
+    // SEO-GEO-6.4 (P1-9): full hreflang pair now that /ar/evo exists.
+    languages: {
+      en: "https://alkemos.com/evo",
+      ar: "https://alkemos.com/ar/evo",
+      "x-default": "https://alkemos.com/evo",
+    },
   },
 };
 

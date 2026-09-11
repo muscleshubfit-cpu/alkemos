@@ -244,7 +244,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               </div>
               <div className="mt-6 shrink-0 md:ms-8 md:mt-0">
                 <a
-                  href="/coaching"
+                  href={isAr ? "/ar/coaching" : "/coaching"}
                   className="btn-chrome inline-flex items-center gap-2 px-8 py-4 text-sm"
                 >
                   {isAr ? "ابدأ الآن ›" : "Get Started ›"}
