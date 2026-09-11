@@ -12,7 +12,10 @@ import { getEVOApplicationSchema, jsonLd } from "@/lib/seo";
  * its name/description are already Arabic-first (src/lib/seo.ts).
  */
 export const metadata: Metadata = {
-  title: "مدرب اللياقة الذكي EVO — خطط مخصصة بالذكاء الاصطناعي | Alkemos",
+  // BRANDLESS by law: the /ar/layout template appends exactly one
+  // " — Alkemos" to depth-1 titles — including a brand here would render
+  // a double-brand title (the same class of bug P0-3 fixed on blog).
+  title: "مدرب اللياقة الذكي EVO — خطط مخصصة بالذكاء الاصطناعي",
   description:
     "EVO محرك أداء ذكي من Alkemos — ليس مجرد روبوت محادثة: يقرأ بياناتك الصحية وهدفك، يبني خطط تغذية وتمارين مخصصة، يقترح بدائل ذكية للوجبات والتمارين، ويوفر استشارات لياقة وتغذية على مدار الساعة عبر الذكاء الاصطناعي. مجاني للجميع.",
   keywords: [

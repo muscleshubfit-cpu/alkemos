@@ -46,21 +46,24 @@ describe("AR mirrors for /evo + /coaching (SEO-GEO-6.4 §12.23)", () => {
     );
   });
 
-  it("AR /evo layout: canonical + full hreflang + Arabic title within budget", () => {
+  it("AR /evo layout: canonical + full hreflang + brandless title within budget", () => {
     expect(arEvoMetadata.alternates?.canonical).toBe("https://alkemos.com/ar/evo");
     expect(arEvoMetadata.alternates?.languages).toEqual({
       en: "https://alkemos.com/evo",
       ar: "https://alkemos.com/ar/evo",
       "x-default": "https://alkemos.com/evo",
     });
+    // ANTI-DOUBLE-BRAND CANARY: the /ar/layout template appends exactly
+    // one " — Alkemos" to depth-1 titles — the stored title must carry NO
+    // brand of its own (same law class as the P0-3 blog brand strip).
     const title = arEvoMetadata.title as string;
     expect(title).toMatch(/[\u0600-\u06FF]/);
-    expect(title.length).toBeLessThanOrEqual(70);
-    expect(title.endsWith("Alkemos")).toBe(true);
+    expect(title).not.toContain("Alkemos");
+    expect(`${title} — Alkemos`.length).toBeLessThanOrEqual(70);
     expect((arEvoMetadata.openGraph?.locale as string) || "").toBe("ar_EG");
   });
 
-  it("AR /coaching layout: canonical + full hreflang + Arabic title within budget", () => {
+  it("AR /coaching layout: canonical + full hreflang + brandless title within budget", () => {
     expect(arCoachingMetadata.alternates?.canonical).toBe(
       "https://alkemos.com/ar/coaching",
     );
@@ -69,10 +72,11 @@ describe("AR mirrors for /evo + /coaching (SEO-GEO-6.4 §12.23)", () => {
       ar: "https://alkemos.com/ar/coaching",
       "x-default": "https://alkemos.com/coaching",
     });
+    // ANTI-DOUBLE-BRAND CANARY (see the /evo test above).
     const title = arCoachingMetadata.title as string;
     expect(title).toMatch(/[\u0600-\u06FF]/);
-    expect(title.length).toBeLessThanOrEqual(70);
-    expect(title.endsWith("Alkemos")).toBe(true);
+    expect(title).not.toContain("Alkemos");
+    expect(`${title} — Alkemos`.length).toBeLessThanOrEqual(70);
     expect((arCoachingMetadata.openGraph?.locale as string) || "").toBe("ar_EG");
   });
 

@@ -12,7 +12,10 @@ import { getCoachingServiceSchema, jsonLd } from "@/lib/seo";
  * Arabic-first (src/lib/seo.ts), with aggregateRating removed (P0-5).
  */
 export const metadata: Metadata = {
-  title: "الكوتشينج أونلاين — مدربون وأخصائيو تغذية معتمدون | Alkemos",
+  // BRANDLESS by law: the /ar/layout template appends exactly one
+  // " — Alkemos" to depth-1 titles — including a brand here would render
+  // a double-brand title (the same class of bug P0-3 fixed on blog).
+  title: "الكوتشينج أونلاين — مدربون وأخصائيو تغذية معتمدون",
   description:
     "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية مخصصة، برامج تمارين متكيفة مع مستواك، متابعة شخصية أسبوعية، ومساعد ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
   keywords: [
