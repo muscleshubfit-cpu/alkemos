@@ -525,7 +525,7 @@ export default function WaterTrackerPage() {
           />
         </div>
 
-        {/* Review invite (SEO-GEO-6.3 §12.22) — after-results, dismissible, compliant */}
+        {/* Review invite (SEO-GEO-6.3 §12.22 + §12.24) — always-on slim strip below results, never blocks them */}
         <ReviewInviteCard />
 
         {/* AdSense */}

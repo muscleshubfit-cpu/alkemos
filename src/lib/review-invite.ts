@@ -4,7 +4,14 @@
  * داخل الموقع مثل بعد نتائج الادوات و توليد الخطط … بدون ازعاج …
  * بدون اى مكافئة او وعود»).
  *
- * A slim, dismissible invite strip rendered AFTER tool results / plan
+ * §12.24 AMENDMENT (same day, owner correction): «ليس مطلوب إغفال،
+ * المقصود بدون ازعاج ( ان لاتظهر بشكل مزعج يحجب نتائج او اى شكل
+ * مزعج)» — the hide button and its 30-day cooldown were REMOVED.
+ * Non-annoyance is purely visual: a slim inline strip that sits BELOW
+ * the results flow and never blocks anything (never a modal, never an
+ * overlay). The strip is always rendered with the results.
+ *
+ * A slim, always-on invite strip rendered AFTER tool results / plan
  * generation, asking for an honest public review. Platform links come
  * from the single source src/lib/social.ts (auto-propagation law).
  *
@@ -13,32 +20,19 @@
  *   - Trustpilot: asking for reviews is allowed; INCENTIVES (discounts,
  *     coupons, gifts, rewards) and REVIEW GATING (filtering who sees the
  *     invite by a satisfaction answer) are prohibited. This invite is
- *     rendered for ALL users unconditionally — the soft "if you enjoy it"
- *     lives in the COPY only, never in display logic. No promises.
+ *     rendered for ALL users unconditionally — the component takes ZERO
+ *     props, so display logic cannot depend on a satisfaction answer.
+ *     The soft "if you enjoy it" lives in the COPY only. No promises.
  *   - Product Hunt: incentivized upvotes are forbidden; vote-begging is
  *     discouraged. The PH button is a neutral discovery link ("We're on
  *     Product Hunt") with no upvote solicitation and no rewards.
  *
- * Non-annoyance law: one strip per result screen, dismissible with a
- * 30-day cooldown (localStorage), no modals, no overlays.
+ * Non-annoyance law (§12.24): one slim inline strip per result screen,
+ * always rendered, never a modal, never an overlay, never blocks the
+ * results — no hide state, no storage, no timers.
  */
 
 import { SOCIAL_PROFILES } from "./social";
-
-export const REVIEW_INVITE_STORAGE_KEY = "alkemos-review-invite-dismissed";
-export const REVIEW_INVITE_COOLDOWN_DAYS = 30;
-
-/** Pure display predicate — takes NO satisfaction/rating input (no gating). */
-export function shouldShowReviewInvite(
-  now: Date,
-  storedValue: string | null,
-): boolean {
-  if (!storedValue) return true;
-  const dismissedAt = Date.parse(storedValue);
-  if (Number.isNaN(dismissedAt)) return true; // corrupt entry → fail-open
-  const cooldownMs = REVIEW_INVITE_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
-  return now.getTime() - dismissedAt >= cooldownMs;
-}
 
 /** Canonical invite URL from the single source (social.ts). */
 export function reviewInviteUrl(
@@ -59,14 +53,12 @@ export const REVIEW_INVITE_COPY = {
     line: "Your honest public review helps others find the platform — it takes about 2 minutes.",
     trustpilot: "Review on Trustpilot",
     producthunt: "We're on Product Hunt",
-    dismiss: "Dismiss",
   },
   ar: {
     title: "استفدت من Alkemos؟",
     line: "مراجعتك الصادقة تساعد غيرك على اكتشاف المنصة — تستغرق حوالي دقيقتين.",
     trustpilot: "قيّمنا على Trustpilot",
     producthunt: "تجدنا على Product Hunt",
-    dismiss: "إخفاء",
   },
 } as const;
 

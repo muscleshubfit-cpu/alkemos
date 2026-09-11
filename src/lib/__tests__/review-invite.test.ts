@@ -1,31 +1,37 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   REVIEW_INVITE_COPY,
-  REVIEW_INVITE_COOLDOWN_DAYS,
-  REVIEW_INVITE_STORAGE_KEY,
-  shouldShowReviewInvite,
   reviewInviteUrl,
 } from "@/lib/review-invite";
 import { SOCIAL_PROFILES } from "@/lib/social";
 
 /**
- * Phase SEO-GEO-6.3 canaries (§12.22) — the review-invite laws:
+ * Phase SEO-GEO-6.3 canaries (§12.22 + §12.24 amendment) — the
+ * review-invite laws:
  *   1. Platform links come from the single source (social.ts) and are
  *      the canonical profiles — no drift, no tracking params.
- *   2. 30-day dismissal cooldown: null → show, fresh → hide,
- *      expired → show, corrupt → fail-open.
- *   3. COMPLIANCE CANARY: no incentive / reward / promise wording in
+ *   2. COMPLIANCE CANARY: no incentive / reward / promise wording in
  *      any EN or AR copy string (Trustpilot: no incentives, no review
  *      gating; Product Hunt: no incentivized upvotes).
- *   4. Bilingual copy present (AR strings carry Arabic script).
- *   5. The display predicate takes NO satisfaction input — its signature
- *      is (now: Date, stored: string | null): gating is structurally
- *      impossible.
+ *   3. Bilingual copy present (AR strings carry Arabic script).
+ *   4. §12.24 STRUCTURAL CANARY: NO dismissal mechanism survives — the
+ *      component takes ZERO props (a satisfaction/rating input is
+ *      structurally impossible → no gating) and no code path touches
+ *      localStorage, cooldowns, or a display predicate.
  */
 
-const DAY = 24 * 60 * 60 * 1000;
+const stripComments = (s: string) =>
+  s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 
-describe("review invite (SEO-GEO-6.3 §12.22)", () => {
+const componentCode = stripComments(
+  readFileSync("src/components/ReviewInviteCard.tsx", "utf8"),
+);
+const libCode = stripComments(
+  readFileSync("src/lib/review-invite.ts", "utf8"),
+);
+
+describe("review invite (SEO-GEO-6.3 §12.22 + §12.24)", () => {
   it("links resolve to the canonical profiles from social.ts (single source)", () => {
     const tp = SOCIAL_PROFILES.find((p) => p.name === "trustpilot");
     const ph = SOCIAL_PROFILES.find((p) => p.name === "producthunt");
@@ -43,36 +49,6 @@ describe("review invite (SEO-GEO-6.3 §12.22)", () => {
     expect(() =>
       reviewInviteUrl("youtube" as "trustpilot"),
     ).toThrow();
-  });
-
-  it("cooldown law: null → show · fresh → hide · expired → show · corrupt → show", () => {
-    const now = new Date("2026-09-12T12:00:00Z");
-    expect(shouldShowReviewInvite(now, null)).toBe(true);
-    expect(shouldShowReviewInvite(now, "not-a-date")).toBe(true);
-    expect(shouldShowReviewInvite(now, "")).toBe(true);
-    // dismissed 1 day ago → hidden
-    expect(
-      shouldShowReviewInvite(now, new Date(now.getTime() - 1 * DAY).toISOString()),
-    ).toBe(false);
-    // dismissed cooldown-1 days ago → hidden (boundary just under)
-    expect(
-      shouldShowReviewInvite(
-        now,
-        new Date(now.getTime() - (REVIEW_INVITE_COOLDOWN_DAYS - 1) * DAY).toISOString(),
-      ),
-    ).toBe(false);
-    // dismissed cooldown+1 days ago → shown again
-    expect(
-      shouldShowReviewInvite(
-        now,
-        new Date(now.getTime() - (REVIEW_INVITE_COOLDOWN_DAYS + 1) * DAY).toISOString(),
-      ),
-    ).toBe(true);
-  });
-
-  it("storage key + cooldown are pinned (non-annoyance law)", () => {
-    expect(REVIEW_INVITE_STORAGE_KEY).toBe("alkemos-review-invite-dismissed");
-    expect(REVIEW_INVITE_COOLDOWN_DAYS).toBe(30);
   });
 
   it("COMPLIANCE CANARY: no incentive/reward/promise wording in EN or AR copy", () => {
@@ -107,9 +83,27 @@ describe("review invite (SEO-GEO-6.3 §12.22)", () => {
     expect(REVIEW_INVITE_COPY.ar.line.length).toBeGreaterThan(20);
   });
 
-  it("no gating input: display predicate arity is exactly (now, stored)", () => {
-    // Structural canary — the function must NOT grow satisfaction/rating
-    // parameters (review gating is prohibited by Trustpilot).
-    expect(shouldShowReviewInvite.length).toBe(2);
+  it("§12.24 AMENDMENT CANARY: zero props, no dismissal, no storage, no cooldown, no display predicate", () => {
+    // Owner correction «ليس مطلوب إغفال … بدون ازعاج = ألا تحجب النتائج»:
+    // the hide button + 30-day cooldown were removed; non-annoyance is
+    // purely visual (slim inline strip below the results flow).
+    //
+    // Zero props → display logic cannot take a satisfaction/rating input
+    // (review gating stays structurally impossible — Trustpilot law).
+    expect(libCode + componentCode).toMatch(
+      /export function ReviewInviteCard\(\)/,
+    );
+    for (const code of [libCode, componentCode]) {
+      expect(code, "no localStorage anywhere").not.toContain("localStorage");
+      expect(code, "no dismissal mechanism").not.toContain("dismiss");
+      expect(code, "no cooldown constant").not.toContain("COOLDOWN");
+      expect(code, "no storage key export").not.toContain("STORAGE_KEY");
+    }
+    // The §12.22 display predicate must not come back — visibility is
+    // unconditional now, so there is nothing to predicate.
+    expect(libCode).not.toContain("shouldShowReviewInvite");
+    // No visibility gate in the component (renders with the results).
+    expect(componentCode).not.toContain("useState");
+    expect(componentCode).not.toContain("useEffect");
   });
 });

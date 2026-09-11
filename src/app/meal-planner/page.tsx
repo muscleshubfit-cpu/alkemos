@@ -463,7 +463,7 @@ export default function MealPlannerPage() {
           />
         </div>
 
-        {/* Review invite (SEO-GEO-6.3 §12.22) — after-plan-generation, dismissible, compliant */}
+        {/* Review invite (SEO-GEO-6.3 §12.22 + §12.24) — always-on slim strip below the generated plan, never blocks it */}
         <ReviewInviteCard />
 
         {/* AdSense */}

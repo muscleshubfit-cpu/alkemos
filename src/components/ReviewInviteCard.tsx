@@ -1,61 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Star, X } from "lucide-react";
+import { Star } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import {
   REVIEW_INVITE_COPY,
-  REVIEW_INVITE_STORAGE_KEY,
-  shouldShowReviewInvite,
   reviewInviteUrl,
 } from "@/lib/review-invite";
 
 /**
- * ReviewInviteCard — Phase SEO-GEO-6.3 (§12.22).
+ * ReviewInviteCard — Phase SEO-GEO-6.3 (§12.22) + §12.24 amendment.
  *
- * Slim dismissible strip rendered after tool results / plan generation
+ * Slim always-on strip rendered after tool results / plan generation
  * (5 calculators + meal planner, EN + AR via the shared bilingual client
  * pages). Asks for an honest public review on Trustpilot and shows a
  * neutral Product Hunt discovery link.
  *
  * Laws (src/lib/review-invite.ts header):
  *   - NO incentives / promises (Trustpilot + Product Hunt guidelines).
- *   - NO gating: rendered for every visitor — display logic never
- *     depends on a satisfaction answer.
- *   - Non-annoying: inline strip (never a modal), dismissible with a
- *     30-day cooldown via localStorage, hidden until mounted so SSR and
- *     client render agree.
+ *   - NO gating: rendered for every visitor — the component takes ZERO
+ *     props, so display logic cannot depend on a satisfaction answer.
+ *   - Non-annoying (§12.24 owner correction «ليس مطلوب إغفال … المقصود
+ *     بدون ازعاج: ألا تظهر بشكل مزعج يحجب النتائج»): purely visual —
+ *     a slim inline strip INSIDE the results flow (after share buttons,
+ *     before ads), never a modal, never an overlay, never blocks the
+ *     results. Always rendered, no hide state, no storage, no timers.
  */
 export function ReviewInviteCard() {
   const { lang } = useI18n();
   const isAr = lang === "ar";
   const copy = isAr ? REVIEW_INVITE_COPY.ar : REVIEW_INVITE_COPY.en;
-
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(REVIEW_INVITE_STORAGE_KEY);
-      setVisible(shouldShowReviewInvite(new Date(), stored));
-    } catch {
-      // Private mode / storage disabled → fail-open (show once).
-      setVisible(true);
-    }
-  }, []);
-
-  if (!visible) return null;
-
-  const dismiss = () => {
-    try {
-      window.localStorage.setItem(
-        REVIEW_INVITE_STORAGE_KEY,
-        new Date().toISOString(),
-      );
-    } catch {
-      /* storage unavailable — visual dismissal only */
-    }
-    setVisible(false);
-  };
 
   return (
     <div className="rounded-2xl border border-[var(--edge)] bg-[var(--tint)] p-4">
@@ -84,15 +57,6 @@ export function ReviewInviteCard() {
           >
             {copy.producthunt}
           </a>
-          <button
-            type="button"
-            onClick={dismiss}
-            aria-label={copy.dismiss}
-            title={copy.dismiss}
-            className="text-[var(--muted-foreground)] transition-colors hover:text-[var(--text)]"
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </div>
