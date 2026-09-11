@@ -186,7 +186,8 @@ export interface MsaValidation {
  * text is only allowed to reach the DB when ALL of these hold:
  *
  *   1. zero STRONG dialect markers remain
- *   2. weak markers strictly improved (fewer than before)
+ *   2. weak markers strictly improved (fewer than before) — only when
+ *      the input carried any (a clean chunk must pass 0→0)
  *   3. Arabic word-count ratio within [0.55, 1.60] — neither truncation
  *      nor inflation (E-E-A-T: meaning preserved, nothing fabricated)
  *   4. image URLs byte-identical (old images are untouched — owner law)
@@ -210,7 +211,10 @@ export function validateMsaConversion(before: string, after: string): MsaValidat
       `strong dialect markers remain: ${sa.strongHits.map(([m, c]) => `${m}×${c}`).join(", ")}`,
     );
   }
-  if (before.trim() && sa.weak >= sb.weak) {
+  // Weak improvement is only REQUIRED when the input carried weak markers —
+  // a clean CHUNK (preambles are often already MSA) must not fail 0→0
+  // (the 175.7 chunked-run bug that killed three articles at chunk 1).
+  if (before.trim() && sb.weak > 0 && sa.weak >= sb.weak) {
     violations.push(
       `weak markers did not improve (${sb.weak} → ${sa.weak}: ${sa.weakHits.map(([m, c]) => `${m}×${c}`).join(", ")})`,
     );

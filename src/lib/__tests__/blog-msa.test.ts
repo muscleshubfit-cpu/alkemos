@@ -221,10 +221,20 @@ describe("Phase 175 — validateMsaConversion (the pre-write gate)", () => {
 
   it("a conversion that does not improve weak markers is rejected", () => {
     const lazy = LEGACY_BEFORE.replace("عشان", "لأن").replace("هتلاقي", "ستجد");
-    // مش×2 و ده و كتير بقيت كما هي — لم يتحسن العدّ الضعيف
+    // مش×3 و ده و كتير بقيت كما هي — لم يتحسن العدّ الضعيف
     const check = validateMsaConversion(LEGACY_BEFORE, lazy);
     expect(check.ok).toBe(false);
     expect(check.violations.join(" ")).toContain("did not improve");
+  });
+
+  it("a CLEAN chunk passes 0→0 (the 175.7 chunked-run bug)", () => {
+    // Preambles (before the first ##) are often already MSA — the weak
+    // "improvement" check must not fail a clean-input chunk 0→0 (this
+    // exact bug killed three articles at chunk 1 in the chunked run).
+    const cleanBefore = "## مقدمة\n\nمقدمة نظيفة بالفصحى الحديثة السهلة والواضحة.";
+    const cleanAfter = "## مقدمة\n\nمقدمة نظيفة بالفصحى الحديثة السهلة والواضحة.";
+    const check = validateMsaConversion(cleanBefore, cleanAfter);
+    expect(check.ok).toBe(true);
   });
 });
 

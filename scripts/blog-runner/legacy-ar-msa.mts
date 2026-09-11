@@ -108,10 +108,13 @@ function buildPrompt(content: string, retryViolations?: string[], scope: "articl
   const retry = retryViolations?.length
     ? `\n\n⚠️ محاولة سابقة رُفضت بالتحقق الحتمي بسبب:\n- ${retryViolations.join("\n- ")}\nأعد التحويل معالجًا هذه المخالفات تحديدًا.`
     : "";
-  const subject = scope === "section" ? "مقطع من مقالة Alkemos" : "مقالة Alkemos";
-  const whole = scope === "section" ? "أعد المقطع كاملًا من أوله إلى آخره" : "أعد المقال كاملًا من أوله إلى آخره";
+  const subject =
+    scope === "section"
+      ? `هذا المقطع (مقطع واحد فقط من مقالة Alkemos قائمة — ليس مقالًا جديدًا: لا تُوسّع ولا تُضف محتوى، حوّل النص الموجود فقط بحجمه نفسه)`
+      : "مقالة Alkemos التالية";
+  const whole = scope === "section" ? "أعد المقطع كاملًا من أوله إلى آخره وبحجمه نفسه" : "أعد المقال كاملًا من أوله إلى آخره";
   return (
-    `حوّل ${subject} التالي من العامية المصرية/اللغة غير المعيارية إلى العربية الفصحى الحديثة السهلة (Pan-Arab Modern Standard Arabic) بلا أي لهجة محلية.
+    `حوّل ${subject} — من العامية المصرية/اللغة غير المعيارية إلى العربية الفصحى الحديثة السهلة (Pan-Arab Modern Standard Arabic) بلا أي لهجة محلية.
 
 أهداف رقمية إلزامية للتحقق الحتمي:
 - عدد الكلمات العربية في الناتج يجب أن يكون في نطاق ±20% من: ${arWords} كلمة (الناتج المضغوط/المختصر مرفوض).
