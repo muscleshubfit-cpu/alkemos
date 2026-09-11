@@ -48,6 +48,12 @@ const SLUGS = (process.env.SLUGS || "")
   .map((s) => s.trim())
   .filter(Boolean);
 const MAX_ATTEMPTS = 4;
+// CHUNKED mode (175.7): split the article at ## boundaries and convert
+// section-by-section — the stubborn-article fix (compression + format
+// breaks both shrink with per-section prompts). Env-selectable so a
+// dispatch can force it for known-stubborn slugs.
+const CHUNKED = process.env.CHUNKED === "1";
+const CHUNK_ATTEMPTS = 2;
 
 // Same sentinel contract the editor article_tools use (ai-job-processors).
 const MARKER_MAIN = "===CORRECTED===";
@@ -62,19 +68,26 @@ interface Row {
   content: string | null;
 }
 
-/** Parse the sentinel-wrapped model output; null when the format broke
- *  or the payload is degenerate (zero Arabic characters — the nvidia
- *  reasoning-model class that "succeeds" with an empty content field
- *  and English thinking text in its reasoning fallback). */
+/** Parse the sentinel-wrapped model output; null when the payload is
+ *  degenerate (zero Arabic characters — the nvidia reasoning-model class
+ *  that "succeeds" with an empty content field and English thinking text
+ *  in its reasoning fallback).
+ *  MARKERLESS FALLBACK (175.7): the five stubborn articles kept failing
+ *  on format breaks — models that completed a clean conversion but
+ *  dropped the ===CORRECTED=== marker. When the raw text carries real
+ *  Arabic + markdown headings, the WHOLE fence-stripped text becomes the
+ *  candidate and the deterministic validator stays the gate (preamble
+ *  chatter cannot pass the link/image/heading/ratio checks). */
 function parseSentinel(raw: string): string | null {
   let text = (raw || "").trim();
   const fence = text.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/);
   if (fence) text = fence[1].trim();
   const i = text.indexOf(MARKER_MAIN);
-  if (i === -1) return null;
-  text = text.slice(i + MARKER_MAIN.length);
-  const j = text.indexOf(MARKER_NOTES);
-  if (j !== -1) text = text.slice(0, j);
+  if (i >= 0) {
+    text = text.slice(i + MARKER_MAIN.length);
+    const j = text.indexOf(MARKER_NOTES);
+    if (j >= 0) text = text.slice(0, j);
+  }
   text = text.trim();
   if (text.length === 0) return null;
   // Degenerate payload: a dialect→MSA conversion MUST produce Arabic —
@@ -85,7 +98,7 @@ function parseSentinel(raw: string): string | null {
   return text;
 }
 
-function buildPrompt(content: string, retryViolations?: string[]): string {
+function buildPrompt(content: string, retryViolations?: string[], scope: "article" | "section" = "article"): string {
   // Concrete numeric targets (live batch evidence: models complied with
   // explicit counts far better than with prose-only instructions — the
   // compression failures all hit articles where the model had no target).
@@ -95,8 +108,10 @@ function buildPrompt(content: string, retryViolations?: string[]): string {
   const retry = retryViolations?.length
     ? `\n\n⚠️ محاولة سابقة رُفضت بالتحقق الحتمي بسبب:\n- ${retryViolations.join("\n- ")}\nأعد التحويل معالجًا هذه المخالفات تحديدًا.`
     : "";
+  const subject = scope === "section" ? "مقطع من مقالة Alkemos" : "مقالة Alkemos";
+  const whole = scope === "section" ? "أعد المقطع كاملًا من أوله إلى آخره" : "أعد المقال كاملًا من أوله إلى آخره";
   return (
-    `حوّل مقالة Alkemos التالية من العامية المصرية/اللغة غير المعيارية إلى العربية الفصحى الحديثة السهلة (Pan-Arab Modern Standard Arabic) بلا أي لهجة محلية.
+    `حوّل ${subject} التالي من العامية المصرية/اللغة غير المعيارية إلى العربية الفصحى الحديثة السهلة (Pan-Arab Modern Standard Arabic) بلا أي لهجة محلية.
 
 أهداف رقمية إلزامية للتحقق الحتمي:
 - عدد الكلمات العربية في الناتج يجب أن يكون في نطاق ±20% من: ${arWords} كلمة (الناتج المضغوط/المختصر مرفوض).
@@ -111,15 +126,15 @@ function buildPrompt(content: string, retryViolations?: string[]): string {
 5. حافظ حرفيًا على صور Markdown (![نص](رابط)) كما هي — لا تغيّر النص البديل ولا الرابط.
 6. حافظ على بنية العناوين (# و ## و ###) ومستوياتها وترتيبها كما هي — لا تُضف عناوين جديدة ولا تحذف عناوين.
 7. احذف أي فقرة ختامية تسويقية تدعو لحجز جلسة أو الانضمام إلى الكوتشينج إن وُجدت في نهاية المقال (الصفحة تعرض بطاقات CTA بعد المقال) — ولا تُضف أي خاتمة تسويقية جديدة.
-8. أعد المقال كاملًا من أوله إلى آخره — أي بتر أو اختصار للنص يجعل الناتج مرفوضًا.
+8. ${whole} — أي بتر أو اختصار للنص يجعل الناتج مرفوضًا.
 
 أعد النتيجة بهذا الشكل الحرفي (لا JSON ولا أسوار كود):
 ${MARKER_MAIN}
-النص النهائي كاملًا بصيغة Markdown
+${scope === "section" ? "النص النهائي للمقطع كاملًا بصيغة Markdown" : "النص النهائي كاملًا بصيغة Markdown"}
 ${MARKER_NOTES}
 - أهم التغييرات (٢-٥ نقاط)` +
     retry +
-    `\n\nالمقال الأصلي (حوّله كاملًا):\n\n${content}`
+    `\n\n${scope === "section" ? "المقطع الأصلي" : "المقال الأصلي"} (حوّله كاملًا):\n\n${content}`
   );
 }
 
@@ -193,6 +208,96 @@ async function convertArticle(
   return { error: `unvalidated after ${MAX_ATTEMPTS} attempts — ${(violations || []).join(" | ")}` };
 }
 
+// ── CHUNKED conversion (175.7 — the stubborn-article path) ──────────
+// The five articles that defeated 4×full-article attempts share two
+// failure modes (whole-article compression + sentinel-format breaks).
+// Section-scoped prompts shrink both: the model sees ONE ## section at a
+// time, the output is short enough to never compress, and the format
+// contract is trivial to hold. Every chunk passes its own validation
+// before assembly, and the assembled whole passes the FULL validator.
+
+function splitIntoChunks(content: string): string[] {
+  // Split at ## (H2) boundaries; the preamble before the first ## is its
+  // own chunk; ### subsections stay inside their ## parent.
+  const lines = content.split("\n");
+  const chunks: string[][] = [];
+  let current: string[] = [];
+  for (const line of lines) {
+    if (/^##\s/.test(line) && current.join("").trim().length > 0) {
+      chunks.push(current);
+      current = [line];
+    } else {
+      current.push(line);
+    }
+  }
+  if (current.join("").trim().length > 0) chunks.push(current);
+  return chunks.map((c) => c.join("\n").trim()).filter((c) => c.length > 0);
+}
+
+async function convertChunk(
+  chunk: string,
+  slug: string,
+  idx: number,
+  total: number,
+): Promise<string | null> {
+  let violations: string[] | undefined;
+  for (let attempt = 1; attempt <= CHUNK_ATTEMPTS; attempt++) {
+    if (attempt > 1) await sleep(15_000);
+    try {
+      const { text } = await callFreeAIFallbackChain(
+        buildPrompt(chunk, violations, "section"),
+        {
+          tag: `msa-cleanup:${slug}:c${idx}`,
+          systemPrompt: AR_MSA_EDITOR_LAW,
+          temperature: 0.3,
+          maxTokens: 4_000,
+          timeoutMs: 150_000,
+          maxModels: 2,
+        },
+      );
+      const candidate = parseSentinel(text);
+      if (!candidate) {
+        violations = [/[\u0600-\u06FF]/.test(text) ? "خرق تنسيق الإخراج" : "ناتج غير عربي"];
+        continue;
+      }
+      const check = validateMsaConversion(chunk, candidate);
+      if (check.ok) return candidate;
+      violations = check.violations;
+    } catch (e) {
+      violations = [e instanceof Error ? e.message : String(e)];
+    }
+  }
+  console.log(`    chunk ${idx + 1}/${total} failed: ${(violations || []).join(" | ")}`);
+  return null;
+}
+
+async function convertArticleChunked(
+  slug: string,
+  content: string,
+): Promise<ConvertOk | ConvertFail> {
+  const chunks = splitIntoChunks(content);
+  const converted: string[] = [];
+  for (const [idx, chunk] of chunks.entries()) {
+    const out = await convertChunk(chunk, slug, idx, chunks.length);
+    if (!out) {
+      return { error: `chunk ${idx + 1}/${chunks.length} failed validation after ${CHUNK_ATTEMPTS} attempts` };
+    }
+    converted.push(out);
+  }
+  const assembled = converted.join("\n\n");
+  const check = validateMsaConversion(content, assembled);
+  if (!check.ok) {
+    return { error: `assembled article failed: ${check.violations.join(" | ")}` };
+  }
+  return {
+    text: assembled,
+    model: `chunked(${chunks.length})`,
+    attempts: 1,
+    weakAfter: check.metrics.weakAfter,
+    wordsAfter: check.metrics.wordsAfter,
+  };
+}
+
 async function main(): Promise<number> {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     console.error(
@@ -213,7 +318,7 @@ async function main(): Promise<number> {
   }
   const rows = (data || []) as Row[];
   console.log(
-    `legacy-ar-msa: ${rows.length} published AR posts scanned (mode=${DRY_RUN ? "DRY_RUN" : "APPLY"}${LIMIT ? ` limit=${LIMIT}` : ""}${SLUGS.length ? ` slugs=${SLUGS.join(",")}` : ""})`,
+    `legacy-ar-msa: ${rows.length} published AR posts scanned (mode=${DRY_RUN ? "DRY_RUN" : "APPLY"}${CHUNKED ? "+CHUNKED" : ""}${LIMIT ? ` limit=${LIMIT}` : ""}${SLUGS.length ? ` slugs=${SLUGS.join(",")}` : ""})`,
   );
 
   const scanned = rows.map((row) => ({
@@ -262,7 +367,9 @@ async function main(): Promise<number> {
       console.log("  SKIP: empty content");
       continue;
     }
-    const result = await convertArticle(row.slug, content);
+    const result = CHUNKED
+      ? await convertArticleChunked(row.slug, content)
+      : await convertArticle(row.slug, content);
     if ("error" in result) {
       failed += 1;
       console.log(`  FAILED (row untouched): ${result.error}`);

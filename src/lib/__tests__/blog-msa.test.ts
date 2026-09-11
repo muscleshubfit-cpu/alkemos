@@ -278,5 +278,11 @@ describe("Phase 175 — cleanup runner + workflow presence (canaries)", () => {
     // "success" class observed live in run 34522943898) are rejected at
     // the sentinel parser, never validated as content.
     expect(runner).toContain("الناتج بلا محتوى عربي");
+    // The stubborn-article path: chunked section-by-section conversion,
+    // per-chunk validation + full assembled validation.
+    expect(runner).toContain("convertArticleChunked");
+    expect(runner).toContain("splitIntoChunks");
+    const wfChunk = read(join(process.cwd(), ".github", "workflows", "legacy-ar-cleanup.yml"));
+    expect(wfChunk).toContain("CHUNKED: ${{ inputs.chunked");
   });
 });
