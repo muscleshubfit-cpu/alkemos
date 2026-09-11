@@ -54,6 +54,7 @@ export async function GET(): Promise<Response> {
 - Arabic homepage: ${SITE}/ar
 - English blog feed (RSS): ${SITE}/rss.xml
 - Arabic blog feed (RSS): ${SITE}/ar/rss.xml
+- Official profiles: Facebook https://www.facebook.com/people/Alkemos/61593989587279/ · Instagram https://www.instagram.com/aalkemos/ · X https://x.com/Alkemos · LinkedIn https://www.linkedin.com/in/alke-mos-29a751435 · Trustpilot reviews https://www.trustpilot.com/review/alkemos.com · Product Hunt https://www.producthunt.com/products/alkemos
 
 ## Main sections
 

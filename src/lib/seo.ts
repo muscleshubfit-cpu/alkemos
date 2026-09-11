@@ -70,6 +70,9 @@ export function jsonLd(obj: unknown): string {
  * source src/lib/social.ts. This is the deferred technical attribution
  * step — it gives the Knowledge Graph the brand-entity links that
  * disambiguate Alkemos from the Alkimos suburb in brand queries.
+ *
+ * Phase SEO-GEO-6.2 (2026-09-12): LinkedIn added (owner-created, §12.21)
+ * — sameAs now carries SIX owned profiles.
  */
 export function getOrganizationSchema() {
   const founderPerson = getPersonSchema(AHMED_ZAKE);

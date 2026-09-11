@@ -13,6 +13,10 @@
  *   2. The landing-page footer icon row (LandingView.tsx) — the human
  *      visible counterpart.
  *
+ * Phase SEO-GEO-6.2 (2026-09-12): LinkedIn added — the owner created it
+ * (§12.21, one of the three optional entity accounts from §12.13). URL
+ * is canonicalized (utm share params stripped).
+ *
  * Verification (2026-09-09, headless browser):
  *   - Trustpilot: live — page title "Alkemos Reviews | Be the first to
  *     review alkemos.com" (0 reviews yet — first-10-reviews task pending).
@@ -32,7 +36,7 @@
 
 export type SocialProfile = {
   /** stable machine key (matches icon row order) */
-  name: "facebook" | "instagram" | "x" | "trustpilot" | "producthunt";
+  name: "facebook" | "instagram" | "x" | "linkedin" | "trustpilot" | "producthunt";
   /** canonical profile URL — sameAs-safe (no trackers, no query strings) */
   url: string;
   labelEn: string;
@@ -57,6 +61,12 @@ export const SOCIAL_PROFILES: readonly SocialProfile[] = [
     url: "https://x.com/Alkemos",
     labelEn: "Alkemos on X",
     labelAr: "Alkemos على X",
+  },
+  {
+    name: "linkedin",
+    url: "https://www.linkedin.com/in/alke-mos-29a751435",
+    labelEn: "Alkemos on LinkedIn",
+    labelAr: "Alkemos على LinkedIn",
   },
   {
     name: "trustpilot",

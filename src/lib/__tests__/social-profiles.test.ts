@@ -7,21 +7,23 @@ import { getOrganizationSchema } from "@/lib/seo";
  *
  * The owner created the brand's real profiles (master plan §12.10 entity
  * building) and supplied the URLs in 2026-09-09. These tests pin:
- *   - exactly the five owned profiles (Trustpilot · Product Hunt ·
- *     Facebook · Instagram · X) — nothing fake, nothing missing
+ *   - exactly the owned profiles (Trustpilot · Product Hunt · Facebook ·
+ *     Instagram · X + LinkedIn since §12.21/SEO-GEO-6.2) — nothing fake,
+ *     nothing missing
  *   - every URL is canonical: https, no query strings / trackers
  *     (the FB share link MUST stay resolved to the /people/… form)
- *   - Organization.sameAs carries the site + all five profiles — the
+ *   - Organization.sameAs carries the site + all profiles — the
  *     Knowledge Graph entity link that disambiguates Alkemos from the
  *     Alkimos suburb (master plan §2.3)
  */
 
 describe("social profiles (SEO-GEO-4.6 entity attribution)", () => {
-  it("has exactly the five owned profiles, in icon-row order", () => {
+  it("has exactly the six owned profiles, in icon-row order", () => {
     expect(SOCIAL_PROFILES.map((p) => p.name)).toEqual([
       "facebook",
       "instagram",
       "x",
+      "linkedin",
       "trustpilot",
       "producthunt",
     ]);
@@ -42,6 +44,13 @@ describe("social profiles (SEO-GEO-4.6 entity attribution)", () => {
     );
   });
 
+  it("LinkedIn URL is the canonical /in/ form with utm share params stripped", () => {
+    const li = SOCIAL_PROFILES.find((p) => p.name === "linkedin");
+    expect(li?.url).toBe(
+      "https://www.linkedin.com/in/alke-mos-29a751435",
+    );
+  });
+
   it("profiles are bilingual-labeled (AR labels contain Arabic script)", () => {
     const hasArabic = (s: string) => /[\u0600-\u06FF]/.test(s);
     for (const p of SOCIAL_PROFILES) {
@@ -50,7 +59,7 @@ describe("social profiles (SEO-GEO-4.6 entity attribution)", () => {
     }
   });
 
-  it("Organization.sameAs = site + all five profile URLs (no dupes)", () => {
+  it("Organization.sameAs = site + all six profile URLs (no dupes)", () => {
     const schema = getOrganizationSchema();
     expect(schema["@type"]).toBe("Organization");
     const sameAs = schema.sameAs as string[];

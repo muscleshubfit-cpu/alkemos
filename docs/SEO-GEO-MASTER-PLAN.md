@@ -1016,6 +1016,22 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **إغلاق P0-1 (2026-09-12 — أمر المالك من لوحة Cloudflare «تم تعطيل robots.txt configuration من كلاود فلير»):** نفّذ المالك الخيار الثاني الموثق أعلاه — تعطيل **Managed robots.txt** بالكامل. **التحقق الحي بعد التنفيذ:** الملف الحي = **1,199 بايت مطابقة بايت-بايت** لملف المستودع `public/robots.txt` — نفس الـmd5 لكل UA مفحوص (سطح المكتب · GPTBot · ClaudeBot · CCBot · Google-Extended · Bytespider · PerplexityBot — لا تقديم انتقائي) · أمر التحقق الموثق أعلاه يرجع **0** قواعد `Disallow: /$` · مجموعة `User-agent: *` واحدة موحدة · 7 إعلانات Sitemap · سطر `Content-Signal: search=yes,ai-train=no` اختفى مع الكتلة المدارة (القرار الملكي المعلّق في §12.19 بند 1 حُلّ بالتعطيل الكلي — لم تعد أي إشارة منع تدريب تُرسَل) · `llms.txt` (200 · 4.67KB) و`llms-full.txt` (200 · 24.3KB) أصبحا قابلَين للقراءة فعلياً من زواحف AI — **سطح GEO كامل مفتوح لأول مرة** · المسارات الخاصة (dashboard/auth/admin/api/checkout/…) محجوبة كما هي في السياسة الموحدة. **ملاحظة انتشار:** الملف مخزَّن في حافة Cloudflare بـ max-age=86400 — POP هونغ كونغ يقدّم النسخة الجديدة (عمر الكاش ~2.2 ساعة لحظة التحقق)؛ تقارب بقية الـPOPs خلال ≤24 ساعة (اختياري للمالك: Caching › Purge Everything للفورّية) · Google يعيد جلب robots.txt تلقائياً خلال 24 ساعة كحد أقصى. **مراقبة ما بعد التنفيذ (المالك):** Cloudflare Analytics › Crawlers لرصد أول زيارات زواحف AI · GSC › Settings للتأكد من قراءة النسخة الجديدة · مراقبة referrers محركات AI في Analytics. **بحلول هذا البند اكتملت دفعة P0 كاملة 5/5 (P0-1 هنا + P0-2/3/4/5 في build 7a44527) — التطبيق التالي = P1 (البنود 6–9) بأوامر مالك مستقلة لكل بند وفق قيد نطاق §12.19.**
 
+### 12.21 — Phase SEO-GEO-6.2: P1-7 طبقة الكيان — LinkedIn + تحقق أصول المراجعة + سطح GEO (2026-09-12 — أمر المالك «trust pilot , product hunt , social accounts تم الانتهاء منهم … ابدأ الخطوه التالية»)
+
+**السياق:** المالك أنجز أصول بناء الكيان وسلّم روابطها: Trustpilot (`/review/alkemos.com`) · Product Hunt (`/products/alkemos`) · فيسبوك (share link) · إنستجرام (`@aalkemos`) · X (`@Alkemos`) · **LinkedIn (`/in/alke-mos-29a751435` — الجديد الوحيد**؛ كان أول «الحسابات الاختيارية الثلاثة» في §12.13، الباقي: YouTube/TikTok). الخمسة الأولى كانت موصولة فعلاً في SEO-GEO-4.6 (§12.13) — التكليف هنا = توصيل السادس + تحقق حي شامل + قرار التقييم.
+
+**التحقق الحي (قارئ صفحات):** Trustpilot حي — العنوان «Be the first to write a review» و`"numberOfReviews":0` → **صفر تقييمات، لذا يبقى `aggregateRating` مطفأً** (قانون P0-5 قائم: لا تفعيل إلا بمصدر حقيقي قابل للربط — إعادة التقييم عند أول تقييمات فعلية مرئية على الصفحة) · Product Hunt حي («Alkemos: AI-powered platform for smarter fitness & athletic training») · فيسبوك حي وحُلّ الرابط إلى القانوني `facebook.com/p/Alkemos-61593989587279/` · X حي (`@Alkemos` — «Joined Sep 2026» حساب جديد) · إنستجرام وLinkedIn خلف جدار تسجيل الدخول (روابط المالك حرفياً).
+
+**التنفيذ (أصغر تغيير — انتشار تلقائي من المصدر الوحيد):**
+1. **`src/lib/social.ts`:** LinkedIn = الملف السادس — URL قانوني بلا معاملات utm للمشاركة (`linkedin.com/in/alke-mos-29a751435`) — ينتشر تلقائياً إلى Organization.sameAs (seo.ts) وصف أيقونات الفوتر.
+2. **`LandingView.tsx`:** أيقونة LinkedIn (roundel «in») في صف الفوتر — سادسة بين X وTrustpilot.
+3. **`social-profiles.test.ts`:** الحراس 5→6 اختبارات (697→**698**): العدد والترتيب · قانون LinkedIn القانوني بلا utm · sameAs = الموقع + الستة بلا تكرار.
+4. **سطح GEO (`public/llms.txt` + `llms-full.txt/route.ts` معاً بقاعدة SYNC):** سطر «Official profiles» بالروابط الستة القانونية — بعد فتح robots.txt (P0-1) أصبح هذا السطر مقروءاً فعلياً من زواحف AI: إشارة كيان تربط «Alkemos» بملفاته في سطح المصادر الآلية.
+
+**البوابات (محلياً قبل الدفع):** tsc 0 · eslint 0/0 · vitest **698/698** · next build exit 0 (بيئة إنتاج Vercel) · docs_audit ✓ · docs_parity ✓ · ملفات البيئة المؤقتة حُذفت بعد البناء.
+
+**المتبقي على المالك من بناء الكيان (P1-7 مستمر):** أول 10 تقييمات Trustpilot حقيقية (خطة §المرحلة 3: رسالة شخصية للعملاء الأوفياء — ممنوع أي تقييم وهمي) · صفحة Google Business Profile · YouTube/TikTok اختياريتان (تُضافان لsocial.ts فقط عند إنشائهما).
+
 ## 13. الملاحق (Appendices)
 
 ### Appendix A — خريطة الموارد (Resource Map)
