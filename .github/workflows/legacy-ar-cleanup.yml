@@ -37,6 +37,10 @@ on:
         description: "CHUNKED — section-by-section conversion (the stubborn-article path: no compression, trivial format contract)"
         type: boolean
         default: false
+      apply_patches:
+        description: "APPLY manual MSA patches from scripts/legacy-msa-patches (validated by the same gate before any write)"
+        type: boolean
+        default: false
 
 concurrency:
   group: legacy-ar-msa
@@ -87,6 +91,7 @@ jobs:
           LIMIT: ${{ inputs.limit }}
           SLUGS: ${{ inputs.slugs }}
           CHUNKED: ${{ inputs.chunked && '1' || '0' }}
+          PATCH_DIR: ${{ inputs.apply_patches && 'scripts/legacy-msa-patches' || '' }}
 
       - name: Summary
         if: always()

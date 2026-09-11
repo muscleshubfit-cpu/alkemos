@@ -31,6 +31,8 @@
  *   LIMIT=N     — process at most N queued articles (0 = all)
  *   SLUGS=a,b   — restrict to these slugs (severity order otherwise)
  */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "../../src/lib/supabase/admin";
 import { callFreeAIFallbackChain } from "../../src/lib/ai-provider";
 import {
@@ -54,6 +56,13 @@ const MAX_ATTEMPTS = 4;
 // dispatch can force it for known-stubborn slugs.
 const CHUNKED = process.env.CHUNKED === "1";
 const CHUNK_ATTEMPTS = 2;
+// PATCH mode (175.10 — the manual-editor finishing pass): when PATCH_DIR
+// points at a directory of <slug>.md files, each queued slug with a patch
+// file is validated against the ORIGINAL content with the SAME
+// deterministic gate and written only on pass — no AI call. This is the
+// documented fallback for articles the free-model chain could not convert
+// (the two 25+-attempt stubborn articles got hand-written MSA patches).
+const PATCH_DIR = process.env.PATCH_DIR || "";
 
 // Same sentinel contract the editor article_tools use (ai-job-processors).
 const MARKER_MAIN = "===CORRECTED===";
@@ -379,9 +388,38 @@ async function main(): Promise<number> {
       console.log("  SKIP: empty content");
       continue;
     }
-    const result = CHUNKED
-      ? await convertArticleChunked(row.slug, content)
-      : await convertArticle(row.slug, content);
+    let result: ConvertOk | ConvertFail;
+    let via = "ai";
+    if (PATCH_DIR) {
+      // PATCH path: a hand-written MSA conversion for this slug (validated
+      // by the SAME deterministic gate — never written on violation).
+      try {
+        const patch = readFileSync(join(PATCH_DIR, `${row.slug}.md`), "utf-8");
+        const check = validateMsaConversion(content, patch);
+        if (!check.ok) {
+          failed += 1;
+          console.log(`  PATCH REJECTED (row untouched): ${check.violations.join(" | ")}`);
+          continue;
+        }
+        result = {
+          text: patch,
+          model: "manual-patch",
+          attempts: 1,
+          weakAfter: check.metrics.weakAfter,
+          wordsAfter: check.metrics.wordsAfter,
+        };
+        via = "patch";
+      } catch {
+        // No patch file for this slug — fall through to the AI paths.
+        result = CHUNKED
+          ? await convertArticleChunked(row.slug, content)
+          : await convertArticle(row.slug, content);
+      }
+    } else {
+      result = CHUNKED
+        ? await convertArticleChunked(row.slug, content)
+        : await convertArticle(row.slug, content);
+    }
     if ("error" in result) {
       failed += 1;
       console.log(`  FAILED (row untouched): ${result.error}`);

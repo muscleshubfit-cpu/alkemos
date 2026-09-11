@@ -279,6 +279,24 @@ describe("Phase 175 — cleanup runner + workflow presence (canaries)", () => {
     expect(wf).toContain("secrets.OPENROUTER_API");
     expect(wf).toContain("secrets.GROQ_API_KEY");
     expect(wf).toContain("secrets.NVIDIA_API_KEY");
+    expect(wf).toContain("PATCH_DIR: ${{ inputs.apply_patches");
+  });
+
+  it("the manual MSA patches exist for the two chain-unconvertible articles (175.10)", () => {
+    // The two stubborn articles (25+ failed AI attempts each) got
+    // hand-written Pan-Arab MSA conversions, gated by the SAME
+    // deterministic validator before any DB write.
+    for (const slug of [
+      "calculate-daily-calories-weight-loss",
+      "best-protein-supplement-ramadan",
+    ]) {
+      const patch = read(
+        join(process.cwd(), "scripts", "legacy-msa-patches", `${slug}.md`),
+      );
+      expect(patch.length).toBeGreaterThan(4000);
+      expect(patch).toMatch(/^# /);
+      expect(scanArabicDialect(patch).strong).toBe(0);
+    }
   });
 
   it("the workflow funds FULL-ARTICLE conversion time (first apply run failed without it)", () => {

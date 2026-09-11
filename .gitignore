@@ -56,11 +56,13 @@ pnpm-lock.yaml
 #   scripts/db-restore.mjs     → snapshot restore tool (db-backup.yml docs)
 #   scripts/retro-pair-blog.mjs → Proposal-3 retro pairing applier (retro-pair-blog.yml, 2026-09-09)
 #   scripts/retro-pair-blog.pairs.json → approved pairs + owner review list (retro-pair-blog.yml)
+#   scripts/legacy-msa-patches/ → hand-written MSA conversions for the chain-unconvertible stubborn AR articles (legacy-ar-cleanup.yml PATCH mode, 2026-09-11)
 #   scripts/vercel-cleanup/    → daily Vercel stale-deployment purge (vercel-cleanup.yml, Phase 145)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
 !/scripts/vercel-cleanup/
+!/scripts/legacy-msa-patches/
 !/scripts/check-stale-refs.sh
 !/scripts/migration_audit.py
 !/scripts/docs_parity.py

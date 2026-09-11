@@ -144,18 +144,29 @@ function extractHeadings(md: string): string[] {
   return [...md.matchAll(/^#{1,6}\s+(.+)$/gm)].map((m) => m[1].trim());
 }
 
-/** The closing-CTA region rule 7 legitimately deletes (live evidence:
- * calculate-daily-calories-weight-loss failed 3 batches because its
- * /meal-planner link lives INSIDE the «انضم الآن لبرنامج الكوتشينج»
- * closing paragraph — the model obeyed rule 7 and the validator
- * demanded the CTA-embedded link back). Paragraph-aligned: the trailing
- * paragraphs inside the last CTA_TAIL_CHARS characters. */
-const CTA_TAIL_CHARS = 600;
+/** CTA-paragraph detection (175.10): rule 7 deletes marketing paragraphs
+ *  WHEREVER they live — the live corpus proved the CTA is not always at
+ *  the tail (calculate-daily's «انضم الآن لبرنامج الكوتشينج» paragraph is
+ *  followed by a disclaimer + a full FAQ section, so the position-based
+ *  600-char tail never covered it and the embedded /meal-planner link
+ *  kept failing validation across 5 batches). Content-based: any blank-line
+ *  paragraph carrying a CTA signature IS the CTA region. */
+const CTA_SIGNATURES = [
+  "انضم الآن",
+  "انضم إلى الكوتشينج",
+  "برنامج الكوتشينج",
+  "اشترك الآن في الكوتشينج",
+  "احجز جلس",
+  "جرب الكوتشينج",
+  "book a session",
+  "join the coaching",
+];
 
-function closingCtaRegion(md: string): string {
-  const tail = md.slice(-CTA_TAIL_CHARS);
-  const paraStart = tail.indexOf("\n\n");
-  return paraStart >= 0 ? tail.slice(paraStart + 2) : tail;
+function ctaParagraphRegion(md: string): string {
+  return md
+    .split(/\n{2,}/)
+    .filter((p) => CTA_SIGNATURES.some((s) => p.includes(s)))
+    .join("\n\n");
 }
 
 /** Phrases for the non-existent single-session service (174 honesty law). */
@@ -251,15 +262,15 @@ export function validateMsaConversion(
   const linksB = [...new Set(extractLinkUrls(before))].sort();
   const linksA = [...new Set(extractLinkUrls(after))].sort();
   if (linksB.join("\n") !== linksA.join("\n")) {
-    // CTA-strip tolerance: rule 7 deletes the closing marketing paragraph(s),
-    // and a link living ONLY inside that tail may legitimately vanish with
-    // it. Everything else must survive byte-exact. The region is
-    // paragraph-aligned (the trailing paragraphs inside the last 600 chars)
-    // so a body link can never accidentally fall inside it on short texts.
+    // CTA-strip tolerance: rule 7 deletes marketing paragraphs wherever
+    // they live in the article, and links living ONLY inside those
+    // paragraphs may legitimately vanish with them. Everything else must
+    // survive byte-exact. The region is CONTENT-based (paragraphs carrying
+    // a CTA signature — position-based tails missed mid-article CTAs).
     const lost = linksB.filter((l) => !linksA.includes(l));
     const added = linksA.filter((l) => !linksB.includes(l));
     const illegitimateLost = ctaTolerance
-      ? lost.filter((l) => !closingCtaRegion(before).includes(l))
+      ? lost.filter((l) => !ctaParagraphRegion(before).includes(l))
       : lost;
     if (illegitimateLost.length || added.length) {
       violations.push(
