@@ -127,7 +127,7 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(validateDemoPlan(alt, 2000).ok).toBe(true);
     expect(validateDemoPlan(null, 2000).ok).toBe(false);
     expect(validateDemoPlan({ meals: [] }, 2000).ok).toBe(false);
-    expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 5, kcal: 20 }] }] }, 2000).ok).toBe(false);
+    expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 2, kcal: 20 }] }] }, 2000).ok).toBe(false);
     expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 9999, kcal: 20 }] }] }, 2000).ok).toBe(false);
     expect(validateDemoPlan({ meals: [{ name: "X", items: [{ food: "a", grams: 100, kcal: "lots" }] }] }, 2000).ok).toBe(false);
     // Calorie drift beyond ±20% of the target → reject, never display.

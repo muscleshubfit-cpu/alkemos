@@ -113,7 +113,7 @@ export function buildDemoPrompt(req: DemoPlanRequest): string {
       `الهدف: ${req.calories} سعرة تقريباً بنظام ${sys.nameAr} (توزيع بروتين/كارب/دهون ${split} من السعرات).`,
       `اكتب أسماء الأصناف بالعربية، وكل صنف بغرامات محسوبة وسعراته المقدّرة.${notesLine}`,
       'أعد JSON فقط بهذا الشكل: {"meals":[{"name":"الفطور","items":[{"food":"…","grams":150,"kcal":230}]}]}',
-      "قواعد صارمة: 3 إلى 5 وجبات؛ 2 إلى 6 أصناف لكل وجبة؛ كل صنف بين 20 و600 غرام — وكميات كل وجبة على حدها لا لليوم كله؛ مجموع سعرات اليوم ضمن 20% من الهدف؛ لا نص خارج JSON.",
+      "قواعد صارمة: 3 إلى 5 وجبات؛ 2 إلى 6 أصناف لكل وجبة؛ كل صنف بين 5 و600 غرام (الزيوت والدهون بملعقة أو اثنتين) — وكميات كل وجبة على حدها لا لليوم كله؛ مجموع سعرات اليوم ضمن 20% من الهدف؛ لا نص خارج JSON.",
     ].join("\n");
   }
   return [
@@ -121,7 +121,7 @@ export function buildDemoPrompt(req: DemoPlanRequest): string {
     `Target: about ${req.calories} kcal on the ${sys.nameEn} system (protein/carbs/fat split ${split} of calories).`,
     `Write food names in English, every item with computed grams and its estimated kcal.${notesLine}`,
     'Return JSON only, exactly this shape: {"meals":[{"name":"Breakfast","items":[{"food":"...","grams":150,"kcal":230}]}]}',
-    "Hard rules: 3 to 5 meals; 2 to 6 items per meal; every item 20 to 600 grams — each meal's quantities are for THAT meal alone, never the whole day; the day total within 20% of target; no text outside the JSON.",
+    "Hard rules: 3 to 5 meals; 2 to 6 items per meal; every item 5 to 600 grams (oils and fats by the spoonful) — each meal's quantities are for THAT meal alone, never the whole day; the day total within 20% of target; no text outside the JSON.",
   ].join("\n");
 }
 
@@ -183,8 +183,8 @@ export function validateDemoPlan(
       if (!food || food.length > 60) {
         return { ok: false, error: `item in "${name}" has no valid food name` };
       }
-      if (!Number.isFinite(grams) || grams < 20 || grams > 900) {
-        return { ok: false, error: `item "${food}" grams must be 20–900` };
+      if (!Number.isFinite(grams) || grams < 5 || grams > 900) {
+        return { ok: false, error: `item "${food}" grams must be 5–900` };
       }
       if (!Number.isFinite(kcal) || kcal < 5 || kcal > 1500) {
         return { ok: false, error: `item "${food}" kcal must be 5–1500` };
