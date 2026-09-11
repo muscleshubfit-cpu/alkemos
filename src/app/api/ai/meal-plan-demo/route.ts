@@ -86,10 +86,12 @@ export async function POST(request: NextRequest) {
 
     let model = "";
     let plan: DemoPlanVerdict = { ok: false, error: "chain call failed" };
+    let rawText = "";
 
     const first = await callFreeAIFallbackChain(prompt, callOpts).catch(() => null);
     if (first) {
       model = first.model;
+      rawText = first.text;
       plan = validateDemoPlan(parseJSON<unknown>(first.text), req.calories);
     }
     if (!plan.ok) {
@@ -101,11 +103,20 @@ export async function POST(request: NextRequest) {
       ).catch(() => null);
       if (second) {
         model = second.model;
+        rawText = second.text;
         plan = validateDemoPlan(parseJSON<unknown>(second.text), req.calories);
       }
     }
     if (!plan.ok) {
       // Model drift is a retry-able client-visible outcome, not a crash.
+      console.error(
+        "[api/ai/meal-plan-demo] shape rejection:",
+        plan.error,
+        "| model:",
+        model,
+        "| raw:",
+        rawText.slice(0, 500),
+      );
       return NextResponse.json(
         {
           error:
@@ -113,6 +124,7 @@ export async function POST(request: NextRequest) {
               ? "خرج التوليد عن الشكل المطلوب — جرّب مرة أخرى (الزرر فوق)."
               : "The generated plan missed the required shape — try again (button above).",
           detail: plan.error,
+          debugRaw: rawText.slice(0, 400),
         },
         { status: 422 },
       );
