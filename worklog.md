@@ -3295,3 +3295,9 @@ In-passing (out of item scope, documented): NewsletterForm homepage string fixed
 
 ### Gates (all local, before push)
 tsc 0 · eslint 0/0 · vitest **914/914** · next build exit 0 · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓ · zero migrations · zero logic/route/quota changes — copy + guards only. With this item P2 (10–14) is fully closed; only P3 (owner decision) remains.
+
+### §12.41 live-verification loop closed (same session, fd6924f)
+- CI: 4/4 workflows green on fd6924f (Quality gate · Docs & schema parity · Anti-regression · Vercel cleanup) · Vercel production READY/PROMOTED
+- Live checks: /ar/faq → «بريميوم: 3 … برو: 6 … كوتشينج: 3» + «سياسات الأمان على مستوى الصفوف (RLS)» + «تطبيق ويب تقدمي (PWA)» ✓ (the EN dataset in the RSC payload legitimately still carries "Premium: 3" — language-toggle copy, not AR regression)
+- /ar/tools/calorie-calculator meta → «بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) الأدق» + keywords «حاسبة TDEE»/«حاسبة BMR» preserved ✓
+- /ar/tools/body-fat-calculator meta → «بطريقة البحرية الأمريكية (U.S. Navy)» + keyword «حاسبة دهون الجسم» («حاسبة Body Fat» gone) ✓
