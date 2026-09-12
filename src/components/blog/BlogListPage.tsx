@@ -22,6 +22,29 @@ export function BlogListPage({
   const [loading, setLoading] = useState(!initialPosts);
   const [search, setSearch] = useState("");
 
+  // §12.40 (P2-14, audit finding #8): the WebSite schema's SearchAction
+  // declares /blog?search={search_term_string} as the site search target —
+  // landing on that URL must actually SHOW filtered results. Previously the
+  // param was ignored: the visitor (or AI engine following the schema) got
+  // the full unfiltered list. One-shot deep-link seed, client-side AFTER
+  // hydration: reads ?search= from the address bar and feeds it into the
+  // existing search state → the posts effect below refetches the filtered
+  // list through the SAME path as a typed search (matchesBlogSearch law).
+  //
+  // Deliberately NOT useSearchParams(): that hook would force the whole
+  // /blog route out of ISR into per-request dynamic rendering (and needs a
+  // Suspense boundary on static pages). window.location in an effect is
+  // client-only and hydration-safe (initial SSR state stays ""), so the
+  // static shell + SSR'd post grid keep their 5-minute revalidate cache.
+  // The ?search= variant keeps its clean /blog canonical — search result
+  // URLs stay deliberately non-indexable (audit verified Google
+  // canonicalizes them); the target is now FUNCTIONAL for every real
+  // visitor, which is what the SearchAction contract promises.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("search");
+    if (q && q.trim()) setSearch(q.trim());
+  }, []);
+
   useEffect(() => {
     (async () => {
       // SSR seed (H1 audit fix): the default view (no search) is fully

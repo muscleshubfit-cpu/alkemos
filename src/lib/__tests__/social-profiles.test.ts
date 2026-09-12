@@ -60,7 +60,9 @@ describe("social profiles (SEO-GEO-4.6 entity attribution)", () => {
   });
 
   it("Organization.sameAs = site + all six profile URLs (no dupes)", () => {
-    const schema = getOrganizationSchema();
+    // §12.40: locale param is required now — sameAs is locale-independent
+    // (same six profiles either way).
+    const schema = getOrganizationSchema("ar");
     expect(schema["@type"]).toBe("Organization");
     const sameAs = schema.sameAs as string[];
     expect(sameAs[0]).toBe("https://alkemos.com");

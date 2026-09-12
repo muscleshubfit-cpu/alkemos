@@ -77,6 +77,10 @@ export default async function ArabicComparisonPage({
     title: comparison.titleAr,
     description: comparison.descriptionAr,
     slug: `ar/compare/${comparison.slug}`,
+    // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
+    // consistency — same branded og-image URL the metadata declares
+    // (?lang=ar variant; previously fell back to /logo.png).
+    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,

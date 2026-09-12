@@ -102,7 +102,15 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         title: og.title,
         description: og.description,
         slug,
-        image: og.image,
+        // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
+        // consistency — the Article schema now carries the SAME branded
+        // 1200×630 og-image URL that generateMetadata declares for
+        // og:image/twitter:image (previously the raw external Pexels
+        // photo, a mixed-source inconsistency the audit flagged). The
+        // branded card IS a faithful representation of the article
+        // (title + description + Alkemos mark) and is what social
+        // platforms and Google Discover see on every share.
+        image: `https://alkemos.com/api/og-image/${slug}?lang=en`,
         datePublished: publishedAt,
         dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): pass the resolved author Profile

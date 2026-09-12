@@ -55,9 +55,11 @@ const cairo = Cairo({
   preload: false,
 });
 
-// Site-wide structured data (JSON-LD) — injected on every page
-const organizationSchema = getOrganizationSchema();
-const websiteSchema = getWebSiteSchema();
+// Site-wide structured data (JSON-LD) — injected on every page.
+// §12.40 (P2-14, audit finding #9): the schemas are LOCALE-AWARE, so they
+// are built INSIDE the component from the resolved route locale — the EN
+// homepage now carries English Organization/WebSite descriptions, /ar/*
+// pages the Arabic ones (previously hardcoded Arabic on every surface).
 
 /**
  * SEO locale law (2026-09-01): a URL is Arabic ONLY when it is exactly
@@ -139,6 +141,11 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { lang, dir } = await resolveLocale();
+  // §12.40 (P2-14): locale-aware entity schemas — see the note above the
+  // component. Same two JSON-LD blocks as before, now describing the
+  // entity in the page's own language.
+  const organizationSchema = getOrganizationSchema(lang);
+  const websiteSchema = getWebSiteSchema(lang);
   // P2 fix (perf audit 2026-09-07): hero artwork preloads are HOMEPAGE-ONLY.
   // The old unconditional pair wasted 38-68KB (one unused theme variant)
   // on every page, and ~205KB on non-hero pages (blog/tools/exercises).

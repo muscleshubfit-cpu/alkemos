@@ -83,7 +83,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         title: og.title,
         description: og.description,
         slug,
-        image: og.image,
+        // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
+        // consistency — same branded /api/og-image URL that
+        // generateMetadata declares for og:image/twitter:image (?lang=ar
+        // variant). Previously the raw external Pexels photo — see the
+        // EN mirror (/blog/[slug]/page.tsx) for the full rationale.
+        image: `https://alkemos.com/api/og-image/${slug}?lang=ar`,
         datePublished: publishedAt,
         dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): resolved author Person — see

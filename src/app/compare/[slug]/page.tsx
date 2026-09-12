@@ -87,6 +87,11 @@ export default async function ComparisonPage({
     title: comparison.titleEn,
     description: comparison.descriptionEn,
     slug: `compare/${comparison.slug}`,
+    // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
+    // consistency — same branded og-image URL the metadata declares for
+    // og:image/twitter:image (previously fell back to /logo.png, a
+    // mixed-source inconsistency on all 6 comparison pages).
+    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,

@@ -73,8 +73,22 @@ export function jsonLd(obj: unknown): string {
  *
  * Phase SEO-GEO-6.2 (2026-09-12): LinkedIn added (owner-created, §12.21)
  * — sameAs now carries SIX owned profiles.
+ *
+ * §12.40 (P2-14, audit finding #9 — mixed-language schema): the
+ * description is now LOCALE-AWARE. The audit verified the EN homepage
+ * served an Arabic Organization description to English users and
+ * machines. Root layout passes the resolved route locale: EN pages get
+ * the English entity description (site's primary language), /ar/* pages
+ * keep the Arabic one. The `lang` parameter is REQUIRED on purpose —
+ * every caller must state the locale explicitly (compile-time safety
+ * against a silent Arabic default leaking back onto EN surfaces).
  */
-export function getOrganizationSchema() {
+const ORG_DESCRIPTIONS: Record<"en" | "ar", string> = {
+  en: "The complete digital training platform: 868+ exercises with photos, 8,830+ foods with nutrition data, ready-made programs, free calculators, and certified coaches with the EVO AI engine.",
+  ar: "منصة التدريب الرقمي المتكاملة: أكثر من 868 تمرينًا، 8830 أكلة بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
+};
+
+export function getOrganizationSchema(lang: "en" | "ar") {
   const founderPerson = getPersonSchema(AHMED_ZAKE);
   return {
     "@context": "https://schema.org",
@@ -82,8 +96,7 @@ export function getOrganizationSchema() {
     name: SITE_NAME,
     url: SITE_URL,
     logo: SITE_LOGO,
-    description:
-      "منصة التدريب الرقمي المتكاملة: أكثر من 868 تمرينًا، 8830 أكلة بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
+    description: ORG_DESCRIPTIONS[lang],
     sameAs: [SITE_URL, ...SOCIAL_PROFILE_URLS],
     areaServed: "Worldwide",
     knowsLanguage: ["ar", "en"],
@@ -94,15 +107,34 @@ export function getOrganizationSchema() {
 /**
  * WebSite schema — describes the website with search action.
  * Enables Google sitelinks search box.
+ *
+ * §12.40 (P2-14, audit findings #8 + #9):
+ *   - The description is LOCALE-AWARE (same law as getOrganizationSchema
+ *     above): EN homepage gets the English description, /ar/* the Arabic
+ *     one — the audit had verified the Arabic text on the EN homepage.
+ *   - The SearchAction target /blog?search={search_term_string} is now
+ *     FUNCTIONAL: BlogListPage seeds the ?search= param into its search
+ *     state after hydration, so following the declared URL actually
+ *     shows filtered results. The ?search= variant keeps its clean /blog
+ *     canonical (search URLs are deliberately non-indexable — Google
+ *     canonicalizes them; the audit's #8 finding is addressed by making
+ *     the target honest, not by indexing it). Google retired the
+ *     sitelinks search box itself in 2024 — the remaining value of this
+ *     potentialAction is for AI engines and Bing-style surfaces that
+ *     machine-read the schema and follow the URL.
  */
-export function getWebSiteSchema() {
+const WEBSITE_DESCRIPTIONS: Record<"en" | "ar", string> = {
+  en: "A comprehensive sports platform: an exercise library, workout programs, fitness calculators, a food database, and a fitness blog.",
+  ar: "منصة رياضية شاملة: مكتبة تمارين، برامج تدريب، حاسبات لياقة، مكتبة أكلات، ومدونة رياضية.",
+};
+
+export function getWebSiteSchema(lang: "en" | "ar") {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
     url: SITE_URL,
-    description:
-      "منصة رياضية شاملة: مكتبة تمارين، برامج تدريب، حاسبات لياقة، مكتبة أكلات، ومدونة رياضية.",
+    description: WEBSITE_DESCRIPTIONS[lang],
     inLanguage: ["ar", "en"],
     potentialAction: {
       "@type": "SearchAction",

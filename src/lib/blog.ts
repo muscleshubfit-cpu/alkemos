@@ -2,6 +2,12 @@
 
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
+import { matchesBlogSearch } from "./blog-search";
+
+// §12.40 (P2-14): re-exported so the blog domain keeps one public surface
+// for the search law (the pure implementation lives in ./blog-search —
+// importable from tests and server code without the Supabase client).
+export { matchesBlogSearch };
 
 /** FAQ item stored in blog_posts.faq_json (JSONB array of {question, answer}). */
 export type BlogFaq = { question: string; answer: string };
@@ -135,20 +141,10 @@ export async function listBlogPosts(lang: "en" | "ar", category?: string, search
 
   let posts = (data ?? []) as BlogPostCard[];
 
-  // Client-side search (Supabase text search requires pg_trgm)
+  // §12.40: client-side search (Supabase text search requires pg_trgm) —
+  // delegated to the shared matchesBlogSearch predicate (single law).
   if (search && search.trim()) {
-  const q = search.toLowerCase().trim();
-  posts = posts.filter((p) => {
-  const haystack = [
-  p.title,
-  p.excerpt || "",
-  p.focus_keyword || "",
-  ...(p.keywords || []),
-  ...(p.tags || []),
-  p.category,
-  ].join(" ").toLowerCase();
-  return haystack.includes(q);
-  });
+    posts = posts.filter((p) => matchesBlogSearch(p, search));
   }
 
   return posts;
