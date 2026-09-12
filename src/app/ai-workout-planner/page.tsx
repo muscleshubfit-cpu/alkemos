@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { getFallbackSVG } from "@/lib/exercise-images";
 import {
   workoutEquipmentOptions,
   workoutGoalOptions,
@@ -25,7 +27,13 @@ import { Loader2, Sparkles, RotateCcw } from "lucide-react";
  * keep saved programs, coach-built plans, and EVO generation).
  */
 
-type DemoExercise = { name: string; sets: number; reps: number | string };
+type DemoLibraryMatch = {
+  slug: string;
+  name: string;
+  category: string;
+  image: string;
+};
+type DemoExercise = { name: string; sets: number; reps: number | string; library?: DemoLibraryMatch | null };
 type DemoDay = { name: string; focus?: string; exercises: DemoExercise[] };
 type DemoPlan = { days: DemoDay[] };
 
@@ -237,6 +245,14 @@ export default function AiWorkoutPlannerPage() {
                 {isAr ? `${plan.days.length} أيام تمرين` : `${plan.days.length} training days`}
               </span>
             </div>
+            {/* §12.35 — the results use the site's own exercise library:
+                matched movements carry the library's real images and link
+                into its bilingual pages (868+ exercises). */}
+            <p className="mt-1 text-sm font-normal text-[var(--muted-foreground)]">
+              {isAr
+                ? "الحركات المطابقة في مكتبة التمارين تظهر بصورها من المكتبة وترتبط بصفحة شرحها الكامل — أكثر من 868 تمريناً بالأداء الصحيح."
+                : "Movements that match our exercise library carry its images and link to their full how-to pages — 868+ exercises with proper form."}
+            </p>
             <div className="mt-4 space-y-4">
               {plan.days.map((day) => (
                 <div key={day.name} className="rounded-2xl border border-[var(--edge)] bg-[var(--tint)] p-4">
@@ -247,14 +263,41 @@ export default function AiWorkoutPlannerPage() {
                     )}
                   </div>
                   <ul className="mt-2 divide-y divide-[var(--edge)]/60">
-                    {day.exercises.map((ex, i) => (
-                      <li key={`${ex.name}-${i}`} className="flex items-baseline justify-between gap-3 py-1.5 text-sm font-normal">
-                        <span className="text-[var(--muted-foreground)]">{ex.name}</span>
-                        <span className="whitespace-nowrap text-[var(--muted-foreground)]" dir="ltr">
-                          {ex.sets} × {ex.reps}
-                        </span>
-                      </li>
-                    ))}
+                    {day.exercises.map((ex, i) => {
+                      const lib = ex.library ?? null;
+                      const href = lib ? `${isAr ? "/ar" : ""}/exercises/${lib.slug}` : null;
+                      return (
+                        <li key={`${ex.name}-${i}`} className="flex items-center gap-3 py-2 text-sm font-normal">
+                          {lib && href ? (
+                            <>
+                              <Link href={href} className="shrink-0" tabIndex={-1} aria-hidden="true">
+                                <span className="block h-12 w-12 overflow-hidden rounded-lg border border-[var(--edge)]/60 bg-[var(--card)]">
+                                  <ImageWithFallback
+                                    src={lib.image}
+                                    alt={isAr ? `صورة ${ex.name}` : `${ex.name} illustration`}
+                                    width={48}
+                                    height={48}
+                                    className="h-12 w-12 object-contain"
+                                    fallbackSrc={getFallbackSVG(lib.category)}
+                                  />
+                                </span>
+                              </Link>
+                              <Link
+                                href={href}
+                                className="min-w-0 flex-1 text-[var(--text)] underline decoration-[var(--edge)] underline-offset-4 transition-colors hover:decoration-[var(--chrome-edge)]"
+                              >
+                                {ex.name}
+                              </Link>
+                            </>
+                          ) : (
+                            <span className="min-w-0 flex-1 text-[var(--muted-foreground)]">{ex.name}</span>
+                          )}
+                          <span className="whitespace-nowrap text-[var(--muted-foreground)]" dir="ltr">
+                            {ex.sets} × {ex.reps}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               ))}

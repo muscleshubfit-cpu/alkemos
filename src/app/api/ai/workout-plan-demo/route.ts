@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callFreeAIFallbackChain } from "@/lib/ai-provider";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { enrichWorkoutPlanWithLibrary } from "@/lib/ai-workout-exercise-match";
 import {
   buildWorkoutPrompt,
   WORKOUT_DEMO_RATE_LIMIT,
@@ -147,8 +148,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── §12.35 enrichment (owner directive «استخدم مكتبة التمارين بالصور
+    // الخاصة بنا فى النتائج»): every validated exercise is matched against
+    // the site's own 868-exercise library — matched rows render the
+    // library's real images and link into its pages; unmatched rows stay
+    // plain (never a fabricated match). Server-only: the 1.6MB array
+    // never reaches the browser. ──
     return NextResponse.json({
-      plan: plan.value,
+      plan: enrichWorkoutPlanWithLibrary(plan.value, req.equipment),
       model,
       trial: {
         limit: WORKOUT_DEMO_RATE_LIMIT.max,
