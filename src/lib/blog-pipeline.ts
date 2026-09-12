@@ -541,6 +541,35 @@ const BRAND_SUFFIX_RE = /[\s]*[—–\-|·]+\s*(Alkemos|ألكيموس)\s*$/i;
 const TRAILING_JUNK_RE = /[\s]*[,،;؛:\-—–|·؟?!.…]+\s*$/;
 
 /**
+ * PHASE 181 (live audit 2026-09-12) — trailing connective words that read
+ * as DANGLING when the budget cut lands right after them. Found live on
+ * creatine-loading-strength-hypertrophy-guide: the 62-char title cut at
+ * the 60-char word boundary left "…for Strength vs" (the comparator "vs"
+ * survived the cut while its operand "Hypertrophy" did not). Law 5 strips
+ * these AFTER the separator law, looped so a cascade like "… for vs the"
+ * cleans fully. List kept conservative: words that are (almost) never a
+ * legitimate final word of an SEO title in either language.
+ */
+const DANGLING_CONNECTIVES: readonly string[] = [
+  // EN — comparators, coordinators, determiners, high-frequency preps
+  "vs", "versus", "and", "or", "but", "nor", "so", "yet",
+  "the", "a", "an", "of", "to", "for", "with", "from", "by", "in", "on",
+  "at", "into", "onto", "as", "your", "our", "their", "how", "why",
+  "what", "when", "where", "which",
+  // AR — حروف الجر والربط وأدوات الاستفهام (standalone forms only)
+  "في", "من", "على", "إلى", "الى", "عن", "مع", "أو", "او", "ثم", "لكن",
+  "بين", "عند", "بعد", "قبل", "دون", "مثل", "حيث", "كيف", "ما", "هل",
+];
+
+/** True when the string ends with a dangling connective word. */
+function endsWithDanglingConnective(t: string): string | null {
+  for (const w of DANGLING_CONNECTIVES) {
+    if (t.length > w.length && t.endsWith(" " + w)) return w;
+  }
+  return null;
+}
+
+/**
  * Clamp a generated article title into the SERP budget WITHOUT cutting
  * words in half and WITHOUT duplicating the trailing brand.
  *
@@ -578,7 +607,20 @@ export function clampMetaTitle(rawTitle: string, lang: "en" | "ar"): string {
   const clipped = lastSpace >= floor ? cut.slice(0, lastSpace) : cut;
 
   // Law 4 — never end on a dangling separator.
-  const cleaned = clipped.replace(TRAILING_JUNK_RE, "").trim();
+  let cleaned = clipped.replace(TRAILING_JUNK_RE, "").trim();
+
+  // Law 5 (PHASE 181) — never end on a dangling connective either. Looped:
+  // stripping "vs" can expose "…for", stripping "for" can expose "…the".
+  for (let pass = 0; pass < 4; pass += 1) {
+    const before = cleaned;
+    cleaned = cleaned.replace(TRAILING_JUNK_RE, "").trim();
+    const dangling = endsWithDanglingConnective(cleaned);
+    if (dangling) {
+      cleaned = cleaned.slice(0, cleaned.length - dangling.length).trim();
+    }
+    if (cleaned === before) break;
+  }
+
   return cleaned || cut.trim();
 }
 

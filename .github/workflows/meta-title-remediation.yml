@@ -1,0 +1,68 @@
+name: Meta title remediation (Phase 181 — dangling-connective clamp)
+
+# ============================================================
+# PHASE 181 (live audit 2026-09-12): one-shot re-clamp of stored
+# meta_title through the improved clampMetaTitle (Law 5 strips
+# trailing connectives like the live "…for Strength vs" case on
+# creatine-loading-strength-hypertrophy-guide).
+#
+# LAW: scripts/blog-runner/meta-title-remediation.mts writes ONLY
+# meta_title + updated_at. Slug/title/content/images/faq/publish
+# state: never touched. Idempotent — clean rows are skipped, so
+# re-runs converge to a no-op. Production pages pick the fixed
+# <title>/og:title up via the 5-minute ISR revalidate.
+#
+# Dispatch with dry_run (default) first, then apply.
+# ============================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "DRY_RUN — queue report only, zero DB writes"
+        type: boolean
+        default: true
+      slugs:
+        description: "Comma-separated slug allowlist (empty = all published)"
+        type: string
+        default: ""
+
+concurrency:
+  group: meta-title-remediation
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Production-locked install (A-12): the same frozen bun.lock Vercel
+      # and local dev build from — no npm fresh-re-resolution drift.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Re-clamp stored meta_title through the Phase-181 law
+        run: npx --no-install tsx scripts/blog-runner/meta-title-remediation.mts
+        env:
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          SLUGS: ${{ inputs.slugs }}
+
+      - name: Summary
+        if: always()
+        run: echo "meta_title remediation pass finished — see the per-slug report above."
