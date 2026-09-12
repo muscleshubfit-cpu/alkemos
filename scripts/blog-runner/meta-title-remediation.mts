@@ -11,7 +11,7 @@
  * STORED corpus to the same invariant.
  *
  * HARD SAFETY CONTRACT (tightened after the 2026-09-12 dry-run lesson):
- *   - MINIMAL INTERVENTION: apply stripDanglingTail() to the STORED
+ *   - MINIMAL INTERVENTION: apply stripDanglingConnectives() to the STORED
  *     meta_title only. NEVER recompute from title — the first dry-run
  *     proved stored meta_titles include AI-crafted SEO variants that
  *     legitimately differ from the title (e.g. "Magnesium Forms for
@@ -33,7 +33,7 @@
  *   SLUGS=a,b  — restrict to these slugs (empty = all published)
  */
 import { supabaseAdmin, isSupabaseAdminConfigured } from "../../src/lib/supabase/admin";
-import { stripDanglingTail } from "../../src/lib/blog-pipeline";
+import { stripDanglingConnectives } from "../../src/lib/blog-pipeline";
 
 const DRY_RUN = process.env.DRY_RUN !== "0";
 const SLUGS = (process.env.SLUGS || "")
@@ -71,7 +71,7 @@ async function main() {
     const stored = String(r.meta_title ?? "").trim();
     if (!stored) continue;
 
-    const cleaned = stripDanglingTail(stored);
+    const cleaned = stripDanglingConnectives(stored);
     if (cleaned === stored) continue;
 
     touched += 1;

@@ -599,6 +599,31 @@ export function stripDanglingTail(t: string): string {
 }
 
 /**
+ * PHASE 181 (remediation-safe variant) — strip trailing dangling
+ * CONNECTIVE words from a stored meta_title WITHOUT touching a
+ * legitimate terminal punctuation mark. Question-form titles
+ * ("…للمبتدئين؟" / "…after a workout?") END on "؟"/"?" by design;
+ * the second dry-run (2026-09-12) flagged 7 such rows as false
+ * positives under the junk-first strip. Here separators are removed
+ * ONLY when a connective strip EXPOSED them (cascade cleanup, e.g.
+ * "…for —" -> "—" exposed -> stripped -> "…for" -> stripped).
+ */
+export function stripDanglingConnectives(t: string): string {
+  let out = t.trim();
+  for (let pass = 0; pass < 4; pass += 1) {
+    const before = out;
+    const dangling = endsWithDanglingConnective(out);
+    if (dangling) {
+      out = out.slice(0, out.length - dangling.length).trim();
+      // Clean separators EXPOSED by the strip only.
+      out = out.replace(TRAILING_JUNK_RE, "").trim();
+    }
+    if (out === before) break;
+  }
+  return out;
+}
+
+/**
  * Clamp a generated article title into the SERP budget WITHOUT cutting
  * words in half and WITHOUT duplicating the trailing brand.
  *
