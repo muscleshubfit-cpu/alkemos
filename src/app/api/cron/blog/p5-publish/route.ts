@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeCategory } from "@/lib/blog-server";
-import { countWords, splitFaqSection, filterFaqsByRelevance, clampMetaTitle, type OutlinePlan } from "@/lib/blog-pipeline";
+import { countWords, splitFaqSection, filterFaqsByRelevance, clampMetaTitle, clampMetaDescription, type OutlinePlan } from "@/lib/blog-pipeline";
 import { scanLatinContamination } from "@/lib/blog-msa";
 import { embedBodyImages } from "@/lib/blog-images";
 import { insertToolLinks } from "@/lib/blog-tool-links";
@@ -238,7 +238,10 @@ export async function GET(request: NextRequest) {
       language: lang,
       title,
       slug,
-      excerpt: outline.metaDescription,
+      // PHASE 178: excerpt + meta_description ride the same clamped value
+      // (the P1 parser already clamps; this is the idempotent safety for
+      // outlines serialized into older queue rows) — no more mid-word cuts.
+      excerpt: clampMetaDescription(outline.metaDescription, lang),
       // BODY IMAGE EMBEDDING LAW: images[0] = featured/og cover; images[1..N]
       // are inserted into the article markdown at section boundaries (was:
       // dropped entirely → every post was a wall of text).
@@ -247,7 +250,7 @@ export async function GET(request: NextRequest) {
       // old `.slice(0, 60)` mid-word hard cut (23/31 EN titles were landing
       // in the SERP truncated mid-word; AR budget is wider at 70).
       meta_title: clampMetaTitle(outline.title, lang),
-      meta_description: outline.metaDescription,
+      meta_description: clampMetaDescription(outline.metaDescription, lang),
       focus_keyword: qi.focus_keyword,
       keywords: outline.lsiKeywords,
       category: safeCategory,

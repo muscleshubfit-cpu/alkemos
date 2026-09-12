@@ -234,6 +234,26 @@ Alkemos processes the following categories of personal data:
 | AI chat history | EVO chat messages (subscribers only) | `chat_messages` table (synced fire-and-forget) | Until account deletion |
 | Tool leads | name, email, phone captured from free tools | `tool_leads` table | Per marketing consent |
 
+### Analytics & advertising consent (GDPR/ePrivacy — Phase 178, 2026-09-12)
+
+- The `CookieConsent` banner (`src/components/CookieConsent.tsx`) is the
+  single consent surface: equal-prominence Accept/Reject, cookie
+  categories in a zero-JS `<details>`, in-banner privacy-policy link,
+  365-day consent record (`localStorage mhe_cookie_consent`), and
+  withdrawal-as-easy-as-giving via the privacy page's "Cookie settings"
+  button (`alkemos:consent-reopen`).
+- **GA/AdSense gating (Consent Mode v2):** the `ga-init` script in
+  `src/app/layout.tsx` declares `gtag('consent', 'default', …denied)`
+  BEFORE `gtag('config')` — the order Google requires — then applies the
+  visitor's STORED choice pre-config. Before Phase 178, `gtag('config')`
+  ran with no consent state, so GA set cookies and shipped pageviews for
+  visitors who had not consented (the banner's `consent update` only
+  fired after the visitor chose). AdSense reads the same gtag consent
+  state. Owner order: «حل مشاكل بانر الكوكيز إن وجدت» (2026-09-12).
+- No analytics/advertising cookies are set before consent; the
+  `alkemos-consent-init` pre-paint script only reads localStorage to
+  stamp a visibility attribute (no network, no cookie writes).
+
 ### Data subject rights
 
 - **Access / export:** users can view their profile and saved

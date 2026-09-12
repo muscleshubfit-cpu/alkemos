@@ -68,6 +68,27 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/chat", destination: "/evo", permanent: true },
+      // ─────────────────────────────────────────────────────────────
+      // PHASE 178 (§12.42) — keyword-cannibalization consolidation
+      // (owner-approved 2026-09-12). The AR blog published 7 sleep
+      // articles — FOUR answering literally «كم ساعة نوم أحتاجها لبناء
+      // العضلات؟» — plus a duplicated beginners pair with IDENTICAL
+      // titles. The 5 consolidated posts below are unpublished by
+      // migration 0084 (sitemap/RSS/listings drop them automatically);
+      // these permanent redirects route legacy URLs + search-engine
+      // equity to the kept canonicals:
+      //   - sleep-recovery-gym-results (impact angle) — kept
+      //   - how-many-hours-sleep-for-muscle-growth (hours question) — kept
+      //   - sleep-muscle-growth-science (science angle) — kept
+      // The suffixed -1bbi/--3pc8 variants were slug-collision artifacts
+      // of the same topic brief (documented pending decision in STATE.md,
+      // resolved by the owner's batch approval).
+      // ─────────────────────────────────────────────────────────────
+      { source: "/ar/blog/sleep-recovery-gym-results-3pc8", destination: "/ar/blog/sleep-recovery-gym-results", permanent: true },
+      { source: "/ar/blog/sleep-recovery-gym-results-1bbi", destination: "/ar/blog/how-many-hours-sleep-for-muscle-growth", permanent: true },
+      { source: "/ar/blog/sleep-hours-muscle-growth", destination: "/ar/blog/how-many-hours-sleep-for-muscle-growth", permanent: true },
+      { source: "/ar/blog/sleep-muscle-recovery-gym", destination: "/ar/blog/how-many-hours-sleep-for-muscle-growth", permanent: true },
+      { source: "/ar/blog/muscle-building-beginners-step-by-step", destination: "/ar/blog/how-to-start-muscle-building-beginners", permanent: true },
     ];
   },
   // COACH PUBLIC PHOTOS (Phase 56): CoachLandingEditor stores the

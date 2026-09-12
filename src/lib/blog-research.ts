@@ -353,7 +353,13 @@ async function researchLanguage(lang: "en" | "ar"): Promise<{ data: LanguageRese
   // bans repetition at the search-intent/angle/structure level, not
   // just the title wording.
   const [recentPosts, recentJobs, digests] = await Promise.all([
-    getRecentPostsByLanguage(lang, 30),
+    // PHASE 178 (cannibalization forensics): the 30-post title window let
+    // the AR sleep cluster (4 articles answering the SAME «كم ساعة نوم»
+    // question + 3 slug-suffixed variants of one topic) slip through as
+    // older duplicates scrolled out — widen to the full-corpus horizon
+    // (100, aligned with the blog-topics default) so topic-pick sees the
+    // whole published language blog, not just the last month.
+    getRecentPostsByLanguage(lang, 100),
     getRecentGeneratedTopics(lang, 15),
     getRecentContentDigests(lang, 12),
   ]);

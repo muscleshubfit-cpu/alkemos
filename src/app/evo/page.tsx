@@ -33,7 +33,7 @@ export default function EvoPage() {
       icon: Brain,
       titleAr: "رد مبني على قياساتك",
       titleEn: "Answers Based On Your Measurements",
-      descAr: "الاشتراك المدفوع يخلي EVO ياخد في الحسبان قياساتك الأخيرة (الوزن والدهون وغيرها) في ردوده عليك.",
+      descAr: "مع اشتراك فعّال يأخذ EVO قياساتك الأخيرة في الحسبان (الوزن ونسبة الدهون وغيرها) عند صياغة إجاباته لك.",
       descEn: "With an active subscription EVO factors in your latest measurements (weight, body fat, etc.) when answering.",
       color: "#0071e3",
     },
@@ -41,7 +41,7 @@ export default function EvoPage() {
       icon: TrendingUp,
       titleAr: "خطط محفوظة في حسابك",
       titleEn: "Plans Saved To Your Account",
-      descAr: "الخطة اللي EVO يبنيها لك تقدر تحفظها في حسابك كخطة كاملة في لوحة خططك — مش نص في محادثة بس.",
+      descAr: "يمكنك حفظ الخطة التي يبنيها EVO لك في حسابك كخطة كاملة في لوحة خططك — لا مجرد نص في محادثة.",
       descEn: "Plans EVO builds for you can be saved to your account as full plans in your plans dashboard — not just chat text.",
       color: "#34c759",
     },
@@ -49,7 +49,7 @@ export default function EvoPage() {
       icon: RefreshCw,
       titleAr: "استبدالات ذكية بعداد",
       titleEn: "Smart Swaps With A Counter",
-      descAr: "بدّل أي وجبة أو تمرين بضغطة، مع عداد واضح يوضح رصيدك الأسبوعي — والنتيجة بتتحفظ في خطتك.",
+      descAr: "استبدل أي وجبة أو تمرين بضغطة واحدة، مع عداد واضح يبيّن رصيدك الأسبوعي — وتُحفظ النتيجة في خطتك تلقائيًا.",
       descEn: "Swap any meal or exercise in one tap, with a clear weekly counter — and the result is saved into your plan.",
       color: "#ff9500",
     },
@@ -65,7 +65,7 @@ export default function EvoPage() {
       icon: Dumbbell,
       titleAr: "تبديل التمارين بذكاء",
       titleEn: "Smart Exercise Swaps",
-      descAr: "مش عايز تمرين معين؟ EVO بيقترح بديل يناسب عضلاتك ومستواك ومعداتك.",
+      descAr: "لا ترغب في تمرين معيّن؟ يقترح EVO بديلًا يناسب عضلاتك ومستواك ومعداتك.",
       descEn: "Don't want a specific exercise? EVO suggests alternatives matching your muscles, level, and equipment.",
       color: "#ff3b30",
     },
@@ -73,7 +73,7 @@ export default function EvoPage() {
       icon: Apple,
       titleAr: "تبديل الوجبات بذكاء",
       titleEn: "Smart Meal Swaps",
-      descAr: "مش بتحب أكلة؟ EVO بيقترح بديل بنفس الماكروز والسعرات بالظبط.",
+      descAr: "لا تحب وجبة معيّنة؟ يقترح EVO بديلًا بنفس الماكروز والسعرات تمامًا.",
       descEn: "Don't like a meal? EVO suggests alternatives with the exact same macros and calories.",
       color: "#34c759",
     },
@@ -81,15 +81,15 @@ export default function EvoPage() {
       icon: BarChart3,
       titleAr: "تتبع تقدمك",
       titleEn: "Progress Tracking",
-      descAr: "EVO بيقرأ وزنك وقياساتك وتقدمك، ويستخدمها في بناء خططك.",
+      descAr: "يقرأ EVO وزنك وقياساتك وتقدمك، ويستخدمها في بناء خططك.",
       descEn: "EVO reads your weight, measurements, and progress, and uses them to build your plans.",
       color: "#0071e3",
     },
     {
       icon: GraduationCap,
-      titleAr: "بيتعلم من خطط المنصة",
+      titleAr: "يتعلم من خطط المنصة",
       titleEn: "Learns From Platform Plans",
-      descAr: "EVO بيستخلص أسبوعيًا المعرفة الغذائية من كل الخطط الحقيقية على المنصة (مجهولة الهوية بالكامل) — خطط المدربين المعتمدة وخطط المستخدمين وأنماط الاستبدال الفعلية — فخططك بتتطور مع سلوك حقيقي مش قوالب ثابتة.",
+      descAr: "يستخلص EVO أسبوعيًا المعرفة الغذائية من كل الخطط الحقيقية على المنصة (مجهولة الهوية بالكامل) — خطط المدربين المعتمدة وخطط المستخدمين وأنماط الاستبدال الفعلية — فتتطور خططك مع سلوك حقيقي لا قوالب ثابتة.",
       descEn: "EVO weekly distills nutrition knowledge from every real plan on the platform (fully anonymized) — approved coach plans, user plans, and actual swap behavior — so your plans evolve with real behavior, not static templates.",
       color: "#af52de",
     },
@@ -97,7 +97,7 @@ export default function EvoPage() {
       icon: Sparkles,
       titleAr: "متاح للجميع",
       titleEn: "Available to Everyone",
-      descAr: "EVO متاح لكل الزوار والمشتركين — الزوار بـ limits، المشتركين بكل الميزات.",
+      descAr: "EVO متاح لكل الزوار والمشتركين — الزوار بحدود استخدام، والمشتركون بكل الميزات.",
       descEn: "EVO is available to all visitors and subscribers — visitors with limits, subscribers with full features.",
       color: "#ff9500",
     },
@@ -105,45 +105,45 @@ export default function EvoPage() {
 
   const differences = [
     {
-      chatbotAr: "بيرد بأسئلة عامة",
+      chatbotAr: "يجيب بإجابات عامة",
       chatbotEn: "Replies with generic answers",
-      evoAr: "بيرد بناءً على بياناتك أنت",
+      evoAr: "يجيب بناءً على بياناتك أنت",
       evoEn: "Replies based on YOUR data",
     },
     {
-      chatbotAr: "معرفته ثابتة ومش بتتغير",
+      chatbotAr: "معرفته ثابتة لا تتغيّر",
       chatbotEn: "Static knowledge that never grows",
-      evoAr: "بيتعلم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية)",
+      evoAr: "يتعلّم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية)",
       evoEn: "Learns weekly from real platform plans (anonymized)",
     },
     {
-      chatbotAr: "مفيش ذاكرة لجسمك",
+      chatbotAr: "لا ذاكرة لجسمك",
       chatbotEn: "No memory of your body",
-      evoAr: "بيتذكر وزنك، هدفك، تقدمك",
+      evoAr: "يتذكّر وزنك وهدفك وتقدّمك",
       evoEn: "Remembers your weight, goal, progress",
     },
     {
-      chatbotAr: "مش بيتدخل في خطتك",
+      chatbotAr: "لا يتدخّل في خطتك",
       chatbotEn: "Doesn't interact with your plan",
-      evoAr: "يقدر يحفظ خطتك في لوحة خططك",
+      evoAr: "يستطيع حفظ خطتك في لوحة خططك",
       evoEn: "Can save your plan to your plans dashboard",
     },
     {
-      chatbotAr: "مفيش تحليل للأنماط",
+      chatbotAr: "لا تحليل للأنماط",
       chatbotEn: "No pattern analysis",
-      evoAr: "بياخد قياساتك الأخيرة في الحساب",
+      evoAr: "يأخذ قياساتك الأخيرة في الحسبان",
       evoEn: "Factors in your latest measurements",
     },
     {
-      chatbotAr: "متاح للمشتركين بس عادةً",
+      chatbotAr: "متاح للمشتركين فقط عادةً",
       chatbotEn: "Usually for subscribers only",
-      evoAr: "متاح للجميع بـ limits مختلفة",
+      evoAr: "متاح للجميع بحدود مختلفة",
       evoEn: "Available to everyone with different limits",
     },
     {
-      chatbotAr: "محادثتك بتضيع أول ما تقفل الصفحة",
+      chatbotAr: "تضيع محادثتك بمجرّد إغلاق الصفحة",
       chatbotEn: "Your chat vanishes when you close the page",
-      evoAr: "محادثتك بتتحفظ وتكمل معاك على كل جهاز",
+      evoAr: "تُحفظ محادثتك وتستمر معك على كل جهاز",
       evoEn: "Your chat is saved and follows you across devices",
     },
   ];
@@ -170,7 +170,7 @@ export default function EvoPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
             {isAr
-              ? "محرك أداء ذكي — مش مجرد شات بوت."
+              ? "محرك أداء ذكي — ليس مجرد روبوت محادثة."
               : "An intelligent performance engine — not just a chatbot."}
           </p>
 
@@ -224,16 +224,16 @@ export default function EvoPage() {
         {/* What is EVO? — marble-card (identity) */}
         <section className="marble-card mt-16 p-6 md:p-10">
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "إيه هو EVO؟" : "What is EVO?"}
+            {isAr ? "ما هو EVO؟" : "What is EVO?"}
           </h2>
           <p className="mt-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "EVO هو محرك أداء ذكي مبني على الذكاء الاصطناعي، مصمم خصيصاً عشان يساعدك توصل لأهدافك الرياضية والتغذوية بشكل أسرع وأذكى. مش مجرد شات بوت بيرد على أسئلتك — EVO بيحلل بياناتك، يفهم جسمك، ويتعلم من تقدمك عشان يديك نصائح مخصصة ليك أنت بس."
+              ? "EVO هو محرك أداء ذكي مبني على الذكاء الاصطناعي، صُمم خصيصًا لمساعدتك على الوصول إلى أهدافك الرياضية والغذائية بشكل أسرع وأذكى. ليس مجرد روبوت محادثة يجيب على أسئلتك — بل يحلّل EVO بياناتك، ويفهم جسمك، ويتعلّم من تقدّمك ليقدّم لك نصائح مخصّصة لك وحدك."
               : "EVO is an AI-powered performance engine designed specifically to help you reach your fitness and nutrition goals faster and smarter. Not just a chatbot that answers your questions — EVO analyzes your data, understands your body, and learns from your progress to give you personalized advice."}
           </p>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "بيدمج معرفة المدربين البشريين مع سرعة ودقة الذكاء الاصطناعي في نظام واحد متكامل."
+              ? "يدمج معرفة المدربين البشريين مع سرعة ودقة الذكاء الاصطناعي في نظام واحد متكامل."
               : "It combines human coach expertise with AI speed and precision in one integrated system."}
           </p>
         </section>
@@ -243,7 +243,7 @@ export default function EvoPage() {
             the homepage comparison table) */}
         <section id="features" className="mt-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "إيه الفرق بين EVO والشات بوت العادي؟" : "What's the difference between EVO and a regular chatbot?"}
+            {isAr ? "ما الفرق بين EVO وروبوت المحادثة العادي؟" : "What's the difference between EVO and a regular chatbot?"}
           </h2>
           <div className="marble-card mt-8 overflow-hidden">
             <div className="grid grid-cols-3 bg-[var(--tint)]">
@@ -282,7 +282,7 @@ export default function EvoPage() {
         {/* Features grid */}
         <section className="mt-16">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "إيه اللي EVO بيعمله؟" : "What can EVO do?"}
+            {isAr ? "ما الذي يفعله EVO؟" : "What can EVO do?"}
           </h2>
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
             {features.map((feature, i) => {
@@ -314,36 +314,36 @@ export default function EvoPage() {
         {/* How EVO works — marble-card (identity) */}
         <section className="marble-card mt-16 p-6 text-[var(--text)] md:p-10">
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "إزاي EVO بيشتغل؟" : "How does EVO work?"}
+            {isAr ? "كيف يعمل EVO؟" : "How does EVO work?"}
           </h2>
           <div className="mt-6 space-y-6">
             {[
               {
                 num: "01",
-                titleAr: "بيجمع بياناتك",
+                titleAr: "يجمع بياناتك",
                 titleEn: "Collects your data",
-                descAr: "EVO بيقرأ استبياناتك، وزنك، قياساتك، خططك، وتقدمك.",
+                descAr: "يقرأ EVO استبياناتك ووزنك وقياساتك وخططك وتقدّمك.",
                 descEn: "EVO reads your questionnaires, weight, measurements, plans, and progress.",
               },
               {
                 num: "02",
-                titleAr: "بيفهم هدفك",
+                titleAr: "يفهم هدفك",
                 titleEn: "Understands your goal",
-                descAr: "بيقرأ استبياناتك وهدفك ومستواك قبل ما يبني أي خطة.",
+                descAr: "يقرأ استبياناتك وهدفك ومستواك قبل بناء أي خطة.",
                 descEn: "Reads your questionnaires, goal, and level before building any plan.",
               },
               {
                 num: "03",
                 titleAr: "يبني خطتك",
                 titleEn: "Builds your plan",
-                descAr: "خطط تغذية وتمارين مخصصة بناءً على بياناتك، جوه حدود عضويتك.",
+                descAr: "خطط تغذية وتمارين مخصّصة بناءً على بياناتك، ضمن حدود عضويتك.",
                 descEn: "Personalized nutrition and workout plans based on your data, within your membership limits.",
               },
               {
                 num: "04",
-                titleAr: "بيقترح التعديلات",
+                titleAr: "يقترح التعديلات",
                 titleEn: "Suggests adjustments",
-                descAr: "لما تحتاج، EVO بيقترح تبديلات ذكية للوجبات والتمارين على طول.",
+                descAr: "كلما احتجت، يقترح EVO بدائل ذكية للوجبات والتمارين فورًا.",
                 descEn: "Whenever you need, EVO suggests smart meal and exercise swaps on the spot.",
               },
             ].map((step, i) => (
@@ -368,7 +368,7 @@ export default function EvoPage() {
         <section className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             { icon: Zap, labelAr: "فوري", labelEn: "Instant", descAr: "ردود في ثواني", descEn: "Replies in seconds" },
-            { icon: Clock, labelAr: "24/7", labelEn: "24/7", descAr: "متاح كل وقت", descEn: "Always available" },
+            { icon: Clock, labelAr: "24/7", labelEn: "24/7", descAr: "متاح في كل وقت", descEn: "Always available" },
             { icon: Shield, labelAr: "آمن", labelEn: "Secure", descAr: "بياناتك مشفرة", descEn: "Your data is encrypted" },
             { icon: Sparkles, labelAr: "متاح", labelEn: "Available", descAr: "للجميع", descEn: "For everyone" },
           ].map((badge, i) => {
@@ -391,11 +391,11 @@ export default function EvoPage() {
             identity tint + chrome treatment */}
         <section className="mt-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "EVO للزوار vs EVO للمشتركين" : "EVO for Visitors vs Subscribers"}
+            {isAr ? "EVO للزوار مقابل EVO للمشتركين" : "EVO for Visitors vs Subscribers"}
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "EVO متاح للجميع، بس المشتركين بياخدو ميزات أكتر وأعمق."
+              ? "EVO متاح للجميع، لكن المشتركين يحصلون على ميزات أكثر وأعمق."
               : "EVO is available to everyone, but subscribers get deeper features."}
           </p>
 
@@ -501,14 +501,14 @@ export default function EvoPage() {
           </h2>
           <p className="mx-auto mt-4 max-w-md text-base font-medium text-white/80">
             {isAr
-              ? "اشتراك الكوتشينج بيشمل: EVO بكل ميزاته + خطط تغذية مخصصة + برامج تمارين + متابعة شخصية + كل أدوات المنصة. مفيش زيادة في السعر."
+              ? "يشمل اشتراك الكوتشينج: EVO بكل ميزاته + خطط تغذية مخصّصة + برامج تمارين + متابعة شخصية + كل أدوات المنصة. بلا أي زيادة في السعر."
               : "Coaching subscription includes: EVO with full features + personalized nutrition plans + workout programs + personal follow-up + all platform tools. No extra cost."}
           </p>
           <a
             href="/memberships"
             className="btn-chrome mt-6 inline-block px-6 py-3 text-base"
           >
-            {isAr ? "شوف الباقات ›" : "See plans ›"}
+            {isAr ? "اطّلع على الباقات ›" : "See plans ›"}
           </a>
         </section>
 
@@ -518,11 +518,11 @@ export default function EvoPage() {
             black-on-black in light mode). */}
         <section className="marble-card mt-12 p-8 text-center text-[#F5F5F7] md:p-12" style={{ backgroundColor: "#0B0B0D" }}>
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "جاهز تجرب EVO؟" : "Ready to try EVO?"}
+            {isAr ? "هل أنت جاهز لتجربة EVO؟" : "Ready to try EVO?"}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-base font-medium text-[#9BA0A6]">
             {isAr
-              ? "ابدأ المحادثة دلوقتي — بدون تسجيل. لو عايز كل الميزات، اشترك في الكوتشينج."
+              ? "ابدأ المحادثة الآن — دون تسجيل. وإذا رغبت في كل الميزات، اشترك في الكوتشينج."
               : "Start chatting now — no signup. For full features, subscribe to coaching."}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
@@ -558,7 +558,7 @@ export default function EvoPage() {
           </p>
           <ShareButtons
             title={isAr ? "EVO — كوتش ذكاء اصطناعي | Alkemos" : "EVO — AI Coach | Alkemos"}
-            text={isAr ? "محرك أداء ذكي مش مجرد شات بوت — متاح للجميع" : "An intelligent performance engine, not just a chatbot — available to everyone"}
+            text={isAr ? "محرك أداء ذكي ليس مجرد روبوت محادثة — متاح للجميع" : "An intelligent performance engine, not just a chatbot — available to everyone"}
           />
         </div>
       </main>

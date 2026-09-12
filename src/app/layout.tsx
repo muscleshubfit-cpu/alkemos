@@ -425,6 +425,34 @@ export default async function RootLayout({
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
+                // PHASE 178 — CONSENT MODE v2 DEFAULT-DENIED (GDPR/ePrivacy
+                // gate): the banner's gtag consent UPDATE only fires AFTER
+                // the visitor chooses — but gtag('config') used to run first,
+                // so GA set cookies and shipped pageviews for visitors who
+                // never consented. Google's required order: declare the
+                // default consent state BEFORE config. Returning visitors
+                // get their stored choice (the same mhe_cookie_consent
+                // record the pre-paint script reads) applied pre-config so
+                // consented traffic keeps tracking without a lost first hit.
+                gtag('consent', 'default', {
+                  ad_storage: 'denied',
+                  ad_user_data: 'denied',
+                  ad_personalization: 'denied',
+                  analytics_storage: 'denied',
+                  wait_for_update: 500
+                });
+                try {
+                  var mcs = localStorage.getItem('mhe_cookie_consent');
+                  if (mcs) {
+                    var mcd = JSON.parse(mcs);
+                    if (mcd && typeof mcd.timestamp === 'number' && Date.now() - mcd.timestamp < 31536000000 && typeof mcd.granted === 'boolean') {
+                      var st = mcd.granted ? 'granted' : 'denied';
+                      gtag('consent', 'update', {
+                        ad_storage: st, ad_user_data: st, ad_personalization: st, analytics_storage: st
+                      });
+                    }
+                  }
+                } catch (e) {}
                 gtag('js', new Date());
                 gtag('config', '${GA_ID}');
               `}

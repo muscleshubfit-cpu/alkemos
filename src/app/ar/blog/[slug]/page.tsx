@@ -126,12 +126,17 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     fetchBlogPostFull(slug, "ar"),
     fetchPublishedBlogSlugPools(),
   ]);
-  const fullPost = fetchedPost
-    ? {
-        ...fetchedPost,
-        content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "ar", slugPools), "ar").md,
-      }
-    : fetchedPost;
+  // PHASE 178 (2026-09-12 live incident): a failed full-content fetch must
+  // NEVER render a 200 empty shell — Cloudflare cached a transient DB-hiccup
+  // render as a 200 page carrying ONLY the cookie banner. Same law as the
+  // EN mirror (M29): fail honestly as 404; ISR self-heals on revalidate.
+  if (!fetchedPost) {
+    notFound();
+  }
+  const fullPost = {
+    ...fetchedPost,
+    content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "ar", slugPools), "ar").md,
+  };
 
   return (
     <>

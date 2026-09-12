@@ -279,11 +279,11 @@ export function LandingView() {
   // owner's verbatim copy (Egyptian-dialect refresh). They feed BOTH the
   // visible accordion AND the FAQPage JSON-LD above (single source).
   const faqs = [
-    { q: isAr ? "هل محتاج اشتراك علشان أستخدم الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لأ، كل الحاسبات (السعرات، الكتلة، الماكروز، الدهون) متاحة مجانًا وبدون تسجيل." : "No, all six tools (calorie, BMI, macro, body fat, water tracker, meal planner) are completely free without signup." },
-    { q: isAr ? "إيه الفرق بين Premium وPro؟" : "What's the difference between Premium and Pro?", a: isAr ? "Premium يديك EVO بلا حدود و4 خطط شهريًا، وPro يضيف خطط أكتر (8 شهريًا)، تبديلات أسبوعية، ونتائج محفوظة أكتر، بدون إعلانات." : "Premium ($14.99/mo): unlimited EVO, 4 plans/mo (weekly cap 1+1), 50 saved results. Pro ($29.99/mo): 8 plans/mo (weekly cap 2+2), 200 results, pattern analysis, ad-free." },
-    { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "Does it support PayPal?", a: isAr ? "حاليًا فودافون كاش، إنستاباي، وPayPal — وهنضيف طرق دفع تانية قريبًا." : "Yes, PayPal is the primary payment method. Manual payment via InstaPay and Vodafone Cash is also available." },
-    { q: isAr ? "كام عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكتر من 868 تمرين و8830 نوع طعام، وبيزيد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
-    { q: isAr ? "هل المنصة بتدعم اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "أيوه بالكامل — النسخة العربية موجّهة لكل الجمهور العربي مش لبلد معينة، والنسخة الإنجليزية موجّهة للعالم كله." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
+    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا، كل الحاسبات (السعرات، الكتلة، الماكروز، الدهون) متاحة مجانًا ودون تسجيل." : "No, all six tools (calorie, BMI, macro, body fat, water tracker, meal planner) are completely free without signup." },
+    { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO, 4 plans/mo (weekly cap 1+1), 50 saved results. Pro ($29.99/mo): 8 plans/mo (weekly cap 2+2), 200 results, pattern analysis, ad-free." },
+    { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "Does it support PayPal?", a: isAr ? "حاليًا فودافون كاش وإنستاباي وPayPal — وسنضيف طرق دفع أخرى قريبًا." : "Yes, PayPal is the primary payment method. Manual payment via InstaPay and Vodafone Cash is also available." },
+    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكثر من 868 تمرينًا و8830 نوع طعام، والعدد يتزايد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
+    { q: isAr ? "هل تدعم المنصة اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "نعم بالكامل — النسخة العربية موجّهة إلى الجمهور العربي كافة لا إلى بلد بعينه، والنسخة الإنجليزية موجّهة إلى العالم أجمع." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
   ];
   const faqSchema = getFAQSchema(faqs);
 
@@ -589,9 +589,9 @@ export function LandingView() {
               { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي بدقة بدون تسجيل.", descEn: "Daily calorie needs", icon: "calories", href: "/tools/calorie-calculator" },
               { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف لو وزنك في المعدل الصحي.", descEn: "Is your weight healthy?", icon: "bmi", href: "/tools/bmi-calculator" },
               { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع بروتين وكارب ودهون يومك بسهولة.", descEn: "Protein, carbs, fat", icon: "macros", href: "/tools/macro-calculator" },
-              { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدمك بمقاييس حقيقية مش بس بالميزان.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
-              { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجل كوبساتك يومياً", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
-              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "ابني وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
+              { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
+              { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجّل أكوابك يوميًا", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
+              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "صمّم وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
               // §12.31: the AI meal-planner trial on the homepage grid —
               // under its FULL unified name (owner directive «عدل الاسم الى
               // مخطط الوجبات بالذكاء الاصطناعي» — the grid previously
@@ -628,7 +628,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "من الصدر للضهر للأرجل، كل عضلة ليها تمارينها بمستويات صعوبة تناسب المبتدئ والمحترف." : "868+ exercises with full instructions and difficulty levels."}
+                {isAr ? "من الصدر والظهر إلى الأرجل، لكل عضلة تمارينها بمستويات صعوبة تناسب المبتدئ والمحترف." : "868+ exercises with full instructions and difficulty levels."}
               </p>
             </Reveal>
           </div>
@@ -798,7 +798,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-5xl" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "كوتشينج حقيقي، مش مجرد PDF" : "Real Coaching, Not Just a PDF"}
+                {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not Just a PDF"}
               </h2>
             </Reveal>
             <Reveal delay={150}>
@@ -931,7 +931,7 @@ export function LandingView() {
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: "#A1A1A6" }}>
               {isAr
-                ? "سعرك بقرارك انت وتحصل فلوسك على طول — المنصة بتاخد رسم ثابت بس مش نسبة من شغلك، وكل الأدوات (868+ تمرين، 8830+ أكلة، ومساعد EVO) متاحة تحت تصرفك مع صفحتك الخاصة."
+                ? "سعرك بقرارك وحدك وتحصل على أموالك مباشرة — تأخذ المنصة رسمًا ثابتًا لا نسبة من عملك، وكل الأدوات (868+ تمرينًا، و8830+ نوع طعام، ومساعد EVO) متاحة تحت تصرفك مع صفحتك الخاصة."
                 : "Your client's price is your call alone, and you collect your money yourself — the site charges a fixed fee only, never a percentage of your work."}
             </p>
           </Reveal>
@@ -985,7 +985,7 @@ export function LandingView() {
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "ابدأ مجانًا بالأدوات الأساسية، أو ارقّي لـPremium أو Pro علشان تفتح كل إمكانيات EVO وخطط شخصية أكتر شهريًا."
+                ? "ابدأ مجانًا بالأدوات الأساسية، أو ارتقِ إلى Premium أو Pro لتفتح كل إمكانات EVO وخططًا شخصية أكثر شهريًا."
                 : "Unlock the full power of AI with a Premium or Pro membership."}
             </p>
           </Reveal>
@@ -1011,7 +1011,7 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr ? "كل الأساسيات اللي محتاجها لتبدأ صح." : "All the essentials you need to start right."}
+                  {isAr ? "كل الأساسيات التي تحتاجها لتبدأ بشكل صحيح." : "All the essentials you need to start right."}
                 </p>
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {(isAr
@@ -1066,7 +1066,7 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="relative mt-3 text-sm font-normal leading-relaxed text-[#9BA0A6]">
-                  {isAr ? "للمتقدمين اللي عايزين أقصى استفادة من المنصة." : "For advanced users who want the most out of the platform."}
+                  {isAr ? "للمتقدمين الراغبين في أقصى استفادة من المنصة." : "For advanced users who want the most out of the platform."}
                 </p>
                 <ul className="relative mt-5 space-y-2.5 text-sm">
                   {(isAr
@@ -1120,7 +1120,7 @@ export function LandingView() {
           <Reveal delay={450}>
             <div className="mt-12">
               <h3 className="text-center text-2xl font-semibold tracking-tight md:text-3xl" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "ليه Alkemos؟ مقارنة سريعة" : "Why Alkemos? A quick comparison"}
+                {isAr ? "لماذا Alkemos؟ مقارنة سريعة" : "Why Alkemos? A quick comparison"}
               </h3>
               {/* Phase 131 (owner feedback «جدول المقارنه حاليا يشبة الكروت،
                   عدلة الى شكل جدول»): ONE real <table> at EVERY
@@ -1263,7 +1263,7 @@ export function LandingView() {
           <div className="marble-card mx-auto max-w-3xl px-6 py-12 text-center md:py-16">
             <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {isAr
-                ? "ابدأ رحلتك دلوقتي مجانًا.. مالكش عذر تأجل بعد اليوم"
+                ? "ابدأ رحلتك الآن مجانًا — لا عذر لتأجيلها بعد اليوم"
                 : "Start your journey free today — no excuse to wait"}
             </h2>
             <a

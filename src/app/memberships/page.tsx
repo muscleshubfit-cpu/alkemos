@@ -329,7 +329,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               {
                 q: isAr ? "هل أقدر ألغي في أي وقت؟" : "Can I cancel anytime?",
                 a: isAr
-                  ? "نعم، من صفحة حسابك اضغط «إلغاء الاشتراك». مفيش خصم تلقائي — باقتك هتفضل شغالة لآخر مدة دفعتها وبعدها تخلص لو ما جدّدتش."
+                  ? "نعم، من صفحة حسابك اضغط «إلغاء الاشتراك». لا يوجد خصم تلقائي — تبقى باقتك فعّالة حتى آخر مدة دفعتها ثم تنتهي إن لم تُجدّدها."
                   : "Yes — on your account page press “Cancel subscription”. Nothing auto-renews: your plan stays active until the period you paid for ends, then simply stops unless you pay again.",
               },
               {
@@ -346,7 +346,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               },
               {
                 q: isAr ? "هل فيه تجربة مجانية؟" : "Is there a free trial?",
-                a: isAr ? "لا، مفيش تجربة مجانية. بس الـ Free tier مجاني للأبد." : "No free trial. But the Free tier is free forever.",
+                a: isAr ? "لا، لا توجد تجربة مجانية. لكن الفئة المجانية (Free) مجانية للأبد." : "No free trial. But the Free tier is free forever.",
               },
               {
                 q: isAr ? "طرق الدفع؟" : "Payment methods?",

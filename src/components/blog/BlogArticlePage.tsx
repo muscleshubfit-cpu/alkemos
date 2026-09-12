@@ -5,9 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
+import { stripFaqSectionFromBody } from "@/lib/blog-msa";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
+
+/** Display polish for FAQ card questions: the pipeline's lifted questions
+ *  are raw search queries ("how much protein do i need…") — capitalize the
+ *  first letter and the standalone lowercase "i" so cards read like
+ *  questions, not query strings. Arabic questions pass through unchanged. */
+function displayFaqQuestion(q: string): string {
+  return q.replace(/\bi\b/g, "I").replace(/^([a-z])/, (c) => c.toUpperCase());
+}
 
 export function BlogArticlePage({
   lang,
@@ -95,8 +104,16 @@ export function BlogArticlePage({
     );
   }
 
-  const toc = parseTableOfContents(post.content);
-  const htmlContent = renderMarkdown(post.content);
+  // PHASE 178 — FAQ single-display law: when the post carries faq_json
+  // cards, the markdown body's own FAQ section is stripped BEFORE the TOC
+  // and body render, so the section appears exactly once (the 2026-09-12
+  // live audit: 72/72 published articles rendered identical Q&A twice —
+  // legacy bodies kept their FAQ section next to the cards). Pure,
+  // deterministic, idempotent (no heading → body unchanged).
+  const hasFaqCards = Array.isArray(post.faq_json) && post.faq_json.length > 0;
+  const bodyContent = hasFaqCards ? stripFaqSectionFromBody(post.content) : post.content;
+  const toc = parseTableOfContents(bodyContent);
+  const htmlContent = renderMarkdown(bodyContent);
   const baseUrl = "https://alkemos.com";
   const articleUrl = `${baseUrl}${isAr ? "/ar/blog" : "/blog"}/${post.slug}`;
   const linkedUrl = linked ? `${baseUrl}${linked.language === "ar" ? "/ar/blog" : "/blog"}/${linked.slug}` : null;
@@ -290,7 +307,7 @@ export function BlogArticlePage({
                 <div className="mt-8 space-y-4">
                   {post.faq_json.map((faq: BlogFaq, i: number) => (
                     <div key={i} className="marble-card p-6">
-                      <h3 className="text-base font-semibold tracking-tight">{faq.question}</h3>
+                      <h3 className="text-base font-semibold tracking-tight">{displayFaqQuestion(faq.question)}</h3>
                       <p className="mt-2 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">{faq.answer}</p>
                     </div>
                   ))}

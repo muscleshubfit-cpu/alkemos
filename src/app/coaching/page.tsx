@@ -151,7 +151,7 @@ export default function CoachingPage() {
       icon: Bot,
       titleAr: "EVO — مساعدك الذكي 24/7",
       titleEn: "EVO — Your AI Assistant 24/7",
-      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. مش مجرد شات بوت — محرك أداء ذكي بيتعلم من بياناتك ومن خطط المنصة الحقيقية (مجهولة الهوية).",
+      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. ليس مجرد روبوت محادثة — بل محرك أداء ذكي يتعلّم من بياناتك ومن خطط المنصة الحقيقية (مجهولة الهوية).",
       descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that learns from your data and from real platform plans (anonymized).",
       color: "#8b5cf6",
     },
@@ -296,7 +296,7 @@ export default function CoachingPage() {
             </h2>
             <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
               {isAr
-                ? "مش مجرد شات بوت. محرك أداء ذكي بيقرأ بياناتك وهدفك، ويبني لك خطط مخصصة، ويقترح تبديلات ذكية — وهو جزء من باقة الكوتشينج، مش اشتراك منفصل عنها."
+                ? "ليس مجرد روبوت محادثة. محرك أداء ذكي يقرأ بياناتك وهدفك، ويبني لك خططًا مخصّصة، ويقترح تبديلات ذكية — وهو جزء من باقة الكوتشينج، لا اشتراك منفصل عنها."
                 : "Not just a chatbot. A smart engine that reads your data and goal, builds personalized plans, and suggests smart swaps — included in your coaching plan, not a separate subscription."}
             </p>
             {/* Owner directive 2026-08-30: EVO is a service inside the
@@ -420,7 +420,7 @@ export default function CoachingPage() {
             </Reveal>
             <Reveal delay={150}>
               <p className="mx-auto mt-4 max-w-xl text-center text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
-                {isAr ? "باقة كوتشينج واحدة بكل حاجة." : "One coaching plan with everything."}
+                {isAr ? "باقة كوتشينج واحدة بكل الميزات." : "One coaching plan with everything."}
               </p>
             </Reveal>
             {/* PHASE 68 (owner-approved): the legacy Starter $20 / Elite $40
@@ -492,8 +492,8 @@ export default function CoachingPage() {
               <Accordion type="single" collapsible className="mt-12">
                 {[
                   { q: isAr ? "ما هو الكوتشينج في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "كوتشينج أونلاين مع مدربين وأخصائيين تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
-                  { q: isAr ? "من هو EVO؟" : "Who is EVO?", a: isAr ? "محرك الأداء الذكي. مش شات بوت — بيرد على أسئلتك، يبني لك خطط، ويقدر يحفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
-                  { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، كل خطة بتتبني من استبياناتك على يد مدرب بشري، وتقدر تطلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
+                  { q: isAr ? "من هو EVO؟" : "Who is EVO?", a: isAr ? "محرك الأداء الذكي. ليس روبوت محادثة — يجيب على أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
+                  { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، تُبنى كل خطة من استبياناتك على يد مدرب بشري، ويمكنك طلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
                   { q: isAr ? "هل المدربين حقيقيين؟" : "Are the coaches real?", a: isAr ? "نعم، المدربين حقيقيين ويراجعون خططك بنفسهم." : "Yes, real coaches review your plans personally." },
                   { q: isAr ? "طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
                   { q: isAr ? "بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم، مشفرة على Supabase مع RLS." : "Yes, encrypted on Supabase with RLS." },

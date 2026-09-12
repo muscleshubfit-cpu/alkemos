@@ -3301,3 +3301,24 @@ tsc 0 · eslint 0/0 · vitest **914/914** · next build exit 0 · docs_audit ✓
 - Live checks: /ar/faq → «بريميوم: 3 … برو: 6 … كوتشينج: 3» + «سياسات الأمان على مستوى الصفوف (RLS)» + «تطبيق ويب تقدمي (PWA)» ✓ (the EN dataset in the RSC payload legitimately still carries "Premium: 3" — language-toggle copy, not AR regression)
 - /ar/tools/calorie-calculator meta → «بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) الأدق» + keywords «حاسبة TDEE»/«حاسبة BMR» preserved ✓
 - /ar/tools/body-fat-calculator meta → «بطريقة البحرية الأمريكية (U.S. Navy)» + keyword «حاسبة دهون الجسم» («حاسبة Body Fat» gone) ✓
+
+---
+Task ID: SEO-GEO-PHASE-178-2026-09-12
+Agent: Main (Super Z)
+Task: المرحلة 178 (§12.42) — دفعة جودة المحتوى بأمر المالك «موافق على المقترحات ابدأ تنفيذ كل البنود + حل مشاكل بانر الكوكيز إن وجدت»
+
+Work Log:
+- قانون عرض FAQ واحد عند الرسم: stripFaqSectionFromBody + FAQ_HEADING_RE مصدر واحد في blog-msa.ts (النشر والرسم بلا تفرع) — BlogArticlePage يقص المتن قبل TOC/الرسم متى وُجدت بطاقات faq_json + صقل عرض الأسئلة (capitalize/i→I)
+- توحيد التآكل الكلماتي: 5 تحويلات 301 في next.config.ts + ميجريشن 0084 (إلغاء نشر 5 مقالات AR + تصفية linked_post_id بالاتجاهين)
+- إصلاحات البيانات في 0084: 14 وصفًا/مقتطفًا مقصوصة منتصف الكلمة + عنوانان «7‑Day» + نزع 6 حشوات استعلامات خام (4 مقالات EN)
+- clampMetaDescription في blog-pipeline.ts (قانون P0-3 للوصف: ميزانية 158/160 · حد كلمة · لا روابط معلقة · علامة ختام) في محلل P1 + P5 (وصف+مقتطف)
+- فصحى السطح التسويقي: evo · LandingView · memberships · coaching (~60 سلسلة — كان /ar/evo 12 علامة قوية) + vs/limits → مقابل/بحدود
+- بوابة كوكيز GA: Consent Mode v2 default-denied قبل gtag(config) + تطبيق المخزن قبله — SECURITY.md §7 موثق
+- notFound() عند فشل fetchBlogPostFull في مسارَي المدونة (حادثة الكاش المسموم) + نافذة تكرار المواضيع 30→100 في blog-research
+- +31 اختبارًا (945/945): blog-faq-single-display ×9 · clampMetaDescription ×7 · marketing-msa-surface ×11 · blog-topic-dedup ×4
+
+Stage Summary:
+- البوابات: tsc 0 (4 قديمة موثقة) · eslint 0/0 · vitest 945/945 · next build exit 0 (2052) · migration_audit PASS · docs_audit ✓
+- ميجريشن 0084 (بيانات فقط) يطبقه التكامل التلقائي عند الوصول لـmain
+- Commit SHA: (يُستكمل بعد الالتزام)
+- Push status: (يُستكمل)

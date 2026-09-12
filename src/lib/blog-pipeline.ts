@@ -22,6 +22,7 @@ import { getRecentPostsByLanguage, getRecentContentDigests, isDuplicateTopic } f
 import { sanitizeModelSlug } from "./slug";
 import {
   AR_MSA_EDITOR_LAW,
+  FAQ_HEADING_RE,
   scanLatinContamination,
   validateMsaConversion,
 } from "./blog-msa";
@@ -351,7 +352,11 @@ Create the detailed article blueprint. Return STRICT JSON only:
     outline: {
       title: String(parsed.title),
       subtitle: String(parsed.subtitle ?? ""),
-      metaDescription: String(parsed.metaDescription ?? "").slice(0, 160),
+      // PHASE 178: word-boundary clamp replaces the raw `.slice(0, 160)`
+      // mid-word cut (the P0-3 title law, applied to descriptions — the
+      // 2026-09-12 live audit found 14 published rows ending "…and equ" /
+      // "…لدع"). Budget 158 EN / 160 AR + guaranteed sentence-final mark.
+      metaDescription: clampMetaDescription(String(parsed.metaDescription ?? ""), lang),
       // ONE-SLUG-LAW (2026-08-28j): was a local 60-char inline sanitize —
       // now the same latin law as the coach generator (≤80, min 3 → "").
       slugBase: sanitizeModelSlug(String(parsed.slugBase ?? topic)),
@@ -577,6 +582,52 @@ export function clampMetaTitle(rawTitle: string, lang: "en" | "ar"): string {
   return cleaned || cut.trim();
 }
 
+// ─────────────────────────────────────────────────────────────────
+// PHASE 178 — meta description clamp (the P0-3 title law, applied to
+// descriptions). Live audit 2026-09-12: the legacy `.slice(0, 160)` in
+// the P1 outline parser cut descriptions MID-WORD — 14 published rows
+// carry SERP descriptions (and page intros — excerpt shares the same
+// source) ending "…and equ" / "…tips, and equ" / "…لدع". The law:
+//   1. Budget 158 EN / 160 AR (SERP display ~155-160).
+//   2. Over-budget → cut at the LAST WORD BOUNDARY that fits.
+//   3. Never end on a connector/punctuation island ("…and", "…و", "،").
+//   4. Guarantee a sentence-final mark — a clamped description ends
+//      cleanly, never mid-clause. Used by the P1 outline parse AND the
+//      P5 publisher (excerpt + meta_description share the value).
+// ─────────────────────────────────────────────────────────────────
+
+const META_DESCRIPTION_MAX: Record<"en" | "ar", number> = { en: 158, ar: 160 };
+
+/** Trailing connectors + separators — a clamp may never end on these. */
+const DESC_TRAILING_JUNK_RE =
+  /(?:[\s.,;:،؛\-–—]+|\b(?:and|or|with|the|of|to|for|in|on|a|an|plus|including)\b[\s.,؛،]*|\b(?:و|أو|مع|في|من|إلى|على|ثم|مع)\b[\s.,؛،]*)+$/i;
+
+export function clampMetaDescription(rawDesc: string, lang: "en" | "ar"): string {
+  const max = META_DESCRIPTION_MAX[lang];
+  let d = (rawDesc ?? "").trim();
+  if (!d) return d;
+
+  // Law 2 — already within budget.
+  if (d.length <= max) {
+    // Law 3+4 still apply: no connector/punct island, terminal mark.
+    const cleaned = d.replace(DESC_TRAILING_JUNK_RE, "").trim();
+    if (!cleaned) return d;
+    return /[.!?؟…]$/.test(cleaned) ? cleaned : `${cleaned}.`;
+  }
+
+  // Law 2 — word-boundary cut.
+  const cut = d.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  const floor = Math.floor(max / 2);
+  let clipped = lastSpace >= floor ? cut.slice(0, lastSpace) : cut;
+
+  // Laws 3+4 — never end on a connector island; end on a sentence mark.
+  clipped = clipped.replace(DESC_TRAILING_JUNK_RE, "").trim();
+  if (!clipped) return `${d.slice(0, max).trim()}.`;
+  return /[.!?؟…]$/.test(clipped) ? clipped : `${clipped}.`;
+}
+
+
 
 // ═══════════════════════════════════════════════════════════════
 // PHASE 4 — quality review & enhancement
@@ -704,8 +755,9 @@ export function ensureFaqSection(
 // Heading + "**question**" + answer-paragraph is the shared contract.
 // ─────────────────────────────────────────────────────────────────
 
-/** Matches the FAQ section heading in either language (tolerant variants). */
-const FAQ_HEADING_RE = /^##[ \t]+(?:frequently[ \t]+asked|faq|الأسئلة[ \t]+الشائعة)/im;
+// (PHASE 178: FAQ_HEADING_RE now lives in blog-msa.ts as the shared
+// single source — the publish-time lift here AND the render-time
+// single-display strip in BlogArticlePage ride the same contract.)
 
 /** Strip inline markdown (bold/italic/links) so FAQ cards render plain text. */
 function stripInlineMarkdown(s: string): string {

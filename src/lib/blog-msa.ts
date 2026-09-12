@@ -138,6 +138,43 @@ export function countArabicWords(text: string): number {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PHASE 178 — FAQ single-display law (owner-approved content-quality
+// batch 2026-09-12). Live audit: EVERY published article (72/72) renders
+// its FAQ section TWICE — the markdown body's own "## Frequently Asked
+// Questions / ## الأسئلة الشائعة" section AND the faq_json cards — with
+// identical Q&A. Phase 172's splitFaqSection lifted the FAQ at PUBLISH
+// time for new articles only; the pre-172 legacy corpus kept both.
+// This module is the shared, client-safe single source: the heading
+// contract regex (moved from blog-pipeline.ts — no fork) + the
+// render-time body strip used by BlogArticlePage.
+// ═══════════════════════════════════════════════════════════════
+
+/** Matches the FAQ section heading in either language (tolerant variants).
+ *  Single source of the heading contract — splitFaqSection (publish-time
+ *  lift) and stripFaqSectionFromBody (render-time display) share it. */
+export const FAQ_HEADING_RE = /^##[ \t]+(?:frequently[ \t]+asked|faq|الأسئلة[ \t]+الشائعة)/im;
+
+/**
+ * Remove the markdown body's own FAQ section (heading through the next
+ * H2 or end of document) so the section renders exactly ONCE — as the
+ * faq_json cards. Deterministic + idempotent: a body without a
+ * recognizable FAQ heading passes through unchanged (post-172 articles
+ * already lifted at publish; call this only when faq_json is non-empty).
+ */
+export function stripFaqSectionFromBody(md: string): string {
+  FAQ_HEADING_RE.lastIndex = 0; // stateless guard (no /g flag, defensive)
+  const match = FAQ_HEADING_RE.exec(md);
+  if (!match) return md;
+  const start = match.index;
+  const afterHeading = md.indexOf("\n", match.index + match[0].length);
+  const sectionStart = afterHeading === -1 ? md.length : afterHeading + 1;
+  const nextH2 = /^##[ \t]+/m.exec(md.slice(sectionStart));
+  const sectionEnd = nextH2 ? sectionStart + nextH2.index : md.length;
+  const stripped = md.slice(0, start) + md.slice(sectionEnd);
+  return stripped.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 176 — Latin contamination detector (deterministic, pure).
 //
 // Owner report «التعديلات الجديدة اختفت مرة أخرى» — live evidence:
