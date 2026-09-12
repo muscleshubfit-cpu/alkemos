@@ -59,6 +59,7 @@
 | قاموس MSA لسياق الأدوات (أسماء العلم/الألاختصارات/العلامات) + حراس سطح الأدوات | `src/lib/tool-msa.ts` + `tool-msa-surface.test.ts` (§12.41) |
 | قانون قصّ عناوين SERP (حدود الكلمات + نزع اللاحق والروابط المعلقة) | `src/lib/blog-pipeline.ts` clampMetaTitle (SEO-GEO-6.3 + 181) |
 | قانون تأجيل JS الطرف الثالث خارج نافذة LCP (GA lazyOnload + AdSense data-src/مُنشِّط) | `src/app/layout.tsx` (180) |
+| قانون التحميل الكسول لـ Supabase (client.ts عبر import() ديناميكي فقط + محرك توقيت المصادقة: فوري للمحجوب/عند الخمول للعائدين/أبدًا للمجهول + deferIdle لما تحت الطية) | `src/hooks/use-auth.tsx` + `src/lib/supabase/config.ts` + `src/lib/defer-idle.ts` (182) |
 | سلسلة مزودي AI + قوائم الموديلات + حراسة json-mode | `src/lib/ai-provider.ts` (177) |
 | فلتر FAQ بالموضوع + تجريد البادئة | `src/lib/blog-pipeline.ts` (176) |
 | التاريخ الكامل | `worklog.md` + `archive/` |
