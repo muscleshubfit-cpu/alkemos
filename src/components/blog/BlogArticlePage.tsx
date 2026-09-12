@@ -140,9 +140,14 @@ export function BlogArticlePage({
             {/* Hero */}
             <div className="mb-8">
               <div className="flex flex-wrap items-center gap-3 text-xs font-normal text-[var(--muted-foreground)]">
-                <span className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-2)]">
+                {/* P2-11 (§12.36): the article's category is a contextual
+                    link into the crawlable category page. */}
+                <a
+                  href={`${isAr ? "/ar/blog" : "/blog"}/category/${post.category}`}
+                  className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-2)] transition-colors hover:border-[var(--chrome-edge)]"
+                >
                   {getCategoryLabel(post.category, lang)}
-                </span>
+                </a>
                 <span>{post.reading_time} {isAr ? "دقائق قراءة" : "min read"}</span>
                 {post.published_at && (
                   <span>

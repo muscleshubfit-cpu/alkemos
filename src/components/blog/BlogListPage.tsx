@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageBanner } from "@/components/PageBanner";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
@@ -20,24 +21,23 @@ export function BlogListPage({
   const [posts, setPosts] = useState<BlogPostCard[]>(initialPosts ?? []);
   const [loading, setLoading] = useState(!initialPosts);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     (async () => {
-      // SSR seed (H1 audit fix): the default view (all categories, no
-      // search) is fully covered by the server-provided posts — no
-      // network round trip until the user actually filters.
-      if (initialPosts && category === "all" && !search) {
+      // SSR seed (H1 audit fix): the default view (no search) is fully
+      // covered by the server-provided posts — no network round trip
+      // until the user actually searches.
+      if (initialPosts && !search) {
         setPosts(initialPosts);
         setLoading(false);
         return;
       }
       setLoading(true);
-      const data = await listBlogPosts(lang, category, search);
+      const data = await listBlogPosts(lang, "all", search);
       setPosts(data);
       setLoading(false);
     })();
-  }, [lang, category, search, initialPosts]);
+  }, [lang, search, initialPosts]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--text)]">
@@ -69,27 +69,27 @@ export function BlogListPage({
             placeholder={isAr ? "ابحث في المقالات..." : "Search articles..."}
             className="flex-1 rounded-full border border-[var(--edge)] bg-[var(--tint)] px-5 py-2.5 text-sm font-normal outline-none focus:border-[var(--chrome-edge)]"
           />
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setCategory("all")}
-              className={`rounded-full px-4 py-2 text-xs font-normal transition-all ${
-                category === "all" ? "bg-[var(--text)] text-[var(--bg)]" : "bg-[var(--tint)] text-[var(--muted-foreground)] hover:text-[var(--text)]"
-              }`}
+          {/* P2-11 (§12.36): category chips are real LINKS to the crawlable
+              category pages — the client filter buttons they replaced were
+              invisible to the link graph. Search stays client-side (search
+              result URLs are correctly non-indexable). */}
+          <nav aria-label={isAr ? "تصنيفات المدونة" : "Blog categories"} className="flex flex-wrap gap-2">
+            <Link
+              href={isAr ? "/ar/blog" : "/blog"}
+              className="rounded-full bg-[var(--tint)] px-4 py-2 text-xs font-normal text-[var(--muted-foreground)] transition-all hover:text-[var(--text)]"
             >
               {isAr ? "الكل" : "All"}
-            </button>
+            </Link>
             {BLOG_CATEGORIES.map((cat) => (
-              <button
+              <Link
                 key={cat.id}
-                onClick={() => setCategory(cat.id)}
-                className={`rounded-full px-4 py-2 text-xs font-normal transition-all ${
-                  category === cat.id ? "bg-[var(--text)] text-[var(--bg)]" : "bg-[var(--tint)] text-[var(--muted-foreground)] hover:text-[var(--text)]"
-                }`}
+                href={`${isAr ? "/ar/blog" : "/blog"}/category/${cat.id}`}
+                className="rounded-full bg-[var(--tint)] px-4 py-2 text-xs font-normal text-[var(--muted-foreground)] transition-all hover:text-[var(--text)]"
               >
                 {isAr ? cat.ar : cat.en}
-              </button>
+              </Link>
             ))}
-          </div>
+          </nav>
         </div>
 
         {/* Posts grid */}

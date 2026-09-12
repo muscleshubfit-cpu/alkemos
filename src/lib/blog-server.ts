@@ -393,3 +393,39 @@ export async function listPublishedPostsForListPage(
     return [];
   }
 }
+
+/**
+ * P2-11 (§12.36 — crawlable blog categories): the published-post list
+ * for ONE category, in one language — the server data behind
+ * /blog/category/[slug] and /ar/blog/category/[slug]. Same card-fields
+ * law as listPublishedPostsForListPage (Phase 134): bodies never load
+ * on list pages. Empty array on any failure — the route then renders
+ * its honest empty state, never a 500.
+ */
+export async function listPublishedPostsByCategory(
+  lang: "en" | "ar",
+  categoryId: string,
+): Promise<BlogPostCard[]> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return [];
+
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select(
+        "id, language, title, slug, excerpt, focus_keyword, keywords, category, tags, featured_image, cover_alt, reading_time, author, published_at, created_at",
+      )
+      .eq("is_published", true)
+      .eq("language", lang)
+      .eq("category", categoryId)
+      .order("published_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []) as BlogPostCard[];
+  } catch {
+    return [];
+  }
+}

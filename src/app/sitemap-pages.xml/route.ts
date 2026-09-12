@@ -2,6 +2,7 @@ import { buildUrlSet, xmlResponse, siteUrl, type SitemapUrl } from "@/lib/sitema
 import { familyLastmod } from "@/lib/sitemap-lastmod";
 import { WORKOUT_PROGRAMS } from "@/lib/workout-programs";
 import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
+import { BLOG_CATEGORY_CONTENT } from "@/lib/blog-category-content";
 
 /**
  * GET /sitemap-pages.xml — static pages, tools, and programs.
@@ -30,6 +31,21 @@ export async function GET() {
     { loc: `${base}/ar/evo`, changefreq: "monthly", priority: 0.9, alternates: { en: `${base}/evo`, ar: `${base}/ar/evo` } },
     { loc: `${base}/blog`, changefreq: "weekly", priority: 0.8, alternates: { en: `${base}/blog`, ar: `${base}/ar/blog` } },
     { loc: `${base}/ar/blog`, changefreq: "weekly", priority: 0.8, alternates: { en: `${base}/blog`, ar: `${base}/ar/blog` } },
+    // P2-11 (§12.36): crawlable blog-category pages — 10 ids × 2 langs.
+    ...Object.keys(BLOG_CATEGORY_CONTENT).flatMap((cat): SitemapUrl[] => [
+      {
+        loc: `${base}/blog/category/${cat}`,
+        changefreq: "weekly",
+        priority: 0.6,
+        alternates: { en: `${base}/blog/category/${cat}`, ar: `${base}/ar/blog/category/${cat}` },
+      },
+      {
+        loc: `${base}/ar/blog/category/${cat}`,
+        changefreq: "weekly",
+        priority: 0.6,
+        alternates: { en: `${base}/blog/category/${cat}`, ar: `${base}/ar/blog/category/${cat}` },
+      },
+    ]),
     { loc: `${base}/coaching`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/coaching`, ar: `${base}/ar/coaching` } },
     { loc: `${base}/ar/coaching`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/coaching`, ar: `${base}/ar/coaching` } },
     { loc: `${base}/affiliate`, changefreq: "monthly", priority: 0.7 },
