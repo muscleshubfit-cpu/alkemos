@@ -1,6 +1,11 @@
 "use client";
 
-import { REFERRAL_COOKIE_NAME, COOKIE_DURATION_DAYS } from "@/lib/referral";
+// PHASE 182: constants now come from the dependency-free affiliate-constants
+// module. The old import (`from "@/lib/referral"`) dragged the whole
+// referral data layer + @supabase/ssr (~68KB) into first-load JS —
+// ReferralCookieChecker is mounted in the ROOT layout, so this one import
+// line was a public-page bundle edge.
+import { REFERRAL_COOKIE_NAME, COOKIE_DURATION_DAYS } from "@/lib/affiliate-constants";
 
 /**
  * Referral cookie utilities — client-side.

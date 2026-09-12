@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
+import { deferIdle } from "@/lib/defer-idle";
 import { stripFaqSectionFromBody } from "@/lib/blog-msa";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
@@ -46,14 +47,19 @@ export function BlogArticlePage({
   useEffect(() => {
     if (initialPost) {
       // Already have the post from server — just fetch related + linked
-      (async () => {
-        const [rel, lnk] = await Promise.all([
-          getRelatedPosts(initialPost),
-          getLinkedPost(initialPost),
-        ]);
-        setRelated(rel);
-        setLinked(lnk);
-      })();
+      // PHASE 182: both are BELOW-FOLD sections whose fetch pulls the
+      // Supabase client chunk — defer to idle (≤2.5s) so the article's
+      // LCP window stays free of that bandwidth.
+      deferIdle(() => {
+        void (async () => {
+          const [rel, lnk] = await Promise.all([
+            getRelatedPosts(initialPost),
+            getLinkedPost(initialPost),
+          ]);
+          setRelated(rel);
+          setLinked(lnk);
+        })();
+      }, 2500);
       return;
     }
     // No initial post — fetch client-side (fallback path)

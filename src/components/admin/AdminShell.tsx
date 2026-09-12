@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCoachClientStats } from "@/lib/data";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSubscriptionForClient } from "@/lib/data";
 import type { MembershipTier } from "@/lib/memberships";
 import type { Profile } from "@/lib/supabase/types";
 
@@ -59,7 +58,13 @@ export function useMembershipTier(
     let cancelled = false;
     setLoading(true);
 
-    getSubscriptionForClient(profile.id)
+    // PHASE 182: this hook is in the PUBLIC first-load graph (AdSenseAd,
+    // EvoChatProvider, SaveResultButton, water-tracker) — the data layer
+    // (→ @supabase/ssr ~68KB) is imported ON DEMAND here. The effect only
+    // runs when a profile exists, so anonymous visitors never fetch it.
+    const clientId = profile.id;
+    import("@/lib/data")
+      .then(({ getSubscriptionForClient }) => getSubscriptionForClient(clientId))
       .then((sub: { tier?: string | null } | null) => {
         if (cancelled) return;
         const t = sub?.tier;

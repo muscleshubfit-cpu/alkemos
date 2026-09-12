@@ -2,18 +2,13 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "./types";
+import { isSupabaseConfigured, SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-/**
- * Returns true when real Supabase credentials are configured.
- * When false, the app falls back to a local-only demo mode backed by
- * localStorage so the UI is fully usable without a backend.
- */
-export const isSupabaseConfigured = Boolean(
- supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith("http"),
-);
+// Flag re-export keeps the old import surface (`from "@/lib/supabase/client"`)
+// working. Post-Phase-182 every remaining STATIC importer of this module is a
+// gated-route chunk (profile, coach/admin views) — public first-load JS only
+// reaches it via dynamic import(). Flag-only consumers moved to ./config.
+export { isSupabaseConfigured };
 
 /**
  * Browser Supabase client.
@@ -25,14 +20,22 @@ export const isSupabaseConfigured = Boolean(
  *
  * The matching middleware.ts uses createServerClient with the same cookie
  * strategy, so client and server share the same storage.
+ *
+ * PHASE 182 (2026-09-12): this module's chunk is fetched ONLY through
+ * dynamic import() — public pages no longer pay ~68KB (gz) of @supabase/ssr
+ * in first-load JS. Call sites: the @/lib/data layer, blog.ts fetchers,
+ * evo-chat-context, EvoFloatingWidget, use-auth's OAuth fallback. The
+ * client itself is still created EAGERLY at module eval (single GoTrue
+ * instance, one auth listener, cookie sync) — the laziness lives in WHEN
+ * this module's chunk is fetched, not in client construction.
  */
 export const supabase = isSupabaseConfigured
- ? createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
- auth: {
- detectSessionInUrl: false, // /auth/callback handles this server-side
- flowType: "pkce",
- persistSession: true,
- autoRefreshToken: true,
- },
- })
+ ? createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        detectSessionInUrl: false, // /auth/callback handles this server-side
+        flowType: "pkce",
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
  : null;

@@ -6,7 +6,9 @@ import { ThemeImg } from "@/components/ThemeImg";
 import { useEvoChat } from "@/lib/evo-chat-context";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/lib/supabase/client";
+// PHASE 182: supabase is fetched via dynamic import() at its call sites —
+// this widget chunk loads at idle on EVERY page, so it must not drag
+// @supabase/ssr (~68KB) with it for anonymous visitors.
 import { buildFollowupPrefWrite } from "@/lib/evo-followup";
 import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown, Mail } from "lucide-react";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
@@ -127,20 +129,28 @@ export function EvoFloatingWidget() {
   const fuOptedIn = !!fuRow?.opted_in;
 
   const loadFollowupRow = useCallback(() => {
-    if (!profile?.id || !supabase) {
+    if (!profile?.id) {
       setFuRow(null);
       setFuLoaded(true);
       return;
     }
-    supabase
-      .from("evo_followup_prefs")
-      .select("opted_in, language, last_sent_at")
-      .eq("client_id", profile.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setFuRow(data ?? null);
+    // PHASE 182: Supabase client chunk fetched on demand.
+    void import("@/lib/supabase/client").then(({ supabase }) => {
+      if (!supabase) {
+        setFuRow(null);
         setFuLoaded(true);
-      });
+        return;
+      }
+      supabase
+        .from("evo_followup_prefs")
+        .select("opted_in, language, last_sent_at")
+        .eq("client_id", profile.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          setFuRow(data ?? null);
+          setFuLoaded(true);
+        });
+    });
   }, [profile]);
 
   useEffect(() => {
@@ -155,7 +165,10 @@ export function EvoFloatingWidget() {
     nextOptedIn: boolean,
     language: "ar" | "en",
   ) => {
-    if (!profile?.id || !supabase) return;
+    if (!profile?.id) return;
+    // PHASE 182: Supabase client chunk fetched on demand.
+    const { supabase } = await import("@/lib/supabase/client");
+    if (!supabase) return;
     const write = buildFollowupPrefWrite(profile.id, fuRow, {
       optedIn: nextOptedIn,
       language,

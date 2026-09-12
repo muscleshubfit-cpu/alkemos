@@ -8,7 +8,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import {
   buildPersistBody,
   parsePersistedBody,
@@ -226,8 +226,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       let restored: ChatState | null = null;
-      if (isPaidTier && isSupabaseConfigured && supabase) {
+      if (isPaidTier && isSupabaseConfigured) {
         try {
+          // PHASE 182: the Supabase client chunk is fetched on demand —
+          // EvoChatProvider is mounted in the ROOT layout (public pages).
+          const { supabase } = await import("@/lib/supabase/client");
+          if (supabase) {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
             const { data } = await supabase
@@ -240,6 +244,7 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
               const messages = data.reverse().map(rowToMessage);
               restored = { messages, isOpen: false, isTyping: false, dailyCount: 0, dailyCountDate: getTodayString() };
             }
+          }
           }
         } catch { /* fall through to localStorage */ }
       }
@@ -328,9 +333,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
 
       // Persist user message to Supabase (fire-and-forget) — PAID ONLY
       // (Phase 69 memory gating: memory is an advertised paid feature)
-      if (isPaidTier && isSupabaseConfigured && supabase) {
+      if (isPaidTier && isSupabaseConfigured) {
         (async () => {
           try {
+            // PHASE 182: Supabase client chunk fetched on demand.
+            const { supabase } = await import("@/lib/supabase/client");
+            if (!supabase) return;
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
               await supabase.from("chat_messages").insert({
@@ -513,9 +521,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
 
           // Persist assistant message to Supabase (fire-and-forget) — PAID ONLY
           // (Phase 69 memory gating)
-          if (isPaidTier && isSupabaseConfigured && supabase) {
+          if (isPaidTier && isSupabaseConfigured) {
             (async () => {
               try {
+                // PHASE 182: Supabase client chunk fetched on demand.
+                const { supabase } = await import("@/lib/supabase/client");
+                if (!supabase) return;
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                   await supabase.from("chat_messages").insert({
@@ -555,9 +566,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
 
         // Persist assistant message to Supabase (fire-and-forget) — PAID ONLY
         // (Phase 69 memory gating)
-        if (isPaidTier && isSupabaseConfigured && supabase) {
+        if (isPaidTier && isSupabaseConfigured) {
           (async () => {
             try {
+              // PHASE 182: Supabase client chunk fetched on demand.
+              const { supabase } = await import("@/lib/supabase/client");
+              if (!supabase) return;
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
                 await supabase.from("chat_messages").insert({

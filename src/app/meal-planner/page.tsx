@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getLimits, type MembershipTier } from "@/lib/memberships";
-import { getSubscriptionForClient } from "@/lib/data";
 
 // ===== Types =====
 
@@ -95,7 +94,11 @@ export default function MealPlannerPage() {
       setTier("coaching");
       return;
     }
-    getSubscriptionForClient(profile.id).then((sub: { tier?: string | null } | null) => {
+    // PHASE 182: public tool page — the data layer (→ @supabase/ssr) is
+    // imported on demand; the effect only runs when a profile exists.
+    import("@/lib/data")
+      .then(({ getSubscriptionForClient }) => getSubscriptionForClient(profile.id))
+      .then((sub: { tier?: string | null } | null) => {
       if (sub?.tier && ["free", "premium", "pro", "coaching"].includes(sub.tier)) {
         setTier(sub.tier as MembershipTier);
       }

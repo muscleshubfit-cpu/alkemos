@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { matchesBlogSearch } from "./blog-search";
 
@@ -117,7 +117,11 @@ export function getCategoryLabel(categoryId: string, lang: "en" | "ar"): string 
 }
 
 export async function listBlogPosts(lang: "en" | "ar", category?: string, search?: string): Promise<BlogPostCard[]> {
- if (!isSupabaseConfigured || !supabase) return [];
+ // PHASE 182: fetch the Supabase client chunk on demand — blog.ts is in
+ // the public first-load graph (LanguageToggle / LandingView / blog pages).
+ if (!isSupabaseConfigured) return [];
+ const { supabase } = await import("@/lib/supabase/client");
+ if (!supabase) return [];
  try {
   // Phase 134: card fields only — `content`/`schema_json`/`faq_json` are
   // for the ARTICLE page (fetched per-slug), never for lists.
@@ -154,7 +158,9 @@ export async function listBlogPosts(lang: "en" | "ar", category?: string, search
 }
 
 export async function getBlogPost(lang: "en" | "ar", slug: string): Promise<BlogPost | null> {
- if (!isSupabaseConfigured || !supabase) return null;
+ if (!isSupabaseConfigured) return null;
+ const { supabase } = await import("@/lib/supabase/client");
+ if (!supabase) return null;
  try {
   const { data, error } = await supabase
   .from("blog_posts")
@@ -177,7 +183,9 @@ export async function getRelatedPosts(
  post: Pick<BlogPost, "id" | "language" | "category">,
  limit = 3,
 ): Promise<BlogPostCard[]> {
- if (!isSupabaseConfigured || !supabase) return [];
+ if (!isSupabaseConfigured) return [];
+ const { supabase } = await import("@/lib/supabase/client");
+ if (!supabase) return [];
  try {
   // Phase 134: card fields only (list context — bodies never ship here).
   const { data, error } = await supabase
@@ -203,7 +211,9 @@ export async function getRelatedPosts(
 export async function getLinkedPost(
  post: Pick<BlogPost, "linked_post_id">,
 ): Promise<BlogPostCard | null> {
- if (!post.linked_post_id || !isSupabaseConfigured || !supabase) return null;
+ if (!post.linked_post_id || !isSupabaseConfigured) return null;
+ const { supabase } = await import("@/lib/supabase/client");
+ if (!supabase) return null;
  try {
   // Phase 134: card fields only — the linked teaser renders title + link.
   const { data, error } = await supabase

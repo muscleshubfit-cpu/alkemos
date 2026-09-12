@@ -9,7 +9,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { useNav } from "@/hooks/use-nav";
 import { useAuth } from "@/hooks/use-auth";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { passwordBreachCount } from "@/lib/password-breach";
 import { safeNext } from "@/lib/safe-redirect";
 import { setCoachSlugCookie, clearCoachSlugCookie, getCoachSlugCookie } from "@/lib/coach-cookie";

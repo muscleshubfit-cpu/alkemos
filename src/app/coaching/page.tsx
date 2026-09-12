@@ -17,6 +17,7 @@ import { Marquee } from "@/components/ui/3d-testimonials";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { listBlogPosts, getCategoryLabel, type BlogPostCard } from "@/lib/blog";
+import { deferIdle } from "@/lib/defer-idle";
 import { Dumbbell, Apple, BarChart3, Bot, Check, ArrowRight, Sparkles } from "lucide-react";
 import Image from "next/image";
 
@@ -114,10 +115,14 @@ export default function CoachingPage() {
   };
 
   useEffect(() => {
-    (async () => {
-      const posts = await listBlogPosts(lang);
-      setLatestPosts(posts.slice(0, 3));
-    })();
+    // PHASE 182: below-fold latest-posts strip — its fetch pulls the
+    // Supabase client chunk on demand, deferred past the LCP window.
+    deferIdle(() => {
+      void (async () => {
+        const posts = await listBlogPosts(lang);
+        setLatestPosts(posts.slice(0, 3));
+      })();
+    }, 2500);
   }, [lang]);
 
   const blogHref = isAr ? "/ar/blog" : "/blog";

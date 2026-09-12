@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPostCard } from "@/lib/blog";
+import { deferIdle } from "@/lib/defer-idle";
 import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
 import { SiteHeader } from "@/components/SiteHeader";
 import { NewsletterForm } from "@/components/NewsletterForm";
@@ -253,20 +254,24 @@ export function LandingView() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      const posts = await listBlogPosts(lang);
-      // Phase 118 (owner directive 2026-09-04): the old in-block "daily
-      // shuffle" was seed-invariant (the daily seed added the SAME constant
-      // to every post's char-code sum, so the order never changed) and the
-      // featured pool was permanently locked to posts outside latest —
-      // the featured carousel showed the same posts for weeks. Selection is
-      // now delegated to selectHomeBlogCarousels (src/lib/blog.ts): featured
-      // excludes ONLY what the latest carousel shows at this moment and
-      // rotates deterministically every UTC day through the whole pool.
-      const { latest, featured } = selectHomeBlogCarousels(posts);
-      setLatestPosts(latest);
-      setFeaturedPosts(featured);
-    })();
+    // PHASE 182: this fetch pulls the Supabase client chunk on demand —
+    // defer to idle so it never competes with LCP/INP on slow networks.
+    deferIdle(() => {
+      void (async () => {
+        const posts = await listBlogPosts(lang);
+        // Phase 118 (owner directive 2026-09-04): the old in-block "daily
+        // shuffle" was seed-invariant (the daily seed added the SAME constant
+        // to every post's char-code sum, so the order never changed) and the
+        // featured pool was permanently locked to posts outside latest —
+        // the featured carousel showed the same posts for weeks. Selection is
+        // now delegated to selectHomeBlogCarousels (src/lib/blog.ts): featured
+        // excludes ONLY what the latest carousel shows at this moment and
+        // rotates deterministically every UTC day through the whole pool.
+        const { latest, featured } = selectHomeBlogCarousels(posts);
+        setLatestPosts(latest);
+        setFeaturedPosts(featured);
+      })();
+    }, 2500);
   }, [lang]);
 
   // Dead code removed: streamImages array was built but never used

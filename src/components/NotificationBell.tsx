@@ -13,7 +13,10 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
-import { listNotifications, markNotificationsRead, markNotificationRead, type NotificationRow } from "@/lib/data";
+// PHASE 182: type-only import (erased at compile) — the notification
+// functions are dynamically imported at their call sites so this
+// header-mounted bell never pulls @supabase/ssr into first-load JS.
+import type { NotificationRow } from "@/lib/data";
 
 export function NotificationBell() {
  const { t } = useI18n();
@@ -29,6 +32,9 @@ export function NotificationBell() {
  let interval: ReturnType<typeof setInterval> | undefined;
  const load = async () => {
  try {
+ // PHASE 182: data layer (→ @supabase/ssr) loaded on demand — the
+ // effect only runs when a profile exists, so anon visitors never do.
+ const { listNotifications } = await import("@/lib/data");
  const data = await listNotifications(profile.id);
  setItems(data);
  } catch (e) {
@@ -59,6 +65,7 @@ export function NotificationBell() {
 
  const handleMarkRead = async () => {
  if (!profile) return;
+ const { markNotificationsRead } = await import("@/lib/data");
  await markNotificationsRead(profile.id);
  setItems((prev) => prev.map((n) => ({ ...n, read: true })));
  };
@@ -71,9 +78,9 @@ export function NotificationBell() {
  setOpen(false);
  if (!n.read) {
  setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
- void markNotificationRead(n.id).catch((e) =>
- console.error("[NotificationBell] mark read failed:", e),
- );
+ void import("@/lib/data")
+ .then(({ markNotificationRead }) => markNotificationRead(n.id))
+ .catch((e) => console.error("[NotificationBell] mark read failed:", e));
  }
  const link = typeof n.link === "string" ? n.link : "";
  if (!link.startsWith("/")) return;

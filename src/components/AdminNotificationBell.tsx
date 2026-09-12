@@ -12,7 +12,10 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
-import { listAdminNotifications, markAdminNotificationsRead, markAdminNotificationRead, type AdminNotificationRow } from "@/lib/data";
+// PHASE 182: type-only import (erased at compile) — the notification
+// functions are dynamically imported at their call sites so this
+// header-mounted bell never pulls @supabase/ssr into first-load JS.
+import type { AdminNotificationRow } from "@/lib/data";
 
 export function AdminNotificationBell() {
  const { t, lang } = useI18n();
@@ -26,6 +29,7 @@ export function AdminNotificationBell() {
  useEffect(() => {
  let interval: ReturnType<typeof setInterval> | undefined;
  const load = async () => {
+ const { listAdminNotifications } = await import("@/lib/data");
  const data = await listAdminNotifications();
  setItems(data);
  setLoading(false);
@@ -38,6 +42,7 @@ export function AdminNotificationBell() {
  const unread = items.filter((n) => !n.read).length;
 
  const handleMarkRead = async () => {
+ const { markAdminNotificationsRead } = await import("@/lib/data");
  await markAdminNotificationsRead();
  setItems((prev) => prev.map((n) => ({ ...n, read: true })));
  };
@@ -61,9 +66,9 @@ export function AdminNotificationBell() {
  setOpen(false);
  if (!n.read) {
  setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
- void markAdminNotificationRead(n.id).catch((e) =>
- console.error("[AdminNotificationBell] mark read failed:", e),
- );
+ void import("@/lib/data")
+ .then(({ markAdminNotificationRead }) => markAdminNotificationRead(n.id))
+ .catch((e) => console.error("[AdminNotificationBell] mark read failed:", e));
  }
  handleNavigate(n.link);
  };

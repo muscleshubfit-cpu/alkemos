@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
 import { cn } from "@/lib/utils";
 import { useNav, type View } from "@/hooks/use-nav";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { openEvoFloatingChat } from "@/lib/evo-chat-context";
 import { ShieldCheck, Users } from "lucide-react";
 
