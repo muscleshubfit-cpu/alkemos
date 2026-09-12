@@ -412,11 +412,16 @@ export function renderMarkdown(content: string): string {
  // (CLS)»): Pexels body images resize at RENDER time via the
  // Phase-139 CDN params (full 1200×627 JPEG → 896px webp) and carry
  // explicit width/height attributes so the browser reserves the 2:1
- // box before load (zero CLS). Non-Pexels hosts pass through with the
- // lazy attribute as before — no invented dimensions for unknowns.
- const sized = sizedRemoteImage(url, 896, 2);
- if (sized && sized !== url) {
- return `<img src="${sized}" alt="${alt}" width="896" height="448" loading="lazy" class="my-6 w-full h-auto rounded-2xl" />`;
+ // box before load (zero CLS). The URL arrives HTML-ESCAPED (step 3)
+ // — unescape entities before URL parsing (else &amp; round-trips into
+ // junk %3B params), re-escape for the attribute on the way out.
+ // Non-Pexels hosts pass through with the lazy attribute as before —
+ // no invented dimensions for unknowns.
+ const rawUrl = url.replace(/&amp;/g, "&");
+ const sized = sizedRemoteImage(rawUrl, 896, 2);
+ if (sized && sized !== rawUrl) {
+ const attrSafe = sized.replace(/&/g, "&amp;");
+ return `<img src="${attrSafe}" alt="${alt}" width="896" height="448" loading="lazy" class="my-6 w-full h-auto rounded-2xl" />`;
  }
  return `<img src="${url}" alt="${alt}" loading="lazy" class="my-6 w-full rounded-2xl" />`;
  });

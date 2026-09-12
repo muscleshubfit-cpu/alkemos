@@ -48,7 +48,9 @@ describe("renderMarkdown body images", () => {
       "![gym scene](https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=1200)";
     const html = renderMarkdown(md);
     const img = html.match(/<img [^>]*>/)?.[0] ?? "";
-    expect(img).toContain("src=\"https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg");
+    // §12.38 follow-up: the escaped &amp; round-trips cleanly — no junk
+    // %3B params, original CDN params preserved, & properly re-escaped.
+    expect(img).toContain("src=\"https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=896&amp;h=448&amp;fit=crop&amp;fm=webp\"");
     expect(img).toContain("w=896");
     expect(img).toContain("h=448");
     expect(img).toContain("fit=crop");
