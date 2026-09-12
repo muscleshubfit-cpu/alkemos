@@ -44,9 +44,21 @@ export async function generateMetadata({
   const description = `القيمة الغذائية لـ ${food.nameAr}: ${food.per100g.calories} سعرة، ${food.per100g.protein} جرام بروتين، ${food.per100g.carbs} جرام كارب، ${food.per100g.fat} جرام دهون لكل 100 جرام. الحصة الافتراضية: ${food.defaultServingAr} (${food.defaultGrams} جرام).`;
   const url = `${SITE_URL}/ar/foods/${food.slug}`;
 
+  // P2-12 (§12.37 — owner directive «… ثم ابدأ p2», plan item 12): the
+  // USDA long tail ships ENGLISH as its `nameAr` (zero Arabic characters
+  // — the Phase-141 data audit: 8,750 rows) — those AR mirrors render an
+  // English H1 inside the Arabic locale: semantically-broken thin pages
+  // that can never rank for Arabic queries while diluting AR crawl
+  // budget. They now leave the index: noindex,follow (internal-link
+  // crawl flow preserved; the EN twin stays fully indexable per the
+  // owner-approved Phase-141 policy). Curated foods (real Arabic names,
+  // the 160 sitemap-advertised URLs) remain fully indexable.
+  const arabiclessName = !/[\u0600-\u06FF]/.test(food.nameAr);
+
   return {
     title,
     description,
+    ...(arabiclessName ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: `/ar/foods/${food.slug}`,
       languages: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
+import { sizedRemoteImage } from "@/lib/remote-image-size";
 
 /** FAQ item stored in blog_posts.faq_json (JSONB array of {question, answer}). */
 export type BlogFaq = { question: string; answer: string };
@@ -407,6 +408,16 @@ export function renderMarkdown(content: string): string {
  // interpolate. Unsafe schemes → drop the image entirely.
  html = html.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (match, alt, url) => {
  if (!isSafeUrl(url)) return ""; // strip unsafe images completely
+ // P2-13 (§12.38 — plan item 13 «صور المدونة: width/height إلزامي
+ // (CLS)»): Pexels body images resize at RENDER time via the
+ // Phase-139 CDN params (full 1200×627 JPEG → 896px webp) and carry
+ // explicit width/height attributes so the browser reserves the 2:1
+ // box before load (zero CLS). Non-Pexels hosts pass through with the
+ // lazy attribute as before — no invented dimensions for unknowns.
+ const sized = sizedRemoteImage(url, 896, 2);
+ if (sized && sized !== url) {
+ return `<img src="${sized}" alt="${alt}" width="896" height="448" loading="lazy" class="my-6 w-full h-auto rounded-2xl" />`;
+ }
  return `<img src="${url}" alt="${alt}" loading="lazy" class="my-6 w-full rounded-2xl" />`;
  });
 

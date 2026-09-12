@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { FOODS } from "@/lib/foods";
 
 /**
@@ -60,4 +61,24 @@ describe("foods sitemap policy (A-5)", () => {
       );
     }
   });
+
+  // P2-12 (§12.37 — plan item 12 «معالجة USDA العربي»): the AR mirror of
+  // an arabicless (USDA long-tail) food leaves the index — noindex,follow
+  // — while curated foods (real Arabic names) stay fully indexable and
+  // the EN twin keeps the Phase-141 policy (indexable, unadvertised).
+  it("P2-12: the AR food route noindexes arabicless USDA mirrors only", () => {
+    const route = readFileSync("src/app/ar/foods/[slug]/page.tsx", "utf8");
+    expect(route).toContain("arabiclessName");
+    expect(route).toContain("robots: { index: false, follow: true }");
+    expect(route).toContain("/[\\u0600-\\u06FF]/.test(food.nameAr)");
+    // The EN twin stays indexable for the whole dataset (141 policy).
+    const en = readFileSync("src/app/foods/[slug]/page.tsx", "utf8");
+    expect(en).not.toContain("arabiclessName");
+    expect(en).not.toContain("index: false, follow: true");
+    // Data facts the law depends on: the long tail really is arabicless.
+    const tail = FOODS.filter((f) => (f.tags?.length ?? 0) === 0);
+    expect(tail.length).toBeGreaterThan(5000);
+    expect(tail.filter((f) => hasArabic(f.nameAr)).length).toBe(0);
+  });
 });
+
