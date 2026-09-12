@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { monthStartUtc } from "@/lib/tier-limits";
-import { checkClientPlanQuota, type EvoPlanKind } from "@/lib/tier-limits";
+import { monthStartUtc, checkUnifiedPlanQuota } from "@/lib/tier-limits";
 
 /**
  * COACH AI QUOTA READOUT — GET /api/coach/ai-usage?clientId=<uuid>
  *
- * 2026-09-02 (owner: «١+١ أسبوعية اجمالى ٤+٤ شهريا بدلا من ٣+٣ شهريا»):
- * the CLIENT's plan balance is the ONLY quota — `clientBalance` carries
- * BOTH windows (weekly cap 1+1 · Pro 2+2, monthly total 4+4 · Pro 8+8)
- * counting BOTH sources: the member's own EVO generations
- * (evo_chat_usage) + coach/admin done ai_jobs for this client. The old
- * separate coach-side 4/4 cap (0034) was removed — it double-capped the
- * same pool and contradicted the one-balance law for Pro clients.
- * `coachOwn` still reports this coach's own done generations for the
- * month, informational only.
+ * Phase 183 (owner decree 2026-09-13 «البوول الموحد»):
+ * the CLIENT's plan balance is the ONLY quota — ONE unified monthly
+ * pool (nutrition + workout COMBINED: free 2 · premium 4 · pro 8 ·
+ * coaching 8), success-only via ai_plan_usage (migration 0085), fed by
+ * BOTH the coach's generate button and the member's EVO chat / planner
+ * pages. `used` mirrors /api/ai/quota exactly. `coachOwn` still reports
+ * this coach's own done generations for the month, informational only.
  *
  * Coach counting source = ai_jobs rows (requested_by = this coach, done,
  * payload->>'clientId' = this client) — failed generations never burn
@@ -88,11 +85,10 @@ export async function GET(request: NextRequest) {
   }
 
   const unlimited = auth.role === "admin";
-  const [nutrition, workout, clientNutrition, clientWorkout] = await Promise.all([
+  const [nutrition, workout, clientPool] = await Promise.all([
     countCompleted(auth.id, "plan_nutrition", clientId),
     countCompleted(auth.id, "plan_workout", clientId),
-    checkClientPlanQuota(clientId, "nutrition" as EvoPlanKind),
-    checkClientPlanQuota(clientId, "workout" as EvoPlanKind),
+    checkUnifiedPlanQuota({ userId: clientId }),
   ]);
 
   return NextResponse.json({
@@ -102,25 +98,31 @@ export async function GET(request: NextRequest) {
       nutrition: { used: nutrition },
       workout: { used: workout },
     },
-    // 2026-09-01 + 2026-09-02 owner decrees: the CLIENT's plan balance is
-    // the ONLY quota — one pool fed by BOTH the coach's generate button
-    // and the member's EVO chat, with a WEEKLY cap on top of the MONTHLY
-    // total. `used` mirrors /api/ai/quota exactly.
+    // Phase 183 (2026-09-13 «البوول الموحد»): the CLIENT's unified
+    // plan balance — ONE pool for nutrition + workout COMBINED,
+    // success-only. `used` mirrors /api/ai/quota exactly. The per-kind
+    // keys below are deprecated mirrors (one release) — read `pool`.
     clientBalance: {
-      tier: clientNutrition.tier,
+      tier: clientPool.tier,
+      pool: {
+        used: clientPool.used,
+        limit: clientPool.limit,
+        remaining: clientPool.remaining,
+        unlimited: clientPool.unlimited,
+      },
       nutrition: {
-        used: clientNutrition.used,
-        limit: clientNutrition.limit,
-        unlimited: clientNutrition.unlimited,
-        weeklyUsed: clientNutrition.weekly.used,
-        weeklyLimit: clientNutrition.weekly.limit,
+        used: clientPool.used,
+        limit: clientPool.limit,
+        unlimited: clientPool.unlimited,
+        weeklyUsed: 0,
+        weeklyLimit: null,
       },
       workout: {
-        used: clientWorkout.used,
-        limit: clientWorkout.limit,
-        unlimited: clientWorkout.unlimited,
-        weeklyUsed: clientWorkout.weekly.used,
-        weeklyLimit: clientWorkout.weekly.limit,
+        used: clientPool.used,
+        limit: clientPool.limit,
+        unlimited: clientPool.unlimited,
+        weeklyUsed: 0,
+        weeklyLimit: null,
       },
     },
   });

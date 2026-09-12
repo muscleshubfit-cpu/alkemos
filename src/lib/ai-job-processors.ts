@@ -23,6 +23,7 @@ import type { ClientContext } from "@/lib/ai-local";
 import { generateSocialPost } from "@/lib/social-posts";
 import { pickSmartTopic } from "@/lib/blog-topics";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { recordUnifiedPlanUsage } from "@/lib/tier-limits";
 import type { PlanContent } from "@/lib/data/plans";
 import type { SocialPlatform, SocialTone } from "@/lib/social-posts";
 import { VALID_CATEGORY_IDS } from "@/lib/blog";
@@ -456,6 +457,30 @@ async function materializePlanDraftRow(
   return data?.id ?? null;
 }
 
+/**
+ * PHASE 183 (2026-09-13 «البوول الموحد»): burn ONE unit of the
+ * CLIENT's unified plan pool when a coach/admin plan job SUCCEEDS
+ * (owner decree 2026-09-01: «توليد الخطط بيتحسب من الرصيد سواء عن
+ * طريق المدرب او عن طريق ايفو»). Success-only — failed jobs never
+ * insert a row. Fail-soft: a ledger hiccup must never fail the job.
+ */
+async function recordPlanPoolUsage(
+  payload: Record<string, unknown>,
+  kind: "nutrition" | "workout",
+): Promise<void> {
+  try {
+    const clientId = String(payload?.clientId ?? "");
+    if (!UUID_RE.test(clientId)) return; // no target client → nothing to bill
+    await recordUnifiedPlanUsage({
+      userId: clientId,
+      kind,
+      surface: "coach",
+    });
+  } catch {
+    // never fail the job over the ledger
+  }
+}
+
 async function runPlanNutrition(payload: Record<string, unknown>) {
   const ctx = pickClientContext(payload.clientContext);
   const overrides = (payload.overrides ?? {}) as {
@@ -482,6 +507,7 @@ async function runPlanNutrition(payload: Record<string, unknown>) {
   );
   const plan_id = await materializePlanDraftRow(payload, res.title, res.content, "meal");
   if (plan_id) console.log(`[plan_nutrition] draft materialized: plans#${plan_id}`);
+  await recordPlanPoolUsage(payload, "nutrition");
   return {
     title: res.title,
     plan_type: "nutrition",
@@ -510,6 +536,7 @@ async function runPlanWorkout(payload: Record<string, unknown>) {
   });
   const plan_id = await materializePlanDraftRow(payload, res.title, res.content, "workout");
   if (plan_id) console.log(`[plan_workout] draft materialized: plans#${plan_id}`);
+  await recordPlanPoolUsage(payload, "workout");
   return {
     title: res.title,
     plan_type: "workout",

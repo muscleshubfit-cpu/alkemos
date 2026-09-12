@@ -151,8 +151,10 @@ export function formatProgressForPrompt(
  * True when a PAID subscriber asks for a plan but never filled the
  * questionnaire that domain is generated from:
  *   nutrition → nutrition questionnaire, workout → fitness questionnaire.
- * Anonymous/free users never reach plan generation (subscriber gate) so
- * they never enter the interview either.
+ * Anonymous/free users CAN generate plans since Phase 183 (unified pool,
+ * 2026-09-13) but have no questionnaire on file — the interview is a
+ * subscriber-context protocol and stays skipped for them (the model asks
+ * its own short clarifying question per the coach stance).
  */
 export function needsFirstMeetingInterview(input: {
   isSubscriber: boolean;

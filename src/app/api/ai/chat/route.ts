@@ -6,7 +6,9 @@ import { clientIp } from "@/lib/rate-limit";
 import {
   checkEvoChatLimit,
   recordEvoChatUsage,
-  checkEvoPlanQuota,
+  checkUnifiedPlanQuota,
+  recordUnifiedPlanUsage,
+  hashGuestKey,
   checkAnonChatLimit,
   recordAnonChatUsage,
 } from "@/lib/tier-limits";
@@ -77,14 +79,21 @@ import type { Database, Json } from "@/lib/supabase/types";
  *      counter only" posture let scripts bleed OpenRouter credits.
  *   5. Subscriber mode — full context (plans, progress, questionnaires)
  *
- * 2026-08-28 T-AI-DEEP-AUDIT-V2 (D4 — MONTHLY PLAN QUOTA):
- *   The advertised "3/6 plans per month" quotas were never enforced —
- *   this chat is the only member-reachable "EVO builds me a plan"
- *   surface, and it let paid tiers generate unlimited plans. Now
- *   plan-creation intents (evo-intent.ts) are counted per domain
- *   (nutrition/workout) in the SAME tamper-proof ledger, against
- *   evoNutritionPlanLimit / evoWorkoutPlanLimit. Swap intents stay on
- *   the weekly /api/ai/jobs flow — NOT double-counted here.
+ * 2026-09-13 PHASE 183 «البوول الموحد» (spec "Alkemos — Membership &
+ * Plan Changes"):
+ *   - Plan-creation intents are NO LONGER subscriber-gated: guests,
+ *     free, and paid tiers can all generate plans — gated ONLY by the
+ *     UNIFIED monthly pool (ai_plan_usage, migration 0085): guest/free
+ *     2 · premium 4 · pro 8 · coaching 8, nutrition + workout COMBINED.
+ *   - SUCCESS-ONLY accounting: the pool unit is burned AFTER a real
+ *     model answer reached the user (statSuccess in the after() block)
+ *     — the old record-before-dispatch plan_* insert (which burned
+ *     quota on provider failures) is retired. Local fallbacks and
+ *     interrupted streams never count.
+ *   - Anonymous callers optionally send body.guestId (the browser's
+ *     localStorage UUID) — hashed to the SAME ledger key the planner
+ *     pages use, so one guest has ONE pool across surfaces.
+ *   - Swap intents stay subscriber-only (free tier: 0 swaps).
  *
  * 2026-08-27 CRITICAL FIXES:
  *   G1/G2 — usage is recorded SERVER-SIDE in the tamper-proof
@@ -150,6 +159,13 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => ({}));
     const rawMessage = typeof body?.message === "string" ? body.message : "";
+    // Phase 183 — guest identity for the unified plan pool: anonymous
+    // callers send the browser's localStorage guest id (minted by
+    // plan-persistence.ts); it is hashed server-side into the SAME
+    // ai_plan_usage key the planner pages use. Absent/invalid → falls
+    // back to the IP-hash anon key below.
+    const rawGuestId =
+      typeof body?.guestId === "string" ? body.guestId.trim().slice(0, 64) : "";
     const rawHistory: unknown[] = Array.isArray(body?.history)
       ? body.history.slice(-MAX_HISTORY_ITEMS)
       : [];
@@ -244,18 +260,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // SUBSCRIBER-ONLY features: meal plans, workout plans, meal generation,
-    // macro calculations, swap suggestions.
-    // G5 FIX: gate fires for EVERYONE without a paid tier — including
-    // authenticated free accounts (previously bypassed with any login).
-    // D4: the flat list moved to evo-intent.ts so plan-creation intents
-    // can be quota'd per domain without touching the gate coverage.
+    // SUBSCRIBER-ONLY features (Phase 183): SWAPS only. Plan creation
+    // is now pool-gated for EVERYONE (guest/free/paid) — see the
+    // unified-pool check below. G5: the gate fires by ACTUAL tier.
     const intent = classifyEvoIntent(message);
 
-    if (intent.isSubscriberOnly && !isPaidTier) {
+    if (intent.isSwapRequest && !isPaidTier) {
       return NextResponse.json({
         response:
-          "🔒 This feature is for subscribers only. Meal plans, workout plans, and meal generation require an active Premium/Pro/Coaching subscription.\n\nFree features I can help with:\n• Exercise info and instructions\n• Food calories and macros\n• Fitness calculators\n• General fitness Q&A\n\nSubscribe to get personalized meal & workout plans!",
+          "🔒 Swaps are a subscriber feature — meal and exercise swaps need an active Premium/Pro/Coaching subscription.\n\nI can still build you meal & workout plans (your monthly quota applies), answer exercise and food questions, and run fitness math.",
         links: [
           {
             label: "View membership plans →",
@@ -266,34 +279,43 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 1.6 D4 — WEEKLY + MONTHLY plan-generation quota (paid tiers only;
-    // free users were already blocked by the subscriber gate above).
-    // Plan-creation intents count per domain against the tier's WEEKLY cap
-    // (1+1 — Pro 2+2, owner decree 2026-09-02) AND the MONTHLY total
-    // (4+4 — Pro 8+8). Swap intents intentionally NOT counted here —
-    // they ride the weekly /api/ai/jobs quota (no double-billing).
-    if (intent.isPlanCreation && isPaidTier && userId) {
-      const quota = await checkEvoPlanQuota(
+    // 1.6 PHASE 183 — the UNIFIED monthly plan pool (owner decree
+    // 2026-09-13 «البوول الموحد»): ONE budget for nutrition + workout
+    // generations COMBINED, success-only, for guests AND members.
+    //   - member: pool for their tier (free 2 · premium 4 · pro 8 ·
+    //     coaching 8) via the verified tier hint.
+    //   - guest: the FREE pool (2/month) keyed by the hashed guest id
+    //     (body.guestId) or, when absent, the IP-hash anon key.
+    // Swap intents intentionally NOT counted here — they ride the
+    // weekly /api/ai/jobs quota (no double-billing).
+    if (intent.isPlanCreation) {
+      const planGuestKey = userId
+        ? null
+        : rawGuestId.length >= 8
+          ? hashGuestKey(rawGuestId)
+          : anonKey;
+      const quota = await checkUnifiedPlanQuota({
         userId,
-        intent.planDomain,
-        authTier,
-        authIsStaff,
-      );
+        guestKey: planGuestKey,
+        tierHint: authTier,
+        staffHint: authIsStaff,
+      });
       if (!quota.allowed) {
-        const domainLabel =
-          intent.planDomain === "nutrition" ? "meal" : "workout";
-        const upgradeHint =
-          authTier === "pro"
-            ? ""
-            : "\n\nUpgrade to Pro for 8 plans per month (2 per week).";
         const responseText =
-          quota.blockedBy === "week"
-            ? `⏰ You've hit the weekly cap: ${quota.weekly.used}/${quota.weekly.limit} ${domainLabel} plans this week. The weekly cap resets on Monday — your monthly total (${quota.used}/${quota.limit}) is still available.${upgradeHint}`
-            : `⏰ You've used ${quota.used}/${quota.limit} ${domainLabel} plans this month. Your quota resets on the 1st of each month.${upgradeHint}`;
+          `⏰ You've used your AI plan generations for this month (${quota.used}/${quota.limit} — nutrition and workout share one pool). Your quota resets on the 1st.` +
+          (quota.tier === "free"
+            ? "\n\nCreate a free account to keep your plans saved across devices — or upgrade for a bigger monthly pool."
+            : quota.tier === "premium"
+              ? "\n\nUpgrade to Pro for 8 generations per month."
+              : "");
         return NextResponse.json(
           {
             response: responseText,
-            links: [{ label: "View membership plans →", url: "/memberships" }],
+            links: [
+              { label: "View membership plans →", url: "/memberships" },
+              { label: "AI Meal Planner →", url: "/ai-meal-planner" },
+              { label: "AI Workout Planner →", url: "/ai-workout-planner" },
+            ],
             source: "rate-limit",
             rateLimited: true,
             used: quota.used,
@@ -427,16 +449,17 @@ export async function POST(request: NextRequest) {
       .join("\n\n");
     const fullPrompt = `${systemPrompt}\n\n${chatPrompt}\n\nAssistant:`;
 
-    // 6.5 G1 + D3 + D4 — record usage BEFORE dispatch in tamper-proof
-    // ledgers (record-before-dispatch closes the concurrent-burst window):
+    // 6.5 G1 + D3 — record usage BEFORE dispatch in tamper-proof
+    // ledgers (record-before-dispatch closes the concurrent-burst
+    // window):
     //   chat   → every logged-in dispatch (daily quota evidence)
-    //   plan_* → paid-tier plan-creation dispatches (monthly quota evidence)
     //   anon   → anonymous dispatches (per-IP daily quota evidence)
+    // NOTE (Phase 183): plan-creation dispatches are NO LONGER recorded
+    // here — the unified pool counts SUCCESS only, in the after() block
+    // below, into ai_plan_usage (the pre-dispatch plan_* rows burned
+    // quota on provider failures, violating the 2026-09-13 spec).
     if (userId) {
       await recordEvoChatUsage(userId, "chat");
-      if (isPaidTier && intent.isPlanCreation) {
-        await recordEvoChatUsage(userId, `plan_${intent.planDomain}`);
-      }
     } else if (anonKey) {
       await recordAnonChatUsage(anonKey, "chat");
     }
@@ -718,6 +741,33 @@ export async function POST(request: NextRequest) {
       const uid = userId;
       after(async () => {
         await recordMemoryProgress(uid, history, message, finalReplyText);
+      });
+    }
+
+    // PHASE 183 (2026-09-13 «البوول الموحد») — SUCCESS-ONLY plan-pool
+    // accounting: when a plan-creation intent got a REAL model answer
+    // (statSuccess — local fallbacks and interrupted streams stay
+    // statSuccess=false, cache is never eligible for plan intents), burn
+    // exactly ONE unit of the unified pool (ai_plan_usage, surface
+    // 'evo'). Runs in `after` — never in the user's latency path; the
+    // record insert itself is fail-soft (logged, never thrown).
+    if (intent.isPlanCreation) {
+      const planKind = intent.planDomain;
+      const poolUserId = userId ?? null;
+      const poolGuestKey = userId
+        ? null
+        : rawGuestId.length >= 8
+          ? hashGuestKey(rawGuestId)
+          : anonKey;
+      after(async () => {
+        if (statSuccess) {
+          await recordUnifiedPlanUsage({
+            userId: poolUserId,
+            guestKey: poolGuestKey,
+            kind: planKind,
+            surface: "evo",
+          });
+        }
       });
     }
 

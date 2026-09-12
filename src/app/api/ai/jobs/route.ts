@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser, requireCoach, authRequired } from "@/lib/auth-server";
-import { checkAndRecordSwap, checkClientPlanQuota, type EvoPlanKind } from "@/lib/tier-limits";
+import { checkAndRecordSwap, checkUnifiedPlanQuota } from "@/lib/tier-limits";
 import {
   isAiJobType,
   JOB_GATE,
@@ -176,27 +176,21 @@ export async function POST(request: NextRequest) {
           { status: 402 },
         );
       }
-      // ── OWNER DECREE (2026-09-01 + 2026-09-02): «توليد الخطط بيتحسب من
-      // الرصيد سواء عن طريق المدرب او عن طريق ايفو» + «١+١ أسبوعية اجمالى
-      // ٤+٤ شهريا بدلا من ٣+٣ شهريا» — the coach's generation burns the
-      // CLIENT's plan balance (same pool the member's EVO widget shows:
-      // evo_chat_usage + done ai_jobs for this client). The client's TIER
-      // decides BOTH windows: weekly cap 1+1 (Pro 2+2, Monday-anchored UTC)
-      // AND monthly total 4+4 (Pro 8+8, resets on the 1st).
-      // The legacy coach-side 4/4 cap (0034) was REMOVED 2026-09-02 — it
-      // double-capped the same pool and contradicted the one-balance law
-      // for Pro clients. Soft-quota convention: completed EVO dispatches +
-      // done jobs count; pending jobs can race past by a 1-off (same
-      // documented parity as the weekly swaps).
-      const clientKind: EvoPlanKind =
-        type === "plan_nutrition" ? "nutrition" : "workout";
-      const clientQuota = await checkClientPlanQuota(clientId, clientKind);
+      // ── OWNER DECREE (2026-09-01, carried by the 2026-09-13 unified
+      // pool «البوول الموحد»): «توليد الخطط بيتحسب من الرصيد سواء عن
+      // طريق المدرب او عن طريق ايفو» — the coach's generation burns
+      // the CLIENT's UNIFIED plan balance (ONE pool for nutrition +
+      // workout COMBINED: free 2 · premium 4 · pro 8 · coaching 8,
+      // success-only via ai_plan_usage — the member's widget and this
+      // gate read the same ledger). The old per-kind split and weekly
+      // caps are retired (Phase 183).
+      // Soft-quota convention: the enqueue check reads SUCCESS rows —
+      // a pending-but-unfinished job isn't counted yet, so two quick
+      // enqueues can race past by a 1-off (same documented parity as
+      // the weekly swaps).
+      const clientQuota = await checkUnifiedPlanQuota({ userId: clientId });
       if (!clientQuota.unlimited && !clientQuota.allowed) {
-        const kindAr = type === "plan_nutrition" ? "تغذية" : "تمارين";
-        const message =
-          clientQuota.blockedBy === "week"
-            ? `وصلت للحد الأسبوعي: ${clientQuota.weekly.used}/${clientQuota.weekly.limit} خطط ${kindAr} للعميل ده الأسبوع ده. الحد الأسبوعي بيتصفّر يوم الاثنين، والرصيد الشهري (${clientQuota.used}/${clientQuota.limit}) لسه شايل. التوليد — منك أو من ايفو عند العميل — بيخصم من نفس الرصيد.`
-            : `رصيد الخطط الشهري للعميل خلص (${clientQuota.used}/${clientQuota.limit} خطط ${kindAr}). التوليد — منك أو من ايفو عند العميل — بيخصم من نفس الرصيد، وبيتصفّر أول الشهر. تقدر تعدّل الخطة الحالية أو ترفع خطة يدوي من غير حدود.`;
+        const message = `رصيد توليد الخطط الموحد للعميل خلص (${clientQuota.used}/${clientQuota.limit} — تغذية وتمارين من نفس الرصيد). التوليد — منك أو من ايفو عند العميل — بيخصم من نفس الرصيد، وبيتصفّر أول الشهر. تقدر تعدّل الخطة الحالية أو ترفع خطة يدوي من غير حدود.`;
         return NextResponse.json(
           {
             error: message,

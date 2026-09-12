@@ -1,38 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callFreeAIFallbackChain } from "@/lib/ai-provider";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { getAuthUser } from "@/lib/auth-server";
+import {
+  checkUnifiedPlanQuota,
+  hashGuestKey,
+  recordUnifiedPlanUsage,
+} from "@/lib/tier-limits";
+import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import type { Json } from "@/lib/supabase/types";
 import {
   buildDemoPrompt,
-  DEMO_RATE_LIMIT,
   parseDemoPlanText,
   validateDemoRequest,
   type DemoPlanVerdict,
 } from "@/lib/ai-meal-planner";
 
 /**
- * POST /api/ai/meal-plan-demo — the AI meal-planner TRIAL endpoint
- * (§12.28, owner directive «مطلوب إنشاؤها مع سماح بالتجربة للجميع بدون
- * تعارض مع الاشتراكات»).
+ * POST /api/ai/meal-plan-demo — the AI meal-planner generation endpoint
+ * (§12.28 → Phase 183, owner decree 2026-09-13 «البوول الموحد» — spec
+ * "Alkemos — Membership & Plan Changes").
  *
- * ONE synchronous free-chain generation per request — the same interactive
- * pattern the EVO chat uses. This is NOT batch work, so the ai_jobs queue
- * (owner directive 2026-08-27 — batch AI in GitHub Actions) does not apply;
- * it is a single visitor-facing call, gated hard instead:
+ * ONE synchronous free-chain generation per request. Gates, in order:
  *
  *   1. INPUT: calories 1200–4000 · one of the 4 site systems · en|ar ·
  *      notes ≤200 chars (validated BEFORE anything else).
- *   2. COST: IP-keyed rate limit — 3 generations / 24 h per visitor —
- *      enforced BEFORE any provider call (Upstash-backed in production).
- *   3. SHAPE: the model's JSON is strictly validated (meals/items/grams/
- *      kcal, ±20% calorie closure) — a drifted payload is rejected with
- *      422, never displayed.
+ *   2. BURST GUARD: IP-keyed 20 attempts / 24 h — pure abuse
+ *      protection, NOT quota (failures don't burn the pool; the old
+ *      5/day entry-counted limit — which burned quota on failure — is
+ *      retired per the success-only law).
+ *   3. UNIFIED POOL (ai_plan_usage, migration 0085): guests get the
+ *      FREE pool (2/month, keyed by a salted hash of the body's
+ *      guestId — no signup wall); members get their tier pool
+ *      (free 2 · premium 4 · pro 8 · coaching 8). Checked BEFORE the
+ *      provider call, counted ONLY on success.
+ *   4. SHAPE: the model's JSON is strictly validated (meals/items/
+ *      grams/kcal, ±20% calorie closure) — a drifted payload is
+ *      rejected with 422, never displayed, and NEVER counted.
  *
- * NO SUBSCRIPTION CONFLICT (the owner's law): no account required, no
- * ai_jobs row, no client plan quota, nothing persisted. The demo plan is
- * ephemeral — saving, weekly planning, export, and coach review remain
- * exactly where the memberships put them (memberships.ts untouched).
+ * MEMBER AUTO-SAVE (spec: «المسجل يحفظ الخطط دائمًا في حسابه ويسترجعها
+ * من أجهزته الأخرى»): every successful generation for a signed-in user
+ * is inserted into the `plans` table (source 'ai-planner') — the same
+ * rows /plans and cross-device retrieval already read. Guests keep
+ * their plan on-device via localStorage (plan-persistence.ts).
  */
 export const maxDuration = 60;
+
+/** IP burst guard — abuse protection only, deliberately generous. */
+const BURST_GUARD = { max: 20, windowMs: 24 * 60 * 60 * 1000 } as const;
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,22 +66,48 @@ export async function POST(request: NextRequest) {
     }
     const req = verdict.value;
 
-    // ── Cost gate (BEFORE any provider call). ──
+    // ── Burst guard (IP, abuse-only — failures don't burn the pool). ──
     const ip = clientIp(request);
-    const rl = await rateLimit(
-      `meal-demo:${ip}`,
-      DEMO_RATE_LIMIT.max,
-      DEMO_RATE_LIMIT.windowMs,
-    );
+    const rl = await rateLimit(`meal-demo:${ip}`, BURST_GUARD.max, BURST_GUARD.windowMs);
     if (!rl.allowed) {
       return NextResponse.json(
         {
           error:
             req.language === "ar"
-              ? `حد التجربة المجانية ${DEMO_RATE_LIMIT.max} توليدات في اليوم — عد غداً أو افتح المخطط اليدوي الآن.`
-              : `Free trial limit: ${DEMO_RATE_LIMIT.max} generations per day — come back tomorrow, or open the manual planner now.`,
+              ? "عدد كبير من المحاولات من هذا الجهاز اليوم — عد غداً أو افتح المخطط اليدوي الآن."
+              : "Too many attempts from this device today — come back tomorrow, or open the manual planner now.",
           rateLimited: true,
           resetAt: rl.resetAt,
+        },
+        { status: 429, headers: { "Retry-After": "3600" } },
+      );
+    }
+
+    // ── Unified-pool gate (guest OR member — no signup wall). ──
+    const auth = await getAuthUser(request);
+    const userId = auth?.id ?? null;
+    let guestKey: string | null = null;
+    if (!userId) {
+      const rawGuestId = typeof body?.guestId === "string" ? body.guestId.trim() : "";
+      if (UUID_RE.test(rawGuestId) || rawGuestId.length >= 8) {
+        guestKey = hashGuestKey(rawGuestId);
+      }
+    }
+    const quota = await checkUnifiedPlanQuota({
+      userId,
+      guestKey,
+      tierHint: auth?.membership_tier ?? null,
+      staffHint: auth?.is_staff ?? false,
+    });
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            req.language === "ar"
+              ? `رصيدك من توليد الخطط لهذا الشهر انتهى (${quota.limit} شهرياً) — خططك السابقة متاحة أدناه، ويتجدد الرصيد أول الشهر.`
+              : `Your plan-generation quota for this month is used (${quota.limit}/month) — your previous plans stay available below; the quota resets on the 1st.`,
+          quotaExhausted: true,
+          quota: { used: quota.used, limit: quota.limit, remaining: 0 },
         },
         { status: 429, headers: { "Retry-After": "3600" } },
       );
@@ -72,20 +116,14 @@ export async function POST(request: NextRequest) {
     // ── One synchronous free-chain call (EVO's interactive pattern),
     // with a single bounded retry when the model misses the JSON shape
     // (free-tier models drift; the retry stays inside the SAME request
-    // so the visitor's rate-limit slot is spent once). ──
+    // so the visitor's burst slot is spent once — and neither attempt
+    // burns the pool: success-only). ──
     const prompt = buildDemoPrompt(req);
-    // Live diagnosis (§12.28): reasoning-capable free models emit their
-    // chain-of-thought arithmetic as CONTENT before the JSON — 1600 max
-    // tokens truncated mid-reasoning and the JSON never arrived. The
-    // budget now covers reasoning + plan, and the prompt forbids written
-    // reasoning outright.
     const callOpts = {
       maxTokens: 3000,
       temperature: 0.4,
       tag: "meal-demo",
-      // TWO attempts (first + retry) must fit the 60s function budget —
-      // 20s per chain call leaves ~20s for rate limiting + parsing + I/O
-      // (the 504 live incident: 2×28s overshot maxDuration).
+      // TWO attempts (first + retry) must fit the 60s function budget.
       timeoutMs: 20_000,
       jsonMode: true,
       systemPrompt:
@@ -103,7 +141,7 @@ export async function POST(request: NextRequest) {
       plan = parseDemoPlanText(first.text, req.calories);
     }
     if (!plan.ok) {
-      // Retry #1 — same request, harder nudge. Still inside the rate slot.
+      // Retry #1 — same request, harder nudge. Still uncounted.
       const second = await callFreeAIFallbackChain(
         prompt +
           '\n\nREMINDER: reply with ONE JSON object exactly like {"meals":[{"name":"…","items":[{"food":"…","grams":120,"kcal":180}]}]} — nothing else.',
@@ -116,7 +154,8 @@ export async function POST(request: NextRequest) {
       }
     }
     if (!plan.ok) {
-      // Model drift is a retry-able client-visible outcome, not a crash.
+      // Model drift is a retry-able client-visible outcome, not a crash
+      // — and NOT a counted generation (success-only law).
       console.error(
         "[api/ai/meal-plan-demo] shape rejection:",
         plan.error,
@@ -129,21 +168,76 @@ export async function POST(request: NextRequest) {
         {
           error:
             req.language === "ar"
-              ? "خرج التوليد عن الشكل المطلوب — جرّب مرة أخرى (الزرر فوق)."
-              : "The generated plan missed the required shape — try again (button above).",
+              ? "خرج التوليد عن الشكل المطلوب — جرّب مرة أخرى (الزرر فوق). المحاولة الفاشلة لا تُحسب من رصيدك."
+              : "The generated plan missed the required shape — try again (button above). Failed attempts never count against your quota.",
           detail: plan.error,
+          quota: { used: quota.used, limit: quota.limit, remaining: quota.remaining },
         },
         { status: 422 },
       );
     }
 
+    // ── SUCCESS: burn exactly one pool unit (never on failure). ──
+    await recordUnifiedPlanUsage({
+      userId,
+      guestKey: userId ? null : guestKey,
+      kind: "nutrition",
+      surface: "planner",
+    });
+
+    // ── MEMBER AUTO-SAVE (spec: plans always saved to the account). ──
+    let saved: { planId: string } | null = null;
+    if (userId && isSupabaseAdminConfigured && supabaseAdmin) {
+      const title =
+        req.language === "ar"
+          ? `خطة تغذية AI — ${req.calories} سعرة`
+          : `AI Meal Plan — ${req.calories} kcal`;
+      const { data: planRow, error: insertErr } = await supabaseAdmin
+        .from("plans")
+        .insert({
+          client_id: userId,
+          type: "meal",
+          title,
+          notes: null,
+          file_url: null,
+          content: {
+            source: "ai-planner",
+            inputs: {
+              calories: req.calories,
+              system: req.system,
+              notes: req.notes ?? null,
+              language: req.language,
+            },
+            plan: plan.value,
+          } as unknown as Json,
+          status: "approved",
+          is_current: true,
+          approved_at: new Date().toISOString(),
+        })
+        .select("id")
+        .single();
+      if (insertErr) {
+        // The generation SUCCEEDED and is returned; the account save is
+        // best-effort here (logged) — the page keeps a localStorage copy
+        // either way. Never fail the whole request over the mirror.
+        console.error("[api/ai/meal-plan-demo] member auto-save failed:", insertErr.message);
+      } else {
+        saved = { planId: planRow.id };
+      }
+    }
+
     return NextResponse.json({
       plan: plan.value,
       model,
-      trial: {
-        limit: DEMO_RATE_LIMIT.max,
-        remaining: Math.max(0, rl.remaining - 1),
+      quota: {
+        used: quota.used + 1,
+        limit: quota.limit,
+        remaining: Math.max(0, quota.remaining - 1),
+        unlimited: quota.unlimited,
+        tier: quota.tier,
       },
+      saved,
+      persisted: Boolean(userId), // members: account-saved; guests: localStorage (client-side)
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

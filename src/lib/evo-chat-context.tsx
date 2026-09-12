@@ -17,6 +17,7 @@ import { classifyEvoIntent } from "@/lib/evo-intent";
 import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
 import { getLimits } from "@/lib/memberships";
+import { ensureGuestId } from "@/lib/plan-persistence";
 
 /**
  * EvoChatContext — manages EVO chat state across all pages.
@@ -114,11 +115,20 @@ type EvoChatContextType = {
 
 export type QuotaSnapshot = {
   chat: { used: number; limit: number | null; unlimited: boolean };
+  /** Phase 183 (2026-09-13 «البوول الموحد»): ONE unified monthly pool
+   * (nutrition + workout COMBINED). Optional for older caches. */
+  plans?: {
+    used: number;
+    limit: number | null;
+    remaining?: number;
+    unlimited: boolean;
+  };
+  /** Deprecated mirrors of the unified pool (kept one release for
+   * older widget caches — read `plans` instead). */
   nutrition: {
     used: number;
     limit: number | null;
     unlimited: boolean;
-    /** 2026-09-02 weekly cap (1+1 · Pro 2+2) — optional for older caches. */
     weeklyUsed?: number;
     weeklyLimit?: number | null;
   };
@@ -352,12 +362,18 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        // Phase 183 — anonymous callers attach the browser's guest id so
+        // their unified plan pool is keyed identically to the planner
+        // pages (hashGuestKey server-side). Members are identified by
+        // the auth cookie; no guestId is sent.
+        const guestId = profile ? undefined : ensureGuestId() || undefined;
         const response = await fetch("/api/ai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: content.trim(),
             history: state.messages.slice(-10),
+            guestId,
           }),
         });
 

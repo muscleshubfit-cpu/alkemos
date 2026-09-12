@@ -4,7 +4,7 @@
  * Extracted from /api/ai/chat during T-AI-DEEP-AUDIT-V2 (2026-08-28).
  * The old route had ONE flat `subscriberOnlyPatterns` list, which could
  * only answer "is this a subscriber feature?" — it could NOT distinguish
- * PLAN CREATION (monthly quota, evoNutritionPlanLimit / evoWorkoutPlanLimit)
+ * PLAN CREATION (unified monthly pool — Phase 183 «البوول الموحد»)
  * from SWAP REQUESTS (weekly quota, enforced server-side by /api/ai/jobs).
  * Result: the advertised "3/6 plans per month" quotas were never enforced.
  *

@@ -150,14 +150,16 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  const [generating, setGenerating] = useState<"workout" | "nutrition" | null>(null);
  const [approving, setApproving] = useState<string | null>(null);
  const [viewingPlan, setViewingPlan] = useState<Plan | null>(null);
- // 0034: per-client AI quota readout — SUPERSEDED by the ONE client plan
- // balance (2026-09-01 one-pool + 2026-09-02 weekly cap 1+1 / Pro 2+2 +
- // monthly total 4+4 / Pro 8+8; the old coach-side 4/4 cap was removed).
+ // Phase 183 (2026-09-13 «البوول الموحد"): per-client AI readout —
+ // ONE unified plan pool (nutrition + workout COMBINED: 2/4/8/8,
+ // success-only via ai_plan_usage). `pool` is the live key; per-kind
+ // keys are deprecated mirrors kept one release.
  type AiUsage = {
    unlimited: boolean;
    coachOwn?: { nutrition: { used: number }; workout: { used: number } };
    clientBalance?: {
      tier: string;
+     pool?: { used: number; limit: number; remaining?: number; unlimited: boolean };
      nutrition: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number };
      workout: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number };
    };
@@ -2888,26 +2890,42 @@ function CoachAIPlanGenerator({
  generating: string | null;
  onGenerate: (planType: "workout" | "nutrition", overrides?: PlanOverrides) => Promise<void>;
  t: (key: string) => string;
- quota: { unlimited: boolean; clientBalance?: { tier: string; nutrition: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number }; workout: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number } } } | null;
+ quota: { unlimited: boolean; clientBalance?: { tier: string; pool?: { used: number; limit: number; remaining?: number; unlimited: boolean }; nutrition: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number }; workout: { used: number; limit: number; unlimited: boolean; weeklyUsed?: number; weeklyLimit?: number } } } | null;
  lang: "ar" | "en";
 }) {
  const isAr = lang === "ar";
- // Generation is blocked by the ONE client plan balance: the WEEKLY cap
- // (1+1 · Pro 2+2, resets Monday) OR the MONTHLY total (4+4 · Pro 8+8,
- // resets on the 1st) — the same pool the member's EVO chat spends from
- // (owner decrees 2026-09-01 + 2026-09-02).
+ // Phase 183 (2026-09-13 «البوول الموحد"): generation is blocked by
+ // the CLIENT's ONE unified plan pool — nutrition + workout COMBINED
+ // (success-only ledger the member's EVO chat + planner pages also
+ // spend from). Fallback to the deprecated per-kind mirrors for one
+ // release of older API caches.
  const atCap = (k: "nutrition" | "workout") => {
+ void k; // the pool is kind-agnostic
  if (quota?.unlimited) return false;
+ const pool = quota?.clientBalance?.pool;
+ if (pool) {
+ if (pool.unlimited) return false;
+ return pool.used >= pool.limit;
+ }
  const cb = quota?.clientBalance?.[k];
  if (!cb || cb.unlimited) return false;
- if (cb.used >= cb.limit) return true;
- return (
- typeof cb.weeklyLimit === "number" &&
- (cb.weeklyUsed ?? 0) >= cb.weeklyLimit
- );
+ return cb.used >= cb.limit;
  };
  const usageLine = (k: "nutrition" | "workout") => {
  if (!quota || quota.unlimited) return null;
+ const pool = quota.clientBalance?.pool;
+ if (pool) {
+ if (pool.unlimited) return null;
+ return (
+ <div className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+ <span>
+ {isAr
+ ? `رصيد خطط العميل الموحد (توليدك + ايفو، تغذية وتمارين): ${pool.used}/${pool.limit} شهرياً`
+ : `Client's unified plan balance (yours + EVO, nutrition + workout): ${pool.used}/${pool.limit} monthly`}
+ </span>
+ </div>
+ );
+ }
  const cb = quota.clientBalance?.[k];
  if (!cb || cb.unlimited) return null;
  const kindAr = k === "nutrition" ? "تغذية" : "تمارين";
@@ -2919,13 +2937,6 @@ function CoachAIPlanGenerator({
  ? `رصيد ${kindAr} العميل (توليدك + ايفو): ${cb.used}/${cb.limit} شهرياً`
  : `Client's ${kindEn} balance (your + EVO generations): ${cb.used}/${cb.limit} monthly`}
  </span>
- {typeof cb.weeklyLimit === "number" ? (
- <span className="block text-[11px]">
- {isAr
- ? `هذا الأسبوع: ${cb.weeklyUsed ?? 0}/${cb.weeklyLimit} — بيتصفّر يوم الاثنين`
- : `This week: ${cb.weeklyUsed ?? 0}/${cb.weeklyLimit} — resets Monday`}
- </span>
- ) : null}
  </div>
  );
  };

@@ -9,13 +9,14 @@
  * validator. The route stays thin; everything here is unit-testable.
  *
  * LAWS (guarded in src/lib/__tests__/ai-meal-planner.test.ts):
- *   - TRIAL FOR EVERYONE, NO SUBSCRIPTION CONFLICT: one synchronous demo
- *     call on the free-chain — no ai_jobs queue, no client plan quota, no
- *     membership gate. The demo plan is ephemeral (never stored, never
- *     saved); persistence, weekly plans, and coach review remain exactly
- *     where the memberships put them (memberships.ts untouched).
- *   - COST CEILING: IP-keyed rate limit (3 / 24 h) — the route enforces
- *     it BEFORE any provider call.
+ *   - TRIAL FOR EVERYONE, NO SIGNUP WALL (Phase 183 «البوول الموحد»):
+ *     one synchronous demo call on the free-chain — no ai_jobs queue,
+ *     no membership gate. Generation is gated by the caller's unified
+ *     monthly pool (guests = the free 2/month) counted SUCCESS-ONLY;
+ *     the route auto-saves member plans to the `plans` table and guests
+ *     keep theirs in localStorage (plan-persistence.ts).
+ *   - COST CEILING: an IP burst guard runs BEFORE any provider call
+ *     (abuse-only — failures never burn the pool).
  *   - HONEST SHAPE: the generated day must close within ±20% of the
  *     requested calories and every item must carry real grams — anything
  *     else is rejected (422) rather than displayed.
@@ -27,10 +28,11 @@ import { parseJSON } from "./ai-provider";
 export const DEMO_CALORIE_MIN = 1200;
 export const DEMO_CALORIE_MAX = 4000;
 export const DEMO_NOTES_MAX = 200;
-/** IP-keyed daily ceiling — 5 generations / 24 h per visitor (§12.28
- * follow-up: bumped from 3 so free-model drift never strands a visitor
- * who spent attempts on rejected shapes — the retry button stays free). */
-export const DEMO_RATE_LIMIT = { max: 5, windowMs: 24 * 60 * 60 * 1000 } as const;
+/** Phase 183 (2026-09-13 «البوول الموحد»): the old IP-keyed 5/day
+ * trial ceiling is retired — generations are gated by the UNIFIED
+ * monthly pool (ai_plan_usage, migration 0085; guests get the free 2)
+ * counted SUCCESS-ONLY by the route; an IP burst guard (abuse-only,
+ * failures don't burn the pool) lives in the route, not here. */
 /** The generated day must close within ±20% of the requested calories. */
 export const DEMO_CALORIE_DRIFT = 0.2;
 

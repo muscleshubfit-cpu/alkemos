@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   evoChatLimitFor,
   swapLimitForTier,
   checkEvoChatLimit,
-  checkEvoPlanQuota,
+  checkUnifiedPlanQuota,
+  unifiedPlanPoolFor,
   checkAndRecordSwap,
 } from "@/lib/tier-limits";
 
@@ -39,8 +40,26 @@ describe("tier-limits", () => {
       expect(swapLimitForTier("pro")).toBe(6);
     });
 
-    it("coaching: 3 swaps/week (same as premium)", () => {
-      expect(swapLimitForTier("coaching")).toBe(3);
+    it("coaching: 6 swaps/week (inherits every Pro benefit — spec 2026-09-13)", () => {
+      expect(swapLimitForTier("coaching")).toBe(6);
+    });
+  });
+
+  describe("unifiedPlanPoolFor (owner decree 2026-09-13 «البوول الموحد»)", () => {
+    it("free: 2 successful generations/month", () => {
+      expect(unifiedPlanPoolFor("free")).toBe(2);
+    });
+
+    it("premium: 4", () => {
+      expect(unifiedPlanPoolFor("premium")).toBe(4);
+    });
+
+    it("pro: 8", () => {
+      expect(unifiedPlanPoolFor("pro")).toBe(8);
+    });
+
+    it("coaching: 8 (inherits every Pro benefit)", () => {
+      expect(unifiedPlanPoolFor("coaching")).toBe(8);
     });
   });
 
@@ -55,14 +74,14 @@ describe("tier-limits", () => {
       expect(r.limit).toBeNull();
     });
 
-    it("plan quota: staffHint=true → unlimited nutrition + workout", async () => {
-      const nutri = await checkEvoPlanQuota("staff-user", "nutrition", "free", true);
-      const workout = await checkEvoPlanQuota("staff-user", "workout", "free", true);
-      expect(nutri.allowed).toBe(true);
-      expect(nutri.unlimited).toBe(true);
-      expect(nutri.limit).toBeNull();
-      expect(workout.allowed).toBe(true);
-      expect(workout.unlimited).toBe(true);
+    it("unified plan pool: staffHint=true → unlimited, no DB access", async () => {
+      const r = await checkUnifiedPlanQuota({
+        userId: "staff-user",
+        tierHint: "free",
+        staffHint: true,
+      });
+      expect(r.allowed).toBe(true);
+      expect(r.unlimited).toBe(true);
     });
 
     it("swap: staffHint=true → allowed + unlimited", async () => {

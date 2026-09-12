@@ -1020,8 +1020,8 @@ export function LandingView() {
                 </p>
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {(isAr
-                    ? ["EVO غير محدود", "4 خطط تغذية/تمرين شهرياً (بحد أسبوعي 1+1)", "50 نتيجة محفوظة", "تصدير مخطط الوجبات والنتائج"]
-                    : ["Unlimited EVO", "4 nutrition/workout plans per month (weekly cap 1+1)", "50 saved results", "Meal-plan & results export"]
+                    ? ["EVO غير محدود", "4 خطط AI شهرياً (تغذية أو تمرين)", "50 نتيجة محفوظة", "تصدير مخطط الوجبات والنتائج"]
+                    : ["Unlimited EVO", "4 AI plan generations per month (nutrition or workout)", "50 saved results", "Meal-plan & results export"]
                   ).map((f) => (
                     <li key={f} className="flex items-start gap-2">
                       <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--text)" }} aria-hidden="true" />
@@ -1075,8 +1075,8 @@ export function LandingView() {
                 </p>
                 <ul className="relative mt-5 space-y-2.5 text-sm">
                   {(isAr
-                    ? ["كل مميزات Premium", "8 خطط تغذية/تمرين شهرياً (بحد أسبوعي 2+2)", "6 تبديلات أسبوعياً", "200 نتيجة محفوظة", "بدون إعلانات"]
-                    : ["Everything in Premium", "8 nutrition/workout plans per month (weekly cap 2+2)", "6 swaps per week", "200 saved results", "No ads"]
+                    ? ["كل مميزات Premium", "8 خطط AI شهرياً (تغذية أو تمرين)", "6 تبديلات أسبوعياً", "200 نتيجة محفوظة", "بدون إعلانات"]
+                    : ["Everything in Premium", "8 AI plan generations per month (nutrition or workout)", "6 swaps per week", "200 saved results", "No ads"]
                   ).map((f) => (
                     <li key={f} className="flex items-start gap-2">
                       <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#C9CED3" }} aria-hidden="true" />

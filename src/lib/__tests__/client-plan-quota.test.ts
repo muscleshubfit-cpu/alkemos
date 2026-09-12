@@ -1,43 +1,42 @@
-import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  countClientPlanUsage,
-  checkEvoPlanQuota,
-  checkClientPlanQuota,
-  countThisMonthPlanUsage,
-  countThisMonthCoachPlanJobs,
-  weekStartUtc,
+  countUnifiedPlanUsage,
+  checkUnifiedPlanQuota,
+  recordUnifiedPlanUsage,
+  hashGuestKey,
+  monthStartUtc,
 } from "@/lib/tier-limits";
 
 /**
- * 2026-09-01 owner decree: «توليد الخطط بيتحسب من الرصيد سواء عن طريق
- * المدرب او عن طريق ايفو» — the client's plan balance is ONE pool:
- *   EVO-self generations (evo_chat_usage, source plan_*)
- * + coach/admin AI generations for this client (done ai_jobs).
+ * PHASE 183 (owner decree 2026-09-13 «البوول الموحد» — spec "Alkemos —
+ * Membership & Plan Changes"): ONE monthly pool per identity for
+ * nutrition + workout generations COMBINED — free 2 · premium 4 ·
+ * pro 8 · coaching 8 — counted SUCCESS-ONLY from the ai_plan_usage
+ * ledger (migration 0085): a row exists only after a plan was actually
+ * generated and validated.
  *
- * 2026-09-02 owner decree: «١+١ أسبوعية اجمالى ٤+٤ شهريا بدلا من ٣+٣
- * شهريا» — the pool is governed by TWO windows: a WEEKLY cap (premium/
- * coaching 1+1 · pro 2+2, Monday-anchored UTC) AND a MONTHLY total
- * (premium/coaching 4+4 · pro 8+8). Both must pass.
+ * Guests (no account) get the FREE pool keyed by a server-side salted
+ * hash of the client's guest id — no signup wall. Staff bypass.
  *
- * These tests mock the service-role client with WINDOW-AWARE fixed
- * counts (the fake query builder inspects the gte("created_at", since)
- * instant to decide whether the caller counts the month or the week) and
- * pin the combined arithmetic + the two-window verdicts.
+ * These tests mock the service-role client: fixed ai_plan_usage counts
+ * per identity, subscriptions rows for the DB-tier fallback, and an
+ * insert spy capturing exactly what recordUnifiedPlanUsage writes.
  */
 
 const h = vi.hoisted(() => {
-  // Per-table "count" results per window, returned by the fake builder.
-  const month: Record<string, number> = { evo_chat_usage: 0, ai_jobs: 0 };
-  const week: Record<string, number> = { evo_chat_usage: 0, ai_jobs: 0 };
-  // Rows returned for the subscriptions fallback-tier lookup.
+  // count returned per (table, identity key)
+  const counts: Record<string, number> = {};
+  // subscriptions rows for the fallback tier lookup
   const subTiers: string[] = [];
-  return { month, week, subTiers };
+  // captured inserts per table
+  const inserts: Array<{ table: string; row: Record<string, unknown> }> = [];
+  return { counts, subTiers, inserts };
 });
 
 type CountRow = { count: number | null; error: unknown };
 interface FakeBuilder extends PromiseLike<CountRow> {
   select: () => FakeBuilder;
-  eq: () => FakeBuilder;
+  eq: (col: string, val: unknown) => FakeBuilder;
   gt: () => FakeBuilder;
   gte: (col: string, since: string) => FakeBuilder;
   limit: () => FakeBuilder;
@@ -47,7 +46,7 @@ interface FakeBuilder extends PromiseLike<CountRow> {
 
 vi.mock("@/lib/supabase/admin", () => {
   const makeBuilder = (table: string): FakeBuilder => {
-    let window: "month" | "week" = "month";
+    let identity = "";
     const outcome = (): Promise<CountRow> => {
       if (table === "subscriptions") {
         return Promise.resolve({
@@ -56,151 +55,187 @@ vi.mock("@/lib/supabase/admin", () => {
           data: h.subTiers.map((tier) => ({ tier })),
         } as unknown as CountRow);
       }
-      const counts = window === "week" ? h.week : h.month;
-      return Promise.resolve({ count: counts[table] ?? 0, error: null });
+      return Promise.resolve({
+        count: h.counts[`${table}:${identity}`] ?? 0,
+        error: null,
+      });
     };
     const builder: FakeBuilder = {
       select: () => builder,
-      eq: () => builder,
-      gt: () => builder,
-      gte: (_col: string, since: string) => {
-        window = since === weekStartUtc() ? "week" : "month";
+      eq: (col: string, val: unknown) => {
+        if (col === "user_id" || col === "guest_key" || col === "client_id") {
+          identity = String(val);
+        }
         return builder;
       },
+      gt: () => builder,
+      // The unified pool is monthly-only — every gte here is the month
+      // window; kept in the signature for parity with the real builder.
+      gte: (_col: string, _since: string) => builder,
       limit: () => builder,
       maybeSingle: () => Promise.resolve({ data: null, error: null }),
       single: () => Promise.resolve({ data: null, error: null }),
-      // await builder → the count shape used by the head:true counters
       then: (onfulfilled, onrejected) => outcome().then(onfulfilled, onrejected),
     };
     return builder;
   };
   return {
     isSupabaseAdminConfigured: true,
-    supabaseAdmin: { from: (table: string) => makeBuilder(table) },
+    supabaseAdmin: {
+      from: (table: string) => {
+        const b = makeBuilder(table);
+        if (table === "ai_plan_usage") {
+          // capture inserts (recordUnifiedPlanUsage)
+          return {
+            ...b,
+            insert: (row: Record<string, unknown>) => ({
+              then: (onfulfilled: unknown, onrejected: unknown) => {
+                h.inserts.push({ table, row });
+                return Promise.resolve({ error: null }).then(
+                  onfulfilled as never,
+                  onrejected as never,
+                );
+              },
+            }),
+          };
+        }
+        return b;
+      },
+    },
   };
 });
 
-describe("client plan balance — one pool, weekly cap + monthly total", () => {
+const USER = "11111111-1111-1111-1111-111111111111";
+
+describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", () => {
   beforeEach(() => {
-    h.month.evo_chat_usage = 0;
-    h.month.ai_jobs = 0;
-    h.week.evo_chat_usage = 0;
-    h.week.ai_jobs = 0;
+    for (const k of Object.keys(h.counts)) delete h.counts[k];
     h.subTiers.length = 0;
+    h.inserts.length = 0;
   });
 
-  beforeAll(() => {});
-
-  it("countClientPlanUsage (month window) = EVO rows + coach jobs", async () => {
-    h.month.evo_chat_usage = 2;
-    h.month.ai_jobs = 3;
-    expect(await countClientPlanUsage("client-1", "nutrition")).toBe(5);
+  it("countUnifiedPlanUsage reads only the success ledger, per identity", async () => {
+    h.counts[`ai_plan_usage:${USER}`] = 3;
+    expect(await countUnifiedPlanUsage({ userId: USER })).toBe(3);
+    expect(await countUnifiedPlanUsage({ guestKey: "abc" })).toBe(0);
+    h.counts["ai_plan_usage:abc"] = 2;
+    expect(await countUnifiedPlanUsage({ guestKey: "abc" })).toBe(2);
+    expect(await countUnifiedPlanUsage({})).toBe(0); // no identity → 0
   });
 
-  it("individual month counters stay independent", async () => {
-    h.month.evo_chat_usage = 2;
-    h.month.ai_jobs = 3;
-    expect(await countThisMonthPlanUsage("client-1", "workout")).toBe(2);
-    expect(await countThisMonthCoachPlanJobs("client-1", "workout")).toBe(3);
-  });
-
-  it("checkEvoPlanQuota blocks when the COMBINED pool hits the MONTHLY total (premium 4)", async () => {
-    h.month.evo_chat_usage = 3;
-    h.month.ai_jobs = 1; // premium monthly total = 4 → 3+1 = 4 → exhausted
-    const r = await checkEvoPlanQuota("client-1", "nutrition", "premium");
-    expect(r.allowed).toBe(false);
-    expect(r.used).toBe(4);
-    expect(r.limit).toBe(4);
-    expect(r.blockedBy).toBe("month");
-  });
-
-  it("checkEvoPlanQuota blocks on the WEEKLY cap while the month still has room (premium 1/wk)", async () => {
-    h.month.evo_chat_usage = 1;
-    h.month.ai_jobs = 1; // 2/4 monthly → room
-    h.week.evo_chat_usage = 1;
-    h.week.ai_jobs = 0; // weekly cap = 1 → 1/1 → blocked
-    const r = await checkEvoPlanQuota("client-1", "nutrition", "premium");
-    expect(r.allowed).toBe(false);
-    expect(r.blockedBy).toBe("week");
-    expect(r.weekly).toEqual({ used: 1, limit: 1 });
-    expect(r.used).toBe(2);
-    expect(r.limit).toBe(4);
-  });
-
-  it("checkEvoPlanQuota still allows under both windows", async () => {
-    h.month.evo_chat_usage = 1;
-    h.month.ai_jobs = 1; // 2/4 monthly
-    h.week.evo_chat_usage = 0;
-    h.week.ai_jobs = 0; // 0/1 weekly
-    const r = await checkEvoPlanQuota("client-1", "nutrition", "premium");
+  it("member pool: premium 4 — 2 used → allowed, remaining 2", async () => {
+    h.counts[`ai_plan_usage:${USER}`] = 2;
+    const r = await checkUnifiedPlanQuota({ userId: USER, tierHint: "premium" });
     expect(r.allowed).toBe(true);
-    expect(r.blockedBy).toBeNull();
-    expect(r.used).toBe(2);
+    expect(r.tier).toBe("premium");
+    expect(r.limit).toBe(4);
+    expect(r.remaining).toBe(2);
   });
 
-  it("pro enforces 2× the ladder: monthly total 8, weekly cap 2", async () => {
-    h.subTiers.push("pro");
-    h.month.evo_chat_usage = 6;
-    h.month.ai_jobs = 2; // 8/8 monthly → exhausted
-    h.week.evo_chat_usage = 1;
-    h.week.ai_jobs = 1; // 2/2 weekly would also block; month is checked first
-    const r = await checkClientPlanQuota("client-1", "workout");
-    expect(r.tier).toBe("pro");
+  it("member pool blocks at the tier limit (pro 8, combined kinds)", async () => {
+    h.counts[`ai_plan_usage:${USER}`] = 8; // e.g. 5 nutrition + 3 workout
+    const r = await checkUnifiedPlanQuota({ userId: USER, tierHint: "pro" });
     expect(r.allowed).toBe(false);
-    expect(r.blockedBy).toBe("month");
     expect(r.used).toBe(8);
+    expect(r.limit).toBe(8);
+    expect(r.remaining).toBe(0);
+  });
+
+  it("guest pool: free numbers (2/month), no signup wall", async () => {
+    h.counts["ai_plan_usage:guestkey-1"] = 1;
+    const r = await checkUnifiedPlanQuota({ guestKey: "guestkey-1" });
+    expect(r.allowed).toBe(true);
+    expect(r.tier).toBe("guest");
+    expect(r.limit).toBe(2);
+    expect(r.remaining).toBe(1);
+  });
+
+  it("guest pool blocks after 2 successes", async () => {
+    h.counts["ai_plan_usage:guestkey-1"] = 2;
+    const r = await checkUnifiedPlanQuota({ guestKey: "guestkey-1" });
+    expect(r.allowed).toBe(false);
+    expect(r.remaining).toBe(0);
+  });
+
+  it("unknown identity degrades to a fresh guest (full free pool)", async () => {
+    const r = await checkUnifiedPlanQuota({});
+    expect(r.allowed).toBe(true);
+    expect(r.tier).toBe("guest");
+    expect(r.limit).toBe(2);
+  });
+
+  it("DB-tier fallback: no active subscription → free pool (2)", async () => {
+    h.subTiers.length = 0;
+    h.counts[`ai_plan_usage:${USER}`] = 1;
+    const r = await checkUnifiedPlanQuota({ userId: USER });
+    expect(r.tier).toBe("free");
+    expect(r.limit).toBe(2);
+    expect(r.allowed).toBe(true); // 1/2
+  });
+
+  it("DB-tier fallback picks the highest active tier (pro)", async () => {
+    h.subTiers.push("premium", "pro");
+    const r = await checkUnifiedPlanQuota({ userId: USER });
+    expect(r.tier).toBe("pro");
     expect(r.limit).toBe(8);
   });
 
-  it("checkClientPlanQuota resolves the CLIENT's tier and allows while both windows have room", async () => {
-    h.subTiers.push("coaching"); // coaching: monthly 4, weekly 1
-    h.month.evo_chat_usage = 1;
-    h.month.ai_jobs = 1; // 2/4 monthly
-    const r = await checkClientPlanQuota("client-1", "nutrition");
-    expect(r.tier).toBe("coaching");
+  it("staff bypass: unlimited, no ledger read", async () => {
+    h.counts[`ai_plan_usage:${USER}`] = 99;
+    const r = await checkUnifiedPlanQuota({
+      userId: USER,
+      tierHint: "free",
+      staffHint: true,
+    });
     expect(r.allowed).toBe(true);
-    expect(r.used).toBe(2);
-    expect(r.limit).toBe(4);
-    expect(r.weekly).toEqual({ used: 0, limit: 1 });
-  });
-
-  it("coach path blocks on the weekly cap too (client-side window)", async () => {
-    h.subTiers.push("premium");
-    h.week.ai_jobs = 1; // coach generated 1 this week → weekly cap 1 hit
-    const r = await checkClientPlanQuota("client-1", "nutrition");
-    expect(r.allowed).toBe(false);
-    expect(r.blockedBy).toBe("week");
-    expect(r.weekly).toEqual({ used: 1, limit: 1 });
-  });
-
-  it("staffHint still bypasses the chat check (staff semantics unchanged)", async () => {
-    h.month.evo_chat_usage = 99;
-    h.month.ai_jobs = 99;
-    const r = await checkEvoPlanQuota("staff-user", "nutrition", "free", true);
     expect(r.unlimited).toBe(true);
-    expect(r.allowed).toBe(true);
-    expect(r.blockedBy).toBeNull();
   });
 
-  it("no active subscription resolves to free → 0-limit blocks both paths", async () => {
-    h.subTiers.length = 0; // resolveTierFromDb → free (limit 0)
-    const chat = await checkEvoPlanQuota("client-1", "nutrition", null);
-    const coach = await checkClientPlanQuota("client-1", "workout");
-    expect(chat.allowed).toBe(false);
-    expect(coach.allowed).toBe(false);
+  it("recordUnifiedPlanUsage writes ONE success row with the right identity", async () => {
+    await recordUnifiedPlanUsage({
+      userId: USER,
+      kind: "nutrition",
+      surface: "planner",
+    });
+    await recordUnifiedPlanUsage({
+      guestKey: "guestkey-1",
+      kind: "workout",
+      surface: "evo",
+    });
+    expect(h.inserts).toHaveLength(2);
+    expect(h.inserts[0].row).toMatchObject({
+      user_id: USER,
+      guest_key: null,
+      kind: "nutrition",
+      surface: "planner",
+    });
+    expect(h.inserts[1].row).toMatchObject({
+      user_id: null,
+      guest_key: "guestkey-1",
+      kind: "workout",
+      surface: "evo",
+    });
   });
 
-  it("window helper: week start is Monday-anchored UTC", () => {
-    // Wednesday 2026-09-02 12:34 UTC → Monday 2026-08-31 00:00 UTC
-    const wd = new Date(weekStartUtc(new Date("2026-09-02T12:34:56Z")));
-    expect(wd.getUTCDay()).toBe(1); // Monday
-    expect(wd.getUTCHours()).toBe(0);
-    expect(wd.getUTCDate()).toBe(31);
-    expect(wd.getUTCMonth()).toBe(7); // August
-    // A Monday input anchors to itself
-    const mon = new Date(weekStartUtc(new Date("2026-09-07T09:00:00Z")));
-    expect(mon.getUTCDate()).toBe(7);
-    expect(mon.getUTCMonth()).toBe(8); // September
+  it("recordUnifiedPlanUsage: no identity → no row (fail-safe)", async () => {
+    await recordUnifiedPlanUsage({ kind: "nutrition" });
+    expect(h.inserts).toHaveLength(0);
+  });
+
+  it("hashGuestKey is stable, salted, and never stores the raw id", () => {
+    const k1 = hashGuestKey("guest-uuid-1");
+    const k2 = hashGuestKey("guest-uuid-1");
+    const k3 = hashGuestKey("guest-uuid-2");
+    expect(k1).toBe(k2); // stable for the same id
+    expect(k1).not.toBe(k3); // different ids → different keys
+    expect(k1).not.toContain("guest-uuid-1"); // raw id never appears
+    expect(k1).toHaveLength(32); // sha256 hex slice
+  });
+
+  it("month window resets on the 1st, UTC", () => {
+    const m = monthStartUtc();
+    const d = new Date(m);
+    expect(d.getUTCDate()).toBe(1);
+    expect(d.getUTCHours()).toBe(0);
   });
 });

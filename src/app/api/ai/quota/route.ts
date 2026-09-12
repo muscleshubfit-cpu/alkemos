@@ -2,42 +2,51 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth-server";
 import {
   countTodayChatUsage,
-  countClientPlanUsage,
-  countClientWeeklyPlanUsage,
-  planQuotaFor,
-  planWeeklyQuotaFor,
+  checkUnifiedPlanQuota,
+  hashGuestKey,
   evoChatLimitFor,
-  type EvoPlanKind,
 } from "@/lib/tier-limits";
 
 /**
- * GET /api/ai/quota — Phase 69 (owner-approved): the EVO QUOTA METER.
+ * GET /api/ai/quota — Phase 69 (owner-approved): the EVO QUOTA METER
+ * → Phase 183 (owner decree 2026-09-13 «البوول الموحد»): the meter now
+ * reads ONE unified plan pool (nutrition + workout COMBINED) from the
+ * success-only ledger (ai_plan_usage, migration 0085), for members AND
+ * guests.
  *
- * The study (Phase 64) found the advertised plan quotas were invisible
- * until the member hit the 429 bubble. This read-only endpoint powers
- * the in-widget counters:
- *   - chat:      today's messages used vs daily limit (null = unlimited)
- *   - nutrition: plan generations vs WEEKLY cap + MONTHLY total
- *   - workout:   plan generations vs WEEKLY cap + MONTHLY total
+ *   - ?guestId=<uuid>  (anonymous callers): the guest's pool — FREE
+ *     tier numbers (2/month). The id is hashed server-side; nothing
+ *     raw is stored. No signup wall — guests see their remaining
+ *     generations exactly like members do.
+ *   - authed callers:  their tier's pool (free 2 · premium 4 ·
+ *     pro 8 · coaching 8).
  *
- * Counting reads the SAME tamper-proof ledgers the enforcement writes
- * (evo_chat_usage + done ai_jobs) so display always matches enforcement.
- * 2026-09-01 (owner): «توليد الخطط بيتحسب من الرصيد سواء عن طريق المدرب
- * او عن طريق ايفو» — plan `used` is the COMBINED pool (member's own EVO
- * generations + coach/admin AI generations for this member).
- * 2026-09-02: WEEKLY cap (1+1 · Pro 2+2, Monday-anchored UTC) added on
- * top of the MONTHLY total (4+4 · Pro 8+8) — `weeklyUsed`/`weeklyLimit`
- * mirror what checkEvoPlanQuota/checkClientPlanQuota enforce.
+ * Display ALWAYS reads the same ledger enforcement counts
+ * (checkUnifiedPlanQuota) — the meter matches what is enforced.
  * Read-only — nothing is recorded here.
+ *
+ * Response `nutrition`/`workout` keys are kept for one release as
+ * mirrors of the unified pool (older widgets read them); they are
+ * deprecated — read `plans` instead.
  */
 export async function GET(request: NextRequest) {
   const auth = await getAuthUser(request);
+
+  // ── Guest pool (unified + free chat readout). ──
   if (!auth) {
-    // Anonymous visitors: free-tier chat limit (10/day), no plan generation
+    const rawGuestId = new URL(request.url).searchParams.get("guestId") ?? "";
+    const guestKey = rawGuestId.trim().length >= 8 ? hashGuestKey(rawGuestId.trim()) : null;
+    const pool = await checkUnifiedPlanQuota({ guestKey });
     return NextResponse.json({
       chat: { used: 0, limit: evoChatLimitFor("free"), unlimited: false },
-      nutrition: { used: 0, limit: 0, unlimited: false, weeklyUsed: 0, weeklyLimit: 0 },
-      workout: { used: 0, limit: 0, unlimited: false, weeklyUsed: 0, weeklyLimit: 0 },
+      plans: {
+        used: pool.used,
+        limit: pool.limit,
+        remaining: pool.remaining,
+        unlimited: pool.unlimited,
+      },
+      nutrition: { used: pool.used, limit: pool.limit, unlimited: pool.unlimited, weeklyUsed: 0, weeklyLimit: null },
+      workout: { used: pool.used, limit: pool.limit, unlimited: pool.unlimited, weeklyUsed: 0, weeklyLimit: null },
     });
   }
 
@@ -48,8 +57,9 @@ export async function GET(request: NextRequest) {
     // STAFF QUOTA SEMANTICS — unlimited, nothing counted for display
     return NextResponse.json({
       chat: { used: 0, limit: null, unlimited: true },
-      nutrition: { used: 0, limit: null, unlimited: true },
-      workout: { used: 0, limit: null, unlimited: true },
+      plans: { used: 0, limit: null, remaining: 0, unlimited: true },
+      nutrition: { used: 0, limit: null, unlimited: true, weeklyUsed: 0, weeklyLimit: null },
+      workout: { used: 0, limit: null, unlimited: true, weeklyUsed: 0, weeklyLimit: null },
       staff: true,
     });
   }
@@ -57,23 +67,17 @@ export async function GET(request: NextRequest) {
   const chatLimit = evoChatLimitFor(tier);
   const chatUsed = chatLimit === null ? 0 : await countTodayChatUsage(auth.id);
 
-  const kinds: EvoPlanKind[] = ["nutrition", "workout"];
-  const plans: Record<string, { used: number; limit: number | null; unlimited: boolean; weeklyUsed: number; weeklyLimit: number | null }> = {};
-  for (const kind of kinds) {
-    const limit = planQuotaFor(tier, kind);
-    const weeklyLimit = planWeeklyQuotaFor(tier, kind);
-    const [used, weeklyUsed] = await Promise.all([
-      limit === null ? Promise.resolve(0) : countClientPlanUsage(auth.id, kind),
-      weeklyLimit === null ? Promise.resolve(0) : countClientWeeklyPlanUsage(auth.id, kind),
-    ]);
-    plans[kind] = {
-      used,
-      limit,
-      unlimited: limit === null && weeklyLimit === null,
-      weeklyUsed,
-      weeklyLimit,
-    };
-  }
+  const pool = await checkUnifiedPlanQuota({
+    userId: auth.id,
+    tierHint: tier,
+  });
+
+  const unified = {
+    used: pool.used,
+    limit: pool.limit,
+    remaining: pool.remaining,
+    unlimited: pool.unlimited,
+  };
 
   return NextResponse.json({
     chat: {
@@ -81,7 +85,8 @@ export async function GET(request: NextRequest) {
       limit: chatLimit,
       unlimited: chatLimit === null,
     },
-    nutrition: plans.nutrition,
-    workout: plans.workout,
+    plans: unified,
+    nutrition: { ...unified, weeklyUsed: 0, weeklyLimit: null },
+    workout: { ...unified, weeklyUsed: 0, weeklyLimit: null },
   });
 }

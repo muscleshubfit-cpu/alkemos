@@ -6,15 +6,22 @@
  *   - Free:     basic access, limited EVO, 1 meal plan save
  *   - Premium:  $14.99/mo or $119/yr — full EVO chat, limited plan gen
  *   - Pro:      $29.99/mo or $239/yr — full features, no ads
- *   - Coaching: $39.99/mo or $359/yr — human coach, NOT linked to Pro
+ *   - Coaching: $39.99/mo or $359/yr — human coach + ALL Pro benefits
  *
- * PLAN GENERATION LAW (owner decree 2026-09-02:
- * «١+١ أسبوعية اجمالى ٤+٤ شهريا بدلا من ٣+٣ شهريا»):
- *   - Weekly cap: 1 nutrition + 1 workout per week (Pro: 2+2 — the
- *     advertised 2× Premium ladder is preserved).
- *   - Monthly total: 4 nutrition + 4 workout per month (Pro: 8+8).
- *   - Weekly window resets Monday 00:00 UTC (same convention as the
- *     swaps reset); the monthly pool resets on the 1st, UTC.
+ * PLAN GENERATION LAW (owner decree 2026-09-13 «البوول الموحد» —
+ * spec "Alkemos — Membership & Plan Changes"; zero live subscribers at
+ * cutover, owner-approved, so the old per-kind ledger needed no balance
+ * migration):
+ *   - ONE UNIFIED monthly pool per identity — nutrition + workout
+ *     generations COMBINED: free 2 · premium 4 · pro 8 · coaching 8
+ *     (coaching inherits every Pro benefit per the spec).
+ *   - ONLY successful generations burn the pool (failed attempts,
+ *     input edits, navigation, viewing an existing plan = free).
+ *   - Guests (not signed in) get the FREE pool — no signup wall; the
+ *     signup nudge stays soft (benefits only, never a block).
+ *   - The old weekly cap (1+1 / 2+2) is RETIRED with the per-kind split.
+ *   - The pool resets on the 1st, UTC. Previously generated plans stay
+ *     visible/accessible even after the pool is exhausted.
  * Other limits reset monthly. Ads show on Free + Premium tiers only
  * (Pro+ are ad-free).
  */
@@ -24,13 +31,12 @@ export type MembershipTier = "free" | "premium" | "pro" | "coaching";
 export type MembershipLimits = {
   // EVO chat
   evoChatDailyLimit: number | null; // null = unlimited
-  // EVO plan generation — WEEKLY CAP + MONTHLY TOTAL (owner decree
-  // 2026-09-02: 1+1 weekly, total 4+4 monthly; Pro 2+2 / 8+8).
-  evoNutritionPlanLimit: number | null; // per month (total)
-  evoWorkoutPlanLimit: number | null; // per month (total)
-  evoNutritionPlanWeeklyLimit: number | null; // per week (cap)
-  evoWorkoutPlanWeeklyLimit: number | null; // per week (cap)
-  // EVO swaps (weekly, same as plan generation limits)
+  // UNIFIED AI plan-generation pool (owner decree 2026-09-13):
+  // ONE monthly budget for nutrition + workout generations COMBINED.
+  // Guests get the free-tier pool. Success-only accounting (the ledger
+  // is ai_plan_usage, migration 0085).
+  aiPlanMonthlyLimit: number;
+  // EVO swaps (weekly)
   evoSwapLimit: number | null; // per week
   // EVO advanced features
   evoPatternAnalysis: boolean;
@@ -71,10 +77,9 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     priceYearly: 0,
     limits: {
       evoChatDailyLimit: 10,
-      evoNutritionPlanLimit: 0,
-      evoWorkoutPlanLimit: 0,
-      evoNutritionPlanWeeklyLimit: 0,
-      evoWorkoutPlanWeeklyLimit: 0,
+      // Unified pool (2026-09-13 decree): free = 2 successful AI plan
+      // generations/month — guests get the same 2 without any signup.
+      aiPlanMonthlyLimit: 2,
       evoSwapLimit: 0,
       evoPatternAnalysis: false,
       evoCrossSessionMemory: false,
@@ -92,6 +97,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "تصفح 8830+ أكلة",
       "تصفح برامج التدريب",
       "5 حاسبات لياقة مجانية",
+      "خطط AI: توليدان شهرياً (تغذية أو تمرين)",
       "EVO: 10 رسائل/يوم",
       "مخطط الوجبات (3 وجبات، حفظ 1 جدول)",
       "حفظ 3 نتائج أدوات",
@@ -101,6 +107,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "Browse 8,830+ foods",
       "Browse workout programs",
       "5 free fitness calculators",
+      "AI plans: 2 generations/month (nutrition or workout)",
       "EVO: 10 messages/day",
       "Meal Planner (3 meals, save 1 plan)",
       "Save 3 tool results",
@@ -116,10 +123,9 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     priceYearly: 119.0,
     limits: {
       evoChatDailyLimit: null,
-      evoNutritionPlanLimit: 4, // monthly total (was 3 — decree 2026-09-02)
-      evoWorkoutPlanLimit: 4,
-      evoNutritionPlanWeeklyLimit: 1, // weekly cap
-      evoWorkoutPlanWeeklyLimit: 1,
+      // Unified pool (2026-09-13 decree): 4 successful AI plan
+      // generations/month, nutrition + workout combined.
+      aiPlanMonthlyLimit: 4,
       evoSwapLimit: 3, // per week
       evoPatternAnalysis: false,
       evoCrossSessionMemory: true,
@@ -135,8 +141,8 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     features: [
       "كل مميزات Free",
       "EVO: محادثة غير محدودة",
-      "EVO: 4 خطط تغذية شهرياً (1 أسبوعياً)",
-      "EVO: 4 خطط تمرين شهرياً (1 أسبوعياً)",
+      "خطط AI: 4 توليدات شهرياً (تغذية أو تمرين)",
+      "حفظ وإدارة كل خططك في حسابك",
       "EVO: 3 تبديلات/أسبوع",
       "EVO: ذاكرة دائمة عبر الجلسات",
       "مخطط الوجبات (6 وجبات، حفظ 10)",
@@ -145,8 +151,8 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     featuresEn: [
       "All Free features",
       "EVO: unlimited chat",
-      "EVO: 4 nutrition plans/mo (1/wk)",
-      "EVO: 4 workout plans/mo (1/wk)",
+      "AI plans: 4 generations/month (nutrition or workout)",
+      "Save & manage all your plans in your account",
       "EVO: 3 swaps/week",
       "EVO: cross-session memory",
       "Meal Planner (6 meals, save 10)",
@@ -163,10 +169,9 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     priceYearly: 239.0,
     limits: {
       evoChatDailyLimit: null,
-      evoNutritionPlanLimit: 8, // monthly total — 2× Premium (decree 2026-09-02)
-      evoWorkoutPlanLimit: 8,
-      evoNutritionPlanWeeklyLimit: 2, // weekly cap — 2× Premium
-      evoWorkoutPlanWeeklyLimit: 2,
+      // Unified pool (2026-09-13 decree): 8 successful AI plan
+      // generations/month, nutrition + workout combined — 2× Premium.
+      aiPlanMonthlyLimit: 8,
       evoSwapLimit: 6,
       evoPatternAnalysis: true,
       evoCrossSessionMemory: true,
@@ -181,18 +186,18 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     },
     features: [
       "كل مميزات Premium",
-      "EVO: 8 خطط تغذية شهرياً (2 أسبوعياً)",
-      "EVO: 8 خطط تمرين شهرياً (2 أسبوعياً)",
+      "خطط AI: 8 توليدات شهرياً (تغذية أو تمرين)",
       "EVO: 6 تبديلات/أسبوع",
+      "تكييف وتخصيص متقدم",
       "مخطط الوجبات (8 وجبات، 50 جدول)",
       "200 نتيجة محفوظة + تحميل",
       "بدون إعلانات",
     ],
     featuresEn: [
       "All Premium features",
-      "EVO: 8 nutrition plans/mo (2/wk)",
-      "EVO: 8 workout plans/mo (2/wk)",
+      "AI plans: 8 generations/month (nutrition or workout)",
       "EVO: 6 swaps/week",
+      "Advanced adaptation & customization",
       "Meal Planner (8 meals, 50 plans)",
       "200 saved results + export",
       "No ads",
@@ -207,50 +212,43 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     priceMonthly: 39.99,
     priceYearly: 359.0,
     limits: {
-      // EVO included — same as Premium EVO limits (decree 2026-09-02:
-      // 1+1 weekly, 4+4 monthly total)
+      // Spec 2026-09-13: coaching = human coach + AI AND "كل مزايا Pro" —
+      // every Pro limit is inherited (unified 8-pool, 6 swaps/week,
+      // 200 saved results, pattern analysis, premium content, 8-meal
+      // planner with 50 saves, NO ads) plus the human-coach surfaces.
       evoChatDailyLimit: null,
-      evoNutritionPlanLimit: 4,
-      evoWorkoutPlanLimit: 4,
-      evoNutritionPlanWeeklyLimit: 1,
-      evoWorkoutPlanWeeklyLimit: 1,
-      evoSwapLimit: 3,
-      evoPatternAnalysis: false,
+      aiPlanMonthlyLimit: 8,
+      evoSwapLimit: 6,
+      evoPatternAnalysis: true,
       evoCrossSessionMemory: true,
       evoSaveBodyData: true,
-      mealPlannerMaxMeals: 6,
-      mealPlannerMaxSaved: 10,
+      mealPlannerMaxMeals: 8,
+      mealPlannerMaxSaved: 50,
       mealPlannerExport: true,
-      savedResultsLimit: 50,
+      savedResultsLimit: 200,
       savedResultsExport: true,
-      premiumContent: false,
-      adsEnabled: true,
+      premiumContent: true,
+      adsEnabled: false,
     },
     features: [
-      "EVO: محادثة غير محدودة",
-      "EVO: 4 خطط تغذية شهرياً (1 أسبوعياً)",
-      "EVO: 4 خطط تمرين شهرياً (1 أسبوعياً)",
-      "EVO: 3 تبديلات/أسبوع",
-      "EVO: ذاكرة دائمة عبر الجلسات",
-      "خطط تغذية مخصصة من مدرب بشري",
-      "برامج تمرين من مدرب بشري",
+      "كل مميزات Pro",
+      "خطط AI: 8 توليدات شهرياً (تغذية أو تمرين)",
+      "خطط تغذية وتمرين من مدرب بشري",
+      "EVO: محادثة غير محدودة وذاكرة دائمة",
       "متابعة أسبوعية بتذكير تلقائي",
       "تبديلات يدوية من المدرب",
-      "تذاكر دعم أولوية",
       "تواصل مباشر مع المدرب",
+      "دعم أولوية",
     ],
     featuresEn: [
-      "EVO: unlimited chat",
-      "EVO: 4 nutrition plans/mo (1/wk)",
-      "EVO: 4 workout plans/mo (1/wk)",
-      "EVO: 3 swaps/week",
-      "EVO: cross-session memory",
-      "Custom nutrition plans from a human coach",
-      "Workout programs from a human coach",
+      "All Pro features",
+      "AI plans: 8 generations/month (nutrition or workout)",
+      "Nutrition & workout plans from a human coach",
+      "EVO: unlimited chat + persistent memory",
       "Weekly check-in reminders",
       "Manual swaps by the coach",
-      "Priority support tickets",
       "Direct contact with the coach",
+      "Priority support",
     ],
     highlight: false,
     separate: true,
@@ -357,20 +355,12 @@ export const COMPARISON_ROWS: Array<{
     coaching: "غير محدود",
   },
   {
-    feature: "EVO: خطط تغذية",
-    featureEn: "EVO: Meal Plans",
-    free: "—",
-    premium: "1/أسبوع · 4/شهر",
-    pro: "2/أسبوع · 8/شهر",
-    coaching: "1/أسبوع · 4/شهر",
-  },
-  {
-    feature: "EVO: خطط تمرين",
-    featureEn: "EVO: Workout Plans",
-    free: "—",
-    premium: "1/أسبوع · 4/شهر",
-    pro: "2/أسبوع · 8/شهر",
-    coaching: "1/أسبوع · 4/شهر",
+    feature: "خطط الذكاء الاصطناعي (تغذية أو تمرين)",
+    featureEn: "AI Plans (nutrition or workout)",
+    free: "2/شهر",
+    premium: "4/شهر",
+    pro: "8/شهر",
+    coaching: "8/شهر",
   },
   {
     feature: "EVO: تبديلات",
@@ -378,7 +368,7 @@ export const COMPARISON_ROWS: Array<{
     free: "—",
     premium: "3/أسبوع",
     pro: "6/أسبوع",
-    coaching: "3/أسبوع",
+    coaching: "6/أسبوع",
   },
   {
     feature: "EVO: ذاكرة دائمة",
@@ -394,7 +384,7 @@ export const COMPARISON_ROWS: Array<{
     free: "3 وجبات، 1 حفظ",
     premium: "6 وجبات، 10 حفظ",
     pro: "8 وجبات، 50 حفظ",
-    coaching: "6 وجبات، 10 حفظ",
+    coaching: "8 وجبات، 50 حفظ",
   },
   {
     feature: "حفظ نتائج الأدوات",
@@ -402,7 +392,7 @@ export const COMPARISON_ROWS: Array<{
     free: "3",
     premium: "50",
     pro: "200",
-    coaching: "50",
+    coaching: "200",
   },
   {
     feature: "تحميل النتائج",
@@ -446,6 +436,9 @@ export const COMPARISON_ROWS: Array<{
 const CELL_TRANSLATIONS: Record<string, string> = {
   "10/يوم": "10/day",
   "غير محدود": "Unlimited",
+  "2/شهر": "2/mo",
+  "4/شهر": "4/mo",
+  "8/شهر": "8/mo",
   "1/أسبوع · 4/شهر": "1/wk · 4/mo",
   "2/أسبوع · 8/شهر": "2/wk · 8/mo",
   "3/أسبوع": "3/wk",

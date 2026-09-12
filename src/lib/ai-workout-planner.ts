@@ -8,13 +8,14 @@
  * validator. The route stays thin; everything here is unit-testable.
  *
  * LAWS (guarded in src/lib/__tests__/ai-workout-planner.test.ts):
- *   - TRIAL FOR EVERYONE, NO SUBSCRIPTION CONFLICT: one synchronous demo
- *     call on the free-chain — no ai_jobs queue, no client plan quota, no
- *     membership gate. The generated split is ephemeral (never stored);
- *     saved programs, coach-built plans, and EVO generation remain exactly
- *     where the memberships put them (memberships.ts untouched).
- *   - COST CEILING: IP-keyed rate limit (5 / 24 h) — the route enforces
- *     it BEFORE any provider call.
+ *   - TRIAL FOR EVERYONE, NO SIGNUP WALL (Phase 183 «البوول الموحد»):
+ *     one synchronous demo call on the free-chain — no ai_jobs queue,
+ *     no membership gate. Generation is gated by the caller's unified
+ *     monthly pool (guests = the free 2/month) counted SUCCESS-ONLY;
+ *     the route auto-saves member plans to the `plans` table and guests
+ *     keep theirs in localStorage (plan-persistence.ts).
+ *   - COST CEILING: an IP burst guard runs BEFORE any provider call
+ *     (abuse-only — failures never burn the pool).
  *   - HONEST SHAPE: the returned week must carry EXACTLY the requested
  *     number of training days, each with 3–8 exercises carrying real
  *     sets (1–10) and reps (numeric 1–50 or an "8-12" range) — anything
@@ -26,10 +27,11 @@ import { parseJSON } from "./ai-provider";
 export const WORKOUT_DAYS_MIN = 2;
 export const WORKOUT_DAYS_MAX = 6;
 export const WORKOUT_NOTES_MAX = 200;
-/** IP-keyed daily ceiling — 5 generations / 24 h per visitor (the §12.28
- * live-hardening law: enough headroom that free-model drift never strands
- * a visitor who spent attempts on rejected shapes). */
-export const WORKOUT_DEMO_RATE_LIMIT = { max: 5, windowMs: 24 * 60 * 60 * 1000 } as const;
+/** Phase 183 (2026-09-13 «البوول الموحد»): the old IP-keyed 5/day trial
+ * ceiling is retired — generations are gated by the UNIFIED monthly pool
+ * (ai_plan_usage, migration 0085; guests get the free 2) counted
+ * SUCCESS-ONLY by the route; an IP burst guard (abuse-only, failures
+ * don't burn the pool) lives in the route, not here. */
 
 export const WORKOUT_GOALS = ["fat-loss", "muscle", "strength", "endurance"] as const;
 export type WorkoutGoal = (typeof WORKOUT_GOALS)[number];

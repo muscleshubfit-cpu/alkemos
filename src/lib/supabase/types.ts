@@ -1831,6 +1831,35 @@ export type Database = {
       };
       // mirror RUN_ON_SUPABASE_0028 — anonymous EVO usage ledger
       // (salted-IP-hash key; server-role writes only)
+      ai_plan_usage: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          guest_key: string | null;
+          kind: string;
+          surface: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          guest_key?: string | null;
+          kind: string;
+          surface?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          guest_key?: string | null;
+          kind?: string;
+          surface?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          { foreignKeyName: "ai_plan_usage_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "auth.users"; referencedColumns: ["id"] },
+        ];
+      },
       evo_anon_usage: {
         Row: {
           id: string;
@@ -2113,4 +2142,5 @@ export type CoachTopupRequest = Database["public"]["Tables"]["coach_topup_reques
 export type CoachWalletTransaction = Database["public"]["Tables"]["coach_wallet_transactions"]["Row"];
 export type EvoChatUsage = Database["public"]["Tables"]["evo_chat_usage"]["Row"];
 export type EvoAnonUsage = Database["public"]["Tables"]["evo_anon_usage"]["Row"];
+export type AiPlanUsage = Database["public"]["Tables"]["ai_plan_usage"]["Row"];
 export type SiteCoachAssignment = Database["public"]["Tables"]["site_coach_assignments"]["Row"];

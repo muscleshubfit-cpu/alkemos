@@ -550,21 +550,20 @@ export function EvoFloatingWidget() {
 
             {/* PHASE 69 — QUOTA METER: the advertised plan quotas are now
                 VISIBLE (same tamper-proof ledger the server counts).
-                2026-09-02: weekly cap (1+1 · Pro 2+2) + monthly total. */}
+                Phase 183 (2026-09-13 «البوول الموحد»): ONE unified
+                monthly pool — nutrition + workout COMBINED (2/4/8/8);
+                the old per-kind + weekly split display is retired. */}
             {isSubscriber && quota && (
               <div className="border-b border-[#d2d2d7] bg-white px-4 py-1.5 text-center text-[10px] font-normal text-[#6e6e73]">
                 <span>
-                  {isAr
-                    ? `الخطط الشهرية: تغذية ${quota.nutrition.used}/${quota.nutrition.unlimited ? "∞" : quota.nutrition.limit} · تمرين ${quota.workout.used}/${quota.workout.unlimited ? "∞" : quota.workout.limit}`
-                    : `Monthly plans: nutrition ${quota.nutrition.used}/${quota.nutrition.unlimited ? "∞" : quota.nutrition.limit} · workout ${quota.workout.used}/${quota.workout.unlimited ? "∞" : quota.workout.limit}`}
+                  {quota.plans
+                    ? isAr
+                      ? `خطط AI هذا الشهر (تغذية + تمرين): ${quota.plans.used}/${quota.plans.unlimited ? "∞" : quota.plans.limit}`
+                      : `AI plans this month (nutrition + workout): ${quota.plans.used}/${quota.plans.unlimited ? "∞" : quota.plans.limit}`
+                    : isAr
+                      ? `الخطط الشهرية: ${quota.nutrition.used}/${quota.nutrition.unlimited ? "∞" : quota.nutrition.limit}`
+                      : `Monthly plans: ${quota.nutrition.used}/${quota.nutrition.unlimited ? "∞" : quota.nutrition.limit}`}
                 </span>
-                {typeof quota.nutrition?.weeklyLimit === "number" && (
-                  <span className="block">
-                    {isAr
-                      ? `هذا الأسبوع: تغذية ${quota.nutrition.weeklyUsed ?? 0}/${quota.nutrition.weeklyLimit} · تمرين ${quota.workout.weeklyUsed ?? 0}/${quota.workout.weeklyLimit}`
-                      : `This week: nutrition ${quota.nutrition.weeklyUsed ?? 0}/${quota.nutrition.weeklyLimit} · workout ${quota.workout.weeklyUsed ?? 0}/${quota.workout.weeklyLimit}`}
-                  </span>
-                )}
               </div>
             )}
 

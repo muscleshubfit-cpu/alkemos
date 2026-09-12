@@ -5,7 +5,6 @@ import {
   DEMO_CALORIE_MAX,
   DEMO_CALORIE_MIN,
   DEMO_NOTES_MAX,
-  DEMO_RATE_LIMIT,
   buildDemoPrompt,
   demoSystemOptions,
   parseDemoPlanText,
@@ -21,13 +20,16 @@ import {
  * LAWS GUARDED:
  *   1. INPUT: calories 1200–4000, one of the 4 site systems, en|ar,
  *      notes ≤200 — anything else is a 400, never a provider call.
- *   2. COST: the route rate-limits by IP BEFORE any provider call
- *      (3 / 24 h) — pinned on the route source.
+ *   2. COST: the route runs an IP BURST GUARD before any provider call
+ *      (abuse-only) — pinned on the route source.
  *   3. HONEST SHAPE: a drifted/hallucinated payload is REJECTED —
  *      meals/items/grams/kcal validated, totals recomputed server-side,
  *      ±20% calorie closure.
- *   4. NO SUBSCRIPTION CONFLICT: the route touches no ai_jobs enqueue,
- *      no quota ledger, no membership gate — pinned on the route source.
+ *   4. UNIFIED POOL (Phase 183 «البوول الموحد»): the route gates by the
+ *      caller's unified monthly pool BEFORE dispatch, records ONE unit
+ *      SUCCESS-ONLY (after validation), and auto-saves member plans —
+ *      pinned on the route source. No signup wall (getAuthUser, never
+ *      requireUser/requireCoach), no ai_jobs queue.
  *   5. SURFACE: /ai-meal-planner + /ar/ai-meal-planner exist as a full
  *      hreflang pair, sitemap-indexed, schema-layered (WebApplication),
  *      and the diet-plan matrix CTA now leads to the generator (the
@@ -152,23 +154,34 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(parseDemoPlanText("no json here at all", 2000).ok).toBe(false);
   });
 
-  it("COST + ISOLATION: the route rate-limits by IP before any provider call, and touches no quota", () => {
+  it("COST + UNIFIED POOL: burst guard before the provider call, pool gate before dispatch, success-only record, no signup wall", () => {
     const src = stripComments(readFileSync(ROUTE_FILE, "utf8"));
+    // The IP burst guard (abuse-only) runs BEFORE any provider call.
     expect(src).toContain("rateLimit");
     expect(src).toContain("meal-demo:");
-    expect(src).toContain(`${DEMO_RATE_LIMIT.max}`);
-    // The rate-limit CALL happens BEFORE the provider CALL (imports at
-    // the top of the file don't count — match the call sites).
+    expect(src).toContain("BURST_GUARD");
     expect(src.indexOf("await rateLimit(")).toBeLessThan(
       src.indexOf("await callFreeAIFallbackChain("),
     );
-    // No subscription conflict (the owner's law): no queue, no quota, no gate.
+    // The unified pool is checked BEFORE dispatch (read-only).
+    expect(src).toContain("checkUnifiedPlanQuota");
+    expect(src.indexOf("await checkUnifiedPlanQuota(")).toBeLessThan(
+      src.indexOf("await callFreeAIFallbackChain("),
+    );
+    // SUCCESS-ONLY: the pool unit is recorded AFTER validation, never
+    // before dispatch (failures/422 never burn the pool).
+    expect(src.indexOf("await recordUnifiedPlanUsage(")).toBeGreaterThan(
+      src.indexOf("await callFreeAIFallbackChain("),
+    );
+    // Guest identity (hashed) — no signup wall, no hard auth.
+    expect(src).toContain("hashGuestKey");
+    expect(src).toContain("getAuthUser");
+    // No queue, no hard member gate (guests welcome within the pool).
     expect(src).not.toContain("enqueueAiJob");
-    expect(src).not.toContain("checkClientPlanQuota");
-    expect(src).not.toContain("checkEvoPlanQuota");
     expect(src).not.toContain("requireUser");
     expect(src).not.toContain("requireCoach");
-    expect(src).not.toContain("memberships");
+    // Member auto-save to the account (spec: plans always saved).
+    expect(src).toContain("ai-planner");
   });
 
   it("SURFACE: bilingual page + full hreflang pair + schema layer", () => {
@@ -176,8 +189,8 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(page).toContain("useI18n");
     expect(page).toContain("meal-plan-demo");
     expect(page).toContain("ReviewInviteCard");
-    expect(page).toContain("5 توليدات يومياً");
-    expect(page).toContain("5 generations per day");
+    expect(page).toContain("توليدان شهرياً");
+    expect(page).toContain("2 generations per month");
     const en = readFileSync(LAYOUT_EN, "utf8");
     expect(en).toContain('canonical: "https://alkemos.com/ai-meal-planner"');
     expect(en).toContain("ar: \"https://alkemos.com/ar/ai-meal-planner\"");
@@ -256,12 +269,18 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(header).toContain('isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"');
   });
 
-  it("HONEST COPY: the trial states its limits (3/day, ephemeral, memberships keep the rest)", () => {
+  it("HONEST COPY: the page states the unified-pool limits (2/month free, success-only, plans persist)", () => {
     const page = readFileSync(PAGE_FILE, "utf8");
-    expect(page).toContain("5 generations per day");
-    expect(page).toContain("not saved");
-    expect(page).toContain("membership paths");
-    expect(page).toContain("مسارات العضويات");
+    expect(page).toContain("2 generations per month");
+    expect(page).toContain("never count against your quota");
+    expect(page).toContain("never disappears when the month's quota runs out");
+    // Phase 183 persistence law: the page hydrates (localStorage +
+    // account) and mirrors every generated plan — no more ephemeral.
+    expect(page).toContain("loadGuestPlan");
+    expect(page).toContain("saveGuestPlan");
+    expect(page).toContain("/api/ai/planner-plan");
+    // Soft signup nudge for guests (benefits only, never a block).
+    expect(page).toContain("auth?mode=signup");
     // The AR mirror re-exports the same bilingual page.
     const ar = readFileSync("src/app/ar/ai-meal-planner/page.tsx", "utf8");
     expect(ar).toContain('@/app/ai-meal-planner/page');

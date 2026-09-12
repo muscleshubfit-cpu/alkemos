@@ -608,8 +608,9 @@ export default function ProfilePage() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               {[
                 { label: isAr ? "EVO رسائل/يوم" : "EVO msgs/day", value: limits.evoChatDailyLimit === null ? "∞" : `${limits.evoChatDailyLimit}` },
-                { label: isAr ? "خطط تغذية/شهر" : "Nutrition plans/mo", value: limits.evoNutritionPlanLimit === 0 ? "—" : limits.evoNutritionPlanLimit === null ? "∞" : `${limits.evoNutritionPlanLimit}` },
-                { label: isAr ? "خطط تمرين/شهر" : "Workout plans/mo", value: limits.evoWorkoutPlanLimit === 0 ? "—" : limits.evoWorkoutPlanLimit === null ? "∞" : `${limits.evoWorkoutPlanLimit}` },
+                // Unified pool (2026-09-13): ONE monthly budget for
+                // nutrition + workout AI generations combined.
+                { label: isAr ? "توليدات خطط AI/شهر" : "AI plan gens/mo", value: `${limits.aiPlanMonthlyLimit}` },
                 { label: isAr ? "تبديلات/أسبوع" : "Swaps/week", value: limits.evoSwapLimit === 0 ? "—" : limits.evoSwapLimit === null ? "∞" : `${limits.evoSwapLimit}` },
                 { label: isAr ? "حفظ نتائج" : "Saved results", value: limits.savedResultsLimit === null ? "∞" : `${limits.savedResultsLimit}` },
                 { label: isAr ? "جداول وجبات" : "Meal plans saved", value: limits.mealPlannerMaxSaved === null ? "∞" : `${limits.mealPlannerMaxSaved}` },

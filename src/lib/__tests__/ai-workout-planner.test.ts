@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import {
   WORKOUT_DAYS_MAX,
   WORKOUT_DAYS_MIN,
-  WORKOUT_DEMO_RATE_LIMIT,
   WORKOUT_NOTES_MAX,
   buildWorkoutPrompt,
   parseWorkoutPlanText,
@@ -194,23 +193,33 @@ describe("ai workout planner trial (§12.32)", () => {
     expect(parseWorkoutPlanText("no json here at all", 3).ok).toBe(false);
   });
 
-  it("COST + ISOLATION: the route rate-limits by IP before any provider call, and touches no quota", () => {
+  it("COST + UNIFIED POOL: burst guard before the provider call, pool gate before dispatch, success-only record, no signup wall", () => {
     const src = stripComments(readFileSync(ROUTE_FILE, "utf8"));
+    // The IP burst guard (abuse-only) runs BEFORE any provider call.
     expect(src).toContain("rateLimit");
     expect(src).toContain("workout-demo:");
-    expect(src).toContain(`${WORKOUT_DEMO_RATE_LIMIT.max}`);
-    // The rate-limit CALL happens BEFORE the provider CALL.
+    expect(src).toContain("BURST_GUARD");
     expect(src.indexOf("await rateLimit(")).toBeLessThan(
       src.indexOf("await callFreeAIFallbackChain("),
     );
-    // No subscription conflict (the owner's §12.28 law, carried over):
-    // no queue, no quota, no gate.
+    // The unified pool is checked BEFORE dispatch (read-only).
+    expect(src).toContain("checkUnifiedPlanQuota");
+    expect(src.indexOf("await checkUnifiedPlanQuota(")).toBeLessThan(
+      src.indexOf("await callFreeAIFallbackChain("),
+    );
+    // SUCCESS-ONLY: the pool unit is recorded AFTER validation.
+    expect(src.indexOf("await recordUnifiedPlanUsage(")).toBeGreaterThan(
+      src.indexOf("await callFreeAIFallbackChain("),
+    );
+    // Guest identity (hashed) — no signup wall, no hard auth.
+    expect(src).toContain("hashGuestKey");
+    expect(src).toContain("getAuthUser");
+    // No queue, no hard member gate (guests welcome within the pool).
     expect(src).not.toContain("enqueueAiJob");
-    expect(src).not.toContain("checkClientPlanQuota");
-    expect(src).not.toContain("checkEvoPlanQuota");
     expect(src).not.toContain("requireUser");
     expect(src).not.toContain("requireCoach");
-    expect(src).not.toContain("memberships");
+    // Member auto-save to the account (spec: plans always saved).
+    expect(src).toContain("ai-planner");
     // §12.28 live laws carried over from day one: 3000-token budget,
     // 20s chain calls (no 504), JSON-only system prompt, bounded retry.
     expect(src).toContain("maxTokens: 3000");
@@ -224,8 +233,8 @@ describe("ai workout planner trial (§12.32)", () => {
     expect(page).toContain("useI18n");
     expect(page).toContain("workout-plan-demo");
     expect(page).toContain("ReviewInviteCard");
-    expect(page).toContain("5 توليدات يومياً");
-    expect(page).toContain("5 generations per day");
+    expect(page).toContain("توليدان شهرياً");
+    expect(page).toContain("2 generations per month");
     expect(page).toContain("مخطط التمارين بالذكاء الاصطناعي");
     const en = readFileSync(LAYOUT_EN, "utf8");
     expect(en).toContain('canonical: "https://alkemos.com/ai-workout-planner"');
@@ -286,12 +295,18 @@ describe("ai workout planner trial (§12.32)", () => {
     expect(toggle).toContain('{ en: "/ai-workout-planner", ar: "/ar/ai-workout-planner" }');
   });
 
-  it("HONEST COPY: the trial states its limits (5/day, ephemeral, memberships keep the rest)", () => {
+  it("HONEST COPY: the page states the unified-pool limits (2/month free, success-only, plans persist)", () => {
     const page = readFileSync(PAGE_FILE, "utf8");
-    expect(page).toContain("5 generations per day");
-    expect(page).toContain("not saved");
-    expect(page).toContain("membership paths");
-    expect(page).toContain("مسارات العضويات");
+    expect(page).toContain("2 generations per month");
+    expect(page).toContain("never count against your quota");
+    expect(page).toContain("never disappears when the month's quota runs out");
+    // Phase 183 persistence law: the page hydrates (localStorage +
+    // account) and mirrors every generated plan — no more ephemeral.
+    expect(page).toContain("loadGuestPlan");
+    expect(page).toContain("saveGuestPlan");
+    expect(page).toContain("/api/ai/planner-plan");
+    // Soft signup nudge for guests (benefits only, never a block).
+    expect(page).toContain("auth?mode=signup");
     // The AR mirror re-exports the same bilingual page.
     const ar = readFileSync("src/app/ar/ai-workout-planner/page.tsx", "utf8");
     expect(ar).toContain("@/app/ai-workout-planner/page");

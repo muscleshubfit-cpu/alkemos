@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
@@ -13,18 +14,27 @@ import {
   workoutEquipmentOptions,
   workoutGoalOptions,
   workoutLevelOptions,
+  type WorkoutPlan,
 } from "@/lib/ai-workout-planner";
-import { Loader2, Sparkles, RotateCcw } from "lucide-react";
+import {
+  ensureGuestId,
+  loadGuestPlan,
+  saveGuestPlan,
+} from "@/lib/plan-persistence";
+import { Loader2, Sparkles, RotateCcw, HardDriveDownload, Check } from "lucide-react";
 
 /**
- * /ai-workout-planner — the AI workout planner TRIAL page (§12.32, owner
- * directive «ضيف أداة جديده مخطط التمارين بالذكاء الاصطناعي») — the
- * workout twin of the §12.28 meal-planner trial.
- *
- * The bilingual client page behind /ai-workout-planner and its AR mirror
- * /ar/ai-workout-planner (re-export). One free generation at a time via
- * /api/ai/workout-plan-demo — no account, nothing saved (memberships
- * keep saved programs, coach-built plans, and EVO generation).
+ * /ai-workout-planner — the AI workout planner page (§12.32 → Phase
+ * 183, owner decree 2026-09-13 «البوول الموحد» — spec "Alkemos —
+ * Membership & Plan Changes") — the workout twin of the meal-planner
+ * page: unified monthly pool (guest 2/month — no signup wall; member
+ * 2/4/8/8 by tier), success-only counting, and the PERSISTENCE LAW:
+ *   - GUEST: plan mirrored to localStorage, re-hydrated on mount —
+ *     navigation, exercise-detail visits, back buttons, and refreshes
+ *     never lose it; it stays rendered after the pool is exhausted.
+ *   - MEMBER: the route auto-saves to the account (`plans` table);
+ *     hydration prefers the account copy (cross-device).
+ * The signup nudge for guests is SOFT (benefits, never a block).
  */
 
 type DemoLibraryMatch = {
@@ -37,9 +47,12 @@ type DemoExercise = { name: string; sets: number; reps: number | string; library
 type DemoDay = { name: string; focus?: string; exercises: DemoExercise[] };
 type DemoPlan = { days: DemoDay[] };
 
+type QuotaInfo = { used: number; limit: number; remaining: number };
+
 export default function AiWorkoutPlannerPage() {
   const { lang } = useI18n();
   const isAr = lang === "ar";
+  const { profile } = useAuth();
 
   const [goal, setGoal] = useState("muscle");
   const [level, setLevel] = useState("beginner");
@@ -50,15 +63,93 @@ export default function AiWorkoutPlannerPage() {
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<DemoPlan | null>(null);
   const [model, setModel] = useState<string | null>(null);
+  const [quota, setQuota] = useState<QuotaInfo | null>(null);
+  const [accountSaved, setAccountSaved] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   const goals = workoutGoalOptions(isAr ? "ar" : "en");
   const levels = workoutLevelOptions(isAr ? "ar" : "en");
   const equipments = workoutEquipmentOptions(isAr ? "ar" : "en");
 
+  // ── HYDRATION: restore the plan so navigation/refresh never loses it.
+  // Member → account copy (cross-device); guest → localStorage copy. ──
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (profile) {
+        try {
+          const res = await fetch("/api/ai/planner-plan?kind=workout");
+          if (res.ok) {
+            const data = await res.json();
+            if (!cancelled && data?.plan) {
+              setPlan(data.plan as DemoPlan);
+              setAccountSaved(true);
+              const inputs = data?.inputs ?? null;
+              if (inputs) {
+                if (typeof inputs.goal === "string") setGoal(inputs.goal);
+                if (typeof inputs.level === "string") setLevel(inputs.level);
+                if (typeof inputs.days === "number") setDays(String(inputs.days));
+                if (typeof inputs.equipment === "string") setEquipment(inputs.equipment);
+                if (typeof inputs.notes === "string") setNotes(inputs.notes);
+              }
+            }
+          }
+        } catch {
+          /* offline → localStorage fallback below */
+        }
+      }
+      if (!cancelled && !profile) {
+        const stored = loadGuestPlan("workout");
+        if (stored) {
+          setPlan(stored.plan as unknown as DemoPlan);
+          const inputs = stored.inputs ?? null;
+          if (inputs) {
+            if (typeof inputs.goal === "string") setGoal(inputs.goal);
+            if (typeof inputs.level === "string") setLevel(inputs.level);
+            if (typeof inputs.days === "number") setDays(String(inputs.days));
+            if (typeof inputs.equipment === "string") setEquipment(inputs.equipment);
+            if (typeof inputs.notes === "string") setNotes(inputs.notes);
+          }
+        }
+      }
+      if (!cancelled) setHydrated(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.id]);
+
+  // ── Initial quota readout (guest id only minted in the browser). ──
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const guestId = profile ? "" : ensureGuestId();
+        const url = guestId ? `/api/ai/quota?guestId=${encodeURIComponent(guestId)}` : "/api/ai/quota";
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && data?.plans && typeof data.plans.limit === "number") {
+          setQuota({
+            used: data.plans.used ?? 0,
+            limit: data.plans.limit,
+            remaining: data.plans.unlimited ? data.plans.limit : data.plans.remaining ?? 0,
+          });
+        }
+      } catch {
+        /* quota chip is best-effort display, never a blocker */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.id]);
+
   const generate = async () => {
     setLoading(true);
     setError(null);
     try {
+      const guestId = profile ? undefined : ensureGuestId() || undefined;
       const res = await fetch("/api/ai/workout-plan-demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,22 +160,56 @@ export default function AiWorkoutPlannerPage() {
           equipment,
           language: isAr ? "ar" : "en",
           notes: notes || undefined,
+          guestId,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || (isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again."));
-        if (res.status === 422) setPlan(null);
+        // 429 quota-exhausted / 422 shape-drift: the existing plan
+        // STAYS rendered (spec: plans never disappear with the quota).
+        if (data?.quota) {
+          setQuota({
+            used: data.quota.used ?? quota?.used ?? 0,
+            limit: data.quota.limit ?? quota?.limit ?? 0,
+            remaining: data.quota.remaining ?? 0,
+          });
+        }
         return;
       }
-      setPlan(data.plan as DemoPlan);
+      const newPlan = data.plan as DemoPlan;
+      setPlan(newPlan);
       setModel(data.model ?? null);
+      setAccountSaved(Boolean(data?.saved));
+      if (data?.quota) {
+        setQuota({
+          used: data.quota.used ?? 0,
+          limit: data.quota.limit ?? 0,
+          remaining: data.quota.remaining ?? 0,
+        });
+      }
+      // LocalStorage mirror — guests' primary copy, members' offline
+      // cache (the enriched plan — library links survive re-render).
+      saveGuestPlan("workout", newPlan as unknown as WorkoutPlan, {
+        goal,
+        level,
+        days: Number(days),
+        equipment,
+        notes,
+      });
     } catch {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const quotaChip =
+    quota && quota.limit > 0
+      ? isAr
+        ? `رصيد الشهر: ${quota.remaining} متبقٍ من ${quota.limit}`
+        : `This month: ${quota.remaining} of ${quota.limit} left`
+      : null;
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -98,12 +223,12 @@ export default function AiWorkoutPlannerPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ولّد نظاماً تدريبياً أسبوعياً متوازناً في ثوانٍ — تجربة مجانية بلا تسجيل."
-              : "Generate a balanced weekly split in seconds — a free trial, no signup."}
+              ? "ولّد نظاماً تدريبياً أسبوعياً متوازناً في ثوانٍ — مجاناً وبلا تسجيل."
+              : "Generate a balanced weekly split in seconds — free, no signup."}
           </p>
           <div className="seal-chip mt-4 inline-flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-[var(--muted-2)]" aria-hidden="true" />
-            {isAr ? "تجربة مجانية: 5 توليدات يومياً لكل زائر" : "Free trial: 5 generations per day per visitor"}
+            {isAr ? "مجاني: توليدان شهرياً لكل زائر بلا تسجيل" : "Free: 2 generations per month per visitor, no signup"}
           </div>
         </div>
 
@@ -209,24 +334,31 @@ export default function AiWorkoutPlannerPage() {
               className="mt-1.5 w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none focus:border-[var(--chrome-edge)]"
             />
           </div>
-          <button
-            onClick={generate}
-            disabled={loading}
-            className="btn-chrome mt-5 inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-sm disabled:opacity-50 sm:w-auto"
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : plan ? (
-              <RotateCcw className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              onClick={generate}
+              disabled={loading}
+              className="btn-chrome inline-flex items-center justify-center gap-2 px-5 py-3 text-sm disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : plan ? (
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+              )}
+              {loading
+                ? isAr ? "جاري التوليد…" : "Generating…"
+                : plan
+                  ? isAr ? "ولّد نظاماً آخر" : "Generate another split"
+                  : isAr ? "ولّد نظامي المجاني" : "Generate my free split"}
+            </button>
+            {quotaChip && (
+              <span className="text-xs font-normal text-[var(--muted-foreground)]" data-testid="quota-chip">
+                {quotaChip}
+              </span>
             )}
-            {loading
-              ? isAr ? "جاري التوليد…" : "Generating…"
-              : plan
-                ? isAr ? "ولّد نظاماً آخر" : "Generate another split"
-                : isAr ? "ولّد نظامي المجاني" : "Generate my free split"}
-          </button>
+          </div>
           {error && (
             <p className="mt-3 text-sm font-medium text-[#ff3b30]" role="alert">
               {error}
@@ -234,8 +366,9 @@ export default function AiWorkoutPlannerPage() {
           )}
         </div>
 
-        {/* Generated plan */}
-        {plan && (
+        {/* Generated plan — restored across navigation/refresh; stays
+            rendered even when the monthly pool is exhausted. */}
+        {hydrated && plan && (
           <section aria-live="polite" className="mt-8">
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
@@ -245,6 +378,12 @@ export default function AiWorkoutPlannerPage() {
                 {isAr ? `${plan.days.length} أيام تمرين` : `${plan.days.length} training days`}
               </span>
             </div>
+            {accountSaved && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-2)]">
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                {isAr ? "محفوظة في حسابك — متاحة من أي جهاز" : "Saved to your account — available on any device"}
+              </p>
+            )}
             {/* §12.35 — the results use the site's own exercise library:
                 matched movements carry the library's real images and link
                 into its bilingual pages (868+ exercises). */}
@@ -304,9 +443,38 @@ export default function AiWorkoutPlannerPage() {
             </div>
             <p className="mt-3 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "النظام تقدير تعليمي قابل للنسخ — راجع أداء كل حركة على أدائك أنت، وابدأ بأوزان تُتقن بها الشكل الكامل قبل التدرج. هذه نسخة تجريبية لا تُحفظ؛ البرامج المحفوظة وخطط الكوتش وتوليد EVO الكامل جزء من مسارات العضويات."
-                : "This split is a copyable educational estimate — review every movement against your own performance, and start with weights you can own with full form before climbing. This trial copy is not saved; saved programs, coach-built plans, and full EVO generation are part of the membership paths."}
+                ? "النظام تقدير تعليمي قابل للنسخ — راجع أداء كل حركة على أدائك أنت، وابدأ بأوزان تُتقن بها الشكل الكامل قبل التدرج. نظامك يبقى معك على هذا الجهاز في التنقل والتحديث، ولا يختفي عند استنفاد رصيد الشهر."
+                : "This split is a copyable educational estimate — review every movement against your own performance, and start with weights you can own with full form before climbing. Your split stays with you on this device across navigation and refreshes — and never disappears when the month's quota runs out."}
             </p>
+
+            {/* SOFT signup nudge (guests only) — benefits, never a wall. */}
+            {!profile && (
+              <div className="mt-6 rounded-2xl border border-[var(--chrome-edge)]/50 bg-[var(--card)] p-5">
+                <h3 className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--text)]">
+                  <HardDriveDownload className="h-4 w-4" aria-hidden="true" />
+                  {isAr ? "احفظ نظامك في حساب — مجاناً" : "Save your split to a free account"}
+                </h3>
+                <p className="mt-2 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
+                  {isAr
+                    ? "نظامك الآن محفوظ على هذا الجهاز فقط. بإنشاء حساب مجاني تُحفظ كل خطة تولّدها تلقائيًا في حسابك وتصل إليها من أي جهاز، وتديرها من صفحة خططي. ومع بريميوم يرتفع رصيدك إلى 4 توليدات شهريًا (و8 مع برو) مع الحفظ والإدارة الكاملة."
+                    : "Right now your split lives on this device only. Create a free account and every plan you generate is saved to it automatically — reachable from any device and managed from your plans page. Premium lifts your monthly pool to 4 generations (8 with Pro) plus full plan saving and management."}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href={isAr ? "/ar/auth?mode=signup" : "/auth?mode=signup"}
+                    className="btn-chrome inline-flex items-center gap-2 px-4 py-2 text-sm"
+                  >
+                    {isAr ? "أنشئ حساباً مجانياً" : "Create a free account"}
+                  </Link>
+                  <Link
+                    href={isAr ? "/ar/memberships" : "/memberships"}
+                    className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]"
+                  >
+                    {isAr ? "قارن العضويات" : "Compare memberships"}
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* Review invite (SEO-GEO-6.3 §12.22 + §12.24) — generation
                 achievement surface, same law as the other tools. */}
@@ -328,18 +496,18 @@ export default function AiWorkoutPlannerPage() {
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "أي مدرب يعرف التمارين؛ والصعب هو تركيبها في أسبوع متوازن يطابق أيامك ومستواك وتجهيزتك. التوليد يحل مشكلة «من أين أبدأ هذا الأسبوع؟» بوضع نظام كامل أمامك في ثوانٍ — بدل نسخ نظام يوتيوب لم يُبنَ لك. النموذج يلتزم بقواعد صارمة (عدد الأيام يطابق طلبك بالضبط، 4 إلى 6 تمارين لكل يوم، مجموعات وتكرارات معقولة) وكل نظام يُفحص قبل عرضه؛ فإن خرج عن الشكل يُرفض لا يُعرض."
-                : "Any coach knows the exercises; the hard part is assembling them into a balanced week that fits your days, level, and equipment. Generation solves the \"where do I even start this week?\" problem by laying out a complete split in seconds — instead of copying a YouTube program never built for you. The model follows strict rules (the day count matches your request exactly, 4 to 6 exercises per day, sane sets and reps) and every split is validated before display; a drifted one is rejected, never shown."}
+                ? "أي مدرب يعرف التمارين؛ والصعب هو تركيبها في أسبوع متوازن يطابق أيامك ومستواك وتجهيزتك. التوليد يحل مشكلة «من أين أبدأ هذا الأسبوع؟» بوضع نظام كامل أمامك في ثوانٍ — بدل نسخ نظام يوتيوب لم يُبنَ لك. النموذج يلتزم بقواعد صارمة (عدد الأيام يطابق طلبك بالضبط، 4 إلى 6 تمارين لكل يوم، مجموعات وتكرارات معقولة) وكل نظام يُفحص قبل عرضه؛ فإن خرج عن الشكل يُرفض لا يُعرض — والمحاولة الفاشلة لا تُحسب من رصيدك."
+                : "Any coach knows the exercises; the hard part is assembling them into a balanced week that fits your days, level, and equipment. Generation solves the \"where do I even start this week?\" problem by laying out a complete split in seconds — instead of copying a YouTube program never built for you. The model follows strict rules (the day count matches your request exactly, 4 to 6 exercises per day, sane sets and reps) and every split is validated before display; a drifted one is rejected, never shown — and failed attempts never count against your quota."}
             </p>
           </div>
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-              {isAr ? "حدود التجربة — وبقية المسارات" : "The trial's limits — and the rest of the paths"}
+              {isAr ? "حدود الاستخدام — وبقية المسارات" : "The usage limits — and the rest of the paths"}
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "التجربة المجانية توليد واحد في كل مرة (5 يومياً) بلا حساب ولا حفظ — وهذا مقصود: القيمة الكاملة في المنصة هي البرامج المحفوظة وتوليد EVO المتكرر ومتابعة الكوتش البشري، وهي مسارات العضويات المدفوعة كما هي دون تغيير. للتصفح الجاهز فوراً، برامج التدريب الجاهزة معروضة لكل مستوى وهدف؛ ولكل حركة بشرحها، مكتبة التمارين تضم أكثر من 868 تمريناً — ولنظامك الغذائي، مخطط الوجبات بالذكاء الاصطناعي ينتظر رقم سعراتك."
-                : "The free trial is one generation at a time (5 per day) with no account and no saving — by design: the platform's full value is saved programs, repeated EVO generation, and human coach follow-up, and those stay exactly where the paid memberships put them. For instant browsing, the ready workout programs are laid out for every level and goal; for every movement explained, the exercise library holds 868+ exercises — and for the diet side of your week, the AI meal planner is waiting for your calorie number."}
+                ? "كل زائر يحصل على توليديْن ناجحيْن شهريًا بلا حساب ولا تسجيل — والرصيد يُحسب للتوليد الناجح فقط، وخططك السابقة تبقى متاحة بعد استنفاده. بإنشاء حساب مجاني تُحفظ خططك من أي جهاز؛ ومع بريميوم يرتفع الرصيد إلى 4 توليدات شهريًا (و8 مع برو). للتصفح الجاهز فوراً، برامج التدريب الجاهزة معروضة لكل مستوى وهدف؛ ولكل حركة بشرحها، مكتبة التمارين تضم أكثر من 868 تمريناً — ولنظامك الغذائي، مخطط الوجبات بالذكاء الاصطناعي ينتظر رقم سعراتك."
+                : "Every visitor gets 2 successful generations per month — no account, no signup, and only successful generations count; your previous plans stay available after the quota runs out. Create a free account and your plans are saved from any device; Premium lifts the pool to 4 generations a month (8 with Pro). For instant browsing, the ready workout programs are laid out for every level and goal; for every movement explained, the exercise library holds 868+ exercises — and for the diet side of your week, the AI meal planner is waiting for your calorie number."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link href={isAr ? "/ar/programs" : "/programs"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">

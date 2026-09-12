@@ -28,6 +28,7 @@
 
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { MEMBERSHIPS, getLimits, type MembershipTier } from "@/lib/memberships";
+import { createHash } from "node:crypto";
 
 /** Plan-quota domain (mirrors EvoPlanDomain in evo-intent.ts). */
 export type EvoPlanKind = "nutrition" | "workout";
@@ -100,32 +101,152 @@ export function swapLimitForTier(tier: MembershipTier): number | null {
 }
 
 /**
- * MONTHLY plan-generation quota for a tier (T-AI-DEEP-AUDIT-V2, D4 fix).
- * Reads evoNutritionPlanLimit / evoWorkoutPlanLimit straight from
- * memberships.ts so the advertised numbers ARE the enforced numbers.
- *   free: 0/0 · premium: 4/4 · pro: 8/8 · coaching: 4/4
- * (owner decree 2026-09-02: 1+1 weekly, total 4+4 monthly — pro 2×)
- * Returns null = unlimited.
+ * UNIFIED monthly AI plan-generation pool (owner decree 2026-09-13
+ * «البوول الموحد» — spec "Alkemos — Membership & Plan Changes").
+ * ONE budget per identity for nutrition + workout COMBINED:
+ *   free 2 · premium 4 · pro 8 · coaching 8 (coaching = every Pro
+ *   benefit). Guests get the free pool — no signup wall.
+ * Reads aiPlanMonthlyLimit straight from memberships.ts so the
+ * advertised numbers ARE the enforced numbers.
  */
-export function planQuotaFor(tier: MembershipTier, kind: EvoPlanKind): number | null {
-  const limits = getLimits(tier);
-  return kind === "nutrition"
-    ? limits.evoNutritionPlanLimit
-    : limits.evoWorkoutPlanLimit;
+export function unifiedPlanPoolFor(tier: MembershipTier): number {
+  return getLimits(tier).aiPlanMonthlyLimit;
 }
 
 /**
- * WEEKLY plan-generation cap for a tier (owner decree 2026-09-02:
- * «١+١ أسبوعية اجمالى ٤+٤ شهريا») — the monthly total no longer burns
- * all at once: at most 1 nutrition + 1 workout plan per week (Pro 2+2,
- * preserving the advertised 2× Premium ladder).
- * Returns null = unlimited.
+ * Guest identity → ledger key: salted SHA-256 of the client-generated
+ * guest id (a localStorage UUID the planner pages mint per browser).
+ * No raw ids stored — same posture as the anon chat key (D3). Rotating
+ * EVO_ANON_SALT invalidates existing guest counters (documented).
  */
-export function planWeeklyQuotaFor(tier: MembershipTier, kind: EvoPlanKind): number | null {
-  const limits = getLimits(tier);
-  return kind === "nutrition"
-    ? limits.evoNutritionPlanWeeklyLimit
-    : limits.evoWorkoutPlanWeeklyLimit;
+export function hashGuestKey(rawGuestId: string): string {
+  const salt = process.env.EVO_ANON_SALT || "mhe-evo-anon-v1";
+  return createHash("sha256")
+    .update(`${rawGuestId}:${salt}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+/** The surface that triggered a generation (analytics + audit). */
+export type PlanSurface = "planner" | "evo" | "coach";
+
+/**
+ * Count this month's SUCCESSFUL AI plan generations for one identity
+ * (member userId OR guestKey — exactly one). The ledger is
+ * ai_plan_usage (migration 0085): a row exists ONLY after a plan was
+ * generated AND validated — failed attempts, input edits, navigation,
+ * or re-viewing an existing plan never burn the pool.
+ */
+export async function countUnifiedPlanUsage(identity: {
+  userId?: string | null;
+  guestKey?: string | null;
+}): Promise<number> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return 0;
+  if (!identity.userId && !identity.guestKey) return 0;
+  let query = supabaseAdmin
+    .from("ai_plan_usage")
+    .select("*", { count: "exact", head: true })
+    .gte("created_at", monthStartUtc());
+  query = identity.userId
+    ? query.eq("user_id", identity.userId)
+    : query.eq("guest_key", identity.guestKey!);
+  const { count, error } = await query;
+  if (error) {
+    console.error("[tier-limits] countUnifiedPlanUsage error:", error.message);
+    return 0; // fail open on counting errors — soft quota, same as chat
+  }
+  return count ?? 0;
+}
+
+/** Verdict for the unified pool — what enforcement AND display read. */
+export type UnifiedPlanQuotaVerdict = {
+  allowed: boolean;
+  used: number; // successful generations this month (combined kinds)
+  limit: number; // the tier's unified pool size
+  remaining: number;
+  unlimited: boolean; // staff semantics — never limited, still recorded
+  tier: MembershipTier | "guest";
+};
+
+/**
+ * THE unified-pool gate (owner decree 2026-09-13).
+ *
+ * Identity resolution:
+ *   - userId + tierHint  → member pool for their tier (hint trusted
+ *     first — it comes from getAuthUser()'s active+expiry filtering;
+ *     fallback re-resolves via the service-role admin client).
+ *   - guestKey           → the FREE pool (2/month). No signup wall:
+ *     guests generate within the free quota; the signup nudge stays
+ *     soft (benefits only, never a block).
+ *   - staffHint          → unlimited (STAFF QUOTA SEMANTICS; usage is
+ *     still recorded for analytics).
+ */
+export async function checkUnifiedPlanQuota(opts: {
+  userId?: string | null;
+  guestKey?: string | null;
+  tierHint?: string | null;
+  staffHint?: boolean;
+}): Promise<UnifiedPlanQuotaVerdict> {
+  if (opts.staffHint) {
+    return {
+      allowed: true, used: 0, limit: 0, remaining: 0, unlimited: true,
+      tier: opts.userId ? "free" : "guest",
+    };
+  }
+  if (opts.userId) {
+    const tier = sanitizeTier(opts.tierHint) ?? (await resolveTierFromDb(opts.userId));
+    const limit = unifiedPlanPoolFor(tier);
+    const used = await countUnifiedPlanUsage({ userId: opts.userId });
+    return {
+      allowed: used < limit,
+      used,
+      limit,
+      remaining: Math.max(0, limit - used),
+      unlimited: false,
+      tier,
+    };
+  }
+  // Guest (or unknown identity — planner pages always mint a guest id
+  // client-side, so an empty identity here means a lost/legacy client:
+  // treat as a fresh guest with the full free pool rather than blocking
+  // generation outright; the burst guard still caps abuse by IP).
+  const limit = unifiedPlanPoolFor("free");
+  const used = opts.guestKey ? await countUnifiedPlanUsage({ guestKey: opts.guestKey }) : 0;
+  return {
+    allowed: used < limit,
+    used,
+    limit,
+    remaining: Math.max(0, limit - used),
+    unlimited: false,
+    tier: "guest",
+  };
+}
+
+/**
+ * Record ONE successful generation into the unified ledger.
+ * Called ONLY after the plan was generated and validated — the
+ * success-only convention the 2026-09-13 spec demands (failed
+ * attempts never burn quota). Errors are logged but never thrown:
+ * a ledger hiccup must not break the member's generated plan (soft
+ * quota, same convention as the chat counters).
+ */
+export async function recordUnifiedPlanUsage(opts: {
+  userId?: string | null;
+  guestKey?: string | null;
+  kind: EvoPlanKind;
+  surface?: PlanSurface;
+}): Promise<void> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
+  if (!opts.userId && !opts.guestKey) return;
+  const { error } = await supabaseAdmin.from("ai_plan_usage").insert({
+    user_id: opts.userId ?? null,
+    guest_key: opts.userId ? null : opts.guestKey ?? null,
+    kind: opts.kind,
+    surface: opts.surface ?? "planner",
+  });
+  if (error) {
+    console.error("[tier-limits] recordUnifiedPlanUsage error:", error.message);
+  }
 }
 
 /** UTC month start — "resets monthly" = resets on the 1st, UTC. */
@@ -152,16 +273,10 @@ export function weekStartUtc(now: Date = new Date()): string {
 }
 
 /**
- * Count this month's plan generations for a user, from the SAME tamper-proof
- * ledger as chat usage — plan requests are recorded with source
- * `plan_nutrition` / `plan_workout` BEFORE dispatch (burst-safe).
- *
- * 2026-09-01 (owner: «توليد الخطط بيتحسب من الرصيد سواء عن طريق المدرب
- * او عن طريق ايفو») — this counts ONLY the EVO-self surface; the COACH
- * surface is added by countThisMonthCoachPlanJobs() and the two are
- * combined in countClientPlanUsage()/checkEvoPlanQuota() so the member's
- * advertised monthly plan balance is ONE pool regardless of who triggered
- * the generation.
+ * LEGACY per-kind EVO-save counter — feeds ONLY the member-edit
+ * anti-spam cap (30 EVO-sourced saves/month per kind). NOT the plan
+ * quota: the unified pool (2026-09-13) counts successful generations
+ * from ai_plan_usage, not evo_chat_usage rows.
  */
 export async function countThisMonthPlanUsage(
   userId: string,
@@ -170,7 +285,7 @@ export async function countThisMonthPlanUsage(
   return countEvoPlanRowsSince(userId, kind, monthStartUtc());
 }
 
-/** EVO-self ledger rows since an arbitrary instant (shared by month/week). */
+/** EVO-self ledger rows since an arbitrary instant (save-cap support). */
 async function countEvoPlanRowsSince(
   userId: string,
   kind: EvoPlanKind,
@@ -190,189 +305,18 @@ async function countEvoPlanRowsSince(
   return count ?? 0;
 }
 
-/**
- * Count this month's COMPLETED coach-side AI plan generations for a client
- * (ai_jobs: job_type = plan_nutrition | plan_workout, status = 'done',
- * payload->>'clientId' = this client, any requester — coach or admin).
- *
- * Owner decree 2026-09-01: coach-triggered generation burns the CLIENT's
- * monthly plan balance exactly like EVO-self generation. Done-only keeps
- * the existing "failed generations never burn quota" convention for the
- * async job path (the EVO path records before dispatch — interactive).
- */
-export async function countThisMonthCoachPlanJobs(
-  clientId: string,
-  kind: EvoPlanKind,
-): Promise<number> {
-  return countCoachPlanJobsSince(clientId, kind, monthStartUtc());
-}
-
-/** Coach/admin done ai_jobs for this client since an arbitrary instant. */
-async function countCoachPlanJobsSince(
-  clientId: string,
-  kind: EvoPlanKind,
-  sinceIso: string,
-): Promise<number> {
-  if (!isSupabaseAdminConfigured || !supabaseAdmin) return 0;
-  const { count, error } = await supabaseAdmin
-    .from("ai_jobs")
-    .select("*", { count: "exact", head: true })
-    .eq("job_type", `plan_${kind}`)
-    .eq("status", "done")
-    .eq("payload->>clientId", clientId)
-    .gte("created_at", sinceIso);
-  if (error) {
-    console.error("[tier-limits] countCoachPlanJobsSince error:", error.message);
-    return 0; // fail open — same soft-quota convention as above
-  }
-  return count ?? 0;
-}
-
-/**
- * THE client's monthly plan balance for one kind — EVO-self generations
- * (evo_chat_usage) + coach/admin AI generations for this client (ai_jobs).
- * Single source of truth for the check (chat + coach enqueue) AND the
- * display (/api/ai/quota widget + /api/coach/ai-usage readout), so the
- * meter the member sees always matches what enforcement deducts from.
- */
-export async function countClientPlanUsage(
-  clientId: string,
-  kind: EvoPlanKind,
-): Promise<number> {
-  return countClientPlanUsageSince(clientId, kind, monthStartUtc());
-}
-
-/** Combined pool since an arbitrary instant (month → monthly total, week → weekly cap). */
-export async function countClientPlanUsageSince(
-  clientId: string,
-  kind: EvoPlanKind,
-  sinceIso: string,
-): Promise<number> {
-  const [evoUsed, coachUsed] = await Promise.all([
-    countEvoPlanRowsSince(clientId, kind, sinceIso),
-    countCoachPlanJobsSince(clientId, kind, sinceIso),
-  ]);
-  return evoUsed + coachUsed;
-}
-
-/** This week's combined plan usage (owner decree 2026-09-02 weekly cap). */
-export async function countClientWeeklyPlanUsage(
-  clientId: string,
-  kind: EvoPlanKind,
-): Promise<number> {
-  return countClientPlanUsageSince(clientId, kind, weekStartUtc());
-}
-
-/**
- * Check the WEEKLY + MONTHLY plan-generation quota (D4 fix + owner
- * decree 2026-09-02: «١+١ أسبوعية اجمالى ٤+٤ شهريا بدلا من ٣+٣ شهريا»).
- *
- * 2026-09-01 (owner: «توليد الخطط بيتحسب من الرصيد سواء عن طريق المدرب
- * او عن طريق ايفو»): the advertised per-month numbers are ONE pool
- * per client — `used` combines EVO-self dispatches (evo_chat_usage) with
- * coach/admin AI generations for this client (done ai_jobs). The chat
- * passes the member's own id; the coach enqueue path uses
- * checkClientPlanQuota() below with the SAME combined counter.
- *
- * 2026-09-02: the monthly total alone no longer governs — a WEEKLY cap
- * (1+1, Pro 2+2, Monday-anchored UTC) must ALSO pass. `used`/`limit`
- * stay the MONTHLY pair (display compatibility); when the weekly cap is
- * the one that blocks, `blockedBy: "week"` + `weekly` carry the details.
- *
- * STAFF QUOTA SEMANTICS (2026-08-29): staffHint=true (role coach|admin)
- * bypasses the quota entirely — platform staff are never limited by
- * consumer tiers. Usage is still recorded for analytics.
- */
-export async function checkEvoPlanQuota(
-  userId: string,
-  kind: EvoPlanKind,
-  tierHint?: string | null,
-  staffHint?: boolean,
-): Promise<PlanQuotaVerdict> {
-  if (staffHint) {
-    return {
-      allowed: true, used: 0, limit: null, unlimited: true,
-      blockedBy: null, weekly: { used: 0, limit: null },
-    };
-  }
-  const tier = sanitizeTier(tierHint) ?? (await resolveTierFromDb(userId));
-  return enforcePlanQuota(userId, kind, tier);
-}
-
-/** Verdict shape shared by the chat path and the coach-enqueue path. */
-export type PlanQuotaVerdict = {
-  allowed: boolean;
-  used: number; // monthly combined usage
-  limit: number | null; // monthly total
-  unlimited: boolean;
-  blockedBy: "week" | "month" | null;
-  weekly: { used: number; limit: number | null };
-  tier?: MembershipTier;
-};
-
-/**
- * Core two-window enforcement: the MONTHLY total and the WEEKLY cap must
- * BOTH pass. Monthly is checked first so a fully-exhausted month reports
- * "month" even when the weekly numbers are also over.
- */
-async function enforcePlanQuota(
-  clientId: string,
-  kind: EvoPlanKind,
-  tier: MembershipTier,
-): Promise<PlanQuotaVerdict> {
-  const limit = planQuotaFor(tier, kind);
-  const weeklyLimit = planWeeklyQuotaFor(tier, kind);
-  if (limit === null && weeklyLimit === null) {
-    return {
-      allowed: true, used: 0, limit: null, unlimited: true,
-      blockedBy: null, weekly: { used: 0, limit: null }, tier,
-    };
-  }
-  if (limit === 0 || weeklyLimit === 0) {
-    // free tier — no plan generation at all
-    return {
-      allowed: false, used: 0, limit: limit ?? 0, unlimited: false,
-      blockedBy: "month", weekly: { used: 0, limit: weeklyLimit ?? 0 }, tier,
-    };
-  }
-  const [used, weeklyUsed] = await Promise.all([
-    limit === null ? Promise.resolve(0) : countClientPlanUsage(clientId, kind),
-    weeklyLimit === null ? Promise.resolve(0) : countClientWeeklyPlanUsage(clientId, kind),
-  ]);
-  const blockedBy: "week" | "month" | null =
-    limit !== null && used >= limit
-      ? "month"
-      : weeklyLimit !== null && weeklyUsed >= weeklyLimit
-        ? "week"
-        : null;
-  return {
-    allowed: blockedBy === null,
-    used,
-    limit,
-    unlimited: false,
-    blockedBy,
-    weekly: { used: weeklyUsed, limit: weeklyLimit },
-    tier,
-  };
-}
-
-/**
- * Coach-enqueue-side check of the CLIENT's plan balance (owner decree
- * 2026-09-01). Mirrors checkEvoPlanQuota but ALWAYS resolves the tier
- * from the DB for the CLIENT (never the requesting coach) and never
- * staff-bypasses — the caller (api/ai/jobs) already scopes this block to
- * authRole === "coach", so admins keep their staff semantics upstream.
- * `used` is the SAME combined pool the member's widget displays.
- * 2026-09-02: the weekly cap (1+1 / Pro 2+2) is enforced here too.
- */
-export async function checkClientPlanQuota(
-  clientId: string,
-  kind: EvoPlanKind,
-): Promise<PlanQuotaVerdict & { tier: MembershipTier }> {
-  const tier = await resolveTierFromDb(clientId);
-  const verdict = await enforcePlanQuota(clientId, kind, tier);
-  return { ...verdict, tier };
-}
+/* ──────────────── RETIRED (owner decree 2026-09-13 «البوول الموحد») ──────────────
+ * The per-kind split (4+4 / 8+8 monthly + 1+1 / 2+2 weekly caps) and
+ * its enforcement/display belt (countClientPlanUsage,
+ * countClientWeeklyPlanUsage, countThisMonthCoachPlanJobs,
+ * checkEvoPlanQuota, checkClientPlanQuota, enforcePlanQuota,
+ * planQuotaFor, planWeeklyQuotaFor) were REPLACED by the unified
+ * pool above: checkUnifiedPlanQuota() + recordUnifiedPlanUsage() +
+ * countUnifiedPlanUsage() over ai_plan_usage (migration 0085).
+ * Callers rewritten in the same commit: api/ai/chat, api/ai/jobs,
+ * api/ai/quota, api/coach/ai-usage. Zero live subscribers at cutover
+ * (owner-confirmed) — no balance migration was needed.
+ * ───────────────────────────────────────────────────────────────────── */
 
 /* ------------------- Anonymous traffic ledger (D3 fix) -------------------
  * evo_chat_usage.user_id is a uuid FK to auth.users, so anonymous visitors
