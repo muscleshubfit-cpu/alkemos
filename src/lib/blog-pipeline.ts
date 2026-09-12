@@ -561,12 +561,41 @@ const DANGLING_CONNECTIVES: readonly string[] = [
   "بين", "عند", "بعد", "قبل", "دون", "مثل", "حيث", "كيف", "ما", "هل",
 ];
 
-/** True when the string ends with a dangling connective word. */
+/** True when the string ends with a dangling connective word (Latin
+ * matching is case-insensitive — "…And" must die like "…and"). */
 function endsWithDanglingConnective(t: string): string | null {
+  const lower = t.toLowerCase();
   for (const w of DANGLING_CONNECTIVES) {
-    if (t.length > w.length && t.endsWith(" " + w)) return w;
+    if (t.length > w.length && lower.endsWith(" " + w.toLowerCase())) {
+      return w;
+    }
   }
   return null;
+}
+
+/**
+ * PHASE 181 — strip trailing separator junk AND dangling connectives
+ * from an (already budget-sized) title tail. Looped (stripping "vs" can
+ * expose "…for", stripping "for" can expose "…the"). Exported as the
+ * single source of truth shared by clampMetaTitle (generator law) and
+ * the one-shot meta-title remediation runner (stored-data law) — the
+ * runner applies it MINIMALLY to the stored meta_title and never
+ * recomputes from title (stored meta_titles include AI-crafted SEO
+ * variants that differ from the title by design; a dry-run on
+ * 2026-09-12 proved recomputing would clobber 4+ curated rows).
+ */
+export function stripDanglingTail(t: string): string {
+  let out = t.trim();
+  for (let pass = 0; pass < 4; pass += 1) {
+    const before = out;
+    out = out.replace(TRAILING_JUNK_RE, "").trim();
+    const dangling = endsWithDanglingConnective(out);
+    if (dangling) {
+      out = out.slice(0, out.length - dangling.length).trim();
+    }
+    if (out === before) break;
+  }
+  return out;
 }
 
 /**
@@ -606,20 +635,9 @@ export function clampMetaTitle(rawTitle: string, lang: "en" | "ar"): string {
   const floor = Math.floor(max / 2);
   const clipped = lastSpace >= floor ? cut.slice(0, lastSpace) : cut;
 
-  // Law 4 — never end on a dangling separator.
-  let cleaned = clipped.replace(TRAILING_JUNK_RE, "").trim();
-
-  // Law 5 (PHASE 181) — never end on a dangling connective either. Looped:
-  // stripping "vs" can expose "…for", stripping "for" can expose "…the".
-  for (let pass = 0; pass < 4; pass += 1) {
-    const before = cleaned;
-    cleaned = cleaned.replace(TRAILING_JUNK_RE, "").trim();
-    const dangling = endsWithDanglingConnective(cleaned);
-    if (dangling) {
-      cleaned = cleaned.slice(0, cleaned.length - dangling.length).trim();
-    }
-    if (cleaned === before) break;
-  }
+  // Law 4 + Law 5 (PHASE 181) — never end on a dangling separator OR
+  // connective. stripDanglingTail loops both (see its doc above).
+  const cleaned = stripDanglingTail(clipped);
 
   return cleaned || cut.trim();
 }

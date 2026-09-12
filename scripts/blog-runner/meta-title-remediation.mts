@@ -1,27 +1,29 @@
 /**
  * scripts/blog-runner/meta-title-remediation.mts
  *
- * PHASE 181 (live audit 2026-09-12) — one-shot meta_title remediation.
+ * PHASE 181 (live audit 2026-09-12) — one-shot meta_title dangling-tail
+ * remediation.
  *
- * WHY: clampMetaTitle Laws 1-4 cut over-budget titles at the last word
- * boundary that fits, but could still leave a trailing CONNECTIVE word
- * dangling (live case: "How to Do a Creatine Loading Phase for Strength
- * vs" — the 62-char title's word-boundary cut at 60 kept the comparator
- * "vs" and dropped its operand "Hypertrophy"). Law 5 (dangling-connective
- * strip, added in this same phase) fixes the GENERATOR; this script
- * re-clamps the STORED meta_title of every published post through the
- * improved law so the live corpus converges to the same invariant.
+ * WHY: the stored meta_title of creatine-loading-strength-hypertrophy-
+ * guide ends on a dangling comparator ("…for Strength vs" — 50ch, the
+ * operand "Hypertrophy" was dropped by the pre-181 word-boundary cut).
+ * clampMetaTitle Law 5 fixes the GENERATOR; this runner converges the
+ * STORED corpus to the same invariant.
  *
- * HARD SAFETY CONTRACT:
- *   - SELECT published posts only (both languages).
+ * HARD SAFETY CONTRACT (tightened after the 2026-09-12 dry-run lesson):
+ *   - MINIMAL INTERVENTION: apply stripDanglingTail() to the STORED
+ *     meta_title only. NEVER recompute from title — the first dry-run
+ *     proved stored meta_titles include AI-crafted SEO variants that
+ *     legitimately differ from the title (e.g. "Magnesium Forms for
+ *     Sleep & Recovery Guide" vs the title's clamp cut), and a
+ *     recompute would have clobbered 4+ curated rows.
+ *   - Rows whose stored value is already clean are skipped (idempotent,
+ *     re-runs converge to a no-op).
  *   - Writes touch meta_title + updated_at ONLY. Slug, title, content,
  *     images, faq, publish state: never touched.
- *   - The stored meta_title is treated as DERIVED data (the p5 publisher
- *     and the Phase 178 one-shot remediation both derive it from title
- *     via clampMetaTitle) — recomputing it from the same source with a
- *     strictly better clamp is idempotent and lossless.
- *   - Rows whose stored value already equals the recomputed value are
- *     skipped (re-runs converge to a no-op).
+ *   - A cleaned result that becomes empty or collapses below 30 chars
+ *     is NOT written — flagged for manual review instead (the stored
+ *     title was likely pathological, not a clamp artifact).
  *
  * USAGE (GHA meta-title-remediation.yml, or locally with the same env):
  *   npx --no-install tsx scripts/blog-runner/meta-title-remediation.mts
@@ -31,13 +33,14 @@
  *   SLUGS=a,b  — restrict to these slugs (empty = all published)
  */
 import { supabaseAdmin, isSupabaseAdminConfigured } from "../../src/lib/supabase/admin";
-import { clampMetaTitle } from "../../src/lib/blog-pipeline";
+import { stripDanglingTail } from "../../src/lib/blog-pipeline";
 
 const DRY_RUN = process.env.DRY_RUN !== "0";
 const SLUGS = (process.env.SLUGS || "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+const MIN_RESULT_CHARS = 30;
 
 async function main() {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
@@ -47,7 +50,7 @@ async function main() {
 
   let query = supabaseAdmin
     .from("blog_posts")
-    .select("id,slug,language,title,meta_title")
+    .select("id,slug,language,meta_title")
     .eq("is_published", true)
     .order("id");
   if (SLUGS.length) query = query.in("slug", SLUGS);
@@ -63,23 +66,29 @@ async function main() {
   );
 
   let touched = 0;
+  let flagged = 0;
   for (const r of rows) {
-    const lang = (r.language === "ar" ? "ar" : "en") as "en" | "ar";
-    const ideal = clampMetaTitle(String(r.title ?? ""), lang);
-    const stored = String(r.meta_title ?? "");
+    const stored = String(r.meta_title ?? "").trim();
+    if (!stored) continue;
 
-    if (ideal === stored) continue;
+    const cleaned = stripDanglingTail(stored);
+    if (cleaned === stored) continue;
 
     touched += 1;
-    console.log(`  [${lang}] ${r.slug}`);
+    console.log(`  [${r.language}] ${r.slug}`);
     console.log(`     stored (${stored.length}ch): ${stored}`);
-    console.log(`     ideal (${ideal.length}ch): ${ideal}`);
+    console.log(`     clean  (${cleaned.length}ch): ${cleaned}`);
 
+    if (cleaned.length < MIN_RESULT_CHARS) {
+      flagged += 1;
+      console.log(`     ⚠ cleaned result under ${MIN_RESULT_CHARS} chars — NOT patched, manual review`);
+      continue;
+    }
     if (DRY_RUN) continue;
 
     const { error: upErr } = await supabaseAdmin
       .from("blog_posts")
-      .update({ meta_title: ideal, updated_at: new Date().toISOString() })
+      .update({ meta_title: cleaned, updated_at: new Date().toISOString() })
       .eq("id", r.id);
     if (upErr) {
       console.error(`     UPDATE failed: ${upErr.message} — row untouched`);
@@ -90,8 +99,11 @@ async function main() {
   }
 
   console.log(
-    `[meta-title-remediation] done — ${touched} row(s) ${DRY_RUN ? "would be patched" : "patched"}, ${rows.length - touched} already clean.`,
+    `[meta-title-remediation] done — ${touched} dangling row(s) found, ` +
+      `${flagged} flagged for review, ${touched - flagged} ${DRY_RUN ? "would be patched" : "patched"}, ` +
+      `${rows.length - touched} already clean.`,
   );
+  if (flagged > 0) process.exitCode = 1;
 }
 
 main().catch((e) => {
