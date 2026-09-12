@@ -3322,3 +3322,20 @@ Stage Summary:
 - ميجريشن 0084 (بيانات فقط) يطبقه التكامل التلقائي عند الوصول لـmain
 - Commit SHA: (يُستكمل بعد الالتزام)
 - Push status: (يُستكمل)
+
+---
+Task ID: SEO-GEO-PHASE-178-LIVEVERIFY-2026-09-12
+Agent: Main (Super Z)
+Task: إغلاق حلقة التحقق الحي للمرحلة 178 (§12.42) — كوميتان f369f9c + aaf7203
+
+Work Log:
+- Vercel: نشران جاهزان (f369f9c ثم aaf7203 — تحسين البوابة: consent-mode-v2 دائمًا بمعزل عن GA_ID لأن AdSense هو وسم Google الحي؛ تحويلات 301 بدل 308)
+- Supabase integration: ميجريشن 0084 طُبق تلقائيًا عند وصول main (الدليل: sitemap-blog 72→67 · RSS AR 40→35 · القيم الجديدة في RSS/الصفحات)
+- Cloudflare: 4 عمليات purge_everything (التوكن يملك purge-all فقط) — أصل الحادثة: CF ختم نسخة 200 فارغة والقاعدة (Phase 149) تتجاوز no-store
+- التحقق الحي: 5/5 تحويلات 301 صحيحة · FAQ H2=1 (EN+AR) · /ar و/ar/evo صفر علامات لهجية · 14 وصفًا مكتملة (RSS أرضية + الصفحات) · عنوانا «7‑Day Plan» مكتملان · حشو الاستعلامات الستة منزوع (calories/sleep/deload/periodize — periodize عبر bypass-cache keys للتحقق الفوري) · بوابة consent-mode في HTML الإنتاج · الصفحة المعطوبة سابقًا 200 كاملة 1383 كلمة
+- CI ×3 لكل كوميت: Quality gate · Docs & schema parity · stale-refs — كلها خضراء
+
+Stage Summary:
+- كل بنود §12.42 منفذة ومتحقق منها حيًا؛ المتبقي: نسخ CF القانونية للروابط الكنسية لبقية الصفحات تتجدد ذاتيًا خلال ≤1 ساعة (s-maxage) — لا عمل مطلوب
+- Commit SHA: aaf7203 (فوق f369f9c)
+- Push status: pushed (SYNCED مع origin/main)
