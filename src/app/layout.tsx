@@ -452,11 +452,27 @@ export default async function RootLayout({
         </Script>
         {GA_ID && (
           <>
+            {/* PHASE 180 (CWV / Vercel Real Experience Score 27) — gtag.js
+             * moved afterInteractive → lazyOnload. At 171KB transferred it
+             * was ~14% of total page weight competing for bandwidth DURING
+             * the LCP window on Egyptian 3G/4G (Lighthouse lab: 1.2MB page
+             * → LCP 4.2-5.0s; the LCP image itself renders in <300ms — the
+             * remaining seconds are network queuing). lazyOnload fetches
+             * the tag only after the load event + browser idle, so it never
+             * contends with the render path. Correctness notes:
+             *   - Ordering vs consent-mode-v2 above is SAFE: afterInteractive
+             *     scripts (consent default) execute right after hydration,
+             *     lazyOnload scripts only after the window load event — the
+             *     consent default is always pushed into dataLayer BEFORE
+             *     gtag.js processes it.
+             *   - GA events queue in window.dataLayer regardless of when the
+             *     tag arrives; page_view is sent late but attributed
+             *     correctly (GA uses its own timestamps). */}
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="ga-init" strategy="afterInteractive">
+            <Script id="ga-init" strategy="lazyOnload">
               {`
                 gtag('js', new Date());
                 gtag('config', '${GA_ID}');
@@ -493,11 +509,57 @@ export default async function RootLayout({
             ads are policy-forbidden anyway (AdSenseAd slots there render
             null). Public content pages keep the tag for the site review. */}
         {ADSENSE_CLIENT && !isAdFreePath(requestPath) && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
+          <>
+            {/* PHASE 180 (CWV) — AdSense loader fetch DEFERRED to first
+             * user interaction or browser idle (2.5s cap), whichever comes
+             * first. WHY: adsbygoogle.js (56KB) + show_ads_impl (~163KB,
+             * loaded by it) + gtag.js (171KB) ≈ 390KB of third-party JS
+             * was fetched during the LCP window on every public page —
+             * a third of the page's total weight — and show_ads_impl
+             * produced 130-190ms long tasks 7-10s into the load (Lighthouse
+             * long-tasks audit), hurting BOTH LCP (bandwidth contention on
+             * 3G/4G) and INP. HOW: the script tag stays SERVER-RENDERED in
+             * the initial HTML (site-review crawler still pattern-matches
+             * the full adsbygoogle.js URL) but carries data-src instead of
+             * src; the tiny activator below swaps in the real src on
+             * pointerdown/keydown/scroll or requestIdleCallback. The
+             * AdSenseAd components keep queueing their pushes in
+             * window.adsbygoogle exactly as before — the queue is drained
+             * whenever the loader arrives. AdSense below-fold slots lose
+             * at most ~1-2s of unfilled time (they only count as viewable
+             * when scrolled into view anyway). Absolute 6s safety net so
+             * ads NEVER starve on browsers without rIC / background tabs. */}
+            <script
+              async
+              data-src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+              crossOrigin="anonymous"
+              id="adsense-loader"
+            />
+            <script
+              id="adsense-activator"
+              dangerouslySetInnerHTML={{
+                __html: `(function(){
+  var el = document.getElementById('adsense-loader');
+  if (!el) return;
+  var done = false;
+  function activate(){
+    if (done) return; done = true;
+    var s = el.getAttribute('data-src');
+    if (s) { el.setAttribute('src', s); el.removeAttribute('data-src'); }
+  }
+  ['pointerdown','keydown','touchstart','wheel','scroll'].forEach(function(ev){
+    window.addEventListener(ev, activate, {once:true, passive:true});
+  });
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(activate, {timeout: 2500});
+  } else {
+    setTimeout(activate, 2500);
+  }
+  setTimeout(activate, 6000);
+})();`,
+              }}
+            />
+          </>
         )}
       </body>
     </html>
