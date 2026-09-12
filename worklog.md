@@ -3339,3 +3339,25 @@ Stage Summary:
 - كل بنود §12.42 منفذة ومتحقق منها حيًا؛ المتبقي: نسخ CF القانونية للروابط الكنسية لبقية الصفحات تتجدد ذاتيًا خلال ≤1 ساعة (s-maxage) — لا عمل مطلوب
 - Commit SHA: aaf7203 (فوق f369f9c)
 - Push status: pushed (SYNCED مع origin/main)
+
+---
+Task ID: SEO-CWV-PHASE-180-181-2026-09-12
+Agent: Main (Super Z)
+Task: أمر المالك «ادفع ثم ابدأ فحص شامل للأداء وفحص شامل للأخطاء أو التحسينات الممكنة في GitHub, vercel, Supabase, cloud flare ولا تنسى التوثيق» — بعد تقرير Vercel Real Experience Score 27/Poor
+
+Work Log:
+- **التشخيص المخبري (Lighthouse 12 محلي، 5 صفحات + إعادة قياس):** RES 27 = بيانات ميدانية (LCP/INP/CLS) — CLS سليم (0-0.023)؛ الجذر الرئيسي: ~1.2MB لكل صفحة منها **~390KB JS طرف ثالث تُجلب خلال نافذة LCP** (gtag.js 171KB + adsbygoogle 56KB + show_ads_impl ~163KB) + مهام طويلة 130-190ms من show_ads_impl (قاتل INP)؛ عنصر LCP نفسه سريع (<300ms) — التأخير = زحام نطاق على 3G/4G (جمهور مصري)؛ بصمة الحزم: 0dgvu5r = @supabase/ssr (68KB، 80% غير مستخدم بالصفحات العامة — مرشح 182) · 1igbp48yf = React core (مطلوب)
+- **(180) إصلاح CWV (commit 8e41043):** gtag.js + ga-init: afterInteractive→lazyOnload (ترتيب consent-mode آمن — يُدفع الافتراضي قبل وسم التحميل) · AdSense: وسم SSR بـ data-src (الرابط ما زال مرئيًا لزاحف مراجعة الموقع) + مُنشِّط inline يبدّل src عند أول تفاعل (pointer/key/scroll/wheel) أو rIC بسقف 2.5s + شبكة أمان 6s — دفع window.adsbygoogle كما هو · build 0 أخطاء · تحقق حي: gtag يُحمَّل idle + collect 204 (gcs=G100 بدون موافقة) + adsbygoogle يُنشَّط idle + البانر والموافقة يعملان
+- **(181) إصلاح العنوان المبتور (commits 9494091 → 259bba1 → 60e7a41):** الجذر ليس DB title (سليم 62ch) بل meta_title المولَّد بقصّة حد-الكلمات التي تركت «vs» معلقة · Law 5 في clampMetaTitle + stripDanglingConnectives (المتغير الآمن للمعالجة: يحفظ علامات الاستفهام الشرعية — التجربة الجافة الثانية أظهرت 7 إيجابيات كاذبة) · سكربت remediation جراحي (يكتب meta_title+updated_at فقط) عبر workflow بمفتاح الخدمة · 3 تجارب جافة ثم التطبيق: **1 صف مؤرشَل، 66 نظيفة، 0 معلَّمة** · التحقق الحي: <title> = "How to Do a Creatine Loading Phase for Strength" بعد إعادة تحقق ISR
+- **فحص Cloudflare الشامل:** SSL strict · HTTP/3+Brotli+Early Hints on · browser_check on · كاش aggressive بلا page-rules (النظافة عبر رؤوس origin s-maxage=3600+SWR) · DNS: apex→Vercel (proxied) + www 301 + Zoho MX + Brevo DKIM + SPF مزدوج + DMARC p=reject — سليم
+- **فحص Vercel الشامل:** 8 نشرات متتالية READY · آخر بناء 257 حدثًا صفر تحذيرات/أخطاء · النطاقات الثلاثة موثقة والتحويلات صحيحة · ملاحظة: serverless region iad1 (أمريكا) والجمهور مصري — يستحق نقاش ترقية Pro لاحقًا
+- **فحص Supabase الشامل (عبر anon من حزمة JS الحية — مشروع wyopqryzjifyeyvyxfy):** 67 منشورًا (32 EN/35 AR) صفر غير منشور · صفر عناوين مكررة/سلاقات · دمج عائلة النوم مطبَّق (5 صفوف، لا متغيرات -1bbi/-3pc8) · faq/cover_alt/reading_time مكتملة · كل الصور Pexels · RLS يصد الكتابة (401) · ⚠️ مفتاح الخدمة القديم sbp_fc800… يخص المشروع المحذوف abqvozxdgpsfmkjdiixr (NXDOMAIN) — غير صالح للمشروع الحالي
+- **فحص GitHub الشامل:** CI 15/15 أخضر (Quality gate/Docs parity/stale-refs) · 🔴 **3 تنبيهات secret-scanning مفتوحة منذ 08-19: مفاتيح Groq + OpenRouter + GCP سُرِّبت نصيًا في worklog.md بتاريخ cd1d9d42 وتعيش في تاريخ git لريبو عام (publicly_leaked=true)** — المطلوب من المالك: تدوير الثلاثة في مزوديها ثم إغلاق التنبيهات · حماية main موجودة (force-push ممنوع، enforce_admins) لكن بلا فحوصات إلزامية · Dependabot معطّل · code-scanning غير مهيأ
+- تنقية كاش CF (purge_everything) بعد كل نشر — والتوثيق الرسمي في STATE.md/worklog.md
+
+Stage Summary:
+- 180 حي ومتحقق منه وظيفيًا (GA+AdSense مؤجلان خارج النافذة الحرجة، الموافقة سليمة)؛ أثر المعمل المتدفئ متعادل لأن أرضية LCP يحددها وزن JS الخاص (420KB) — التحسين الحقيقي المنتظر في الميدان (RES يُقاس عبر أسابيع)
+- 181 منفَّذ من الجذر إلى الإنتاج: قانون المولد + معالجة الجراحة الواحدة + التحقق الحي
+- المفتوح للمالك: تدوير 3 مفاتيح مسربة · (اختياري) تفعيل Dependabot + فحوصات إلزامية على main · ترقية Vercel Pro لمنطقة أقرب · Phase 182 المقترحة: lazy @supabase (68KB من 15 موقع استيراد) + تخفيض وزن JS الأولي
+- Commit SHA: 8e41043 → 9494091 → 259bba1 → 60e7a41 (+ كوميت التوثيق هذا)
+- Push status: pushed (SYNCED مع origin/main)
