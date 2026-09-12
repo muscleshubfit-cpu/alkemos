@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth-server";
+import { clientIp } from "@/lib/rate-limit";
 import {
   countTodayChatUsage,
   checkUnifiedPlanQuota,
   hashGuestKey,
+  hashIpKey,
   evoChatLimitFor,
 } from "@/lib/tier-limits";
 
@@ -15,8 +17,11 @@ import {
  * guests.
  *
  *   - ?guestId=<uuid>  (anonymous callers): the guest's pool — FREE
- *     tier numbers (2/month). The id is hashed server-side; nothing
- *     raw is stored. No signup wall — guests see their remaining
+ *     tier numbers (2/month). G6 (migration 0086): the id is hashed
+ *     server-side AND the pool is counted as max(browser dimension,
+ *     network dimension — salted hash of the client IP), so a fresh
+ *     incognito window NO LONGER shows a reset 2/2 balance. No raw
+ *     values stored. No signup wall — guests see their remaining
  *     generations exactly like members do.
  *   - authed callers:  their tier's pool (free 2 · premium 4 ·
  *     pro 8 · coaching 8).
@@ -33,10 +38,15 @@ export async function GET(request: NextRequest) {
   const auth = await getAuthUser(request);
 
   // ── Guest pool (unified + free chat readout). ──
+  // G6: the meter reads BOTH guest dimensions (browser + IP) — exactly
+  // what enforcement checks (meter == enforcement law). A brand-new
+  // incognito session from a network that already burned its pool sees
+  // the honest 2/2 used, not a fake-fresh balance.
   if (!auth) {
     const rawGuestId = new URL(request.url).searchParams.get("guestId") ?? "";
     const guestKey = rawGuestId.trim().length >= 8 ? hashGuestKey(rawGuestId.trim()) : null;
-    const pool = await checkUnifiedPlanQuota({ guestKey });
+    const ipKey = hashIpKey(clientIp(request));
+    const pool = await checkUnifiedPlanQuota({ guestKey, ipKey });
     return NextResponse.json({
       chat: { used: 0, limit: evoChatLimitFor("free"), unlimited: false },
       plans: {

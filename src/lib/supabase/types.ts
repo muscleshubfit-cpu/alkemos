@@ -1836,6 +1836,7 @@ export type Database = {
           id: string;
           user_id: string | null;
           guest_key: string | null;
+          ip_key: string | null;
           kind: string;
           surface: string;
           created_at: string;
@@ -1844,6 +1845,7 @@ export type Database = {
           id?: string;
           user_id?: string | null;
           guest_key?: string | null;
+          ip_key?: string | null;
           kind: string;
           surface?: string;
           created_at?: string;
@@ -1852,6 +1854,7 @@ export type Database = {
           id?: string;
           user_id?: string | null;
           guest_key?: string | null;
+          ip_key?: string | null;
           kind?: string;
           surface?: string;
           created_at?: string;

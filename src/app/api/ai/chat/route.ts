@@ -9,6 +9,7 @@ import {
   checkUnifiedPlanQuota,
   recordUnifiedPlanUsage,
   hashGuestKey,
+  hashIpKey,
   checkAnonChatLimit,
   recordAnonChatUsage,
 } from "@/lib/tier-limits";
@@ -129,11 +130,11 @@ const MAX_HISTORY_ITEM_LENGTH = 2_000;
  * on Vercel x-forwarded-for is always present.
  */
 function getAnonKey(request: NextRequest): string {
-  // H3 (2026-09-07): clientIp() takes the LAST x-forwarded-for hop
-  // (the trusted proxy's entry) — split(",")[0] was attacker-spoofable.
-  const ip = clientIp(request);
-  const salt = process.env.EVO_ANON_SALT || "mhe-evo-anon-v1";
-  return createHash("sha256").update(`${ip}:${salt}`).digest("hex").slice(0, 32);
+  // G6 (2026-09-13): delegating to tier-limits.hashIpKey — ONE shared
+  // salted scheme, so the chat anon key and the plan-pool ip_key are
+  // the SAME value for the same client (planner rows and EVO rows from
+  // one network collide into ONE unified-pool counter).
+  return hashIpKey(clientIp(request));
 }
 
 export async function POST(request: NextRequest) {
@@ -284,8 +285,9 @@ export async function POST(request: NextRequest) {
     // generations COMBINED, success-only, for guests AND members.
     //   - member: pool for their tier (free 2 · premium 4 · pro 8 ·
     //     coaching 8) via the verified tier hint.
-    //   - guest: the FREE pool (2/month) keyed by the hashed guest id
-    //     (body.guestId) or, when absent, the IP-hash anon key.
+    //   - guest (G6 dual-dimension, migration 0086): the FREE pool
+    //     (2/month) counted as max(hashed guest id, hashed IP) — a
+    //     fresh incognito window can NO LONGER reset the balance.
     // Swap intents intentionally NOT counted here — they ride the
     // weekly /api/ai/jobs quota (no double-billing).
     if (intent.isPlanCreation) {
@@ -294,20 +296,24 @@ export async function POST(request: NextRequest) {
         : rawGuestId.length >= 8
           ? hashGuestKey(rawGuestId)
           : anonKey;
+      const planIpKey = userId ? null : anonKey ?? hashIpKey(clientIp(request));
       const quota = await checkUnifiedPlanQuota({
         userId,
         guestKey: planGuestKey,
+        ipKey: planIpKey,
         tierHint: authTier,
         staffHint: authIsStaff,
       });
       if (!quota.allowed) {
         const responseText =
           `⏰ You've used your AI plan generations for this month (${quota.used}/${quota.limit} — nutrition and workout share one pool). Your quota resets on the 1st.` +
-          (quota.tier === "free"
-            ? "\n\nCreate a free account to keep your plans saved across devices — or upgrade for a bigger monthly pool."
-            : quota.tier === "premium"
-              ? "\n\nUpgrade to Pro for 8 generations per month."
-              : "");
+          (quota.reason === "network"
+            ? "\n\nThe free pool on this network is already used — create a free account to get your own pool."
+            : quota.tier === "free"
+              ? "\n\nCreate a free account to keep your plans saved across devices — or upgrade for a bigger monthly pool."
+              : quota.tier === "premium"
+                ? "\n\nUpgrade to Pro for 8 generations per month."
+                : "");
         return NextResponse.json(
           {
             response: responseText,
@@ -759,11 +765,17 @@ export async function POST(request: NextRequest) {
         : rawGuestId.length >= 8
           ? hashGuestKey(rawGuestId)
           : anonKey;
+      // G6: the IP dimension rides along on every guest success row —
+      // same anon key the check used, so the two can never drift.
+      const poolIpKey = userId
+        ? null
+        : anonKey ?? hashIpKey(clientIp(request));
       after(async () => {
         if (statSuccess) {
           await recordUnifiedPlanUsage({
             userId: poolUserId,
             guestKey: poolGuestKey,
+            ipKey: poolIpKey,
             kind: planKind,
             surface: "evo",
           });

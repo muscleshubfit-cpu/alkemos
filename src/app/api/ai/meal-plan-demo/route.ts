@@ -5,6 +5,7 @@ import { getAuthUser } from "@/lib/auth-server";
 import {
   checkUnifiedPlanQuota,
   hashGuestKey,
+  hashIpKey,
   recordUnifiedPlanUsage,
 } from "@/lib/tier-limits";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -29,11 +30,14 @@ import {
  *      protection, NOT quota (failures don't burn the pool; the old
  *      5/day entry-counted limit — which burned quota on failure — is
  *      retired per the success-only law).
- *   3. UNIFIED POOL (ai_plan_usage, migration 0085): guests get the
- *      FREE pool (2/month, keyed by a salted hash of the body's
- *      guestId — no signup wall); members get their tier pool
- *      (free 2 · premium 4 · pro 8 · coaching 8). Checked BEFORE the
- *      provider call, counted ONLY on success.
+ *   3. UNIFIED POOL (ai_plan_usage, migrations 0085+0086): guests get
+ *      the FREE pool (2/month, G6 DUAL-DIMENSION identity — the salted
+ *      hash of the body's guestId AND the salted hash of the client
+ *      IP, counted as max(browser, network) — no signup wall, and a
+ *      fresh incognito window can NO LONGER reset the balance);
+ *      members get their tier pool (free 2 · premium 4 · pro 8 ·
+ *      coaching 8). Checked BEFORE the provider call, counted ONLY on
+ *      success.
  *   4. SHAPE: the model's JSON is strictly validated (meals/items/
  *      grams/kcal, ±20% calorie closure) — a drifted payload is
  *      rejected with 422, never displayed, and NEVER counted.
@@ -84,6 +88,9 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Unified-pool gate (guest OR member — no signup wall). ──
+    // G6: guests burn in BOTH dimensions — browser (guest_key) and
+    // network (ip_key). The incognito-reset hole is closed: a fresh
+    // localStorage UUID can't escape the same-IP history.
     const auth = await getAuthUser(request);
     const userId = auth?.id ?? null;
     let guestKey: string | null = null;
@@ -93,21 +100,30 @@ export async function POST(request: NextRequest) {
         guestKey = hashGuestKey(rawGuestId);
       }
     }
+    const ipKey = userId ? null : hashIpKey(ip);
     const quota = await checkUnifiedPlanQuota({
       userId,
       guestKey,
+      ipKey,
       tierHint: auth?.membership_tier ?? null,
       staffHint: auth?.is_staff ?? false,
     });
     if (!quota.allowed) {
+      // G6: pick the copy by the BINDING dimension — a fresh browser
+      // meeting an exhausted NETWORK pool gets its own honest message
+      // (+ soft free-account CTA, never a wall).
+      const networkBlocked = quota.reason === "network";
       return NextResponse.json(
         {
-          error:
-            req.language === "ar"
+          error: networkBlocked
+            ? req.language === "ar"
+              ? "رصيد التوليد المجاني لهذا الشهر على هذه الشبكة استُخدم بالفعل — أنشئ حساباً مجانياً لتحصل على رصيد خاص بك، أو عد أول الشهر عندما يتجدد رصيد الشبكة."
+              : "The free monthly plan generations on this network are already used — create a free account to get your own pool, or come back on the 1st when the network quota resets."
+            : req.language === "ar"
               ? `رصيدك من توليد الخطط لهذا الشهر انتهى (${quota.limit} شهرياً) — خططك السابقة متاحة أدناه، ويتجدد الرصيد أول الشهر.`
               : `Your plan-generation quota for this month is used (${quota.limit}/month) — your previous plans stay available below; the quota resets on the 1st.`,
           quotaExhausted: true,
-          quota: { used: quota.used, limit: quota.limit, remaining: 0 },
+          quota: { used: quota.used, limit: quota.limit, remaining: 0, reason: quota.reason },
         },
         { status: 429, headers: { "Retry-After": "3600" } },
       );
@@ -181,6 +197,7 @@ export async function POST(request: NextRequest) {
     await recordUnifiedPlanUsage({
       userId,
       guestKey: userId ? null : guestKey,
+      ipKey: userId ? null : ipKey,
       kind: "nutrition",
       surface: "planner",
     });

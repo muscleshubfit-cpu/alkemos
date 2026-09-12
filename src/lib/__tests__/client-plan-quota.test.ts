@@ -4,6 +4,7 @@ import {
   checkUnifiedPlanQuota,
   recordUnifiedPlanUsage,
   hashGuestKey,
+  hashIpKey,
   monthStartUtc,
 } from "@/lib/tier-limits";
 
@@ -15,12 +16,17 @@ import {
  * ledger (migration 0085): a row exists only after a plan was actually
  * generated and validated.
  *
- * Guests (no account) get the FREE pool keyed by a server-side salted
- * hash of the client's guest id — no signup wall. Staff bypass.
+ * G6 (owner report 2026-09-13, migration 0086): the guest pool is
+ * DUAL-DIMENSION — used = max(count(guest_key), count(ip_key)) — so a
+ * fresh incognito window (fresh guest_key, same IP) or a router IP
+ * rotation (fresh IP, same browser) can NO LONGER reset the balance.
+ * The owner reproduced the original hole live: closed one incognito
+ * window, opened another, saw 2/2 again.
  *
  * These tests mock the service-role client: fixed ai_plan_usage counts
- * per identity, subscriptions rows for the DB-tier fallback, and an
- * insert spy capturing exactly what recordUnifiedPlanUsage writes.
+ * per (table, dimension key), subscriptions rows for the DB-tier
+ * fallback, and an insert spy capturing exactly what
+ * recordUnifiedPlanUsage writes.
  */
 
 const h = vi.hoisted(() => {
@@ -63,7 +69,10 @@ vi.mock("@/lib/supabase/admin", () => {
     const builder: FakeBuilder = {
       select: () => builder,
       eq: (col: string, val: unknown) => {
-        if (col === "user_id" || col === "guest_key" || col === "client_id") {
+        if (
+          col === "user_id" || col === "guest_key" || col === "ip_key" ||
+          col === "client_id"
+        ) {
           identity = String(val);
         }
         return builder;
@@ -114,13 +123,17 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     h.inserts.length = 0;
   });
 
-  it("countUnifiedPlanUsage reads only the success ledger, per identity", async () => {
+  it("countUnifiedPlanUsage reads only the success ledger, per dimension", async () => {
     h.counts[`ai_plan_usage:${USER}`] = 3;
     expect(await countUnifiedPlanUsage({ userId: USER })).toBe(3);
     expect(await countUnifiedPlanUsage({ guestKey: "abc" })).toBe(0);
     h.counts["ai_plan_usage:abc"] = 2;
     expect(await countUnifiedPlanUsage({ guestKey: "abc" })).toBe(2);
     expect(await countUnifiedPlanUsage({})).toBe(0); // no identity → 0
+    // G6: several dimensions → the MAX across them (the dual law)
+    h.counts["ai_plan_usage:ip-9"] = 5;
+    expect(await countUnifiedPlanUsage({ guestKey: "abc", ipKey: "ip-9" })).toBe(5);
+    expect(await countUnifiedPlanUsage({ guestKey: "zzz", ipKey: "abc" })).toBe(2);
   });
 
   it("member pool: premium 4 — 2 used → allowed, remaining 2", async () => {
@@ -148,6 +161,7 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     expect(r.tier).toBe("guest");
     expect(r.limit).toBe(2);
     expect(r.remaining).toBe(1);
+    expect(r.reason).toBeNull();
   });
 
   it("guest pool blocks after 2 successes", async () => {
@@ -155,6 +169,49 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     const r = await checkUnifiedPlanQuota({ guestKey: "guestkey-1" });
     expect(r.allowed).toBe(false);
     expect(r.remaining).toBe(0);
+    expect(r.reason).toBe("pool");
+  });
+
+  it("G6 — THE INCOUNTER TEST: fresh incognito (new guest id, SAME IP) does NOT reset the balance", async () => {
+    // The owner's exact repro: browser #1 burned 2/2, a brand-new
+    // incognito window arrives with a fresh guest id + same network.
+    h.counts["ai_plan_usage:ip-key-1"] = 2; // the network dimension remembers
+    const r = await checkUnifiedPlanQuota({
+      guestKey: "brand-new-incognito-guest", // zero rows
+      ipKey: "ip-key-1",
+    });
+    expect(r.allowed).toBe(false); // blocked — the hole is closed
+    expect(r.used).toBe(2); // max(0, 2)
+    expect(r.remaining).toBe(0);
+    expect(r.reason).toBe("network"); // → the network copy + soft CTA
+  });
+
+  it("G6 — router/IP rotation (fresh IP, SAME browser) does not reset the balance either", async () => {
+    h.counts["ai_plan_usage:guestkey-1"] = 2;
+    const r = await checkUnifiedPlanQuota({
+      guestKey: "guestkey-1",
+      ipKey: "ip-changed-after-router-reboot",
+    });
+    expect(r.allowed).toBe(false);
+    expect(r.used).toBe(2); // max(2, 0)
+    expect(r.reason).toBe("pool");
+  });
+
+  it("G6 — partial burn across dimensions counts the max", async () => {
+    h.counts["ai_plan_usage:guestkey-1"] = 1;
+    h.counts["ai_plan_usage:ip-key-1"] = 1;
+    const r = await checkUnifiedPlanQuota({ guestKey: "guestkey-1", ipKey: "ip-key-1" });
+    expect(r.used).toBe(1);
+    expect(r.allowed).toBe(true); // 1/2
+    expect(r.remaining).toBe(1);
+  });
+
+  it("G6 — ip dimension alone still meters guests (EVO widget sends no guestId)", async () => {
+    h.counts["ai_plan_usage:ip-key-1"] = 1;
+    const r = await checkUnifiedPlanQuota({ ipKey: "ip-key-1" });
+    expect(r.used).toBe(1);
+    expect(r.allowed).toBe(true);
+    expect(r.remaining).toBe(1);
   });
 
   it("unknown identity degrades to a fresh guest (full free pool)", async () => {
@@ -199,6 +256,7 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     });
     await recordUnifiedPlanUsage({
       guestKey: "guestkey-1",
+      ipKey: "ip-key-1",
       kind: "workout",
       surface: "evo",
     });
@@ -206,12 +264,14 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     expect(h.inserts[0].row).toMatchObject({
       user_id: USER,
       guest_key: null,
+      ip_key: null, // members never get IP-keyed rows
       kind: "nutrition",
       surface: "planner",
     });
     expect(h.inserts[1].row).toMatchObject({
       user_id: null,
       guest_key: "guestkey-1",
+      ip_key: "ip-key-1", // G6: guest rows burn BOTH dimensions
       kind: "workout",
       surface: "evo",
     });
@@ -230,6 +290,20 @@ describe("unified AI plan pool (Phase 183 — «البوول الموحد»)", (
     expect(k1).not.toBe(k3); // different ids → different keys
     expect(k1).not.toContain("guest-uuid-1"); // raw id never appears
     expect(k1).toHaveLength(32); // sha256 hex slice
+  });
+
+  it("hashIpKey: stable, salted, same length, never the raw IP — and matches the chat anon-key scheme", () => {
+    const a = hashIpKey("41.23.11.7");
+    expect(a).toBe(hashIpKey("41.23.11.7")); // stable
+    expect(a).not.toBe(hashIpKey("41.23.11.8")); // different IP → key
+    expect(a).not.toContain("41.23.11.7"); // raw IP never appears
+    expect(a).toHaveLength(32);
+    // Same salted scheme as the guest/browser dimension (one shared
+    // EVO_ANON_SALT) — BY DESIGN: the chat anon key, the planner ip_key
+    // and the EVO ip_key are the SAME value for one client.
+    expect(a).toBe(hashGuestKey("41.23.11.7"));
+    // ...while a guest UUID and an IP can never collide into one key:
+    expect(hashIpKey("41.23.11.7")).not.toBe(hashGuestKey("guest-uuid-1"));
   });
 
   it("month window resets on the 1st, UTC", () => {

@@ -127,32 +127,62 @@ export function hashGuestKey(rawGuestId: string): string {
     .slice(0, 32);
 }
 
+/**
+ * G6 FIX (owner report 2026-09-13, migration 0086): client IP → ledger
+ * key — the SECOND dimension of the guest identity. A localStorage
+ * guest UUID dies with every incognito window / cleared storage
+ * (the owner watched the balance "reset" to 2/2 exactly that way),
+ * so the guest pool now burns in BOTH dimensions and enforcement
+ * reads max(browser dimension, network dimension). Same salted scheme
+ * as the chat route's getAnonKey/D3 so planner rows and EVO rows from
+ * one network collide into ONE counter. No raw IPs stored; rotating
+ * EVO_ANON_SALT invalidates existing IP counters (documented).
+ */
+export function hashIpKey(ip: string): string {
+  const salt = process.env.EVO_ANON_SALT || "mhe-evo-anon-v1";
+  return createHash("sha256").update(`${ip}:${salt}`).digest("hex").slice(0, 32);
+}
+
 /** The surface that triggered a generation (analytics + audit). */
 export type PlanSurface = "planner" | "evo" | "coach";
 
 /**
  * Count this month's SUCCESSFUL AI plan generations for one identity
- * (member userId OR guestKey — exactly one). The ledger is
- * ai_plan_usage (migration 0085): a row exists ONLY after a plan was
- * generated AND validated — failed attempts, input edits, navigation,
- * or re-viewing an existing plan never burn the pool.
+ * (member userId OR guestKey/ipKey — several dimensions may be given;
+ * the result is the MAX across them, the G6 dual-dimension law). The
+ * ledger is ai_plan_usage (migration 0085 + 0086): a row exists ONLY
+ * after a plan was generated AND validated — failed attempts, input
+ * edits, navigation, or re-viewing an existing plan never burn the pool.
  */
 export async function countUnifiedPlanUsage(identity: {
   userId?: string | null;
   guestKey?: string | null;
+  ipKey?: string | null;
 }): Promise<number> {
+  const dims: Array<["user_id" | "guest_key" | "ip_key", string]> = [];
+  if (identity.userId) dims.push(["user_id", identity.userId]);
+  if (identity.guestKey) dims.push(["guest_key", identity.guestKey]);
+  if (identity.ipKey) dims.push(["ip_key", identity.ipKey]);
+  if (dims.length === 0) return 0;
+  const counts = await Promise.all(
+    dims.map(([col, val]) => countPlanRowsBy(col, val)),
+  );
+  return Math.max(...counts);
+}
+
+/** One dimension → this month's success-row count (head count query). */
+async function countPlanRowsBy(
+  column: "user_id" | "guest_key" | "ip_key",
+  value: string,
+): Promise<number> {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) return 0;
-  if (!identity.userId && !identity.guestKey) return 0;
-  let query = supabaseAdmin
+  const { count, error } = await supabaseAdmin
     .from("ai_plan_usage")
     .select("*", { count: "exact", head: true })
+    .eq(column, value)
     .gte("created_at", monthStartUtc());
-  query = identity.userId
-    ? query.eq("user_id", identity.userId)
-    : query.eq("guest_key", identity.guestKey!);
-  const { count, error } = await query;
   if (error) {
-    console.error("[tier-limits] countUnifiedPlanUsage error:", error.message);
+    console.error("[tier-limits] countPlanRowsBy error:", error.message);
     return 0; // fail open on counting errors — soft quota, same as chat
   }
   return count ?? 0;
@@ -166,6 +196,14 @@ export type UnifiedPlanQuotaVerdict = {
   remaining: number;
   unlimited: boolean; // staff semantics — never limited, still recorded
   tier: MembershipTier | "guest";
+  /**
+   * G6: WHY a guest was blocked — routes pick the error copy from it.
+   *   "pool"    → this browser's own pool is exhausted (classic message)
+   *   "network" → the browser is fresh but the shared IP dimension is
+   *               exhausted (incognito-retry case) → network copy + soft
+   *               free-account CTA. null when allowed / member / staff.
+   */
+  reason: "pool" | "network" | null;
 };
 
 /**
@@ -184,19 +222,20 @@ export type UnifiedPlanQuotaVerdict = {
 export async function checkUnifiedPlanQuota(opts: {
   userId?: string | null;
   guestKey?: string | null;
+  ipKey?: string | null;
   tierHint?: string | null;
   staffHint?: boolean;
 }): Promise<UnifiedPlanQuotaVerdict> {
   if (opts.staffHint) {
     return {
       allowed: true, used: 0, limit: 0, remaining: 0, unlimited: true,
-      tier: opts.userId ? "free" : "guest",
+      tier: opts.userId ? "free" : "guest", reason: null,
     };
   }
   if (opts.userId) {
     const tier = sanitizeTier(opts.tierHint) ?? (await resolveTierFromDb(opts.userId));
     const limit = unifiedPlanPoolFor(tier);
-    const used = await countUnifiedPlanUsage({ userId: opts.userId });
+    const used = await countPlanRowsBy("user_id", opts.userId);
     return {
       allowed: used < limit,
       used,
@@ -204,21 +243,38 @@ export async function checkUnifiedPlanQuota(opts: {
       remaining: Math.max(0, limit - used),
       unlimited: false,
       tier,
+      reason: null, // members have exactly one identity — no dimension copy
     };
   }
-  // Guest (or unknown identity — planner pages always mint a guest id
-  // client-side, so an empty identity here means a lost/legacy client:
-  // treat as a fresh guest with the full free pool rather than blocking
-  // generation outright; the burst guard still caps abuse by IP).
+  // Guest (G6 dual-dimension law, migration 0086): the pool burns in
+  // BOTH the browser dimension (guest_key — survives IP rotation) and
+  // the network dimension (ip_key — survives incognito/clear-storage).
+  // used = max(browser, network): whichever dimension saw more success
+  // rows this month IS the balance — the meter reads the same number
+  // (meter == enforcement law). An empty guestKey still counts by IP;
+  // both empty (caller gave nothing) = a fresh guest with the full free
+  // pool — the burst guard still caps abuse.
   const limit = unifiedPlanPoolFor("free");
-  const used = opts.guestKey ? await countUnifiedPlanUsage({ guestKey: opts.guestKey }) : 0;
+  const [usedGuest, usedIp] = await Promise.all([
+    opts.guestKey ? countPlanRowsBy("guest_key", opts.guestKey) : Promise.resolve(0),
+    opts.ipKey ? countPlanRowsBy("ip_key", opts.ipKey) : Promise.resolve(0),
+  ]);
+  const used = Math.max(usedGuest, usedIp);
+  const blocked = used >= limit;
+  const reason =
+    blocked && usedIp >= limit && usedIp > usedGuest
+      ? "network"
+      : blocked
+        ? "pool"
+        : null;
   return {
-    allowed: used < limit,
+    allowed: !blocked,
     used,
     limit,
     remaining: Math.max(0, limit - used),
     unlimited: false,
     tier: "guest",
+    reason,
   };
 }
 
@@ -233,6 +289,7 @@ export async function checkUnifiedPlanQuota(opts: {
 export async function recordUnifiedPlanUsage(opts: {
   userId?: string | null;
   guestKey?: string | null;
+  ipKey?: string | null;
   kind: EvoPlanKind;
   surface?: PlanSurface;
 }): Promise<void> {
@@ -241,6 +298,10 @@ export async function recordUnifiedPlanUsage(opts: {
   const { error } = await supabaseAdmin.from("ai_plan_usage").insert({
     user_id: opts.userId ?? null,
     guest_key: opts.userId ? null : opts.guestKey ?? null,
+    // G6 (migration 0086): guest rows burn BOTH dimensions so a fresh
+    // incognito window still meets its own history via the IP count.
+    // Members never get IP-keyed rows — their identity is the account.
+    ip_key: opts.userId ? null : opts.ipKey ?? null,
     kind: opts.kind,
     surface: opts.surface ?? "planner",
   });

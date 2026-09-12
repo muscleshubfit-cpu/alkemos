@@ -22,10 +22,14 @@
  *     retrieval) — localStorage is still written as an offline cache,
  *     and hydration prefers the account copy (fresher + authoritative).
  *
- * GUEST IDENTITY: a per-browser UUID minted on demand. It is sent to
- * the demo routes + quota endpoint and hashed server-side
- * (hashGuestKey) — the guest's unified pool (free tier, 2/month) is
- * keyed by that hash in ai_plan_usage. No signup wall: the id is
+ * GUEST IDENTITY (G6 dual-dimension, migration 0086): a per-browser
+ * UUID minted on demand. It is sent to the demo routes + quota
+ * endpoint and hashed server-side (hashGuestKey) — but the browser
+ * UUID is only ONE dimension of the guest pool: the server ALSO
+ * counts a salted hash of the client IP (hashIpKey) and reads
+ * used = max(browser, network). So a brand-new incognito window (or
+ * cleared storage) can NO LONGER reset the monthly balance — the same
+ * network still meets its own history. No signup wall: the id is
  * transparent to the visitor; the signup nudge stays soft.
  *
  * LAW (fail-safe): every read validates the stored shape — a corrupt

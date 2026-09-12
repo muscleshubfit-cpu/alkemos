@@ -275,7 +275,9 @@ alkemos/
 │   │   ├── memberships.ts      # Tier definitions + pricing + limits (incl. the unified monthly AI-plan pool 2/4/8/8)
 │   │   ├── tier-limits.ts      # Quota engine: chat/swaps + the unified monthly plan pool
 │   │   │                       #   (checkUnifiedPlanQuota — success-only via ai_plan_usage, Phase 183)
-│   │   │                       #   + hashGuestKey (guest identity) — per-kind/weekly fns retired
+│   │   │                       #   + hashGuestKey/hashIpKey (G6 dual-dimension guest identity:
+│   │   │                       #   used = max(browser, network) — incognito can't reset the pool)
+│   │   │                       #   — per-kind/weekly fns retired
 │   │   ├── coach-limits.ts     # B2B pricing + activation fees
 │   │   ├── data/               # Data layer — 13 modules (index re-exports auth, blog, chat, coach,
 │   │   │                       #   notifications, plans, progress, questionnaires, referrals,
