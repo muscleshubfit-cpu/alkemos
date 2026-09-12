@@ -98,6 +98,17 @@ describe("ai-workout-exercise-match (§12.35)", () => {
       "row",
     );
     expect(matchWorkoutExercise("ضغط كتف بالبار", "full-gym")?.name).toContain("Shoulder Press");
+    // §12.35 live follow-up 2 — the naming patterns the AR model actually
+    // writes: transliterations (كيرل/هامر/بريس/ليج), parenthetical hints,
+    // filler words (تمرين/للعضلة), and target-muscle redundancy.
+    expect(matchWorkoutExercise("كيرل بار للبايسبس", "full-gym")?.name).toContain("Barbell Curl");
+    expect(matchWorkoutExercise("هامر كيرل دمبل", "full-gym")?.name).toContain("Hammer Curl");
+    expect(matchWorkoutExercise("ضغط ساقين (ليج بريس)", "full-gym")?.name).toContain("Leg Press");
+    expect(matchWorkoutExercise("تمرين كيرل للعضلة الخلفية (ليج كيرل)", "full-gym")?.name).toContain("Leg Curl");
+    expect(matchWorkoutExercise("سكوات بار خلفي", "full-gym")?.name).toContain("Barbell Squat");
+    expect(matchWorkoutExercise("رفع جانبي دمبل للكتف", "full-gym")?.name).toContain("Lateral Raise");
+    // A fully-unknown name still matches nothing (the filler law has a floor).
+    expect(matchWorkoutExercise("عدو سريع وهمي", "full-gym")).toBeNull();
   });
 
   it("EQUIPMENT HONESTY: the equipment world filters and explicit pins hold", () => {

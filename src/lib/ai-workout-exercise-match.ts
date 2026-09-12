@@ -167,13 +167,17 @@ const AR_TOKEN_LEXICON: Record<string, string[]> = {
   "تجديف": ["row"],
   "سحب": ["pull"],
   "امامي": ["front"], "امام": ["front"],
-  "خلفي": ["rear", "reverse"], "عكسي": ["reverse"], "معاكس": ["reverse"],
+  "خلفي": ["rear"], "عكسي": ["reverse"], "معاكس": ["reverse"],
   "لات": ["lat"],
   "عقلة": ["pull", "up"], "عقلات": ["pull", "up"],
   "دفع": ["push", "dip"], "متوازي": ["dip", "parallel"],
   "وجه": ["face"],
   // Arms
   "ثني": ["curl"], "بسط": ["extension"], "تمديد": ["extension"],
+  // Live-observed transliterations the AR models actually write (§12.35
+  // live follow-up 2): كيرل/هامر/بريس/ليج + رفع.
+  "كيرل": ["curl"], "هامر": ["hammer"], "بريس": ["press"], "ليج": ["leg"],
+  "رفع": ["raise"],
   "ترايسبس": ["triceps"], "بايسبس": ["biceps"],
   "مطرقة": ["hammer"], "فرنسية": ["french"], "فرنسي": ["french"],
   "رسغ": ["wrist"],
@@ -271,7 +275,7 @@ const LIB: LibEntry[] = EXERCISES.map((e) => ({
  */
 const SYNONYM_PHRASES: ReadonlyArray<{ find: RegExp; replace: string }> = [
   { find: /\bback\s+squat\b/gi, replace: "barbell squat" },
-  { find: /\u0633\u0643\u0648\u0627\u062a\s*\u062e\u0644\u0641\u064a/g, replace: "\u0633\u0643\u0648\u0627\u062a \u0628\u0627\u0644\u0628\u0627\u0631" },
+  { find: /\u0633\u0643\u0648\u0627\u062a\s+(?:\u0628\u0627\u0631\s+)?\u062e\u0644\u0641\u064a/g, replace: "\u0633\u0643\u0648\u0627\u062a \u0628\u0627\u0644\u0628\u0627\u0631" },
 ];
 
 function applySynonymPhrases(name: string): string {
@@ -288,6 +292,16 @@ function applySynonymPhrases(name: string): string {
 const EQUIPMENT_WORDS = new Set([
   "barbell", "dumbbell", "bodyweight", "cable", "machine", "kettlebell",
   "band", "bands", "smith", "leverage",
+]);
+
+/** Target-muscle words (the model describing WHAT it hits, often
+ * redundant with the movement itself: «كيرل بار للبايسبس» = a barbell
+ * curl). They weigh HALF in coverage — supporting evidence, never
+ * decisive, never absent. */
+const MUSCLE_WORDS = new Set([
+  "biceps", "triceps", "chest", "back", "shoulder", "shoulders", "abs",
+  "core", "leg", "legs", "calf", "calves", "quad", "quads", "hamstring",
+  "hamstrings", "glute", "glutes", "ab", "forearm", "forearms",
 ]);
 
 const EXTRA_SUFFIX_PENALTY = 0.5; // variant suffix ("- Medium Grip") — mild
@@ -329,27 +343,37 @@ export function matchWorkoutExercise(
   // lateral raise») are optional tokens — coverage is judged on the
   // semantic core (lateral + raise). An equipment word alone is not an
   // exercise name.
-  const semanticMask = expanded.map((alts) => alts.some((a) => !EQUIPMENT_WORDS.has(a)));
-  const semanticCount = semanticMask.filter(Boolean).length;
-  if (semanticCount === 0) return null;
+  // Live follow-up 2: Arabic names carry filler words (تمرين، للعضلة…)
+  // the model adds freely — an UNMAPPED Arabic token is unknown evidence,
+  // not contrary evidence: it leaves the denominator instead of drowning
+  // the real tokens. A name whose every token is unknown matches nothing.
+  const semanticMask = expanded.map((alts, i) => {
+    if (alts.length === 0 && isArabicToken(inputTokens[i])) return false;
+    return alts.some((a) => !EQUIPMENT_WORDS.has(a));
+  });
+  let semanticWeight = 0;
+  expanded.forEach((alts, i) => {
+    if (semanticMask[i]) semanticWeight += alts.some((a) => MUSCLE_WORDS.has(a)) ? 0.5 : 1;
+  });
+  if (semanticWeight === 0) return null;
 
   for (const entry of LIB) {
     if (compat && !compat.has(entry.equipment)) continue;
     if (pinned && entry.equipment !== pinned) continue;
 
-    let matchedSemantic = 0;
+    let matchedWeight = 0;
     expanded.forEach((alts, i) => {
-      if (semanticMask[i] && alts.some((a) => entry.tokens.some((lt) => tokensMatch(a, lt)))) {
-        matchedSemantic++;
-      }
+      if (!semanticMask[i]) return;
+      const hit = alts.some((a) => entry.tokens.some((lt) => tokensMatch(a, lt)));
+      if (hit) matchedWeight += alts.some((a) => MUSCLE_WORDS.has(a)) ? 0.5 : 1;
     });
-    const coverage = matchedSemantic / semanticCount;
+    const coverage = matchedWeight / semanticWeight;
     if (coverage < COVERAGE_MIN) continue;
     // Single-semantic-token inputs only match tight entries (e.g. "Plank"
     // → Plank, "Squat" → Barbell Squat) — never long variant chains.
     if (
-      matchedSemantic < 2 &&
-      !(semanticCount === 1 && matchedSemantic === 1 && entry.tokens.length <= 2)
+      matchedWeight < 1 &&
+      !(semanticWeight <= 1 && matchedWeight === semanticWeight && entry.tokens.length <= 2)
     ) {
       continue;
     }
