@@ -9,13 +9,13 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "حاسبة نسبة الدهون في الجسم — طريقة البحرية الأمريكية | Alkemos",
   description:
-    "احسب نسبة الدهون في جسمك مجانًا بطريقة U.S. Navy المعتمدة بناءً على محيط الخصر والرقبة والورك — نتيجة فورية مع تصنيف النسبة وتفسيرها.",
+    "احسب نسبة الدهون في جسمك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) المعتمدة بناءً على محيط الخصر والرقبة والورك — نتيجة فورية مع تصنيف النسبة وتفسيرها.",
   keywords: [
     "حاسبة نسبة الدهون",
     "حساب نسبة الدهون في الجسم",
     "حاسبة الدهون بطريقة البحرية",
     "نسبة الدهون الطبيعية",
-    "حاسبة Body Fat",
+    "حاسبة دهون الجسم",
   ],
   alternates: {
     canonical: "https://alkemos.com/ar/tools/body-fat-calculator",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "حاسبة نسبة الدهون في الجسم | Alkemos",
-    description: "احسب نسبة دهونك مجانًا بطريقة U.S. Navy مع تصنيف النتيجة.",
+    description: "احسب نسبة دهونك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) مع تصنيف النتيجة.",
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/tools/body-fat-calculator",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "حاسبة نسبة الدهون في الجسم | Alkemos",
-    description: "احسب نسبة دهونك مجانًا بطريقة U.S. Navy مع تصنيف النتيجة.",
+    description: "احسب نسبة دهونك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) مع تصنيف النتيجة.",
   },
 };
 

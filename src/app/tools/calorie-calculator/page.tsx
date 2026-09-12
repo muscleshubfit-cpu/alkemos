@@ -271,13 +271,13 @@ export default function CalorieCalculatorPage() {
               <div className="rounded-2xl bg-[var(--tint)] p-6 text-center">
                 <p className="text-2xl font-semibold tracking-tight">{result.bmr}</p>
                 <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
-                  {isAr ? "BMR (معدل الأيض الأساسي)" : "BMR (Basal Metabolic Rate)"}
+                  {isAr ? "معدل الأيض الأساسي (BMR)" : "BMR (Basal Metabolic Rate)"}
                 </p>
               </div>
               <div className="rounded-2xl bg-[var(--tint)] p-6 text-center">
                 <p className="text-2xl font-semibold tracking-tight">{result.tdee}</p>
                 <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
-                  {isAr ? "TDEE (الاحتياج اليومي)" : "TDEE (Maintenance)"}
+                  {isAr ? "الاحتياج اليومي (TDEE)" : "TDEE (Maintenance)"}
                 </p>
               </div>
             </div>

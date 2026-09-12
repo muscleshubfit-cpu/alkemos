@@ -171,8 +171,14 @@ export function countArabicWords(text: string): number {
  * brand names, acronyms with no common Arabic running-text form,
  * and measurement units. Everything else must be Arabic or
  * transliterated (leucine → الليوسين, casein → الكازين…).
+ *
+ * P2-10 (§12.41): callers OUTSIDE the blog — the tool-page surface and
+ * the §12.25 reference modules — pass an extra context allowlist
+ * (eponyms, SEO acronyms, payment brands; single source:
+ * src/lib/tool-msa.ts) via the optional second parameter. The BASE
+ * whitelist stays blog-strict: the blog guard is never weakened.
  */
-const LATIN_WHITELIST = new Set([
+export const LATIN_WHITELIST = new Set<string>([
   "alkemos", "evo", "ai", "who", "bmi", "mtor", "pubmed", "ahmed",
   "zake", "hiit", "kg", "mg", "ml", "cm", "km", "kcal", "bpm",
 ]);
@@ -184,8 +190,16 @@ export interface LatinContaminationScan {
   tokens: string[];
 }
 
-export function scanLatinContamination(md: string): LatinContaminationScan {
+export function scanLatinContamination(
+  md: string,
+  /** P2-10: context extensions (tool surfaces / reference modules) —
+   * the blog default (no second argument) stays strict. */
+  extraWhitelist?: ReadonlySet<string> | readonly string[],
+): LatinContaminationScan {
   if (!md) return { count: 0, tokens: [] };
+  const allowed: ReadonlySet<string> = extraWhitelist
+    ? new Set<string>([...LATIN_WHITELIST, ...extraWhitelist])
+    : LATIN_WHITELIST;
   const tokens = new Map<string, number>();
   const bump = (t: string) => {
     if (t) tokens.set(t, (tokens.get(t) ?? 0) + 1);
@@ -217,7 +231,7 @@ export function scanLatinContamination(md: string): LatinContaminationScan {
     const scanned = linkStripped.replace(/\([^)]*[A-Za-z][^)]*\)/g, " ");
     for (const m of scanned.matchAll(/[A-Za-z]{2,}/g)) {
       const t = m[0].toLowerCase();
-      if (LATIN_WHITELIST.has(t)) continue;
+      if (allowed.has(t)) continue;
       bump(t);
     }
   }

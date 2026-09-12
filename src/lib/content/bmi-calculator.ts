@@ -129,7 +129,7 @@ export const BMI_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "For historical completeness, the single-number formulas still circulate — Devine (1974, originally for drug dosing): 50 kg + 2.3 kg per inch over 5 feet for men, 45.5 kg + 2.3 kg per inch for women; Hamwi (1964): 48 kg + 2.7 kg per inch for men, 45.5 + 2.2 for women; and Robinson (1983), a revision of Devine. They disagree with each other by several kilograms at the same height, which is precisely the argument for the range method: when the classics cannot agree on one number, the honest answer is a band.",
-            ar: "لاكتمال تاريخي، ما تزال معادلات الرقم الواحد متداولة — Devine (1974، لأغراض جرعات الدواء أصلاً): 50 كجم + 2.3 كجم لكل إنش فوق خمسة أقدام للذكور، و45.5 كجم + 2.3 للإناث؛ وHamwi (1964): 48 كجم + 2.7 كجم لكل إنش للذكور و45.5 + 2.2 للإناث؛ وRobinson (1983) تنقيحٌ لـDevine. وهي تختلف فيما بينها كيلوغرامات عند الطول نفسه، وهذا بالضبط حجّة طريقة النطاق: حين تعجز الكلاسيكيات عن الاتفاق على رقم واحد، فالإجابة الصادقة حزام.",
+            ar: "لاكتمال تاريخي، ما تزال معادلات الرقم الواحد متداولة — Devine (1974، لأغراض جرعات الدواء أصلاً): 50 كجم + 2.3 كجم لكل إنش فوق خمسة أقدام للذكور، و45.5 كجم + 2.3 للإناث؛ و Hamwi (1964): 48 كجم + 2.7 كجم لكل إنش للذكور و45.5 + 2.2 للإناث؛ و Robinson (1983) تنقيحٌ لـ Devine. وهي تختلف فيما بينها كيلوغرامات عند الطول نفسه، وهذا بالضبط حجّة طريقة النطاق: حين تعجز الكلاسيكيات عن الاتفاق على رقم واحد، فالإجابة الصادقة حزام.",
           },
         },
         {

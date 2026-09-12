@@ -113,7 +113,7 @@ export function SaveResultButton({ toolSlug, title, resultData }: Props) {
     if (!allowed) {
       toast.error(
         isAr
-          ? "تحميل PDF متاح للأعضاء Premium فأعلى"
+          ? "تحميل PDF متاح لأعضاء باقة بريميوم فأعلى"
           : "PDF export is Premium+ only",
       );
       router.push("/memberships");

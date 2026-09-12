@@ -49,7 +49,7 @@ export const BODY_FAT_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "The method was published in 1984 by Hodgdon and Beckett of the US Naval Health Research Center, derived from measurements of thousands of naval personnel, and it estimates body fat from the relationship between circumference-derived body density and fat fraction. The equations this calculator implements, with all measurements in the same unit (centimeters or inches consistently):",
-            ar: "نُشرت الطريقة عام 1984 عن Hodgdon وBeckett من مركز البحرية الأمريكي لأبحاث الصحة، واشتُقت من قياسات آلاف من أفراد البحرية، وتقدّر دهون الجسم من العلاقة بين كثافة الجسم المستنتجة من المحيطات وكسر الدهون. والمعادلتان اللتان تنفذهما هذه الحاسبة، بكل القياسات بالوحدة نفسها (سنتيمترات أو إنشات باتساق):",
+            ar: "نُشرت الطريقة عام 1984 عن Hodgdon و Beckett من مركز البحرية الأمريكي لأبحاث الصحة، واشتُقت من قياسات آلاف من أفراد البحرية، وتقدّر دهون الجسم من العلاقة بين كثافة الجسم المستنتجة من المحيطات وكسر الدهون. والمعادلتان اللتان تنفذهما هذه الحاسبة، بكل القياسات بالوحدة نفسها (سنتيمترات أو إنشات باتساق):",
           },
         },
         {
@@ -278,7 +278,7 @@ export const BODY_FAT_CALCULATOR_CONTENT: ToolReference = {
       },
       a: {
         en: "Applied with a careful protocol, the Navy tape method usually lands within about 3–4 percentage points of a DEXA scan for typical adults — useful for tracking, imperfect for prescribing. Its known biases: it reads high on very lean, thick-necked men, and it can misjudge atypical fat distribution. DEXA itself is not error-free (±1–2%), so treat every method as an estimate with a band, and judge progress by the trend of one consistent method.",
-        ar: "مطبقةً ببروتوكول متأنٍّ، تهبط طريقة شريط البحرية عادة في حدود 3–4 نقاط مئوية من مسح DEXA عند البالغين النموذجيين — مفيدة للتعقب، ناقصة للوصف. وانحيازاها المعروفان: تقرأ أعلى عند الرجال النحفين غليظي الرقبة جداً، وقد تخطئ تقدير توزيع الدهون اللانمطي. وDEXA نفسه ليس معصوماً (±1–2%)، فتعامل مع كل طريقة كتقدير بحزام، واحكم على التقدم باتجاه طريقة واحدة ثابتة.",
+        ar: "مطبقةً ببروتوكول متأنٍّ، تهبط طريقة شريط البحرية عادة في حدود 3–4 نقاط مئوية من مسح DEXA عند البالغين النموذجيين — مفيدة للتعقب، ناقصة للوصف. وانحيازاها المعروفان: تقرأ أعلى عند الرجال النحفين غليظي الرقبة جداً، وقد تخطئ تقدير توزيع الدهون اللانمطي. و DEXA نفسه ليس معصوماً (±1–2%)، فتعامل مع كل طريقة كتقدير بحزام، واحكم على التقدم باتجاه طريقة واحدة ثابتة.",
       },
     },
     {

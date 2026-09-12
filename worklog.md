@@ -3275,3 +3275,23 @@ Item 1 — unblocking the 9 AI crawlers in the Cloudflare-managed robots.txt sec
 
 ### P0-1 investigation result (Cloudflare API, same session)
 `GET /zones/{id}/ai-audit/robots` (AI Audit API) confirms the managed rules live; **no public write endpoint exists** for AI Crawl Control per-crawler actions / Managed robots.txt (dashboard-only per Cloudflare docs). `http_request_firewall_custom` phase is EMPTY — the block is advisory-only via robots.txt; pages already return HTTP 200 for GPTBot/ClaudeBot UAs (verified live). Owner's 2-minute dashboard procedure + verification command documented in §12.20.
+
+## Phase SEO-GEO-6.10 (§12.41) — P2-10: tool-surface + main-FAQ MSA unification (owner order «ابدأ p2 البند ١٠» 2026-09-12)
+
+### Diagnosis before any fix
+A comment/string-aware tokenizer (extracts only user-visible copy: Arabic-containing string literals + bare JSX text; comments stripped so quoted dialect examples in law texts can never false-positive) rode the SAME law machinery as the blog (`scanArabicDialect` + `scanLatinContamination`). Scanned 33 files: the 10 bilingual tool pages + tool chrome (OtherTools, LeadCaptureCard, SaveResultButton, ShareButtons, ShoppingListCard, ToolReferenceContent, review-invite) + AR tool metadata layouts + main FAQ + the 6 §12.25 reference modules. Found: strong dialect ×3 (مفيش in meal-planner/LeadCaptureCard/NewsletterForm) + «محتاج…دي» in macro + real weak «ينفع» in the calorie reference + 6 glued Arabic↔Latin adjacencies (وDHA · وDEXA · وBeckett · وShizgal · لـDevine · A وD وE وK) + INVERTED glosses «BMR (معدل الأيض الأساسي)» + «حاسبة Body Fat» in AR metadata + bare tier Latin (Premium/Pro/Coaching) in FAQ/gating strings.
+
+### Copy fixes — 15 spots across 12 files
+Dialect→MSA (لا توجد أطعمة بعد · تحتاج… بهذه الماكروز · لا رسائل مزعجة، ويمكنك · يجدي عجزٌ أُعيد حسابه) · tier names now Arabic per the single source memberships.ts nameAr: بريميوم/برو/كوتشينج (also fixed the طوّق typo) · gloss DIRECTION inverted to law convention: «معدل الأيض الأساسي (BMR)» · «الاحتياج اليومي (TDEE)» · «سياسات الأمان على مستوى الصفوف (RLS)» · «تطبيق ويب تقدمي (PWA)» · «معادلة ميفلين-سانت جيور (Mifflin-St Jeor)» · «طريقة البحرية الأمريكية (U.S. Navy)» · keyword «حاسبة Body Fat»→«حاسبة دهون الجسم» · glue dissolved with spaces (و DHA · و DEXA · و Beckett · و Shizgal · لـ Devine · A و D و E و K).
+
+### One law, one source, a documented context dictionary
+`scanLatinContamination` gained an OPTIONAL `extraWhitelist` param (blog guard byte-identical without it — no fork). The tool-context list lives in the pure module `src/lib/tool-msa.ts` as three CLOSED classes: equation eponyms (Mifflin-St Jeor, Hodgdon…), technical acronyms/SEO keywords (BMR, TDEE, DEXA, NEAT, EPA/DHA, kJ, JSON, PDF), payment/platform brands (PayPal, InstaPay, Vodafone Cash, Supabase, Trustpilot, Product Hunt). Banned outside the list: tier names, common-English labels, inverted glosses, glued adjacency (spacing is the only cure).
+
+### Permanent guards (+92 → 914/914)
+New `src/lib/__tests__/tool-msa-surface.test.ts` (86 tests): dialect law + Latin law + gloss-direction (restricted to translatabLE acronyms — PayPal's Arabic appositive paren is legitimate prose) it.each over a 27-file manifest + FAQS_AR tier-name ban + 5 fixed canaries (gloss fixes stay fixed · مفيش never returns · tokenizer self-tested both ways). `tool-reference-content.test.ts` gained the missing "MSA 176" Latin case for each of the 6 reference modules (+6) — law 175/176 is now FULLY unified across blog + tools + FAQ: two detectors, one law, one documented context dictionary.
+
+### Scope transparency
+In-passing (out of item scope, documented): NewsletterForm homepage string fixed but NOT manifested. Out-of-scope observation awaiting owner decision: memberships-page FAQ carries dialect («مفيش تجربة مجانية. بس الـ Free tier…») — commercial page, P3-class cleanup by separate order. «طب المسنين»/«طب الرياضة»/«دون حاجة» are legitimate MSA caught by weak-marker lenses — the <5 threshold exists for exactly this class; untouched.
+
+### Gates (all local, before push)
+tsc 0 · eslint 0/0 · vitest **914/914** · next build exit 0 · docs_audit ✓ · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓ · zero migrations · zero logic/route/quota changes — copy + guards only. With this item P2 (10–14) is fully closed; only P3 (owner decision) remains.

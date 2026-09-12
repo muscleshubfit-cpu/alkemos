@@ -17,7 +17,8 @@ import {
   referenceWordCount,
   type ToolReference,
 } from "@/lib/content/tool-reference";
-import { scanArabicDialect, needsMsaRepair } from "@/lib/blog-msa";
+import { scanArabicDialect, needsMsaRepair, scanLatinContamination } from "@/lib/blog-msa";
+import { TOOL_LATIN_ALLOWLIST } from "@/lib/tool-msa";
 import { getToolSchemas, TOOL_SCHEMA_DATA } from "@/lib/tool-schema";
 
 /**
@@ -210,6 +211,23 @@ describe("tool reference content (SEO-GEO-6.5 §12.19 P1-6)", () => {
     expect(scan.strong, `strong dialect markers: ${JSON.stringify(scan.strongHits)}`).toBe(0);
     expect(scan.weak, `weak dialect markers: ${JSON.stringify(scan.weakHits)}`).toBeLessThan(5);
     expect(needsMsaRepair(ar)).toBe(false);
+  });
+
+  // P2-10 (§12.41 — owner order «ابدأ p2 البند ١٠"): the reference modules
+  // now ride the FULL law 175/176 — the Latin contamination detector too
+  // (previously only the dialect scanner ran here). The tool-context
+  // allowlist (src/lib/tool-msa.ts) codifies this file's own documented
+  // §12.25 exception pattern: eponyms (Mifflin-St Jeor, Hodgdon), technical
+  // acronyms (BMR, TDEE, DEXA, NEAT, EPA/DHA), payment brands. Everything
+  // else in Arabic copy must be Arabic-first with a parenthetical Latin
+  // gloss — and NO glued Arabic↔Latin adjacency (spacing is the only cure).
+  it.each(TOOLS)("MSA 176: %s Arabic copy carries no bare Latin beyond the tool allowlist", (_slug, ref) => {
+    const ar = flattenReferenceText(ref, "ar");
+    const scan = scanLatinContamination(ar, TOOL_LATIN_ALLOWLIST);
+    expect(
+      scan.count,
+      `bare/glued Latin tokens: ${JSON.stringify(scan.tokens)} — rewrite Arabic-first, gloss in parentheses, or add spaces after و/لـ (src/lib/tool-msa.ts documents the classes)`,
+    ).toBe(0);
   });
 
   it.each(TOOLS)("BILINGUAL PARITY: %s has non-empty text on both sides", (_slug, ref) => {

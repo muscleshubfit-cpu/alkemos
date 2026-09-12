@@ -110,7 +110,7 @@ export default function MacroCalculatorPage() {
             </div>
 
             <div className="rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6 text-center">
-              <p className="text-base font-normal text-[var(--text)]">{isAr ? "محتاج خطة وجبات بالماكروز دي؟" : "Need a meal plan with these macros?"}</p>
+              <p className="text-base font-normal text-[var(--text)]">{isAr ? "تحتاج خطة وجبات بهذه الماكروز؟" : "Need a meal plan with these macros?"}</p>
               <button onClick={() => navigate("memberships")} className="mt-4 btn-chrome px-6 py-2.5 text-sm">
                 {isAr ? "احصل على خطة مخصصة ›" : "Get a personalized plan ›"}
               </button>

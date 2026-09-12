@@ -299,7 +299,7 @@ export default function MealPlannerPage() {
     if (!limits.mealPlannerExport) {
       toast.error(
         isAr
-          ? "التصدير متاح لباقات Premium و Pro — طوّق باقتك للمتابعة."
+          ? "التصدير متاح لباقتي بريميوم وبرو — طوّر باقتك للمتابعة."
           : "Export is available on Premium and Pro — upgrade to continue.",
       );
       navigate("memberships");
@@ -563,7 +563,7 @@ function MealCard({
       <div className="mt-4 space-y-2">
         {meal.items.length === 0 ? (
           <p className="text-center py-6 text-sm text-[var(--muted-foreground)]">
-            {isAr ? "مفيش أكلات بعد — ابحث وأضف" : "No foods yet — search and add"}
+            {isAr ? "لا توجد أطعمة بعد — ابحث وأضف" : "No foods yet — search and add"}
           </p>
         ) : (
           meal.items.map((item) => (

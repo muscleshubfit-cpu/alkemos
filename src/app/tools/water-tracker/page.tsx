@@ -188,7 +188,7 @@ export default function WaterTrackerPage() {
     if (!allowed) {
       toast.error(
         isAr
-          ? "حفظ سجل الماء متاح للأعضاء Premium فأعلى"
+          ? "حفظ سجل الماء متاح لأعضاء باقة بريميوم فأعلى"
           : "Water log save is Premium+ only",
       );
       navigate("memberships");

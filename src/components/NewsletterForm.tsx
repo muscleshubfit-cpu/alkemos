@@ -178,7 +178,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
       )}
 
       <p className={`mt-2 text-xs font-normal text-[#8e8e93] ${variant === "home" ? "text-center" : ""}`}>
-        {isAr ? "مفيش سبام. تقدر تلغي الاشتراك في أي وقت." : "No spam. Unsubscribe anytime."}
+        {isAr ? "لا رسائل مزعجة. يمكنك إلغاء الاشتراك في أي وقت." : "No spam. Unsubscribe anytime."}
       </p>
     </div>
   );
