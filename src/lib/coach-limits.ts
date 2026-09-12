@@ -10,15 +10,17 @@
  *    tops up via InstaPay / Vodafone Cash / PayPal, uploads the receipt,
  *    the admin reviews it and manually credits the wallet. Activation
  *    DEBITS the wallet — no balance, no activation (admins exempt).
- *  - Coach AI plan generation draws from the CLIENT's ONE plan balance
- *    (owner decrees 2026-09-01 + 2026-09-02): weekly cap 1+1 (Pro 2+2,
- *    Monday-anchored UTC) + monthly total 4+4 (Pro 8+8, resets on the
- *    1st) — the same pool the member's EVO chat spends from. The old
- *    separate coach-side 4/4 cap (COACH_AI_PLAN_LIMIT, 0034) was REMOVED
- *    — it double-capped the same pool and contradicted the one-balance
- *    law for Pro clients. EDITING plans (per-meal/per-exercise
- *    regenerate, content edits) and MANUAL plan uploads are UNLIMITED by
- *    owner decree.
+ *  - Coach AI plan generation draws from the CLIENT'S ONE unified
+ *    monthly pool (owner decree 2026-09-13 «البوول الموحد», Phase
+ *    183): ONE success-only budget per identity for nutrition +
+ *    workout COMBINED (free 2 · premium 4 · pro 8 · coaching 8),
+ *    recorded in ai_plan_usage (migration 0085) — the same pool the
+ *    member's EVO chat and the planner pages spend from; resets on
+ *    the 1st. The old per-kind split (4+4 / 8+8), the weekly caps
+ *    (1+1 / 2+2), and the separate coach-side 4/4 cap
+ *    (COACH_AI_PLAN_LIMIT, 0034) are ALL retired. EDITING plans
+ *    (per-meal/per-exercise regenerate, content edits) and MANUAL
+ *    plan uploads are UNLIMITED by owner decree.
  *  - Site clients keep the exact same tier limits as before — nothing
  *    changes on the client side.
  *  - CURRENCY (owner decree 2026-08-30: «التسعير يكون كله بالدولار
@@ -89,13 +91,6 @@ export type CoachAdPackage = (typeof COACH_AD_PACKAGES)[number];
 
 export function coachAdPackageById(id: unknown): CoachAdPackage | null {
   return COACH_AD_PACKAGES.find((p) => p.id === id) ?? null;
-}
-
-/** UTC calendar-month window for the coach AI quota (resets on the 1st). */
-export function coachAiMonthStartISO(now: Date = new Date()): string {
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
-  ).toISOString();
 }
 
 export type CoachPaymentMethod =

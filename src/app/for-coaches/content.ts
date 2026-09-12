@@ -29,7 +29,7 @@ export const COACH_FAQ_AR: Array<{ q: string; a: string }> = [
   },
   {
     q: "إيه حدود الذكاء الاصطناعي؟",
-    a: "توليد الخطط لعميلك بيسحب من رصيده حسب باقته: بريميوم 4 تغذية + 4 تمارين شهرياً، برو 8 + 8، وكوتشينج 4 + 4 — بحد أسبوعي 1 + 1 (برو 2 + 2) عشان الرصيد يتوزّع على الشهر. وهو نفس الرصيد اللي بيستخدمه عميلك بنفسه من إيفو؛ الحد الأسبوعي بيتصفّر يوم الاثنين والإجمالي الشهري بيتصفّر أول الشهر. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف غذائي أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا.",
+    a: "توليد الخطط لعميلك بيسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع خطط التغذية والتمارين معاً: بريميوم 4 توليدات شهرياً، برو 8، وكوتشينج 8 (بيورث كل مزايا برو). وهو نفس الرصيد اللي بيستخدمه عميلك بنفسه من إيفو وصفحات المخططات؛ الرصيد بيتصفّر أول كل شهر، والتوليد الناجح بس هو اللي بيتحسب — الفاشل مبيحرقش حصة. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف غذائي أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا.",
   },
   {
     q: "هل عملائي هيبقوا تابعين للموقع؟",
@@ -60,7 +60,7 @@ export const COACH_FAQ_EN: Array<{ q: string; a: string }> = [
   },
   {
     q: "What are the AI limits?",
-    a: "Generating a client's plans draws from his own balance by tier: Premium 4 nutrition + 4 workouts per month, Pro 8 + 8, Coaching 4 + 4 — with a weekly cap of 1 + 1 (Pro 2 + 2) so the balance spreads across the month. It is the same pool your client spends through EVO; the weekly window resets Monday, the monthly total on the 1st. Hand-editing, manual uploads, and AI-regenerating any meal, food item, workout day, or exercise are all unlimited.",
+    a: "Generating a client's plans draws from his own unified monthly pool by tier — ONE balance for nutrition AND workouts combined: Premium 4 generations per month, Pro 8, and Coaching 8 (coaching inherits every Pro benefit). It is the same pool your client spends himself through EVO and the planner pages; the pool resets on the 1st of each month, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, food item, workout day, or exercise are all unlimited.",
   },
   {
     q: "Will my clients belong to the site?",

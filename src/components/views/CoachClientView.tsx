@@ -295,9 +295,9 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  void scanRecoverableJobs();
  }, [scanRecoverableJobs]);
 
- // 0034: live AI-quota readout for THIS client — the ONE client plan
- // balance (weekly cap + monthly total; failed generations never burn
- // quota; admins unlimited).
+ // 0034: live AI-quota readout for THIS client — the ONE unified monthly
+ // plan pool (Phase 183 «البوول الموحد»: nutrition + workout combined,
+ // success-only; failed generations never burn quota; admins unlimited).
  const refreshAiUsage = useCallback(async () => {
  if (!isSupabaseConfigured) return;
  try {

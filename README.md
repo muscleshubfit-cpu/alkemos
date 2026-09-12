@@ -272,9 +272,10 @@ alkemos/
 │   │   └── ...
 │   ├── hooks/                   # React hooks (auth, nav, tier, mobile, toast, scroll, voice)
 │   ├── lib/                    # Business logic + data layer
-│   │   ├── memberships.ts      # Tier definitions + pricing + limits (incl. weekly+monthly plan quotas)
-│   │   ├── tier-limits.ts      # Quota engine: chat/swaps/plans — weekStartUtc (Monday UTC),
-│   │   │                       #   enforcePlanQuota (weekly cap + monthly total, blockedBy week|month)
+│   │   ├── memberships.ts      # Tier definitions + pricing + limits (incl. the unified monthly AI-plan pool 2/4/8/8)
+│   │   ├── tier-limits.ts      # Quota engine: chat/swaps + the unified monthly plan pool
+│   │   │                       #   (checkUnifiedPlanQuota — success-only via ai_plan_usage, Phase 183)
+│   │   │                       #   + hashGuestKey (guest identity) — per-kind/weekly fns retired
 │   │   ├── coach-limits.ts     # B2B pricing + activation fees
 │   │   ├── data/               # Data layer — 13 modules (index re-exports auth, blog, chat, coach,
 │   │   │                       #   notifications, plans, progress, questionnaires, referrals,
@@ -334,18 +335,20 @@ alkemos/
 - **Exercise Library:** 868 exercises with images (start + end positions), Arabic + English
 - **Food Database:** 8,830 foods with per-100g macros
 - **Workout Programs Library:** 7 structured programs (home, gym, HIIT…)
-- **EVO AI Coach:** Floating chat widget with SSE streaming (live typing) — free users get 10 msgs/day; subscribers unlimited. EVO-5 layer: frequent-question cache (zero-client-policy `evo_chat_cache` — served ONLY to context-free requests, quota unchanged), per-dispatch telemetry (`evo_call_stats`) and the weekly AR/EN eval harness (GHA `evo-weekly-eval.yml` → `evo_eval_runs`, judge-scored quality curve) — see `/admin/evo-analytics`. Crisis shield (`evo-safety.ts`) answers self-harm/eating-disorder signals with a static safe redirect — they never reach a model; the plan-request intent gate (`evo-intent.ts`) routes plan/swap phrasings (AR dialect families + EN) to the subscriber gate deterministically
+- **EVO AI Coach:** Floating chat widget with SSE streaming (live typing) — free users get 10 msgs/day; subscribers unlimited. EVO-5 layer: frequent-question cache (zero-client-policy `evo_chat_cache` — served ONLY to context-free requests, quota unchanged), per-dispatch telemetry (`evo_call_stats`) and the weekly AR/EN eval harness (GHA `evo-weekly-eval.yml` → `evo_eval_runs`, judge-scored quality curve) — see `/admin/evo-analytics`. Crisis shield (`evo-safety.ts`) answers self-harm/eating-disorder signals with a static safe redirect — they never reach a model; the plan-request intent gate (`evo-intent.ts`) routes plan phrasings (AR dialect families + EN) to the unified-pool gate for everyone and swap phrasings to the subscriber gate (Phase 183)
 - **Coach Directory:** public coach pages (`/coaches/[slug]`) with landing editor, featured API, and preview mode
 - **Blog:** AI-generated articles in Arabic + English (automated research→publish pipeline)
 - **Save Results:** Free saves 3 results; premium tiers save 50–200 + PDF export
 - **Meal Planner:** Custom meals with per-gram macro calculation (tier-scaled)
 - **Progress Tracking:** Weight charts, body measurements, progress photos
 
-### For Members (plan quotas — two windows, one shared pool with EVO)
-- **Premium ($14.99/mo or $119/yr):** Unlimited EVO chat · **4 nutrition + 4 workout plans per month, capped 1+1 per week** · 3 swaps/week · cross-session memory · 50 saved results
-- **Pro ($29.99/mo or $239/yr):** Everything in Premium ×2 — **8+8 plans monthly, capped 2+2 weekly** · 6 swaps/week · pattern analysis · 200 saved results · no ads
-- **Coaching ($39.99/mo or $359/yr):** Human coach + EVO at Premium-tier limits (4+4 monthly, 1+1 weekly)
-- Weekly window resets Monday 00:00 UTC; monthly totals reset on the 1st. Editing and manual uploads are always unlimited.
+### For Members (plan quotas — ONE unified monthly pool, Phase 183 «البوول الموحد» 2026-09-13)
+- ONE monthly pool per identity for nutrition + workout AI generations COMBINED, counted on success only (failed attempts, input edits, navigation, and viewing an existing plan never burn quota)
+- **Free (and guests, no signup):** 2 successful generations/month · 10 EVO messages/day
+- **Premium ($14.99/mo or $119/yr):** Unlimited EVO chat · **4 generations/month (combined)** · 3 swaps/week · cross-session memory · 50 saved results
+- **Pro ($29.99/mo or $239/yr):** Everything in Premium ×2 — **8 generations/month (combined)** · 6 swaps/week · pattern analysis · 200 saved results · no ads
+- **Coaching ($39.99/mo or $359/yr):** Human coach + every Pro limit (8 generations/month, 6 swaps/week) + weekly check-ins + direct coach contact
+- The pool resets on the 1st (UTC). Previously generated plans stay visible after exhaustion. Editing and manual uploads are always unlimited.
 
 ### For Coaches (B2B)
 - **Client Dashboard:** filter tabs (active, expiring, no questionnaire, by tier…)

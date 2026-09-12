@@ -218,12 +218,12 @@ export default function ForCoachesPage() {
             </ul>
             <div className="marble-card mt-6 p-6">
               <h3 className="text-sm font-bold">
-                {isAr ? "خطط الذكاء الاصطناعي — رصيد واضح (أسبوعي + شهري)" : "AI plans — a clear balance (weekly + monthly)"}
+                {isAr ? "خطط الذكاء الاصطناعي — رصيد شهري موحد" : "AI plans — one unified monthly balance"}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
                 {isAr
-                  ? "توليد الخطط لعميلك بيسحب من رصيده حسب باقته: بريميوم 4 تغذية + 4 تمارين شهرياً · برو 8 + 8 · كوتشينج 4 + 4 — بحد أسبوعي 1 + 1 (برو 2 + 2) عشان الرصيد يتوزّع على الشهر. وهو نفس الرصيد اللي بيستخدمه عميلك من إيفو؛ الحد الأسبوعي بيتصفّر يوم الاثنين والإجمالي الشهري أول الشهر. والتعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — كلها غير محدودة خالص."
-                  : "Generating a client's plans draws from his own tier balance: Premium 4 nutrition + 4 workouts per month, Pro 8 + 8, Coaching 4 + 4 — with a weekly cap of 1 + 1 (Pro 2 + 2) so the balance spreads across the month. It is the same pool he spends through EVO; the weekly window resets Monday, the monthly total on the 1st. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
+                  ? "توليد الخطط لعميلك بيسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معاً: بريميوم 4 توليدات شهرياً · برو 8 · كوتشينج 8 (بيورث كل مزايا برو). وهو نفس الرصيد اللي بيستخدمه عميلك من إيفو وصفحات المخططات؛ بيتصفّر أول كل شهر، والتوليد الناجح بس هو اللي بيتحسب — الفاشل مبيحرقش حصة. والتعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — كلها غير محدودة خالص."
+                  : "Generating a client's plans draws from his own tier's unified monthly balance — ONE pool for nutrition AND workouts combined: Premium 4 generations/month · Pro 8 · Coaching 8 (inherits every Pro benefit). It is the same pool he spends through EVO and the planner pages; it resets on the 1st, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
               </p>
             </div>
           </div>

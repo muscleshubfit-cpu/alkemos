@@ -85,8 +85,9 @@ export async function POST(request: NextRequest) {
       // (coach | admin) crafting client plans use meal/exercise swaps as
       // an EDITING tool, not as client self-service — quota-bypass them.
       // The weekly C16 limit stays exactly as-is for clients (free 0 ·
-      // premium 3 · pro 6 · coaching 3), and the EVO-chat plan-creation
-      // quotas (weekly cap + monthly total, 2026-09-02) are untouched.
+      // premium 3 · pro 6 · coaching 6 — Phase 183 inherits Pro), and
+      // plan-creation is gated by the Phase 183 unified monthly pool
+      // (success-only, ai_plan_usage — see the check further below).
     } else {
       // user_swap_meal | user_swap_exercise → enforce C16 weekly tier limit.
       // Record-at-enqueue mirrors the previous swap system exactly: quota
@@ -112,11 +113,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── 0034: COACH PER-CLIENT AI QUOTA (SUPERSEDED 2026-09-02) ───────
-    // The old 4 nutrition + 4 workout coach-side cap is GONE — the ONE
-    // client plan balance (weekly cap 1+1 / Pro 2+2 + monthly total 4+4 /
-    // Pro 8+8, both fed by coach AND EVO generations) is the only quota
-    // (owner decrees 2026-09-01 + 2026-09-02). Editing tools (meal/
+    // ── 0034: COACH PER-CLIENT AI QUOTA (SUPERSEDED 2026-09-02 →
+    //    2026-09-13) ──────────────────────────────────────────────
+    // The old 4 nutrition + 4 workout coach-side cap is GONE, and the
+    // 2026-09-02 one-balance law (weekly 1+1/2+2 + monthly 4+4/8+8) was
+    // itself superseded by the Phase 183 UNIFIED monthly pool: ONE
+    // success-only budget per client identity (nutrition + workout
+    // COMBINED: free 2 · premium 4 · pro 8 · coaching 8), fed by coach
+    // AND EVO AND planner generations (owner decree 2026-09-13
+    // «البوول الموحد»). Editing tools (meal/
     // exercise regenerate — staff-bypassed above) and manual uploads stay
     // UNLIMITED. Admins remain unlimited (staff quota semantics). A coach
     // may also only generate for his OWN clients — ownership verified

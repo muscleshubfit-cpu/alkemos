@@ -90,13 +90,13 @@ export function evoChatLimitFor(tier: MembershipTier): number | null {
  *   free:     0 (no swaps)
  *   premium:  3/week
  *   pro:      6/week
- *   coaching: 3/week (same as premium, but with human coach)
+ *   coaching: 6/week (inherits every Pro benefit — Phase 183)
  */
 export function swapLimitForTier(tier: MembershipTier): number | null {
   // Single source of truth = memberships.ts (evoSwapLimit).
   // Previously a hardcoded switch duplicated these numbers — the two could
-  // drift apart from the advertised comparison table. They still agree
-  // today (0/3/6/3); now they CANNOT diverge.
+  // drift apart from the advertised comparison table. They agree
+  // today (0/3/6/6); now they CANNOT diverge.
   return getLimits(tier).evoSwapLimit;
 }
 
