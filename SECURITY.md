@@ -242,14 +242,17 @@ Alkemos processes the following categories of personal data:
   365-day consent record (`localStorage mhe_cookie_consent`), and
   withdrawal-as-easy-as-giving via the privacy page's "Cookie settings"
   button (`alkemos:consent-reopen`).
-- **GA/AdSense gating (Consent Mode v2):** the `ga-init` script in
-  `src/app/layout.tsx` declares `gtag('consent', 'default', …denied)`
-  BEFORE `gtag('config')` — the order Google requires — then applies the
-  visitor's STORED choice pre-config. Before Phase 178, `gtag('config')`
-  ran with no consent state, so GA set cookies and shipped pageviews for
-  visitors who had not consented (the banner's `consent update` only
-  fired after the visitor chose). AdSense reads the same gtag consent
-  state. Owner order: «حل مشاكل بانر الكوكيز إن وجدت» (2026-09-12).
+- **GA/AdSense gating (Consent Mode v2):** the `consent-mode-v2` script in
+  `src/app/layout.tsx` renders ALWAYS (independent of `GA_ID` — AdSense is
+  the live Google tag in production) and declares
+  `gtag('consent', 'default', …denied)` BEFORE any Google tag loads — the
+  order Google requires — then applies the visitor's STORED choice
+  pre-tag. Before Phase 178, `gtag('config')` ran with no consent state
+  (when GA_ID was set), so GA set cookies and shipped pageviews for
+  visitors who had not consented; and with GA_ID unset there was NO gtag
+  on the page at all, so the banner's `consent update` could never reach
+  AdSense. AdSense reads the same gtag consent state. Owner order: «حل
+  مشاكل بانر الكوكيز إن وجدت» (2026-09-12).
 - No analytics/advertising cookies are set before consent; the
   `alkemos-consent-init` pre-paint script only reads localStorage to
   stamp a visibility attribute (no network, no cookie writes).
