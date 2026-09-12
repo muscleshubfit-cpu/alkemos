@@ -107,20 +107,27 @@ function tokenize(s: string): string[] {
     .filter((t) => !STOPWORDS.has(t));
 }
 
-function stripPlural(t: string): string {
-  if (t.length > 3 && t.endsWith("es")) return t.slice(0, -2);
-  if (t.length > 2 && t.endsWith("s")) return t.slice(0, -1);
-  return t;
+/** All plural-stripped variants of a token (s-strip and es-strip differ:
+ * «raises»→«raise» but «presses»→«press» — matching tries every variant). */
+function tokenVariants(t: string): Set<string> {
+  const v = new Set<string>([t]);
+  if (t.length > 2 && t.endsWith("s")) v.add(t.slice(0, -1));
+  if (t.length > 3 && t.endsWith("es")) v.add(t.slice(0, -2));
+  return v;
 }
 
-/** Loose token equality: exact, plural-stripped, or ≥5-char prefix family. */
+/** Loose token equality via plural-variant intersection or ≥5-char prefix family. */
 function tokensMatch(a: string, b: string): boolean {
   if (a === b) return true;
-  const sa = stripPlural(a);
-  const sb = stripPlural(b);
-  if (sa === sb) return true;
-  if (sa.length >= 5 && sb.length >= 5 && (sa.startsWith(sb) || sb.startsWith(sa))) {
-    return true;
+  const va = tokenVariants(a);
+  const vb = tokenVariants(b);
+  for (const x of va) if (vb.has(x)) return true;
+  for (const x of va) {
+    for (const y of vb) {
+      if (x.length >= 5 && y.length >= 5 && (x.startsWith(y) || y.startsWith(x))) {
+        return true;
+      }
+    }
   }
   return false;
 }
@@ -254,6 +261,39 @@ const LIB: LibEntry[] = EXERCISES.map((e) => ({
 }));
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Synonym phrases (checked on the normalized input BEFORE tokenizing)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Domain synonyms the library names differently than the models write
+ * them. Applied verbatim (case-insensitive) before tokenization — never
+ * a guess, each maps a real, universally-agreed equivalence.
+ */
+const SYNONYM_PHRASES: ReadonlyArray<{ find: RegExp; replace: string }> = [
+  { find: /\bback\s+squat\b/gi, replace: "barbell squat" },
+  { find: /\u0633\u0643\u0648\u0627\u062a\s*\u062e\u0644\u0641\u064a/g, replace: "\u0633\u0643\u0648\u0627\u062a \u0628\u0627\u0644\u0628\u0627\u0631" },
+];
+
+function applySynonymPhrases(name: string): string {
+  let out = name;
+  for (const { find, replace } of SYNONYM_PHRASES) out = out.replace(find, replace);
+  return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Scoring weights
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Equipment words in library names — neutral extras, never a modifier penalty. */
+const EQUIPMENT_WORDS = new Set([
+  "barbell", "dumbbell", "bodyweight", "cable", "machine", "kettlebell",
+  "band", "bands", "smith", "leverage",
+]);
+
+const EXTRA_SUFFIX_PENALTY = 0.5; // variant suffix ("- Medium Grip") — mild
+const EXTRA_PREFIX_PENALTY = 4.0; // movement modifier ("Guillotine" bench) — heavy
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Matching
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -261,14 +301,14 @@ const COVERAGE_MIN = 0.6;
 
 /**
  * Match one generated exercise name to the library — or null (never a
- * guess). Deterministic: coverage → fewest unmatched library tokens →
- * shortest name → library array order.
+ * guess). Deterministic: coverage → modifier-weighted extras → fewest
+ * tokens → library array order.
  */
 export function matchWorkoutExercise(
   name: string,
   equipment: WorkoutEquipment,
 ): WorkoutExerciseLibraryMatch | null {
-  const inputTokens = tokenize(name);
+  const inputTokens = tokenize(applySynonymPhrases(name));
   if (inputTokens.length === 0) return null;
   const expanded = inputTokens.map(expandToken);
 
@@ -285,26 +325,52 @@ export function matchWorkoutExercise(
   const compat = EQUIP_COMPAT[equipment];
   let best: { entry: LibEntry; score: number } | null = null;
 
+  // SEMANTIC COVERAGE: equipment words the model wrote («dumbbell
+  // lateral raise») are optional tokens — coverage is judged on the
+  // semantic core (lateral + raise). An equipment word alone is not an
+  // exercise name.
+  const semanticMask = expanded.map((alts) => alts.some((a) => !EQUIPMENT_WORDS.has(a)));
+  const semanticCount = semanticMask.filter(Boolean).length;
+  if (semanticCount === 0) return null;
+
   for (const entry of LIB) {
     if (compat && !compat.has(entry.equipment)) continue;
     if (pinned && entry.equipment !== pinned) continue;
 
-    let matched = 0;
-    for (const alts of expanded) {
-      if (alts.some((a) => entry.tokens.some((lt) => tokensMatch(a, lt)))) matched++;
-    }
-    const coverage = matched / inputTokens.length;
+    let matchedSemantic = 0;
+    expanded.forEach((alts, i) => {
+      if (semanticMask[i] && alts.some((a) => entry.tokens.some((lt) => tokensMatch(a, lt)))) {
+        matchedSemantic++;
+      }
+    });
+    const coverage = matchedSemantic / semanticCount;
     if (coverage < COVERAGE_MIN) continue;
-    // Single-token inputs only match tight entries (e.g. "Plank" → Plank,
-    // "Squat" → Barbell Squat) — never long variant chains.
-    if (matched < 2 && !(inputTokens.length === 1 && entry.tokens.length <= 2 && matched === 1)) {
+    // Single-semantic-token inputs only match tight entries (e.g. "Plank"
+    // → Plank, "Squat" → Barbell Squat) — never long variant chains.
+    if (
+      matchedSemantic < 2 &&
+      !(semanticCount === 1 && matchedSemantic === 1 && entry.tokens.length <= 2)
+    ) {
       continue;
     }
 
-    const extra = entry.tokens.filter(
-      (lt) => !expanded.some((alts) => alts.some((a) => tokensMatch(a, lt))),
-    ).length;
-    const score = coverage * 10 - extra * 0.5 - entry.tokens.length * 0.01;
+    // Modifier-weighted extras: an unmatched NON-equipment token placed
+    // BEFORE the matched core ("Guillotine" in "Barbell Guillotine Bench
+    // Press") signals a different movement than the one the model named —
+    // it outweighs two variant suffixes. Equipment words ("Barbell") and
+    // trailing variant suffixes ("- Medium Grip") stay mild extras.
+    const matchedIdx = entry.tokens.map((lt) =>
+      expanded.some((alts) => alts.some((a) => tokensMatch(a, lt))),
+    );
+    const lastMatchedIdx = matchedIdx.lastIndexOf(true);
+    let extraPenalty = 0;
+    entry.tokens.forEach((lt, idx) => {
+      if (matchedIdx[idx]) return;
+      const isEquip = EQUIPMENT_WORDS.has(lt);
+      const isPrefix = idx < lastMatchedIdx;
+      extraPenalty += isEquip ? EXTRA_SUFFIX_PENALTY : isPrefix ? EXTRA_PREFIX_PENALTY : EXTRA_SUFFIX_PENALTY;
+    });
+    const score = coverage * 10 - extraPenalty - entry.tokens.length * 0.01;
     if (!best || score > best.score) best = { entry, score };
   }
 

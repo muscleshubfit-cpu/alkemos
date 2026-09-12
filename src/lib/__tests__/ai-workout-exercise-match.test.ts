@@ -57,6 +57,24 @@ describe("ai-workout-exercise-match (§12.35)", () => {
       "Triceps Pushdown",
     );
     expect(matchWorkoutExercise("Pull ups", "full-gym")).not.toBeNull();
+    // Live-verified §12.35 follow-ups: plural families («Walking lunges»),
+    // domain synonyms («Back squat» = the library's Barbell Squat), and
+    // modifier-vs-variant ranking (plain bench press must NOT match the
+    // Guillotine variant — a different movement).
+    expect(matchWorkoutExercise("Walking lunges", "full-gym")?.name).toContain(
+      "Walking Lunge",
+    );
+    expect(matchWorkoutExercise("Back squat", "full-gym")?.name).toContain("Squat");
+    expect(matchWorkoutExercise("Back squat", "full-gym")?.name).not.toContain("Front");
+    const bench2 = matchWorkoutExercise("Barbell bench press", "full-gym");
+    expect(bench2?.name).not.toContain("Guillotine");
+    expect(bench2?.name).toContain("Bench Press");
+    // A plain lateral raise links the canonical side-lateral page, not a
+    // lying-rear variant (prefix modifiers outweigh coverage ties).
+    const lat2 = matchWorkoutExercise("Dumbbell lateral raise", "full-gym");
+    expect(lat2?.name).toContain("Lateral Raise");
+    expect(lat2?.name).not.toContain("Lying");
+    expect(matchWorkoutExercise("سكوات خلفي", "full-gym")?.name).toContain("Squat");
   });
 
   it("AR: the Arabic names the model writes match the English library", () => {
