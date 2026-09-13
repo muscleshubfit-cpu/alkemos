@@ -162,7 +162,6 @@ export default async function RootLayout({
    * route subtree that actually fetches from it:
    *   /blog*      → Pexels/Pixabay/Unsplash (featured images)
    *   /exercises* → wger.de (exercise photos)
-   *   /coaching*  → randomuser.me (testimonial avatars)
    *   /referral*  → api.qrserver.com (QR codes) */
   const isBlogPage =
     requestPath === "/blog" ||
@@ -174,11 +173,6 @@ export default async function RootLayout({
     requestPath.startsWith("/exercises/") ||
     requestPath === "/ar/exercises" ||
     requestPath.startsWith("/ar/exercises/");
-  const isCoachingPage =
-    requestPath === "/coaching" ||
-    requestPath === "/ar/coaching" ||
-    requestPath.startsWith("/coaching/") ||
-    requestPath.startsWith("/ar/coaching/");
   const isReferralPage = requestPath.startsWith("/referral");
 
   /* PHASE 137c (deep speed audit): hub-page banner preloads. PageBanner
@@ -239,12 +233,6 @@ export default async function RootLayout({
           <>
             <link rel="preconnect" href="https://wger.de" />
             <link rel="dns-prefetch" href="https://wger.de" />
-          </>
-        )}
-        {isCoachingPage && (
-          <>
-            <link rel="preconnect" href="https://randomuser.me" />
-            <link rel="dns-prefetch" href="https://randomuser.me" />
           </>
         )}
         {isReferralPage && (

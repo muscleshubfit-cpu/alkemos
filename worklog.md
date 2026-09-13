@@ -21,8 +21,9 @@ Stage Summary:
 - **التدقيق والتنفيذ مكتملان بنفس الفاز:** أمان الادعاءات مستعاد (صفر شهادات بلا مصدر، صفر أرقام مخترعة، إفصاح إعلاني) + تموضع موحّد + صوت بريميوم فصيح باللغتين على كل الأسطح العامة — Copy-only: صفر مساس بوظيفة/تصميم/مدونة/ميجريشنز
 - التوثيق: SEO-GEO-MASTER-PLAN §12.50 (نتائج التدقيق + الخطة + سجل التنفيذ) + STATE.md (المرحلة 193) + هذا السجل
 - P2 المؤجلة (موثقة): سلاسل i18n للتطبيق الداخلي (استبيانات/لوحات) بالعامية — سطح داخلية غير تسويقية
-- Commit SHA: 6e45b93 (الكود + التوثيق بنفس الالتزام)
-- Push status: pushed (SYNCED على origin/main على 6e45b93)
+- **استدراك التحقق الحي:** الزحف بعد نشر 6e45b93 كشف بقايا خارج coaching/page.tsx لم يغطّها الفحص الأول: preconnect/dns-prefetch لـ randomuser.me في src/app/layout.tsx (كان يُحمَّل على كل زيارة /coaching*) + عنوان coaching/layout.tsx القديم «Coaches & Nutrition Specialists» — أُزيل كلاهما (isCoachingPage حُذف من الـpreconnect router) وعنوان layout أصبح «Professional Coaches & Nutrition Specialists» — نفس البوابات خضراء
+- Commit SHA: 6e45b93 (الكود + التوثيق) → استدراك ما بعد النشر
+- Push status: pushed (SYNCED على origin/main على 6e45b93 + كوميت الاستدراك)
 ---
 Task ID: PHASE-191-SEO-GEO-12-EXERCISES-AR-IPKEY-LEAK-2026-09-14
 Agent: Super Z (main)
