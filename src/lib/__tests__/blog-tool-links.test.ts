@@ -90,6 +90,33 @@ describe("insertToolLinks — AR", () => {
   });
 });
 
+describe("insertToolLinks — EVO / AI-planner / coaching legs (intent-map audit 2026-09-14)", () => {
+  it("links AI-coach mentions to /evo — the single primary AI-coach page", () => {
+    const md =
+      "An AI fitness coach can keep you accountable between sessions. Text after the mention to satisfy the minimum length gate for tool linking.";
+    const { md: out, inserted } = insertToolLinks(md, "en");
+    expect(out).toContain("](/evo)");
+    expect(inserted.map((i) => i.tool)).toContain("evo-ai-coach");
+  });
+
+  it("links human-coach mentions to /coaching", () => {
+    const md =
+      "A human coach adapts what the app cannot see yet. Extra sentence so the paragraph is long enough to qualify for deterministic linking.";
+    const { md: out, inserted } = insertToolLinks(md, "en");
+    expect(out).toContain("](/coaching)");
+    expect(inserted.map((i) => i.tool)).toContain("online-coaching");
+  });
+
+  it("most-specific-first: the AR AI-meal-planner phrase links /ai-meal-planner, not /meal-planner", () => {
+    const md =
+      "جرّب مخطط الوجبات بالذكاء الاصطناعي للحصول على خطة تناسب سعراتك. جملة إضافية تطول النص للوصول إلى الحد الأدنى المطلوب للربط الآلي.";
+    const { md: out, inserted } = insertToolLinks(md, "ar");
+    expect(out).toContain("](/ai-meal-planner)");
+    expect(out).not.toContain("](/meal-planner)");
+    expect(inserted[0]?.tool).toBe("ai-meal-planner");
+  });
+});
+
 describe("insertToolLinks — safety", () => {
   it("returns input untouched for very short content", () => {
     const md = "calories";

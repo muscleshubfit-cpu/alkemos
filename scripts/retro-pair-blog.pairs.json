@@ -68,7 +68,8 @@
       "enSlug": "progressive-overload-no-weight",
       "arSlug": "muscle-building-bodyweight-home",
       "topic": "bodyweight muscle building",
-      "whyDifferent": "AR = complete bodyweight home guide, EN = 4 plateau-beating overload techniques"
+      "whyDifferent": "AR = complete bodyweight home guide, EN = 4 plateau-beating overload techniques",
+      "note": "PHASE 192: arSlug no longer exists live — the AR article was a near-identical-intent duplicate of home-muscle-building-guide-no-equipment and was consolidated by migration 0087 + a 301 (evidence: H2-structure comparison, both = movement library + weekly table + nutrition + recovery; owner directive «أعد توجيه المقالات المتطابقة فقط عندما يكون الدمج منطقيًا»). The EN side keeps its distinct overload-techniques intent. Decision record only."
     },
     {
       "enSlug": "protein-after-workout-grams-guide",

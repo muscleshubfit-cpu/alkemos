@@ -132,3 +132,83 @@ describe("FAQ heading contract — one regex, no fork (Phase 178)", () => {
     );
   });
 });
+
+describe("stripFaqSectionFromBody — multi-FAQ corpus (2026-09-14 audit)", () => {
+  // Live corpus defect: 11/69 published pages rendered their FAQ TWICE —
+  // legacy bodies carry TWO contract-matching sections (generation
+  // artifact) and the single-strip version left the second one rendering
+  // next to the faq_json cards.
+  it("removes EVERY matching section — two FAQ blocks (EN)", () => {
+    const doubleFaq = `## Intro
+
+Body text.
+
+## Frequently Asked Questions
+
+**first q?**
+
+first answer.
+
+## Conclusion
+
+Wrap up.
+
+## Frequently Asked Questions
+
+**second q?**
+
+second answer.
+`;
+    const out = stripFaqSectionFromBody(doubleFaq);
+    expect(out).toContain("## Intro");
+    expect(out).toContain("## Conclusion");
+    expect(out).toContain("Wrap up.");
+    expect(out).not.toContain("first q?");
+    expect(out).not.toContain("second q?");
+    expect(out).not.toMatch(/Frequently Asked Questions/i);
+  });
+
+  it("removes the AR variant heading (أسئلة شائعة وإجابات سريعة) AND the canonical one", () => {
+    const arDouble = `## المقدمة
+
+نص التمهيد.
+
+## أسئلة شائعة وإجابات سريعة
+
+**سؤال أول؟**
+
+إجابة أولى.
+
+## خاتمة
+
+النهاية.
+
+## الأسئلة الشائعة
+
+**سؤال ثانٍ؟**
+
+إجابة ثانية.
+`;
+    const out = stripFaqSectionFromBody(arDouble);
+    expect(out).toContain("## المقدمة");
+    expect(out).toContain("## خاتمة");
+    expect(out).toContain("النهاية.");
+    expect(out).not.toContain("سؤال أول؟");
+    expect(out).not.toContain("سؤال ثانٍ؟");
+    expect(out).not.toContain("شائعة");
+  });
+
+  it("does NOT strip a topical heading that merely contains the FAQ phrase", () => {
+    const topical = `## Frequently Asked Questions About Protein Timing
+
+This whole section is real content, not a FAQ scaffold.`;
+    expect(stripFaqSectionFromBody(topical)).toBe(topical);
+  });
+
+  it("tolerates 'FAQs' and trailing punctuation on the heading line", () => {
+    const faqs = `## FAQs\n\n**q?**\n\na.`;
+    expect(stripFaqSectionFromBody(faqs)).not.toContain("**q?**");
+    const colon = `## Frequently Asked Questions:\n\n**q?**\n\na.`;
+    expect(stripFaqSectionFromBody(colon)).not.toContain("**q?**");
+  });
+});

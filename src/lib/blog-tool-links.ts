@@ -15,11 +15,18 @@
  *   one per tool, never inside an existing markdown link).
  *
  * TARGETS — every URL below is a real, indexable site route:
+ *   /ai-meal-planner · /ai-workout-planner · /evo · /coaching ·
  *   /tools/calorie-calculator · /tools/macro-calculator ·
  *   /tools/body-fat-calculator · /tools/bmi-calculator ·
  *   /tools/water-tracker · /meal-planner · /programs · /exercises · /foods
  * (The tool pages render in Arabic for Arabic readers via the site's
  *  language detection — same URL space the AR homepage already uses.)
+ *
+ * ORDER LAW (2026-09-14 intent-map audit): most-specific-first. The AI
+ * planner / EVO / coaching rules sit ABOVE the generic hubs so «مخطط
+ * الوجبات بالذكاء الاصطناعي» links the AI planner — not the manual one —
+ * and AI-coach mentions reach /evo, the single primary AI-coach page
+ * (audit item 8: Blog → EVO/Coaching leg of the internal-linking net).
  */
 
 export type ToolLinkRule = {
@@ -35,6 +42,30 @@ export type ToolLinkRule = {
 
 /** Ordered most-specific-first; hub pages (programs/exercises/foods) last. */
 const TOOL_RULES: ToolLinkRule[] = [
+  {
+    id: "ai-meal-planner",
+    url: "/ai-meal-planner",
+    patternsEn: [/\bAI meal (?:planner|plan generator)\b/i, /\bmeal plan generator\b/i],
+    patternsAr: [/مخطط الوجبات بالذكاء الاصطناعي/, /توليد خطة غذائية بالذكاء/],
+  },
+  {
+    id: "ai-workout-planner",
+    url: "/ai-workout-planner",
+    patternsEn: [/\bAI workout (?:planner|generator)\b/i, /\bworkout plan generator\b/i],
+    patternsAr: [/مخطط التمارين بالذكاء الاصطناعي/, /توليد برنامج تمارين بالذكاء/],
+  },
+  {
+    id: "evo-ai-coach",
+    url: "/evo",
+    patternsEn: [/\bAI (?:fitness )?coache?s?\b/i, /\bAI personal trainer\b/i, /\bEVO\b/],
+    patternsAr: [/مدرب اللياقة بالذكاء الاصطناعي/, /المدرب الذكي/, /كوتش ذكي/],
+  },
+  {
+    id: "online-coaching",
+    url: "/coaching",
+    patternsEn: [/\bonline (?:fitness|nutrition) coaching\b/i, /\bhuman coach(?:es)?\b/i],
+    patternsAr: [/كوتشينج اونلاين/, /مدرب بشري/, /مدربين معتمدين/],
+  },
   {
     id: "meal-planner",
     url: "/meal-planner",

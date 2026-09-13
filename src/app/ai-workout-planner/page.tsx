@@ -522,6 +522,14 @@ export default function AiWorkoutPlannerPage() {
               <Link href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
                 {isAr ? "حاسبة السعرات" : "Calorie calculator"}
               </Link>
+              {/* Intent-map audit (2026-09-14, item 8): the planners feed
+                  the EVO hub — the reverse leg of the AI-coach cluster. */}
+              <Link href={isAr ? "/ar/evo" : "/evo"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
+                {isAr ? "مدرب EVO الذكي" : "EVO AI coach"}
+              </Link>
+              <Link href={isAr ? "/ar/coaching" : "/coaching"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
+                {isAr ? "كوتشينج بشري" : "Human coaching"}
+              </Link>
             </div>
           </div>
           <div>

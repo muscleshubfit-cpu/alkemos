@@ -149,29 +149,53 @@ export function countArabicWords(text: string): number {
 // render-time body strip used by BlogArticlePage.
 // ═══════════════════════════════════════════════════════════════
 
-/** Matches the FAQ section heading in either language (tolerant variants).
- *  Single source of the heading contract — splitFaqSection (publish-time
- *  lift) and stripFaqSectionFromBody (render-time display) share it. */
-export const FAQ_HEADING_RE = /^##[ \t]+(?:frequently[ \t]+asked|faq|الأسئلة[ \t]+الشائعة)/im;
+/**
+ * Matches the FAQ section heading in either language, as a FULL HEADING
+ * LINE — the heading text must BE the FAQ heading, not a topical heading
+ * that merely contains it (e.g. "Frequently Asked Questions About Protein"
+ * is content and must never be stripped). Tolerated variants cover the
+ * legacy corpus's generated headings: "Frequently Asked Questions",
+ * "FAQ(s)", "الأسئلة الشائعة", "أسئلة شائعة", "أسئلة شائعة وإجابات سريعة".
+ * Single source of the heading contract — splitFaqSection (publish-time
+ * lift) and stripFaqSectionFromBody (render-time display) share it.
+ */
+export const FAQ_HEADING_RE =
+  /^##[ \t]+(?:frequently[ \t]+asked(?:[ \t]+questions?)?|faqs?|(?:ال)?أسئلة[ \t]+(?:ال)?شائعة(?:[ \t]+وإجابات[ \t]+سريعة)?)[ \t]*[:：؟]?[ \t]*$/im;
 
 /**
- * Remove the markdown body's own FAQ section (heading through the next
- * H2 or end of document) so the section renders exactly ONCE — as the
+ * Remove EVERY contract-matching FAQ section (heading through the next H2
+ * or end of document) so the section renders exactly ONCE — as the
  * faq_json cards. Deterministic + idempotent: a body without a
  * recognizable FAQ heading passes through unchanged (post-172 articles
  * already lifted at publish; call this only when faq_json is non-empty).
+ *
+ * WHY A LOOP (2026-09-14 audit): legacy bodies can carry MULTIPLE FAQ
+ * sections — e.g. "أسئلة شائعة وإجابات سريعة" mid-body AND "الأسئلة
+ * الشائعة" after the conclusion, or two identical "Frequently Asked
+ * Questions" sections back-to-back. The single-strip version removed only
+ * the first match and left the second rendering next to the cards (live:
+ * 11/69 published pages rendered their FAQ twice). Each iteration strictly
+ * shrinks the body (at least the heading line is removed), so the loop
+ * always terminates.
  */
 export function stripFaqSectionFromBody(md: string): string {
-  FAQ_HEADING_RE.lastIndex = 0; // stateless guard (no /g flag, defensive)
-  const match = FAQ_HEADING_RE.exec(md);
-  if (!match) return md;
-  const start = match.index;
-  const afterHeading = md.indexOf("\n", match.index + match[0].length);
-  const sectionStart = afterHeading === -1 ? md.length : afterHeading + 1;
-  const nextH2 = /^##[ \t]+/m.exec(md.slice(sectionStart));
-  const sectionEnd = nextH2 ? sectionStart + nextH2.index : md.length;
-  const stripped = md.slice(0, start) + md.slice(sectionEnd);
-  return stripped.replace(/\n{3,}/g, "\n\n").trim();
+  let out = md;
+  let stripped = false;
+  for (;;) {
+    FAQ_HEADING_RE.lastIndex = 0; // stateless guard (no /g flag, defensive)
+    const match = FAQ_HEADING_RE.exec(out);
+    if (!match) break;
+    stripped = true;
+    const start = match.index;
+    const afterHeading = out.indexOf("\n", match.index + match[0].length);
+    const sectionStart = afterHeading === -1 ? out.length : afterHeading + 1;
+    const nextH2 = /^##[ \t]+/m.exec(out.slice(sectionStart));
+    const sectionEnd = nextH2 ? sectionStart + nextH2.index : out.length;
+    out = (out.slice(0, start) + out.slice(sectionEnd)).replace(/\n{3,}/g, "\n\n");
+  }
+  // No-match passthrough must be BYTE-IDENTICAL (Phase-178 semantics) —
+  // normalization applies only when a section was actually removed.
+  return stripped ? out.trim() : md;
 }
 
 // ═══════════════════════════════════════════════════════════════

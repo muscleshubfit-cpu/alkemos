@@ -532,6 +532,78 @@ export default function EvoPage() {
           </a>
         </section>
 
+        {/* EVO internal-linking hub (intent-map audit 2026-09-14, item 8):
+            EVO is the single primary page for the AI-coach intent — this
+            grid ties the surrounding AI surfaces (the two planners), the
+            human-coaching path, the free tools, and the program library
+            into it, so the intent cluster is one crawlable hop away in
+            BOTH directions. Language-aware hrefs: the AR mirror links its
+            own /ar/* versions. */}
+        <section className="mt-12">
+          <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
+            {isAr ? "تكامل EVO مع باقي المنصة" : "How EVO fits the platform"}
+          </h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner",
+                titleAr: "مخطط الوجبات بالذكاء الاصطناعي",
+                titleEn: "AI Meal Planner",
+                descAr: "ولّد خطة تغذية كاملة مجانًا وبدون تسجيل.",
+                descEn: "Generate a full nutrition plan free, no signup.",
+              },
+              {
+                href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner",
+                titleAr: "مخطط التمارين بالذكاء الاصطناعي",
+                titleEn: "AI Workout Planner",
+                descAr: "ولّد تقسيمة أسبوعية لتمارينك من بياناتك.",
+                descEn: "Generate your weekly training split from your data.",
+              },
+              {
+                href: isAr ? "/ar/coaching" : "/coaching",
+                titleAr: "كوتشينج مع مدربين بشريين",
+                titleEn: "Human Online Coaching",
+                descAr: "مدربون معتمدون يتابعونك خطوة بخطوة.",
+                descEn: "Certified coaches following you step by step.",
+              },
+              {
+                href: isAr ? "/ar/tools" : "/tools",
+                titleAr: "الأدوات والحاسبات المجانية",
+                titleEn: "Free Fitness Tools",
+                descAr: "سعرات، ماكروز، BMI، دهون الجسم، ومتتبع الماء.",
+                descEn: "Calories, macros, BMI, body fat, and water tracker.",
+              },
+              {
+                href: isAr ? "/ar/programs" : "/programs",
+                titleAr: "برامج التدريب الجاهزة",
+                titleEn: "Ready Workout Programs",
+                descAr: "برامج جاهزة من المنزل والنادي لكل المستويات.",
+                descEn: "Ready home & gym programs for every level.",
+              },
+              {
+                href: isAr ? "/ar/memberships" : "/memberships",
+                titleAr: "العضويات والأسعار",
+                titleEn: "Memberships & Pricing",
+                descAr: "قارن الباقات وحدود الاستخدام بشفافية.",
+                descEn: "Compare tiers and limits transparently.",
+              },
+            ].map((card) => (
+              <a
+                key={card.href}
+                href={card.href}
+                className="marble-card block p-5 transition-opacity hover:opacity-90"
+              >
+                <p className="text-base font-semibold tracking-tight text-[var(--text)]">
+                  {isAr ? card.titleAr : card.titleEn}
+                </p>
+                <p className="mt-1 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
+                  {isAr ? card.descAr : card.descEn}
+                </p>
+              </a>
+            ))}
+          </div>
+        </section>
+
         {/* Final CTA — two buttons again. Dark marble band in BOTH themes
             (identity premium treatment), so the text is pinned to the
             light-on-dark pair instead of var(--text) (which would render

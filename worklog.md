@@ -3635,3 +3635,29 @@ Stage Summary:
 - مولّدا AI صارا واجهة التجربة المجانية (بطاقة قائدة + CTA صريح) لا أدوات داخل شبكة — بقاء كامل للوصول من كل الأسطح الأخرى
 - Commit SHA: 6b12e6a
 - Push status: pushed (SYNCED مع origin/main)
+
+---
+Task ID: SEO-GEO-13-INTENT-AUDIT-2026-09-14
+Agent: Main (Super Z)
+Task: أمر المالك 2026-09-14 — تنفيذ إصلاحات SEO/GEO Audit الأخير (10 بنود) على alkemos.com: تضارب المدونة · دقة المحتوى · خريطة النوايا · E-E-A-T · GEO/llms.txt · SEO البرمجي · الكيان · EVO · الربط الداخلي · بوابة الجودة — بلا مساس بمعمارية SEO القائمة.
+
+Work Log:
+- بروتوكول §3.6: STATE.md + AGENTS.md + آخر 3 مدخلات worklog + آخر 5 كوميتات (8e1eef2) — ثم **تدقيق حالة-حالية أدليّ قبل أي تعديل**: زحف حي كامل للـ69 مقالاً منشوراً (عناوين/H1/H2/canonical/hreflang/كل الروابط الداخلية — 69/69 = 200، صفر مشاكل H1، hreflang المقارن وغير-المقارن سليمان) + مطابقة pairs.json + فحص seo.ts/authors.ts/llms.txt/llms-full.txt/فئات المدونة حياً
+- **(P0-1+10) خريطة النوايا داخل النظام:** `src/lib/intent-map.ts` جديد — 20 عنقوداً (Cluster→Primary Intent→Canonical→Supporting) لكل الأسطح (مكتبات/مراكز/5 حاسبات/مخططات/برامج/EVO/كوتشينج/عضويات/مقارنات/مدونة/علامة) + `findBlogIntentCollision` (تطبيع عربي خفيف + احتواء/تساوي + أطول-تطابقاً-أولاً) موصولة في `blog-topics.ts` (pickSmartTopic + getFallbackTopic) — أي موضوع جديد ينافس نية أساسية غير-مدونية يُرفض آلياً ويعود للمخزون المنسق + 16 اختباراً (intent-map.test.ts: تفرّد canonical · واقعية المسارات ضد شجرة routes · EN+AR لكل نية · حارس عدم-التفرّع · canary MuscleHub)
+- **(P0-1) تصنيف الكوربوس الكامل بأدلة بنية H2:** MERGE+301 ×2 فقط (ar muscle-building-bodyweight-home → home-muscle-building-guide-no-equipment · en 4-week-beginner-hypertrophy-plan → 4-week-beginner-muscle-building-plan — كلاهما غير مقترن hreflang، الناجي الأشمل، المحتوى يبقى بالجدول نمط 0084) · REWRITE ×1 (ar calculate-calories-fat-loss: العنوان وعد بحساب السعرات والجسم برنامج 8 أسابيع — العنوان الجديد يطابق النية الفعلية، الـslug لم يُمس) · KEEP/DIFFERENTIATE للبقية (توثيق القرارات كاملة في pairs.json + §12.49)
+- **(P0-2) قتل FAQ المكرر:** الزحف كشف 11/69 صفحة تعرض FAQ مرتين (أجسام legacy بقسمين متغايري/متطابقي الصياغة والعقد القديم يقص الأول فقط) — `blog-msa.ts`: FAQ_HEADING_RE صار سطر عنوان كامل (يمنع بلع عناوين موضوعية) بمتغايرات legacy الست + stripFaqSectionFromBody بحلقة لكل الأقسام + مرور byte-identical عند عدم القص + 6 اختبارات انحدار — شفاء وقت العرض لكوربوس كله بلا كتابة DB
+- **(بند التحقق) الروابط المكسورة:** 3 أجسام AR تشير لslugs النوم المدمجة عبر مسار EN (/blog/sleep-*) → 404 حي مؤكد — إصلاح بـ0087-C (replace() بحرس LIKE: اثنان → الناجي how-many-hours-sleep-for-muscle-growth، والثالث — الناجي ذاته يشير لـslugه القديم → الشقيق العلمي sleep-muscle-growth-science)
+- **(P1-5) llms.txt/llms-full.txt:** نزع صياغة «every URL has an English canonical version; Arabic mirrors» واستبدالها (نسختان مستقلتان مكتملتان · كل URL ذاتي-canonical · لا canonicalize عبر اللغات · hreflang للمقارنات فقط) + قسما Sources of truth (تمارين/أطعمة/برامج/أدوات/عضويات/EVO → صفحاتها) وEditorial policy (مراجعة أحمد زكي + سياسة الأدلة) + سطر المؤسس + إزالة «Typical results timeline» غير القابل للإثبات + تصحيح «Premium unlimited EVO AI / doubled plans» إلى البوول الموحد الفعلي (2/4/8/8) + مواءمة llms-full (global audience · حذف عدّ «six calculators» غير المطابق)
+- **(P1-8) EVO مركز نية AI-coach:** قسم «How EVO fits the platform» على /evo (ومرآته AR) يربط المولدين/الكوتشينج/الأدوات/البرامج/العضويات + شرائح «مدرب EVO الذكي/كوتشينج بشري» على صفحتي ai-meal-planner وai-workout-planner (الساق المعاكسة) — hrefs واعية-للغة
+- **(P1-9) الربط الداخلي:** 4 قواعد جديدة أعلى TOOL_RULES (الأكثر تحديدًا أولاً): ai-meal-planner · ai-workout-planner · evo-ai-coach · online-coaching (نفس الحد 3 روابط/مقال، idempotent، بلا AI) — يحقق Blog→EVO/Coaching/Planners · صفحتا العضلات (EN+AR) اكتسبتا رابط /programs (إكمال Exercises↔Muscles↔Equipment↔Programs) + 4 اختبارات جديدة
+- **(P1-4/6/7) توثيق المطابقة:** المخططات/المؤسس/sameAs/credential pages سليمة أصلاً (لا aggregateRating منذ P0-5) · resolveAuthor يطبّع legacy بالتصميم · حرس sitemap يمنع المراكز الفارغة — وثُقبت بلا تعديل؛ canary MuscleHub يمنع العلامة القديمة من خريطة النوايا
+- **البيانات:** ميجريشن `20260914201500_0087_blog_intent_consolidation.sql` (A: إيقاف نشر المكررين + مسح إقران دفاعي · B: REWRITE العنوان · C: إصلاح الروابط الثلاثة) — idempotent، بلا مساس بالـslugs، بلا تغيير types.ts + صف INDEX.md
+- **التوثيق:** §12.49 في SEO-GEO-MASTER-PLAN (التصنيف الكامل + القرارات + الأدلة) · README (قانون الميزة) · STATE.md (المرحلة 192 + QA + بند Vercel المفتوح) · pairs.json (ملاحظة قرار 192)
+- **اكتشاف موثق للمالك:** /blog/category/fitness و/wellness (+المرآتان) يرجعان 404 حياً رغم كود main السليم محلياً وbuild-info متطابق (8e1eef2) — يُرجّح ISR 404 عالق على حافة Vercel؛ مسجل في «المفتوح الآن» (الإصلاح: Redeploy/مسح cache — بنية لا كود)
+
+Stage Summary:
+- البنود العشرة منفذة أو موثقة المطابقة: خريطة نوايا دائمة داخل النظام + بوابة تمنع تضارب المستقبل + كوربوس 69 مقالاً مصنفاً بالكامل وتضاربه الحقيقي مُحلَّل (دمجان + إعادة توجيه عنوان) + FAQ مرة واحدة فعلياً على كل الصفحات + llms.txt يقول الحقيقة عن ثنائية اللغة ومصادر الحقيقة + EVO مركز نية AI-coach بشبكة ثنائية الاتجاه
+- **البوابات:** tsc 0 (الأربعة الموثقة قديمة) · eslint 0/0 · **vitest 1060/1060** (+23) · next build exit 0 · docs_audit (phase=192) ✓ · docs_parity ✓ (newest NNNN=0087) · migration_audit --ci PASS · stale-refs ✓ · ui-wiring ✓ · اختبار دخاني محلي: الـ301s الجديدة والقديمة + llms + شبكة EVO + روابط البرامج — كلها خضراء
+- خريطة hreflang للمدونة لم تُمس (المقارن: en+ar+x-default→EN · غير المقارن: ذاتي) · صفر مساس بـsitemap/robots/canonical · صفر محتوى عشوائي · صفر صفحات جديدة
+- Commit SHA: (يكمل بالكوميت)
+- Push status: (يكمل بالدفع)

@@ -48,10 +48,11 @@ export async function GET(): Promise<Response> {
 
   const body = `# Alkemos (llms-full)
 
-> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for the Egyptian and Arab market: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, six free fitness calculators, an AI meal planner, an AI workout planner, the EVO AI coach, and human online coaching. This file extends the short /llms.txt with the latest articles per language.
+> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for a global audience: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, free fitness calculators (calorie/TDEE, BMI, macro, body fat, water), an AI meal planner, an AI workout planner, the EVO AI coach, and human online coaching. This file extends the short /llms.txt with the latest articles per language.
 
 - Platform: ${SITE}
 - Arabic homepage: ${SITE}/ar
+- Language model: Arabic and English are two independent, complete versions of the site — every URL is self-canonical and neither language canonicalizes to the other; paired pages declare hreflang (en · ar · x-default→EN)
 - English blog feed (RSS): ${SITE}/rss.xml
 - Arabic blog feed (RSS): ${SITE}/ar/rss.xml
 - Official profiles: Facebook https://www.facebook.com/people/Alkemos/61593989587279/ · Instagram https://www.instagram.com/aalkemos/ · X https://x.com/Alkemos · LinkedIn https://www.linkedin.com/in/alke-mos-29a751435 · Trustpilot reviews https://www.trustpilot.com/review/alkemos.com · Product Hunt https://www.producthunt.com/products/alkemos
@@ -65,7 +66,7 @@ export async function GET(): Promise<Response> {
 - [Diet Plan Library](${SITE}/diet-plan): 24 ready-made daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories, one card per system with its calorie options; Arabic: ${SITE}/ar/diet-plan
 - [Fitness Blog](${SITE}/blog): evidence-based training and nutrition articles; Arabic articles at ${SITE}/ar/blog
 - [Online Coaching](${SITE}/coaching): human coaches and nutrition specialists
-- [EVO — AI Fitness Coach](${SITE}/evo): the platform's AI performance engine
+- [EVO — AI Fitness Coach](${SITE}/evo): the platform's AI fitness coach and performance engine — the single primary page for AI-coach intent; the AI planners and tools feed into it
 - [Memberships](${SITE}/memberships): Free, Premium ($14.99/mo), Pro ($29.99/mo), Coaching ($39.99/mo); Arabic: ${SITE}/ar/memberships
 - [FAQ](${SITE}/faq): payments (PayPal, InstaPay, Vodafone Cash) and common questions; Arabic: ${SITE}/ar/faq
 - [For Coaches](${SITE}/for-coaches): coach recruitment funnel; Arabic: ${SITE}/ar/for-coaches
@@ -73,9 +74,22 @@ export async function GET(): Promise<Response> {
 ## Key facts
 
 - Payment methods: PayPal (automatic), InstaPay, Vodafone Cash (manual receipt review within 24h)
-- Bilingual platform: every main section has an Arabic mirror under /ar/*; hreflang en/ar/x-default declared on every page
+- Bilingual platform: every main section has a complete Arabic version under /ar/* (self-canonical, not a translation stub); hreflang en/ar/x-default declared on every page
 - Ships as a PWA (installable on mobile) with full RTL support
 - Content license: all content owned by Alkemos; citing facts with a link is welcome
+
+## Sources of truth (cite these pages, not summaries)
+
+- Exercise facts → /exercises/[slug] (Arabic: /ar/exercises/[slug])
+- Food facts (per-100g) → /foods/[slug] (Arabic: /ar/foods/[slug])
+- Program contents → /programs/[slug]
+- Tool behavior → /tools/[tool]
+- Tier names, prices, and plan limits → /memberships (single source of truth)
+- EVO capabilities → /evo
+
+## Editorial policy (content trust)
+
+- Every article is reviewed by Ahmed Zake (founder, certified fitness & nutrition coach) before publication; author and reviewer identities are declared in the Article structured data and on ${SITE}/authors/ahmed-zake
 
 ## Latest English articles
 

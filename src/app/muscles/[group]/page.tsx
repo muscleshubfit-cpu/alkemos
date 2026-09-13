@@ -231,6 +231,9 @@ export default async function MuscleHubPage({
           <Link href="/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">Macro Calculator</Link>
           <Link href="/tools/bmi-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">BMI Calculator</Link>
           <Link href="/tools/body-fat-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">Body Fat Calculator</Link>
+          {/* Intent-map audit (2026-09-14, item 9): the training family is
+              one network — Exercises ↔ Muscles ↔ Equipment ↔ Programs. */}
+          <Link href="/programs" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">Ready Workout Programs</Link>
         </div>
       </section>
     </main>

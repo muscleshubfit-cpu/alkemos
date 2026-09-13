@@ -2,6 +2,7 @@ import { parseJSON } from "@/lib/ai-provider";
 import { callFreeAIFallbackChain } from "@/lib/ai-provider";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/types";
+import { findBlogIntentCollision } from "@/lib/intent-map";
 
 /**
  * Smart topic picker for the automated blog pipeline.
@@ -565,8 +566,14 @@ function getFallbackTopic(
   const list = (language === "ar" ? AR_TOPIC_FALLBACKS : EN_TOPIC_FALLBACKS)[category] || EN_TOPIC_FALLBACKS.nutrition;
   const recentLower = recent.map((r) => (r.title + " " + r.focusKeyword).toLowerCase());
 
+  // SEARCH INTENT MAP gate (2026-09-14 audit): a curated fallback is
+  // skipped too when its focus keyword competes with an existing PRIMARY
+  // page's intent (tool/hub/EVO/program…) — the article corpus links to
+  // those pages, it never competes with them.
   const unused = list.find(
-    (item) => !recentLower.some((t) => t.includes(item.focusKeyword.toLowerCase())),
+    (item) =>
+      !recentLower.some((t) => t.includes(item.focusKeyword.toLowerCase())) &&
+      !findBlogIntentCollision(item.focusKeyword, item.topic),
   );
 
   const selected = unused || list[Math.floor(Math.random() * list.length)];
@@ -673,6 +680,15 @@ IMPORTANT: Return the topic and focusKeyword in ${language === "ar" ? "ARABIC" :
       if (dupCheck.duplicate) {
         console.warn(
           `[blog-topics] AI picked a duplicate topic "${aiTopic}" (kw: "${aiFocusKw}") — matches existing "${dupCheck.matchedExisting}". Falling back to curated.`,
+        );
+      } else if (findBlogIntentCollision(aiFocusKw, aiTopic)) {
+        // SEARCH INTENT MAP gate (2026-09-14 audit): the AI topic competes
+        // with an existing PRIMARY page (tool / hub / EVO / program…).
+        // One intent = one primary page — the article corpus LINKS to
+        // those pages, it never competes with them.
+        const collision = findBlogIntentCollision(aiFocusKw, aiTopic)!;
+        console.warn(
+          `[blog-topics] AI topic "${aiTopic}" (kw: "${aiFocusKw}") collides with the primary intent of ${collision.entry.canonical} (query: "${collision.matchedQuery}"). Falling back to curated.`,
         );
       } else {
         return {

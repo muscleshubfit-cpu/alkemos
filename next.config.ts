@@ -92,6 +92,26 @@ const nextConfig: NextConfig = {
       { source: "/ar/blog/sleep-hours-muscle-growth", destination: "/ar/blog/how-many-hours-sleep-for-muscle-growth", statusCode: 301 },
       { source: "/ar/blog/sleep-muscle-recovery-gym", destination: "/ar/blog/how-many-hours-sleep-for-muscle-growth", statusCode: 301 },
       { source: "/ar/blog/muscle-building-beginners-step-by-step", destination: "/ar/blog/how-to-start-muscle-building-beginners", statusCode: 301 },
+      // ─────────────────────────────────────────────────────────────
+      // PHASE 192 (2026-09-14 SEO/GEO audit — items 1+9, owner directive
+      // «أعد توجيه المقالات المتطابقة فقط عندما يكون الدمج منطقيًا»):
+      // two near-identical-intent duplicates consolidated — one primary
+      // page per search intent. Migration 0087 unpublishes both rows
+      // (content preserved in-table, same law as 0084); sitemap/RSS/
+      // listings drop them automatically. Decisions + evidence (H2
+      // structure comparison of both members in each pair) documented in
+      // docs/SEO-GEO-MASTER-PLAN.md §12.49:
+      //   - ar bodyweight guide → the no-equipment guide (same "complete
+      //     no-equipment/bodyweight home guide" intent; survivor carries
+      //     the movement library + weekly table + nutrition + recovery)
+      //   - en 4-week beginner hypertrophy → the 4-week beginner
+      //     day-by-day plan (same "beginner 4-week muscle plan" intent;
+      //     survivor carries the schedule + overview + nutrition +
+      //     recovery; the overload/split-design angle lives inside it)
+      // 301 (not 308) for maximum crawler compatibility — same as 178.
+      // ─────────────────────────────────────────────────────────────
+      { source: "/ar/blog/muscle-building-bodyweight-home", destination: "/ar/blog/home-muscle-building-guide-no-equipment", statusCode: 301 },
+      { source: "/blog/4-week-beginner-hypertrophy-plan", destination: "/blog/4-week-beginner-muscle-building-plan", statusCode: 301 },
     ];
   },
   // COACH PUBLIC PHOTOS (Phase 56): CoachLandingEditor stores the

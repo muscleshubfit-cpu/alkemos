@@ -231,6 +231,9 @@ export default async function ArabicMuscleHubPage({
           <Link href="/ar/tools/macro-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة الماكروز</Link>
           <Link href="/ar/tools/bmi-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة BMI</Link>
           <Link href="/ar/tools/body-fat-calculator" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">حاسبة نسبة الدهون</Link>
+          {/* تدقيق خريطة النوايا (2026-09-14، بند 9): عائلة التدريب شبكة واحدة —
+              تمارين ↔ عضلات ↔ معدات ↔ برامج. */}
+          <Link href="/ar/programs" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">برامج تدريب جاهزة</Link>
         </div>
       </section>
     </main>
