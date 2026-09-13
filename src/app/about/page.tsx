@@ -10,8 +10,12 @@ import { StaticPageView } from "@/components/views/StaticPageView";
  */
 export const metadata: Metadata = {
   title: "About Alkemos — Our Mission, Story & Team",
+  // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 244 chars — Google
+  // truncates meta descriptions around ~155-160. Same identity, one
+  // clean sentence inside the 158 EN budget (the Phase-178 description
+  // law applied to a static conversion surface).
   description:
-    "Alkemos is an Egyptian sports platform with an 868+ exercise library, ready workout programs, free fitness calculators, a food database, the EVO AI coach, and online coaching — our mission is to make expert-level fitness accessible to everyone.",
+    "Alkemos is an Egyptian fitness platform: 868+ exercises, ready workout programs, free calculators, a food database, the EVO AI coach, and online coaching.",
   alternates: {
     canonical: "/about",
     languages: {

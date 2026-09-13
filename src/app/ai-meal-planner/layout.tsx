@@ -9,8 +9,10 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  */
 export const metadata: Metadata = {
   title: "AI Meal Planner | Alkemos — Free Day Plan Generator",
+  // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 189 chars — trimmed to
+  // the 158 EN budget, same funnel message, sentence ends cleanly.
   description:
-    "Generate a complete daily meal plan in grams and calories with AI: pick your calorie target and diet system, add preferences, and get a validated day plan in seconds. Free trial, no signup.",
+    "Generate a daily meal plan in grams and calories with AI: pick your calorie target and diet system, add preferences, get a validated plan — free, no signup.",
   keywords: [
     "ai meal planner",
     "ai meal plan generator",

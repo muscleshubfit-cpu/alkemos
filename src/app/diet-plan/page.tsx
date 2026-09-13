@@ -28,8 +28,10 @@ const SYSTEM_LINES: Record<string, string> = {
 
 export const metadata: Metadata = {
   title: "Diet Plan Library: Ready-Made Plans by Calories | Alkemos",
+  // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 184 chars — inside the
+  // 158 EN budget now, ends on a clean period (no mid-word cut).
   description:
-    "The Diet Plan Library: 24 complete daily plans (6 calorie levels × 4 systems — balanced, high-protein, keto, vegetarian) in grams and calories per item, plus a free customization step.",
+    "24 ready daily diet plans — 6 calorie levels × 4 systems (balanced, high-protein, keto, vegetarian) in grams and calories, plus a free customization step.",
   alternates: {
     canonical: `${SITE_URL}/diet-plan`,
     languages: {

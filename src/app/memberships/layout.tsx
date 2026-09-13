@@ -3,8 +3,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Memberships | Alkemos — Premium & Pro Plans",
+  // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 183 chars — inside the
+  // 158 EN budget. Prices match src/lib/memberships.ts exactly (the
+  // single source of truth for pricing).
   description:
-    "Choose your Alkemos membership: Free, Premium ($14.99/mo or $119/yr), or Pro ($29.99/mo or $239/yr). Unlock unlimited EVO AI, meal planner, workout plan generation, and higher limits.",
+    "Choose your Alkemos plan: Free, Premium ($14.99/mo or $119/yr), or Pro ($29.99/mo or $239/yr) — unlimited EVO AI, planners, and higher limits.",
   keywords: [
     "membership",
     "premium",

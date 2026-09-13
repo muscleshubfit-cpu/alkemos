@@ -1,5 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
+// PHASE 189 (SEO-GEO-10, deep-audit P1-1): render-time SERP title clamp
+// — the law lives in the zero-dep blog-meta-title.ts so this server
+// module never imports the AI provider chain (see that file's header).
+import { clampMetaTitle } from "./blog-meta-title";
 import type { BlogPost, BlogPostCard, BlogFaq } from "./blog";
 
 /**
@@ -135,8 +139,18 @@ const fetchBlogForOGUncached = async (
 
     const baseUrl = "https://alkemos.com";
     const articleUrl = `${baseUrl}${lang === "ar" ? "/ar/blog" : "/blog"}/${data.slug}`;
+    // PHASE 189 (SEO-GEO-10, deep-audit P1-1): RENDER-TIME title clamp —
+    // the durable guarantee that a stored meta_title can never leak an
+    // over-budget <title> to SERP. Live audit 2026-09-13: 5 legacy AR rows
+    // carried a trailing " — Alkemos" brand suffix (71-77 chars, budget
+    // 70) — the clamp's Law 1 strips the suffix and Law 2 passes the
+    // clean title through, so the fix converges at the 5-min ISR
+    // revalidate with ZERO DB writes (the Phase-187 pattern: fix the
+    // render, don't mutate stored data). This is the single choke point
+    // for <title>/og:title/twitter:title/JSON-LD headline/breadcrumb on
+    // BOTH language mirrors AND the /api/og-image card text.
     return {
-      title: data.meta_title || data.title,
+      title: clampMetaTitle(data.meta_title || data.title || "", lang),
       description: data.meta_description || data.excerpt || "",
       image: data.featured_image || `${baseUrl}/logo.png`,
       articleUrl,

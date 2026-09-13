@@ -7,6 +7,10 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
 import { stripFaqSectionFromBody, stripTitleHeadingFromBody } from "@/lib/blog-msa";
+// PHASE 189 (SEO-GEO-10): clamp the share title through the same SERP
+// law as <title> — the zero-dep module keeps the client bundle clean of
+// the AI provider chain that blog-pipeline.ts imports.
+import { clampMetaTitle } from "@/lib/blog-meta-title";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
@@ -131,7 +135,11 @@ export function BlogArticlePage({
   const articleUrl = `${baseUrl}${isAr ? "/ar/blog" : "/blog"}/${post.slug}`;
   const linkedUrl = linked ? `${baseUrl}${linked.language === "ar" ? "/ar/blog" : "/blog"}/${linked.slug}` : null;
 
-  const shareTitle = post.meta_title || post.title;
+  // PHASE 189: same clamp as the page <title> — legacy stored meta_titles
+  // with a trailing " — Alkemos" suffix must not leak into shared text
+  // (WhatsApp/Facebook/X prefill) either; within-budget titles pass through
+  // unchanged (Law 2), so the 64 clean rows are a no-op.
+  const shareTitle = clampMetaTitle(post.meta_title || post.title || "", lang);
   const shareDescription = post.meta_description || post.excerpt || "";
   const shareImage = post.featured_image || "https://alkemos.com/logo.png";
 
