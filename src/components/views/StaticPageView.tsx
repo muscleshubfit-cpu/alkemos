@@ -107,7 +107,7 @@ function getContent(page: string, isAr: boolean) {
  title: "عن Alkemos",
  updated: `آخر تحديث: ${date}`,
  sections: [
- { heading: "من نحن", paragraphs: ["Alkemos هي منصة تحسين أداء بشري بالذكاء الاصطناعي. نجمع بين محرك الذكاء الاصطناعي EVO وقاعدة بيانات ضخمة لتمارين (٨٦٨+) وأكلات (٨٬٨٣٠+) لتقديم تجربة لياقة وتغذية لا مثيل لها.", "تأسست Alkemos برؤية بسيطة: المستقبل ليس إنسان ضد AI، بل إنسان + AI. نحن نؤمن بأن أفضل النتائج تأتي من الجمع بين حكمة الإنسان وذكاء الآلة."] },
+ { heading: "من نحن", paragraphs: ["Alkemos هي منصة اللياقة والتغذية الذكية المتكاملة: محرك الذكاء الاصطناعي EVO يعمل جنبًا إلى جنب مع قاعدة بيانات ضخمة لتمارين (٨٦٨+) وأكلات (٨٬٨٣٠+) لتقديم تجربة لياقة وتغذية لا مثيل لها.", "تأسست Alkemos برؤية بسيطة: المستقبل ليس إنسان ضد AI، بل إنسان + AI. نحن نؤمن بأن أفضل النتائج تأتي من الجمع بين حكمة الإنسان وذكاء الآلة."] },
  { heading: "رؤيتنا", paragraphs: ["أن نكون المنصة الأولى للكوتشينج الرياضي والتغذوي في العالم العربي، ونقدم تجربة عالمية المستوى لكل عضو."] },
  { heading: "المؤسس: أحمد زكي", paragraphs: ["أحمد زكي هو مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين.", "يشرف أحمد شخصيًا على كل محتوى يُنشر على المنصة: من مكتبة الـ868 تمرينًا، إلى قاعدة الـ8830 طعام بالقيم الغذائية، إلى كل مقال في المدوّنة — يراجع كل قطعة محتوى للدقّة العلمية قبل النشر. هذا الالتزام بالجودة هو ما يميّز Alkemos عن المواقع التي تُولّد محتواها آليًا دون مراجعة بشرية."] },
  { heading: "EVO — محرك الأداء الذكي", paragraphs: ["EVO ليس شات بوت عادي. بل محرك ذكاء اصطناعي يقرأ بياناتك وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام."] },
@@ -117,7 +117,7 @@ function getContent(page: string, isAr: boolean) {
  title: "About Alkemos",
  updated: `Last updated: ${date}`,
  sections: [
- { heading: "Who We Are", paragraphs: ["Alkemos is an AI-powered human optimization platform. We combine the EVO AI engine with a massive database of exercises (868+) and foods (8,830+) to deliver an unmatched fitness and nutrition experience.", "Alkemos was founded on a simple vision: the future isn't Human vs AI, it's Human + AI. We believe the best results come from combining human wisdom with machine intelligence."] },
+ { heading: "Who We Are", paragraphs: ["Alkemos is the smart, all-in-one fitness & nutrition platform: the EVO AI engine works alongside a massive library of 868+ exercises and 8,830+ foods to deliver an unmatched fitness and nutrition experience.", "Alkemos was founded on a simple vision: the future isn't Human vs AI, it's Human + AI. We believe the best results come from combining human wisdom with machine intelligence."] },
  { heading: "Our Vision", paragraphs: ["To be the leading fitness and nutrition platform in the Arab world, delivering a world-class experience to every member."] },
  { heading: "Founder: Ahmed Zake", paragraphs: ["Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built the platform to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers.", "Ahmed personally oversees every piece of content published on the platform: from the 868-exercise library, to the 8,830-food nutrition database, to every article in the blog — he reviews each piece of content for scientific accuracy before publication. This commitment to quality is what sets Alkemos apart from sites that generate content automatically without human review."] },
  { heading: "EVO — The AI Performance Engine", paragraphs: ["EVO is not a regular chatbot. It's an AI engine that reads your data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Available to everyone — visitors and members alike — with tier-based limits."] },
@@ -189,9 +189,9 @@ function getContent(page: string, isAr: boolean) {
  title: "الأسئلة الشائعة",
  updated: `آخر تحديث: ${date}`,
  sections: [
- { heading: "ما هو Alkemos؟", paragraphs: ["منصة تحسين أداء بشري تجمع بين محرك الذكاء الاصطناعي EVO وقاعدة بيانات ضخمة (تمارين وأكلات) لتقديم خطط مخصصة وتتبع ذكي."] },
+ { heading: "ما هو Alkemos؟", paragraphs: ["منصة اللياقة والتغذية الذكية المتكاملة: محرك EVO الذكي مع قاعدة بيانات ضخمة (تمارين وأكلات) لتقديم خطط مخصصة وتتبع ذكي."] },
  { heading: "من هو EVO؟", paragraphs: ["EVO هو محرك الأداء الذكي. يقرأ بياناتك وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام."] },
- { heading: "هل فيه كوتش بشري؟", paragraphs: ["EVO هو كوتش ذكاء اصطناعي. لو حابب متابعة بشرية، فيه قسم كوتشينج بشري منفصل يمكنك حجزه عبر صفحة الكوتشينج."] },
+ { heading: "هل فيه كوتش بشري؟", paragraphs: ["EVO هو كوتش ذكاء اصطناعي. إذا رغبت في متابعة بشرية، يوجد قسم كوتشينج بشري منفصل يمكنك الاشتراك فيه عبر صفحة الكوتشينج."] },
  { heading: "كم خطة بالذكاء الاصطناعي شهرياً؟", paragraphs: ["رصيد شهري موحد واحد يجمع خطط التغذية والتمارين معاً: المجاني (والزوار دون تسجيل) توليدان ناجحان شهرياً، وبريميوم 4، وبرو 8، وكوتشينج 8. التوليد الفاشل لا يُحتسب، والرصيد يتجدد في أول كل شهر."] },
  { heading: "كم تبديل أسبوعياً مسموح؟", paragraphs: ["الباقة المجانية: لا يوجد. بريميوم: 3 تبديلات أسبوعياً. برو: 6 تبديلات أسبوعياً. كوتشينج: 6 تبديلات أسبوعياً. تتجدد كل اثنين."] },
  { heading: "ما طرق الدفع؟", paragraphs: ["PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ أما الطرق اليدوية فتتطلب رفع إيصال يقوم الكوتش بمراجعته خلال 24 ساعة."] },
@@ -204,7 +204,7 @@ function getContent(page: string, isAr: boolean) {
  title: "Frequently Asked Questions",
  updated: `Last updated: ${date}`,
  sections: [
- { heading: "What is Alkemos?", paragraphs: ["A human optimization platform combining the EVO AI engine with a massive exercise and food database for personalized plans and smart tracking."] },
+ { heading: "What is Alkemos?", paragraphs: ["The smart, all-in-one fitness & nutrition platform: the EVO AI engine plus a massive exercise and food database for personalized plans and smart tracking."] },
  { heading: "Who is EVO?", paragraphs: ["EVO is the AI performance engine. It reads your data and goal, builds personalized nutrition and workout plans, and suggests smart swaps. Available to everyone — visitors and members alike — with tier-based limits."] },
  { heading: "Is there a human coach?", paragraphs: ["EVO is an AI coach. If you want human supervision, there's a separate human coaching section you can book via the coaching page."] },
  { heading: "How many AI plans per month?", paragraphs: ["One unified monthly pool covers nutrition and workout plans together: the Free tier (visitors included, no signup) gets 2 successful generations per month, Premium 4, Pro 8, and Coaching 8. Failed generations never count, and the pool resets on the 1st of each month."] },

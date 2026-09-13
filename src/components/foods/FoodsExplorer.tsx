@@ -89,11 +89,11 @@ export function FoodsExplorer({
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
-            {isAr ? "مكتبة الأكلات" : "Food Library"}
+            {isAr ? "مكتبة الأطعمة" : "Food Library"}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ابحث عن الأكلات، شوف السعرات والماكروز، واحسب الجرامات اللي محتاجها."
+              ? "ابحث عن الأطعمة، واستعرض السعرات والماكروز، واحسب الجرامات التي تحتاجها."
               : "Search foods, see calories and macros, and calculate the grams you need."}
           </p>
           <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)] opacity-80">

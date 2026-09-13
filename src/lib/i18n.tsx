@@ -364,8 +364,11 @@ const en: Dict = {
  "feat.weeklyReview": "Weekly plan review",
  "feat.progressTracking": "Progress tracking & charts",
  "feat.coachSupport": "Direct coach support",
- "feat.swaps2": "2 meal + 2 exercise swaps / day",
- "feat.swapsUnlimited": "Unlimited daily swaps",
+ // §12.50-أ-12 (Phase 193): two dead keys carrying WRONG swap claims
+ // (daily quotas contradicting the weekly limits in memberships.ts +
+ // the Terms page) were DELETED here to prevent re-use — the limits
+ // live in memberships.ts features only. Canaries in
+ // marketing-msa-surface.test.ts pin the removal.
  "feat.aiCoach": "Smart AI coach (EVO)",
  "feat.fasterAdjust": "Faster plan adjustments",
  "feat.prioritySupport": "Priority support",
@@ -753,8 +756,8 @@ const ar: Dict = {
  "feat.weeklyReview": "مراجعة أسبوعية للخطة",
  "feat.progressTracking": "تتبع التقدم والرسوم",
  "feat.coachSupport": "دعم مباشر من الكوتش",
- "feat.swaps2": "2 تبديل وجبات + 2 تبديل تمارين يومياً",
- "feat.swapsUnlimited": "تبديلات يومية غير محدودة",
+ // §12.50-أ-12 (Phase 193): حذف مفتاحين ميتين كانا يحملان ادعاءات تبديل
+ // خاطئة (يومية بدل الأسبوعية الفعلية في memberships.ts وصفحة الشروط).
  "feat.aiCoach": "مساعد ذكي (EVO)",
  "feat.fasterAdjust": "تعديلات أسرع للخطة",
  "feat.prioritySupport": "دعم بأولوية",

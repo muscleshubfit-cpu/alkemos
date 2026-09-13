@@ -13,47 +13,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Marquee } from "@/components/ui/3d-testimonials";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 import { listBlogPosts, getCategoryLabel, type BlogPostCard } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
 import { Dumbbell, Apple, BarChart3, Bot, Check, ArrowRight, Sparkles } from "lucide-react";
 import Image from "next/image";
 
-const testimonialsData = [
-  { name: "Mohamed ElAshry", username: "@mohamed", body: "Lost 12kg in 3 months. EVO answers my questions anytime!", img: "https://randomuser.me/api/portraits/men/32.jpg", country: "Egypt" },
-  { name: "Sara Mansour", username: "@sara", body: "The coaches understood my situation and made a plan that fits me perfectly.", img: "https://randomuser.me/api/portraits/women/44.jpg", country: "Egypt" },
-  { name: "Ahmed Fouad", username: "@ahmedf", body: "Gained 6kg muscle. The workout program is very professional.", img: "https://randomuser.me/api/portraits/men/52.jpg", country: "Egypt" },
-  { name: "Omar Hassan", username: "@omar", body: "The swap feature is a game changer. Quick and accurate!", img: "https://randomuser.me/api/portraits/men/22.jpg", country: "KSA" },
-  { name: "Layla Ahmed", username: "@layla", body: "Weekly tracking kept me committed. Down 2 sizes in 4 months!", img: "https://randomuser.me/api/portraits/women/68.jpg", country: "UAE" },
-  { name: "Khaled Ibrahim", username: "@khaled", body: "Best coaching platform in Egypt. The AI + human combo is unbeatable.", img: "https://randomuser.me/api/portraits/men/85.jpg", country: "Egypt" },
-  { name: "Nour Adel", username: "@nour", body: "EVO adjusts my plan automatically. I never hit a plateau!", img: "https://randomuser.me/api/portraits/women/45.jpg", country: "Kuwait" },
-  { name: "Youssef Tarek", username: "@youssef", body: "The meal plans are personalized to the gram. Incredible attention to detail.", img: "https://randomuser.me/api/portraits/men/33.jpg", country: "Egypt" },
-  { name: "Mariam Sherif", username: "@mariam", body: "Lost 8kg and gained confidence. The coaching is the real deal.", img: "https://randomuser.me/api/portraits/women/53.jpg", country: "Egypt" },
-];
+// PHASE 193 (copy audit — claims honesty): the previous data here was 9
+// fabricated testimonials (stock-avatar portraits + invented names and
+// results like «-12kg in 3 months») plus a fabricated client-count claim — all
+// unverifiable and contrary to the honesty/E-E-A-T law (§12.50-أ-1).
+// The section now sells TRUST with only verifiable facts (founder review,
+// transparent limits, 7-day refund) — no names, no numbers, no photos.
 
-function TestimonialCard({ img, name, username, body, country, isAr }: { img: string; name: string; username: string; body: string; country: string; isAr: boolean }) {
-  return (
-    <Card className="w-72 shrink-0 bg-[var(--card)]">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={img} alt={name} />
-            <AvatarFallback>{name[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <figcaption className="flex items-center gap-1 text-sm font-medium text-[var(--text)]">
-              {name} <span className="text-xs">{country}</span>
-            </figcaption>
-            <p className="text-xs font-normal text-[var(--muted-foreground)]">{username}</p>
-          </div>
-        </div>
-        <blockquote className="mt-3 text-sm font-normal leading-relaxed text-[var(--muted-2)]">{body}</blockquote>
-      </CardContent>
-    </Card>
-  );
-}
 
 // Disabled Reveal — animations were causing jarring "shake" effects
 // during scroll. Now just renders children directly.
@@ -148,16 +119,16 @@ export default function CoachingPage() {
       icon: BarChart3,
       titleAr: "تتبع التقدم الذكي",
       titleEn: "Smart Progress Tracking",
-      descAr: "تتبع وزنك، قياساتك، وصورك. EVO بيحلل الأنماط ويخبرك بإيه اللي شغال وإيه اللي محتاج تعديل.",
-      descEn: "Track your weight, measurements, and photos. EVO analyzes patterns and tells you what's working and what needs adjustment.",
+      descAr: "تتبع وزنك، قياساتك، وصورك. يُحلّل EVO أنماط تقدمك ويخبرك بما ينجح وما يحتاج تعديلًا.",
+      descEn: "Track your weight, measurements, and photos. EVO analyzes your progress patterns and tells you what's working and what needs adjustment.",
       color: "#ff9500",
     },
     {
       icon: Bot,
       titleAr: "EVO — مساعدك الذكي 24/7",
       titleEn: "EVO — Your AI Assistant 24/7",
-      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. ليس مجرد روبوت محادثة — بل محرك أداء ذكي يتعلّم من بياناتك ومن خطط المنصة الحقيقية (مجهولة الهوية).",
-      descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that learns from your data and from real platform plans (anonymized).",
+      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. ليس مجرد روبوت محادثة — بل محرك أداء ذكي يقرأ بياناتك ويتذكّرها، ويتعلّم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية).",
+      descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that reads and remembers your data, and learns weekly from real platform plans (anonymized).",
       color: "#8b5cf6",
     },
   ];
@@ -183,9 +154,9 @@ export default function CoachingPage() {
               {isAr ? "كوتشينج أونلاين" : "Online Coaching"}
             </span>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight md:text-6xl lg:text-7xl">
-              {isAr ? "مدربين وأخصائيين" : "Coaches & Nutrition"}
+              {isAr ? "مدربون وأخصائيو" : "Professional coaches"}
               <br />
-              {isAr ? "تغذية محترفين." : "Specialists."}
+              {isAr ? "تغذية محترفون." : "& nutrition specialists."}
             </h1>
             {/* Image 1 — directly under the hero title */}
             <div className="relative mt-8 aspect-[3/2] w-full overflow-hidden rounded-3xl shadow-2xl">
@@ -231,7 +202,7 @@ export default function CoachingPage() {
               {[
                 { n: "01", title: isAr ? "أنشئ حسابك" : "Create your account", desc: isAr ? "في ثوانٍ. بالإيميل أو Google." : "In seconds. Email or Google." },
                 { n: "02", title: isAr ? "أكمل الاستبيانات" : "Complete questionnaires", desc: isAr ? "أخبرنا عن هدفك، وزنك، عاداتك." : "Tell us your goal, weight, habits." },
-                { n: "03", title: isAr ? "EVO يحلل ويخطط" : "EVO analyzes & plans", desc: isAr ? "المدربين + EVO يولّدون خططك المخصصة." : "Coaches + EVO generate your plans." },
+                { n: "03", title: isAr ? "EVO يحلل ويخطط" : "EVO analyzes & plans", desc: isAr ? "مدربون بشريون وEVO معًا يولّدون خططك المخصصة." : "Coaches + EVO generate your plans." },
                 { n: "04", title: isAr ? "ابدأ التحوّل" : "Start transforming", desc: isAr ? "تتبع، استبدل، واسأل EVO." : "Track, swap, and ask EVO." },
               ].map((s, i) => (
                 <Reveal key={s.n} delay={i * 80}>
@@ -320,21 +291,26 @@ export default function CoachingPage() {
           </div>
         </section>
 
-        {/* ===================== TESTIMONIALS ===================== */}
+        {/* ===================== TRUST (replaces fabricated testimonials, Phase 193) ====
+            Honest trust section: only verifiable facts — founder-led human
+            review (About-page owner content), fully published limits, 7-day
+            refund. No invented names, numbers, or photos. ===================== */}
         <section className="bg-[var(--tint)] px-4 py-16 md:py-24">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-4xl">
             <Reveal>
               <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "نتائج حقيقية." : "Real results."}
+                {isAr ? "التزام يمكن الاعتماد عليه." : "A commitment you can count on."}
               </h2>
             </Reveal>
             <Reveal delay={150}>
               <p className="mx-auto mt-4 max-w-xl text-center text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
-                {isAr ? "+500 عميل غيّروا حياتهم مع Alkemos." : "500+ clients transformed their lives with Alkemos."}
+                {isAr
+                  ? "الكوتشينج في Alkemos مبني على إشراف بشري حقيقي وقواعد واضحة تنشر كما هي — بلا وعود مبالغ فيها."
+                  : "Coaching at Alkemos is built on real human oversight and clear rules published as they are — no inflated promises."}
               </p>
             </Reveal>
 
-            {/* Alkemos brand mark — helmet emblem (identity) above the marquee */}
+            {/* Alkemos brand mark — helmet emblem (identity) */}
             <Reveal delay={200}>
               <div className="mt-10 flex flex-col items-center">
                 {/* PHASE 137: loading=lazy (kills the React Float auto-preload
@@ -351,64 +327,50 @@ export default function CoachingPage() {
                 />
                 <p className="mt-3 text-sm font-semibold">Alkemos</p>
                 <p className="text-xs font-normal text-[var(--muted-foreground)]">
-                  {isAr ? "منصة لياقة وتغذية أونلاين" : "Online Fitness & Nutrition Platform"}
+                  {isAr ? "منصة اللياقة والتغذية الذكية المتكاملة" : "The smart, all-in-one fitness & nutrition platform"}
                 </p>
               </div>
             </Reveal>
 
-            {/* 3D Marquee */}
-            <Reveal delay={300}>
-              <div className="relative mt-8 flex h-[400px] w-full items-center justify-center overflow-hidden [perspective:300px]">
-                <div
-                  className="flex flex-row items-center gap-4"
-                  style={{
-                    transform: "translateX(-100px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)",
-                  }}
-                >
-                  <Marquee vertical pauseOnHover repeat={3} className="[--duration:40s]">
-                    {testimonialsData.map((review) => (
-                      <TestimonialCard key={review.username} {...review} isAr={isAr} />
-                    ))}
-                  </Marquee>
-                  <Marquee vertical pauseOnHover reverse repeat={3} className="[--duration:40s]">
-                    {testimonialsData.map((review) => (
-                      <TestimonialCard key={review.username} {...review} isAr={isAr} />
-                    ))}
-                  </Marquee>
-                  <Marquee vertical pauseOnHover repeat={3} className="[--duration:40s]">
-                    {testimonialsData.map((review) => (
-                      <TestimonialCard key={review.username} {...review} isAr={isAr} />
-                    ))}
-                  </Marquee>
-                  <Marquee vertical pauseOnHover reverse repeat={3} className="[--duration:40s]">
-                    {testimonialsData.map((review) => (
-                      <TestimonialCard key={review.username} {...review} isAr={isAr} />
-                    ))}
-                  </Marquee>
-                </div>
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[var(--tint)]" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[var(--tint)]" />
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-[var(--tint)]" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-[var(--tint)]" />
-              </div>
-            </Reveal>
-
-            {/* Featured quotes */}
-            <div className="mt-12 space-y-8 md:space-y-12">
+            {/* Honest trust cards — every claim verified in §12.50-أ */}
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
               {[
-                { name: isAr ? "محمد العشري" : "Mohamed ElAshry", result: isAr ? "-12 كجم في 3 أشهر" : "-12kg in 3 months", text: isAr ? "أحسن كوتش جربته. EVO بيرد على أسئلتي في أي وقت." : "Best coach I've tried. EVO answers my questions anytime." },
-                { name: isAr ? "سارة منصور" : "Sara Mansour", result: isAr ? "-2 مقاس في 4 أشهر" : "-2 sizes in 4 months", text: isAr ? "المدربين فهموا حالتي وعملوا خطة تناسبني. التتبع خلاني ملتزمة." : "The coaches understood my situation and made a plan that fits me." },
-              ].map((tm, i) => (
-                <Reveal key={i} delay={i * 100}>
-                  <blockquote className="text-center">
-                    <p className="mx-auto max-w-2xl text-xl font-normal leading-relaxed tracking-tight md:text-3xl md:leading-relaxed">
-                      "{tm.text}"
-                    </p>
-                    <footer className="mt-6">
-                      <div className="text-sm font-semibold">{tm.name}</div>
-                      <div className="chrome-text mt-1 text-sm font-semibold">{tm.result}</div>
-                    </footer>
-                  </blockquote>
+                {
+                  title: isAr ? "إشراف بشري على كل خطة" : "Human oversight on every plan",
+                  body: isAr
+                    ? "المؤسس أحمد زكي — مدرب لياقة وتغذية معتمد بخبرة تتجاوز عشر سنوات — يشرف على المحتوى والخطط، ويُراجع كل مقال للدقة العلمية قبل النشر."
+                    : "Founder Ahmed Zake — a certified fitness and nutrition coach with over a decade of experience — oversees the platform's content and reviews every article for scientific accuracy before publication.",
+                  href: isAr ? "/ar/about" : "/about",
+                  cta: isAr ? "تعرّف على المؤسس ›" : "Meet the founder ›",
+                },
+                {
+                  title: isAr ? "حدود شفافة بلا نجمة صغيرة" : "Transparent limits, no fine print",
+                  body: isAr
+                    ? "كل الأسعار وحدود الاستخدام (توليد الخطط، التبديلات، الحفظ) منشورة بالكامل على صفحة العضويات — ما تراه هو ما تحصل عليه."
+                    : "Every price and usage limit (plan generations, swaps, saves) is published in full on the memberships page — what you see is what you get.",
+                  href: isAr ? "/ar/memberships" : "/memberships",
+                  cta: isAr ? "قارن العضويات ›" : "Compare memberships ›",
+                },
+                {
+                  title: isAr ? "استرداد كامل خلال 7 أيام" : "Full 7-day refund",
+                  body: isAr
+                    ? "إن لم تُستخدم أي ميزة مدفوعة، نعيد لك كامل قيمة الاشتراك خلال 7 أيام من التفعيل — قراراتك هنا بلا مخاطرة."
+                    : "If no paid feature has been used, we refund your full subscription within 7 days of activation — joining here is risk-free.",
+                  href: isAr ? "/ar/memberships" : "/memberships",
+                  cta: isAr ? "سياسة الاسترداد ›" : "Refund policy ›",
+                },
+              ].map((card, i) => (
+                <Reveal key={i} delay={250 + i * 80}>
+                  <div className="marble-card flex h-full flex-col p-6">
+                    <h3 className="text-base font-semibold tracking-tight">{card.title}</h3>
+                    <p className="mt-2 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">{card.body}</p>
+                    <a
+                      href={card.href}
+                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text)] underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+                    >
+                      {card.cta}
+                    </a>
+                  </div>
                 </Reveal>
               ))}
             </div>
@@ -496,10 +458,10 @@ export default function CoachingPage() {
             <Reveal delay={150}>
               <Accordion type="single" collapsible className="mt-12">
                 {[
-                  { q: isAr ? "ما هو الكوتشينج في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "كوتشينج أونلاين مع مدربين وأخصائيين تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
+                  { q: isAr ? "ما هو الكوتشينج في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
                   { q: isAr ? "من هو EVO؟" : "Who is EVO?", a: isAr ? "محرك الأداء الذكي. ليس روبوت محادثة — يجيب على أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
                   { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، تُبنى كل خطة من استبياناتك على يد مدرب بشري، ويمكنك طلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
-                  { q: isAr ? "هل المدربين حقيقيين؟" : "Are the coaches real?", a: isAr ? "نعم، المدربين حقيقيين ويراجعون خططك بنفسهم." : "Yes, real coaches review your plans personally." },
+                  { q: isAr ? "هل المدربون حقيقيون؟" : "Are the coaches real?", a: isAr ? "نعم، مدربون حقيقيون يراجعون خططك بأنفسهم." : "Yes, real coaches review your plans personally." },
                   { q: isAr ? "طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
                   { q: isAr ? "بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم، مشفرة على Supabase مع RLS." : "Yes, encrypted on Supabase with RLS." },
                 ].map((faq, i) => (
@@ -521,7 +483,7 @@ export default function CoachingPage() {
         <section className="bg-[var(--bg)] px-4 py-16 text-center md:py-24">
           <Reveal>
             <h2 className="mx-auto max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-              {isAr ? "جسمك الجديد بيستناك." : "Your new body is waiting."}
+              {isAr ? "جسمك الجديد بانتظارك." : "Your new body is waiting."}
             </h2>
           </Reveal>
           <Reveal delay={200}>
@@ -530,7 +492,7 @@ export default function CoachingPage() {
                 onClick={scrollToPricing}
                 className="btn-chrome px-7 py-3 text-base font-medium"
               >
-                {isAr ? "ابدأ تحوّلي" : "Start my transformation"}
+                {isAr ? "ابدأ تحوّلك" : "Start my transformation"}
               </button>
               {/* Owner 2026-08-30: removed the old "اعرف عن EVO ›" link —
                   EVO is part of the subscription, not a destination CTA. */}
@@ -546,7 +508,7 @@ export default function CoachingPage() {
             </p>
             <ShareButtons
               title={isAr ? "كوتشينج أونلاين | Alkemos" : "Online Coaching | Alkemos"}
-              text={isAr ? "مدربين وأخصائيين تغذية + EVO AI. خطط مخصصة ومتابعة شخصية." : "Coaches & nutrition specialists + EVO AI. Personalized plans and personal follow-up."}
+              text={isAr ? "مدربون وأخصائيو تغذية + EVO AI. خطط مخصصة ومتابعة شخصية." : "Coaches & nutrition specialists + EVO AI. Personalized plans and personal follow-up."}
             />
           </div>
         </div>

@@ -25,6 +25,15 @@ const MARKETING_SURFACE_FILES = [
   "src/app/memberships/page.tsx",
   // Coaching landing (EVO FAQ + program copy)
   "src/app/coaching/page.tsx",
+  // Phase 193 (§12.50-B3): the two B2B/B2C marketing surfaces converted
+  // from full-Egyptian copy to Pan-Arab MSA in the same pass.
+  "src/components/views/AffiliateProgramView.tsx",
+  "src/app/for-coaches/page.tsx",
+  "src/app/for-coaches/content.ts",
+  // Phase 193: the tools hub + the foods hub intro are public marketing
+  // headlines too (كوبساتك / شوف الماكروز findings).
+  "src/app/tools/page.tsx",
+  "src/components/foods/FoodsExplorer.tsx",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -159,6 +168,51 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     }
     for (const banned of ["مش مجرد شات بوت", "بتتبني", "وتقدر تطلب", "بكل حاجة"]) {
       expect(coaching, `dialect phrase returned: "${banned}"`).not.toContain(banned);
+    }
+  });
+
+  // PHASE 193 (§12.50-B3) — the scanner missed b-prefixed Egyptian verbs
+  // and a few lexical items; every phrase REMOVED in the copy audit is
+  // pinned dead here (the canary law: removed copy never returns).
+  it("Phase 193 copy audit: the removed Egyptian phrases stay dead across the marketing surface", () => {
+    const surfaces: Record<string, string[]> = {
+      "src/app/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين"],
+      "src/components/views/LandingView.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين"],
+      "src/app/tools/page.tsx": ["كوبساتك", "شوف الماكروز"],
+      "src/components/foods/FoodsExplorer.tsx": ["شوف السعرات", "اللي محتاجها"],
+      "src/components/views/AffiliateProgramView.tsx": ["مفيش معالجة دفعات", "إزاي بيشتغل", "لمين ده مناسب", "بتاعك", "هتلاقي رابط"],
+      "src/app/for-coaches/page.tsx": ["اقبض بنفسك", "ضيف عملاءك", "شوف العضويات", "يستهل يشتغل", "عايز مميزات"],
+      "src/app/for-coaches/content.ts": ["بتدفع", "مين اللي", "إزاي بحصّل", "إيه اللي بيدفعه", "هيبقوا تابعين", "تقدر تشترك"],
+      "src/lib/i18n.tsx": ["2 meal + 2 exercise swaps / day", "Unlimited daily swaps"],
+    };
+    for (const [rel, bannedList] of Object.entries(surfaces)) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of bannedList) {
+        expect(src, `${rel}: removed phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+  });
+
+  // PHASE 193 — claims-accuracy canaries (the P0 findings): fabricated
+  // testimonials and the «500+ clients» claim must never return, and the
+  // dead wrong i18n swap claims stay deleted.
+  it("Phase 193 claims honesty: no fabricated testimonials / client counts / wrong swap limits", () => {
+    const coaching = readFileSync("src/app/coaching/page.tsx", "utf8");
+    for (const banned of [
+      "randomuser.me",
+      "500+ clients",
+      "+500 عميل",
+      "Real results",
+      "نتائج حقيقية",
+      "Lost 12kg in 3 months",
+      "testimonialsData",
+      "TestimonialCard",
+    ]) {
+      expect(coaching, `fabricated-claim string returned: "${banned}"`).not.toContain(banned);
+    }
+    const i18n = readFileSync("src/lib/i18n.tsx", "utf8");
+    for (const banned of ["feat.swaps2", "feat.swapsUnlimited"]) {
+      expect(i18n, `dead wrong-claims key returned: "${banned}"`).not.toContain(banned);
     }
   });
 });

@@ -228,8 +228,8 @@ export default function EvoPage() {
           </h2>
           <p className="mt-4 text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "EVO هو محرك أداء ذكي مبني على الذكاء الاصطناعي، صُمم خصيصًا لمساعدتك على الوصول إلى أهدافك الرياضية والغذائية بشكل أسرع وأذكى. ليس مجرد روبوت محادثة يجيب على أسئلتك — بل يحلّل EVO بياناتك، ويفهم جسمك، ويتعلّم من تقدّمك ليقدّم لك نصائح مخصّصة لك وحدك."
-              : "EVO is an AI-powered performance engine designed specifically to help you reach your fitness and nutrition goals faster and smarter. Not just a chatbot that answers your questions — EVO analyzes your data, understands your body, and learns from your progress to give you personalized advice."}
+              ? "EVO هو محرك أداء ذكي مبني على الذكاء الاصطناعي، صُمم خصيصًا لمساعدتك على الوصول إلى أهدافك الرياضية والغذائية بشكل أسرع وأذكى. ليس مجرد روبوت محادثة يجيب على أسئلتك — بل يحلّل EVO بياناتك، ويفهم جسمك، ويتابع تقدّمك ويتذكّر ما تخبره به ليقدّم لك نصائح مخصّصة لك وحدك، ويتعلّم أسبوعيًا من خطط المنصة الحقيقية."
+              : "EVO is an AI-powered performance engine designed specifically to help you reach your fitness and nutrition goals faster and smarter. Not just a chatbot that answers your questions — EVO analyzes your data, understands your body, follows your progress, and remembers what you tell it to give you personalized advice, while learning weekly from real platform plans."}
           </p>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr

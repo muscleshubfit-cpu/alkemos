@@ -41,7 +41,7 @@ export default function ForCoachesPage() {
   const REGISTER_HREF = isAr ? `/ar${REGISTER_HREF_BASE}` : REGISTER_HREF_BASE;
 
   const shareMsg = isAr
-    ? "اشتغل كوتش على Alkemos — عملاؤك بأسعارك وفلوسك في إيدك:"
+    ? "اعمل كمدرب على Alkemos — عملاؤك بأسعارك وفلوسك في يدك:"
     : "Coach on Alkemos — your clients, your prices, your money:";
 
   return (
@@ -63,7 +63,7 @@ export default function ForCoachesPage() {
               <>
                 درِّب عملاءك بأسعارك
                 <br />
-                وفلوسك في إيدك
+                وفلوسك في يدك
               </>
             ) : (
               <>
@@ -75,7 +75,7 @@ export default function ForCoachesPage() {
           </h1>
           <p className="mt-4 max-w-xl text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "Alkemos بيديك منصة كاملة تدير شغلك بيها: خطط تغذية وتمارين بالذكاء الاصطناعي، متابعة تقدم لكل عميل، وصفحة عامة باسمك. أنت اللي بتحدد سعر اشتراك عميلك، وأنت اللي بتقبض منه — المنصة مش بتاخد منك أي نسبة."
+              ? "Alkemos يمنحك منصة كاملة تدير عملك من خلالها: خطط تغذية وتمارين بالذكاء الاصطناعي، ومتابعة تقدّم لكل عميل، وصفحة عامة باسمك. أنت من يحدد سعر اشتراك عميلك، وأنت من يحصّل منه — والمنصة لا تأخذ منك أي نسبة."
               : "Alkemos gives you a complete platform to run your business: AI-generated nutrition and workout plans, progress tracking for every client, and your own public page. You set each client's price and you get paid directly — the site never takes a cut."}
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -94,7 +94,7 @@ export default function ForCoachesPage() {
           </div>
           <p className="mt-5 text-xs font-medium text-[var(--muted-foreground)]">
             {isAr
-              ? "تفعيل فوري بدون انتظار • بدون بطاقة ائتمان • عملاؤك على المنصة عملاؤك أنت"
+              ? "تفعيل فوري بلا انتظار • بلا بطاقة ائتمان • عملاؤك على المنصة عملاؤك أنت"
               : "Instant activation • No credit card • Your clients stay yours"}
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function ForCoachesPage() {
             },
             {
               n: "8,830+",
-              t: isAr ? "أكلة بالسعرات والماكروز" : "Foods with full macros",
+              t: isAr ? "صنف غذائي بالسعرات والماكروز" : "Foods with full macros",
             },
             {
               n: "EVO",
@@ -127,7 +127,7 @@ export default function ForCoachesPage() {
             },
             {
               n: isAr ? "0%" : "0%",
-              t: isAr ? "نسبة من دخلك — لنا رسم ثابت بس" : "Commission — fixed fee only",
+              t: isAr ? "لا نسبة من دخلك — رسوم ثابتة فقط" : "Commission — fixed fee only",
             },
           ].map((s) => (
             <div key={s.t}>
@@ -148,7 +148,7 @@ export default function ForCoachesPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-[var(--muted-foreground)]">
             {isAr
-              ? "عندنا قاعدة واضحة: أسعار عملائك ملكك. إنت بتحدد قيمة الاشتراك، وإنت بتقبض، والمنصة دورها إنها تسلّحك بأدوات تشتغل بيها — مش إنها تتدخل في سعرك."
+              ? "لدينا قاعدة واضحة: أسعار عملائك ملكك. أنت من يحدد قيمة الاشتراك وأنت من يحصّل، ودور المنصة أن تسلّحك بأدوات تعمل بها — لا أن تتدخل في سعرك."
               : "One clear rule: your clients' prices belong to you. You decide what to charge, you collect the payment, and the platform's job is to arm you with the tools — not to touch your pricing."}
           </p>
         </div>
@@ -157,19 +157,19 @@ export default function ForCoachesPage() {
             {
               title: isAr ? "حدّد سعرك بحرية" : "Price freely",
               body: isAr
-                ? "شهري أو بباقة — قيمة اشتراك كل عميل قرارك أنت، لكل عميل سعر يناسب شغله، ومن غير ما حد يتدخل."
+                ? "شهريًا أو بباقة — قيمة اشتراك كل عميل قرارك أنت؛ لكل عميل سعر يناسب عمله، بلا تدخل من أحد."
                 : "Monthly or per package — what each client pays is entirely your decision. Every client gets the price that fits your service, with zero interference.",
             },
             {
-              title: isAr ? "اقبض بنفسك" : "Collect yourself",
+              title: isAr ? "احصل على أموالك بنفسك" : "Collect yourself",
               body: isAr
-                ? "كاش، فودافون كاش، انستاباي، أو PayPal — العميل بيدفع لك مباشرة بره المنصة. فلوسك عندك من أول ثانية ومن غير أي وسيط."
+                ? "كاش أو فودافون كاش أو InstaPay أو PayPal — العميل يدفع لك مباشرة خارج المنصة، وأموالك معك من اللحظة الأولى بلا أي وسيط."
                 : "Cash, Vodafone Cash, InstaPay, or PayPal — clients pay you directly, outside the platform. Your money reaches you first, no middleman in between.",
             },
             {
               title: isAr ? "من غير أي نسبة" : "Zero commission",
               body: isAr
-                ? "الموقع مش بياخد نسبة مئوية من دخلك خالص. بس رسم تفعيل شهري ثابت ومعلن لكل عميل — واضح من أول يوم، من غير مفاجآت."
+                ? "الموقع لا يأخذ أي نسبة مئوية من دخلك — رسم تفعيل شهري ثابت ومعلن لكل عميل فقط، واضح من اليوم الأول بلا مفاجآت."
                 : "The site never takes a percentage of your income. Just a fixed, published monthly activation fee per client — transparent from day one, no surprises.",
             },
           ].map((c) => (
@@ -196,11 +196,11 @@ export default function ForCoachesPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2">
           <div className="order-2 md:order-1">
             <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "عملاؤك أنت... وصلاحياتك معاهم" : "Your clients — and your authority over them"}
+              {isAr ? "عملاؤك أنت... وصلاحياتك معهم" : "Your clients — and your authority over them"}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "المدرب في Alkemos شريك مش موظف. عملاؤك على المنصة عملاؤك أنت — مش عملاء الموقع — وصلاحيات إدارتهم كلها في إيدك: استبياناتهم، خططهم، تقدمهم، ودعمهم. والشات الذكي (EVO) بيشتغل في خدمة شغلك أنت مع عملائك، مش بيقدّم كوتشينج لعملاء من عند المنصة."
+                ? "المدرب في Alkemos شريك لا موظف. عملاؤك على المنصة عملاؤك أنت — لا عملاء الموقع — وصلاحيات إدارتهم كلها بيدك: استبياناتهم وخططهم وتقدّمهم ودعمهم. والمساعد الذكي (EVO) يعمل في خدمة عملك مع عملائك، ولا يقدّم كوتشينج لعملاء من لدن المنصة."
                 : "A coach on Alkemos is a partner, not an employee. Your clients on the platform are YOUR clients — not the site's — and every management tool is in your hands: their questionnaires, plans, progress, and support. The AI chat (EVO) works for YOUR business with YOUR clients — the site never coaches them behind your back."}
             </p>
             <ul className="mt-6 space-y-3">
@@ -208,7 +208,7 @@ export default function ForCoachesPage() {
                 isAr ? "إدارة كل عملائك من مكان واحد" : "Manage every client in one place",
                 isAr ? "استبيان صحي كامل لكل عميل" : "Full health questionnaire per client",
                 isAr ? "متابعة أوزان وصور تقدم" : "Weight logs and progress photos",
-                isAr ? "شات دعم مباشر مع كل عميل" : "Direct chat with each client",
+                isAr ? "محادثة دعم مباشرة مع كل عميل" : "Direct chat with each client",
               ].map((li) => (
                 <li key={li} className="flex items-start gap-2.5 text-sm font-medium">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "#878E94" }} />
@@ -222,7 +222,7 @@ export default function ForCoachesPage() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
                 {isAr
-                  ? "توليد الخطط لعميلك بيسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معاً: بريميوم 4 توليدات شهرياً · برو 8 · كوتشينج 8 (بيورث كل مزايا برو). وهو نفس الرصيد اللي بيستخدمه عميلك من إيفو وصفحات المخططات؛ بيتصفّر أول كل شهر، والتوليد الناجح بس هو اللي بيتحسب — الفاشل مبيحرقش حصة. والتعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — كلها غير محدودة خالص."
+                  ? "توليد الخطط لعميلك يسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معًا: بريميوم 4 توليدات شهريًا · برو 8 · كوتشينج 8 (ويورّث كل مزايا برو). وهو الرصيد نفسه الذي يستخدمه عميلك من EVO وصفحات المخططات؛ يتجدد في أول كل شهر، ولا يُحتسب إلا التوليد الناجح — الفاشل لا يحرق حصة. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا."
                   : "Generating a client's plans draws from his own tier's unified monthly balance — ONE pool for nutrition AND workouts combined: Premium 4 generations/month · Pro 8 · Coaching 8 (inherits every Pro benefit). It is the same pool he spends through EVO and the planner pages; it resets on the 1st, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
               </p>
             </div>
@@ -245,11 +245,11 @@ export default function ForCoachesPage() {
         {/* Dark band with a chrome ring — identity premium treatment */}
         <div className="rounded-[var(--radius-chrome)] bg-black p-8 text-white md:p-12" style={{ boxShadow: "0 0 0 2px #C9CED3, var(--shadow)" }}>
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "عايز مميزات الموقع كاملة؟ اشترك في عضوية" : "Want every site feature? Grab a membership"}
+            {isAr ? "تريد مميزات الموقع كاملة؟ اشترك في عضوية" : "Want every site feature? Grab a membership"}
           </h2>
           <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#9BA0A6]">
             {isAr
-              ? "وزي أي حد على المنصة، تقدر تشترك في عضوية Premium أو Pro وتاخد كل مميزات الموقع لنفسك: شات EVO بلا حدود، مخطط الوجبات الذكي، حفظ وتصدير نتائج الحاسبات — كل ده جنب شغلك مع عملائك."
+              ? "مثل أي عضو على المنصة، يمكنك الاشتراك في عضوية Premium أو Pro والحصول على كل مميزات الموقع لنفسك: محادثة EVO بلا حدود، ومخطط الوجبات الذكي، وحفظ نتائج الحاسبات وتصديرها — إلى جانب عملك مع عملائك."
               : "Like anyone on the platform, you can subscribe to Premium or Pro and unlock the full site for yourself: unlimited EVO chat, the smart meal planner, and saved, exportable calculator results — all alongside your work with your own clients."}
           </p>
           <div className="mt-6">
@@ -257,7 +257,7 @@ export default function ForCoachesPage() {
               href="/memberships"
               className="btn-chrome inline-block px-7 py-3 text-sm font-semibold"
             >
-              {isAr ? "شوف العضويات" : "Explore memberships"}
+              {isAr ? "استعرض العضويات" : "Explore memberships"}
             </Link>
           </div>
         </div>
@@ -276,12 +276,12 @@ export default function ForCoachesPage() {
               n: "1",
               t: isAr ? "سجّل مجانًا" : "Register free",
               b: isAr
-                ? "دقيقة واحدة وتفعيل فوري — من غير انتظار مراجعة ولا أوراق."
+                ? "دقيقة واحدة وتفعيل فوري — بلا انتظار مراجعة ولا أوراق."
                 : "One minute, instant activation — no review queue, no paperwork.",
             },
             {
               n: "2",
-              t: isAr ? "ضيف عملاءك" : "Add your clients",
+              t: isAr ? "أضف عملاءك" : "Add your clients",
               b: isAr
                 ? "كل عميل له مساحته الخاصة: استبيانه، خططه، ومتابعة تقدمه."
                 : "Each client gets a private space: questionnaire, plans, progress.",
@@ -290,14 +290,14 @@ export default function ForCoachesPage() {
               n: "3",
               t: isAr ? "جهّز الخطط" : "Build the plans",
               b: isAr
-                ? "ولّد خططًا بالذكاء الاصطناعي أو ارفع خططك اليدوية — الاثنين متاحين."
+                ? "ولّد خططًا بالذكاء الاصطناعي أو ارفع خططك اليدوية — كلاهما متاح."
                 : "Generate plans with AI or upload your own — both work, always.",
             },
             {
               n: "4",
               t: isAr ? "حدد سعرك وفعّل" : "Price it & activate",
               b: isAr
-                ? "انت بتقبض من عميلك، وتفعّل اشتراكه من محفظتك على المنصة."
+                ? "أنت من يحصّل من عميلك، ثم تفعّل اشتراكه من محفظتك على المنصة."
                 : "You get paid by your client, then activate him from your wallet.",
             },
           ].map((s) => (
@@ -320,7 +320,7 @@ export default function ForCoachesPage() {
             alt: isAr ? "خطة تغذية صحية" : "Healthy nutrition plan",
             t: isAr ? "خطط تغذية بالذكاء الاصطناعي" : "AI nutrition plans",
             b: isAr
-              ? "محرك EVO بيولّد لكل عميل خطة تغذية مناسبة لهدفه وحاسباته بالسعرات والماكروز — تعدّل كل وجبة بيدك، أو تعيد توليد أي وجبة أو صنف غذائي بالذكاء الاصطناعي بضغطة زر لحد ما تظبطها على ذوق عميلك."
+              ? "يولّد محرك EVO لكل عميل خطة تغذية تناسب هدفه واحتياجاته بالسعرات والماكروز — عدّل كل وجبة بيدك، أو أعد توليد أي وجبة أو صنف غذائي بالذكاء الاصطناعي بضغطة زر حتى تناسب ذوق عميلك."
               : "The EVO engine builds each client a nutrition plan around his goal, with full calorie and macro targets — hand-tune every meal, or AI-regenerate any meal or food item with one tap until it fits your client perfectly.",
           },
           {
@@ -328,7 +328,7 @@ export default function ForCoachesPage() {
             alt: isAr ? "دمبل في الجيم" : "Dumbbells in the gym",
             t: isAr ? "برامج تمارين من مكتبة 868+ تمرين" : "Workout programs from an 868+ exercise library",
             b: isAr
-              ? "برامج تمارين متكيفة بمستويات مختلفة، ومكتبة تمارين مشروحة بالفيديو اللي تقدر تبني منها أي جلسة — وتقدر كمان تعيد توليد أي يوم تدريبي كامل أو تستبدل أي تمرين بالذكاء الاصطناعي."
+              ? "برامج تمارين متكيّفة بمستويات مختلفة، ومكتبة تمارين مشروحة بالفيديو يمكنك بناء أي جلسة منها — ويمكنك أيضًا إعادة توليد أي يوم تدريبي كامل أو استبدال أي تمرين بالذكاء الاصطناعي."
               : "Adaptive workout programs across levels, plus a video-explained exercise library you can build any session from — and you can AI-regenerate any full training day or swap any exercise.",
           },
         ].map((f) => (
@@ -373,11 +373,11 @@ export default function ForCoachesPage() {
       <section className="border-t border-[var(--edge)] bg-[var(--tint)] py-14">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-            {isAr ? "تعرف كوتش يستهل يشتغل معانا؟" : "Know a coach who should be here?"}
+            {isAr ? "تعرف مدربًا يستحق أن يعمل معنا؟" : "Know a coach who should be here?"}
           </h2>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">
             {isAr
-              ? "ابعتله الصفحة دي — شغل كامل بأسعاره وفلوسه في إيده."
+              ? "شاركه هذه الصفحة — عمل كامل بأسعاره وفلوسه في يده."
               : "Send him this page — a full business at his own prices, in his own hands."}
           </p>
           <div className="mt-6">
@@ -398,11 +398,11 @@ export default function ForCoachesPage() {
       {/* ================= FINAL CTA ================= */}
       <section className="mx-auto max-w-4xl px-4 py-16 text-center md:py-20">
         <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-          {isAr ? "جاهز تبني شغلك على منصة تليق بيه؟" : "Ready to build your business on a platform that fits it?"}
+          {isAr ? "جاهز لتبني عملك على منصة تليق به؟" : "Ready to build your business on a platform that fits it?"}
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-base text-[var(--muted-foreground)]">
           {isAr
-            ? "سجّل دلوقتي — حسابك يتفعّل فورًا، وتبدأ تضيف عملائك وتحدد أسعارك من أول يوم."
+            ? "سجّل الآن — يتفعّل حسابك فورًا، وتبدأ بإضافة عملائك وتحديد أسعارك من اليوم الأول."
             : "Sign up now — your account activates instantly, and you can add clients and set your prices from day one."}
         </p>
         <Link

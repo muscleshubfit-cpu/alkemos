@@ -93,10 +93,10 @@ type HeroNavItem = {
 
 const HERO_NAV: HeroNavItem[] = [
   { id: "memberships", labelEn: "Memberships", labelAr: "العضويات", titleEn: "Alkemos Premium memberships", titleAr: "عضويات Alkemos المميزة", icon: Crown, primary: true },
-  { id: "tools", labelEn: "Free Tools", labelAr: "أدوات مجانية", titleEn: "6 free fitness & nutrition calculators", titleAr: "6 حاسبات مجانية بدون تسجيل", icon: Calculator },
+  { id: "tools", labelEn: "Free Tools", labelAr: "أدوات مجانية", titleEn: "Free fitness & nutrition tools — no signup", titleAr: "أدوات لياقة وتغذية مجانية بدون تسجيل", icon: Calculator },
   { id: "exercises", labelEn: "Exercises", labelAr: "التمارين", titleEn: "868+ exercise library", titleAr: "مكتبة 868+ تمرين", icon: Dumbbell },
   { id: "programs", labelEn: "Programs", labelAr: "البرامج", titleEn: "Ready-made workout programs", titleAr: "برامج تدريب جاهزة", icon: ClipboardList },
-  { id: "foods", labelEn: "Foods", labelAr: "الأكلات", titleEn: "8,830+ foods with calories & macros", titleAr: "8,830+ أكلة بالسعرات والماكروز", icon: Salad },
+  { id: "foods", labelEn: "Foods", labelAr: "الأطعمة", titleEn: "8,830+ foods with calories & macros", titleAr: "8,830+ صنفًا غذائيًا بالسعرات والماكروز", icon: Salad },
   { id: "blog", labelEn: "Blog", labelAr: "المدونة", titleEn: "Scientific fitness articles", titleAr: "مقالات رياضية علمية", icon: BookOpen, needsPosts: true },
   { id: "coaching", labelEn: "Coaching", labelAr: "الكوتشينج", titleEn: "Online coaching with real coaches", titleAr: "كوتشينج أونلاين مع مدربين حقيقيين", icon: Users },
   { id: "for-coaches", labelEn: "For Coaches", labelAr: "كن مدرباً", titleEn: "Run your coaching business on Alkemos", titleAr: "اعمل شغلك كله من مكان واحد", icon: Briefcase },
@@ -285,11 +285,11 @@ export function LandingView() {
   // Marketing-surface MSA law (Phase 178): Arabic copy stays فصحى — the
   // free-AI-generation pair (owner directive 2026-09-13) is MSA too.
   const faqs = [
-    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا، كل الحاسبات (السعرات، الكتلة، الماكروز، الدهون) متاحة مجانًا ودون تسجيل." : "No, all six tools (calorie, BMI, macro, body fat, water tracker, meal planner) are completely free without signup." },
+    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا — الحاسبات الخمس (السعرات، كتلة الجسم، الماكروز، نسبة الدهون، متتبع الماء) ومخطط الوجبات متاحة مجانًا ودون تسجيل." : "No — the 5 calculators (calorie, BMI, macro, body fat, water tracker) and the meal planner are completely free without signup." },
     { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ خططك دائمًا في حسابك وتتزامن عبر أجهزتك."
       : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting. No account: your plan stays on this device. A free account saves your plans permanently in your account & syncs them across your devices.", },
     { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly swaps, more saved results, and no ads." },
-    { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "Does it support PayPal?", a: isAr ? "حاليًا فودافون كاش وإنستاباي وPayPal — وسنضيف طرق دفع أخرى قريبًا." : "Yes, PayPal is the primary payment method. Manual payment via InstaPay and Vodafone Cash is also available." },
+    { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "What payment methods are available?", a: isAr ? "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائيًا؛ الطرق اليدوية تتطلب رفع إيصال يُراجع خلال 24 ساعة." : "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt reviewed within 24 hours." },
     { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكثر من 868 تمرينًا و8830 نوع طعام، والعدد يتزايد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
     { q: isAr ? "هل تدعم المنصة اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "نعم بالكامل — النسخة العربية موجّهة إلى الجمهور العربي كافة لا إلى بلد بعينه، والنسخة الإنجليزية موجّهة إلى العالم أجمع." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
   ];
@@ -451,7 +451,7 @@ export function LandingView() {
             </span>
             <span className="seal-chip">
               <EngravedIcon name="hydration" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "8830+ أكلة" : "8,830+ FOODS"}
+              {isAr ? "8830+ صنفًا غذائيًا" : "8,830+ FOODS"}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="evo" alt="" size={14} className="h-3 w-3" />
@@ -635,12 +635,12 @@ export function LandingView() {
           </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[
-              { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي بدقة بدون تسجيل.", descEn: "Daily calorie needs", icon: "calories", href: "/tools/calorie-calculator" },
-              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف لو وزنك في المعدل الصحي.", descEn: "Is your weight healthy?", icon: "bmi", href: "/tools/bmi-calculator" },
-              { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع بروتين وكارب ودهون يومك بسهولة.", descEn: "Protein, carbs, fat", icon: "macros", href: "/tools/macro-calculator" },
-              { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
-              { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجّل أكوابك يوميًا", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
-              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "صمّم وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
+              { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي من السعرات والماكروز بدقة، بدون تسجيل.", descEn: "Find your daily calorie and macro needs — no signup", icon: "calories", href: "/tools/calorie-calculator" },
+              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف هل وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
+              { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكارب ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
+              { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Track progress with real measurements, not just the scale", icon: "bodyfat", href: "/tools/body-fat-calculator" },
+              { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "حدّد هدفك اليومي وسجّل أكوابك.", descEn: "Set a daily goal and log your cups", icon: "hydration", href: "/tools/water-tracker" },
+              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "ابنِ وجباتك من 8,830+ أكلة وتابع الماكروز.", descEn: "Build meals from 8,830+ foods and track macros", icon: "mealplanner", href: "/meal-planner" },
               // Owner directive (2026-09-13): the AI Meal Planner & AI Workout
               // Planner cards were REMOVED from the homepage tools grid ONLY
               // (§12.31/§12.32 entries retired) — the AI plan generators are
@@ -731,7 +731,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "سواء بدون معدات في البيت، أو في الجيم بمعدات كاملة، أو برنامج حرق دهون مكثف — اختار وابدأ فورًا بدون تخطيط زيادة." : "Complete programs by level and goal — home, gym, or minimal equipment."}
+                {isAr ? "برامج جاهزة لكل مستوى وهدف — في المنزل بدون معدات، أو في الجيم بمعدات كاملة، أو حرق دهون مكثف — اختر برنامجك وابدأ فورًا." : "Ready-made programs for every level and goal — home, full gym, or fat-burn HIIT. Pick yours and start instantly."}
               </p>
             </Reveal>
           </div>
@@ -768,7 +768,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "اعرف السعرات والماكروز لأي أكلة قبل ما تاكلها، من البروتين للكارب للدهون والفاكهة." : "8830+ foods with calories and macros + grams calculator."}
+                {isAr ? "اعرف سعرات أي صنف غذائي وماكروزه قبل أن تتناوله — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات." : "Know the calories and macros of any food before you eat it — protein, carbs, fats, and fruits, plus a grams calculator."}
               </p>
             </Reveal>
           </div>
@@ -786,7 +786,7 @@ export function LandingView() {
           </div>
           <div className="mt-8 text-center">
             <a href={isAr ? "/ar/foods" : "/foods"} className="btn-chrome px-6 py-2.5 text-sm">
-              {isAr ? "تصفّح كل الأكلات ›" : "Browse all foods ›"}
+              {isAr ? "تصفّح كل الأطعمة ›" : "Browse all foods ›"}
             </a>
           </div>
         </div>
@@ -852,7 +852,7 @@ export function LandingView() {
               <p className="mx-auto mt-4 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
                   ? "كوتش بيتابعك خطوة بخطوة، خطة تغذية وتمرين مخصصة على جسمك وهدفك، وتعديل مستمر حسب تقدمك، مع مساعد EVO شغال معاك 24 ساعة."
-                  : "A real coach following you step by step, with EVO AI available 24/7."}
+                  : "A real coach following you step by step, custom nutrition and training plans built around your body and goal, and continuous adjustments as you progress — with EVO AI available 24/7."}
               </p>
             </Reveal>
           </div>
@@ -906,12 +906,14 @@ export function LandingView() {
         <section className="bg-[var(--tint)] px-4 py-12 md:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "تعرّف على مدربينا المعتمدين" : "Meet Our Certified Coaches"}
+              {/* §12.50-أ-3: this strip is PAID advertising (0037 wallet-debited
+                  coach ads) — labeled as promo spots, not an endorsement. */}
+              {isAr ? "مدربون على المنصة" : "Featured Coaches on Alkemos"}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-base font-normal" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "مدربون معتمدون على المنصة — اضغط على أي مدرب لزيارة صفحته."
-                : "Certified coaches on the platform — tap any coach to visit his page."}
+                ? "مساحات ترويجية مدفوعة لمدربين تمت مراجعة صفحاتهم — اضغط على أي مدرب لزيارة صفحته."
+                : "Paid promotional spots for coaches with admin-reviewed pages — tap any coach to visit his page."}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
               {featuredCoaches.map((coach, i) => {
@@ -972,14 +974,14 @@ export function LandingView() {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-              {isAr ? "كوتش أو أخصائي تغذية؟ ابني بيزنسك على منصتنا" : "Are you a coach? Run your whole business from one place."}
+              {isAr ? "كوتش أو أخصائي تغذية؟ ابنِ عملك على منصتنا" : "Are you a coach? Run your whole business from one place."}
             </h2>
           </Reveal>
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: "#A1A1A6" }}>
               {isAr
                 ? "سعرك بقرارك وحدك وتحصل على أموالك مباشرة — تأخذ المنصة رسمًا ثابتًا لا نسبة من عملك، وكل الأدوات (868+ تمرينًا، و8830+ نوع طعام، ومساعد EVO) متاحة تحت تصرفك مع صفحتك الخاصة."
-                : "Your client's price is your call alone, and you collect your money yourself — the site charges a fixed fee only, never a percentage of your work."}
+                : "Your client's price is your call alone, and you collect your money yourself — the site charges a fixed fee only, never a percentage of your work. And the whole toolkit (868+ exercises, 8,830+ foods, and EVO) works for you, with your own public page."}
             </p>
           </Reveal>
           <Reveal delay={200}>
@@ -1058,7 +1060,11 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr ? "أدر خططك: EVO بلا حدود، وحفظ دائم ومزامنة عبر أجهزتك." : "Manage your plans: unlimited EVO, permanent saving and cross-device sync."}
+                  {/* §12.50-أ-2: the save ladder moved here — permanent save +
+                      cross-device sync is the FREE-ACCOUNT benefit (§185);
+                      Premium sells the MANAGEMENT delta, mirroring
+                      memberships.ts tagline. */}
+                  {isAr ? "أدر خططك: EVO بلا حدود، سعة حفظ أكبر، وتصدير كامل." : "Manage your plans: unlimited EVO, bigger save capacity, and full export."}
                 </p>
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {(isAr
@@ -1143,8 +1149,8 @@ export function LandingView() {
             <div className="mt-8 flex flex-col items-center gap-3 text-center">
               <p className="text-sm font-normal" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: 868+ تمرين، 8,830+ أكلة، 5 حاسبات، توليد خطط AI (توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا."
-                  : "Or start with the Free plan — the full product, not a demo: 868+ exercises, 8,830+ foods, 5 calculators, AI plan generation (2/month even without signup), and EVO 10 messages/day."}
+                  ? "أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: 868+ تمرينًا، 8,830+ صنفًا غذائيًا، 5 حاسبات، توليد خطط AI (توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا."
+                  : "Or start with the Free plan — the full product, not a demo: 868+ exercises, 8,830+ foods, 5 calculators, AI plan generation (2 successful generations/month even without signup), and EVO at 10 messages/day."}
               </p>
               <a
                 href={isAr ? "/ar/memberships" : "/memberships"}
@@ -1262,7 +1268,7 @@ export function LandingView() {
             <Reveal delay={150}>
               <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "شارك رابطك الخاص واكسب عمولة 20% من كل اشتراك، مع تتبّع دقيق وحد أدنى للسحب 10 دولار بس."
+                  ? "شارك رابطك الخاص واكسب عمولة 20% من كل اشتراك مؤهل — مع تتبّع دقيق وحد أدنى للسحب 10 دولار."
                   : "Share your personal affiliate link and earn a 20% commission on every qualified subscription — real-time tracking, $10 minimum payout."}
               </p>
             </Reveal>
@@ -1310,8 +1316,8 @@ export function LandingView() {
           <div className="marble-card mx-auto max-w-3xl px-6 py-12 text-center md:py-16">
             <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {isAr
-                ? "ابدأ رحلتك الآن مجانًا — لا عذر لتأجيلها بعد اليوم"
-                : "Start your journey free today — no excuse to wait"}
+                ? "ابدأ رحلتك الآن مجانًا — خطتك الأولى خلال دقائق"
+                : "Start your journey free today — your first plan in minutes"}
             </h2>
             <a
               href={isAr ? "/ar/memberships" : "/memberships"}
@@ -1477,7 +1483,7 @@ export function LandingView() {
               <ul className="mt-3 space-y-2 text-xs">
                 <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
                 <li><a href="/programs" className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
-                <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأكلات" : "Foods"}</a></li>
+                <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
                 <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
                 <li><a href={isAr ? "/ar/blog" : "/blog"} className="hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
               </ul>
@@ -1502,7 +1508,7 @@ export function LandingView() {
           </div>
 
           <div className="mt-8 border-t border-[var(--edge)] pt-4 text-center text-[10px] text-[var(--muted-foreground)]">
-            {isAr ? "صُنع بحب لمجتمع اللياقة العربي" : "Built with care for the fitness community"}
+            {isAr ? "صُنع بحب لمجتمع اللياقة العربي" : "Built with care for the Arab fitness community"}
           </div>
         </div>
       </footer>

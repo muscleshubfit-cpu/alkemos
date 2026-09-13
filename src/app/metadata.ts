@@ -12,14 +12,16 @@ import type { Metadata, Viewport } from "next";
  */
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://alkemos.com'),
-  title: "Alkemos — Comprehensive Sports Platform | Exercises, Programs, Calculators & Nutrition",
+  title: "Alkemos — The Smart Fitness & Nutrition Platform | Exercises, Programs, Calculators & Coaching",
   // Phase 117 completion (owner directive 2026-09-04): meta description
   // shortened to 150-160 chars (157) with a clear CTA — the previous
   // 245-char version had no call to action and got truncated by search
   // engines. The OG/Twitter descriptions stay longer-by-design (they
   // target social-card surfaces, not SERP snippets).
+  // §12.50-أ-7 (Phase 193): the category line is unified on the owner
+  // positioning «the smart, all-in-one fitness & nutrition platform».
   description:
-    "Alkemos — the complete digital training platform: 868+ exercises, 8,830+ foods, ready programs, free calculators, and the EVO AI coach. Start free today!",
+    "Alkemos — the smart fitness & nutrition platform: 868+ exercises, 8,830+ foods, ready programs, free calculators, and the EVO AI coach. Start free today!",
   keywords: [
     // Platform-level keywords (primary, English)
     "sports platform",
@@ -86,7 +88,7 @@ export const metadata: Metadata = {
     title: "Alkemos",
   },
   openGraph: {
-    title: "Alkemos — Comprehensive Sports Platform",
+    title: "Alkemos — The Smart Fitness & Nutrition Platform",
     description:
       "868+ exercises, workout programs, free fitness calculators, food database, fitness blog, and online coaching. Everything you need for your fitness journey in one place.",
     type: "website",
@@ -102,13 +104,13 @@ export const metadata: Metadata = {
         url: "/images/og/og-home-en.png",
         width: 1200,
         height: 630,
-        alt: "Alkemos — Comprehensive Sports Platform",
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Alkemos — Comprehensive Sports Platform",
+    title: "Alkemos — The Smart Fitness & Nutrition Platform",
     description:
       "Exercises, workout programs, fitness calculators, food database, fitness blog, and online coaching.",
     images: ["/images/og/og-home-en.png"],

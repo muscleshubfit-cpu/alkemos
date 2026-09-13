@@ -353,13 +353,13 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
           <div className="mx-auto mt-8 max-w-2xl space-y-4">
             {[
               {
-                q: isAr ? "هل أقدر ألغي في أي وقت؟" : "Can I cancel anytime?",
+                q: isAr ? "هل يمكنني الإلغاء في أي وقت؟" : "Can I cancel anytime?",
                 a: isAr
-                  ? "نعم، من صفحة حسابك اضغط «إلغاء الاشتراك». لا يوجد خصم تلقائي — تبقى باقتك فعّالة حتى آخر مدة دفعتها ثم تنتهي إن لم تُجدّدها."
+                  ? "نعم — من صفحة حسابك اضغط «إلغاء الاشتراك». لا يوجد خصم تلقائي؛ تبقى باقتك فعّالة حتى نهاية المدة التي دفعتها ثم تنتهي إن لم تُجدّدها."
                   : "Yes — on your account page press “Cancel subscription”. Nothing auto-renews: your plan stays active until the period you paid for ends, then simply stops unless you pay again.",
               },
               {
-                q: isAr ? "هل فيه سياسة استرداد؟" : "Is there a refund policy?",
+                q: isAr ? "هل توجد سياسة استرداد؟" : "Is there a refund policy?",
                 a: isAr
                   ? "نعم، استرداد كامل خلال 7 أيام من التفعيل بشرط عدم استخدام المميزات المدفوعة (توليد خطط، تبديلات، حفظ نتائج)."
                   : "Yes, full refund within 7 days of activation, provided no paid features (plan generation, swaps, saved results) have been used.",
@@ -371,7 +371,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                   : "No, coaching is completely separate from memberships. Pro gives you platform features, coaching gives you a human coach.",
               },
               {
-                q: isAr ? "هل فيه تجربة مجانية؟" : "Is there a free trial?",
+                q: isAr ? "هل توجد تجربة مجانية؟" : "Is there a free trial?",
                 a: isAr
                   ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر). بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ولا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
                   : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). No account keeps your plan on this device; a free account saves it permanently in your account & syncs it across your devices. There is no temporary trial subscription — the Free tier is free forever.",

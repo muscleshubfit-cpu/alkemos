@@ -272,7 +272,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         href: "/programs",
       },
       {
-        label: isAr ? "مكتبة الأكلات" : "Foods",
+        label: isAr ? "مكتبة الأطعمة" : "Foods",
         icon: Utensils,
         href: "/foods",
       },
