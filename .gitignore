@@ -58,6 +58,7 @@ pnpm-lock.yaml
 #   scripts/retro-pair-blog.pairs.json → approved pairs + owner review list (retro-pair-blog.yml)
 #   scripts/legacy-msa-patches/ → hand-written MSA conversions for the chain-unconvertible stubborn AR articles (legacy-ar-cleanup.yml PATCH mode, 2026-09-11)
 #   scripts/vercel-cleanup/    → daily Vercel stale-deployment purge (vercel-cleanup.yml, Phase 145)
+#   scripts/generate-og-cards.py → og:image family-card generator (Phase 188 — guarded by og-image-coverage.test.ts; the file was never committed because the /scripts/* blanket swallowed it, so the guard failed in CI from f954e85 until Phase 189 fixed the exception list)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
@@ -71,6 +72,7 @@ pnpm-lock.yaml
 !/scripts/db-restore.mjs
 !/scripts/retro-pair-blog.mjs
 !/scripts/retro-pair-blog.pairs.json
+!/scripts/generate-og-cards.py
 /skills/
 /tests/
 /examples/
