@@ -312,7 +312,7 @@ export const COMPARISONS: Comparison[] = [
         paragraphs: [
           "Alkemos wins on platform breadth. Freeletics is a bodyweight-only app — if you ever want to lift a barbell, use a cable machine, or follow a structured 4-day gym split, Freeletics cannot help you. Alkemos covers every equipment type: barbell, dumbbell, cable, machine, kettlebell, band, and bodyweight. The 868-exercise library dwarfs Freeletics's ~200 movements.",
           "Nutrition is the other major gap. Freeletics offers basic nutrition advice but no food tracking — you'd need a separate app (usually MyFitnessPal) for that. Alkemos ships an 8,830-food database, six free calculators, an AI meal planner, and full macro tracking inside the same subscription. Paying for Freeletics + MyFitnessPal Premium costs more than Alkemos Pro and gives you less integration.",
-          "The pricing differential is significant. Freeletics Premium is roughly $150/year; Alkemos Pro is $239/year but includes unlimited EVO AI, doubled plan limits, no ads, AND nutrition tracking. For the same training + nutrition use case, Alkemos is the better value.",
+          "The pricing differential is significant. Freeletics Premium is roughly $150/year; Alkemos Pro is $239/year but includes unlimited EVO AI, 8 AI plan generations/month, no ads, AND nutrition tracking. For the same training + nutrition use case, Alkemos is the better value.",
         ],
       },
     ],
@@ -329,7 +329,7 @@ export const COMPARISONS: Comparison[] = [
         paragraphs: [
           "Alkemos يتفوّق في اتساع المنصة. Freeletics تطبيق بوزن الجسم فقط — إذا أردت يومًا رفع بار، استخدام ماكينة كابل، أو اتباع تقسيم 4 أيام جيم منظّم، Freeletics لا يستطيع مساعدتك. Alkemos يغطّي كل أنواع المعدات: بار، دمبل، كابل، ماكينة، كيتل بيل، مطاط، ووزن الجسم. مكتبة الـ868 تمرين تُطغّي على الـ200 حركة تقريبًا في Freeletics.",
           "التغذية هي الفجوة الكبرى الأخرى. Freeletics يُقدّم نصائح تغذية أساسية لكن لا تتبّع للطعام — ستحتاج تطبيقًا منفصلًا (عادة MyFitnessPal) لذلك. Alkemos يُقدّم قاعدة 8,830 طعام، ست حاسبات مجانية، مخطّط وجبات بالذكاء الاصطناعي، وتتبّع ماكروز كامل داخل نفس الاشتراك. دفع Freeletics + MyFitnessPal Premium يكلّف أكثر من Alkemos Pro ويمنحك تكاملًا أقل.",
-          "فارق التسعير معنوي. Freeletics Premium حوالي $150/سنة؛ Alkemos Pro $239/سنة لكنه يضم EVO غير محدود، حدود خطط مضاعفة، لا إعلانات، وتتبّع تغذية. لنفس حالة الاستخدام تدريب + تغذية، Alkemos قيمة أفضل.",
+          "فارق التسعير معنوي. Freeletics Premium حوالي $150/سنة؛ Alkemos Pro $239/سنة لكنه يضم EVO غير محدود، و8 توليدات خطط AI شهريًا، بلا إعلانات، وتتبّع تغذية. لنفس حالة الاستخدام تدريب + تغذية، Alkemos قيمة أفضل.",
         ],
       },
     ],

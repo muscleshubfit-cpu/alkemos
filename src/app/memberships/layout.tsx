@@ -69,7 +69,7 @@ export default function MembershipsLayout({
         "@type": "Offer",
         name: "Pro",
         description:
-          "No ads + doubled plan limits. $29.99/month or $239/year.",
+          "Adapt & optimize: 8 AI plan generations/month, 6 swaps/week, no ads. $29.99/month or $239/year.",
         price: "29.99",
         priceCurrency: "USD",
         url: "https://alkemos.com/memberships",

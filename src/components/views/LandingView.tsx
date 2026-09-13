@@ -286,8 +286,8 @@ export function LandingView() {
   // free-AI-generation pair (owner directive 2026-09-13) is MSA too.
   const faqs = [
     { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا، كل الحاسبات (السعرات، الكتلة، الماكروز، الدهون) متاحة مجانًا ودون تسجيل." : "No, all six tools (calorie, BMI, macro, body fat, water tracker, meal planner) are completely free without signup." },
-    { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط، وخطة تبقى محفوظة على جهازك بعد استنفاد الرصيد. بإنشاء حساب مجاني تُحفظ خططك تلقائيًا في حسابك."
-      : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting, and your plan stays saved on your device after the pool runs out. A free account saves your plans automatically.", },
+    { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ خططك دائمًا في حسابك وتتزامن عبر أجهزتك."
+      : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting. No account: your plan stays on this device. A free account saves your plans permanently in your account & syncs them across your devices.", },
     { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly swaps, more saved results, and no ads." },
     { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "Does it support PayPal?", a: isAr ? "حاليًا فودافون كاش وإنستاباي وPayPal — وسنضيف طرق دفع أخرى قريبًا." : "Yes, PayPal is the primary payment method. Manual payment via InstaPay and Vodafone Cash is also available." },
     { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكثر من 868 تمرينًا و8830 نوع طعام، والعدد يتزايد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
@@ -598,7 +598,11 @@ export function LandingView() {
           {/* FREE AI PLAN GENERATION — the flagship of the free experience
               (owner directive 2026-09-13): lead card above the tools grid,
               honest unified-pool copy (2 successful generations/month per
-              visitor, no signup, plans stay on your device). */}
+              visitor, success-only counting) + the UNIFIED SAVE LADDER
+              (owner directive, same day): no account → plan stays on this
+              device · free account → saved permanently & synced across
+              devices · paid tiers → broader management & extra benefits
+              per plan. Mirrors plan-persistence.ts exactly. */}
           <Reveal delay={150}>
             <div className="marble-card mt-8 p-6 md:p-8">
               <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-start">
@@ -611,13 +615,16 @@ export function LandingView() {
                   </h3>
                   <p className="mt-2 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
                     {isAr
-                      ? "خطط التغذية والتمارين بالذكاء الاصطناعي جزء أساسي من التجربة المجانية: رصيد شهري موحد (توليدان ناجحان) لكل زائر، ويُحتسب التوليد الناجح فقط، وخطة تبقى معك على جهازك بعد استنفاد الرصيد."
-                      : "AI nutrition & workout plans are a core part of the free experience: one unified monthly pool (2 successful generations) for every visitor, success-only counting, and your plan stays on your device even after the pool runs out."}
+                      ? "خطط التغذية والتمارين بالذكاء الاصطناعي جزء أساسي من التجربة المجانية: رصيد شهري موحد (توليدان ناجحان) لكل زائر، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الباقات المدفوعة تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
+                      : "AI nutrition & workout plans are a core part of the free experience: one unified monthly pool (2 successful generations) for every visitor, success-only counting. No account: your plan stays on this device. A free account: saved permanently in your account & synced across your devices. Paid tiers: broader management and extra benefits per plan."}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">
+                  {/* Owner directive (2026-09-13): ONE direct CTA label on the
+                      primary button — the AI planners are the free product
+                      experience itself, not tools buried in a grid. */}
                   <a href="/ai-meal-planner" className="btn-chrome px-5 py-2.5 text-sm">
-                    {isAr ? "مخطط الوجبات بالذكاء الاصطناعي ›" : "AI Meal Planner ›"}
+                    {isAr ? "ولّد خطتك المجانية الآن ›" : "Generate your free plan now ›"}
                   </a>
                   <a href="/ai-workout-planner" className="btn-outline px-5 py-2.5 text-sm font-normal">
                     {isAr ? "مخطط التمارين بالذكاء الاصطناعي ›" : "AI Workout Planner ›"}
@@ -634,15 +641,13 @@ export function LandingView() {
               { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Your body fat %", icon: "bodyfat", href: "/tools/body-fat-calculator" },
               { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "سجّل أكوابك يوميًا", descEn: "Log your daily cups", icon: "hydration", href: "/tools/water-tracker" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "صمّم وجباتك بنفسك", descEn: "Build your own meals", icon: "mealplanner", href: "/meal-planner" },
-              // §12.31: the AI meal-planner trial on the homepage grid —
-              // under its FULL unified name (owner directive «عدل الاسم الى
-              // مخطط الوجبات بالذكاء الاصطناعي» — the grid previously
-              // carried the truncated form, missing «الوجبات»).
-              { slug: "ai-meal-planner", nameAr: "مخطط الوجبات بالذكاء الاصطناعي", nameEn: "AI Meal Planner", descAr: "خطة يوم كاملة تُولّد في ثوانٍ.", descEn: "A full day plan, generated", icon: "evo", href: "/ai-meal-planner" },
-              // §12.32: the AI workout-planner trial on the homepage grid
-              // (owner directive «ضيف أداة جديده مخطط التمارين بالذكاء
-              // الاصطناعي").
-              { slug: "ai-workout-planner", nameAr: "مخطط التمارين بالذكاء الاصطناعي", nameEn: "AI Workout Planner", descAr: "نظام تدريبي أسبوعي يُولّد في ثوانٍ.", descEn: "A weekly split, generated", icon: "dumbbell", href: "/ai-workout-planner" },
+              // Owner directive (2026-09-13): the AI Meal Planner & AI Workout
+              // Planner cards were REMOVED from the homepage tools grid ONLY
+              // (§12.31/§12.32 entries retired) — the AI plan generators are
+              // the flagship of the free experience via the lead card + its
+              // «ولّد خطتك المجانية الآن» CTA above, NOT grid tools. The
+              // routes, the Navbar links, the footer links, /tools, and all
+              // functionality/quotas are untouched.
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
                 <LandingToolCard tool={tool} isAr={isAr} />
@@ -1108,7 +1113,7 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="relative mt-3 text-sm font-normal leading-relaxed text-[#9BA0A6]">
-                  {isAr ? "كيّف خططك وارتقِ: رصيد مضاعف وتبديلات أكثر — بلا إعلانات." : "Adapt & optimize: double the pool, more swaps — ad-free."}
+                  {isAr ? "كيّف خططك وارتقِ: 8 توليدات خطط AI شهريًا و6 تبديلات أسبوعيًا — بلا إعلانات." : "Adapt & optimize: 8 AI plan generations/month, 6 swaps/week — ad-free."}
                 </p>
                 <ul className="relative mt-5 space-y-2.5 text-sm">
                   {(isAr

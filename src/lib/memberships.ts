@@ -105,7 +105,8 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "تصفح 8830+ أكلة",
       "تصفح برامج التدريب",
       "5 حاسبات لياقة مجانية",
-      "خطط AI: توليدان شهريًا (تغذية أو تمرين) — تعمل حتى بدون تسجيل",
+      "خطط AI: توليدان شهريًا (تغذية أو تمرين) — تعمل حتى بدون تسجيل، وتبقى خطتك على جهازك بدون حساب",
+      "بالحساب المجاني: حفظ دائم لخططك ومزامنتها عبر أجهزتك",
       "EVO: 10 رسائل/يوم",
       "مخطط الوجبات (3 وجبات، حفظ 1 جدول)",
       "حفظ 3 نتائج أدوات",
@@ -115,7 +116,8 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "Browse 8,830+ foods",
       "Browse workout programs",
       "5 free fitness calculators",
-      "AI plans: 2 generations/month (nutrition or workout) — even without signup",
+      "AI plans: 2 generations/month (nutrition or workout) — even without signup; no account keeps your plan on this device",
+      "With a free account: plans saved permanently & synced across your devices",
       "EVO: 10 messages/day",
       "Meal Planner (3 meals, save 1 plan)",
       "Save 3 tool results",
@@ -129,8 +131,12 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     nameEn: "Premium",
     priceMonthly: 14.99,
     priceYearly: 119.0,
-    taglineAr: "أدر خططك: حفظ دائم في حسابك ومزامنة عبر أجهزتك",
-    taglineEn: "Manage: keep every plan saved in your account & synced",
+    // Owner save-ladder unification (2026-09-13): permanent-save +
+    // cross-device sync is the FREE-ACCOUNT benefit (plan-persistence.ts:
+    // every signed-in member auto-saves to `plans`) — Premium's own value
+    // is the MANAGEMENT delta (bigger capacity, export, chat sync).
+    taglineAr: "أدر خططك: سعة حفظ أكبر، تصدير كامل، ومحادثة متزامنة عبر أجهزتك",
+    taglineEn: "Manage: bigger save capacity, full export, and chat sync across devices",
     limits: {
       evoChatDailyLimit: null,
       // Unified pool (2026-09-13 decree): 4 successful AI plan
@@ -152,7 +158,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "كل مميزات Free",
       "EVO: محادثة غير محدودة",
       "خطط AI: 4 توليدات شهريًا (تغذية أو تمرين)",
-      "حفظ وإدارة كل خططك في حسابك تلقائيًا",
+      "إدارة أوسع لخططك ومحفوظاتك: سعة أكبر وتصدير كامل",
       "EVO: 3 تبديلات/أسبوع",
       "EVO: محادثتك محفوظة وتُستعاد عبر أجهزتك",
       "مخطط الوجبات (6 وجبات، حفظ 10)",
@@ -162,7 +168,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       "All Free features",
       "EVO: unlimited chat",
       "AI plans: 4 generations/month (nutrition or workout)",
-      "Every plan auto-saved & managed in your account",
+      "Broader management for your plans & saves: bigger capacity, full export",
       "EVO: 3 swaps/week",
       "EVO: chat history synced & restored across devices",
       "Meal Planner (6 meals, save 10)",
@@ -177,8 +183,10 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     nameEn: "Pro",
     priceMonthly: 29.99,
     priceYearly: 239.0,
-    taglineAr: "كيّف خططك وارتقِ: رصيد مضاعف وتبديلات مضاعفة، بلا إعلانات",
-    taglineEn: "Adapt & optimize: 2× the pool, 2× the swaps, ad-free",
+    // Owner directive (2026-09-13): direct numbers only — no "2× the
+    // pool"-style multipliers anywhere.
+    taglineAr: "كيّف خططك وارتقِ: 8 توليدات خطط AI شهريًا و6 تبديلات أسبوعيًا، بلا إعلانات",
+    taglineEn: "Adapt & optimize: 8 AI plan generations/month, 6 swaps/week, ad-free",
     limits: {
       evoChatDailyLimit: null,
       // Unified pool (2026-09-13 decree): 8 successful AI plan

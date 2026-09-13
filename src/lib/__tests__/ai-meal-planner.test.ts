@@ -252,16 +252,24 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(src.match(/alternates: \{ en: `\$\{base\}\/ai-meal-planner/g)).toBeTruthy();
   });
 
-  it("DISCOVERABILITY: tools hub + OtherTools + homepage grid link the trial", () => {
+  it("DISCOVERABILITY: tools hub + OtherTools + homepage CTA + footer + nav link the trial", () => {
     const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
     expect(toolsHub).toContain('slug: "/ai-meal-planner"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-meal-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    expect(landing).toContain('href: "/ai-meal-planner"');
+    // Phase 185 (owner directive 2026-09-13): the homepage GRID cards were
+    // retired — the AI planners are the flagship of the free experience
+    // via the FREE lead-card CTA «ولّد خطتك المجانية الآن» + the footer
+    // links (routes/nav/tools-hub untouched).
+    expect(landing).toContain('href="/ai-meal-planner"');
+    expect(landing).toContain("ولّد خطتك المجانية الآن");
+    expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
+    // The retired grid entries stay retired.
+    expect(landing).not.toContain('slug: "ai-meal-planner"');
     // §12.31 (owner directive «عدل الاسم الى مخطط الوجبات بالذكاء
-    // الاصطناعي»): the homepage grid carries the FULL name — the
-    // abbreviated «مخطط بالذكاء الاصطناعي» is gone from every surface.
+    // الاصطناعي»): the FULL name everywhere — the abbreviated
+    // «مخطط بالذكاء الاصطناعي» is gone from every surface.
     expect(landing).toContain("مخطط الوجبات بالذكاء الاصطناعي");
     expect(landing).not.toContain("مخطط بالذكاء الاصطناعي");
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");

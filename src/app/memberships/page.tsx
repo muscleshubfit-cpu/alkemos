@@ -203,14 +203,17 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
           })}
         </div>
 
-        {/* No-signup trial + quota-separation note (owner directive
+        {/* No-signup trial + UNIFIED SAVE LADDER (owner directive
             2026-09-13): the AI pool is visible as a core free experience,
-            and the AI generation quota is clearly separated from the
-            Meal-Planner save limits. Copy-only. */}
+            the save story is the same three-step ladder everywhere (no
+            account → device · free account → permanent save + sync ·
+            paid → broader management + per-tier benefits), and the AI
+            generation quota stays clearly separated from the Meal-Planner
+            save limits. Copy-only. */}
         <p className="mx-auto mt-8 max-w-2xl text-center text-sm font-normal text-[var(--muted-foreground)]">
           {isAr
-            ? "يمكنك تجربة توليد خطط الذكاء الاصطناعي فورًا بدون إنشاء حساب — الحساب المجاني يضيف الحفظ التلقائي في حسابك والمزامنة عبر الأجهزة."
-            : "You can try AI plan generation instantly — no account needed. A free account adds automatic saving to your account and cross-device sync."}
+            ? "يمكنك تجربة توليد خطط الذكاء الاصطناعي فورًا بدون إنشاء حساب: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الباقات المدفوعة تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
+            : "You can try AI plan generation instantly — no account needed: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and paid tiers add broader management and extra benefits per plan."}
         </p>
 
         {/* Refund policy banner */}
@@ -370,8 +373,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               {
                 q: isAr ? "هل فيه تجربة مجانية؟" : "Is there a free trial?",
                 a: isAr
-                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر). الحساب المجاني يضيف الحفظ التلقائي والمزامنة عبر الأجهزة، ولا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
-                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). A free account adds auto-save and cross-device sync. There is no temporary trial subscription — the Free tier is free forever.",
+                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر). بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ولا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
+                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). No account keeps your plan on this device; a free account saves it permanently in your account & syncs it across your devices. There is no temporary trial subscription — the Free tier is free forever.",
               },
               {
                 q: isAr ? "طرق الدفع؟" : "Payment methods?",

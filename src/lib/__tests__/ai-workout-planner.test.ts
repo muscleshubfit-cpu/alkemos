@@ -276,15 +276,21 @@ describe("ai workout planner trial (§12.32)", () => {
     expect(src.match(/alternates: \{ en: `\$\{base\}\/ai-workout-planner/g)).toBeTruthy();
   });
 
-  it("DISCOVERABILITY: tools hub + OtherTools + homepage grid + nav + toggle link the trial", () => {
+  it("DISCOVERABILITY: tools hub + OtherTools + homepage CTA + footer + nav + toggle link the trial", () => {
     const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
     expect(toolsHub).toContain('slug: "/ai-workout-planner"');
     expect(toolsHub).toContain("مخطط التمارين بالذكاء الاصطناعي");
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-workout-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    expect(landing).toContain('href: "/ai-workout-planner"');
-    expect(landing).toContain('isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"');
+    // Phase 185 (owner directive 2026-09-13): the homepage GRID cards were
+    // retired — the homepage links the trial via the FREE lead-card CTA
+    // (secondary button) + the footer links (routes/nav/tools-hub
+    // untouched).
+    expect(landing).toContain('href="/ai-workout-planner"');
+    expect(landing).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
+    // The retired grid entries stay retired.
+    expect(landing).not.toContain('slug: "ai-workout-planner"');
     // The nav drawer tools group carries the entry (§12.31 lesson: the
     // meal planner was invisible in the drawer — the workout planner
     // ships with a drawer entry from day one).

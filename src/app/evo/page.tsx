@@ -394,15 +394,21 @@ export default function EvoPage() {
             unified pool · swaps weekly paid-only · measurements paid-only ·
             memory free-with-account D1 · cross-device history paid-only).
             The old "blog summary vs full summary" split was never
-            implemented — removed. */}
+            implemented — removed. Phase 185 (owner directive, same day):
+            the intro carries the UNIFIED SAVE LADDER (no account → device ·
+            free account → permanent save + cross-device sync · paid →
+            broader management + per-tier benefits), mirroring
+            plan-persistence.ts, and the plan-save row is scoped to the
+            EVO-chat surface (the widget save button is subscriber-gated —
+            EvoFloatingWidget isSubscriber && planKind). */}
         <section className="mt-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
             {isAr ? "EVO للمجاني مقابل EVO للمشتركين" : "EVO on Free vs Subscribers"}
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "EVO متاح للجميع بدون تسجيل: توليد خطط التغذية والتمارين يسحب من رصيد شهري موحد واحد، والمحادثة اليومية عدّاد منفصل عنه — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق."
-              : "EVO is available to everyone with no signup: nutrition & workout plan generation draws from ONE unified monthly pool, daily chat is a separate counter — and subscribers get a bigger pool and deeper features."}
+              ? "EVO متاح للجميع بدون تسجيل: توليد خطط التغذية والتمارين يسحب من رصيد شهري موحد واحد، والمحادثة اليومية عدّاد منفصل عنه — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق. وفي حفظ الخطط: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الاشتراك تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
+              : "EVO is available to everyone with no signup: nutrition & workout plan generation draws from ONE unified monthly pool, daily chat is a separate counter — and subscribers get a bigger pool and deeper features. On saving plans: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and a subscription adds broader management and extra benefits per plan."}
           </p>
 
           <div className="marble-card mt-8 overflow-hidden">
@@ -451,9 +457,9 @@ export default function EvoPage() {
                 subEn: "✓",
               },
               {
-                featAr: "حفظ الخطط في حسابك",
-                featEn: "Save plans to your account",
-                freeAr: "✗ (النص يبقى في محادثتك)",
+                featAr: "حفظ خطط EVO من المحادثة إلى لوحة خططك",
+                featEn: "Save EVO chat plans to your plans dashboard",
+                freeAr: "✗ (يبقى نصًا في محادثتك)",
                 freeEn: "✗ (stays as chat text)",
                 subAr: "✓ في لوحة خططك",
                 subEn: "✓ in your plans dashboard",
