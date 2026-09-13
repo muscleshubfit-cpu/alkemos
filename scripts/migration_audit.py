@@ -48,14 +48,38 @@ for f in files:
     depth = 0            # paren depth for create-table bodies
     cur_table = None
     in_dollar = False
+    # Phase 191: SQL statements WRAP — e.g. 0086 writes
+    #   ALTER TABLE public.ai_plan_usage
+    #     ADD COLUMN IF NOT EXISTS ip_key text;
+    # A line-oriented parser never sees the ADD, so `ip_key` read as a
+    # types.ts "phantom" (the red docs-gate warning). Fix: a bare
+    # `ALTER TABLE <name>` line opens a pending-continuation window;
+    # the next non-comment/non-empty line is JOINED onto it (chained
+    # while the statement has no `;`), and the matchers below run on
+    # the joined text. NOTE: the regex itself already understands
+    # IF NOT EXISTS — the wrap was the whole bug (the earlier docs
+    # claim "regex does not capture IF NOT EXISTS" was a wrong root
+    # cause; corrected in this phase).
+    pending_alter = None
     for raw in lines:
         line = raw.strip()
         if line.count("$$") % 2 == 1:
             in_dollar = not in_dollar
+            pending_alter = None   # never join across a $$ boundary
         if in_dollar:
             continue
-        # RLS
-        m = re.match(r"(?i)alter\s+table\s+(?:public\.)?([\w.\"']+)\s+enable\s+row\s+level", line)
+        if pending_alter is not None:
+            if not line or line.startswith("--"):
+                continue  # tolerate blank/comment lines mid-statement
+            active = pending_alter + " " + line
+            if ";" not in active:
+                pending_alter = active  # statement still wrapping
+            else:
+                pending_alter = None
+        else:
+            active = line
+        # RLS (Phase 191: `active` — may be a wrapped ALTER join)
+        m = re.match(r"(?i)alter\s+table\s+(?:public\.)?([\w.\"']+)\s+enable\s+row\s+level", active)
         if m:
             rls_tables.add(norm(m.group(1)))
         # functions
@@ -90,11 +114,12 @@ for f in files:
                 col = m2.group(1).strip('"').lower()
                 if col.lower() not in CONSTRAINT_STARTERS:
                     mig_tables[cur_table].add(col)
-        # alter add column
+        # alter add column (Phase 191: `active` — 0086 wraps the ADD onto
+        # its own line; the join makes the regex see the full statement)
         m = re.match(
             r"(?i)alter\s+table\s+(?:only\s+)?(?:public\.)?([\w.\"']+)\s+"
             r"add\s+(?:column\s+)?(?:if\s+not\s+exists\s+)?([\w\"']+)",
-            line)
+            active)
         if m:
             t, col = norm(m.group(1)), m.group(2).strip('"').lower()
             if col.lower() not in CONSTRAINT_STARTERS:
@@ -107,7 +132,7 @@ for f in files:
         m = re.match(
             r"(?i)alter\s+table\s+(?:only\s+)?(?:public\.)?([\w.\"']+)\s+"
             r"drop\s+(?:column\s+)?(?:if\s+exists\s+)?([\w\"']+)",
-            line)
+            active)
         if m:
             t, col = norm(m.group(1)), m.group(2).strip('"').lower()
             if t in mig_tables:
@@ -129,7 +154,7 @@ for f in files:
         m = re.match(
             r"(?i)alter\s+table\s+(?:only\s+)?(?:public\.)?([\w.\"']+)\s+"
             r"rename\s+(?:column\s+)?([\w\"']+)\s+to\s+([\w\"']+)",
-            line)
+            active)
         if m:
             t = norm(m.group(1))
             old = m.group(2).strip('"').lower()
@@ -137,6 +162,13 @@ for f in files:
             if t in mig_tables:
                 mig_tables[t].discard(old)
                 mig_tables[t].add(new)
+        # Phase 191: a BARE `ALTER TABLE <name>` line (nothing after the
+        # table name — the clause continues on the next line) opens the
+        # join window consumed at the top of the next iteration.
+        if re.match(
+            r"(?i)alter\s+table\s+(?:only\s+)?(?:public\.)?[\w.\"']+\s*$",
+                line):
+            pending_alter = line
 
 # ---------------------------------------------------------------- types.ts
 ts = TYPES.read_text()
@@ -229,30 +261,27 @@ ACCEPTED_MISSING_COLS = {
     # INDEX.md §3-family boundary: added in 0014, lives in production,
     # not surfaced in the generated mirror (no app code selects it)
     "blog_posts": {"source"},
-    # price_egp → price_usd renames (0012 subscription_requests ·
-    # 0038 coach_ads) are parser-blind: 0012 splits the statement across
-    # two lines and 0038 renames inside a DO $$ block — the dead egp name
-    # therefore still appears "missing"; §3 documents both as resolved
+    # price_egp → price_usd rename (0012 subscription_requests ·
+    # 0038 coach_ads): 0012 splits the statement across two lines and
+    # 0038 renames inside a DO $$ block. Phase 191 wrap-join fixed the
+    # 0012 side (subscription_requests pruned); the 0038 DO-block side
+    # stays parser-blind — §3 documents both as resolved
     "coach_ads": {"price_egp"},
-    "subscription_requests": {"price_egp"},
 }
 ACCEPTED_PHANTOM_COLS = {
     # Columns visible in types.ts but created via DO-block/dynamic SQL or
-    # manual-application-era migrations the static parser cannot see
-    "admin_notifications": {"target_coach_id"},
-    "blog_generation_queue": {"focus_keyword_ar", "language", "topic_ar"},
-    "coach_pages": {"bio_en", "certificates", "headline_en", "review_note",
-                    "review_status", "reviewed_at", "specialties_en"},
+    # manual-application-era migrations the static parser cannot see.
+    # Phase 191 wrap-join update: every wrapped-ALTER-created column
+    # (admin_notifications.target_coach_id · blog_generation_queue trio ·
+    # profiles trio · referral_earnings trio · referrals.last_seen ·
+    # subscriptions pair · subscription_requests.price_usd/price_egp)
+    # became parser-visible and was pruned from this baseline — only
+    # the DO-block/dynamic-SQL blind spots remain below.
+    "coach_pages": {"bio_en", "specialties_en"},
     "plans": {"approved_at", "is_current", "status"},
-    "profiles": {"coach_kind", "is_test_account", "referral_code"},
-    "referral_earnings": {"affiliate_commission_id", "available_at",
-                          "transaction_type"},
-    "referrals": {"last_seen"},
-    "subscriptions": {"cancel_requested_at", "subscription_type"},
-    # the USD side of the parser-blind renames documented above — the
-    # final live name types.ts correctly carries
+    # the USD side of the parser-blind 0038 DO-block rename documented
+    # above — the final live name types.ts correctly carries
     "coach_ads": {"price_usd"},
-    "subscription_requests": {"price_usd"},
 }
 
 missing_tables = set(mig_tables) - set(ts_tables)

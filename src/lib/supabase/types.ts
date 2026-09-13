@@ -1776,6 +1776,11 @@ export type Database = {
           status: "pending" | "approved" | "rejected";
           reviewed_at: string | null;
           created_at: string;
+          // RUN_ON_SUPABASE_0042 evidence gate (consumption marker) —
+          // verified live 2026-09-14 via PostgREST probe (select=consumed_at
+          // → 200; control fake column → 42703); was invisible to the
+          // migration_audit line-parser until the Phase-191 wrap fix
+          consumed_at: string | null;
         };
         Insert: {
           id?: string;
@@ -1790,6 +1795,7 @@ export type Database = {
           status?: "pending" | "approved" | "rejected";
           reviewed_at?: string | null;
           created_at?: string;
+          consumed_at?: string | null;
         };
         Update: {
           full_name?: string | null;
@@ -1801,6 +1807,7 @@ export type Database = {
           receipt_path?: string | null;
           status?: "pending" | "approved" | "rejected";
           reviewed_at?: string | null;
+          consumed_at?: string | null;
         };
         Relationships: [];
       };

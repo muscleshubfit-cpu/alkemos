@@ -270,6 +270,9 @@ export async function submitSubscriptionRequest(req: SubscriptionRequestInput): 
  ...req,
  status: "pending",
  reviewed_at: null,
+ // Phase 191 mirror truth (RUN_ON_SUPABASE_0042): live column, NULL
+ // until the evidence gate consumes the request — same default live
+ consumed_at: null,
  created_at: new Date().toISOString(),
  };
  all.push(row);
