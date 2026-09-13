@@ -66,6 +66,37 @@ export const CATEGORY_LABELS: Record<ExerciseCategory, { ar: string; en: string;
   cardio: { ar: "كارديو", en: "Cardio", emoji: "❤️", image: "/images/categories/exercises/cardio.png" },
 };
 
+/**
+ * PHASE SEO-GEO-7 (2026-09-13) — Arabic muscle labels, the SINGLE source
+ * for every surface that renders `primaryMuscles`/`secondaryMuscles`
+ * (AR meta description, HowTo schema, detail-page chips, listing cards).
+ * Before this map the raw English values ("Abs", "Chest"…) leaked into
+ * Arabic prose (the live AR exercise description carried Latin mid-
+ * sentence). Client-safe by design (a few hundred bytes) — lives HERE so
+ * both server pages and client components import the same constant.
+ * Terminology follows the platform's own vocabulary (hubs: البايسبس/
+ * الترايسبس/الكور…) and the §12.39 transliteration glossary.
+ */
+export const MUSCLE_LABELS: Record<string, { ar: string; en: string }> = {
+  Abductors: { ar: "المبعدة", en: "Abductors" },
+  Abs: { ar: "البطن", en: "Abs" },
+  Adductors: { ar: "الضامة", en: "Adductors" },
+  Biceps: { ar: "البايسبس", en: "Biceps" },
+  Calves: { ar: "السمانة", en: "Calves" },
+  Chest: { ar: "الصدر", en: "Chest" },
+  Forearms: { ar: "الساعدان", en: "Forearms" },
+  Glutes: { ar: "الألوية", en: "Glutes" },
+  Hamstrings: { ar: "الخلفية", en: "Hamstrings" },
+  Lats: { ar: "اللات", en: "Lats" },
+  "Lower Back": { ar: "أسفل الظهر", en: "Lower Back" },
+  "Mid Back": { ar: "منتصف الظهر", en: "Mid Back" },
+  Neck: { ar: "الرقبة", en: "Neck" },
+  Quads: { ar: "الرباعية", en: "Quads" },
+  Shoulders: { ar: "الأكتاف", en: "Shoulders" },
+  Traps: { ar: "الترابيس", en: "Traps" },
+  Triceps: { ar: "الترايسبس", en: "Triceps" },
+};
+
 /** Total exercises in the library — keep in sync with exercises.ts (test-enforced). */
 export const EXERCISES_COUNT = 868;
 

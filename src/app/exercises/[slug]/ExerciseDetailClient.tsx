@@ -8,6 +8,7 @@ import {
   CATEGORY_LABELS,
   EQUIPMENT_LABELS,
   LEVEL_LABELS,
+  MUSCLE_LABELS,
   type Exercise,
 } from "@/lib/exercises-shared";
 import { ArrowLeft, Dumbbell, Target, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -167,12 +168,12 @@ export default function ExerciseDetailClient({
               <div className="mt-2 flex flex-wrap gap-2">
                 {exercise.primaryMuscles.map((m, i) => (
                   <span key={i} className="rounded-lg bg-[#0071e3]/10 px-3 py-1 text-xs font-normal text-[#0071e3]">
-                    {m}
+                    {isAr ? (MUSCLE_LABELS[m]?.ar ?? m) : m}
                   </span>
                 ))}
                 {exercise.secondaryMuscles.map((m, i) => (
                   <span key={`s${i}`} className="rounded-lg bg-[#6e6e73]/10 px-3 py-1 text-xs font-normal text-[#6e6e73]">
-                    {m}
+                    {isAr ? (MUSCLE_LABELS[m]?.ar ?? m) : m}
                   </span>
                 ))}
               </div>
@@ -187,7 +188,7 @@ export default function ExerciseDetailClient({
             <div className="mt-8 rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-4">
               <p className="text-sm font-normal text-[#1d1d1f]">
                 {isAr
-                  ? "عايز خطة تمارين مخصصة بناءً على مستواك وأهدافك؟"
+                  ? "هل تريد خطة تمارين مخصصة بناءً على مستواك وأهدافك؟"
                   : "Want a personalized workout plan based on your level and goals?"}
               </p>
               <a

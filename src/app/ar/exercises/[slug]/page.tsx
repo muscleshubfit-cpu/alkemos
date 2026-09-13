@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExerciseBySlug, getRelatedExercises, EXERCISES, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
+import { MUSCLE_LABELS } from "@/lib/exercises-shared";
 import {
   getMuscleHubByCategory,
   getEquipmentHubByEquipment,
@@ -43,8 +44,12 @@ export async function generateMetadata({
 
   // NOTE: no "| Alkemos" suffix — the /ar layout title template appends
   // the brand automatically (avoids "— Alkemos — Alkemos").
+  // PHASE SEO-GEO-7 (2026-09-13): nameAr is now a real Arabic name
+  // (transliterated movements per law 176 — سكوات/كيرل/بنش برس… — plus
+  // translated equipment/positions) and muscles render through
+  // MUSCLE_LABELS — zero Latin inside the Arabic meta description.
   const title = `${exercise.nameAr} — طريقة الأداء الصحيحة والخطوات`;
-  const description = `تعلّم كيف تؤدي تمرين ${exercise.nameAr} بأداء صحيح. العضلات المستهدفة: ${exercise.primaryMuscles.join("، ")}. المعدات: ${EQUIPMENT_LABELS[exercise.equipment].ar}. المستوى: ${LEVEL_LABELS[exercise.level].ar}.`;
+  const description = `تعلّم كيف تؤدي تمرين ${exercise.nameAr} بأداء صحيح. العضلات المستهدفة: ${exercise.primaryMuscles.map((m) => MUSCLE_LABELS[m]?.ar ?? m).join("، ")}. المعدات: ${EQUIPMENT_LABELS[exercise.equipment].ar}. المستوى: ${LEVEL_LABELS[exercise.level].ar}.`;
   const url = `${SITE_URL}/ar/exercises/${exercise.slug}`;
 
   return {
@@ -97,7 +102,7 @@ export default async function Page({
   const exerciseSchema = exercise
     ? getHowToSchema({
         name: exercise.nameAr,
-        description: `تمرين للعضلات ${exercise.primaryMuscles.join("، ")} باستخدام ${EQUIPMENT_LABELS[exercise.equipment].ar}`,
+        description: `تمرين للعضلات ${exercise.primaryMuscles.map((m) => MUSCLE_LABELS[m]?.ar ?? m).join("، ")} باستخدام ${EQUIPMENT_LABELS[exercise.equipment].ar}`,
         steps: exercise.instructionsAr,
         tool: [exercise.equipment],
       })
