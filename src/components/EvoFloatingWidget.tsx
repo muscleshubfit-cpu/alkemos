@@ -552,8 +552,11 @@ export function EvoFloatingWidget() {
                 VISIBLE (same tamper-proof ledger the server counts).
                 Phase 183 (2026-09-13 «البوول الموحد»): ONE unified
                 monthly pool — nutrition + workout COMBINED (2/4/8/8);
-                the old per-kind + weekly split display is retired. */}
-            {isSubscriber && quota && (
+                the old per-kind + weekly split display is retired.
+                Owner directive 2026-09-13: the meter is for EVERYONE —
+                free users and guests see their own pool too (the quota
+                route reads the same enforcement counts via ?guestId). */}
+            {quota && (
               <div className="border-b border-[#d2d2d7] bg-white px-4 py-1.5 text-center text-[10px] font-normal text-[#6e6e73]">
                 <span>
                   {quota.plans

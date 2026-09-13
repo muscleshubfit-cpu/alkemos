@@ -37,7 +37,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
   const ctaLabel = (tierId: MembershipTier, isAr: boolean) => {
     if (tierId === "free") {
       if (profile) return isAr ? "اذهب لصفحتك" : "Go to your profile";
-      return isAr ? "ابدأ مجاناً" : "Get started free";
+      return isAr ? "ابدأ التجربة مجانًا" : "Start free";
     }
     return isAr ? "اشترك الآن" : "Subscribe now";
   };
@@ -50,15 +50,17 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
         {/* Owner artwork page banner (Phase 127 — 12 header images are PAGE banners) */}
         <PageBanner section="pricing" className="mb-10" />
 
-        {/* Hero */}
+        {/* Hero — the Free → Paid positioning ladder (owner directive
+            2026-09-13): Free = Experience → Premium = Manage → Pro =
+            Adapt & Optimize → Coaching = Human Coach + AI. Copy-only. */}
         <div className="text-center">
           <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
             {isAr ? "عضويات Alkemos" : "Alkemos Memberships"}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "اختر العضوية المناسبة لك. شهري أو سنوي. ألغِ في أي وقت."
-              : "Choose the plan that fits you. Monthly or yearly. Cancel anytime."}
+              ? "ابدأ التجربة مجانًا — منتج حقيقي كامل، لا نسخة معطلة. ثم ارتقِ عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، وكوتشينج عندما تريد مدربًا بشريًا مع كل قوة الذكاء الاصطناعي."
+              : "Start free — the real product, not a crippled demo. Upgrade when your usage grows: Premium to manage your plans, Pro to adapt & optimize them, Coaching when you want a human coach with the full power of AI."}
           </p>
         </div>
 
@@ -98,7 +100,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                   </span>
                 )}
 
-                {/* Tier name + badge */}
+                {/* Tier name + positioning tagline + badge */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold tracking-tight">
                     {isAr ? tier.nameAr : tier.nameEn}
@@ -109,6 +111,9 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                     </span>
                   )}
                 </div>
+                <p className={`mt-1.5 text-xs font-normal ${isPro ? "text-[#9BA0A6]" : "text-[var(--muted-foreground)]"}`}>
+                  {isAr ? tier.taglineAr : tier.taglineEn}
+                </p>
 
                 {/* Monthly price (always visible) */}
                 <div className="mt-5">
@@ -197,6 +202,16 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
             );
           })}
         </div>
+
+        {/* No-signup trial + quota-separation note (owner directive
+            2026-09-13): the AI pool is visible as a core free experience,
+            and the AI generation quota is clearly separated from the
+            Meal-Planner save limits. Copy-only. */}
+        <p className="mx-auto mt-8 max-w-2xl text-center text-sm font-normal text-[var(--muted-foreground)]">
+          {isAr
+            ? "يمكنك تجربة توليد خطط الذكاء الاصطناعي فورًا بدون إنشاء حساب — الحساب المجاني يضيف الحفظ التلقائي في حسابك والمزامنة عبر الأجهزة."
+            : "You can try AI plan generation instantly — no account needed. A free account adds automatic saving to your account and cross-device sync."}
+        </p>
 
         {/* Refund policy banner */}
         <div className="marble-card mt-12 p-6">
@@ -317,6 +332,14 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               </tbody>
             </table>
           </div>
+          {/* Unified-pool clarity + the AI-quota vs save-limits separation
+              (owner directive 2026-09-13) — the two numbers most easily
+              confused are actually two different budgets. */}
+          <p className="mx-auto mt-4 max-w-2xl text-center text-xs font-normal leading-relaxed text-[var(--muted-foreground)]">
+            {isAr
+              ? "توليد خطط الذكاء الاصطناعي يسحب من رصيد شهري موحد واحد (التغذية والتمارين معًا، ويُحتسب التوليد الناجح فقط، ويتجدد في أول كل شهر) — وهذا الرصيد منفصل تمامًا عن حدود حفظ مخطط الوجبات وحفظ نتائج الأدوات."
+              : "AI plan generation draws from ONE unified monthly pool (nutrition + workout combined, success-only counting, resets on the 1st) — and it is completely separate from the Meal-Planner save limits and the tool-results save limits."}
+          </p>
         </section>
 
         {/* FAQ */}
@@ -346,7 +369,9 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               },
               {
                 q: isAr ? "هل فيه تجربة مجانية؟" : "Is there a free trial?",
-                a: isAr ? "لا، لا توجد تجربة مجانية. لكن الفئة المجانية (Free) مجانية للأبد." : "No free trial. But the Free tier is free forever.",
+                a: isAr
+                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر). الحساب المجاني يضيف الحفظ التلقائي والمزامنة عبر الأجهزة، ولا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
+                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). A free account adds auto-save and cross-device sync. There is no temporary trial subscription — the Free tier is free forever.",
               },
               {
                 q: isAr ? "طرق الدفع؟" : "Payment methods?",

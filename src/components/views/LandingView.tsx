@@ -280,11 +280,14 @@ export function LandingView() {
   const blogHref = isCoach ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
 
   // FAQ schema for SEO.
-  // Owner SEO content plan (2026-09-03): the 5 Arabic pairs below are the
-  // owner's verbatim copy (Egyptian-dialect refresh). They feed BOTH the
+  // Owner SEO content plan (2026-09-03): the pairs below feed BOTH the
   // visible accordion AND the FAQPage JSON-LD above (single source).
+  // Marketing-surface MSA law (Phase 178): Arabic copy stays فصحى — the
+  // free-AI-generation pair (owner directive 2026-09-13) is MSA too.
   const faqs = [
     { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا، كل الحاسبات (السعرات، الكتلة، الماكروز، الدهون) متاحة مجانًا ودون تسجيل." : "No, all six tools (calorie, BMI, macro, body fat, water tracker, meal planner) are completely free without signup." },
+    { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط، وخطة تبقى محفوظة على جهازك بعد استنفاد الرصيد. بإنشاء حساب مجاني تُحفظ خططك تلقائيًا في حسابك."
+      : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting, and your plan stays saved on your device after the pool runs out. A free account saves your plans automatically.", },
     { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly swaps, more saved results, and no ads." },
     { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "Does it support PayPal?", a: isAr ? "حاليًا فودافون كاش وإنستاباي وPayPal — وسنضيف طرق دفع أخرى قريبًا." : "Yes, PayPal is the primary payment method. Manual payment via InstaPay and Vodafone Cash is also available." },
     { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكثر من 868 تمرينًا و8830 نوع طعام، والعدد يتزايد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
@@ -574,7 +577,10 @@ export function LandingView() {
       </section>
       {/* (removed: GradientFade gray→gray — audit 2026-08-30, purely dead strip) */}
 
-      {/* ===================== 4. FREE TOOLS ===================== */}
+      {/* ===================== 4. FREE TOOLS — with the FREE AI generation
+          banner (owner directive 2026-09-13): AI plan generation is a CORE
+          part of the free experience — not just Libraries/Tools — so it
+          gets the section's lead card with the unified-pool message. */}
       <section id="tools" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
@@ -589,6 +595,37 @@ export function LandingView() {
               </p>
             </Reveal>
           </div>
+          {/* FREE AI PLAN GENERATION — the flagship of the free experience
+              (owner directive 2026-09-13): lead card above the tools grid,
+              honest unified-pool copy (2 successful generations/month per
+              visitor, no signup, plans stay on your device). */}
+          <Reveal delay={150}>
+            <div className="marble-card mt-8 p-6 md:p-8">
+              <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-start">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
+                  <EngravedIcon name="evo" alt="" size={30} className="h-7 w-7" />
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? "ابدأ بتوليد خطتك مجانًا — بدون تسجيل" : "Generate your first plan free — no signup"}
+                  </h3>
+                  <p className="mt-2 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+                    {isAr
+                      ? "خطط التغذية والتمارين بالذكاء الاصطناعي جزء أساسي من التجربة المجانية: رصيد شهري موحد (توليدان ناجحان) لكل زائر، ويُحتسب التوليد الناجح فقط، وخطة تبقى معك على جهازك بعد استنفاد الرصيد."
+                      : "AI nutrition & workout plans are a core part of the free experience: one unified monthly pool (2 successful generations) for every visitor, success-only counting, and your plan stays on your device even after the pool runs out."}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col gap-2">
+                  <a href="/ai-meal-planner" className="btn-chrome px-5 py-2.5 text-sm">
+                    {isAr ? "مخطط الوجبات بالذكاء الاصطناعي ›" : "AI Meal Planner ›"}
+                  </a>
+                  <a href="/ai-workout-planner" className="btn-outline px-5 py-2.5 text-sm font-normal">
+                    {isAr ? "مخطط التمارين بالذكاء الاصطناعي ›" : "AI Workout Planner ›"}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[
               { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي بدقة بدون تسجيل.", descEn: "Daily calorie needs", icon: "calories", href: "/tools/calorie-calculator" },
@@ -990,8 +1027,8 @@ export function LandingView() {
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "ابدأ مجانًا بالأدوات الأساسية، أو ارتقِ إلى Premium أو Pro لتفتح كل إمكانات EVO وخططًا شخصية أكثر شهريًا."
-                : "Unlock the full power of AI with a Premium or Pro membership."}
+                ? "الخطة المجانية تجربة حقيقية للمنتج كاملًا. عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، وكوتشينج عندما تريد مدربًا بشريًا مع كل قوة الذكاء الاصطناعي."
+                : "The Free plan is the real product experience. When your usage grows: Premium to manage your plans, Pro to adapt & optimize them, Coaching for a human coach with full AI power."}
             </p>
           </Reveal>
 
@@ -1016,7 +1053,7 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr ? "كل الأساسيات التي تحتاجها لتبدأ بشكل صحيح." : "All the essentials you need to start right."}
+                  {isAr ? "أدر خططك: EVO بلا حدود، وحفظ دائم ومزامنة عبر أجهزتك." : "Manage your plans: unlimited EVO, permanent saving and cross-device sync."}
                 </p>
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {(isAr
@@ -1071,7 +1108,7 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="relative mt-3 text-sm font-normal leading-relaxed text-[#9BA0A6]">
-                  {isAr ? "للمتقدمين الراغبين في أقصى استفادة من المنصة." : "For advanced users who want the most out of the platform."}
+                  {isAr ? "كيّف خططك وارتقِ: رصيد مضاعف وتبديلات أكثر — بلا إعلانات." : "Adapt & optimize: double the pool, more swaps — ad-free."}
                 </p>
                 <ul className="relative mt-5 space-y-2.5 text-sm">
                   {(isAr
@@ -1101,8 +1138,8 @@ export function LandingView() {
             <div className="mt-8 flex flex-col items-center gap-3 text-center">
               <p className="text-sm font-normal" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "أو ابدأ بالخطة المجانية — 868+ تمرين، 8,830+ أكلة، 5 حاسبات، EVO 10 رسائل/يوم."
-                  : "Or start with the Free plan — 868+ exercises, 8,830+ foods, 5 calculators, EVO 10 messages/day."}
+                  ? "أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: 868+ تمرين، 8,830+ أكلة، 5 حاسبات، توليد خطط AI (توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا."
+                  : "Or start with the Free plan — the full product, not a demo: 868+ exercises, 8,830+ foods, 5 calculators, AI plan generation (2/month even without signup), and EVO 10 messages/day."}
               </p>
               <a
                 href={isAr ? "/ar/memberships" : "/memberships"}

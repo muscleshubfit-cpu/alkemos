@@ -347,10 +347,11 @@ alkemos/
 ### For Members (plan quotas — ONE unified monthly pool, Phase 183 «البوول الموحد» 2026-09-13)
 - ONE monthly pool per identity for nutrition + workout AI generations COMBINED, counted on success only (failed attempts, input edits, navigation, and viewing an existing plan never burn quota)
 - **Free (and guests, no signup):** 2 successful generations/month · 10 EVO messages/day
-- **Premium ($14.99/mo or $119/yr):** Unlimited EVO chat · **4 generations/month (combined)** · 3 swaps/week · cross-session memory · 50 saved results
-- **Pro ($29.99/mo or $239/yr):** Everything in Premium ×2 — **8 generations/month (combined)** · 6 swaps/week · pattern analysis · 200 saved results · no ads
+- **Premium ($14.99/mo or $119/yr):** Unlimited EVO chat · **4 generations/month (combined)** · 3 swaps/week · cross-device chat-history restore · 50 saved results
+- **Pro ($29.99/mo or $239/yr):** Everything in Premium ×2 — **8 generations/month (combined)** · 6 swaps/week · 200 saved results · no ads
 - **Coaching ($39.99/mo or $359/yr):** Human coach + every Pro limit (8 generations/month, 6 swaps/week) + weekly check-ins + direct coach contact
 - The pool resets on the 1st (UTC). Previously generated plans stay visible after exhaustion. Editing and manual uploads are always unlimited.
+- **Positioning ladder (owner repositioning, Phase 184):** Free = Experience → Premium = Manage → Pro = Adapt & Optimize → Coaching = Human Coach + AI. The homepage (free-AI-generation lead card), `/evo` (visitor/subscriber table rewritten against the ACTUAL enforcement — stale pre-unified-pool rows removed) and `/memberships` (tier taglines + the AI-quota vs save-limits separation note) present the same unified-pool numbers; the EVO widget shows the unified-pool meter to free users and guests too (lazy `?guestId` read of the same ledger). EVO memory (goals & preferences) stays FREE for every logged-in user (D1) — the PAID memory surface is the cross-device chat-history restore.
 
 ### For Coaches (B2B)
 - **Client Dashboard:** filter tabs (active, expiring, no questionnaire, by tier…)

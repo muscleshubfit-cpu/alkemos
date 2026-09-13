@@ -534,7 +534,7 @@ export function PlansView() {
  <p className="mt-2 text-base font-normal text-[#6e6e73] md:text-lg">{t("plans.subtitle")}</p>
  </div>
 
- {/* Daily swap quota — Apple-style clean */}
+ {/* Weekly swap quota (Monday reset — mirrors checkAndRecordSwap) */}
  <div className="rounded-2xl bg-[#f5f5f7] px-5 py-4 text-sm font-normal text-[#6e6e73]">
  <span>{t("plans.swaps.mealDaily")} <strong className={swapUsage.meal.remaining > 0 ? "text-[#1d1d1f]" : "text-[#ff3b30]"}>{swapUsage.meal.remaining}</strong>/{swapUsage.meal.limit} {t("plans.swaps.remaining")}</span>
  <span className="mx-3 text-[#d2d2d7]">|</span>

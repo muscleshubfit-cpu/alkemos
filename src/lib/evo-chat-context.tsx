@@ -214,11 +214,16 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
   // and wiped the seed, and for authenticated users it clobbered the
   // local cache while the async session check was still in flight.
   const [hydrated, setHydrated] = useState(false);
-  // PHASE 69 — quota meter state + read-only refresh
+  // PHASE 69 — quota meter state + read-only refresh.
+  // PHASE 183 display law (owner directive 2026-09-13 «البوول الموحد»):
+  // the unified plan-pool meter is for EVERYONE — the quota route reads
+  // the same ledger enforcement counts for members AND guests
+  // (?guestId → dual-dimension free-pool readout; authed callers ignore
+  // the param — the route resolves the account first).
   const [quota, setQuota] = useState<QuotaSnapshot | null>(null);
   const refreshQuota = useCallback(() => {
-    if (!isPaidTier) return; // free/anon — the 429/upsell UI covers it
-    fetch("/api/ai/quota")
+    const qs = isPaidTier ? "" : `?guestId=${encodeURIComponent(ensureGuestId() || "")}`;
+    fetch(`/api/ai/quota${qs}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d) setQuota(d as QuotaSnapshot);
@@ -227,11 +232,13 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
   }, [isPaidTier]);
 
   // PHASE 69 — CROSS-SESSION MEMORY GATING (owner-approved fix).
-  // The copy sells memory as a PAID feature and the /evo comparison table
-  // says Free = "—" — but this restore + the writes below ran for EVERY
-  // logged-in user. The chat_messages restore now requires isPaidTier;
-  // the effect re-runs when the tier resolves (async) so paid users still
-  // get their history, and free users keep in-session messages only.
+  // Two different "memories" live here: (a) evo_memory facts (goals &
+  // preferences) are FREE for every logged-in user (owner decision D1 —
+  // see evo-memory.ts); (b) the chat_messages DB restore (cross-device
+  // history) is PAID-only. This gate is about (b): the restore requires
+  // isPaidTier; the effect re-runs when the tier resolves (async) so
+  // paid users still get their history, and free users keep on-device
+  // messages only.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -275,7 +282,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
     saveLocalState(state);
   }, [state.messages, state.dailyCount, state.dailyCountDate, hydrated]);
 
-  const openChat = useCallback(() => setState((prev) => ({ ...prev, isOpen: true })), []);
+  const openChat = useCallback(() => {
+    setState((prev) => ({ ...prev, isOpen: true }));
+    // Free/anon: the unified-pool meter loads lazily on first open —
+    // a page view never pays the extra round-trip (paid fetch on mount).
+    refreshQuota();
+  }, [refreshQuota]);
   const closeChat = useCallback(() => {
     setState((prev) => ({ ...prev, isOpen: false }));
     // Consume the sentinel entry so the NEXT Back press navigates the
@@ -284,7 +296,10 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
       window.history.back();
     }
   }, []);
-  const toggleChat = useCallback(() => setState((prev) => ({ ...prev, isOpen: !prev.isOpen })), []);
+  const toggleChat = useCallback(() => {
+    setState((prev) => ({ ...prev, isOpen: !prev.isOpen }));
+    refreshQuota();
+  }, [refreshQuota]);
 
   // ── BACK-BUTTON LAW: Back closes the drawer, never the page ─────────
   // While open we keep a sentinel history entry on the stack (preserving
@@ -617,10 +632,12 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
     [state.messages, dailyLimitReached, dailyLimit, isPaidTier, refreshQuota],
   );
 
-  // PHASE 69 — initial quota fetch once the tier resolves
+  // PHASE 69 — initial quota fetch once the tier resolves. Paid users
+  // fetch on mount; free/anon fetch lazily on first open (openChat /
+  // toggleChat) and after every send — same meter, no per-page-load cost.
   useEffect(() => {
-    refreshQuota();
-  }, [refreshQuota]);
+    if (isPaidTier) refreshQuota();
+  }, [isPaidTier, refreshQuota]);
 
   return (
     <EvoChatContext.Provider

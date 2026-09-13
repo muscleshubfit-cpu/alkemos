@@ -33,16 +33,16 @@ export default function EvoPage() {
       icon: Brain,
       titleAr: "رد مبني على قياساتك",
       titleEn: "Answers Based On Your Measurements",
-      descAr: "مع اشتراك فعّال يأخذ EVO قياساتك الأخيرة في الحسبان (الوزن ونسبة الدهون وغيرها) عند صياغة إجاباته لك.",
-      descEn: "With an active subscription EVO factors in your latest measurements (weight, body fat, etc.) when answering.",
+      descAr: "مع اشتراك فعّال يأخذ EVO قياساتك الأخيرة في الحسبان (الوزن ومحيط الخصر) عند صياغة إجاباته لك.",
+      descEn: "With an active subscription EVO factors in your latest measurements (weight & waist) when answering.",
       color: "#0071e3",
     },
     {
       icon: TrendingUp,
       titleAr: "خطط محفوظة في حسابك",
       titleEn: "Plans Saved To Your Account",
-      descAr: "يمكنك حفظ الخطة التي يبنيها EVO لك في حسابك كخطة كاملة في لوحة خططك — لا مجرد نص في محادثة.",
-      descEn: "Plans EVO builds for you can be saved to your account as full plans in your plans dashboard — not just chat text.",
+      descAr: "مع اشتراك فعّال يمكنك حفظ الخطة التي يبنيها EVO لك في حسابك كخطة كاملة في لوحة خططك — لا مجرد نص في محادثة.",
+      descEn: "With an active subscription, plans EVO builds for you can be saved to your account as full plans in your plans dashboard — not just chat text.",
       color: "#34c759",
     },
     {
@@ -95,10 +95,10 @@ export default function EvoPage() {
     },
     {
       icon: Sparkles,
-      titleAr: "متاح للجميع",
-      titleEn: "Available to Everyone",
-      descAr: "EVO متاح لكل الزوار والمشتركين — الزوار بحدود استخدام، والمشتركون بكل الميزات.",
-      descEn: "EVO is available to all visitors and subscribers — visitors with limits, subscribers with full features.",
+      titleAr: "متاح للجميع — بلا تسجيل",
+      titleEn: "Available to Everyone — No Signup",
+      descAr: "افتح EVO وابدأ فورًا: 10 رسائل يوميًا، ورصيد شهري موحد لتوليد خطط التغذية والتمارين (توليدان للمجاني، ويرتفع إلى 8 مع أعلى الباقات) — المشتركون يحصلون على رصيد أكبر ومزايا أعمق.",
+      descEn: "Open EVO and start instantly: 10 messages/day, plus one unified monthly pool for nutrition & workout plan generation (2 on Free, up to 8 on the top tiers) — subscribers get a bigger pool and deeper features.",
       color: "#ff9500",
     },
   ];
@@ -388,15 +388,21 @@ export default function EvoPage() {
         </section>
 
         {/* Free vs Subscriber comparison — EVO/Subscriber column gets the
-            identity tint + chrome treatment */}
+            identity tint + chrome treatment. PHASE 183 rewrite (owner
+            directive 2026-09-13): the old pre-unified-pool rows are gone —
+            every cell below mirrors the ACTUAL enforcement (ai_plan_usage
+            unified pool · swaps weekly paid-only · measurements paid-only ·
+            memory free-with-account D1 · cross-device history paid-only).
+            The old "blog summary vs full summary" split was never
+            implemented — removed. */}
         <section className="mt-12">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "EVO للزوار مقابل EVO للمشتركين" : "EVO for Visitors vs Subscribers"}
+            {isAr ? "EVO للمجاني مقابل EVO للمشتركين" : "EVO on Free vs Subscribers"}
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "EVO متاح للجميع، لكن المشتركين يحصلون على ميزات أكثر وأعمق."
-              : "EVO is available to everyone, but subscribers get deeper features."}
+              ? "EVO متاح للجميع بدون تسجيل: توليد خطط التغذية والتمارين يسحب من رصيد شهري موحد واحد، والمحادثة اليومية عدّاد منفصل عنه — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق."
+              : "EVO is available to everyone with no signup: nutrition & workout plan generation draws from ONE unified monthly pool, daily chat is a separate counter — and subscribers get a bigger pool and deeper features."}
           </p>
 
           <div className="marble-card mt-8 overflow-hidden">
@@ -405,7 +411,7 @@ export default function EvoPage() {
                 {isAr ? "الميزة" : "Feature"}
               </div>
               <div className="border-s border-[var(--edge)] p-4 text-center text-xs font-medium text-[var(--muted-foreground)]">
-                {isAr ? "زائر (مجاني)" : "Visitor (Free)"}
+                {isAr ? "المجاني / الزائر" : "Free / Visitor"}
               </div>
               <div className="p-4 text-center text-xs font-semibold text-[var(--text)]">
                 {isAr ? "مشترك" : "Subscriber"}
@@ -413,8 +419,16 @@ export default function EvoPage() {
             </div>
             {[
               {
-                featAr: "المحادثة الأساسية",
-                featEn: "Basic chat",
+                featAr: "توليد خطط AI (تغذية + تمرين من رصيد واحد)",
+                featEn: "AI plan generation (nutrition + workout, one pool)",
+                freeAr: "✓ توليدان شهريًا — بدون تسجيل",
+                freeEn: "✓ 2/month — no signup",
+                subAr: "✓ 4–8 شهريًا حسب باقتك",
+                subEn: "✓ 4–8/month by tier",
+              },
+              {
+                featAr: "المحادثة",
+                featEn: "Chat",
                 freeAr: "✓ 10 رسائل/يوم",
                 freeEn: "✓ 10 msgs/day",
                 subAr: "✓ غير محدود",
@@ -429,39 +443,39 @@ export default function EvoPage() {
                 subEn: "✓",
               },
               {
-                featAr: "الإجابة من مقالات المدونة",
-                featEn: "Blog article answers",
-                freeAr: "✓ ملخص",
-                freeEn: "✓ Summary",
-                subAr: "✓ ملخص كامل + روابط",
-                subEn: "✓ Full summary + links",
+                featAr: "الإجابة من مدونة المنصة مع الروابط",
+                featEn: "Answers with platform blog links",
+                freeAr: "✓",
+                freeEn: "✓",
+                subAr: "✓",
+                subEn: "✓",
               },
               {
                 featAr: "حفظ الخطط في حسابك",
                 featEn: "Save plans to your account",
-                freeAr: "✗",
-                freeEn: "✗",
-                subAr: "✓",
-                subEn: "✓",
+                freeAr: "✗ (النص يبقى في محادثتك)",
+                freeEn: "✗ (stays as chat text)",
+                subAr: "✓ في لوحة خططك",
+                subEn: "✓ in your plans dashboard",
               },
               {
-                featAr: "تبديل الوجبات/التمارين",
-                featEn: "Meal/exercise swaps",
+                featAr: "تبديل الوجبات/التمارين داخل خطتك",
+                featEn: "Meal/exercise swaps in your plan",
                 freeAr: "✗ (نصائح عامة)",
                 freeEn: "✗ (general tips)",
-                subAr: "✓ (داخل خطتك)",
-                subEn: "✓ (in your plan)",
+                subAr: "✓ 3–6 أسبوعيًا حسب باقتك",
+                subEn: "✓ 3–6/week by tier",
               },
               {
-                featAr: "رد مبني على قياساتك",
-                featEn: "Answers based on your measurements",
+                featAr: "رد مبني على قياساتك (الوزن والخصر)",
+                featEn: "Answers based on your measurements (weight & waist)",
                 freeAr: "✗",
                 freeEn: "✗",
                 subAr: "✓",
                 subEn: "✓",
               },
               {
-                featAr: "ذاكرة Evo الدائمة (أهدافك وتفضيلاتك)",
+                featAr: "ذاكرة EVO الدائمة (أهدافك وتفضيلاتك)",
                 featEn: "EVO permanent memory (your goals & preferences)",
                 freeAr: "✓ (بحساب مجاني)",
                 freeEn: "✓ (with a free account)",
@@ -471,8 +485,8 @@ export default function EvoPage() {
               {
                 featAr: "استرجاع سجل المحادثة الكامل عبر الأجهزة",
                 featEn: "Full chat-history restore across devices",
-                freeAr: "✗",
-                freeEn: "✗",
+                freeAr: "✗ (على جهازك فقط)",
+                freeEn: "✗ (on your device only)",
                 subAr: "✓",
                 subEn: "✓",
               },
@@ -522,8 +536,8 @@ export default function EvoPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-md text-base font-medium text-[#9BA0A6]">
             {isAr
-              ? "ابدأ المحادثة الآن — دون تسجيل. وإذا رغبت في كل الميزات، اشترك في الكوتشينج."
-              : "Start chatting now — no signup. For full features, subscribe to coaching."}
+              ? "ابدأ المحادثة الآن — بدون تسجيل. وعندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، ولكي يرافقك مدرب بشري — الكوتشينج."
+              : "Start chatting now — no signup. When your usage grows: Premium to manage your plans, Pro to adapt & optimize them, and Coaching for a human coach in your corner."}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <button
@@ -543,10 +557,10 @@ export default function EvoPage() {
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </button>
             <a
-              href="/coaching"
+              href="/memberships"
               className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
             >
-              <span>{isAr ? "اعرف عن الكوتشينج" : "Learn about coaching"}</span>
+              <span>{isAr ? "اطّلع على الباقات" : "See all plans"}</span>
             </a>
           </div>
         </section>
