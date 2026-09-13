@@ -22,8 +22,8 @@ Stage Summary:
 - التوأمة الحية 10 → 14 مقالة (+4) بإشارات hreflang كاملة — والمتبقي للمالك: قرار واحد على زوج المراجعة الجديد (الجرعة ↔ التوقيت)
 - سكربتات الجلسة (خارج الريبو): p12_list_unpaired.py · p12_validate_slugs.py
 - التوثيق: SEO-GEO-MASTER-PLAN §12.47 + STATE.md (المرحلة 190 + خريطة مصادر ملف الأزواج) + هذا السجل
-- Commit SHA: 6786ba2 (pairs) + كوميتات التوثيق هذه
-- Push status: (يُستكمل بالدفع)
+- Commit SHA: 6786ba2 (pairs) → 85f4cb9 (STATE) → d4ae91a (worklog)
+- Push status: pushed (SYNCED مع origin/main على d4ae91a)
 
 ---
 Task ID: PHASE-189-SEO-GEO-10-TITLES-DESCS-CACHE-2026-09-13
