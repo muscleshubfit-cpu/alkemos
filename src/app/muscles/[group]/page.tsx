@@ -61,11 +61,22 @@ export async function generateMetadata({
       description: hub.descriptionEn,
       siteName: "Alkemos",
       locale: "en_US",
+      // PHASE 187 (deep-audit P0-2): og:image for the muscle-hub surface —
+      // static branded family card (design mirrors /api/og-image).
+      images: [
+        {
+          url: "/images/og/og-hubs-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos Muscle Group Guides",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: hub.titleEn,
       description: hub.descriptionEn,
+      images: ["/images/og/og-hubs-en.png"],
     },
   };
 }

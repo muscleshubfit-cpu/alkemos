@@ -32,9 +32,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/tools/bmi-calculator",
+    // PHASE 187 (deep-audit P0-2): og:image — static branded family
+    // card (design mirrors /api/og-image; see scripts/generate-og-cards.py).
+    images: [
+      {
+        url: "/images/og/og-tools-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "حاسبات اللياقة المجانية من Alkemos",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["/images/og/og-tools-ar.png"],
     title: "حاسبة كتلة الجسم BMI | Alkemos",
     description: "اعرف هل وزنك مثالي أم زائد — حاسبة BMI مجانية بتفسير النتيجة.",
   },

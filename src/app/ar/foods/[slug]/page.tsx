@@ -74,11 +74,22 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "ar_EG",
+      // PHASE 187 (deep-audit P0-2): og:image for the AR food surface —
+      // static branded family card (design mirrors /api/og-image).
+      images: [
+        {
+          url: "/images/og/og-foods-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "قاعدة أطعمة وقيم غذائية من Alkemos",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: ["/images/og/og-foods-ar.png"],
     },
   };
 }

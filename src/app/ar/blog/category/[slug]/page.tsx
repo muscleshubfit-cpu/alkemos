@@ -50,6 +50,23 @@ export async function generateMetadata({
       description: content.introAr.slice(0, 158),
       siteName: "Alkemos",
       locale: "ar_EG",
+      // PHASE 187 (deep-audit P0-2): og:image for the AR blog-category
+      // surface — static branded family card (design mirrors
+      // /api/og-image) + the twitter card that was missing entirely.
+      images: [
+        {
+          url: "/images/og/og-blog-category-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "مقالات اللياقة والتغذية من Alkemos",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: content.titleAr,
+      description: content.introAr.slice(0, 158),
+      images: ["/images/og/og-blog-category-ar.png"],
     },
   };
 }

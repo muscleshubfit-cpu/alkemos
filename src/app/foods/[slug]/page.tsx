@@ -58,11 +58,24 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "en_US",
+      // PHASE 187 (deep-audit P0-2): og:image for the food surface —
+      // static branded family card (design mirrors /api/og-image; per-food
+      // dynamic cards would need foods.ts in edge — 3.6MB, documented as
+      // future enhancement).
+      images: [
+        {
+          url: "/images/og/og-foods-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos Food & Nutrition Database",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: ["/images/og/og-foods-en.png"],
     },
   };
 }

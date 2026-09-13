@@ -61,11 +61,23 @@ export async function generateMetadata({
       description: hub.descriptionAr,
       siteName: "Alkemos",
       locale: "ar_AR",
+      // PHASE 187 (deep-audit P0-2): og:image for the AR muscle-hub
+      // surface — static branded family card (design mirrors
+      // /api/og-image).
+      images: [
+        {
+          url: "/images/og/og-hubs-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "أدلة مجموعات العضلات من Alkemos",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: hub.titleAr,
       description: hub.descriptionAr,
+      images: ["/images/og/og-hubs-ar.png"],
     },
   };
 }

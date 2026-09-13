@@ -34,12 +34,26 @@ export const metadata: Metadata = {
     siteName: "Alkemos",
     locale: "ar_EG",
     type: "website",
+    // PHASE 187 (deep-audit P0-2): og:image for the AR root — the EN root
+    // had one via metadata.ts (/logo.png) but the AR layout declared its
+    // own openGraph without images, so every AR page without its own
+    // block shared NO social card. Static branded home card (mirrors
+    // /api/og-image design).
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Alkemos | منصة رياضية شاملة: تمارين وتغذية وكوتشينج اونلاين",
     description:
       "أكثر من 868 تمرينًا، 8830 أكلة بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع EVO. ابدأ رحلتك الرياضية الآن مع منصة التدريب الرقمية المتكاملة.",
+    images: ["/images/og/og-home-ar.png"],
   },
   // NOTE: NO `alternates` here (homepage AR mirror follow-up, 2026-08-30).
   // Next.js metadata inheritance is field-level: an `alternates` block in

@@ -46,6 +46,23 @@ export async function generateMetadata({
       title: `${content.titleEn} | Alkemos Blog`,
       description: content.introEn.slice(0, 158),
       siteName: "Alkemos",
+      // PHASE 187 (deep-audit P0-2): og:image for the blog-category
+      // surface — static branded family card (design mirrors
+      // /api/og-image) + the twitter card that was missing entirely.
+      images: [
+        {
+          url: "/images/og/og-blog-category-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos Fitness & Nutrition Articles",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${content.titleEn} | Alkemos Blog`,
+      description: content.introEn.slice(0, 158),
+      images: ["/images/og/og-blog-category-en.png"],
     },
   };
 }

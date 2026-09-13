@@ -70,11 +70,22 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "ar_EG",
+      // PHASE 187 (deep-audit P0-2): og:image for the AR exercise surface —
+      // static branded family card (design mirrors /api/og-image).
+      images: [
+        {
+          url: "/images/og/og-exercises-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "مكتبة تمارين Alkemos",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: ["/images/og/og-exercises-ar.png"],
     },
   };
 }

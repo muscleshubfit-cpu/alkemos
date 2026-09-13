@@ -28,6 +28,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/tools/bmi-calculator",
+    // PHASE 187 (deep-audit P0-2): og:image — static branded family
+    // card (design mirrors /api/og-image; see scripts/generate-og-cards.py).
+    images: [
+      {
+        url: "/images/og/og-tools-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos Free Fitness Calculators",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-tools-en.png"],
   },
 };
 

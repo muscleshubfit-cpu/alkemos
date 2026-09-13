@@ -59,11 +59,23 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "en_US",
+      // PHASE 187 (deep-audit P0-2): og:image for the exercise surface —
+      // static branded family card (design mirrors /api/og-image; per-
+      // exercise dynamic cards documented as a future enhancement).
+      images: [
+        {
+          url: "/images/og/og-exercises-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos Exercise Library",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: ["/images/og/og-exercises-en.png"],
     },
   };
 }
