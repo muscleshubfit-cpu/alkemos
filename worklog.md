@@ -23,8 +23,8 @@ Stage Summary:
 - تحذير التسريب حُصر في مفتاح واحد حي (OpenRouter) — المفتاحان الآخران مُبطلان ومتحقق منهما حياً؛ العلاج المتبقي مالك خالص (دقيقتان في لوحة المفاتيح)
 - سكربتات الجلسة (خارج الريبو): p5_extract · p5_translate (checkpoint) · p5_curate47 · p5_inject · p5_state_update · phase191_leak_verify{,2,3}
 - التوثيق: SEO-GEO-MASTER-PLAN §12.48 + STATE.md (المرحلة 191) + README (بند مكتبة التمارين) + هذا السجل
-- Commit SHA: 22cb77f (parser+mirror) → 0b0af7d (review pair) → 786b990 (translation) → دفعة التوثيق هذه
-- Push status: pushed
+- Commit SHA: 22cb77f (parser+mirror) → 0b0af7d (review pair) → 786b990 (translation) → 5ceab1e (docs) → هذا الالتزام
+- Push status: pushed (SYNCED على origin/main) — **التحقق الحي بعد النشر + تنقية CF (purge 200):** /ar/exercises/34-sit-up: خطوات HowTo JSON-LD عربية بالكامل ✓ · خطوات الجسم والنصائح عربية ✓ · صفر إنجليزية في DOM المرئي (الظهور الوحيد للـEN داخل بيانات RSC المسلسلة للمكون ثنائي اللغة — بالتصميم) · /ar/exercises/ez-bar-curl: مصطلح «البار المتعرج» المنسوق حي ✓ · بوابات GitHub الثلاث خضراء على رأس الدفعة: Docs & schema parity ✓ (كانت حمراء بإنذار ip_key) · Quality gate ✓ · stale-refs ✓
 
 ---
 Task ID: PHASE-190-SEO-GEO-11-RETRO-PAIRING-2026-09-13
