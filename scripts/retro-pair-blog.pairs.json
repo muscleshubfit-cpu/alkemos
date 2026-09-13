@@ -1,5 +1,5 @@
 {
-  "_comment": "Phase 158 — Proposal 3 retroactive pairing (owner «نفذ المقترح ٣» 2026-09-09). Matched model-assisted across the 63 pre-157 posts (29 EN + 34 AR) using full titles + focus keywords + keywords. PAIRS = high-confidence semantic twins (same question, same angle, same audience — applied by scripts/retro-pair-blog.mjs). REVIEW_PAIRS = plausible but different angle — owner approval list, NEVER applied until the owner moves them into PAIRS. No-blind-pairing law (AGENTS §8) forbids pairing anything else: V3 generated the two libraries as independent topics by design, so most posts have no true twin. || PHASE 159 REVIEW DECISION (2026-09-09, owner «نكتفى بما تم فى الخطوه ٣»): the 4 reviewPairs are DROPPED by owner decision — they remain here as a decision record only, NOT a work queue. Do not move them to pairs. The 6 applied pairs stay live (verified bidirectionally via db-backup snapshot a371c8a0).",
+  "_comment": "Phase 158 — Proposal 3 retroactive pairing (owner «نفذ المقترح ٣» 2026-09-09). Matched model-assisted across the 63 pre-157 posts (29 EN + 34 AR) using full titles + focus keywords + keywords. PAIRS = high-confidence semantic twins (same question, same angle, same audience — applied by scripts/retro-pair-blog.mjs). REVIEW_PAIRS = plausible but different angle — owner approval list, NEVER applied until the owner moves them into PAIRS. No-blind-pairing law (AGENTS §8) forbids pairing anything else: V3 generated the two libraries as independent topics by design, so most posts have no true twin. || PHASE 159 REVIEW DECISION (2026-09-09, owner «نكتفى بما تم فى الخطوه ٣»): the 4 reviewPairs are DROPPED by owner decision — they remain here as a decision record only, NOT a work queue. Do not move them to pairs. The 6 applied pairs stay live (verified bidirectionally via db-backup snapshot a371c8a0). || PHASE 190 / P1-2 (deep-audit backfill, owner «ابدأ تنفيذ المتبقي من التدقيق P1-2» 2026-09-13): full re-match of the 59 unpaired posts (28 EN + 31 AR) under the same Phase-158 standard. Verdict: (a) 2 new high-confidence PAIRS added — the sleep pair REINSTATES the Phase-158-approved pair after the Phase-178 sleep-family merge 301'd the old AR twin (sleep-muscle-recovery-gym → how-many-hours-sleep-for-muscle-growth, same question/angle), and the calories pair mirrors the already-approved loss-only pair (calculate-daily-calories-fuel-fat-loss-bulking ↔ calculate-daily-calories-weight-loss) on the loss+gain side; (b) 1 new REVIEW_PAIR (post-workout protein: EN asks grams/dose, AR asks timing — different primary question, owner decides); (c) the 4 Phase-159 dropped pairs stay dropped (decision record); (d) the remaining 56 posts have NO true twin by design (independent V3 topics) — no pairing, per the no-blind-pairing law.",
   "pairs": [
     {
       "enSlug": "protein-per-day-muscle-build-plan",
@@ -21,9 +21,9 @@
     },
     {
       "enSlug": "sleep-better-faster-gym-results",
-      "arSlug": "sleep-muscle-recovery-gym",
+      "arSlug": "how-many-hours-sleep-for-muscle-growth",
       "topic": "sleep for gym recovery & results",
-      "why": "same question + framing — «كم ساعة نوم تحتاجها لبناء العضلات وتحسين الاستشفاء في الجيم؟» ↔ «How to Sleep Better for Faster Gym Results»"
+      "why": "REINSTATED Phase-158 pair (Phase 190 / P1-2): the original approved AR twin sleep-muscle-recovery-gym («كم ساعة نوم تحتاجها لبناء العضلات وتحسين الاستشفاء في الجيم؟») was merged in the Phase-178 sleep-family consolidation — /ar/blog/sleep-muscle-recovery-gym 301s to how-many-hours-sleep-for-muscle-growth, which carries the same question and angle (sleep hours → muscle + recovery + gym results; its excerpt: تحسين التعافي وزيادة النتائج في الجيم). The EN side lost linked_post_id when the merge removed the old row — this restores the owner-approved pairing through the 301 successor."
     },
     {
       "enSlug": "12-week-progressive-overload-home-workout",
@@ -36,6 +36,12 @@
       "arSlug": "home-muscle-building-guide-simple-weights",
       "topic": "home training with light equipment",
       "why": "both home plans built on light equipment — «المنزل بأوزان بسيطة» ↔ «with Dumbbells & Bands»"
+    },
+    {
+      "enSlug": "calories-to-lose-weight-build-muscle-beginner",
+      "arSlug": "calculate-daily-calories-weight-loss-muscle-gain",
+      "topic": "daily calories for weight loss AND muscle gain (both directions)",
+      "why": "same question + audience + practical angle (Phase 190 / P1-2 match): «كيف أحسب سعراتي اليومية بدقة لخسارة الوزن أو التضخيم؟» (deficit-or-surplus calculation steps + protein/carb distribution) ↔ «How many calories should I eat to lose weight and build muscle?» (beginner plan). Both teach the beginner's daily-calorie number across the loss/gain axis — the mirror of the already-approved loss-only pair, on its loss+gain side. Slugs mirror each other: calories-to-lose-weight-BUILD-MUSCLE ↔ calculate-daily-calories-WEIGHT-LOSS-MUSCLE-GAIN."
     }
   ],
   "reviewPairs": [
@@ -55,13 +61,20 @@
       "enSlug": "4-week-beginner-muscle-building-plan",
       "arSlug": "muscle-building-beginners-step-by-step",
       "topic": "beginner muscle building",
-      "whyDifferent": "AR = how-to-start guide, EN = concrete 4-week day-by-day program"
+      "whyDifferent": "AR = how-to-start guide, EN = concrete 4-week day-by-day program",
+      "note": "PHASE 190: arSlug no longer exists live (merged away; the surviving article is how-to-start-muscle-building-beginners) — kept verbatim as the Phase-159 decision record; the drop stands either way."
     },
     {
       "enSlug": "progressive-overload-no-weight",
       "arSlug": "muscle-building-bodyweight-home",
       "topic": "bodyweight muscle building",
       "whyDifferent": "AR = complete bodyweight home guide, EN = 4 plateau-beating overload techniques"
+    },
+    {
+      "enSlug": "protein-after-workout-grams-guide",
+      "arSlug": "best-protein-timing-after-workout",
+      "topic": "post-workout protein",
+      "whyDifferent": "PHASE 190 / P1-2 review candidate (the only one from the 59-post re-match): EN asks the DOSE («How many grams of protein should I eat after a workout?» — step-by-step gram calculations), AR asks the TIMING («ما هو أفضل وقت لتناول البروتين بعد التمرين؟» — research-based timing window). Same family, different primary question — owner decides; never applied without approval."
     }
   ]
 }
