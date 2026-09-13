@@ -3662,5 +3662,5 @@ Stage Summary:
 - **متابعة الجلسة (بعد أول تحقق حي — النشر a179176):** التحقق الحي أكد: llms.txt الجديد حي · الـ301s الجديدة حية · السايت ماب 67 (0087-A طُبّق) · العنوان المعاد حي («برنامج 8 أسابيع لحرق الدهون…») · الروابط المكسورة الثلاثة ماتت من الأجسام (0087-C) · FAQ صار مرة واحدة على EN وAR (عقد سطر-كامل يحفظ القسم الموضوعي «FAQ: Common Questions…» كمحتوى ويقص المكرر) — لكن فئتي fitness/wellness بقيتا 404 بعد نشر جديد → **استُبعدت فرضية كاش Vercel وتشخيص جنائي جديد: سجل BLOG_CATEGORIES منشور مرتين** (blog.ts عميل بعشرة معرفات · blog-server.ts سيرفر بثمانية) فبوابة صفحة الفئة كانت تُعيد توجيه fitness→workout وتقتل الصفحة بـnotFound منذ P2-11 أصلاً
 - **الإصلاح الجذري (بنفس المرحلة):** وحدة واحدة src/lib/blog-categories.ts (10 معرفات + normalizeCategory + getCategoryLabel) يعيد التصدير منها blog.ts وblog-server.ts + حارس canary (blog-categories.test.ts: 6 اختبارات — ممنوع ثاني نسخة + تطابق Registry⇄BLOG_CATEGORY_CONTENT + المعرفات القانونية تطبيع لنفسها) — بناء محلي + دخان: الفئات fitness/wellness/workout/weight-loss كلها 200 محلياً بالاتجاهين
 - البوابات النهائية: tsc 0 (الأربعة الموثقة) · eslint 0/0 · vitest 1066/1066 · next build exit 0 · docs_audit (192) · docs_parity · migration_audit · stale-refs · ui-wiring
-- Commit SHA: a179176 (كود 192 الأساسي) + كوميت إصلاح التفكّك (يكمل)
-- Push status: (يكمل بالدفع)
+- Commit SHA: a179176 (كود 192 الأساسي) + d3b0eb8 (إصلاح تفكّك سجل الفئات)
+- Push status: pushed (SYNCED — build-info حي أكّد d3b0eb8)
