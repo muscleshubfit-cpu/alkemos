@@ -6,28 +6,41 @@ import { clampMetaTitle } from "@/lib/blog-meta-title";
 /**
  * PHASE 189 — render-time SERP title clamp wiring (deep-audit P1-1).
  *
- * Live audit 2026-09-13 (69-article scan): 5 legacy AR rows carried a
- * trailing " — Alkemos" brand suffix (71-77 chars, budget 70) plus 23
- * gray-zone rows at 63-70 — the suffix-eleven alone pushed the five
- * over budget. Fix: clampMetaTitle (the SEO-GEO-6.3/181 law, now in the
- * zero-dep blog-meta-title.ts) applied at the RENDER layer —
- * fetchBlogForOG in blog-server.ts is the single choke point feeding
- * <title>/og:title/twitter:title/JSON-LD headline/breadcrumb on BOTH
- * language mirrors AND /api/og-image; BlogArticlePage clamps the share
- * prefill the same way. Zero DB writes (the Phase-187 pattern).
+ * FORENSIC FINDING (Supabase read + live HTML, 2026-09-13): the stored
+ * meta_titles of the 5 "over-budget" AR articles were CLEAN (60-67
+ * chars, no suffix — verified directly in the DB). The entire
+ * " — Alkemos" suffix in <title> came from the /ar LAYOUT TEMPLATE
+ * ("%s — Alkemos", 11 chars) — pushing them to 71-77 against the 70
+ * AR budget, and ALL 36 AR articles carried it. TWO fixes, one law:
+ *   1. Article pages opt OUT of the template via `title: { absolute }`
+ *      (both language mirrors) — the direct P1-1 fix.
+ *   2. clampMetaTitle (the SEO-GEO-6.3/181 law, now in the zero-dep
+ *      blog-meta-title.ts) applied at the DATA layer — fetchBlogForOG in
+ *      blog-server.ts is the single choke point feeding og:title /
+ *      twitter:title / JSON-LD headline / breadcrumb on BOTH mirrors AND
+ *      /api/og-image; BlogArticlePage clamps the share prefill. This is
+ *      the durable guarantee against future stored suffixes/overruns
+ *      (the Phase-187 pattern: fix the render, never mutate stored data).
  *
  * Guarded contracts:
- *   1. The 5 live over-budget AR titles clamp to their exact clean
+ *   1. The 5 live <title> incidents (as measured) clamp to their clean
  *      form (suffix stripped, within the 70 budget, question marks
- *      preserved) — the incident canaries.
- *   2. Gray-zone (63-70) rows shrink below budget after the suffix strip.
+ *      preserved) — the law catches BOTH stored suffixes AND template
+ *      leakage if `absolute` ever regresses.
+ *   2. Gray-zone (63-70 measured) rows shrink below budget post-strip.
  *   3. blog-meta-title.ts stays ZERO-DEPENDENCY (client-importable).
  *   4. blog-pipeline.ts re-exports the law — never re-defines it.
- *   5. Both render-time wirings stay in place (blog-server + the
- *      client article page).
+ *   5. Both render-time wirings stay in place (blog-server + the client
+ *      article share title).
+ *   6. BOTH article pages exempt their title from layout templates
+ *      (`absolute: og.title`) — the template must never tax article
+ *      titles again.
+ *   7. The /ar layout keeps its template for SHORT-title surfaces
+ *      (tools/hubs/about) — the design split is intentional.
  */
 
-/** The five live AR incidents (verbatim stored meta_title values). */
+/** The five live AR incidents (verbatim <title> values as measured live:
+ * clean stored title + the /ar layout template suffix). */
 const LIVE_AR_INCIDENTS: Array<[string, string, number]> = [
   [
     "برنامج تمارين منزلية لمدة 8 أسابيع لزيادة الكتلة العضلية بدون معدات — Alkemos",
@@ -62,7 +75,7 @@ function repoRootPath(rel: string): string {
 
 describe("render-time SERP title clamp (Phase 189 — P1-1)", () => {
   it.each(LIVE_AR_INCIDENTS)(
-    "live incident (%ich) clamps to its exact clean form within budget",
+    "live incident (%ich <title>) clamps to its exact clean form within budget",
     (stored, expected, storedLen) => {
       expect(stored.length).toBe(storedLen); // canary sanity: verbatim copy
       const out = clampMetaTitle(stored, "ar");
@@ -110,5 +123,23 @@ describe("render-time SERP title clamp (Phase 189 — P1-1)", () => {
     );
     expect(src).toContain('from "@/lib/blog-meta-title"');
     expect(src).toContain('clampMetaTitle(post.meta_title || post.title || "", lang)');
+  });
+
+  it("BOTH article pages exempt the title from layout templates (absolute — the P1-1 fix)", () => {
+    for (const rel of [
+      "src/app/ar/blog/[slug]/page.tsx",
+      "src/app/blog/[slug]/page.tsx",
+    ]) {
+      const src = readFileSync(repoRootPath(rel), "utf8");
+      expect(src, rel).toContain("title: {");
+      expect(src, rel).toContain("absolute: og.title,");
+      // A plain-string title would re-inherit the /ar template.
+      expect(src, rel).not.toMatch(/^\s{4}title: og\.title,/m);
+    }
+  });
+
+  it("the /ar layout KEEPS its template for short-title surfaces (design split)", () => {
+    const src = readFileSync(repoRootPath("src/app/ar/layout.tsx"), "utf8");
+    expect(src).toContain('template: "%s — Alkemos"');
   });
 });

@@ -33,7 +33,16 @@ export async function generateMetadata({
   }
 
   return {
-    title: og.title,
+    // PHASE 189 (SEO-GEO-10, deep-audit P1-1): `absolute` — article titles
+    // are exempt from any parent layout title template. The EN mirror has
+    // no template today (so this is a no-op now), but it locks the law for
+    // the AR mirror where the /ar layout template appends " — Alkemos"
+    // (11 chars), which pushed 5 clean stored titles (60-67 chars) over
+    // the 70-char AR SERP budget. og.title is already clamped by
+    // fetchBlogForOG (blog-meta-title.ts law).
+    title: {
+      absolute: og.title,
+    },
     description: og.description,
     alternates: {
       canonical: og.articleUrl,

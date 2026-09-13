@@ -27,7 +27,18 @@ export async function generateMetadata({
   }
 
   return {
-    title: og.title,
+    // PHASE 189 (SEO-GEO-10, deep-audit P1-1): `absolute` — THIS is the
+    // actual P1-1 fix. Forensics (Supabase read + live HTML) proved the
+    // stored meta_titles were CLEAN (60-67 chars, no suffix) and the
+    // entire " — Alkemos" suffix in <title> came from the /ar layout
+    // template ("%s — Alkemos" — 11 chars), pushing 5 titles to 71-77
+    // against the 70-char AR budget (all 36 AR articles carried it).
+    // Article titles opt OUT of the template: og.title is the clamped
+    // stored value (fetchBlogForOG → blog-meta-title.ts). The template
+    // stays for short-title surfaces (tools/hubs/about) where it fits.
+    title: {
+      absolute: og.title,
+    },
     description: og.description,
     alternates: {
       canonical: og.articleUrl,
