@@ -12,45 +12,15 @@ import type { BlogPost, BlogPostCard, BlogFaq } from "./blog";
  * client; this file uses a fresh server client and never touches the browser.)
  */
 
-export const BLOG_CATEGORIES = [
-  { id: "nutrition", en: "Nutrition", ar: "تغذية" },
-  { id: "workout", en: "Workout", ar: "تمارين" },
-  { id: "supplements", en: "Supplements", ar: "مكملات" },
-  { id: "weight-loss", en: "Weight Loss", ar: "خسارة وزن" },
-  { id: "muscle-gain", en: "Muscle Gain", ar: "بناء عضلات" },
-  { id: "health", en: "Health", ar: "صحة" },
-  { id: "recipes", en: "Recipes", ar: "وصفات" },
-  { id: "science", en: "Science", ar: "علم" },
-] as const;
-
-export const VALID_CATEGORY_IDS = new Set<string>(BLOG_CATEGORIES.map((c) => c.id));
-
-/**
- * Normalize a category id to a valid one. Server-safe (no "use client").
- */
-export function normalizeCategory(categoryId: string | undefined | null): typeof BLOG_CATEGORIES[number]["id"] {
-  if (!categoryId) return "nutrition";
-  const id = categoryId.trim().toLowerCase();
-  if (VALID_CATEGORY_IDS.has(id)) return id as typeof BLOG_CATEGORIES[number]["id"];
-  const SYNONYMS: Record<string, typeof BLOG_CATEGORIES[number]["id"]> = {
-    training: "workout",
-    exercise: "workout",
-    fitness: "workout",
-    diet: "nutrition",
-    food: "nutrition",
-    supplement: "supplements",
-    "weight loss": "weight-loss",
-    fatloss: "weight-loss",
-    "muscle building": "muscle-gain",
-    bodybuilding: "muscle-gain",
-    recipe: "recipes",
-    cooking: "recipes",
-    wellness: "health",
-    medical: "science",
-    research: "science",
-  };
-  return (SYNONYMS[id] as (typeof BLOG_CATEGORIES[number]["id"]) | undefined) || "nutrition";
-}
+// PHASE 192 (fork fix): the registry lived here TWICE (this server copy
+// carried only 8 ids — fitness/wellness missing — so /blog/category/fitness
+// and /wellness 404'd live while the client stored those ids). The single
+// source is now src/lib/blog-categories.ts; both sides re-export it.
+export {
+  BLOG_CATEGORIES,
+  VALID_CATEGORY_IDS,
+  normalizeCategory,
+} from "./blog-categories";
 
 export type BlogOGData = {
   title: string;

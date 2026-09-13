@@ -38,51 +38,16 @@ export type BlogPost = {
  created_at: string;
 };
 
-export const BLOG_CATEGORIES = [
- { id: "nutrition", en: "Nutrition", ar: "تغذية" },
- { id: "workout", en: "Workout", ar: "تمارين" },
- { id: "supplements", en: "Supplements", ar: "مكملات" },
- { id: "weight-loss", en: "Weight Loss", ar: "خسارة وزن" },
- { id: "muscle-gain", en: "Muscle Gain", ar: "بناء عضلات" },
- { id: "health", en: "Health", ar: "صحة" },
- { id: "recipes", en: "Recipes", ar: "وصفات" },
- { id: "science", en: "Science", ar: "علم" },
- { id: "fitness", en: "Fitness", ar: "لياقة" },
- { id: "wellness", en: "Wellness", ar: "عافية" },
-];
-
-export const VALID_CATEGORY_IDS = new Set(BLOG_CATEGORIES.map((c) => c.id));
-
-/**
- * Normalize a category id to a valid one. Maps common AI-hallucinated
- * synonyms (e.g. "training" → "workout") and falls back to "nutrition"
- * for anything unrecognized. Use this when saving posts to prevent
- * the filter UI from showing broken/unknown categories.
- */
-export function normalizeCategory(categoryId: string | undefined | null): string {
- if (!categoryId) return "nutrition";
- const id = categoryId.trim().toLowerCase();
- if (VALID_CATEGORY_IDS.has(id)) return id;
- // Common synonyms the AI model has returned in the past
- const SYNONYMS: Record<string, string> = {
- training: "workout",
- exercise: "workout",
- fitness: "workout",
- diet: "nutrition",
- food: "nutrition",
- supplement: "supplements",
- "weight loss": "weight-loss",
- fatloss: "weight-loss",
- "muscle building": "muscle-gain",
- bodybuilding: "muscle-gain",
- recipe: "recipes",
- cooking: "recipes",
- wellness: "health",
- medical: "science",
- research: "science",
- };
- return SYNONYMS[id] || "nutrition";
-}
+// PHASE 192 (fork fix): the registry moved to src/lib/blog-categories.ts —
+// the client list carried 10 ids while blog-server.ts's fork carried 8
+// (fitness/wellness missing), so the server category-page gate 404'd
+// exactly the ids the client stored. Both sides now re-export ONE list.
+export {
+  BLOG_CATEGORIES,
+  VALID_CATEGORY_IDS,
+  normalizeCategory,
+  getCategoryLabel,
+} from "./blog-categories";
 
 /**
  * Phase 134 (perf): the LIST/CARD shape — everything the blog list,
@@ -110,11 +75,6 @@ export type BlogPostCard = Pick<
   | "published_at"
   | "created_at"
 >;
-
-export function getCategoryLabel(categoryId: string, lang: "en" | "ar"): string {
- const cat = BLOG_CATEGORIES.find((c) => c.id === categoryId);
- return cat ? (lang === "ar" ? cat.ar : cat.en) : categoryId;
-}
 
 export async function listBlogPosts(lang: "en" | "ar", category?: string, search?: string): Promise<BlogPostCard[]> {
  // PHASE 182: fetch the Supabase client chunk on demand — blog.ts is in
