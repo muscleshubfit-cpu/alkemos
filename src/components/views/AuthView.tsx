@@ -195,12 +195,12 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
               <div className="marble-card mt-6 p-4 text-sm text-[var(--text)]">
                 <p className="font-medium">
                   {isAr
-                    ? "سجّل الدخول عشان تكمّل عملية الاشتراك"
+                    ? "سجّل الدخول لإكمال عملية الاشتراك"
                     : "Log in to continue your subscription"}
                 </p>
                 <p className="mt-1 text-[var(--muted-foreground)]">
                   {isAr
-                    ? "هترجع تلقائياً لصفحة الدفع بعد ما تسجّل."
+                    ? "ستعود تلقائيًا إلى صفحة الدفع بعد تسجيل الدخول."
                     : "You'll be returned to checkout automatically after logging in."}
                 </p>
               </div>

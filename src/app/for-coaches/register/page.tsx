@@ -127,7 +127,7 @@ export default function CoachRegisterPage() {
             </h2>
             <p className="mt-2 text-sm text-[#6e6e73]">
               {isAr
-                ? "بنحوّلك دلوقتي إلى لوحة المدرب..."
+                ? "ننقلك الآن إلى لوحة المدرب..."
                 : "Taking you to your coach dashboard..."}
             </p>
           </div>
@@ -251,7 +251,7 @@ export default function CoachRegisterPage() {
         )}
 
         <p className="mt-6 text-center text-sm text-[#6e6e73]">
-          {isAr ? "عندك حساب بالفعل؟ " : "Already have an account? "}
+          {isAr ? "لديك حساب بالفعل؟ " : "Already have an account? "}
           <Link href="/auth" className="font-semibold text-[#0071e3] hover:underline">
             {isAr ? "سجّل دخول" : "Log in"}
           </Link>

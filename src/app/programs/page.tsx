@@ -157,7 +157,7 @@ export default function ProgramsPage({ lang: langProp }: { lang?: Lang } = {}) {
         {filtered.length === 0 ? (
           <div className="marble-card mt-10 p-12 text-center">
             <p className="text-base font-normal text-[var(--muted-foreground)]">
-              {isAr ? "مفيش برامج مطابقة لبحثك" : "No programs match your search"}
+              {isAr ? "لا توجد برامج مطابقة لبحثك" : "No programs match your search"}
             </p>
           </div>
         ) : (

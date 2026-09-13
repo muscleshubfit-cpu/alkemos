@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "تسجيل مدرب — Alkemos",
     description:
-      "أنشئ حسابك كمدرب مجانًا — تفعيل فوري، عملاؤك بأسعارك، وفلوسك في إيدك.",
+      "أنشئ حسابك كمدرب مجانًا — تفعيل فوري، عملاؤك بأسعارك، وفلوسك بين يديك.",
     url: `${SITE_URL}/ar/for-coaches/register`,
     siteName: "Alkemos",
     locale: "ar_EG",

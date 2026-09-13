@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "no_active_subscription",
-        message: "مفيش اشتراك نشط لإلغائه",
+        message: "لا يوجد اشتراك نشط لإلغائه",
       },
       { status: 404 },
     );
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     if (updErr) {
       console.error("[api/subscription/cancel] update error:", updErr.message);
       return NextResponse.json(
-        { error: "update_failed", message: "حصلت مشكلة — جرب تاني" },
+        { error: "update_failed", message: "حدثت مشكلة — حاول مرة أخرى" },
         { status: 500 },
       );
     }
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       await supabaseAdmin.from("admin_notifications").insert({
         type: dedupType,
         title: "طلب إلغاء اشتراك",
-        body: `${auth.email ?? auth.id} طلب إلغاء اشتراكه (${rows[0].tier}) — الاشتراك شغال لآخر مدة مدفوعة (${new Date(rows[0].end_date).toLocaleDateString("ar-EG")}). راجع صفحة المدفوعات لو محتاج تعمل استرداد.`,
+        body: `${auth.email ?? auth.id} طلب إلغاء اشتراكه (${rows[0].tier}) — يستمر الاشتراك حتى نهاية آخر مدة مدفوعة (${new Date(rows[0].end_date).toLocaleDateString("ar-EG")}). راجع صفحة المدفوعات لو محتاج تعمل استرداد.`,
         link: "/admin/payments",
         target_role: "coach",
         target_coach_id: (adm as { id: string }).id,

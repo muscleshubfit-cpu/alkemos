@@ -259,11 +259,14 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(otherTools).toContain('slug: "/ai-meal-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
     // Phase 185 (owner directive 2026-09-13): the homepage GRID cards were
-    // retired — the AI planners are the flagship of the free experience
-    // via the FREE lead-card CTA «ولّد خطتك المجانية الآن» + the footer
-    // links (routes/nav/tools-hub untouched).
+    // retired — the AI planners are the flagship of the free experience via
+    // the FREE lead-card CTA + the footer links (routes/nav/tools-hub
+    // untouched). Phase 194 (owner directive — Copy Refinement Pass): the
+    // CTA label is the benefit-first «أنشئ خطتي» / "Create My Plan".
     expect(landing).toContain('href="/ai-meal-planner"');
-    expect(landing).toContain("ولّد خطتك المجانية الآن");
+    expect(landing).toContain("أنشئ خطتي");
+    expect(landing).toContain("Create My Plan");
+    expect(landing).toContain("Your plan. Built for you.");
     expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     // The retired grid entries stay retired.
     expect(landing).not.toContain('slug: "ai-meal-planner"');

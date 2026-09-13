@@ -61,7 +61,7 @@ export function ContactView() {
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
             {isAr
-              ? "عندك سؤال أو استفسار؟ ابعتلنا رسالة وهنرد عليك في أقرب وقت."
+              ? "لديك سؤال أو استفسار؟ أرسل إلينا رسالة وسنرد عليك في أقرب وقت."
               : "Have a question? Send us a message and we'll get back to you."}
           </p>
         </div>

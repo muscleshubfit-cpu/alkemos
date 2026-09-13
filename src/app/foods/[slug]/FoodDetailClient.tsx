@@ -266,11 +266,11 @@ export default function FoodDetailClient({
           <div className="mt-6 rounded-2xl bg-white p-4">
             <h3 className="flex items-center gap-2 text-sm font-semibold">
               <Target className="h-4 w-4 text-[#0071e3]" />
-              {isAr ? "عايز توصل لماكرو معين؟" : "Want to hit a specific macro?"}
+              {isAr ? "هل تريد الوصول إلى ماكرو محدد؟" : "Want to hit a specific macro?"}
             </h3>
             <p className="mt-1 text-xs font-normal text-[#6e6e73]">
               {isAr
-                ? "اكتب الهدف أو دوس على زرار جاهز — هاتحسب الجرامات تلقائياً."
+                ? "اكتب هدفك أو اختر قيمة جاهزة — وتُحسب الجرامات تلقائيًا."
                 : "Enter your target or click a preset — grams will be calculated automatically."}
             </p>
 
@@ -377,7 +377,7 @@ export default function FoodDetailClient({
         <div className="mt-6 rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6 text-center">
           <p className="text-base font-normal text-[#1d1d1f]">
             {isAr
-              ? "عايز خطة وجبات مخصصة بالماكروز الصح لهدفك؟"
+              ? "هل تريد خطة وجبات مخصصة بماكروز مناسبة لهدفك؟"
               : "Want a personalized meal plan with the right macros for your goal?"}
           </p>
           <a

@@ -199,7 +199,7 @@ export function EvoFloatingWidget() {
             : "Weekly EVO check-in disabled",
       );
     } catch {
-      toast.error(isAr ? "حصل خطأ — جرب تاني" : "Something went wrong");
+      toast.error(isAr ? "حدث خطأ — حاول مرة أخرى" : "Something went wrong");
     } finally {
       setFuBusy(false);
     }
@@ -233,7 +233,7 @@ export function EvoFloatingWidget() {
       }
       loadFollowupRow(); // last_sent_at may have moved for this account
     } catch {
-      toast.error(isAr ? "فشل الإرسال — جرب تاني" : "Send failed — try again");
+      toast.error(isAr ? "فشل الإرسال — حاول مرة أخرى" : "Send failed — try again");
     } finally {
       setSendingNow(false);
     }
@@ -318,7 +318,7 @@ export function EvoFloatingWidget() {
         toast.error(
           e instanceof Error && e.message !== "save failed"
             ? e.message
-            : isAr ? "تعذر حفظ الخطة — جرب تاني" : "Could not save the plan",
+            : isAr ? "تعذر حفظ الخطة — حاول مرة أخرى" : "Could not save the plan",
         );
       } finally {
         setSavingPlanId(null);
@@ -596,13 +596,13 @@ export function EvoFloatingWidget() {
                         ? "كم سعرة صدور دجاج؟"
                         : "How many calories in chicken breast?",
                       isAr
-                        ? "إزاي أعمل بنش بريس؟"
+                        ? "كيف أقوم بتمرين بنش بريس؟"
                         : "How to do bench press?",
                       isAr
-                        ? "عايز برنامج للمبتدئين"
+                        ? "أريد برنامجًا للمبتدئين"
                         : "I want a beginner program",
                       isAr
-                        ? "إيه أفضل بروتين؟"
+                        ? "ما هو أفضل بروتين؟"
                         : "What's the best protein?",
                     ].map((q) => (
                       <button
@@ -663,7 +663,7 @@ export function EvoFloatingWidget() {
                                     dir="auto"
                                     placeholder={
                                       isAr
-                                        ? "إيه اللي ناقص في الرد؟ (اختياري)"
+                                        ? "ما الذي ينقص الرد؟ (اختياري)"
                                         : "What was wrong? (optional)"
                                     }
                                     className="w-full rounded-lg border border-black/10 bg-transparent px-2.5 py-1.5 text-xs outline-none focus:border-[#0071e3]"
@@ -782,7 +782,7 @@ export function EvoFloatingWidget() {
                       </p>
                       <p className="mt-1 text-xs font-normal text-[#6e6e73]">
                         {isAr
-                          ? "اشترك عشان تكمل المحادثة بلا حدود"
+                          ? "اشترك لمتابعة المحادثة بلا حدود"
                           : "Subscribe to continue chatting without limits"}
                       </p>
                       <a

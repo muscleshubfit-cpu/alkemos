@@ -20,8 +20,11 @@ export const metadata: Metadata = {
   // which mis-signals the page language to crawlers. EN metadata now;
   // the Arabic twin /ar/faq carries the Arabic metadata + AR-first JSON-LD.
   title: "FAQ — Complete Platform Guide | Alkemos",
+  // PHASE 194 (owner directive — Copy Refinement Pass): the time-frame
+  // results claim was removed from the FAQ content — the description
+  // no longer promises "when to expect results".
   description:
-    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, Arabic support, and when to expect results.",
+    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, and Arabic support.",
   alternates: {
     canonical: "https://alkemos.com/faq",
     languages: {

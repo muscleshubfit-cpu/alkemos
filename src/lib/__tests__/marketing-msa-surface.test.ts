@@ -30,10 +30,22 @@ const MARKETING_SURFACE_FILES = [
   "src/components/views/AffiliateProgramView.tsx",
   "src/app/for-coaches/page.tsx",
   "src/app/for-coaches/content.ts",
-  // Phase 193: the tools hub + the foods hub intro are public marketing
+  // Phase 193 (§12.50-B3): the tools hub + the foods hub intro are public marketing
   // headlines too (كوبساتك / شوف الماكروز findings).
   "src/app/tools/page.tsx",
   "src/components/foods/FoodsExplorer.tsx",
+  // Phase 194 (Copy Refinement Pass): the remaining public surfaces
+  // converted to MSA — the food detail CTA, programs empty state,
+  // contact hero, the floating EVO widget (public on every page), the
+  // auth/checkout funnel, and the for-coaches AR mirror metadata.
+  "src/app/foods/[slug]/FoodDetailClient.tsx",
+  "src/app/programs/page.tsx",
+  "src/components/views/ContactView.tsx",
+  "src/components/EvoFloatingWidget.tsx",
+  "src/components/views/AuthView.tsx",
+  "src/app/for-coaches/register/page.tsx",
+  "src/app/ar/for-coaches/layout.tsx",
+  "src/app/ar/for-coaches/register/layout.tsx",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -176,14 +188,25 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   // pinned dead here (the canary law: removed copy never returns).
   it("Phase 193 copy audit: the removed Egyptian phrases stay dead across the marketing surface", () => {
     const surfaces: Record<string, string[]> = {
-      "src/app/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين"],
-      "src/components/views/LandingView.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين"],
+      // Phase 193 lists — extended in Phase 194 with the phrases removed by
+      // the Copy Refinement Pass (merged per-file; no duplicate keys).
+      "src/app/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين", "كل أداة محتاجها", "EVO معاك", "بتتعدل مع تقدمك"],
+      "src/components/views/LandingView.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين", "كوتش بيتابعك", "أسعارك إيدك", "أدوات المنصة معاك", "شغال معاك", "صفر٪ عمولة", "Your complete fitness platform.", "منصتك الرياضية المتكاملة."],
       "src/app/tools/page.tsx": ["كوبساتك", "شوف الماكروز"],
       "src/components/foods/FoodsExplorer.tsx": ["شوف السعرات", "اللي محتاجها"],
       "src/components/views/AffiliateProgramView.tsx": ["مفيش معالجة دفعات", "إزاي بيشتغل", "لمين ده مناسب", "بتاعك", "هتلاقي رابط"],
-      "src/app/for-coaches/page.tsx": ["اقبض بنفسك", "ضيف عملاءك", "شوف العضويات", "يستهل يشتغل", "عايز مميزات"],
+      "src/app/for-coaches/page.tsx": ["اقبض بنفسك", "ضيف عملاءك", "شوف العضويات", "يستهل يشتغل", "عايز مميزات", "بيتم من محفظتك", "كوتش بيتابع عميله", "0% Commission — fixed fee only"],
       "src/app/for-coaches/content.ts": ["بتدفع", "مين اللي", "إزاي بحصّل", "إيه اللي بيدفعه", "هيبقوا تابعين", "تقدر تشترك"],
       "src/lib/i18n.tsx": ["2 meal + 2 exercise swaps / day", "Unlimited daily swaps"],
+      // Phase 194 — the newly-converted surfaces pin their removed phrases:
+      "src/app/foods/[slug]/FoodDetailClient.tsx": ["عايز توصل", "دوس على زرار", "عايز خطة وجبات"],
+      "src/app/for-coaches/register/page.tsx": ["بنحوّلك دلوقتي", "عندك حساب بالفعل"],
+      "src/app/ar/for-coaches/layout.tsx": ["في إيدك", "بتحددها", "إنت اللي"],
+      "src/components/views/AuthView.tsx": ["عشان تكمّل", "هترجع تلقائيًا"],
+      "src/components/EvoFloatingWidget.tsx": ["إزاي أعمل", "عايز برنامج", "جرب تاني", "عشان تكمل"],
+      "src/app/programs/page.tsx": ["مفيش برامج"],
+      "src/components/views/ContactView.tsx": ["ابعتلنا رسالة وهنرد"],
+      "src/app/evo/page.tsx": ["وتستمر معك على كل جهاز", "يتذكّر وزنك وهدفك وتقدّمك"],
     };
     for (const [rel, bannedList] of Object.entries(surfaces)) {
       const src = readFileSync(rel, "utf8");

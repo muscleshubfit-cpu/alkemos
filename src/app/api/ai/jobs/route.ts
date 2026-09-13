@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
       if (!owned) {
         return NextResponse.json(
-          { error: "العميل ده مش من عملاؤك — كل مدرب يولّد خطط لعملائه هو فقط." },
+          { error: "هذا العميل ليس من عملائك — كل مدرب يولّد خططًا لعملائه هو فقط." },
           { status: 403 },
         );
       }

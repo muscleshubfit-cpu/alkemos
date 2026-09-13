@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
       user_id: auth.id,
       type: "coach_ad_started",
       title: "إعلانك اشتغل 🎉",
-      body: `اشتراك الإعلان (${pkg.ar}) مفعّل — إعلانك هيظهر في «مدربون مميزون» حتى ${endsAr}.`,
+      body: `تم تفعيل اشتراك الإعلان (${pkg.ar}) — سيظهر إعلانك في «مدربون مميزون» حتى ${endsAr}.`,
       link: "/coach/ads",
     });
 

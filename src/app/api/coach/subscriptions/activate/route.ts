@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       {
         error: "coach_tier_forbidden",
         message:
-          "المدرب يفعّل باقة الكوتشينج فقط — عضويات الموقع (بريميوم / برو) بتتباع من الموقع نفسه مش من عند المدرب.",
+          "المدرب يفعّل باقة الكوتشينج فقط — عضويات الموقع (بريميوم / برو) تُباع من الموقع مباشرة وليست لدى المدرب.",
       },
       { status: 403 },
     );
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
     if (!owned) {
       return NextResponse.json(
-        { error: "not_your_client", message: "العميل ده مش من عملاؤك" },
+        { error: "not_your_client", message: "هذا العميل ليس من عملائك" },
         { status: 403 },
       );
     }
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
   if (rpcErr || !subscription) {
     const msg = rpcErr?.message ?? "سبب غير معروف";
     const friendly = msg.includes("assigned coach")
-      ? "العميل ده مش من عملاؤك"
+      ? "هذا العميل ليس من عملائك"
       : `فشل تفعيل الاشتراك: ${msg}`;
     // Refund the wallet debit — the coach never pays for a failed slot.
     if (walletCost > 0) {

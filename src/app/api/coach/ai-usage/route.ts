@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
     if (!owned) {
       return NextResponse.json(
-        { error: "not_your_client", message: "العميل ده مش من عملاؤك" },
+        { error: "not_your_client", message: "هذا العميل ليس من عملائك" },
         { status: 403 },
       );
     }

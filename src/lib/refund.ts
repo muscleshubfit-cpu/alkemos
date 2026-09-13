@@ -342,7 +342,7 @@ export async function checkRefundEligibility(
 export function eligibilityMessageAr(reason: Eligibility["reason"]): string {
   switch (reason) {
     case "no_subscription":
-      return "مفيش اشتراك نشط لطلب استرداد عليه";
+      return "لا يوجد اشتراك نشط لطلب استرداد عليه";
     case "outside_window":
       return `مدة الاسترداد هي ${REFUND_WINDOW_DAYS} أيام من تفعيل الاشتراك — المدة انتهت`;
     case "features_used":

@@ -438,9 +438,21 @@ export function LandingView() {
             srcSetDark="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
             sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
+          {/* Phase 194 (owner directive — Copy Refinement Pass): the generic
+              positioning line is replaced with the owner's positioning
+              («Train smarter. Eat with precision. Progress with intelligence.»
+              / «تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي.»), and a one-platform
+              subtitle explains that Alkemos unifies training, nutrition,
+              smart planning, and progress — instead of reading as a bundle
+              of separate tools. Feature numbers stay as proof chips below. */}
           <h1 className="font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "منصتك الرياضية المتكاملة." : "Your complete fitness platform."}
+            {isAr ? "تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي." : "Train smarter. Eat with precision. Progress with intelligence."}
           </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
+            {isAr
+              ? "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم — كل ما تحتاجه لرحلتك في مكان واحد."
+              : "One platform that brings training, nutrition, smart planning, and progress tracking together — everything you need in one place."}
+          </p>
 
           {/* Stat chips — engraved seals (mission §3), hero-scoped smaller
               (owner: «تصغير … الازرار قليلا» — .hero-seals in globals.css) */}
@@ -585,24 +597,26 @@ export function LandingView() {
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <Reveal>
+              {/* Phase 194 (benefit-first pass): the headline sells the
+                  outcome (knowing your body's numbers) — the tools are the
+                  proof, not the story. */}
               <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "احسب احتياجاتك بأدوات مجانية" : "Calculate Your Needs with Free Tools"}
+                {isAr ? "اعرف ما يحتاجه جسمك بالأرقام" : "Know What Your Body Needs — In Numbers"}
               </h2>
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "حاسبات لياقة وتغذية مجانية بدون تسجيل." : "Free fitness and nutrition calculators, no signup required."}
+                {isAr ? "حاسبات مجانية تحوّل هدفك إلى أهداف يومية واضحة — بدون تسجيل." : "Free calculators that turn your goal into clear daily targets — no signup required."}
               </p>
             </Reveal>
           </div>
           {/* FREE AI PLAN GENERATION — the flagship of the free experience
-              (owner directive 2026-09-13): lead card above the tools grid,
-              honest unified-pool copy (2 successful generations/month per
-              visitor, success-only counting) + the UNIFIED SAVE LADDER
-              (owner directive, same day): no account → plan stays on this
-              device · free account → saved permanently & synced across
-              devices · paid tiers → broader management & extra benefits
-              per plan. Mirrors plan-persistence.ts exactly. */}
+              (owner directive 2026-09-13). Phase 194 (owner directive —
+              Copy Refinement Pass): the card now LEADS with the benefit
+              (a plan built for you) instead of system mechanics — the
+              unified-pool / success-only / save-ladder details stay,
+              demoted to ONE small secondary line so no required info is
+              lost (quotas & behavior untouched). */}
           <Reveal delay={150}>
             <div className="marble-card mt-8 p-6 md:p-8">
               <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-start">
@@ -611,20 +625,27 @@ export function LandingView() {
                 </span>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "ابدأ بتوليد خطتك مجانًا — بدون تسجيل" : "Generate your first plan free — no signup"}
+                    {isAr ? "خطتك، مصممة لك." : "Your plan. Built for you."}
                   </h3>
                   <p className="mt-2 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
                     {isAr
-                      ? "خطط التغذية والتمارين بالذكاء الاصطناعي جزء أساسي من التجربة المجانية: رصيد شهري موحد (توليدان ناجحان) لكل زائر، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الباقات المدفوعة تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
-                      : "AI nutrition & workout plans are a core part of the free experience: one unified monthly pool (2 successful generations) for every visitor, success-only counting. No account: your plan stays on this device. A free account: saved permanently in your account & synced across your devices. Paid tiers: broader management and extra benefits per plan."}
+                      ? "أنشئ خطة تغذية وتدريب مخصصة لأهدافك وبياناتك وتفضيلاتك ونمط حياتك — ثم طوّرها مع تقدمك."
+                      : "Create a personalized nutrition and workout plan based on your goals, body, preferences, and lifestyle — then adjust it as you progress."}
+                  </p>
+                  {/* Operational details — kept (no info removed), demoted
+                      to a small secondary line (Phase 194 benefit-first). */}
+                  <p className="mt-2 text-xs font-normal leading-relaxed md:text-sm" style={{ color: PALETTE.textMuted }}>
+                    {isAr
+                      ? "توليدان ناجحان شهريًا لكل زائر، ويُحتسب التوليد الناجح فقط · بدون حساب تبقى خطتك على جهازك · بحساب مجاني تُحفظ وتتزامن عبر أجهزتك · والباقات المدفوعة تمنح إدارة أوسع حسب باقتك."
+                      : "2 successful generations/month for every visitor, success-only counting · No account: your plan stays on this device · Free account: saved & synced across devices · Paid tiers add broader management per plan."}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">
                   {/* Owner directive (2026-09-13): ONE direct CTA label on the
-                      primary button — the AI planners are the free product
-                      experience itself, not tools buried in a grid. */}
+                      primary button. Phase 194: the label sells the action
+                      (Create My Plan / أنشئ خطتي) per the benefit-first pass. */}
                   <a href="/ai-meal-planner" className="btn-chrome px-5 py-2.5 text-sm">
-                    {isAr ? "ولّد خطتك المجانية الآن ›" : "Generate your free plan now ›"}
+                    {isAr ? "أنشئ خطتي" : "Create My Plan"}
                   </a>
                   <a href="/ai-workout-planner" className="btn-outline px-5 py-2.5 text-sm font-normal">
                     {isAr ? "مخطط التمارين بالذكاء الاصطناعي ›" : "AI Workout Planner ›"}
@@ -669,13 +690,15 @@ export function LandingView() {
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <Reveal>
+              {/* Phase 194 (benefit-first pass): the number is proof, the
+                  headline is the benefit — train every muscle the right way. */}
               <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "أكثر من 868 تمرين بانتظارك" : "Over 868 Exercises Await You"}
+                {isAr ? "تدرّب على كل عضلة بالطريقة الصحيحة" : "Train Every Muscle the Right Way"}
               </h2>
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "من الصدر والظهر إلى الأرجل، لكل عضلة تمارينها بمستويات صعوبة تناسب المبتدئ والمحترف." : "868+ exercises with full instructions and difficulty levels."}
+                {isAr ? "أكثر من 868 تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم." : "868+ exercises with clear instructions and difficulty levels — home or gym, beginner to advanced."}
               </p>
             </Reveal>
           </div>
@@ -762,13 +785,16 @@ export function LandingView() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <Reveal>
+              {/* Phase 194 (benefit-first pass): the headline is the
+                  benefit — knowing what you eat; the 8,830+ number moves
+                  to the sub as proof. */}
               <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "أكثر من 8830 صنفاً غذائياً" : "Over 8,830 Food Items"}
+                {isAr ? "اعرف ما في طعامك قبل أن تتناوله" : "Know What's in Your Food Before You Eat It"}
               </h2>
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "اعرف سعرات أي صنف غذائي وماكروزه قبل أن تتناوله — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات." : "Know the calories and macros of any food before you eat it — protein, carbs, fats, and fruits, plus a grams calculator."}
+                {isAr ? "أكثر من 8,830 صنفًا غذائيًا بالسعرات والماكروز — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات." : "8,830+ foods with calories and macros — protein, carbs, fats, and fruits, plus a grams calculator."}
               </p>
             </Reveal>
           </div>
@@ -851,8 +877,8 @@ export function LandingView() {
             <Reveal delay={150}>
               <p className="mx-auto mt-4 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "كوتش بيتابعك خطوة بخطوة، خطة تغذية وتمرين مخصصة على جسمك وهدفك، وتعديل مستمر حسب تقدمك، مع مساعد EVO شغال معاك 24 ساعة."
-                  : "A real coach following you step by step, custom nutrition and training plans built around your body and goal, and continuous adjustments as you progress — with EVO AI available 24/7."}
+                  ? "مدرب يتابع تقدمك خطوة بخطوة، وخطة تغذية وتمرين مصممة على جسمك وهدفك، مع تعديل مستمر مع تقدّمك — ومساعد EVO الذكي في خدمتك على مدار الساعة."
+                  : "A dedicated coach follows your progress step by step, custom nutrition and training plans built around your body and goal, continuous adjustments as you progress — with EVO AI available 24/7."}
               </p>
             </Reveal>
           </div>
@@ -861,13 +887,13 @@ export function LandingView() {
               {(isAr
                 ? [
                     { icon: Salad, t: "خطط تغذية مخصصة", d: "مبنية على جسمك وهدفك" },
-                    { icon: Dumbbell, t: "برامج تمارين متكيفة", d: "بتتعدل مع تقدمك" },
+                    { icon: Dumbbell, t: "برامج تمارين متكيفة", d: "وتتطوّر مع تقدّمك" },
                     { icon: LineChart, t: "متابعة شخصية", d: "مراجعة وتعديل مستمر" },
-                    { icon: Bot, t: "EVO AI — 24/7", d: "إجابات فورية أي وقت" },
+                    { icon: Bot, t: "EVO AI — 24/7", d: "إجابات فورية في أي وقت" },
                   ]
                 : [
                     { icon: Salad, t: "Custom nutrition plans", d: "Built around your body & goal" },
-                    { icon: Dumbbell, t: "Adaptive workout programs", d: "They adjust as you progress" },
+                    { icon: Dumbbell, t: "Adaptive workout programs", d: "They evolve as you progress" },
                     { icon: LineChart, t: "Personal follow-up", d: "Continuous review & tweaks" },
                     { icon: Bot, t: "EVO AI — 24/7", d: "Instant answers anytime" },
                   ]
@@ -980,21 +1006,21 @@ export function LandingView() {
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: "#A1A1A6" }}>
               {isAr
-                ? "سعرك بقرارك وحدك وتحصل على أموالك مباشرة — تأخذ المنصة رسمًا ثابتًا لا نسبة من عملك، وكل الأدوات (868+ تمرينًا، و8830+ نوع طعام، ومساعد EVO) متاحة تحت تصرفك مع صفحتك الخاصة."
-                : "Your client's price is your call alone, and you collect your money yourself — the site charges a fixed fee only, never a percentage of your work. And the whole toolkit (868+ exercises, 8,830+ foods, and EVO) works for you, with your own public page."}
+                ? "سعر عملائك قرارك أنت، وتحصّل أموالك مباشرة — المنصة تتقاضى رسمًا ثابتًا لكل عميل نشط فقط، لا نسبة من عملك. وكل الأدوات (868+ تمرينًا، و8,830+ صنفًا غذائيًا، ومساعد EVO) وصفحتك العامة الخاصة في خدمتك."
+                : "Your client's price is your call alone, and you collect your money directly — you keep 100% of what you charge; the platform applies a fixed fee per active client, never a percentage of your work. And the whole toolkit (868+ exercises, 8,830+ foods, and EVO) works for you, with your own public page."}
             </p>
           </Reveal>
           <Reveal delay={200}>
             <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-start md:grid-cols-3">
               {[
                 isAr
-                  ? { t: "أسعارك إيدك", d: "تحدد سعر عميلك وتحصّله بنفسك — صفر٪ عمولة" }
-                  : { t: "Your prices", d: "Set your price and collect directly — 0% commission" },
+                  ? { t: "السعر الذي تختاره أنت", d: "احتفظ بكل ما تحصّله — بلا أي عمولة من دخلك، ورسم منصة ثابت فقط لكل عميل نشط." }
+                  : { t: "Keep 100% of what you charge", d: "0% revenue commission — a fixed platform fee applies per active client." },
                 isAr
-                  ? { t: "عملاؤك وصلاحياتك معاهم", d: "خطط وإدارة كاملة لعملائك من لوحة الكوتش" }
+                  ? { t: "عملاؤك وصلاحياتك كاملة", d: "خطط وإدارة كاملة لعملائك من لوحة المدرب" }
                   : { t: "Your clients, your rules", d: "Full plans & management from the coach dashboard" },
                 isAr
-                  ? { t: "أدوات المنصة معاك", d: "EVO، ٨٦٨+ تمرين، ٨٬٨٣٠+ أكلة، وصفحة عامة لك" }
+                  ? { t: "أدوات المنصة في خدمتك", d: "EVO، و868+ تمرينًا، و8,830+ صنفًا غذائيًا، وصفحة عامة لك" }
                   : { t: "Platform tools included", d: "EVO, 868+ exercises, 8,830+ foods, and your own page" },
               ].map((item) => (
                 <div

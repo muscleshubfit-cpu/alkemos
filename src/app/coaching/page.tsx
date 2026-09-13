@@ -224,7 +224,7 @@ export default function CoachingPage() {
           <div className="mx-auto max-w-5xl">
             <Reveal>
               <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "كل أداة محتاجها." : "Every tool you need."}
+                {isAr ? "كل ما تحتاجه في منصة واحدة." : "Every tool you need."}
               </h2>
             </Reveal>
             <div className="mt-12 grid gap-5 md:grid-cols-2">
@@ -268,7 +268,7 @@ export default function CoachingPage() {
         <section className="bg-[var(--tint)] px-4 py-16 text-[var(--text)] md:py-24">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-              {isAr ? "المدرب + EVO معاك 24/7." : "Your coach + EVO, 24/7."}
+              {isAr ? "المدرب + EVO معك 24/7." : "Your coach + EVO, 24/7."}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
               {isAr

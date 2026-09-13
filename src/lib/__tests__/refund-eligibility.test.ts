@@ -66,7 +66,7 @@ describe("refund eligibility helpers", () => {
   });
 
   it("messages cover every ineligibility reason in Arabic", () => {
-    expect(eligibilityMessageAr("no_subscription")).toContain("مفيش اشتراك نشط");
+    expect(eligibilityMessageAr("no_subscription")).toContain("لا يوجد اشتراك نشط");
     expect(eligibilityMessageAr("outside_window")).toContain("7");
     expect(eligibilityMessageAr("features_used")).toContain("مميزات مدفوعة");
     expect(eligibilityMessageAr(null)).toContain("غير مؤهل");

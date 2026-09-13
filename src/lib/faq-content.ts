@@ -15,10 +15,10 @@ export const FAQS_EN = [
   { q: "How many AI plans do I get per month?", a: "One unified monthly pool covers nutrition and workout plans together: the Free tier (visitors included, no signup) gets 2 successful generations per month, Premium 4, Pro 8, and Coaching 8. Failed generations never count, and the pool resets on the 1st of each month." },
   { q: "How many weekly swaps?", a: "Free: 0. Premium: 3 swaps/week. Pro: 6/week. Coaching: 6/week. Resets every Monday." },
   { q: "Payment methods?", a: "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt which the team reviews within 24 hours." },
-  { q: "Is my data secure?", a: "Yes. All data is encrypted on Supabase with RLS policies. Only you and the team can see it." },
+  { q: "Is my data secure?", a: "Yes. Data is encrypted on Supabase and protected by Row Level Security policies: your records are visible to you and your assigned coach, and authorized platform staff can access them only in limited support and operations contexts." },
   { q: "Arabic support?", a: "Yes, the platform is fully bilingual (Arabic/English) with RTL support." },
   { q: "Mobile friendly?", a: "Yes, fully responsive and installable as a PWA app on mobile." },
-  { q: "When will I see results?", a: "With commitment, results start in 2-4 weeks. Noticeable results in 8-12 weeks." },
+  { q: "When will I see results?", a: "Results vary by individual, consistency, starting point, and goals. Alkemos provides structured tools and guidance to help you make measurable progress over time." },
 ];
 
 export const FAQS_AR = [
@@ -28,8 +28,8 @@ export const FAQS_AR = [
   { q: "كم خطة بالذكاء الاصطناعي أحصل عليها شهرياً؟", a: "رصيد شهري موحد واحد يجمع خطط التغذية والتمارين معاً: الباقة المجانية (والزوار دون تسجيل) توليدان ناجحان شهرياً، وبريميوم 4، وبرو 8، وكوتشينج 8. التوليد الفاشل لا يُحتسب إطلاقاً، ويتجدد الرصيد في أول كل شهر." },
   { q: "كم عدد الاستبدالات أسبوعياً؟", a: "الباقة المجانية: لا يوجد. بريميوم: 3 استبدالات أسبوعياً. برو: 6 أسبوعياً. كوتشينج: 6 أسبوعياً. يتم التجديد كل اثنين." },
   { q: "ما هي طرق الدفع المتاحة؟", a: "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ أما الطرق اليدوية فتتطلب رفع إيصال يقوم الفريق بمراجعته خلال 24 ساعة." },
-  { q: "هل بياناتي آمنة؟", a: "نعم. جميع البيانات مشفرة على Supabase باستخدام سياسات الأمان على مستوى الصفوف (RLS). لا يمكن لأحد رؤية بياناتك سواك وفريق التدريب." },
+  { q: "هل بياناتي آمنة؟", a: "نعم. البيانات مشفرة على Supabase ومحمية بسياسات الأمان على مستوى الصفوف (RLS): تظهر لك وللمدرب المعيّن لك، ويمكن لفريق المنصة المُصرّح له الوصول إليها فقط في نطاقات محدودة كالدعم والتشغيل." },
   { q: "هل تدعم المنصة اللغة العربية؟", a: "نعم، المنصة ثنائية اللغة بالكامل (عربي/إنجليزي) مع دعم كامل للكتابة من اليمين إلى اليسار (RTL)." },
   { q: "هل المنصة متوافقة مع الجوال؟", a: "نعم، الموقع متجاوب بالكامل ويمكن تثبيته كتطبيق ويب تقدمي (PWA) على الجوال." },
-  { q: "متى سأرى النتائج؟", a: "مع الالتزام، تبدأ النتائج الأولية خلال 2-4 أسابيع. النتائج الملموسة تظهر خلال 8-12 أسبوعاً." },
+  { q: "متى سأرى النتائج؟", a: "تختلف النتائج من شخص لآخر حسب الانتظام ونقطة البداية والأهداف. توفر Alkemos أدوات وإرشادًا منظمًا لمساعدتك على تحقيق تقدم قابل للقياس مع الوقت." },
 ];

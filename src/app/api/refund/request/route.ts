@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
   if (error || !inserted) {
     console.error("[api/refund/request] insert error:", error?.message);
     return NextResponse.json(
-      { error: "insert_failed", message: "حصلت مشكلة — جرب تاني" },
+      { error: "insert_failed", message: "حدثت مشكلة — حاول مرة أخرى" },
       { status: 500 },
     );
   }

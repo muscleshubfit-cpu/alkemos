@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "amount_too_small",
-          message: `المبلغ صغير أوي على PayPal — أدنى شحن ${PAYPAL_TOPUP_MIN_USD}$`,
+          message: `المبلغ أقل من الحد الأدنى لشحن PayPal (${PAYPAL_TOPUP_MIN_USD}$)`,
         },
         { status: 400 },
       );

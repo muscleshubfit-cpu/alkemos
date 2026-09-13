@@ -14,14 +14,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://alkemos.com'),
   title: "Alkemos — The Smart Fitness & Nutrition Platform | Exercises, Programs, Calculators & Coaching",
   // Phase 117 completion (owner directive 2026-09-04): meta description
-  // shortened to 150-160 chars (157) with a clear CTA — the previous
-  // 245-char version had no call to action and got truncated by search
-  // engines. The OG/Twitter descriptions stay longer-by-design (they
-  // target social-card surfaces, not SERP snippets).
+  // shortened to 150-160 chars with a clear CTA — the previous 245-char
+  // version had no call to action and got truncated by search engines.
   // §12.50-أ-7 (Phase 193): the category line is unified on the owner
   // positioning «the smart, all-in-one fitness & nutrition platform».
+  // Phase 194 (owner directive — Copy Refinement Pass): the description
+  // now LEADS with the one-platform positioning and keeps the library
+  // numbers as proof points instead of a bare feature list.
   description:
-    "Alkemos — the smart fitness & nutrition platform: 868+ exercises, 8,830+ foods, ready programs, free calculators, and the EVO AI coach. Start free today!",
+    "Train smarter. Eat with precision. Progress with intelligence. Alkemos unifies training, nutrition, and AI planning — 868+ exercises, 8,830+ foods, EVO coach.",
   keywords: [
     // Platform-level keywords (primary, English)
     "sports platform",

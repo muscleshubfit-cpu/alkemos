@@ -75,8 +75,8 @@ export default function ForCoachesPage() {
           </h1>
           <p className="mt-4 max-w-xl text-base font-normal leading-relaxed text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "Alkemos يمنحك منصة كاملة تدير عملك من خلالها: خطط تغذية وتمارين بالذكاء الاصطناعي، ومتابعة تقدّم لكل عميل، وصفحة عامة باسمك. أنت من يحدد سعر اشتراك عميلك، وأنت من يحصّل منه — والمنصة لا تأخذ منك أي نسبة."
-              : "Alkemos gives you a complete platform to run your business: AI-generated nutrition and workout plans, progress tracking for every client, and your own public page. You set each client's price and you get paid directly — the site never takes a cut."}
+              ? "Alkemos يمنحك منصة كاملة تدير عملك من خلالها: خطط تغذية وتمارين بالذكاء الاصطناعي، ومتابعة تقدّم لكل عميل، وصفحة عامة باسمك. أنت من يحدد سعر اشتراك عميلك، وأنت من يحصّله — تحتفظ بكل ما تحصّله، وتقتصر المنصة على رسم ثابت لكل عميل نشط."
+              : "Alkemos gives you a complete platform to run your business: AI-generated nutrition and workout plans, progress tracking for every client, and your own public page. You set each client's price and get paid directly — you keep 100% of what you charge; the platform applies a fixed fee per active client only."}
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-4">
             <Link
@@ -126,8 +126,14 @@ export default function ForCoachesPage() {
               t: isAr ? "محرك ذكاء اصطناعي للخطط" : "AI plan engine",
             },
             {
-              n: isAr ? "0%" : "0%",
-              t: isAr ? "لا نسبة من دخلك — رسوم ثابتة فقط" : "Commission — fixed fee only",
+              // PHASE 194 (owner directive — Copy Refinement Pass): «0%
+              // commission» invites misreading — the stat now leads with
+              // what the coach KEEPS, with the fixed platform fee stated
+              // beside it (business model unchanged).
+              n: "100%",
+              t: isAr
+                ? "من ما تحصّله تبقى لك — بلا عمولة، ورسم منصة ثابت لكل عميل نشط"
+                : "of what you charge stays yours — 0% revenue commission, fixed platform fee per active client",
             },
           ].map((s) => (
             <div key={s.t}>
@@ -167,10 +173,10 @@ export default function ForCoachesPage() {
                 : "Cash, Vodafone Cash, InstaPay, or PayPal — clients pay you directly, outside the platform. Your money reaches you first, no middleman in between.",
             },
             {
-              title: isAr ? "من غير أي نسبة" : "Zero commission",
+              title: isAr ? "احتفظ بكل ما تحصّله" : "Keep 100% of what you charge",
               body: isAr
-                ? "الموقع لا يأخذ أي نسبة مئوية من دخلك — رسم تفعيل شهري ثابت ومعلن لكل عميل فقط، واضح من اليوم الأول بلا مفاجآت."
-                : "The site never takes a percentage of your income. Just a fixed, published monthly activation fee per client — transparent from day one, no surprises.",
+                ? "المنصة لا تأخذ أي نسبة مئوية من دخلك — 0% عمولة إيرادات. ما ينطبق هو رسم منصة ثابت ومعلن لكل عميل نشط فقط، واضح من اليوم الأول بلا مفاجآت."
+                : "The site never takes a percentage of your income — 0% revenue commission. Instead, a fixed platform fee applies per active client, transparent from day one, no surprises.",
             },
           ].map((c) => (
             <div
@@ -185,7 +191,7 @@ export default function ForCoachesPage() {
         <div className="marble-card mt-6 p-6 text-center">
           <p className="text-sm font-medium leading-relaxed text-[var(--muted-2)]">
             {isAr
-              ? "تفعيل اشتراكات عملائك بيتم من محفظتك على المنصة: تشحن محفظتك (انستاباي / فودافون كاش / PayPal) وتفعّل اشتراك عميلك بضغطة واحدة."
+              ? "تتم تفعيل اشتراكات عملائك من محفظتك على المنصة: تشحن محفظتك (انستاباي / فودافون كاش / PayPal) وتفعّل اشتراك عميلك بضغطة واحدة."
               : "Client activations run from your on-platform wallet: top it up (InstaPay / Vodafone Cash / PayPal) and activate a client's subscription with one click."}
           </p>
         </div>
@@ -231,7 +237,7 @@ export default function ForCoachesPage() {
             <div className="overflow-hidden rounded-3xl shadow-xl shadow-[#1d1d1f]/10">
               <Image
                 src={imgCoaching}
-                alt={isAr ? "كوتش بيتابع عميله في التمرين" : "Coach guiding a client through training"}
+                alt={isAr ? "مدرب يتابع عميله أثناء التمرين" : "Coach guiding a client through training"}
                 className="h-auto w-full object-cover"
                 sizes="(max-width: 768px) 90vw, 520px"
               />

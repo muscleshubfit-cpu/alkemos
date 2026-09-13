@@ -3,6 +3,29 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-194-COPY-REFINEMENT-PASS-2026-09-14
+Agent: Super Z (main)
+Task: أمر المالك «نفّذ Copy Refinement Pass على الموقع الحالي [Alkemos] والمستودع الحالي. ابدأ بـ Audit سريع للكود + النصوص الحية، ثم نفّذ مباشرة. لا تغيّر أي functionality أو pricing أو quotas أو business rules، والمدونة مستثناة بالكامل» — بنود الرئيسية EN/AR + About + FAQ + EVO + For Coaches + Global AR sweep + كارت AI Plans + كل الكروت Benefit-First + AI Plans Card + Tests/Build/Doc/Commit/Push/Verify
+
+Work Log:
+- بروتوكول §3.6: STATE.md (193 على e66767a) + AGENTS.md + fetch → SYNCED + آخر مدخلات worklog
+- **Audit سريع:** قراءة كاملة للملفات المستهدفة (LandingView · StaticPageView · faq-content · faq/meta · evo · for-coaches + register + content · ar/for-coaches layouts) + زحف حي 200 للرئيسية (H1 الحي «Your complete fitness platform.» مؤكد منشورًا) + مسح آلي بحدود كلمات لكل السلاسل العربية في الملفات العامة (سكربت محلي — كوتش/كوتشينج مستثناة كمصطلح علامة)
+- **تحقق الادعاءات قبل الكتابة:** الخصوصية — RLS من الميجريشنز (0001: chat_owner_or_coach · 0078: evo_memory select=owner-or-coach_over + update/delete admin · 0067 admin clients unification) + أسطح admin القراءة (/admin/saved-results · /admin/payments · /admin/leads · /admin/evo-analytics) → «فقط أنت والمدرب» غير دقيقة؛ الصياغة الجديدة: المالك + المدرب المعيّن + فريق مُصرّح في نطاقات دعم/تشغيل محدودة · EVO — memory=بيانات/أهداف/تفضيلات/تقدّم (evo_memory 0078) ≠ chat history (تزامن عبر الأجهزة للمشترك) · ادعاءات learning/weekly بقيت كاملة (مثبتة §12.50)
+- **Homepage EN/AR:** H1 الجديد + وصف منصة-واحدة تحت H1 (EN+AR) · كارت AI Plans بطاقة-فائدة (headline/description/CTA بأمر المالك حرفيًا) والتفاصيل التشغيلية سطر ثانوي صغير · H2 أدوات/تمارين/أطعمة benefit-first والأرقام في الأوصاف كدليل · الكوتشينج: «مدرب يتابع تقدمك خطوة بخطوة» + «وتتطوّر مع تقدّمك» · للمدرّبين: «السعر الذي تختاره أنت» + 100%/رسم ثابت
+- **About/FAQ/EVO/For-Coaches:** unmatched→smarter/more connected · المواقع الآلية→AI+human oversight+evidence-aware · حذف 2-4/8-12 أسبوع من الأسطح الثلاثة (StaticPageView EN/AR + faq-content JSON-LD) + meta /faq · Privacy: دقة RLS في بنود Data Usage/Data Security وأسئلة الأمان باللغتين · EVO: صفّا Memory/Chat History بجدول الاختلافات · for-coaches: شريط 0%→100% + كارت «احتفظ بكل ما تحصّله» + «تتم تفعيل اشتراكات عملائك» (بيتم→تتم) + alt «مدرب يتابع عميله»
+- **Global AR sweep (خارج بنود الأمر — نفس المنهج):** FoodDetailClient (عايز/دوس على زرار/هاتحسب) · for-coaches/register (ننقلك الآن/لديك حساب) · ميتاداتا /ar/for-coaches + register/layout (إيدك→بين يديك · بتحددها→تختارها أنت — keywords بقيت بيانات بحث) · ContactView · programs (حالة فراغ) · EvoFloatingWidget (6 سلاسل + إزاي/إيه) · AuthView (مسار الدفع) · رسائل API الظاهرة (سجل المدرب ×3 · تفعيل · ai_jobs/normalize/ai-usage «العميل ده» ×4 · PayPal · إلغاء ×3 · استرداد ×2 · member-edit · إعلانات المدربين) · نصائح بريد الحاسبات (16 صياغة) + رسالة الحصة اليومية
+- **الحرس:** marketing-msa-surface 9→17 ملفات (+FoodDetail +programs +Contact +EvoWidget +AuthView +register +ar-layouts) + canaries 194 (العبارات المنزوعة باللغتين بما فيها H1 القديم و«0% Commission») · عقود محدثة بنفس الكوميت: ai-meal-planner discoverability (CTA الجديد «أنشئ خطتي/Create My Plan/Your plan. Built for you.») + refund-eligibility («لا يوجد اشتراك نشط»)
+- **Metadata:** وصف EN الجذر يقود بالتموضع مع الأرقام كدليل (157 حرفًا) · وصف AR (×3 كتل) يقود بالتموضع الجديد مع CTA المالك الحرفي · وصف /faq بلا وعد النتائج الزمنية
+- **البوابات:** tsc 0 جديد (الأربعة الموثقة مسبقًا لاستيراد صور for-coaches تطابق أساس origin/main بالضبط — تحقق git stash) · eslint 0/0 · vitest **1094/1094** (+16 عن 1078) · next build exit 0 · docs_audit (phase=194 · 84 سطرًا)
+
+Stage Summary:
+- **النتيجة:** الرئيسية تقرأ كمنصة ذكية واحدة («تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي.») لا مجموعة أدوات — كل الكروت تبيع الفائدة والأرقام أدلة · كل ادعاء له مصدر كود (RLS/البوول/الرسوم) · صفر ادعاء زمني للنتائج · عربية فصحى موحدة على كل الأسطح العامة المحروسة (17 ملفًا بحرس دائم)
+- **صفر مساس:** بالوظائف/الأسعار/البوول/business rules/المدونة/المسارات/التصميم — Copy-only + حراس
+- **خارج النطاق (موثق):** keywords الميتاداتا (بيانات بحث) · سلاسل i18n الداخلية ولوحات admin/المدرب (استمرار المؤجل P2 من 193 — سطح داخلي غير تسويقي)
+- التوثيق: SEO-GEO-MASTER-PLAN §12.51 + STATE.md (المرحلة 194) + هذا السجل
+- Commit SHA: <في ذيل الدفعة>
+- Push status: <في ذيل الدفعة>
+---
 Task ID: PHASE-193-COPY-AUDIT-2026-09-14
 Agent: Super Z (main)
 Task: أمر المالك «نفّذ على مستودع Alkemos الحالي مهمة Website Copy Audit & Improvement، مع استبعاد المدونة بالكامل» — تدقيق Read-Only شامل (Copy/CTAs/messaging/عربي-إنجليزي/E-E-A-T/دقة الادعاءات) → خطة P0/P1/P2 موثقة في §12.50 → تنفيذ Copy-only كامل

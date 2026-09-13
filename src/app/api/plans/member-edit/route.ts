@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("[api/plans/member-edit] save-evo error:", error.message);
       return NextResponse.json(
-        { error: "insert_failed", message: "تعذر حفظ الخطة — جرب تاني" },
+        { error: "insert_failed", message: "تعذر حفظ الخطة — حاول مرة أخرى" },
         { status: 500 },
       );
     }

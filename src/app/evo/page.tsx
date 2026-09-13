@@ -119,8 +119,11 @@ export default function EvoPage() {
     {
       chatbotAr: "لا ذاكرة لجسمك",
       chatbotEn: "No memory of your body",
-      evoAr: "يتذكّر وزنك وهدفك وتقدّمك",
-      evoEn: "Remembers your weight, goal, progress",
+      // PHASE 194 (owner directive — Copy Refinement Pass): Memory is
+      // stated explicitly — EVO remembers your fitness data, goals,
+      // preferences, and progress (evo_memory, 0078).
+      evoAr: "يتذكّر بياناتك وأهدافك وتفضيلاتك وتقدّمك",
+      evoEn: "Remembers your fitness data, goals, preferences, and progress",
     },
     {
       chatbotAr: "لا يتدخّل في خطتك",
@@ -143,8 +146,11 @@ export default function EvoPage() {
     {
       chatbotAr: "تضيع محادثتك بمجرّد إغلاق الصفحة",
       chatbotEn: "Your chat vanishes when you close the page",
-      evoAr: "تُحفظ محادثتك وتستمر معك على كل جهاز",
-      evoEn: "Your chat is saved and follows you across devices",
+      // PHASE 194: Chat History is distinct from Memory — history is
+      // saved and synced according to your plan (cross-device restore is
+      // a subscriber benefit; free accounts keep history on their device).
+      evoAr: "تُحفظ محادثتك ويمكن مزامنتها عبر أجهزتك حسب خطتك",
+      evoEn: "Your chat history can be saved and synced across devices according to your plan",
     },
   ];
 

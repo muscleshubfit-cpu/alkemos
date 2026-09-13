@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "rate_limited",
-        message: "محاولات كتير — استنى شوية وجرب تاني",
+        message: "محاولات كثيرة — انتظر قليلًا ثم حاول مرة أخرى",
       },
       {
         status: 429,
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "signup_failed",
-        message: "حصلت مشكلة في إنشاء الحساب — جرب تاني",
+        message: "حدثت مشكلة في إنشاء الحساب — حاول مرة أخرى",
       },
       { status: 500 },
     );
@@ -301,7 +301,7 @@ export async function POST(request: NextRequest) {
     type: "coach_welcome",
     title: "أهلًا بك كوتش في Alkemos!",
     body:
-      "حسابك اتفعّل. ابدأ بإضافة عملائك، حدّد أسعارك بنفسك، وجهّز محفظتك لتفعيل اشتراكاتهم.",
+      "تم تفعيل حسابك. ابدأ بإضافة عملائك وحدّد أسعارك وجهّز محفظتك لتفعيل اشتراكاتهم.",
     link: "/coach",
   });
 
