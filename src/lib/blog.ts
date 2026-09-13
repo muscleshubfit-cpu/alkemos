@@ -381,7 +381,18 @@ export function renderMarkdown(content: string): string {
  const id = text.toLowerCase().replace(/[^\w\u0600-\u06FF\s-]/g, "").replace(/\s+/g, "-");
  return `<h2 id="${id}" class="text-xl font-bold mt-8 mb-3">${text}</h2>`;
  });
- html = html.replace(/^# (.+)$/gm, (_, text) => `<h1 class="text-2xl font-bold mt-8 mb-4">${text}</h1>`);
+ // PHASE 187 — single-H1 law (2026-09-13 deep-audit P0-1): the article
+ // template owns the page's ONLY <h1> (post.title in the hero). Live
+ // audit: 22/69 published articles carried `# Title` as the body's first
+ // line → two <h1> tags on one page. The renderer now demotes any body
+ // `# ` heading to <h2> (hard backstop — one H1 per page forever,
+ // whatever the data); the title-duplicating line itself is stripped at
+ // render time by stripTitleHeadingFromBody (blog-msa.ts — same pattern
+ // as the Phase-178 FAQ strip) so the reader never sees the title twice.
+ html = html.replace(/^# (.+)$/gm, (_, text) => {
+ const id = text.toLowerCase().replace(/[^\w\u0600-\u06FF\s-]/g, "").replace(/\s+/g, "-");
+ return `<h2 id="${id}" class="text-xl font-bold mt-8 mb-3">${text}</h2>`;
+ });
 
  // 5. Bold
  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");

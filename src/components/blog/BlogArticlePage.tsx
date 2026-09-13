@@ -6,7 +6,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
-import { stripFaqSectionFromBody } from "@/lib/blog-msa";
+import { stripFaqSectionFromBody, stripTitleHeadingFromBody } from "@/lib/blog-msa";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
@@ -117,7 +117,14 @@ export function BlogArticlePage({
   // legacy bodies kept their FAQ section next to the cards). Pure,
   // deterministic, idempotent (no heading → body unchanged).
   const hasFaqCards = Array.isArray(post.faq_json) && post.faq_json.length > 0;
-  const bodyContent = hasFaqCards ? stripFaqSectionFromBody(post.content) : post.content;
+  // PHASE 187 — single-H1 law (deep-audit P0-1): drop the body's leading
+  // `# Title` line when it duplicates the article title (normalized: AR
+  // diacritics / hyphen variants / case fold). The template hero below is
+  // the page's ONLY <h1>; renderMarkdown additionally demotes any `# `
+  // heading to <h2> as the hard backstop — so no body content can ever
+  // produce a second H1.
+  const faqStripped = hasFaqCards ? stripFaqSectionFromBody(post.content) : post.content;
+  const bodyContent = stripTitleHeadingFromBody(faqStripped, post.title);
   const toc = parseTableOfContents(bodyContent);
   const htmlContent = renderMarkdown(bodyContent);
   const baseUrl = "https://alkemos.com";

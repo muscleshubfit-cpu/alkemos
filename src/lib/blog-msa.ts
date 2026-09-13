@@ -175,6 +175,63 @@ export function stripFaqSectionFromBody(md: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PHASE 187 — single-H1 law (2026-09-13 deep-audit P0-1).
+// Live audit: 22/69 published articles rendered TWO <h1> tags — the
+// template hero (post.title) AND the markdown body's own leading
+// `# Title` line (legacy corpus generated before the single-H1
+// convention; e.g. /blog/progressive-overload-no-weight and
+// /ar/blog/calculate-daily-calories-weight-loss). The AR case proved
+// the body line is not always a byte-identical copy: سعرة/سُعرة and
+// يومياً/يوميًا differ ONLY by Arabic diacritics — so the comparison
+// normalizes before matching. Same pattern as the Phase-178 strip
+// above: pure, deterministic, idempotent, render-time (no DB rewrite —
+// the whole legacy corpus heals at the next ISR revalidate; the
+// renderer's `# `→<h2> demotion in blog.ts is the SEO backstop for
+// any non-title `# ` heading this strip deliberately leaves alone).
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Normalize a heading/title for duplicate comparison: case-folded,
+ * Arabic-diacritic-free (tashkeel + tatweel), hyphen-variant-unified
+ * (U+2010..U+2014 → "-"), punctuation-stripped, whitespace-collapsed.
+ * Byte differences that are NOT semantic (سعرة/سُعرة، يومياً/يوميًا،
+ * 12‑Week/12-Week) collapse to equality before the comparison.
+ */
+export function normalizeHeadingForCompare(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "") // Arabic diacritics + tatweel
+    .replace(/[\u2010\u2011\u2012\u2013\u2014]/g, "-") // hyphen variants
+    // Keep word chars + Arabic LETTERS + Arabic-Indic digits only —
+    // Arabic punctuation (؟ ، ؛) and Latin punctuation drop out so a
+    // heading differing only by terminal ؟ still compares equal.
+    .replace(/[^\w\u0621-\u064A\u0660-\u0669\s-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Remove the body's LEADING `# ` heading when it duplicates the article
+ * title (normalized comparison), so the page renders exactly ONE <h1> —
+ * the template hero — and the reader never sees the title twice.
+ * Deterministic + idempotent: a body whose first non-blank line is not a
+ * `# ` heading, or whose `# ` text does NOT match the title, passes
+ * through unchanged (a legitimate mid-body heading is NEVER touched —
+ * only the first line is eligible; the renderer's h2 demotion covers
+ * the rest).
+ */
+export function stripTitleHeadingFromBody(md: string, title: string): string {
+  if (!md) return md;
+  // Anchor on the first non-blank line ONLY (content safety).
+  const m = md.match(/^[ \t\r\n]*#[ \t]+(.+?)[ \t]*\r?(\n|$)/);
+  if (!m) return md;
+  if (normalizeHeadingForCompare(m[1]) !== normalizeHeadingForCompare(title)) return md;
+  // Drop the title line (and its line break); preserve the rest
+  // byte-identically, then trim the blank run the drop may leave.
+  return md.slice(m[0].length).replace(/^[ \t]*\r?\n/, "").trimStart();
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 176 — Latin contamination detector (deterministic, pure).
 //
 // Owner report «التعديلات الجديدة اختفت مرة أخرى» — live evidence:
