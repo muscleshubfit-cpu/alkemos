@@ -3914,3 +3914,24 @@ Work Log:
 
 Stage Summary:
 - المرحلة 199 منشورة ومتحقق منها حيًا بالكامل على alkemos.com (e205630) — كل أهداف أمر المالك مؤكدة على الأسطح الحية بالغتين
+
+---
+Task ID: FINAL-VISUAL-REVIEW-200-2026-09-15
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-15 — Final Visual Review للصفحة الرئيسية بعد آخر تحديث (2e6f686): فحص Production المنشور فعليًا EN/AR على Desktop/Mobile (لا localhost فقط) + التركيز فقط على: تخفيف كثافة كارت الكوتشينج وإبراز CTA الرئيسي · انتقال بصري واضح بين Coaching وFor Coaches · تسلسل بصري Free → EVO → Coaching → Memberships · spacing/hierarchy بين Coaching وMemberships وComparison بلا إعادة تصميم · التحقق أن CTA الكوتشينج يقود مباشرة إلى /coaching بلا أي إيحاء بحجز جلسات منفردة — UI/display فقط: صفر تغيير على الأسعار/الكوتة/الـbusiness logic/الوظائف/المدونة/الألوان أو الـDesign System.
+
+Work Log:
+- بروتوكول §3.6: STATE.md قُرئ (199 على 2e6f686) · استنساخ نظيف · آخر 3 مدخلات worklog + آخر 5 كوميتات
+- **فحص Production الحي قبل أي تعديل (build-info = 2e6f686 — آخر تحديث المطلوب فحصه):** خريطة أقسام كاملة بالـDOM (21 قسمًا بخلفياتهم وارتفاعاتهم) + لقطات VLM للقسم المستهدف · CTA الكوتشينج الحي → /coaching (EN) و/ar/coaching (AR) والتسمية «ابدأ مع مدربك الشخصي / Start with a Personal Coach» لا توحي بحجز جلسات منفردة ✓ وشريط العضويات «من $39.99» → /coaching ✓ · صفر overflow أفقي في EN/AR × Desktop 1440/Mobile 390 · RTL سليم
+- **النتائج المرصودة (أساس التعديلات):** (1) كارت الكوتشينج مكدّس: 6 كتل نصية بالعمود الأيسر + فقرة من جملتين مكررة المعنى مع بلاطات الأركان الأربعة (864px على الجوال، نسبة 2:1) والـCTA ينازعه رابط «قارن الباقات» بجواره مباشرة (تقييم VLM: «wall of information» + CTA «crowded»)؛ (2) كارت الكوتشينج الداكن #0B0B0D وشريط For Coaches الداكن #0B0B0D نفسه يقرآن كمنطقة داكنة واحدة متصلة (VLM: «one continuous dark zone» — أ سوأ على الجوال: فجوة 48px فقط لأن شريط المدربين المميزين لا يُرندر فارغًا)؛ (3) التسلسل الحي EVO قبل Free يخالف السرد المطلوب؛ (4) شريط الكوتشينج داخل العضويات mt-6 (24px) يزحم شبكة الباقات («footer note»)
+- **(1) تخفيف كثافة كارت الكوتشينج (Display-only):** الفقرة جملة واحدة («مدرب بشري يبني خططك ويتابع تقدمك أسبوعيًا — ومعه EVO بلا حدود.» / «A human coach builds your plans and follows your progress weekly — with unlimited EVO at your side.» — جملة مميزات Pro انتقلت لسطر الطمأنة تحت الزر وتفصيل الخطط لعناوين البلاطات: صفر معلومة ضائعة من الكارت) · الـCTA وحده بصفه بالحجم الموحد للكروت (px-8/py-3.5، full-width على الجوال) وسطر الطمأنة تحته مباشرة ورابط «قارن الباقات» هبط آخر عنصر (tertiary) · بلاطات الأركان الأربعة صارت chips مدمجة (أيقونة + عنوان فقط — حذف الأوصاف الأربعة): الجوال 864px→610px (−254px / −29%) والديسكتوب للعمود الأيسر أخف بكثير — تقييم VLM بعد التعديل: كثافة «light and premium» والـCTA «clearly the dominant action» (9/10)
+- **(2) الانتقال Coaching → For Coaches:** شريط meander-divider (عنصر القسم المعتمد §4 نفس المستخدم بين كل أقسام المكتبات) أُضيف خاتمًا لقسم الكوتشينج — حدود صريح «نهاية عرض B2C / بداية استقطاب B2B» بلا أي لون جديد؛ VLM: «No longer reads as one continuous zone» في الوضعين الفاتح والداكن (فجوة 48px جوال + 28px شريط زخرفي + 80px ديسكتوب)
+- **(3) التسلسل البصري Free → EVO → Coaching → Memberships:** قسم EVO (كارت المحارب §7.3 بوصفته الكاملة — بلا أي تغيير في البطاقة أو خلفيتها أو محتواها) انتقل من موقعه تحت quick-nav إلى ما بعد قسم Free Tools مباشرة → القراءة الحية: Free → EVO … → Coaching → Memberships · شريحة EVO في quick-nav انتقلت بعد شريحة Free Tools ليطابق الترتيب · meander الأصلي بقى فاصل EVO→المكتبات
+- **(4) spacing/hierarchy العضويات:** شريط الكوتشينج mt-6→mt-8/md:mt-10 وزر «قارن كل العضويات» mt-8→md:mt-10 — إيقاع زوجي cards→strip→compare، السلم Free→Premium→Pro→Coaching يقرأ خطوة مستقلة لا حاشية (VLM: «Comfortable and balanced» + «reads excellently»)
+- **البوابات:** tsc 0 (الأربعة الموثقة قديمة على كوميت الأساس) · eslint 0/0 · vitest 1122/1122 · next build exit 0 · ui-wiring ✓ · stale-refs ✓ · docs_parity ✓ · migration_audit --ci PASS
+- **دخان محلي بعد التعديل (متصفح + VLM):** EN ديسكتوب/جوال + AR ديسكتوب/جوال + dark mode: صفر overflow أفقي 390px/1440px في الحالتين والغتين · RTL مُتحقق برمجيًا (بلاطات 2×2 تتطابق بالمرآة: «مدرب بشري» x=201 يمينًا) وسهم الـCTA يرتد rtl:rotate-180 · العربية مضبوطة التشكيل و«EVO» اللاتينية داخل الجملة سليمة · حد Tools→EVO نظيف (tint→bg) وحد EVO→المكتبات بالـmeander
+
+Stage Summary:
+- كارت الكوتشينج أخف بنحو الثلث على الجوال مع CTA مسيطر بلا منازع يقود مباشرة إلى /coaching (متحقق حيًا قبل التعديل وبعده) — بلا أي مساس بالأسعار أو الكوتة أو الروابط أو الألوان
+- حدود Coaching/For-Coaches صريح عبر عنصر النظام meander (صفر ألوان جديدة) والتسلسل السردي للصفحة صار Free → EVO … → Coaching → Memberships بنقل قسم EVO فقط (وصفة البطاقة لم تُمس) وترتيب chips مطابق
+- ملف واحد تغيّر: src/components/views/LandingView.tsx (Display-only) — البوابات التسع خضراء قبل الدفع
