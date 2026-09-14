@@ -137,11 +137,15 @@ function Reveal({
 
 function BlogCarousel({
   posts,
-  variant = "latest",
+  featuredSlugs = [],
   isAr,
 }: {
   posts: BlogPostCard[];
-  variant?: "latest" | "featured";
+  /** Phase 198 Batch 2 (audit H2): slugs rendered as the dark featured
+      card — the old two-section Latest+Featured split is ONE carousel
+      now (dark featured cards lead the row). Selection logic
+      (selectHomeBlogCarousels) is untouched — display-only merge. */
+  featuredSlugs?: string[];
   isAr: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -155,7 +159,7 @@ function BlogCarousel({
     });
   };
 
-  const isFeatured = variant === "featured";
+  const featuredSet = new Set(featuredSlugs);
 
   return (
     <div className="relative">
@@ -196,7 +200,9 @@ function BlogCarousel({
         <style jsx>{`
           div::-webkit-scrollbar { display: none; }
         `}</style>
-        {posts.map((post, i) => (
+        {posts.map((post) => {
+          const isFeatured = featuredSet.has(post.slug);
+          return (
           <a
             key={post.id}
             href={`${isAr ? "/ar" : ""}/blog/${encodeURIComponent(post.slug)}`}
@@ -242,7 +248,8 @@ function BlogCarousel({
               </p>
             </div>
           </a>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -608,7 +615,7 @@ export function LandingView() {
           are REMOVED (the global floating EVO widget stays the entry
           point), the H2 is one step smaller, and the card min-height
           shrinks with it. */}
-      <section id="evo" className="scroll-mt-20 px-4 py-16 md:py-24" style={{ backgroundColor: PALETTE.sectionGray, color: PALETTE.textPrim }}>
+      <section id="evo" className="scroll-mt-20 px-4 py-12 md:py-16" style={{ backgroundColor: PALETTE.sectionGray, color: PALETTE.textPrim }}>
         <div className="mx-auto max-w-6xl">
           <div className="evo-hero-card marble-card relative w-full">
             {/* Warrior artwork — right side (left in RTL), fading into the marble */}
@@ -625,9 +632,15 @@ export function LandingView() {
                 sizes="(max-width: 768px) 300px, 560px"
               />
             </div>
-            {/* Text column — title only (Phase 128), smaller + shorter card
-                (Phase 131). CTAs removed (owner: «قسم ايفو ازاله الازرار»). */}
-            <div className="relative z-10 flex min-h-[280px] flex-col justify-center gap-4 p-7 md:min-h-[340px] md:p-10 lg:max-w-[56%]">
+            {/* Text column — title only (Phase 128). Phase 198 Batch 2
+                (audit H5): the card was ~534px of section for a single
+                title — min-height slims 280/340→220/260 and section padding
+                tightens (16/24→12/16). The standalone card recipe (§7.3 —
+                title only, no CTAs, warrior art + mask) is preserved; the
+                audit's original «merge into Coaching» was REJECTED in the
+                conflict review (plan §0) as it would fight the documented
+                owner directives 127/128/131. */}
+            <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-4 p-7 md:min-h-[260px] md:p-10 lg:max-w-[56%]">
               {/* Phase 117 H2 correction (supervisor order 2026-09-04):
                   punchy marketing headline, not a question. */}
               <h2 className="text-2xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
@@ -870,7 +883,12 @@ export function LandingView() {
         </div>
       </section>
 
-      {/* ===================== 8. BLOG (raised higher) — Latest + Featured carousels ===================== */}
+      {/* ===================== 8. BLOG — Phase 198 Batch 2 (audit H2): the
+          old Latest + Featured two-section split (≈1,226px of carousel
+          duplication) is ONE section with ONE carousel now: the featured
+          posts lead the row as dark featured cards, latest follows. The
+          selection logic (selectHomeBlogCarousels) and both pools are
+          untouched — display-only merge; section header/copy preserved. */}
       {latestPosts.length > 0 && (
         <>
 
@@ -878,34 +896,21 @@ export function LandingView() {
       <div className="meander-divider" aria-hidden="true" />
         <section id="blog" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
           <div className="mx-auto max-w-6xl">
-            {/* Latest Posts — carousel with light cards */}
-            <div>
-              <Reveal>
-                <div className="mb-6 flex items-end justify-between">
-                  <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-                    {isAr ? "اقرأ أحدث المقالات العلمية" : "Read the Latest Scientific Articles"}
-                  </h2>
-                  <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "كل المقالات ›" : "View all ›"}
-                  </a>
-                </div>
-              </Reveal>
-              <BlogCarousel posts={latestPosts} variant="latest" isAr={isAr} />
-            </div>
-
-            {/* Featured Posts — carousel with dark cards (different visual) */}
-            {featuredPosts.length > 0 && (
-              <div className="mt-12">
-                <Reveal>
-                  <div className="mb-6 flex items-end justify-between">
-                    <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-                      {isAr ? "مقالات مميزة" : "Featured Articles"}
-                    </h2>
-                  </div>
-                </Reveal>
-                <BlogCarousel posts={featuredPosts} variant="featured" isAr={isAr} />
+            <Reveal>
+              <div className="mb-6 flex items-end justify-between">
+                <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
+                  {isAr ? "اقرأ أحدث المقالات العلمية" : "Read the Latest Scientific Articles"}
+                </h2>
+                <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? "كل المقالات ›" : "View all ›"}
+                </a>
               </div>
-            )}
+            </Reveal>
+            <BlogCarousel
+              posts={[...featuredPosts, ...latestPosts].slice(0, 10)}
+              featuredSlugs={featuredPosts.map((p) => p.slug)}
+              isAr={isAr}
+            />
           </div>
         </section>
         </>
@@ -1000,16 +1005,7 @@ export function LandingView() {
                   <a
                     key={`${coach.slug || coach.name}-${i}`}
                     href={href}
-                    className="group block rounded-3xl bg-white p-5 text-center transition-all duration-300"
-                    style={{ boxShadow: "0 1px 2px rgba(29, 37, 46, 0.04)" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = "0 4px 16px rgba(201, 228, 252, 0.45)";
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = "0 1px 2px rgba(29, 37, 46, 0.04)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
+                    className="marble-card group block p-5 text-center transition-transform duration-300 hover:-translate-y-0.5"
                   >
                     {coach.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -1043,9 +1039,14 @@ export function LandingView() {
       <section id="for-coaches" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionDark }}>
         <div className="mx-auto max-w-6xl text-center">
           <Reveal>
+            {/* Phase 198 Batch 2 (audit M10 — zero-blue law): the pill was
+                rgba(0,113,227,.15)/#7CB8F8 — the only chromatic accent on
+                the homepage outside --ai. Now the dark-surface seal-chip
+                treatment (translucent white + chrome-edge border), matching
+                the Pro-card chip. */}
             <span
-              className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium"
-              style={{ backgroundColor: "rgba(0, 113, 227, 0.15)", color: "#7CB8F8" }}
+              className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.08em]"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.08)", color: "#C9CED3", border: "1px solid #3A3F45" }}
             >
               {isAr ? "للمدربين والأخصائيين" : "For Coaches & Specialists"}
             </span>
@@ -1120,11 +1121,53 @@ export function LandingView() {
             </p>
           </Reveal>
 
-          {/* Two-tier cards — redesigned 2026-08-30 (owner feedback): Pro is
-              the visual hero (dark card + glow + big price), Premium the clean
-              standard. BOTH get real full-width CTA buttons — the Pro button
-              is the owner-requested standout: gradient + glow + arrow. */}
-          <div className="mt-10 grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6">
+          {/* Phase 198 Batch 2 (audit H6): THREE equal-tier cards now —
+              Free joins Premium/Pro as a real marble-card (it was a text
+              mention below the grid, and the section ran ≈1,451px). Pro
+              stays the visual hero (dark card + chrome ring); the free-tier
+              copy below the grid collapses into the card (same facts,
+              canary-safe phrases) and only the compare link remains. */}
+          <div className="mt-10 grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            {/* Free tier — real card (audit H6) */}
+            <Reveal delay={150} className="h-full">
+              <a
+                href={isAr ? "/ar/memberships" : "/memberships"}
+                className="marble-card group flex h-full flex-col p-7 transition-transform duration-300 hover:-translate-y-0.5"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? "مجاني" : "Free"}
+                  </h3>
+                  <div className="flex items-end gap-1">
+                    <span className="chrome-text text-2xl font-bold tracking-tight">$0</span>
+                    <span className="pb-0.5 text-xs font-normal" style={{ color: PALETTE.textSec }}>/{isAr ? "شهر" : "mo"}</span>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                  {isAr ? "المنتج الكامل، لا نسخة معطلة — ابدأ بدون حساب وارقِ عندما يكبر استخدامك." : "The full product, not a demo — start without an account and upgrade when your usage grows."}
+                </p>
+                <ul className="mt-5 space-y-2.5 text-sm">
+                  {(isAr
+                    ? [`${EX_PLUS} تمرينًا و${FOODS_PLUS} صنفًا غذائيًا`, `${TOOLS_PLUS} أدوات مجانية — بدون تسجيل`, "توليدا خطط AI شهريًا (حتى بدون تسجيل)", "EVO — 10 رسائل يوميًا"]
+                    : [`${EX_PLUS} exercises + ${FOODS_PLUS} foods`, `${TOOLS_PLUS} free tools — no signup`, "2 AI plan generations/month (even without signup)", "EVO — 10 messages/day"]
+                  ).map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--text)" }} aria-hidden="true" />
+                      <span style={{ color: PALETTE.textSec }}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-7">
+                  <span
+                    className="btn-outline flex w-full items-center justify-center gap-2 px-6 py-3 text-sm"
+                  >
+                    {isAr ? "ابدأ مجانًا" : "Start free"}
+                    <span className="rtl:rotate-180">›</span>
+                  </span>
+                </div>
+              </a>
+            </Reveal>
+
             {/* Premium tier — clean white card with checklist */}
             <Reveal delay={200} className="h-full">
               <a
@@ -1228,14 +1271,10 @@ export function LandingView() {
             </Reveal>
           </div>
 
-          {/* Free tier mention + compare link */}
+          {/* Phase 198 Batch 2 (audit H6): the free-tier paragraph moved INTO
+              the Free card above — only the compare link remains here. */}
           <Reveal delay={400}>
-            <div className="mt-8 flex flex-col items-center gap-3 text-center">
-              <p className="text-sm font-normal" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? `أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: ${EX_PLUS} تمرينًا، ${FOODS_PLUS} صنفًا غذائيًا، ${TOOLS_PLUS} أدوات مجانية (منها توليد خطط AI — توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا.`
-                  : `Or start with the Free plan — the full product, not a demo: ${EX_PLUS} exercises, ${FOODS_PLUS} foods, ${TOOLS_PLUS} free tools (including AI plan generation — 2 successful generations/month even without signup), and EVO at 10 messages/day.`}
-              </p>
+            <div className="mt-8 flex justify-center">
               <a
                 href={isAr ? "/ar/memberships" : "/memberships"}
                 className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-300"
@@ -1253,22 +1292,28 @@ export function LandingView() {
 
           {/* Phase 117 (owner executive order — SEO/GEO): feature-comparison
               table vs traditional alternatives. ✅/❌ cells per the owner's
-              directive; the Alkemos column is visually highlighted. */}
+              directive; the Alkemos column is visually highlighted.
+              Phase 198 Batch 2 (audit H6): the table COLLAPSES behind a
+              native <details> — content stays in the served HTML (zero
+              SEO removal; the Phase 117 order stays honored), the section
+              just stops paying its full height by default. */}
           <Reveal delay={450}>
             <div className="mt-12">
-              <h3 className="text-center text-2xl font-semibold tracking-tight md:text-3xl" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "لماذا Alkemos؟ مقارنة سريعة" : "Why Alkemos? A quick comparison"}
-              </h3>
-              {/* Phase 131 (owner feedback «جدول المقارنه حاليا يشبة الكروت،
-                  عدلة الى شكل جدول»): ONE real <table> at EVERY
-                  breakpoint — the Phase 128 mobile card stack is GONE.
-                  Compact cells below md (text-xs + tighter padding) and
-                  wrapped text keep the 4-column grid readable on phones
-                  with zero cutoff; md+ keeps the roomy original sizing.
-                  The Alkemos column keeps the tint + chrome inline
-                  borders; the trainer header uses a short label below md
-                  so the header row stays one line. */}
-              <div className="marble-card mt-6 overflow-x-auto" style={{ borderRadius: "var(--radius-chrome)" }}>
+              <details className="cmp-details group marble-card mt-6 overflow-hidden">
+                <summary
+                  className="flex cursor-pointer select-none items-center justify-between gap-3 px-5 py-4 text-lg font-semibold tracking-tight md:px-7 md:text-xl"
+                  style={{ color: PALETTE.textPrim }}
+                >
+                  {isAr ? "لماذا Alkemos؟ مقارنة سريعة" : "Why Alkemos? A quick comparison"}
+                  <span className="text-base transition-transform duration-300 group-open:rotate-180" style={{ color: "var(--muted-foreground)" }} aria-hidden="true">
+                    ▾
+                  </span>
+                </summary>
+              {/* Phase 131 table recipe — now INSIDE the <details> (the
+                  summary row above is the collapsible header). The inner
+                  wrapper lost its own marble-card (the details element IS
+                  the card now). */}
+              <div className="overflow-x-auto border-t" style={{ borderColor: "var(--edge)" }}>
                 <table className="w-full text-xs md:text-sm">
                   <thead>
                     <tr style={{ backgroundColor: PALETTE.sectionGray }}>
@@ -1327,6 +1372,7 @@ export function LandingView() {
                   </tbody>
                 </table>
               </div>
+              </details>
             </div>
           </Reveal>
         </div>
@@ -1357,7 +1403,11 @@ export function LandingView() {
               </p>
             </Reveal>
             <Reveal delay={200}>
-              <div className="mx-auto mt-8 grid max-w-2xl gap-3 md:grid-cols-3">
+              {/* Phase 198 Batch 2 (audit M8): three separate cards for three
+                  stats was the section's bulk — ONE marble-card strip now,
+                  stats inline with the dark-steel chrome numbers (readable
+                  since the Batch 1 C3 fix). Copy unchanged (canary-safe). */}
+              <div className="marble-card mx-auto mt-8 flex max-w-2xl flex-col items-center justify-center gap-5 px-6 py-6 sm:flex-row sm:gap-0 sm:divide-x sm:divide-[var(--edge)] rtl:sm:divide-x-reverse">
                 {[
                   isAr
                     ? { v: "20%", d: "عمولة على الاشتراكات المؤهلة" }
@@ -1369,10 +1419,9 @@ export function LandingView() {
                     ? { v: "10$", d: "الحد الأدنى للصرف" }
                     : { v: "$10", d: "Minimum payout" },
                 ].map((s) => (
-                  <div key={s.d} className="marble-card flex flex-col items-center gap-1 p-6 text-center">
-                    {/* Engraved seal chip stat (mission §13) */}
-                    <span className="seal-chip">{s.v}</span>
-                    <p className="mt-2 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{s.d}</p>
+                  <div key={s.d} className="flex flex-col items-center gap-1.5 px-6 text-center">
+                    <span className="chrome-text text-3xl font-bold tracking-tight">{s.v}</span>
+                    <p className="max-w-[180px] text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{s.d}</p>
                   </div>
                 ))}
               </div>

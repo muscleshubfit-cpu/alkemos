@@ -254,14 +254,20 @@ no description (Phase 128) and NO buttons (Phase 131 «ازاله الازرار
 title one step smaller `text-2xl md:text-4xl`), warrior art absolutely
 positioned on the inline-end side (60% width desktop / 78% mobile) fading
 into the marble via CSS `mask-image`; `[dir=rtl]` mirrors art + mask.
-Card min-height `280px` mobile / `340px` desktop (Phase 131 «تصغير ارتفاع
-الصورة قليلا»). The floating EVO widget stays the chat entry point.
+Card min-height `220px` mobile / `260px` desktop; section padding `py-12/md:py-16`
+(Phase 198 Batch 2, audit H5 — slim; the card recipe itself is untouched). The floating EVO widget stays the chat entry point.
 
 ### 7.4 Pricing cards
 
-`marble-card` surfaces; Pro = dark `#0B0B0D` card with a 2px chrome
-gradient ring (border-box trick) + laurel "Popular" seal-chip; prices in
-`.chrome-text`; CTAs `.btn-chrome`.
+Homepage (Phase 198 Batch 2, audit H6): THREE equal-tier `marble-card`s
+in a `lg:grid-cols-3` row — Free ($0, `btn-outline` CTA) / Premium /
+Pro; Pro stays the visual hero (dark `#0B0B0D` card, 2px chrome gradient
+ring via the border-box trick, laurel "Popular" seal-chip, `.btn-chrome`);
+prices in `.chrome-text` (`.chrome-text-on-dark` inside the Pro card).
+The comparison table collapses behind a NATIVE `<details class="cmp-details">`
+(content stays in the served HTML — the Phase 117 SEO order stays honored;
+`.cmp-details` hides the default marker, chevron rotates via `group-open`).
+`/memberships` keeps its own three-card layout (unchanged).
 
 ### 7.5 Comparison tables
 

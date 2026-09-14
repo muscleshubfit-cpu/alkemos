@@ -447,6 +447,12 @@
     0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
 }
 
+/* Phase 198 Batch 2 (audit H6): the homepage comparison table collapses
+   behind a native <details> — hide the default disclosure marker (the
+   summary row carries its own chevron that rotates via group-open). */
+.cmp-details summary::-webkit-details-marker { display: none; }
+.cmp-details summary::marker { content: ""; }
+
 /* === EVO section card — Phase 127 (preview-sections reference) ===
    One full-width marble card: text left, warrior art right fading into
    the marble. RTL mirrors via logical inset-inline-end + mask flip. */
