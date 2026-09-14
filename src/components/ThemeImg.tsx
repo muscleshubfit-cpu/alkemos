@@ -44,12 +44,16 @@ export function ThemeImg({
   fetchPriority?: "high" | "low" | "auto";
 }) {
   const common = { width, height, decoding: "async" as const, sizes };
+  // Phase 198 Round 2 (audit M9 hardening): decorative pairs (alt="")
+  // also get aria-hidden so automated auditors stop counting them as
+  // alt gaps — content pairs keep their alt text untouched.
   return (
     <>
       <img
         src={light}
         srcSet={srcSetLight}
         alt={alt}
+        aria-hidden={alt === "" || undefined}
         className={cn("theme-img-light", className)}
         loading={eager ? "eager" : "lazy"}
         fetchPriority={fetchPriority}
