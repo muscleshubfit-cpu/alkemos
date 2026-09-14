@@ -3,6 +3,25 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-196-P197-LIVE-VERIFICATION-2026-09-14
+Agent: Super Z (main)
+Task: أدلة التحقق الحي للمرحلتين 196 + 197 بعد نشر Vercel (نمط §3.7: runtime claims تتطلب تحققًا من الرابط الإنتاجي)
+
+Work Log:
+- انتظار اكتمال نشر Vercel ثم فحص كل الأسطح المستهدفة بالحصول على HTML الحي (cache-busting بعد ملاحظة edge-cache قديم age=2229s في أول محاولة)
+- **196/EN الرئيسية:** «No — all 8 tools (the calculators, the meal planner, and the two AI planners)» حية · صفر «5 calculators»
+- **196/AR الرئيسية:** «868+ تمرينًا بشرح واضح ومستويات صعوبة متدرّجة» حية · صفر «أكثر من 868» (قسما التمارين وFAQ JSON-LD والـORG schema) · سؤال العد «868+ تمرينًا و8,830+ صنف غذائي» حي
+- **196/Coaching EN:** «EVO is part of every Alkemos membership, and your coaching plan includes it in full with no extra subscription» حية · **AR:** «EVO جزء من كل عضويات Alkemos، وباقة الكوتشينج تشمله بكل ميزاته بلا أي اشتراك إضافي.» حية
+- **196/Memberships sanity (بلا تغيير):** «3 meal/exercise swaps per week» + «never a full plan regeneration» حية EN · «3 تبديلات للوجبات أو التمارين أسبوعيًا» + «دون إعادة إنشاء الخطة كاملة» حية AR · **/evo:** «available to everyone» + «3–6/week by tier» حية
+- **197/المقارنات:** /compare 200 · MFP: «280M+ users» ×2 + «8 free tools (5 calculators, meal planner, 2 AI planners)» ×2 + «Premium+ tier ($24.99/month» ×2 · Freeletics: «Training Coach ~$80/yr (12-mo)» + «Human coaching» + «AI coaching only — no human coaches» + «AI Nutrition Coach (meal plans & recipes — no food tracking)» حية · ExRx: «2,200+ exercises» + «Human coaching» + «Free, ad-supported website + paid exercise apps» حية · «Data as of 2026-09-14» معروض · **المرايا AR الثلاث:** «280 مليون مستخدم» · «التدريب البشري» · «2,200+ تمرين» · «8,830+» (6/8/4 مواضع) حية · **صفر إصابات stale** (350M · 6 free · ~$95/yr · ~200 حركة · 2,100 · $5/mo) على الثماني صفحات
+- **197/الرئيسية السريعة:** «Some» ×3 (EN) + «بعضها» ×3 (AR) حية بالخلايا الثلاث المحوّلة
+
+Stage Summary:
+- المرحلتان 196 و197 حيتان بالكامل على الإنتاج — كل أهداف التحقق المطلوبة بالأمرين مؤكدة (الرئيسية + Memberships + EVO + Coaching EN/AR · كل صفحات المقارنات EN/AR)
+- Commits المغطاة: 12c96b6 (196) · c83971f (197) — SYNCED
+- Push status: pushed إلى origin/main
+
+---
 Task ID: PHASE-197-COMPETITOR-COMPARISON-REFRESH-2026-09-14
 Agent: Super Z (main)
 Task: أمر المالك «نفّذ Phase 197 — Competitor Comparison Tables Refresh»: تدقيق كامل أولًا لكل جداول المقارنة مع المنافسين ومصادر بياناتها (ليس جداول الباقات الداخلية) → حصر خدمات Alkemos الحالية → تحديث الجداول EN/AR لتعكس Alkemos فعليًا (AI nutrition/workout planning · EVO · Swaps · مكتبات الأطعمة والتمارين · Meal planner · Calculators/free tools · Coaching) → بيانات منافسين موثقة حديثة فقط، لا افتراضات، ما لا مصدر له يُنزع أو يُعلّم → مراجعة العناوين وال✓/✗ والنصوص المختصرة → EN/AR متطابقان بالمعنى بصياغة طبيعية مستقلة → حماية SEO/GEO → لا مساس بأسعار/entitlements/functionality → canaries + بوابات + STATE/worklog + commit/push + تحقق حي
