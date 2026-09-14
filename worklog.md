@@ -3,6 +3,27 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-195-NUMBERS-PROOF-SWAPS-CLARITY-2026-09-14
+Agent: Super Z (main)
+Task: أمر المالك «نفّذ Copy Refinement صغير: (1) الأرقام في Homepage proof-of-depth لا مواصفات — Exercises 868+ · Foods 8,830+ · Tools 8 وليس 5 — واجعل أعداد المكتبات Dynamic من مصدر البيانات قدر الإمكان، و"+" لحجم المحتوى فقط لا حدود العضوية؛ (2) حافظ على Benefit-First (Phase 194)؛ (3) مهم جدًا: وضّح أن Swaps تبديلات وجبات/تمارين داخل الخطة لا إعادة توليد كامل — EN/AR بصياغة محددة — في Homepage وMemberships وFAQ وكل مكان؛ (4) تحقق terminology (توليد الخطة ≠ Meal Swap ≠ Food/Item Swap ≠ Workout Day ≠ Exercise Swap)؛ (5) Test → Document → Commit → Push → Verify live» — copy-only بلا مساس بالسلوك أو الحدود
+
+Work Log:
+- بروتوكول §3.6: STATE.md (194 على 226aeb3) + AGENTS.md + fetch → SYNCED + آخر مدخلات worklog
+- **تحقق السلوك قبل الصياغة (§3.1):** ai-jobs.ts — تبديلات الأعضاء بالحصة الأسبوعية = meal_regenerate (وجبة واحدة) + exercise_regenerate (تمرين داخل اليوم) ببوابتي user_swap_meal/user_swap_exercise؛ food_item_regenerate وday_regenerate أدوات طاقم فقط (JobGate: coach) — صياغة المالك «Meal & Exercise Swaps» مطابقة للواقع حرفيًا؛ الحصة أسبوعية لكل نوع عبر plan_swaps (تجديد الاثنين — tier-limits.ts)؛ /tools = 8 أدوات فعلية (5 حاسبات + مخطط الوجبات + مخططا AI) — «5» كانت ناقصة
+- **(1) مصدر واحد جديد src/lib/tools-shared.ts:** مصفوفتا TOOLS/TOOL_LIBRARIES نُقلتا من tools/page.tsx (نفس الرندر) + TOOLS_COUNT = tools.length (8) — نمط exercises-shared/foods-shared؛ الرئيسية تشتق شارة «8+ FREE TOOLS / 8+ أدوات مجانية» (شارة هيرو رابعة) وعنوان قسم الأدوات من نفس المصفوفة — يزيد تلقائيًا مع نمو المنصة
+- **(2) أرقام ديناميكية:** LandingView وmemberships.ts تشتق EX_PLUS/FOODS_PLUS من الثوابت الموثقة (مثبتة على المصفوفات بحرس library-counts) — استُبدلت كل السلاسل الصلبة (شارات الهيرو · HERO_NAV · سؤالا الكم · صفوف المقارنة · قسمي التمارين/الأطعمة · بطاقة مخطط الوجبات (وأكلة→صنف غذائي) · قسم المدربين · سطر الخطة المجانية · ميزات Free/مقارنة العضويات) — و«5 حاسبات/5 calculators» أُسقطت من كل الأسطح (سؤال الأدوات يعدّ الثماني بأسمائهم · ميزات Free «8+ أدوات لياقة وتغذية مجانية») — الحدود (2/3/6/10) بلا «+» أبدًا
+- **(3) توضيح Swaps بالصياغة الملكية الحرفية (EN+AR):** memberships.ts (ميزاتي بريميوم/برو + tagline برو + صف المقارنة «EVO: Meal & Exercise Swaps/تبديلات الوجبات والتمارين») + ملاحظة جديدة تحت جدول مقارنة العضويات (دون إعادة إنشاء الخطة كاملة + تجدد كل اثنين) · الرئيسية (كارت برو: tagline + قائمة الميزات + سؤال Premium/Pro) · faq-content.ts (السؤال «What are swaps and how many do I get?/ما هي التبديلات وكم عددها؟» يفتت بالتعريف ثم الحدود) · StaticPageView (قسم الشروط «التبديلات»→«تبديلات الوجبات والتمارين» بتعريف الاستبدال الفردي + زوجا FAQ) · memberships/layout OfferCatalog («6 meal/exercise swaps per week») · coaching (وصف EVO) · المقارنات الثلاث (خلية AI coach ×2 + أقسام Where-Alkemos-wins)
+- **(4) التصحيحات المرفقة بنفس معيار الدقة:** «ست حاسبات/six calculators» بالثلاث مقارنات كانت تعدّ مخطط الوجبات حاسبة → «ثماني أدوات (خمس حاسبات + مخطط وجبات + مولدا خطط AI)» · بقايا مضاعفة فاتت 185: «doubles plan limits/يُضاعف حدود الخطط» بمقارنة MyFitnessPal → الأرقام المباشرة · «+» الناقص: قسم المؤسس بالـAbout (AR/EN) + خلايا/فقرات المقارنات (868-exercise→868+ · 8,830-food→8,830+ · 868 exercises→868+) · وصف AR للـOrganization «8830 أكلة»→«8,830+ صنف غذائي» (pin low-fixes حُدّث بنفس الفاز) · llms-full.txt أكمل عدّ الأدوات الثماني (أضيف مخطط الوجبات اليدوي) · seo.ts EVO schema «تبديلات ذكية للوجبات والتمارين»
+- **(5) الحرس:** canaries 195 بـmarketing-msa-surface.test.ts (منع رجوع «3/6 swaps/week» و«3/6 تبديلات/أسبوع» المجرّدة و«5 حاسبات» و«ست حاسبات» و«doubles plan limits» و«8830» والعناوين القديمة — 7 ملفات) + عقد الديناميكية (EX_PLUS/FOODS_PLUS/TOOLS_PLUS إلزاميًا بالرئيسية + استيراد tools-shared في tools/page وmemberships) + اختباران لعدّ الأدوات (TOOLS_COUNT=8 census) في library-counts.test.ts + عقود discoverability الثلاثة (المخططان + diet-plan) حُدّثت لمصدر البيانات الجديد
+- **البوابات:** tsc 0 · eslint 0/0 · vitest **1097/1097** (+3 عن 1094) · next build exit 0 · docs_audit (phase=195 · STATE 86 سطرًا)
+
+Stage Summary:
+- **النتيجة:** كل أرقام حجم المحتوى ديناميكية من مصادرها الموثقة وتحمل «+» (868+/8,830+/8+)، وعدد الأدوات صار حقيقيًا (8) بمصدر واحد يغذي الرئيسية والـhub، وكل ظهور لحدود التبديلات على السطح العام يشرح أنها استبدال وجبات/تمارين فردي داخل الخطة لا إعادة توليد — بالمصطلحات الملكية الحرفية EN/AR — ومطابق لسلوك الكود الفعلي (meal/exercise للأعضاء · food_item/day للطاقم)
+- **صفر مساس:** بالوظائف/الأسعار/البوول/الحدود/business rules/المدونة/المسارات/التصميم — نقل مصفوفتا الـhub نقل بيانات صرف بنفس الرندر، وعقود الاختبار الثلاثة المتأثرة حُدّثت بنفس الفاز بوعي
+- التوثيق: SEO-GEO-MASTER-PLAN §12.52 + STATE.md (المرحلة 195) + هذا السجل
+- Commit SHA: (يُستكمل بعد الكوميت)
+- Push status: (يُستكمل بعد الدفع)
+---
 Task ID: PHASE-194-COPY-REFINEMENT-PASS-2026-09-14
 Agent: Super Z (main)
 Task: أمر المالك «نفّذ Copy Refinement Pass على الموقع الحالي [Alkemos] والمستودع الحالي. ابدأ بـ Audit سريع للكود + النصوص الحية، ثم نفّذ مباشرة. لا تغيّر أي functionality أو pricing أو quotas أو business rules، والمدونة مستثناة بالكامل» — بنود الرئيسية EN/AR + About + FAQ + EVO + For Coaches + Global AR sweep + كارت AI Plans + كل الكروت Benefit-First + AI Plans Card + Tests/Build/Doc/Commit/Push/Verify

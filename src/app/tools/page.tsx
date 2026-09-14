@@ -4,6 +4,10 @@ import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageBanner } from "@/components/PageBanner";
 import { EngravedIcon } from "@/components/ThemeImg";
+// Phase 195 (owner directive «الرقم الحقيقي للأدوات هو 8، وليس 5» + dynamic
+// counts): the hub arrays moved to src/lib/tools-shared.ts — the single
+// source that also feeds the homepage «8+ Tools» proof chip. Same render.
+import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared";
 
 // Phase 127 «Marble & Chrome» identity: engraved icon pairs (mission §6
 // zero-emoji law) replace the old Apple-style emoji-fallback tiles.
@@ -11,106 +15,9 @@ import { EngravedIcon } from "@/components/ThemeImg";
 // §12.33 (owner directive «انقل خطط غذائيه جاهزة الى المكتبات باسم مكتبة
 // الخطط الغذاييه الجاهزه»): the hub now renders TWO clusters — the tools,
 // then the content libraries under their own labeled section.
-const tools = [
-  {
-    slug: "calorie-calculator",
-    nameAr: "حاسبة السعرات الحرارية",
-    nameEn: "Calorie Calculator",
-    descAr: "احسب احتياجك اليومي من السعرات والماكروز",
-    descEn: "Calculate daily calories and macros",
-    icon: "calories",
-  },
-  {
-    slug: "bmi-calculator",
-    nameAr: "حاسبة مؤشر كتلة الجسم",
-    nameEn: "BMI Calculator",
-    descAr: "اعرف هل وزنك ضمن المعدل الصحي",
-    descEn: "Check if your weight is healthy",
-    icon: "bmi",
-  },
-  {
-    slug: "macro-calculator",
-    nameAr: "حاسبة الماكروز",
-    nameEn: "Macro Calculator",
-    descAr: "وزّع سعراتك على بروتين وكارب ودهون",
-    descEn: "Split calories into protein, carbs, fat",
-    icon: "macros",
-  },
-  {
-    slug: "body-fat-calculator",
-    nameAr: "حاسبة نسبة الدهون",
-    nameEn: "Body Fat Calculator",
-    descAr: "احسب نسبة الدهون في جسمك",
-    descEn: "Calculate your body fat percentage",
-    icon: "bodyfat",
-  },
-  {
-    slug: "water-tracker",
-    nameAr: "متتبع شرب الماء",
-    nameEn: "Water Tracker",
-    descAr: "حدّد هدفك وسجّل أكوابك يوميًا",
-    descEn: "Set your goal and log your cups daily",
-    icon: "hydration",
-  },
-  {
-    slug: "/meal-planner",
-    nameAr: "مخطط الوجبات",
-    nameEn: "Meal Planner",
-    descAr: "ابنِ وجباتك من 8,830+ صنفًا غذائيًا وتابع الماكروز",
-    descEn: "Build meals from 8,830+ foods and track macros",
-    icon: "mealplanner",
-  },
-  // §12.28: the AI meal-planner trial — free generation, no signup.
-  {
-    slug: "/ai-meal-planner",
-    nameAr: "مخطط الوجبات بالذكاء الاصطناعي",
-    nameEn: "AI Meal Planner",
-    descAr: "ولّد خطة يوم كاملة بالغرامات في ثوانٍ",
-    descEn: "Generate a full day plan in seconds",
-    icon: "evo",
-  },
-  // §12.32: the AI workout-planner trial — free generation, no signup
-  // (owner directive «ضيف أداة جديده مخطط التمارين بالذكاء الاصطناعي»).
-  {
-    slug: "/ai-workout-planner",
-    nameAr: "مخطط التمارين بالذكاء الاصطناعي",
-    nameEn: "AI Workout Planner",
-    descAr: "ولّد نظاماً تدريبياً أسبوعياً في ثوانٍ",
-    descEn: "Generate a weekly split in seconds",
-    icon: "dumbbell",
-  },
-];
 
-// The content libraries cluster — its own labeled section on the hub
-// (DELIVERY 0050 cross-links + §12.33 move of the ready-made diet plans).
-const libraries = [
-  {
-    slug: "/exercises",
-    nameAr: "مكتبة التمارين",
-    nameEn: "Exercise Library",
-    descAr: "868+ تمرين بالصور والشرح والمستويات",
-    descEn: "868+ exercises with images and guides",
-    icon: "dumbbell",
-  },
-  {
-    slug: "/foods",
-    nameAr: "مكتبة الأطعمة",
-    nameEn: "Food Library",
-    descAr: "8,830+ صنفًا غذائيًا بالسعرات والماكروز",
-    descEn: "8,830+ foods with calories and macros",
-    icon: "protein",
-  },
-  // §12.33: moved from the tools grid into the libraries, renamed per the
-  // owner's directive (was «خطط غذائية جاهزة / Diet Plan Library» as a tool).
-  {
-    slug: "/diet-plan",
-    nameAr: "مكتبة الخطط الغذائية الجاهزة",
-    nameEn: "Diet Plan Library",
-    descAr: "٢٤ خطة يوم جاهزة بالغرامات (6 مستويات × 4 أنظمة)",
-    descEn: "24 ready-made daily plans in grams",
-    icon: "fruits",
-  },
-];
+const tools = TOOLS;
+const libraries = TOOL_LIBRARIES;
 
 export default function ToolsPage() {
   const { lang } = useI18n();

@@ -38,3 +38,21 @@ describe("library count constants match the real arrays", () => {
     expect(sum).toBe(EXERCISES.length);
   });
 });
+
+// PHASE 195 (owner directive «Tools: الرقم الحقيقي الحالي، وهو 8، وليس 5» +
+// «اجعل الأعداد Dynamic من مصدر البيانات قدر الإمكان»): the free-tools hub
+// gets the same count-guard treatment as the exercise/food libraries.
+// TOOLS_COUNT derives from the hub array (tools-shared.ts), so the homepage
+// "8+ Tools" proof chip grows automatically when a tool is added — this
+// census pin just makes that growth a CONSCIOUS update.
+describe("tools count guard (Phase 195)", () => {
+  it("TOOLS_COUNT equals the hub tools array length", async () => {
+    const { TOOLS, TOOLS_COUNT } = await import("@/lib/tools-shared");
+    expect(TOOLS_COUNT).toBe(TOOLS.length);
+  });
+
+  it("tools census: the hub serves 8 tools (5 calculators + meal planner + 2 AI planners)", async () => {
+    const { TOOLS_COUNT } = await import("@/lib/tools-shared");
+    expect(TOOLS_COUNT).toBe(8);
+  });
+});

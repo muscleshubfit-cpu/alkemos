@@ -253,8 +253,13 @@ describe("ai meal planner trial (§12.28)", () => {
   });
 
   it("DISCOVERABILITY: tools hub + OtherTools + homepage CTA + footer + nav link the trial", () => {
-    const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
+    // Phase 195: the hub arrays moved to tools-shared.ts (single source also
+    // feeding the homepage "8+ Tools" chip) — the contract now asserts the
+    // DATA there + the page's import wiring.
+    const toolsHub = readFileSync("src/lib/tools-shared.ts", "utf8");
     expect(toolsHub).toContain('slug: "/ai-meal-planner"');
+    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-meal-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");

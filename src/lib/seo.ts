@@ -85,7 +85,7 @@ export function jsonLd(obj: unknown): string {
  */
 const ORG_DESCRIPTIONS: Record<"en" | "ar", string> = {
   en: "The complete digital training platform: 868+ exercises with photos, 8,830+ foods with nutrition data, ready-made programs, free calculators, and certified coaches with the EVO AI engine.",
-  ar: "منصة التدريب الرقمي المتكاملة: أكثر من 868 تمرينًا، 8830 أكلة بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
+  ar: "منصة التدريب الرقمي المتكاملة: أكثر من 868 تمرينًا، 8,830+ صنف غذائي بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
 };
 
 export function getOrganizationSchema(lang: "en" | "ar") {
@@ -191,7 +191,7 @@ export function getEVOApplicationSchema() {
     applicationCategory: "Health & Fitness Application",
     operatingSystem: "Web",
     description:
-      "EVO هو محرك أداء ذكي — ليس مجرد شات بوت. يقرأ بياناتك الصحية وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية، ويوفر استشارات لياقة وتغذية 24/7 عبر الذكاء الاصطناعي.",
+      "EVO هو محرك أداء ذكي — ليس مجرد شات بوت. يقرأ بياناتك الصحية وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين، ويوفر استشارات لياقة وتغذية 24/7 عبر الذكاء الاصطناعي.",
     offers: {
       "@type": "Offer",
       price: "0",

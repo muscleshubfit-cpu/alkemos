@@ -12,6 +12,8 @@ import {
 import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPostCard } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
 import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
+import { FOODS_COUNT } from "@/lib/foods-shared";
+import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { SiteHeader } from "@/components/SiteHeader";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { getFAQSchema, jsonLd } from "@/lib/seo";
@@ -91,12 +93,25 @@ type HeroNavItem = {
   needsPosts?: boolean; // blog section only renders when posts exist
 };
 
+// ============================================================
+// Phase 195 (owner directive «الأرقام تعمل كـ proof لا قائمة مواصفات» +
+// «اجعل الأعداد Dynamic من مصدر البيانات قدر الإمكان»): the library/content
+// counts derive from the client-safe verified constants (pinned to the real
+// arrays by library-counts.test.ts, and TOOLS_COUNT derives from the hub
+// array in tools-shared.ts) — when the platform grows, these labels grow
+// with it. "+" marks CONTENT VOLUME only; membership limits (2 generations,
+// 3/6 swaps, 10 messages) never take "+".
+// ============================================================
+const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
+const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
+const TOOLS_PLUS = `${TOOLS_COUNT}+`;
+
 const HERO_NAV: HeroNavItem[] = [
   { id: "memberships", labelEn: "Memberships", labelAr: "العضويات", titleEn: "Alkemos Premium memberships", titleAr: "عضويات Alkemos المميزة", icon: Crown, primary: true },
   { id: "tools", labelEn: "Free Tools", labelAr: "أدوات مجانية", titleEn: "Free fitness & nutrition tools — no signup", titleAr: "أدوات لياقة وتغذية مجانية بدون تسجيل", icon: Calculator },
-  { id: "exercises", labelEn: "Exercises", labelAr: "التمارين", titleEn: "868+ exercise library", titleAr: "مكتبة 868+ تمرين", icon: Dumbbell },
+  { id: "exercises", labelEn: "Exercises", labelAr: "التمارين", titleEn: `${EX_PLUS} exercise library`, titleAr: `مكتبة ${EX_PLUS} تمرين`, icon: Dumbbell },
   { id: "programs", labelEn: "Programs", labelAr: "البرامج", titleEn: "Ready-made workout programs", titleAr: "برامج تدريب جاهزة", icon: ClipboardList },
-  { id: "foods", labelEn: "Foods", labelAr: "الأطعمة", titleEn: "8,830+ foods with calories & macros", titleAr: "8,830+ صنفًا غذائيًا بالسعرات والماكروز", icon: Salad },
+  { id: "foods", labelEn: "Foods", labelAr: "الأطعمة", titleEn: `${FOODS_PLUS} foods with calories & macros`, titleAr: `${FOODS_PLUS} صنفًا غذائيًا بالسعرات والماكروز`, icon: Salad },
   { id: "blog", labelEn: "Blog", labelAr: "المدونة", titleEn: "Scientific fitness articles", titleAr: "مقالات رياضية علمية", icon: BookOpen, needsPosts: true },
   { id: "coaching", labelEn: "Coaching", labelAr: "الكوتشينج", titleEn: "Online coaching with real coaches", titleAr: "كوتشينج أونلاين مع مدربين حقيقيين", icon: Users },
   { id: "for-coaches", labelEn: "For Coaches", labelAr: "كن مدرباً", titleEn: "Run your coaching business on Alkemos", titleAr: "اعمل شغلك كله من مكان واحد", icon: Briefcase },
@@ -285,12 +300,12 @@ export function LandingView() {
   // Marketing-surface MSA law (Phase 178): Arabic copy stays فصحى — the
   // free-AI-generation pair (owner directive 2026-09-13) is MSA too.
   const faqs = [
-    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? "لا — الحاسبات الخمس (السعرات، كتلة الجسم، الماكروز، نسبة الدهون، متتبع الماء) ومخطط الوجبات متاحة مجانًا ودون تسجيل." : "No — the 5 calculators (calorie, BMI, macro, body fat, water tracker) and the meal planner are completely free without signup." },
+    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? `لا — الأدوات كلها (${TOOLS_COUNT} أداة: الحاسبات الخمس، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي) مجانية ودون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the 5 calculators, the meal planner, and the two AI planners) are completely free without signup.` },
     { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ خططك دائمًا في حسابك وتتزامن عبر أجهزتك."
       : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting. No account: your plan stays on this device. A free account saves your plans permanently in your account & syncs them across your devices.", },
-    { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly swaps, more saved results, and no ads." },
+    { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية للوجبات والتمارين داخل خطتك، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly meal & exercise swaps within your plan, more saved results, and no ads." },
     { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "What payment methods are available?", a: isAr ? "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائيًا؛ الطرق اليدوية تتطلب رفع إيصال يُراجع خلال 24 ساعة." : "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt reviewed within 24 hours." },
-    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? "أكثر من 868 تمرينًا و8830 نوع طعام، والعدد يتزايد باستمرار." : "868 exercises with bilingual instructions and images, plus 8,830 foods with calories and macros per 100g." },
+    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? `أكثر من ${EXERCISES_COUNT.toLocaleString("en-US")} تمرينًا و${FOODS_COUNT.toLocaleString("en-US")} صنف غذائي، والعدد يتزايد باستمرار.` : `${EX_PLUS} exercises with bilingual instructions and images, plus ${FOODS_PLUS} foods with calories and macros per 100g.` },
     { q: isAr ? "هل تدعم المنصة اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "نعم بالكامل — النسخة العربية موجّهة إلى الجمهور العربي كافة لا إلى بلد بعينه، والنسخة الإنجليزية موجّهة إلى العالم أجمع." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
   ];
   const faqSchema = getFAQSchema(faqs);
@@ -310,13 +325,13 @@ export function LandingView() {
     appsEn: string;
   }> = [
     {
-      featureAr: "مكتبة تمارين 868+ بشرح وافٍ",
-      featureEn: "868+ exercise library with full instructions",
+      featureAr: `مكتبة تمارين ${EX_PLUS} بشرح وافٍ`,
+      featureEn: `${EX_PLUS} exercise library with full instructions`,
       us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "جزئيًا", appsEn: "Partial",
     },
     {
-      featureAr: "قاعدة أغذية 8830+ بالسعرات والماكروز",
-      featureEn: "8,830+ food database with calories & macros",
+      featureAr: `قاعدة أغذية ${FOODS_PLUS} بالسعرات والماكروز`,
+      featureEn: `${FOODS_PLUS} food database with calories & macros`,
       us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "❌", appsEn: "❌",
     },
     {
@@ -459,11 +474,17 @@ export function LandingView() {
           <div className="hero-seals mt-4 flex flex-wrap items-center justify-center gap-2 md:mt-6 md:gap-3">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "868+ تمرين" : "868+ EXERCISES"}
+              {isAr ? `${EX_PLUS} تمرين` : `${EX_PLUS} EXERCISES`}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="hydration" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "8830+ صنفًا غذائيًا" : "8,830+ FOODS"}
+              {isAr ? `${FOODS_PLUS} صنفًا غذائيًا` : `${FOODS_PLUS} FOODS`}
+            </span>
+            {/* Phase 195 (owner directive): the tools count is proof of depth
+                too — 8 real tools on the hub, dynamic from tools-shared.ts. */}
+            <span className="seal-chip">
+              <EngravedIcon name="calories" alt="" size={14} className="h-3 w-3" />
+              {isAr ? `${TOOLS_PLUS} أدوات مجانية` : `${TOOLS_PLUS} FREE TOOLS`}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="evo" alt="" size={14} className="h-3 w-3" />
@@ -606,7 +627,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "حاسبات مجانية تحوّل هدفك إلى أهداف يومية واضحة — بدون تسجيل." : "Free calculators that turn your goal into clear daily targets — no signup required."}
+                {isAr ? `${TOOLS_PLUS} أدوات مجانية تحوّل هدفك إلى أهداف يومية واضحة — بدون تسجيل.` : `${TOOLS_PLUS} free tools that turn your goal into clear daily targets — no signup required.`}
               </p>
             </Reveal>
           </div>
@@ -661,7 +682,7 @@ export function LandingView() {
               { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكارب ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
               { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Track progress with real measurements, not just the scale", icon: "bodyfat", href: "/tools/body-fat-calculator" },
               { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "حدّد هدفك اليومي وسجّل أكوابك.", descEn: "Set a daily goal and log your cups", icon: "hydration", href: "/tools/water-tracker" },
-              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: "ابنِ وجباتك من 8,830+ أكلة وتابع الماكروز.", descEn: "Build meals from 8,830+ foods and track macros", icon: "mealplanner", href: "/meal-planner" },
+              { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: `ابنِ وجباتك من ${FOODS_PLUS} صنف غذائي وتابع الماكروز.`, descEn: `Build meals from ${FOODS_PLUS} foods and track macros`, icon: "mealplanner", href: "/meal-planner" },
               // Owner directive (2026-09-13): the AI Meal Planner & AI Workout
               // Planner cards were REMOVED from the homepage tools grid ONLY
               // (§12.31/§12.32 entries retired) — the AI plan generators are
@@ -698,7 +719,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "أكثر من 868 تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم." : "868+ exercises with clear instructions and difficulty levels — home or gym, beginner to advanced."}
+                {isAr ? `أكثر من ${EX_PLUS} تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم.` : `${EX_PLUS} exercises with clear instructions and difficulty levels — home or gym, beginner to advanced.`}
               </p>
             </Reveal>
           </div>
@@ -794,7 +815,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "أكثر من 8,830 صنفًا غذائيًا بالسعرات والماكروز — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات." : "8,830+ foods with calories and macros — protein, carbs, fats, and fruits, plus a grams calculator."}
+                {isAr ? `${FOODS_PLUS} صنفًا غذائيًا بالسعرات والماكروز — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات.` : `${FOODS_PLUS} foods with calories and macros — protein, carbs, fats, and fruits, plus a grams calculator.`}
               </p>
             </Reveal>
           </div>
@@ -1006,8 +1027,8 @@ export function LandingView() {
           <Reveal delay={150}>
             <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: "#A1A1A6" }}>
               {isAr
-                ? "سعر عملائك قرارك أنت، وتحصّل أموالك مباشرة — المنصة تتقاضى رسمًا ثابتًا لكل عميل نشط فقط، لا نسبة من عملك. وكل الأدوات (868+ تمرينًا، و8,830+ صنفًا غذائيًا، ومساعد EVO) وصفحتك العامة الخاصة في خدمتك."
-                : "Your client's price is your call alone, and you collect your money directly — you keep 100% of what you charge; the platform applies a fixed fee per active client, never a percentage of your work. And the whole toolkit (868+ exercises, 8,830+ foods, and EVO) works for you, with your own public page."}
+                ? `سعر عملائك قرارك أنت، وتحصّل أموالك مباشرة — المنصة تتقاضى رسمًا ثابتًا لكل عميل نشط فقط، لا نسبة من عملك. وكل الأدوات (${EX_PLUS} تمرينًا، و${FOODS_PLUS} صنفًا غذائيًا، ومساعد EVO) وصفحتك العامة الخاصة في خدمتك.`
+                : `Your client's price is your call alone, and you collect your money directly — you keep 100% of what you charge; the platform applies a fixed fee per active client, never a percentage of your work. And the whole toolkit (${EX_PLUS} exercises, ${FOODS_PLUS} foods, and EVO) works for you, with your own public page.`}
             </p>
           </Reveal>
           <Reveal delay={200}>
@@ -1020,8 +1041,8 @@ export function LandingView() {
                   ? { t: "عملاؤك وصلاحياتك كاملة", d: "خطط وإدارة كاملة لعملائك من لوحة المدرب" }
                   : { t: "Your clients, your rules", d: "Full plans & management from the coach dashboard" },
                 isAr
-                  ? { t: "أدوات المنصة في خدمتك", d: "EVO، و868+ تمرينًا، و8,830+ صنفًا غذائيًا، وصفحة عامة لك" }
-                  : { t: "Platform tools included", d: "EVO, 868+ exercises, 8,830+ foods, and your own page" },
+                  ? { t: "أدوات المنصة في خدمتك", d: `EVO، و${EX_PLUS} تمرينًا، و${FOODS_PLUS} صنفًا غذائيًا، وصفحة عامة لك` }
+                  : { t: "Platform tools included", d: `EVO, ${EX_PLUS} exercises, ${FOODS_PLUS} foods, and your own page` },
               ].map((item) => (
                 <div
                   key={item.t}
@@ -1145,12 +1166,12 @@ export function LandingView() {
                   </div>
                 </div>
                 <p className="relative mt-3 text-sm font-normal leading-relaxed text-[#9BA0A6]">
-                  {isAr ? "كيّف خططك وارتقِ: 8 توليدات خطط AI شهريًا و6 تبديلات أسبوعيًا — بلا إعلانات." : "Adapt & optimize: 8 AI plan generations/month, 6 swaps/week — ad-free."}
+                  {isAr ? "كيّف خططك وارتقِ: 8 توليدات خطط AI شهريًا و6 تبديلات للوجبات أو التمارين أسبوعيًا — بلا إعلانات." : "Adapt & optimize: 8 AI plan generations/month, 6 meal/exercise swaps per week — ad-free."}
                 </p>
                 <ul className="relative mt-5 space-y-2.5 text-sm">
                   {(isAr
-                    ? ["كل مميزات Premium", "8 خطط AI شهرياً (تغذية أو تمرين)", "6 تبديلات أسبوعياً", "200 نتيجة محفوظة", "بدون إعلانات"]
-                    : ["Everything in Premium", "8 AI plan generations per month (nutrition or workout)", "6 swaps per week", "200 saved results", "No ads"]
+                    ? ["كل مميزات Premium", "8 خطط AI شهرياً (تغذية أو تمرين)", "6 تبديلات للوجبات أو التمارين أسبوعيًا", "200 نتيجة محفوظة", "بدون إعلانات"]
+                    : ["Everything in Premium", "8 AI plan generations per month (nutrition or workout)", "6 meal/exercise swaps per week", "200 saved results", "No ads"]
                   ).map((f) => (
                     <li key={f} className="flex items-start gap-2">
                       <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#C9CED3" }} aria-hidden="true" />
@@ -1175,8 +1196,8 @@ export function LandingView() {
             <div className="mt-8 flex flex-col items-center gap-3 text-center">
               <p className="text-sm font-normal" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: 868+ تمرينًا، 8,830+ صنفًا غذائيًا، 5 حاسبات، توليد خطط AI (توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا."
-                  : "Or start with the Free plan — the full product, not a demo: 868+ exercises, 8,830+ foods, 5 calculators, AI plan generation (2 successful generations/month even without signup), and EVO at 10 messages/day."}
+                  ? `أو ابدأ بالخطة المجانية — منتج كامل لا نسخة معطلة: ${EX_PLUS} تمرينًا، ${FOODS_PLUS} صنفًا غذائيًا، ${TOOLS_PLUS} أدوات مجانية (منها توليد خطط AI — توليدان شهريًا حتى بدون تسجيل)، وEVO 10 رسائل يوميًا.`
+                  : `Or start with the Free plan — the full product, not a demo: ${EX_PLUS} exercises, ${FOODS_PLUS} foods, ${TOOLS_PLUS} free tools (including AI plan generation — 2 successful generations/month even without signup), and EVO at 10 messages/day.`}
               </p>
               <a
                 href={isAr ? "/ar/memberships" : "/memberships"}

@@ -238,4 +238,94 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       expect(i18n, `dead wrong-claims key returned: "${banned}"`).not.toContain(banned);
     }
   });
+
+  // PHASE 195 (owner directive — numbers-as-proof + swaps clarity): (1) the
+  // tools count is 8 (not 5) and the homepage derives ALL content-volume
+  // numbers from the shared verified constants — the hardcoded literals may
+  // not return; (2) bare «swaps» wording that could read as a full plan
+  // regeneration is replaced with «meal/exercise swaps» everywhere the
+  // limits are shown; (3) "+" marks content volume ONLY — membership limits
+  // never carry it.
+  it("Phase 195: dynamic counts + swaps clarity canaries across the marketing surface", () => {
+    const surfaces: Record<string, string[]> = {
+      "src/components/views/LandingView.tsx": [
+        "8830",
+        "5 حاسبات",
+        "6 تبديلات أسبوعيًا",
+        "6 تبديلات أسبوعياً",
+        "3 تبديلات/أسبوع",
+        "6 تبديلات/أسبوع",
+        "3 swaps/week",
+        "6 swaps/week",
+        "868+ تمرين\"",
+        "868+ EXERCISES\"",
+        "8830+ صنفًا",
+        "8,830+ FOODS\"",
+      ],
+      "src/lib/memberships.ts": [
+        "8830",
+        "5 حاسبات",
+        "5 free fitness calculators",
+        "EVO: 3 تبديلات/أسبوع",
+        "EVO: 6 تبديلات/أسبوع",
+        "EVO: 3 swaps/week",
+        "EVO: 6 swaps/week",
+        "قاعدة بيانات الأكلات",
+        "feature: \"EVO: تبديلات\"",
+        "featureEn: \"EVO: Swaps\"",
+      ],
+      "src/app/memberships/layout.tsx": ["6 swaps/week"],
+      "src/lib/faq-content.ts": ["3 swaps/week", "3 استبدالات", "كم عدد الاستبدالات", "ويقترح تبديلات ذكية. متاح"],
+      "src/components/views/StaticPageView.tsx": [
+        "3 swaps/week",
+        "6 swaps/week",
+        "3 تبديلات/أسبوع",
+        "6 تبديلات/أسبوع",
+        "3 تبديلات أسبوعياً",
+        "6 تبديلات أسبوعياً",
+        "8830",
+        "868-exercise",
+        "8,830-food",
+        "كم تبديل أسبوعياً",
+        "heading: \"Swaps\"",
+        "heading: \"التبديلات\"",
+      ],
+      "src/lib/comparisons.ts": [
+        "six free fitness calculators",
+        "all six calculators",
+        "six free calculators",
+        "ست حاسبات",
+        "doubles plan limits",
+        "يُضاعف حدود الخطط",
+        "8,830-food",
+        "868-exercise",
+        "(868 exercises)",
+        "(868 تمرينًا)",
+        "alkemosValue: \"868 exercises\"",
+        "8,830 طعام",
+      ],
+      "src/lib/seo.ts": ["8830"],
+    };
+    for (const [rel, bannedList] of Object.entries(surfaces)) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of bannedList) {
+        expect(src, `${rel}: Phase 195 phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+    // (4) The dynamic contract: the homepage + memberships derive their
+    // numbers from the shared constants (grow automatically with data).
+    const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
+    for (const required of ["EX_PLUS", "FOODS_PLUS", "TOOLS_PLUS"]) {
+      expect(landing, `dynamic count constant missing: ${required}`).toContain(required);
+    }
+    // (5) The tools hub + memberships consume the single source.
+    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    expect(toolsPage).toContain('from "@/lib/tools-shared"');
+    const memberships = readFileSync("src/lib/memberships.ts", "utf8");
+    expect(memberships).toContain('from "@/lib/tools-shared"');
+    // (6) The Memberships page carries the owner's swaps clarification.
+    const membershipsPage = readFileSync("src/app/memberships/page.tsx", "utf8");
+    expect(membershipsPage).toContain("دون إعادة إنشاء الخطة كاملة");
+    expect(membershipsPage).toContain("never a full plan regeneration");
+  });
 });

@@ -321,10 +321,14 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     // be reachable from the nav drawer resources group, the tools hub's
     // libraries section, the bottom-of-page library nav, the meal planner,
     // and the homepage footer Resources column — under the owner's name.
-    const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
+    // Phase 195: the hub arrays moved to tools-shared.ts — the contract
+    // asserts the DATA there + the page's import wiring (same render).
+    const toolsHub = readFileSync("src/lib/tools-shared.ts", "utf8");
     expect(toolsHub).toContain('slug: "/diet-plan"');
     expect(toolsHub).toContain("مكتبة الخطط الغذائية الجاهزة");
-    expect(toolsHub).toContain("const libraries = [");
+    expect(toolsHub).toContain("export const TOOL_LIBRARIES");
+    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/diet-plan"');
     expect(otherTools).toContain("مكتبة الخطط الغذائية الجاهزة");

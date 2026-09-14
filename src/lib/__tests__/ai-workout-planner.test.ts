@@ -277,9 +277,13 @@ describe("ai workout planner trial (§12.32)", () => {
   });
 
   it("DISCOVERABILITY: tools hub + OtherTools + homepage CTA + footer + nav + toggle link the trial", () => {
-    const toolsHub = readFileSync("src/app/tools/page.tsx", "utf8");
+    // Phase 195: the hub arrays moved to tools-shared.ts — contract points
+    // at the data source + the page's import wiring.
+    const toolsHub = readFileSync("src/lib/tools-shared.ts", "utf8");
     expect(toolsHub).toContain('slug: "/ai-workout-planner"');
     expect(toolsHub).toContain("مخطط التمارين بالذكاء الاصطناعي");
+    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-workout-planner"');
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");

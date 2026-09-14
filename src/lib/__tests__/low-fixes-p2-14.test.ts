@@ -54,10 +54,12 @@ describe("P2-14 / §12.40 — locale-aware entity schema (audit finding #9)", ()
     expect(ARABIC.test(en.description as string)).toBe(false);
     expect(ARABIC.test(ar.description as string)).toBe(true);
     // Entity disambiguation numbers survive in BOTH locales.
+    // (Phase 195: the AR description was normalized to the unified
+    // «8,830+ صنف غذائي» format — same number, unified presentation.)
     expect(en.description).toContain("868");
     expect(ar.description).toContain("868");
     expect(en.description).toContain("8,830");
-    expect(ar.description).toContain("8830");
+    expect(ar.description).toContain("8,830");
     // The locale switch must not disturb the sameAs entity links.
     expect((en.sameAs as string[]).length).toBe(7);
     expect(en.sameAs).toEqual(ar.sameAs);

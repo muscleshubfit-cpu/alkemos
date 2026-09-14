@@ -343,6 +343,14 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               ? "توليد خطط الذكاء الاصطناعي يسحب من رصيد شهري موحد واحد (التغذية والتمارين معًا، ويُحتسب التوليد الناجح فقط، ويتجدد في أول كل شهر) — وهذا الرصيد منفصل تمامًا عن حدود حفظ مخطط الوجبات وحفظ نتائج الأدوات."
               : "AI plan generation draws from ONE unified monthly pool (nutrition + workout combined, success-only counting, resets on the 1st) — and it is completely separate from the Meal-Planner save limits and the tool-results save limits."}
           </p>
+          {/* Phase 195 (owner directive): «Swaps» alone could read as a full
+              plan regeneration — the limits row above means MEAL/EXERCISE
+              swaps inside the existing plan, never a regeneration. */}
+          <p className="mx-auto mt-2 max-w-2xl text-center text-xs font-normal leading-relaxed text-[var(--muted-foreground)]">
+            {isAr
+              ? "«التبديلات» تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة — وهي أسبوعية وتتجدد كل اثنين."
+              : "“Swaps” means replacing individual meals or exercises within your plan — never a full plan regeneration. They are weekly and reset every Monday."}
+          </p>
         </section>
 
         {/* FAQ */}

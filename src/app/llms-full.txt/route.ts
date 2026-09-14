@@ -48,7 +48,7 @@ export async function GET(): Promise<Response> {
 
   const body = `# Alkemos (llms-full)
 
-> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for a global audience: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, free fitness calculators (calorie/TDEE, BMI, macro, body fat, water), an AI meal planner, an AI workout planner, the EVO AI coach, and human online coaching. This file extends the short /llms.txt with the latest articles per language.
+> Alkemos is a bilingual (English/Arabic) fitness and nutrition platform for a global audience: an 868+ exercise library with form instructions, ready workout programs, a food database with per-100g nutrition for 8,830+ foods, and 8 free tools — five calculators (calorie/TDEE, BMI, macro, body fat, water), a meal planner, an AI meal planner, and an AI workout planner — plus the EVO AI coach and human online coaching. This file extends the short /llms.txt with the latest articles per language.
 
 - Platform: ${SITE}
 - Arabic homepage: ${SITE}/ar
