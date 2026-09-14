@@ -2,6 +2,7 @@
 
 import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { useNav, type View } from "@/hooks/use-nav";
 import { CONSENT_REOPEN_EVENT } from "@/components/CookieConsent";
 
@@ -92,9 +93,11 @@ export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" |
         )}
       </main>
 
-      <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
-        © {new Date().getFullYear()} Alkemos. {isAr ? "كل الحقوق محفوظة." : "All rights reserved."}
-      </footer>
+      {/* Access-point fix (2026-09-14): the slim copyright line is replaced
+          by the SHARED marble footer — about/faq/privacy/terms (+ their AR
+          mirrors) now carry the same persistent link grid as the homepage,
+          ending their isolation from the site's navigation. */}
+      <SiteFooter />
  </div>
  );
 }

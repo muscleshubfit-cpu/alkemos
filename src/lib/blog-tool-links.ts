@@ -34,6 +34,15 @@ export type ToolLinkRule = {
   id: string;
   /** Site-internal destination (real route — verified against src/app). */
   url: string;
+  /**
+   * Arabic mirror destination for AR articles (access-point fix,
+   * 2026-09-14): the tool pages render Arabic ONLY on their /ar/* URLs
+   * (I18nProvider is URL-first), so an AR article linking /tools/…
+   * dragged Arabic readers onto EN-rendering pages. Every target below
+   * has a real /ar mirror. The EVO rule deliberately has urlAr === url —
+   * owner directive 2026-09-14: no changes to /evo paths.
+   */
+  urlAr?: string;
   /** EN trigger patterns (word-boundary safe). */
   patternsEn: RegExp[];
   /** AR trigger patterns (plain substring — \b is meaningless for Arabic). */
@@ -45,78 +54,92 @@ const TOOL_RULES: ToolLinkRule[] = [
   {
     id: "ai-meal-planner",
     url: "/ai-meal-planner",
+    urlAr: "/ar/ai-meal-planner",
     patternsEn: [/\bAI meal (?:planner|plan generator)\b/i, /\bmeal plan generator\b/i],
     patternsAr: [/مخطط الوجبات بالذكاء الاصطناعي/, /توليد خطة غذائية بالذكاء/],
   },
   {
     id: "ai-workout-planner",
     url: "/ai-workout-planner",
+    urlAr: "/ar/ai-workout-planner",
     patternsEn: [/\bAI workout (?:planner|generator)\b/i, /\bworkout plan generator\b/i],
     patternsAr: [/مخطط التمارين بالذكاء الاصطناعي/, /توليد برنامج تمارين بالذكاء/],
   },
   {
     id: "evo-ai-coach",
     url: "/evo",
+    // NO urlAr override — owner directive 2026-09-14: /evo paths stay
+    // exactly as they are (the floating widget is the primary access).
     patternsEn: [/\bAI (?:fitness )?coache?s?\b/i, /\bAI personal trainer\b/i, /\bEVO\b/],
     patternsAr: [/مدرب اللياقة بالذكاء الاصطناعي/, /المدرب الذكي/, /كوتش ذكي/],
   },
   {
     id: "online-coaching",
     url: "/coaching",
+    urlAr: "/ar/coaching",
     patternsEn: [/\bonline (?:fitness|nutrition) coaching\b/i, /\bhuman coach(?:es)?\b/i],
     patternsAr: [/كوتشينج اونلاين/, /مدرب بشري/, /مدربين معتمدين/],
   },
   {
     id: "meal-planner",
     url: "/meal-planner",
+    urlAr: "/ar/meal-planner",
     patternsEn: [/\bmeal plan(s|ning)?\b/i, /\bmeal prep\b/i, /\bmeal ideas?\b/i],
     patternsAr: [/خطة وجبات/, /خط[ةة] غذائي[ةة]?/, /خط[ةة] أكل/, /نظام غذائي/, /مخطط الوجبات/, /وجباتك/],
   },
   {
     id: "calorie-calculator",
     url: "/tools/calorie-calculator",
+    urlAr: "/ar/tools/calorie-calculator",
     patternsEn: [/\bcalorie(s)?\b/i, /\bcaloric (deficit|surplus|intake)\b/i, /\bkcal\b/i],
     patternsAr: [/سعرات/, /كالوري/, /سعر حراري/, /السعرات الحرارية/],
   },
   {
     id: "macro-calculator",
     url: "/tools/macro-calculator",
+    urlAr: "/ar/tools/macro-calculator",
     patternsEn: [/\bmacros?\b/i, /\bmacronutrients?\b/i, /\bprotein intake\b/i],
     patternsAr: [/ماكروز/, /ماكرو/, /البروتين والكارب/, /بروتينك/, /احتياجك من البروتين/],
   },
   {
     id: "body-fat-calculator",
     url: "/tools/body-fat-calculator",
+    urlAr: "/ar/tools/body-fat-calculator",
     patternsEn: [/\bbody fat\b/i, /\bbody-fat\b/i, /\bfat percentage\b/i],
     patternsAr: [/نسبة الدهون/, /دهون الجسم/, /الدهون تحت الجلد/, /قياس الدهون/],
   },
   {
     id: "bmi-calculator",
     url: "/tools/bmi-calculator",
+    urlAr: "/ar/tools/bmi-calculator",
     patternsEn: [/\bBMI\b/, /\bbody mass index\b/i],
     patternsAr: [/كتلة الجسم/, /مؤشر كتلة/, /بي إم آي/],
   },
   {
     id: "water-tracker",
     url: "/tools/water-tracker",
+    urlAr: "/ar/tools/water-tracker",
     patternsEn: [/\bwater intake\b/i, /\bhydration\b/i, /\bdrink(ing)? water\b/i, /\bdaily water\b/i],
     patternsAr: [/شرب الماء/, /الترطيب/, /ترطيب الجسم/, /كوب ماء/, /لتر من الماء/],
   },
   {
     id: "programs-hub",
     url: "/programs",
+    urlAr: "/ar/programs",
     patternsEn: [/\bworkout program\b/i, /\btraining program\b/i, /\btraining split\b/i, /\bworkout plan\b/i],
     patternsAr: [/برنامج تدريبي/, /برامج تدريب/, /الجدول التدريبي/, /برنامج تمارين/],
   },
   {
     id: "exercises-hub",
     url: "/exercises",
+    urlAr: "/ar/exercises",
     patternsEn: [/\bexercises?\b/i],
     patternsAr: [/التمارين/, /التمرين/, /تمارين/],
   },
   {
     id: "foods-hub",
     url: "/foods",
+    urlAr: "/ar/foods",
     patternsEn: [/\bfood database\b/i, /\bhigh[- ]protein foods?\b/i, /\bnutrition facts\b/i],
     patternsAr: [/قاعدة بيانات الأكلات/, /الأكلات/, /الأطعمة/],
   },
@@ -158,15 +181,21 @@ export function insertToolLinks(
   for (const rule of TOOL_RULES) {
     if (inserted.length >= MAX_LINKS) break;
 
+    // Locale-aware destination (access-point fix, 2026-09-14): AR articles
+    // link the /ar mirrors so Arabic readers land on Arabic-rendering URLs.
+    const target = lang === "ar" ? rule.urlAr ?? rule.url : rule.url;
+
     // IDEMPOTENCE: this tool is already linked somewhere in the article
     // (model-added in P4, or a previous run of this function) → skip.
-    if (result.includes(`](${rule.url})`)) continue;
+    // Check BOTH the EN and the AR destination so a mixed-language edit
+    // never double-links the same tool.
+    if (result.includes(`](${rule.url})`) || result.includes(`](${target})`)) continue;
 
     const patterns = lang === "ar" ? rule.patternsAr : rule.patternsEn;
-    const wrapped = tryWrapFirstOccurrence(result, patterns, rule.url);
+    const wrapped = tryWrapFirstOccurrence(result, patterns, target);
     if (wrapped) {
       result = wrapped.text;
-      inserted.push({ tool: rule.id, url: rule.url, anchor: wrapped.anchor });
+      inserted.push({ tool: rule.id, url: target, anchor: wrapped.anchor });
     }
   }
 

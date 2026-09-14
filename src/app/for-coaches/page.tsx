@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { CoachShareButtons } from "@/components/CoachShareButtons";
 import { COACH_FAQ_AR, COACH_FAQ_EN } from "./content";
 
@@ -418,6 +419,12 @@ export default function ForCoachesPage() {
           {isAr ? "أنشئ حسابك كمدرب — مجانًا" : "Create your coach account — free"}
         </Link>
       </section>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

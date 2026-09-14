@@ -50,3 +50,11 @@ Sitemap: https://alkemos.com/sitemap-comparisons.xml
 Sitemap: https://alkemos.com/sitemap-exercises.xml
 Sitemap: https://alkemos.com/sitemap-foods.xml
 Sitemap: https://alkemos.com/sitemap-blog.xml
+
+# LLM discovery files (llms.txt convention, access-point fix 2026-09-14):
+# robots.txt has no directive for arbitrary resources — the de-facto
+# convention is an informational comment. Both files stay FULLY crawlable
+# under the policy above (no Disallow matches them) and the crawl policy
+# is unchanged.
+# Markdown site index:     https://alkemos.com/llms.txt
+# Full markdown corpus:    https://alkemos.com/llms-full.txt

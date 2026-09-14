@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useNav } from "@/hooks/use-nav";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { LeadCaptureCard } from "@/components/LeadCaptureCard";
@@ -293,6 +294,12 @@ export default function BMICalculatorPage() {
             tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
         <ToolReferenceContent content={BMI_CALCULATOR_CONTENT} />
       </main>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

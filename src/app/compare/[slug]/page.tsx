@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { COMPARISONS, getComparisonBySlug } from "@/lib/comparisons";
 import { getArticleSchema, getBreadcrumbSchema, getItemListSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
@@ -239,9 +240,10 @@ export default async function ComparisonPage({
         </section>
       </main>
 
-      <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
-        © {new Date().getFullYear()} Alkemos. All rights reserved.
-      </footer>
+      {/* Access-point fix (2026-09-14): slim copyright line replaced by the
+          SHARED marble footer — this public page now carries the same
+          persistent link grid as the homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

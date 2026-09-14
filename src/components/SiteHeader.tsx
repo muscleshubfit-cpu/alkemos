@@ -159,14 +159,15 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         {
           label: isAr ? "الكوتشينج" : "Coaching",
           icon: Users,
-          href: "/coaching",
+          href: isAr ? "/ar/coaching" : "/coaching",
         },
         {
           label: isAr ? "العضويات" : "Memberships",
           icon: Sparkles,
           // AR-aware (Phase 45 follow-up, owner-approved): /memberships has an
           // Arabic mirror at /ar/memberships — send Arabic users there.
-          // /coaching and /evo have no AR mirrors, so they stay as-is.
+          // /evo has an AR mirror too, but per owner directive 2026-09-14
+          // the EVO entry stays EXACTLY as it was (no changes to its paths).
           href: isAr ? "/ar/memberships" : "/memberships",
         },
         {
@@ -196,6 +197,9 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   // Group 4: Tools (dropdown — expandable to show all 6 tools + meal planner)
   // Per Owner directive 2026-08-25: tools must be a dropdown menu showing all
   // individual tools, NOT a single link to /tools.
+  // Access-point fix (2026-09-14): every tool href is now locale-aware —
+  // all tools have Arabic mirrors (/ar/tools/*, /ar/meal-planner), so an
+  // AR drawer no longer links EN-only URLs.
   groups.push({
     id: "tools",
     title: isAr ? "الأدوات" : "Tools",
@@ -203,32 +207,32 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       {
         label: isAr ? "حاسبة BMI" : "BMI Calculator",
         icon: Activity,
-        href: "/tools/bmi-calculator",
+        href: isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator",
       },
       {
         label: isAr ? "حاسبة الدهون" : "Body Fat Calculator",
         icon: Target,
-        href: "/tools/body-fat-calculator",
+        href: isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator",
       },
       {
         label: isAr ? "حاسبة السعرات" : "Calorie Calculator",
         icon: Calculator,
-        href: "/tools/calorie-calculator",
+        href: isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator",
       },
       {
         label: isAr ? "حاسبة الماكروز" : "Macro Calculator",
         icon: Calculator,
-        href: "/tools/macro-calculator",
+        href: isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator",
       },
       {
         label: isAr ? "متتبع الماء" : "Water Tracker",
         icon: Droplet,
-        href: "/tools/water-tracker",
+        href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker",
       },
       {
         label: isAr ? "مخطط الوجبات" : "Meal Planner",
         icon: Pizza,
-        href: "/meal-planner",
+        href: isAr ? "/ar/meal-planner" : "/meal-planner",
       },
       // §12.31: the AI meal planner joins the nav tools group under its
       // full unified name (owner directive «عدل الاسم الى مخطط الوجبات
@@ -259,22 +263,30 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       {
         label: isAr ? "مكتبة التمارين" : "Exercises",
         icon: Dumbbell,
-        href: "/exercises",
+        href: isAr ? "/ar/exercises" : "/exercises",
       },
       {
         label: isAr ? "حسب المجموعة العضلية" : "By Muscle Group",
         icon: Target,
         href: isAr ? "/ar/muscles/chest" : "/muscles/chest",
       },
+      // Access-point fix (2026-09-14): the equipment hubs had ZERO nav
+      // entries — the sample bodyweight hub joins the drawer (every
+      // /equipment/[type] page cross-links the rest).
+      {
+        label: isAr ? "حسب المعدات" : "By Equipment",
+        icon: Dumbbell,
+        href: isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight",
+      },
       {
         label: isAr ? "برامج التدريب" : "Programs",
         icon: ClipboardList,
-        href: "/programs",
+        href: isAr ? "/ar/programs" : "/programs",
       },
       {
         label: isAr ? "مكتبة الأطعمة" : "Foods",
         icon: Utensils,
-        href: "/foods",
+        href: isAr ? "/ar/foods" : "/foods",
       },
       // §12.33: the ready-made diet plans join the content libraries
       // under the owner's name (owner directive «انقل خطط غذائيه جاهزة
@@ -288,6 +300,14 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         label: isAr ? "مجموعات الأطعمة" : "Food Collections",
         icon: Pizza,
         href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods",
+      },
+      // Access-point fix (2026-09-14): the /compare vertical had ZERO UI
+      // access points (EVO chat only) — it now joins the Resources drawer
+      // with its AR mirror (owner-approved discoverability item).
+      {
+        label: isAr ? "المقارنات" : "Comparisons",
+        icon: LineChart,
+        href: isAr ? "/ar/compare" : "/compare",
       },
       {
         label: isAr ? "المدونة" : "Blog",

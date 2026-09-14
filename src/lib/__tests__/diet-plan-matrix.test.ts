@@ -336,9 +336,12 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
     expect(mealPlanner).toContain('"/ar/diet-plan"');
     expect(mealPlanner).toContain('"/diet-plan"');
-    const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    expect(landing).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
-    expect(landing).toContain("مكتبة الخطط الغذائية الجاهزة");
+    // Access-point fix (2026-09-14): the homepage footer (with the
+    // locale-aware diet-plan library entry) moved from LandingView into
+    // the SHARED SiteFooter component — the contract follows the markup.
+    const footer = readFileSync("src/components/SiteFooter.tsx", "utf8");
+    expect(footer).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
+    expect(footer).toContain("مكتبة الخطط الغذائية الجاهزة");
     // §12.33: the nav drawer resources group carries the library entry.
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
     expect(header).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');

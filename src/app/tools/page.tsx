@@ -2,6 +2,7 @@
 
 import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import { EngravedIcon } from "@/components/ThemeImg";
 // Phase 195 (owner directive «الرقم الحقيقي للأدوات هو 8، وليس 5» + dynamic
@@ -65,6 +66,11 @@ export default function ToolsPage() {
           ))}
         </div>
       </main>
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+        <SiteFooter />
     </div>
   );
 }

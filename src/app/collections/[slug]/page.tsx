@@ -9,6 +9,7 @@ import {
 import { CATEGORY_LABELS, TAG_LABELS } from "@/lib/foods-shared";
 import { calculateNutrition } from "@/lib/foods-shared";
 import { getHubDepth } from "@/lib/hub-depth";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -116,7 +117,8 @@ export default async function FoodCollectionPage({
   });
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
+    <>
+      <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
@@ -239,6 +241,13 @@ export default async function FoodCollectionPage({
           <Link href="/meal-planner" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">AI Meal Planner</Link>
         </div>
       </section>
-    </main>
+      </main>
+
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+      <SiteFooter />
+    </>
   );
 }

@@ -6,7 +6,8 @@ import { SiteHeader } from "@/components/SiteHeader";
  * FULL-SITE AUDIT FIX (2026-08-30): this page previously had no metadata
  * and INHERITED the root canonical (= homepage), telling Google it was a
  * duplicate of "/". Now it owns its identity (title/description/canonical).
- * No hreflang: no /ar mirror exists for this page.
+ * Access-point fix (2026-09-14): /ar/terms now exists — reciprocal
+ * hreflang pair added.
  */
 export const metadata: Metadata = {
   title: "Terms & Conditions | Alkemos — Rules of Using the Platform",
@@ -14,6 +15,11 @@ export const metadata: Metadata = {
     "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
   alternates: {
     canonical: "/terms",
+    languages: {
+      en: "https://alkemos.com/terms",
+      ar: "https://alkemos.com/ar/terms",
+      "x-default": "https://alkemos.com/terms",
+    },
   },
 };
 

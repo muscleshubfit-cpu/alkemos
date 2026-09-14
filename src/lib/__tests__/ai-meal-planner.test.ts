@@ -272,14 +272,24 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(landing).toContain("أنشئ خطتي");
     expect(landing).toContain("Create My Plan");
     expect(landing).toContain("Your plan. Built for you.");
-    expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
+    // Access-point fix (2026-09-14): the footer (with its locale-aware
+    // AI-planner links) moved from LandingView into the SHARED
+    // SiteFooter component — the contract follows the markup.
+    const footer = readFileSync("src/components/SiteFooter.tsx", "utf8");
+    expect(footer).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     // The retired grid entries stay retired.
     expect(landing).not.toContain('slug: "ai-meal-planner"');
     // §12.31 (owner directive «عدل الاسم الى مخطط الوجبات بالذكاء
     // الاصطناعي»): the FULL name everywhere — the abbreviated
     // «مخطط بالذكاء الاصطناعي» is gone from every surface.
-    expect(landing).toContain("مخطط الوجبات بالذكاء الاصطناعي");
+    // Access-point fix (2026-09-14): the Tools footer list (with the full
+    // Arabic name) lives in the SHARED SiteFooter component now.
+    const landingOrFooter = landing.includes("مخطط الوجبات بالذكاء الاصطناعي")
+      ? landing
+      : footer;
+    expect(landingOrFooter).toContain("مخطط الوجبات بالذكاء الاصطناعي");
     expect(landing).not.toContain("مخطط بالذكاء الاصطناعي");
+    expect(footer).not.toContain("مخطط بالذكاء الاصطناعي");
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
     expect(header).toContain("مخطط الوجبات بالذكاء الاصطناعي");
     expect(header).toContain('isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"');

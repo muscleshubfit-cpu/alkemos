@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import {
   WORKOUT_PROGRAMS,
@@ -208,6 +209,12 @@ export default function ProgramsPage({ lang: langProp }: { lang?: Lang } = {}) {
           </div>
         )}
       </main>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

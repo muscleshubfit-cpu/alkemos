@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { jsonLd, getBreadcrumbSchema } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 
 const SITE_URL = "https://alkemos.com";
@@ -150,6 +151,7 @@ export default function DietPlanHubPage() {
             لا بديلاً عنه.
           </p>
         </main>
+        <SiteFooter />
       </div>
     </>
   );

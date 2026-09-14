@@ -142,10 +142,13 @@ export function ExploreMore({
         {isAr ? "استكشف المزيد من الموقع" : "Explore more"}
       </h3>
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Access-point fix (2026-09-14): every target below has an
+            Arabic mirror — AR readers of /ar/exercises and /ar/foods
+            now stay inside the Arabic tree. */}
         {items.map((it) => (
           <a
             key={it.key}
-            href={it.href}
+            href={isAr ? `/ar${it.href}` : it.href}
             className="marble-card group flex items-center gap-4 p-5 text-start transition-opacity hover:opacity-90"
           >
             <EngravedIcon

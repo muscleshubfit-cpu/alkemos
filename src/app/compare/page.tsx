@@ -3,6 +3,7 @@ import Link from "next/link";
 import { COMPARISONS } from "@/lib/comparisons";
 import { getBreadcrumbSchema, getItemListSchema, jsonLd } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * /compare — Comparison index page (EN).
@@ -116,6 +117,12 @@ export default function CompareIndexPage() {
           </Link>
         </p>
       </main>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

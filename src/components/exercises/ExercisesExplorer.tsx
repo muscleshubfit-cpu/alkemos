@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import { SearchX } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
@@ -17,6 +18,7 @@ import {
   getExerciseImageUrl,
 } from "@/lib/exercise-images";
 import { filterExercises } from "@/lib/exercises";
+import { MUSCLE_HUBS, EQUIPMENT_HUBS } from "@/lib/hub-collections";
 import {
   CATEGORY_LABELS,
   EQUIPMENT_LABELS,
@@ -116,6 +118,39 @@ export function ExercisesExplorer({
                     : buildExercisesHref(base, query, { cat, page: 1 })
                 }
               />
+            ))}
+          </div>
+
+          {/* Access-point fix (2026-09-14): /muscles/* + /equipment/* hub
+              discoverability — both hub families join the library surface
+              as crawlable server-rendered links (previously near-zero UI
+              entry points). Locale-aware mirrors for AR visitors. */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-[var(--muted-foreground)]">
+              {isAr ? "حسب المجموعة العضلية:" : "By muscle group:"}
+            </span>
+            {MUSCLE_HUBS.map((h) => (
+              <Link
+                key={h.slug}
+                href={`${isAr ? "/ar" : ""}/muscles/${h.slug}`}
+                className="rounded-full bg-[var(--tint)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--card)] hover:text-[var(--text)]"
+              >
+                {isAr ? CATEGORY_LABELS[h.category].ar : CATEGORY_LABELS[h.category].en}
+              </Link>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-[var(--muted-foreground)]">
+              {isAr ? "حسب المعدات:" : "By equipment:"}
+            </span>
+            {EQUIPMENT_HUBS.map((h) => (
+              <Link
+                key={h.slug}
+                href={`${isAr ? "/ar" : ""}/equipment/${h.slug}`}
+                className="rounded-full bg-[var(--tint)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--card)] hover:text-[var(--text)]"
+              >
+                {isAr ? EQUIPMENT_LABELS[h.equipment].ar : EQUIPMENT_LABELS[h.equipment].en}
+              </Link>
             ))}
           </div>
         </div>
@@ -229,6 +264,11 @@ export function ExercisesExplorer({
         <MembershipPromo isAr={isAr} />
         <ExploreMore isAr={isAr} exclude="exercises" />
       </main>
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+        <SiteFooter />
     </div>
   );
 }

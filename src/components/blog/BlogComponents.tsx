@@ -70,7 +70,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  {tiers.map((tier) => (
  <a
  key={tier.id}
- href="/memberships"
+ href={isAr ? "/ar/memberships" : "/memberships"}
  className={`block rounded-2xl p-3 text-center transition-all hover:opacity-90 ${
  tier.highlight
  ? "bg-[#1d1d1f] text-white"
@@ -105,7 +105,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
 
  <div className="mt-6 text-center">
  <a
- href="/memberships"
+ href={isAr ? "/ar/memberships" : "/memberships"}
  className="btn-chrome inline-flex items-center gap-2 px-6 py-2.5 text-sm"
  >
  {isAr ? "قارن العضويات" : "Compare plans"}

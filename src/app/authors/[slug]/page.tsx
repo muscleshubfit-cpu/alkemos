@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AUTHORS, getAuthorBySlug, getProfilePageSchema } from "@/lib/authors";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -200,9 +201,10 @@ export default async function AuthorProfilePage({
         </section>
       </main>
 
-      <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
-        © {new Date().getFullYear()} Alkemos. All rights reserved.
-      </footer>
+      {/* Access-point fix (2026-09-14): slim copyright line replaced by the
+          SHARED marble footer — this public page now carries the same
+          persistent link grid as the homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

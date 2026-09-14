@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useNav } from "@/hooks/use-nav";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -507,6 +508,11 @@ export default function MealPlannerPage() {
             tool (owner law «كل أداة صفحة مستقلة») — replaces legacy block */}
         <ToolReferenceContent content={MEAL_PLANNER_CONTENT} />
       </main>
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+        <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import { SearchX } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
@@ -8,6 +9,7 @@ import { MembershipPromo, ExploreMore } from "@/components/PageBottomPromo";
 import { FoodsFilters } from "@/components/foods/FoodsFilters";
 import { buildFoodsHref, type FoodsQuery } from "@/components/foods/url";
 import { filterFoods } from "@/lib/foods";
+import { FOOD_COLLECTIONS } from "@/lib/hub-collections";
 import {
   CATEGORY_LABELS,
   TAG_LABELS,
@@ -123,6 +125,25 @@ export function FoodsExplorer({
             ))}
           </div>
 
+          {/* Access-point fix (2026-09-14): /collections/* discoverability —
+              the goal-based food collections join the library surface as
+              crawlable server-rendered links (previously they had near-zero
+              UI entry points). Locale-aware mirrors for AR visitors. */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-[var(--muted-foreground)]">
+              {isAr ? "مجموعات جاهزة:" : "Curated collections:"}
+            </span>
+            {FOOD_COLLECTIONS.map((c) => (
+              <Link
+                key={c.slug}
+                href={`${isAr ? "/ar" : ""}/collections/${c.slug}`}
+                className="rounded-full bg-[var(--tint)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--card)] hover:text-[var(--text)]"
+              >
+                {isAr ? c.h1Ar : c.h1En}
+              </Link>
+            ))}
+          </div>
+
           {/* Tags — plain links; clicking a tag toggles it in the URL */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-[var(--muted-foreground)]">
@@ -232,6 +253,11 @@ export function FoodsExplorer({
         <MembershipPromo isAr={isAr} />
         <ExploreMore isAr={isAr} exclude="foods" />
       </main>
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+        <SiteFooter />
     </div>
   );
 }

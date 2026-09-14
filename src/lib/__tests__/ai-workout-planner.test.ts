@@ -292,7 +292,11 @@ describe("ai workout planner trial (§12.32)", () => {
     // (secondary button) + the footer links (routes/nav/tools-hub
     // untouched).
     expect(landing).toContain('href="/ai-workout-planner"');
-    expect(landing).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
+    // Access-point fix (2026-09-14): the footer (with its locale-aware
+    // AI-planner links) moved from LandingView into the SHARED
+    // SiteFooter component — the contract follows the markup.
+    const footer = readFileSync("src/components/SiteFooter.tsx", "utf8");
+    expect(footer).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
     // The retired grid entries stay retired.
     expect(landing).not.toContain('slug: "ai-workout-planner"');
     // The nav drawer tools group carries the entry (§12.31 lesson: the

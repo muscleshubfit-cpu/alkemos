@@ -3,6 +3,7 @@
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import { EngravedIcon } from "@/components/ThemeImg";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -351,6 +352,19 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               ? "«التبديلات» تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة — وهي أسبوعية وتتجدد كل اثنين."
               : "“Swaps” means replacing individual meals or exercises within your plan — never a full plan regeneration. They are weekly and reset every Monday."}
           </p>
+          {/* Access-point fix (2026-09-14): the /compare vertical had ZERO
+              UI access points — a natural contextual bridge from the
+              plan-comparison table to the platform-comparisons library
+              (Alkemos vs MyFitnessPal / Freeletics / ExRx.net). */}
+          <div className="mt-8 text-center">
+            <a
+              href={isAr ? "/ar/compare" : "/compare"}
+              className="btn-outline inline-flex items-center gap-2 px-6 py-3 text-sm"
+            >
+              {isAr ? "قارن Alkemos مع المنصات الأخرى" : "Compare Alkemos with other platforms"}
+              <span className="rtl:rotate-180">›</span>
+            </a>
+          </div>
         </section>
 
         {/* FAQ */}
@@ -405,6 +419,12 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
           <ShareButtons title={isAr ? "عضويات Alkemos" : "Alkemos Memberships"} />
         </div>
       </main>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

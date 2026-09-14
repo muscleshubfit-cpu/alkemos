@@ -90,9 +90,12 @@ export async function GET() {
     { loc: `${base}/ar/authors/ahmed-zake`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/authors/ahmed-zake`, ar: `${base}/ar/authors/ahmed-zake` } },
     { loc: `${base}/faq`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/faq`, ar: `${base}/ar/faq` } },
     { loc: `${base}/ar/faq`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/faq`, ar: `${base}/ar/faq` } },
-    { loc: `${base}/contact`, changefreq: "yearly", priority: 0.5 },
-    { loc: `${base}/privacy`, changefreq: "yearly", priority: 0.3 },
-    { loc: `${base}/terms`, changefreq: "yearly", priority: 0.3 },
+    { loc: `${base}/contact`, changefreq: "yearly", priority: 0.5, alternates: { en: `${base}/contact`, ar: `${base}/ar/contact` } },
+    { loc: `${base}/ar/contact`, changefreq: "yearly", priority: 0.5, alternates: { en: `${base}/contact`, ar: `${base}/ar/contact` } },
+    { loc: `${base}/privacy`, changefreq: "yearly", priority: 0.3, alternates: { en: `${base}/privacy`, ar: `${base}/ar/privacy` } },
+    { loc: `${base}/ar/privacy`, changefreq: "yearly", priority: 0.3, alternates: { en: `${base}/privacy`, ar: `${base}/ar/privacy` } },
+    { loc: `${base}/terms`, changefreq: "yearly", priority: 0.3, alternates: { en: `${base}/terms`, ar: `${base}/ar/terms` } },
+    { loc: `${base}/ar/terms`, changefreq: "yearly", priority: 0.3, alternates: { en: `${base}/terms`, ar: `${base}/ar/terms` } },
   ];
 
   // Program detail pages (+ AR mirrors) — small curated set

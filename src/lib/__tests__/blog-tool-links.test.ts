@@ -72,12 +72,14 @@ describe("insertToolLinks — EN", () => {
 });
 
 describe("insertToolLinks — AR", () => {
-  it("wraps Arabic trigger phrases (سعرات / خطة غذائية)", () => {
+  it("wraps Arabic trigger phrases (سعرات / خطة غذائية) with AR-mirror URLs", () => {
     const md =
       "مقدمة عن التمرين والتغذية. للتحكم في وزنك لازم تحسب سعراتك اليومية بدقة، وتلتزم بخطة غذائية واضحة تناسب هدفك على المدى الطويل.";
     const { md: out, inserted } = insertToolLinks(md, "ar");
-    expect(out).toContain("](/tools/calorie-calculator)");
-    expect(out).toContain("](/meal-planner)");
+    // Access-point fix (2026-09-14): AR articles link the /ar mirrors —
+    // the tool pages render Arabic ONLY on their /ar/* URLs.
+    expect(out).toContain("](/ar/tools/calorie-calculator)");
+    expect(out).toContain("](/ar/meal-planner)");
     expect(inserted.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -107,12 +109,12 @@ describe("insertToolLinks — EVO / AI-planner / coaching legs (intent-map audit
     expect(inserted.map((i) => i.tool)).toContain("online-coaching");
   });
 
-  it("most-specific-first: the AR AI-meal-planner phrase links /ai-meal-planner, not /meal-planner", () => {
+  it("most-specific-first: the AR AI-meal-planner phrase links /ar/ai-meal-planner, not /ar/meal-planner", () => {
     const md =
       "جرّب مخطط الوجبات بالذكاء الاصطناعي للحصول على خطة تناسب سعراتك. جملة إضافية تطول النص للوصول إلى الحد الأدنى المطلوب للربط الآلي.";
     const { md: out, inserted } = insertToolLinks(md, "ar");
-    expect(out).toContain("](/ai-meal-planner)");
-    expect(out).not.toContain("](/meal-planner)");
+    expect(out).toContain("](/ar/ai-meal-planner)");
+    expect(out).not.toContain("](/ar/meal-planner)");
     expect(inserted[0]?.tool).toBe("ai-meal-planner");
   });
 });
@@ -131,6 +133,16 @@ describe("insertToolLinks — safety", () => {
     const { inserted } = insertToolLinks(md, "en");
     for (const link of inserted) {
       expect(link.url).toMatch(/^\/(tools\/|meal-planner|programs|exercises|foods)/);
+    }
+  });
+
+  it("only produces site-internal tool URLs for Arabic too (AR mirrors)", () => {
+    const md =
+      "احسب سعراتك اليومية، والتزم بخطة غذائية متوازنة، وقس نسبة الدهون أسبوعياً لترى تقدماً حقيقياً ومستداماً على المدى الطويل مع الانتظام.";
+    const { inserted } = insertToolLinks(md, "ar");
+    expect(inserted.length).toBeGreaterThan(0);
+    for (const link of inserted) {
+      expect(link.url).toMatch(/^\/ar\/(tools\/|meal-planner|programs|exercises|foods|ai-meal-planner|ai-workout-planner|coaching)/);
     }
   });
 });

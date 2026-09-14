@@ -8,6 +8,7 @@ import {
 } from "@/lib/hub-collections";
 import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHubDepth } from "@/lib/hub-depth";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -97,7 +98,8 @@ export default async function EquipmentHubPage({
   });
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
+    <>
+      <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
@@ -211,6 +213,13 @@ export default async function EquipmentHubPage({
           Browse All Programs
         </Link>
       </section>
-    </main>
+      </main>
+
+
+        {/* Access-point fix (2026-09-14): shared marble footer — this
+            public page now carries the same persistent link grid as the
+            homepage (SiteFooter component). */}
+      <SiteFooter />
+    </>
   );
 }

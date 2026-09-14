@@ -93,19 +93,22 @@ function pathForView(view: View, params: Record<string, string> = {}): string {
 
 /** Reverse mapping: current pathname -> View, used for active-tab highlighting. */
 function viewForPath(pathname: string): View {
- if (pathname === "/" || pathname === "") return "landing";
- if (pathname.startsWith("/admin/payments")) return "admin-payments";
- if (pathname.startsWith("/coach/wallet")) return "coach-wallet";
- if (pathname.startsWith("/coach/affiliate")) return "coach-affiliate";
- if (pathname.startsWith("/coach/ads")) return "coach-ads";
- if (pathname.startsWith("/coach/help")) return "coach-help";
- if (pathname.startsWith("/coach/support")) return "coach-support";
- if (pathname.startsWith("/coach/landing")) return "coach-landing";
- if (pathname.startsWith("/coach/")) return "coach-client";
- if (pathname === "/coach") return "coach";
- if (pathname.startsWith("/admin/blog")) return "blog-admin";
- if (pathname.startsWith("/admin/referrals")) return "admin-referrals";
- const clean = pathname.replace(/^\//, "").split("/")[0];
+ // Access-point fix (2026-09-14): strip the /ar prefix so the mirror URLs
+ // resolve to the same views (e.g. /ar/memberships → "memberships").
+ const path = pathname.replace(/^\/ar(?=\/|$)/, "") || "/";
+ if (path === "/" || path === "") return "landing";
+ if (path.startsWith("/admin/payments")) return "admin-payments";
+ if (path.startsWith("/coach/wallet")) return "coach-wallet";
+ if (path.startsWith("/coach/affiliate")) return "coach-affiliate";
+ if (path.startsWith("/coach/ads")) return "coach-ads";
+ if (path.startsWith("/coach/help")) return "coach-help";
+ if (path.startsWith("/coach/support")) return "coach-support";
+ if (path.startsWith("/coach/landing")) return "coach-landing";
+ if (path.startsWith("/coach/")) return "coach-client";
+ if (path === "/coach") return "coach";
+ if (path.startsWith("/admin/blog")) return "blog-admin";
+ if (path.startsWith("/admin/referrals")) return "admin-referrals";
+ const clean = path.replace(/^\//, "").split("/")[0];
  const known: View[] = [
  "memberships", "auth", "checkout", "dashboard", "questionnaires",
  "progress", "plans", "chat", "support", "referral", "blog",
@@ -113,6 +116,27 @@ function viewForPath(pathname: string): View {
  ];
  return (known as string[]).includes(clean) ? (clean as View) : "landing";
 }
+
+/**
+ * AR mirrors for the PUBLIC marketing views (access-point fix 2026-09-14).
+ *
+ * When the visitor is on an /ar/* URL, navigate() resolves these views to
+ * their Arabic mirror instead of dropping them back on the EN path — the
+ * header logo / «الرئيسية» button on /ar/memberships now lands on /ar,
+ * and the FAQ-page «تواصل معنا» CTA lands on /ar/contact. Views without
+ * an Arabic mirror (auth, checkout, dashboard, … — private or EN-only
+ * surfaces) are untouched and keep their EN routes.
+ */
+const AR_VIEW_MIRRORS: Partial<Record<View, string>> = {
+ landing: "/ar",
+ memberships: "/ar/memberships",
+ blog: "/ar/blog",
+ about: "/ar/about",
+ faq: "/ar/faq",
+ contact: "/ar/contact",
+ privacy: "/ar/privacy",
+ terms: "/ar/terms",
+};
 
 export function useNav() {
  const router = useRouter();
@@ -131,14 +155,20 @@ export function useNav() {
 
  const navigate = useCallback(
  (v: View, p: Record<string, string> = {}) => {
- router.push(pathForView(v, p));
+ // Access-point fix (2026-09-14): on an /ar/* URL, public views with
+ // Arabic mirrors keep the visitor inside the Arabic tree. Only
+ // parameter-less mirrors are remapped; anything with params (auth
+ // modes, checkout tiers) keeps its EN path.
+ const onAr = /^\/ar(\/|$)/.test(pathname || "/");
+ const mirror = onAr && Object.keys(p).length === 0 ? AR_VIEW_MIRRORS[v] : undefined;
+ router.push(mirror ?? pathForView(v, p));
  // NOTE: Do NOT call window.scrollTo here.
  // The smooth-scroll on every navigation was causing a jarring "scroll
  // to top before page change" effect. The browser's default behavior
  // (instant jump on route change) is better — and Next.js App Router
  // already handles scroll restoration correctly for back/forward.
  },
- [router],
+ [router, pathname],
  );
 
  return { view, params, navigate };

@@ -1,0 +1,40 @@
+import type { Metadata } from "next";
+import { StaticPageView } from "@/components/views/StaticPageView";
+import { SiteFooter } from "@/components/SiteFooter";
+
+const SITE_URL = "https://alkemos.com";
+
+/**
+ * Access-point fix (2026-09-14): /ar/privacy — Arabic mirror of /privacy.
+ *
+ * The audit found the legal pages rendered Arabic CONTENT (StaticPageView
+ * is bilingual) but had NO Arabic URL: the footer linked AR visitors to the
+ * EN /privacy. This mirror gives the already-existing Arabic privacy text
+ * its own indexable URL + Arabic-first metadata + reciprocal hreflang with
+ * the EN page (same pattern as /ar/faq).
+ */
+export const metadata: Metadata = {
+  title: "سياسة الخصوصية | كيف نحمي بياناتك",
+  description:
+    "كيف تجمع Alkemos بياناتك وتستخدمها وتحميها: بيانات الحساب، المقاييس الصحية، ملفات تعريف الارتباط، الخدمات الخارجية، وحقوقك على معلوماتك.",
+  alternates: {
+    canonical: `${SITE_URL}/ar/privacy`,
+    languages: {
+      en: `${SITE_URL}/privacy`,
+      ar: `${SITE_URL}/ar/privacy`,
+      "x-default": `${SITE_URL}/privacy`,
+    },
+  },
+  openGraph: {
+    title: "سياسة الخصوصية — Alkemos",
+    description:
+      "كيف تجمع Alkemos بياناتك وتستخدمها وتحميها، وحقوقك الكاملة على معلوماتك.",
+    url: `${SITE_URL}/ar/privacy`,
+    type: "website",
+    locale: "ar_EG",
+  },
+};
+
+export default function Page() {
+  return <StaticPageView page="privacy" />;
+}

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * COACH REGISTRATION FORM — the «تسجيل مباشر» endpoint of the
@@ -262,6 +263,12 @@ export default function CoachRegisterPage() {
           </Link>
         </p>
       </main>
+
+
+      {/* Access-point fix (2026-09-14): shared marble footer — this
+          public page now carries the same persistent link grid as the
+          homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BLOG_CATEGORIES } from "@/lib/blog-server";
@@ -174,9 +175,10 @@ export function BlogCategoryPage({
         </div>
       </main>
 
-      <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
-        © {new Date().getFullYear()} Alkemos. {isAr ? "كل الحقوق محفوظة." : "All rights reserved."}
-      </footer>
+      {/* Access-point fix (2026-09-14): slim copyright line replaced by the
+          SHARED marble footer — this public page now carries the same
+          persistent link grid as the homepage (SiteFooter component). */}
+      <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
@@ -156,9 +157,9 @@ export function ContactView() {
         </div>
       </main>
 
-      <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
-        © {new Date().getFullYear()} Alkemos. {isAr ? "كل الحقوق محفوظة." : "All rights reserved."}
-      </footer>
+      {/* Access-point fix (2026-09-14): shared marble footer replaces the
+          slim copyright line — contact (EN + AR) joins persistent nav. */}
+      <SiteFooter />
  </div>
  );
 }

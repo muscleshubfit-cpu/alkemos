@@ -15,13 +15,22 @@ import { getBlogPost, getLinkedPost } from "@/lib/blog";
  *   /            <-> /ar
  *   /blog        <-> /ar/blog
  *   /blog/[slug] <-> /ar/blog/[slug] (via linked_post_id)
- *   /exercises   <-> /ar/exercises
+ *   /blog/category/[slug] <-> /ar/blog/category/[slug] (same ids)
+ *   /exercises   <-> /ar/exercises (+ /exercises/[slug] detail pages —
+ *                   same bilingual library row, pure prefix swap)
  *   /programs    <-> /ar/programs (AR mirror 2026-08-31 — full-training
  *                   audit follow-up; detail pages mirror the same way)
- *   /foods       <-> /ar/foods
+ *   /foods       <-> /ar/foods (+ /foods/[slug] detail pages — same row)
+ *   /muscles/[group]      <-> /ar/muscles/[group]
+ *   /equipment/[type]     <-> /ar/equipment/[type]
+ *   /collections/[slug]   <-> /ar/collections/[slug]
+ *   /authors/[slug]       <-> /ar/authors/[slug]
  *   /memberships <-> /ar/memberships
  *   /about       <-> /ar/about (AR expansion 2026-08-30)
  *   /faq         <-> /ar/faq (AR expansion 2026-08-30)
+ *   /privacy     <-> /ar/privacy (access-point fix 2026-09-14)
+ *   /terms       <-> /ar/terms (access-point fix 2026-09-14)
+ *   /contact     <-> /ar/contact (access-point fix 2026-09-14)
  *   /coaches/[slug] <-> /ar/coaches/[slug] (same slug — multi-coach
  *                   public landing, migration 0032 i18n follow-up)
  *   /tools       <-> /ar/tools (SEO-GEO-4, 2026-09-08 — every calculator
@@ -29,10 +38,10 @@ import { getBlogPost, getLinkedPost } from "@/lib/blog";
  *   /compare     <-> /ar/compare (SEO-GEO-4, 2026-09-08 — comparison
  *                   index + detail pages mirror by prefix swap)
  * 
- * Pages without Arabic mirrors (e.g. /coaching, /evo, /privacy, /terms,
- * /contact, /affiliate): just toggle the UI language (the page content
- * is already bilingual via useI18n, so the user sees the new language
- * without a URL change).
+ * Pages without Arabic mirrors (e.g. /affiliate — and private surfaces
+ * like /checkout, /profile, /admin): just toggle the UI language (the
+ * page content is already bilingual via useI18n, so the user sees the
+ * new language without a URL change).
  */
 export function LanguageToggle() {
  const { lang, setLang } = useI18n();
@@ -120,6 +129,10 @@ export function LanguageToggle() {
  { en: "/memberships", ar: "/ar/memberships" },
  { en: "/about", ar: "/ar/about" },
  { en: "/faq", ar: "/ar/faq" },
+ // Access-point fix (2026-09-14): the legal/contact mirrors now exist.
+ { en: "/privacy", ar: "/ar/privacy" },
+ { en: "/terms", ar: "/ar/terms" },
+ { en: "/contact", ar: "/ar/contact" },
  { en: "/for-coaches", ar: "/ar/for-coaches" },
  { en: "/for-coaches/register", ar: "/ar/for-coaches/register" },
  { en: "/tools", ar: "/ar/tools" },
@@ -161,6 +174,33 @@ export function LanguageToggle() {
  setLang(nextLang);
  router.push(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, ""));
  return;
+ }
+
+ // Access-point fix (2026-09-14): detail/hub subtrees whose slugs are
+ // identical in both trees — a pure prefix swap with a SAFE fallback:
+ // every prefix below has a complete /ar mirror (exercises + foods are
+ // one bilingual library; muscles/equipment/collections/authors share
+ // the same static hub slugs; blog categories share the same ids).
+ const PREFIX_MIRROR = [
+ "/exercises/",
+ "/foods/",
+ "/muscles/",
+ "/equipment/",
+ "/collections/",
+ "/blog/category/",
+ "/authors/",
+ ];
+ for (const prefix of PREFIX_MIRROR) {
+ if (pathname.startsWith(prefix)) {
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? `/ar${pathname}` : pathname);
+ return;
+ }
+ if (pathname.startsWith(`/ar${prefix}`)) {
+ setLang(nextLang);
+ router.push(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, ""));
+ return;
+ }
  }
 
  // Pages without Arabic mirrors: just toggle the UI language.
