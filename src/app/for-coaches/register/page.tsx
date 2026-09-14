@@ -240,11 +240,13 @@ export default function CoachRegisterPage() {
               {isAr
                 ? "بالتسجيل أنت موافق على "
                 : "By registering you agree to the "}
-              <Link href="/terms" className="text-[#0071e3] hover:underline">
+              {/* Access-point fix (2026-09-14 audit): legal links are
+                  locale-aware — AR visitors land on the AR mirrors. */}
+              <Link href={isAr ? "/ar/terms" : "/terms"} className="text-[#0071e3] hover:underline">
                 {isAr ? "شروط الاستخدام" : "Terms"}
               </Link>
               {isAr ? " و" : " and "}
-              <Link href="/privacy" className="text-[#0071e3] hover:underline">
+              <Link href={isAr ? "/ar/privacy" : "/privacy"} className="text-[#0071e3] hover:underline">
                 {isAr ? "سياسة الخصوصية" : "Privacy Policy"}
               </Link>
             </p>
@@ -258,7 +260,7 @@ export default function CoachRegisterPage() {
           </Link>
         </p>
         <p className="mt-2 text-center text-sm text-[#6e6e73]">
-          <Link href="/for-coaches" className="text-[#0071e3] hover:underline">
+          <Link href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="text-[#0071e3] hover:underline">
             {isAr ? "ارجع لصفحة مميزات المدربين" : "Back to the coach landing page"}
           </Link>
         </p>

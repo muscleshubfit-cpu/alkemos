@@ -110,8 +110,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "كامل الجسم (أ)",
         titleEn: "Full Body (A)",
         exercises: [
-          { exerciseSlug: "push-up", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 3, reps: "8-12", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "lunges", nameAr: "لانجز", nameEn: "Lunges", sets: 3, reps: "10 لكل رجل", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 3, reps: "8-12", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "bodyweight-walking-lunge", nameAr: "طعن متحرك بوزن الجسم", nameEn: "Bodyweight Walking Lunge", sets: 3, reps: "10 لكل رجل", restAr: "60 ثانية", restEn: "60 sec" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "20-30 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 3, reps: "20 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
         ],
@@ -128,10 +128,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "كامل الجسم (ب)",
         titleEn: "Full Body (B)",
         exercises: [
-          { exerciseSlug: "dips", nameAr: "ديبس (على كرسي)", nameEn: "Dips (on chair)", sets: 3, reps: "8-12", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "lunges", nameAr: "لانجز عكسي", nameEn: "Reverse Lunges", sets: 3, reps: "10 لكل رجل", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "bench-dips", nameAr: "ديبس (على كرسي)", nameEn: "Dips (on chair)", sets: 3, reps: "8-12", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "crossover-reverse-lunge", nameAr: "طعن رجوعي متقاطع", nameEn: "Crossover Reverse Lunge", sets: 3, reps: "10 لكل رجل", restAr: "60 ثانية", restEn: "60 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "12-15", restAr: "45 ثانية", restEn: "45 sec" },
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 3, reps: "5-8", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 3, reps: "5-8", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
       {
@@ -146,8 +146,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "كامل الجسم (ج)",
         titleEn: "Full Body (C)",
         exercises: [
-          { exerciseSlug: "push-up", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 3, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "jumping-jacks", nameAr: "جمبينج جاكس", nameEn: "Jumping Jacks", sets: 3, reps: "30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 3, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 3, reps: "30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 3, reps: "20 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "30-40 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
         ],
@@ -190,10 +190,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — كامل الجسم",
         titleEn: "HIIT — Full Body",
         exercises: [
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "jumping-jacks", nameAr: "جمبينج جاكس", nameEn: "Jumping Jacks", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "high-knees", nameAr: "ركبة عالية", nameEn: "High Knees", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -211,7 +211,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -226,10 +226,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — أرجل + قوة",
         titleEn: "HIIT — Legs + Strength",
         exercises: [
-          { exerciseSlug: "lunges", nameAr: "لانجز", nameEn: "Lunges", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "push-up", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "dips", nameAr: "ديبس", nameEn: "Dips", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "jumping-jacks", nameAr: "جمبينج جاكس", nameEn: "Jumping Jacks", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "bodyweight-walking-lunge", nameAr: "طعن متحرك بوزن الجسم", nameEn: "Bodyweight Walking Lunge", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "dips-triceps-version", nameAr: "ديبس", nameEn: "Dips", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -244,11 +244,11 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — تحدي كامل",
         titleEn: "HIIT — Full Challenge",
         exercises: [
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "high-knees", nameAr: "ركبة عالية", nameEn: "High Knees", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
     ],
@@ -302,7 +302,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "كور كامل + كارديو",
         titleEn: "Full Core + Cardio",
         exercises: [
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 3, reps: "8-10", restAr: "45 ثانية", restEn: "45 sec" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 3, reps: "8-10", restAr: "45 ثانية", restEn: "45 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "15-20", restAr: "30 ثانية", restEn: "30 sec" },
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 3, reps: "30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "45-60 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
@@ -323,7 +323,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "40 ثانية", restAr: "20 ثانية", restEn: "20 sec" },
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "40 ثانية", restAr: "20 ثانية", restEn: "20 sec" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "60 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
-          { exerciseSlug: "burpees", nameAr: "بربي", nameEn: "Burpees", sets: 3, reps: "10-12", restAr: "45 ثانية", restEn: "45 sec" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 3, reps: "10-12", restAr: "45 ثانية", restEn: "45 sec" },
         ],
       },
       {
@@ -359,9 +359,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Push — صدر + أكتاف + ترايسبس",
         titleEn: "Push — Chest + Shoulders + Triceps",
         exercises: [
-          { exerciseSlug: "push-up", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "رفرفة دمبل أرضي", nameEn: "Dumbbell Floor Press", sets: 4, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "dumbbell-floor-press", nameAr: "رفرفة دمبل أرضي", nameEn: "Dumbbell Floor Press", sets: 4, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "arnold-dumbbell-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "triceps-pushdown", nameAr: "تمديد ترايسبس بالدمبل", nameEn: "Dumbbell Triceps Extension", sets: 3, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
@@ -370,10 +370,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Pull — ظهر + بايسبس",
         titleEn: "Pull — Back + Biceps",
         exercises: [
-          { exerciseSlug: "pull-up", nameAr: "عقلة (لو متاح)", nameEn: "Pull-up (if available)", sets: 4, reps: "AMRAP", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "تجديف دمبل", nameEn: "Dumbbell Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "hyperextensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "pullups", nameAr: "عقلة (لو متاح)", nameEn: "Pull-up (if available)", sets: 4, reps: "AMRAP", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "bent-over-two-dumbbell-row", nameAr: "تجديف دمبل", nameEn: "Dumbbell Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "dumbbell-bicep-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "hyperextensions-back-extensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
       {
@@ -381,9 +381,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Legs — أرجل",
         titleEn: "Legs",
         exercises: [
-          { exerciseSlug: "lunges", nameAr: "لانجز بالدمبل", nameEn: "Dumbbell Lunges", sets: 4, reps: "10-12 لكل رجل", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 4, reps: "10-15", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "leg-curl", nameAr: "ليج كيرل", nameEn: "Leg Curl (if available)", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "dumbbell-lunges", nameAr: "لانجز بالدمبل", nameEn: "Dumbbell Lunges", sets: 4, reps: "10-12 لكل رجل", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 4, reps: "10-15", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "lying-leg-curls", nameAr: "ليج كيرل", nameEn: "Leg Curl (if available)", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "15-20", restAr: "45 ثانية", restEn: "45 sec" },
         ],
       },
@@ -392,8 +392,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Push — تكرار",
         titleEn: "Push — Repeat",
         exercises: [
-          { exerciseSlug: "push-up", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 4, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 4, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "arnold-dumbbell-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "triceps-pushdown", nameAr: "تمديد ترايسبس", nameEn: "Triceps Extension", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
@@ -402,9 +402,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Pull — تكرار",
         titleEn: "Pull — Repeat",
         exercises: [
-          { exerciseSlug: "dumbbell-curl", nameAr: "تجديف دمبل", nameEn: "Dumbbell Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "hyperextensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "bent-over-two-dumbbell-row", nameAr: "تجديف دمبل", nameEn: "Dumbbell Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "dumbbell-bicep-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 4, reps: "10-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "hyperextensions-back-extensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
       {
@@ -412,8 +412,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Legs — تكرار",
         titleEn: "Legs — Repeat",
         exercises: [
-          { exerciseSlug: "lunges", nameAr: "لانجز", nameEn: "Lunges", sets: 4, reps: "12-15 لكل رجل", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 4, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "dumbbell-lunges", nameAr: "طعن بالدمبل", nameEn: "Dumbbell Lunges", sets: 4, reps: "12-15 لكل رجل", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 4, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "15-20", restAr: "45 ثانية", restEn: "45 sec" },
         ],
       },
@@ -450,8 +450,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "كامل الجسم (أ)",
         titleEn: "Full Body (A)",
         exercises: [
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف كابل", nameEn: "Seated Cable Row", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "seated-cable-rows", nameAr: "تجديف كابل", nameEn: "Seated Cable Row", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "leg-press", nameAr: "ليج بريس", nameEn: "Leg Press", sets: 3, reps: "10-12", restAr: "120 ثانية", restEn: "120 sec" },
           { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "30-45 ثانية", restAr: "45 ثانية", restEn: "45 sec" },
         ],
@@ -469,8 +469,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Full Body (B)",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات بالبار", nameEn: "Barbell Squat", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "10-12", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "arnold-dumbbell-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "dumbbell-bicep-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "10-12", restAr: "60 ثانية", restEn: "60 sec" },
           { exerciseSlug: "triceps-pushdown", nameAr: "ترايسبس بوش داون", nameEn: "Triceps Pushdown", sets: 3, reps: "10-12", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
@@ -487,8 +487,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Full Body (C)",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات", nameEn: "Squat", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف كابل", nameEn: "Cable Row", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 3, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "seated-cable-rows", nameAr: "تجديف كابل", nameEn: "Cable Row", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "12-15", restAr: "45 ثانية", restEn: "45 sec" },
         ],
       },
@@ -530,9 +530,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Push — صدر + أكتاف + ترايسبس",
         titleEn: "Push — Chest + Shoulders + Triceps",
         exercises: [
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 4, reps: "6-8", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "8-10", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "dips", nameAr: "ديبس", nameEn: "Dips", sets: 3, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 4, reps: "6-8", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "arnold-dumbbell-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "8-10", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "parallel-bar-dip", nameAr: "ديبس", nameEn: "Dips", sets: 3, reps: "8-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "triceps-pushdown", nameAr: "ترايسبس بوش داون", nameEn: "Triceps Pushdown", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
@@ -541,10 +541,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Pull — ظهر + بايسبس",
         titleEn: "Pull — Back + Biceps",
         exercises: [
-          { exerciseSlug: "pull-up", nameAr: "عقلة", nameEn: "Pull-up", sets: 4, reps: "6-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف كابل", nameEn: "Seated Cable Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "hyperextensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "10-12", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "pullups", nameAr: "عقلة", nameEn: "Pull-up", sets: 4, reps: "6-10", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "seated-cable-rows", nameAr: "تجديف كابل", nameEn: "Seated Cable Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "hyperextensions-back-extensions", nameAr: "هايبر", nameEn: "Hyperextensions", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "dumbbell-bicep-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "10-12", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
       {
@@ -554,8 +554,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات بالبار", nameEn: "Barbell Squat", sets: 4, reps: "6-8", restAr: "180 ثانية", restEn: "180 sec" },
           { exerciseSlug: "leg-press", nameAr: "ليج بريس", nameEn: "Leg Press", sets: 4, reps: "10-12", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "leg-curl", nameAr: "ليج كيرل", nameEn: "Leg Curl", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "lying-leg-curls", nameAr: "ليج كيرل", nameEn: "Leg Curl", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 3, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "crunches", nameAr: "كرنش", nameEn: "Crunches", sets: 3, reps: "15-20", restAr: "45 ثانية", restEn: "45 sec" },
         ],
       },
@@ -564,8 +564,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Push — تكرار",
         titleEn: "Push — Repeat",
         exercises: [
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 4, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس", nameEn: "Bench Press", sets: 4, reps: "8-10", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "arnold-dumbbell-press", nameAr: "أرنولد بريس", nameEn: "Arnold Press", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
           { exerciseSlug: "triceps-pushdown", nameAr: "ترايسبس بوش داون", nameEn: "Triceps Pushdown", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
@@ -574,9 +574,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "Pull — تكرار",
         titleEn: "Pull — Repeat",
         exercises: [
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف كابل", nameEn: "Cable Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "pull-up", nameAr: "عقلة", nameEn: "Pull-up", sets: 3, reps: "AMRAP", restAr: "120 ثانية", restEn: "120 sec" },
-          { exerciseSlug: "dumbbell-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "seated-cable-rows", nameAr: "تجديف كابل", nameEn: "Cable Row", sets: 4, reps: "10-12", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "pullups", nameAr: "عقلة", nameEn: "Pull-up", sets: 3, reps: "AMRAP", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "dumbbell-bicep-curl", nameAr: "بايسبس دمبل", nameEn: "Dumbbell Curl", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
         ],
       },
       {
@@ -585,9 +585,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Legs — Repeat",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات", nameEn: "Squat", sets: 4, reps: "8-10", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "leg-extension", nameAr: "ليج إكستنشن", nameEn: "Leg Extension", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
-          { exerciseSlug: "leg-curl", nameAr: "ليج كيرل", nameEn: "Leg Curl", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
-          { exerciseSlug: "hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "leg-extensions", nameAr: "ليج إكستنشن", nameEn: "Leg Extension", sets: 3, reps: "12-15", restAr: "60 ثانية", restEn: "60 sec" },
+          { exerciseSlug: "lying-leg-curls", nameAr: "ليج كيرل", nameEn: "Leg Curl", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
+          { exerciseSlug: "barbell-hip-thrust", nameAr: "هيب ثرست", nameEn: "Hip Thrust", sets: 3, reps: "12-15", restAr: "90 ثانية", restEn: "90 sec" },
         ],
       },
       {
@@ -622,8 +622,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Workout A",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس 5×5", nameEn: "Bench Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف كابل", nameEn: "Barbell Row", sets: 5, reps: "5", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس 5×5", nameEn: "Bench Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
+          { exerciseSlug: "bent-over-barbell-row", nameAr: "تجديف بالبار", nameEn: "Barbell Row", sets: 5, reps: "5", restAr: "120 ثانية", restEn: "120 sec" },
         ],
       },
       {
@@ -639,8 +639,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Workout B",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "arnold-press", nameAr: "أوفرهيد بريس 5×5", nameEn: "Overhead Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "hip-thrust", nameAr: "ديدليفت 1×5", nameEn: "Deadlift 1×5", sets: 1, reps: "5", restAr: "—", restEn: "—" },
+          { exerciseSlug: "barbell-shoulder-press", nameAr: "أوفرهيد بريس 5×5", nameEn: "Overhead Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
+          { exerciseSlug: "barbell-deadlift", nameAr: "ديدليفت 1×5", nameEn: "Deadlift 1×5", sets: 1, reps: "5", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -656,8 +656,8 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Workout A — Repeat",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "bench-press", nameAr: "بنش بريس 5×5", nameEn: "Bench Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
-          { exerciseSlug: "seated-cable-row", nameAr: "تجديف", nameEn: "Barbell Row", sets: 5, reps: "5", restAr: "120 ثانية", restEn: "120 sec" },
+          { exerciseSlug: "barbell-bench-press-medium-grip", nameAr: "بنش بريس 5×5", nameEn: "Bench Press 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
+          { exerciseSlug: "bent-over-barbell-row", nameAr: "تجديف بالبار", nameEn: "Barbell Row", sets: 5, reps: "5", restAr: "120 ثانية", restEn: "120 sec" },
         ],
       },
       {

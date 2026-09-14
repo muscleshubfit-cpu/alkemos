@@ -268,7 +268,9 @@ describe("ai meal planner trial (§12.28)", () => {
     // the FREE lead-card CTA + the footer links (routes/nav/tools-hub
     // untouched). Phase 194 (owner directive — Copy Refinement Pass): the
     // CTA label is the benefit-first «أنشئ خطتي» / "Create My Plan".
-    expect(landing).toContain('href="/ai-meal-planner"');
+    // Access-point fix (2026-09-14 audit): the homepage CTA is now
+    // locale-aware — the AR homepage previously linked the EN planner.
+    expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     expect(landing).toContain("أنشئ خطتي");
     expect(landing).toContain("Create My Plan");
     expect(landing).toContain("Your plan. Built for you.");

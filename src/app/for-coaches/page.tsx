@@ -261,7 +261,7 @@ export default function ForCoachesPage() {
           </p>
           <div className="mt-6">
             <Link
-              href="/memberships"
+              href={isAr ? "/ar/memberships" : "/memberships"}
               className="btn-chrome inline-block px-7 py-3 text-sm font-semibold"
             >
               {isAr ? "استعرض العضويات" : "Explore memberships"}

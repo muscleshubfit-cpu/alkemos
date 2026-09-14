@@ -125,9 +125,111 @@ export function fixCrossLanguageLinkPrefixes(
 }
 
 /**
+ * ④ ACCESS-POINT FIX (2026-09-14 audit) — AR mirror families for the
+ * render-time prefix rewriter.
+ *
+ * WHY: the audit found AR article bodies (stored rows, authored BEFORE
+ * the `urlAr` tool-link rule existed) carrying `](/tools/…)`,
+ * `](/exercises…)`, `](/foods…)`, `](/meal-planner)` links. Those are
+ * author/model content the insertToolLinks idempotence check deliberately
+ * skips (the tool is "already linked") — so the ONLY render-time layer
+ * that can localize them is this sanitizer. Every family below has a
+ * REAL /ar/* mirror route in src/app/ar (verified 2026-09-14); anything
+ * without a guaranteed mirror is deliberately EXCLUDED:
+ *   /evo, /coaches, /for-coaches — owner-protected navigation behavior;
+ *   /affiliate — EN-only by design (no AR mirror exists);
+ *   /auth, /checkout, /referral — private/noindex app surfaces.
+ * Idempotent by construction: a path already under /ar/ never matches.
+ */
+const AR_MIRROR_FAMILIES: ReadonlyArray<string> = [
+  "/tools",
+  "/exercises",
+  "/foods",
+  "/meal-planner",
+  "/programs",
+  "/coaching",
+  "/memberships",
+  "/diet-plan",
+  "/collections",
+  "/muscles",
+  "/equipment",
+  "/about",
+  "/faq",
+  "/privacy",
+  "/terms",
+  "/contact",
+  "/compare",
+  "/ai-meal-planner",
+  "/ai-workout-planner",
+];
+
+/** Internal, non-AR markdown href inside article content. */
+const MD_INTERNAL_HREF = /\]\((\/[a-z0-9][a-z0-9/-]*)\)/g;
+
+function hasArMirror(path: string): boolean {
+  if (path === "/ar" || path.startsWith("/ar/")) return false;
+  return AR_MIRROR_FAMILIES.some(
+    (fam) => path === fam || path.startsWith(`${fam}/`),
+  );
+}
+
+/**
+ * ④ Localize AR article body links for the mirrored families above:
+ * `](/tools/macro-calculator)` → `](/ar/tools/macro-calculator)`. EN
+ * content is untouched (the audit found zero EN posts linking AR paths).
+ */
+export function fixArMirrorFamilies(content: string, lang: "en" | "ar"): string {
+  if (lang !== "ar") return content;
+  return content.replace(MD_INTERNAL_HREF, (match, path: string) =>
+    hasArMirror(path) ? `](/ar${path})` : match,
+  );
+}
+
+/**
+ * ⑤ ACCESS-POINT FIX (2026-09-14 audit) — legacy link targets whose
+ * FINAL destination is known, applied at render time (DB rows stay
+ * untouched — same law as every sanitizer pass here):
+ *   • /blog/4-week-beginner-hypertrophy-plan — next.config 301 →
+ *     /blog/4-week-beginner-muscle-building-plan; one EN article body
+ *     still links the old slug → rewrite to the final post.
+ *   • /ar/blog/sleep-recovery-gym-results-3pc8 — next.config 301 →
+ *     /ar/blog/sleep-recovery-gym-results; one AR body links the old
+ *     slug → rewrite to the final post.
+ *   • /blog/muscle-building-bodyweight-home — NO blog_posts row exists
+ *     (deleted pre-consolidation) so the EN URL is a hard 404, while the
+ *     next.config AR 301 routes its mirror to the live AR guide. The
+ *     audit found 4 AR article bodies linking the dead EN path; the only
+ *     honest known destination for an AR reader is the AR guide, so the
+ *     rewrite goes straight to the FINAL AR URL (skipping the redirect
+ *     hop). EN content never links it — no EN mapping exists ("never
+ *     invent destinations").
+ */
+const LEGACY_LINK_REDIRECTS: ReadonlyArray<readonly [string, string, "en" | "ar"]> = [
+  ["/blog/4-week-beginner-hypertrophy-plan", "/blog/4-week-beginner-muscle-building-plan", "en"],
+  ["/ar/blog/sleep-recovery-gym-results-3pc8", "/ar/blog/sleep-recovery-gym-results", "ar"],
+  ["/blog/muscle-building-bodyweight-home", "/ar/blog/home-muscle-building-guide-no-equipment", "ar"],
+];
+
+/**
+ * ⑤ Replace markdown links pointing at legacy/dead targets with their
+ * known final destinations (exact-path match — deterministic, idempotent:
+ * the replacements are not themselves legacy targets).
+ */
+export function fixLegacyRedirectLinks(content: string, lang: "en" | "ar"): string {
+  let out = content;
+  for (const [oldPath, finalPath, targetLang] of LEGACY_LINK_REDIRECTS) {
+    if (targetLang !== lang) continue;
+    out = out.split(`](${oldPath})`).join(`](${finalPath})`);
+  }
+  return out;
+}
+
+/**
  * Composed pipeline — the ONLY entry point pages should call.
- * Order matters: raw anchors become markdown links FIRST so the prefix
- * rewrite sees them; corruption fixes are order-independent.
+ * Order matters: raw anchors become markdown links FIRST so the legacy
+ * and prefix rewrites see them; corruption fixes are order-independent;
+ * legacy exact-path rewrites run BEFORE the family rewriter so a legacy
+ * /blog/… target can never be double-prefixed.
  */
 export function sanitizeBlogContent(
   content: string,
@@ -135,7 +237,10 @@ export function sanitizeBlogContent(
   pools: BlogSlugPools,
 ): string {
   return fixCrossLanguageLinkPrefixes(
-    fixKnownCorruptions(fixRawHtmlInternalAnchors(content)),
+    fixArMirrorFamilies(
+      fixLegacyRedirectLinks(fixKnownCorruptions(fixRawHtmlInternalAnchors(content)), lang),
+      lang,
+    ),
     lang,
     pools,
   );

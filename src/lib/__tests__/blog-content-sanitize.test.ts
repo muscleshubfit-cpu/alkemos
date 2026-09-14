@@ -7,8 +7,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  fixArMirrorFamilies,
   fixCrossLanguageLinkPrefixes,
   fixKnownCorruptions,
+  fixLegacyRedirectLinks,
   fixRawHtmlInternalAnchors,
   sanitizeBlogContent,
   type BlogSlugPools,
@@ -96,11 +98,14 @@ describe("fixKnownCorruptions", () => {
 });
 
 describe("sanitizeBlogContent (composed pipeline)", () => {
-  it("applies raw-anchor conversion → corruption fix → prefix rewrite in one pass", () => {
+  it("applies raw-anchor conversion → corruption fix → legacy rewrite → family rewrite → prefix rewrite in one pass", () => {
     const md =
       'تدريب:<a href="/tools/water-tracker">متتبع الماء</a> ثم راحة超过 3 دقائق و[الكرياتين](/blog/creatine-beginners-guide).';
+    // Access-point fix (2026-09-14): the converted raw anchor is now ALSO
+    // localized to its /ar mirror by fixArMirrorFamilies — the old
+    // expectation kept the EN href, which was the audited locale leak.
     expect(sanitizeBlogContent(md, "ar", POOLS)).toBe(
-      "تدريب:[متتبع الماء](/tools/water-tracker) ثم راحةأكثر من 3 دقائق و[الكرياتين](/ar/blog/creatine-beginners-guide).",
+      "تدريب:[متتبع الماء](/ar/tools/water-tracker) ثم راحةأكثر من 3 دقائق و[الكرياتين](/ar/blog/creatine-beginners-guide).",
     );
   });
 
@@ -162,5 +167,84 @@ describe("sanitizeBlogContent (composed pipeline)", () => {
         "اقرأ [دليل الكرياتين](/ar/blog/creatine-beginners-guide) و[دليل HIIT](/ar/blog/hiit-home-workout-guide).",
       );
     });
+  });
+});
+
+describe("fixArMirrorFamilies (access-point fix 2026-09-14 audit)", () => {
+  it("localizes the audited EN tool/exercise/food links inside AR bodies", () => {
+    const md =
+      "استخدم [حاسبة السعرات](/tools/calorie-calculator) و[حاسبة الماكروز](/tools/macro-calculator)، وشاهد [مكتبة التمارين](/exercises) و[الأطعمة](/foods) و[مخطط الوجبات](/meal-planner).";
+    expect(fixArMirrorFamilies(md, "ar")).toBe(
+      "استخدم [حاسبة السعرات](/ar/tools/calorie-calculator) و[حاسبة الماكروز](/ar/tools/macro-calculator)، وشاهد [مكتبة التمارين](/ar/exercises) و[الأطعمة](/ar/foods) و[مخطط الوجبات](/ar/meal-planner).",
+    );
+  });
+
+  it("localizes detail subpaths of every mirrored family (verified /ar routes)", () => {
+    const md =
+      "[تمرين](/exercises/plank) [برنامج](/programs/home-beginner-fullbody) [مجموعة](/collections/high-protein-foods) [عضلة](/muscles/chest) [معدة](/equipment/bodyweight) [خطة](/diet-plan/cutting) [مقارنة](/compare/alkemos-vs-exrx) [أداة](/tools/bmi-calculator).";
+    expect(fixArMirrorFamilies(md, "ar")).toBe(
+      "[تمرين](/ar/exercises/plank) [برنامج](/ar/programs/home-beginner-fullbody) [مجموعة](/ar/collections/high-protein-foods) [عضلة](/ar/muscles/chest) [معدة](/ar/equipment/bodyweight) [خطة](/ar/diet-plan/cutting) [مقارنة](/ar/compare/alkemos-vs-exrx) [أداة](/ar/tools/bmi-calculator).",
+    );
+  });
+
+  it("NEVER touches owner-protected or mirror-less paths (EVO / affiliate / coaches / auth)", () => {
+    const md =
+      "[EVO](/evo) [أفلييت](/affiliate) [مدربون](/for-coaches) [دخول](/auth) [سلة](/checkout) [مدربون2](/coaches).";
+    expect(fixArMirrorFamilies(md, "ar")).toBe(md);
+  });
+
+  it("is idempotent: already-AR links pass through untouched", () => {
+    const md = "[حاسبة السعرات](/ar/tools/calorie-calculator) و[الرئيسية](/ar).";
+    expect(fixArMirrorFamilies(md, "ar")).toBe(md);
+  });
+
+  it("EN content is never touched (audit: zero EN posts link AR paths)", () => {
+    const md = "Use the [calorie calculator](/tools/calorie-calculator) and [exercises](/exercises).";
+    expect(fixArMirrorFamilies(md, "en")).toBe(md);
+  });
+});
+
+describe("fixLegacyRedirectLinks (access-point fix 2026-09-14 audit)", () => {
+  it("rewrites the audited EN 301 link to its final post", () => {
+    const md = "اقرأ [الخطة](/blog/4-week-beginner-hypertrophy-plan) للتفاصيل.";
+    expect(fixLegacyRedirectLinks(md, "en")).toBe(
+      "اقرأ [الخطة](/blog/4-week-beginner-muscle-building-plan) للتفاصيل.",
+    );
+  });
+
+  it("rewrites the audited AR 301 link to its final post", () => {
+    const md = "[السعرات](/ar/blog/sleep-recovery-gym-results-3pc8) مهمة.";
+    expect(fixLegacyRedirectLinks(md, "ar")).toBe(
+      "[السعرات](/ar/blog/sleep-recovery-gym-results) مهمة.",
+    );
+  });
+
+  it("rewrites the dead /blog/muscle-building-bodyweight-home links (4 AR bodies) to the live AR guide", () => {
+    const md = "تدريب منزلي: [بناء العضلات](/blog/muscle-building-bodyweight-home) بدون معدات.";
+    expect(fixLegacyRedirectLinks(md, "ar")).toBe(
+      "تدريب منزلي: [بناء العضلات](/ar/blog/home-muscle-building-guide-no-equipment) بدون معدات.",
+    );
+  });
+
+  it("is language-scoped: the EN mapping never fires on AR content and vice versa", () => {
+    const md = "[الخطة](/blog/4-week-beginner-hypertrophy-plan)";
+    expect(fixLegacyRedirectLinks(md, "ar")).toBe(md);
+    const md2 = "[السعرات](/ar/blog/sleep-recovery-gym-results-3pc8)";
+    expect(fixLegacyRedirectLinks(md2, "en")).toBe(md2);
+  });
+
+  it("is idempotent: final destinations are not themselves legacy targets", () => {
+    const md = "[الخطة](/blog/4-week-beginner-muscle-building-plan)";
+    expect(fixLegacyRedirectLinks(fixLegacyRedirectLinks(md, "en"), "en")).toBe(md);
+  });
+});
+
+describe("sanitizeBlogContent — access-point fix integration (2026-09-14)", () => {
+  it("one AR pass localizes tool links, repairs dead links, and keeps EVO untouched", () => {
+    const md =
+      "احسب [سعراتك](/tools/calorie-calculator)، واقرأ [الخطة المنزلية](/blog/muscle-building-bodyweight-home)، وجرّب [EVO](/evo).";
+    expect(sanitizeBlogContent(md, "ar", POOLS)).toBe(
+      "احسب [سعراتك](/ar/tools/calorie-calculator)، واقرأ [الخطة المنزلية](/ar/blog/home-muscle-building-guide-no-equipment)، وجرّب [EVO](/evo).",
+    );
   });
 });

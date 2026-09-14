@@ -177,8 +177,13 @@ export function CookieConsent({
               <>
                 نستخدم ملفات تعريف الارتباط لتشغيل الموقع، وملفات تحليلات
                 وإعلانات بموافقتك فقط.{" "}
+                {/* Access-point fix (2026-09-14 audit): the AR branch was
+                    hardcoded to the EN /privacy — the banner renders on
+                    every AR page, making it the largest single locale
+                    leak on the site (614 links). It must point at the
+                    Arabic mirror. */}
                 <a
-                  href="/privacy"
+                  href="/ar/privacy"
                   className="whitespace-nowrap font-medium text-[var(--text)] underline underline-offset-4 hover:opacity-80"
                 >
                   سياسة الخصوصية

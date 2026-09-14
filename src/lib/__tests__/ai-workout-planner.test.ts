@@ -291,7 +291,9 @@ describe("ai workout planner trial (§12.32)", () => {
     // retired — the homepage links the trial via the FREE lead-card CTA
     // (secondary button) + the footer links (routes/nav/tools-hub
     // untouched).
-    expect(landing).toContain('href="/ai-workout-planner"');
+    // Access-point fix (2026-09-14 audit): the homepage CTA is now
+    // locale-aware — the AR homepage previously linked the EN planner.
+    expect(landing).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
     // Access-point fix (2026-09-14): the footer (with its locale-aware
     // AI-planner links) moved from LandingView into the SHARED
     // SiteFooter component — the contract follows the markup.

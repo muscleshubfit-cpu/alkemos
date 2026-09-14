@@ -74,9 +74,10 @@ export default function ProgramDetailClient({
       <SiteHeader variant="landing" />
 
       <main className="mx-auto max-w-4xl px-4 py-8 md:py-12">
-        {/* #17 fix: visible breadcrumb trail */}
+        {/* #17 fix: visible breadcrumb trail — locale-aware home link
+            (2026-09-14 audit: AR program pages linked the EN homepage). */}
         <nav aria-label="breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-[var(--muted-foreground)]">
-          <a href="/" className="hover:opacity-70">{isAr ? "الرئيسية" : "Home"}</a>
+          <a href={isAr ? "/ar" : "/"} className="hover:opacity-70">{isAr ? "الرئيسية" : "Home"}</a>
           <span className="text-[#d2d2d7]">›</span>
           <a href={base} className="hover:opacity-70">{isAr ? "البرامج" : "Programs"}</a>
           <span className="text-[#d2d2d7]">›</span>
@@ -209,7 +210,7 @@ export default function ProgramDetailClient({
                       return (
                         <a
                           key={i}
-                          href={`/exercises/${ex.exerciseSlug}`}
+                          href={`${isAr ? "/ar" : ""}/exercises/${ex.exerciseSlug}`}
                           className="block overflow-hidden rounded-2xl bg-white transition-colors hover:bg-[#fafafa]"
                         >
                           {/* Exercise image — ABOVE the text, full width */}
@@ -278,7 +279,7 @@ export default function ProgramDetailClient({
               : "Alkemos creates personalized plans based on your goals and level."}
           </p>
           <a
-            href="/memberships"
+            href={isAr ? "/ar/memberships" : "/memberships"}
             className="mt-4 inline-block rounded-full bg-white px-6 py-2.5 text-sm font-normal text-[#1d1d1f] transition-opacity hover:opacity-90"
           >
             {isAr ? "احصل على خطة مخصصة ›" : "Get a personalized plan ›"}

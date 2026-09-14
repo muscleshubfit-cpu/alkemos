@@ -133,7 +133,10 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
               <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
               <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
-              <li><a href="/programs" className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
+              {/* Access-point fix (2026-09-14 audit): this was the last
+                  hardcoded EN href in the footer — AR visitors hit /programs
+                  (EN) instead of the /ar/programs mirror. */}
+              <li><a href={isAr ? "/ar/programs" : "/programs"} className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
               <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
               <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
               <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>

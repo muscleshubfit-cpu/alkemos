@@ -667,10 +667,12 @@ export function LandingView() {
                   {/* Owner directive (2026-09-13): ONE direct CTA label on the
                       primary button. Phase 194: the label sells the action
                       (Create My Plan / أنشئ خطتي) per the benefit-first pass. */}
-                  <a href="/ai-meal-planner" className="btn-chrome px-5 py-2.5 text-sm">
+                  {/* Access-point fix (2026-09-14 audit): locale-aware hrefs —
+                      the AR homepage was linking the EN planners. */}
+                  <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-5 py-2.5 text-sm">
                     {isAr ? "أنشئ خطتي" : "Create My Plan"}
                   </a>
-                  <a href="/ai-workout-planner" className="btn-outline px-5 py-2.5 text-sm font-normal">
+                  <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-5 py-2.5 text-sm font-normal">
                     {isAr ? "مخطط التمارين بالذكاء الاصطناعي ›" : "AI Workout Planner ›"}
                   </a>
                 </div>
@@ -699,7 +701,7 @@ export function LandingView() {
             ))}
           </div>
           <div className="mt-8 text-center">
-            <a href="/tools" className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+            <a href={isAr ? "/ar/tools" : "/tools"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
               {isAr ? "كل الأدوات ›" : "View all tools ›"}
             </a>
           </div>
@@ -793,7 +795,7 @@ export function LandingView() {
             ))}
           </div>
           <div className="mt-8 text-center">
-            <a href="/programs" className="btn-chrome px-6 py-2.5 text-sm">
+            <a href={isAr ? "/ar/programs" : "/programs"} className="btn-chrome px-6 py-2.5 text-sm">
               {isAr ? "كل البرامج ›" : "View all programs ›"}
             </a>
           </div>
@@ -1061,8 +1063,11 @@ export function LandingView() {
           </Reveal>
           <Reveal delay={250}>
             <div className="mt-8">
+              {/* Access-point fix (2026-09-14 audit): this was the ONLY
+                  access point to /ar/for-coaches — the hardcoded EN href
+                  left the whole AR mirror page orphaned. */}
               <a
-                href="/for-coaches"
+                href={isAr ? "/ar/for-coaches" : "/for-coaches"}
                 className="btn-chrome px-8 py-3.5 text-base"
               >
                 {isAr ? "انضم كمدرب ›" : "Join as a coach ›"}
@@ -1521,9 +1526,11 @@ function LandingExerciseCategoryCard({ cat, isAr }: { cat: LandingExerciseCatego
 }
 
 function LandingProgramCard({ prog, isAr }: { prog: LandingProgram; isAr: boolean }) {
+  // Access-point fix (2026-09-14 audit): program cards were hardcoded to
+  // the EN tree — the AR homepage linked /programs/* instead of /ar/programs/*.
   return (
     <a
-      href={`/programs/${prog.slug}`}
+      href={`${isAr ? "/ar" : ""}/programs/${prog.slug}`}
       className="marble-card group relative flex flex-col p-6 transition-transform duration-300 hover:-translate-y-0.5"
     >
       {/* Faded stadium backdrop — evo-card artwork blurred at 12% opacity
