@@ -3935,3 +3935,21 @@ Stage Summary:
 - كارت الكوتشينج أخف بنحو الثلث على الجوال مع CTA مسيطر بلا منازع يقود مباشرة إلى /coaching (متحقق حيًا قبل التعديل وبعده) — بلا أي مساس بالأسعار أو الكوتة أو الروابط أو الألوان
 - حدود Coaching/For-Coaches صريح عبر عنصر النظام meander (صفر ألوان جديدة) والتسلسل السردي للصفحة صار Free → EVO … → Coaching → Memberships بنقل قسم EVO فقط (وصفة البطاقة لم تُمس) وترتيب chips مطابق
 - ملف واحد تغيّر: src/components/views/LandingView.tsx (Display-only) — البوابات التسع خضراء قبل الدفع
+
+---
+Task ID: FINAL-VISUAL-REVIEW-200-LIVE-VERIFY
+Agent: Super Z (main)
+Task: التحقق الحي من Production بعد نشر المرحلة 200 (0e3c115) — إثبات على كل الأسطح المستهدفة بأمر المالك
+
+Work Log:
+- build-info حي: commit 0e3c115 (branch main) ✓ — نشر Vercel اكتمل خلال أقل من دقيقة، وطلبات التحقق حملت مُعلّم query لتجاوز كاش الحافة
+- **EN Desktop (1440px):** ترتيب الأقسام الحي tools→evo→exercises (تسلسل Free→EVO منشور) ✓ · meander-divider بعد قسم الكوتشينج ✓ · بلاطات الأركان بلا أوصاف (0) ✓ · CTA الكوتشينج → /coaching مباشرة بلا وسيط وبحجمه الموحد (w-full px-8 py-3.5 على الجوال) ✓ · صفر overflow أفقي
+- **EN Mobile (390px):** كارت الكوتشينج 610px (كان 864px على 2e6f686 — −29%) ✓ · الفجوة كارت→divider 48px ثم الشريط الداكن ✓ · صفر overflow
+- **AR Desktop (1440px, dir=rtl):** الترتيب والـdivider ✓ · روابط الكوتشينج /ar/coaching و/ar/memberships وشريط العضويات /ar/coaching ✓ · أول بلاطة «مدرب بشري» يمينًا (مرآة RTL سليمة) ✓ · صفر overflow
+- **AR Mobile (390px):** الكارت 581px · صفر overflow
+- **Dark mode (بفرض data-theme=dark):** خلفية #0B0B0D والـmeander يرسم متغيره الداكن ✓ · صفر overflow
+- **وجهة CTA:** /coaching يفتح صفحة الكوتشينج الحية (h1 «Professional coaches & nutrition specialists») — والتسمية «ابدأ مع مدربك الشخصي / Start with a Personal Coach» لا توحي بحجز جلسات منفردة ✓
+- **VLM على الإنتاج الحي (لقطات PROD-VERIFIED):** 3/3 PASS — كثافة الكارت خفيفة والـCTA مهيمن · حد Coaching/For-Coaches واضح عبر الـdivider · spacing العضويات مريح حول الشريط وزر المقارنة
+
+Stage Summary:
+- المرحلة 200 منشورة ومتحقق منها حيًا بالكامل على alkemos.com (0e3c115) — كل بنود أمر المالك الخمسة مؤكدة على الأسطح الحية EN/AR × Desktop/Mobile + dark mode بلا أي overflow أو مشكلة RTL
