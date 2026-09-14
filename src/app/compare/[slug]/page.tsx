@@ -232,12 +232,25 @@ export default async function ComparisonPage({
         <section className="marble-card mt-16 p-8 text-center">
           <h2 className="text-2xl font-semibold tracking-tight">Try Alkemos Free</h2>
           <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)]">
-            Full exercise library, food database, calculators, and limited EVO AI — no credit card required.
+            The full exercise library, food database, 8 free tools, workout programs, and limited EVO AI — no credit card required.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link href="/auth" className="btn-chrome px-6 py-2.5 text-sm">Sign up free</Link>
             <Link href="/memberships" className="btn-outline px-6 py-2.5 text-sm">View pricing</Link>
             <Link href="/evo" className="btn-outline px-6 py-2.5 text-sm">Meet EVO AI</Link>
+          </div>
+          {/* Service access points (owner directive 2026-09-15 — comparison
+              tables must surface the current Alkemos services with their
+              correct LOCAL links). No EVO chat link here by law — the
+              floating widget stays the only EVO-chat access point. */}
+          <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
+            <Link href="/tools" className="underline underline-offset-4 hover:opacity-80">Free Tools</Link>
+            <Link href="/ai-meal-planner" className="underline underline-offset-4 hover:opacity-80">AI Meal Planner</Link>
+            <Link href="/ai-workout-planner" className="underline underline-offset-4 hover:opacity-80">AI Workout Planner</Link>
+            <Link href="/exercises" className="underline underline-offset-4 hover:opacity-80">Exercise Library</Link>
+            <Link href="/foods" className="underline underline-offset-4 hover:opacity-80">Food Database</Link>
+            <Link href="/programs" className="underline underline-offset-4 hover:opacity-80">Programs</Link>
+            <Link href="/coaching" className="underline underline-offset-4 hover:opacity-80">Coaching</Link>
           </div>
         </section>
 

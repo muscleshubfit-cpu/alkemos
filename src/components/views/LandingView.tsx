@@ -344,6 +344,14 @@ export function LandingView() {
       us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "بعضها", appsEn: "Some",
     },
     {
+      // 2026-09-15 (owner directive — comparison tables must reflect the
+      // current service set): the 8-free-tools cluster was missing from
+      // the quick table. TOOLS_PLUS derives from tools-shared.ts (Phase 195).
+      featureAr: `${TOOLS_PLUS} أدوات مجانية (حاسبات ومتتبع ومخططات)`,
+      featureEn: `${TOOLS_PLUS} free tools (calculators, tracker, planners)`,
+      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "بعضها", appsEn: "Some",
+    },
+    {
       featureAr: "خطط تدريب وتغذية مخصصة",
       featureEn: "Custom workout & nutrition plans",
       us: "✅", tradAr: "✅", tradEn: "✅", appsAr: "خطط عامة فقط", appsEn: "Generic plans only",
@@ -367,6 +375,14 @@ export function LandingView() {
       featureAr: "دعم عربي كامل (RTL)",
       featureEn: "Full Arabic support (RTL)",
       us: "✅", tradAr: "حسب المدرب", tradEn: "Per coach", appsAr: "❌", appsEn: "❌",
+    },
+    {
+      // 2026-09-15 (owner directive — service coverage): the public
+      // affiliate program (20% commission, affiliate-constants.ts) joins
+      // the quick table — honest class-level cells for the other columns.
+      featureAr: "برنامج أفلييت (عمولة 20%)",
+      featureEn: "Affiliate program (20% commission)",
+      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "بعضها", appsEn: "Some",
     },
     {
       featureAr: "التكلفة الشهرية",

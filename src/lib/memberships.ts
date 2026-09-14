@@ -371,8 +371,22 @@ export const COMPARISON_ROWS: Array<{
     coaching: "✓",
   },
   {
-    feature: "حاسبات اللياقة",
-    featureEn: "Fitness Calculators",
+    // 2026-09-15 (owner directive — comparison tables must reflect the
+    // current service set): ready-made programs are browsable on every
+    // tier (Free features list "تصفح برامج التدريب") — now a table row.
+    feature: "برامج التدريب الجاهزة",
+    featureEn: "Ready-made Programs",
+    free: "✓",
+    premium: "✓",
+    pro: "✓",
+    coaching: "✓",
+  },
+  {
+    // 2026-09-15: the row was "حاسبات اللياقة/Fitness Calculators" while
+    // the hub serves the full 8-tool cluster (tools-shared.ts) — renamed
+    // to the actual service, matching the tier feature lines above.
+    feature: `الأدوات المجانية (${TOOLS_COUNT}+)`,
+    featureEn: `Free Tools (${TOOLS_COUNT}+)`,
     free: "✓",
     premium: "✓",
     pro: "✓",

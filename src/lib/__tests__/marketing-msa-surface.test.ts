@@ -398,6 +398,8 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     // Stale / unverified competitor claims (banned):
     for (const banned of [
       "6 free (calorie", // tools miscount — 8 tools since Phase 195
+      "5 calculators", // 2026-09-15 accuracy fix: 4 calculators + water tracker
+      "خمس حاسبات", // same miscount in Arabic
       "2,100", // stale ExRx count (2,200+ verified from exrx.net)
       "350M", // stale MFP user count (280M+ company-reported 2026)
       "~$95/yr", // stale Freeletics pricing
@@ -414,25 +416,37 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     }
     // Verified-current claims + Alkemos service coverage (required):
     for (const required of [
-      "8 free tools (5 calculators, meal planner, 2 AI planners)",
+      "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
       "8,830+ foods",
       "2,200+",
       "280M+",
       "~$80/yr", // Freeletics 12-mo Training Coach (App Store, verified)
-      'dataAsOf: "2026-09-14"', // re-verification date on all three
+      'dataAsOf: "2026-09-15"', // re-verification date on all three (2026-09-15 refresh)
       "Premium+ tier ($24.99/month or $99.99/year)", // MFP Premium+
       "AI Nutrition Coach (meal plans & recipes — no food tracking)",
     ]) {
       expect(src, `Phase 197 verified claim missing: "${required}"`).toContain(required);
     }
-    // Every comparison covers the human-coaching service of Alkemos.
+    // Every comparison covers the human-coaching + affiliate services of
+    // Alkemos (2026-09-15 owner directive — service coverage), and every
+    // table row carries bilingual cells (the AR pages render the Ar fields).
     const { COMPARISONS } = await import("@/lib/comparisons");
     for (const c of COMPARISONS) {
       expect(
         c.rows.some((r) => r.labelEn === "Human coaching" && r.alkemosValue.length > 0),
         `${c.slug}: missing the Human coaching row`,
       ).toBe(true);
-      expect(c.dataAsOf, `${c.slug}: dataAsOf not re-verified`).toBe("2026-09-14");
+      expect(
+        c.rows.some((r) => r.labelEn === "Affiliate program"),
+        `${c.slug}: missing the Affiliate program row`,
+      ).toBe(true);
+      expect(c.dataAsOf, `${c.slug}: dataAsOf not re-verified`).toBe("2026-09-15");
+      for (const r of c.rows) {
+        expect(
+          r.alkemosValueAr.length > 0 && r.competitorValueAr.length > 0,
+          `${c.slug} row "${r.labelEn}": missing Arabic cell values`,
+        ).toBe(true);
+      }
       // Structural EN/AR parity: body sections align 1:1 (headings + counts).
       expect(c.bodyEn.length, `${c.slug}: bodyEn/bodyAr section count drift`).toBe(c.bodyAr.length);
       c.bodyEn.forEach((section, i) => {
@@ -441,9 +455,10 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
           `${c.slug}: bodyEn[${i}] paragraph count drift`,
         ).toBe(c.bodyAr[i].paragraphs.length);
       });
-      // "+" law: content-volume numbers always carry "+" in table cells.
+      // "+" law: content-volume numbers always carry "+" in table cells
+      // (EN and AR cells alike — 2026-09-15 bilingual-cells refresh).
       for (const row of c.rows) {
-        for (const value of [row.alkemosValue, row.competitorValue]) {
+        for (const value of [row.alkemosValue, row.competitorValue, row.alkemosValueAr, row.competitorValueAr]) {
           if (value.includes("8,830")) {
             expect(value, `row "${row.labelEn}": 8,830 without "+"`).toContain("8,830+");
           }

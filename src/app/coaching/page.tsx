@@ -419,7 +419,11 @@ export default function CoachingPage() {
                   </div>
                   <p className="mt-1 text-sm font-normal opacity-60">{isAr ? "أو $359 سنويًا" : "or $359/yr"}</p>
                   <ul className="mt-8 space-y-3 text-base font-normal">
-                    {[isAr ? "خطط تغذية وتمارين من مدرب بشري" : "Nutrition + workout plans from a human coach",
+                    {/* 2026-09-15 (consistency fix — memberships.ts says
+                        coaching inherits every Pro limit; this card now says
+                        so explicitly, same numbers, copy-only): */}
+                    {[isAr ? "كل مميزات Pro (8 خطط AI شهريًا، 6 تبديلات أسبوعيًا، بلا إعلانات)" : "All Pro features (8 AI plans/month, 6 swaps/week, ad-free)",
+                      isAr ? "خطط تغذية وتمارين من مدرب بشري" : "Nutrition + workout plans from a human coach",
                       isAr ? "EVO: محادثة غير محدودة وذاكرة دائمة" : "EVO: unlimited chat + cross-session memory",
                       isAr ? "متابعة أسبوعية بتذكير تلقائي" : "Weekly check-in reminders",
                       isAr ? "تبديلات يدوية من المدرب" : "Manual swaps by the coach",

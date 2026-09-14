@@ -51,7 +51,7 @@ describe("tools count guard (Phase 195)", () => {
     expect(TOOLS_COUNT).toBe(TOOLS.length);
   });
 
-  it("tools census: the hub serves 8 tools (5 calculators + meal planner + 2 AI planners)", async () => {
+  it("tools census: the hub serves 8 tools (4 calculators + water tracker + meal planner + 2 AI planners)", async () => {
     const { TOOLS_COUNT } = await import("@/lib/tools-shared");
     expect(TOOLS_COUNT).toBe(8);
   });

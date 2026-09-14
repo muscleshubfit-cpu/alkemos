@@ -3871,3 +3871,31 @@ Stage Summary:
 - البوابات النهائية: tsc 0 (الأربعة الموثقة) · eslint 0/0 · vitest 1066/1066 · next build exit 0 · docs_audit (192) · docs_parity · migration_audit · stale-refs · ui-wiring
 - Commit SHA: a179176 (كود 192 الأساسي) + d3b0eb8 (إصلاح تفكّك سجل الفئات)
 - Push status: pushed (SYNCED — build-info حي أكّد d3b0eb8)
+
+---
+Task ID: COMPARE-CONSISTENCY-199-2026-09-15
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-15 — فحص ثم إصلاح Production بناءً على آخر فحص (دون إعادة تنفيذ أو تغيير إصلاحات Homepage UI المكتملة 198): تدقيق مباشر لكل النسخ الحية (Homepage EN/AR · Memberships · Coaching · EVO · Comparison pages · Tools) + اتساق المعلومات + جداول المقارنة تعكس خدمات Alkemos الحالية شاملة + اتساق Homepage/Memberships/Coaching/EVO + فصحى واضحة — Copy-only بلا مساس بالوظائف/الكوتة/الأسعار/الـrouting/المدونة
+
+Work Log:
+- **بروتوكول §3.6:** STATE.md قُرئ (198 على dc01637) · git fetch → SYNCED · آخر 3 مدخلات worklog + آخر 5 كوميتات · استنساخ نظيف
+- **تدقيق Production الحي قبل أي تعديل:** 16 صفحة EN/AR (الرئيسية ×2 · العضويات ×2 · الكوتشينج ×2 · EVO ×2 · فهرس المقارنات ×2 · مقارنات المنافسين ×6 · الأدوات ×2) — كلها 200 حيًا · الحقائق العشر (8+ أدوات · 868+ · 8,830+ · $14.99 · $29.99 · 8 توليدات · 6 تبديلات · 2 مجانًا بلا تسجيل · 10 رسائل/يوم · سلّم الحفظ) متسقة عبر memberships.ts/الرئيسية/EVO/الكوتشينج · صفر صياغة «أكثر من N+» مزدوجة · صفر «5 حاسبات» على الرئيسية/العضويات
+- **(1) الخلل الأكبر — جداول المقارنة العربية كانت إنجليزية بالكامل:** ComparisonRow حمل labelEn/labelAr لكن alkemosValue/competitorValue نص واحد إنجليعي يُرسم كما هو في /ar/compare/[slug] — النوع كسب alkemosValueAr/competitorValueAr (حقلان إلزاميان بالـtype) وكل الـ27 صفًا القديمة تُرجمت فصحى والعارض العربي يرسم الحقلين — المرايا الست صارت عربية 100%
+- **(2) تصحيح عدّ الأدوات:** «8 free tools (5 calculators, meal planner, 2 AI planners)» كانت تحسب متتبع الماء حاسبةً خامسة (المصدر tools-shared.ts: 4 حاسبات + متتبع ماء + مخطط وجبات + مولدا AI = 8) — صارت «8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)» في: خلية MFP + جسم MFP EN (five calculators (…water) → four calculators (…) + a water tracker) + جسم MFP AR (خمس حاسبات: …ماء → أربع حاسبات + متتبع الماء) + جسم Freeletics EN/AR + llms-full.txt + تعليق ReviewInviteCard — الإجمالي 8 لم يتغير
+- **(3) تغطية الخدمات في جداول المقارنة (بند المالك):** صف «Free tools & calculators» أُضيف لجدولي Freeletics (لا أدوات مجانية لديه — تطبيق باشتراك — win) وExRx (حاسبات مجانية واسعة 1RM/دهون/TDEE — tie صادق لا win) + صف «Affiliate program» للجداول الثلاثة بعد **تحقق حي بالبحث 2026-09-15**: Alkemos علني 20% على الاشتراكات (COMMISSION_RATE affiliate-constants.ts) · MFP يدير برنامجه عبر وكالة/شبكات شريكة (Acceleration Partners) — tie · Freeletics عبر شبكات FlexOffers/Awin — tie · ExRx لا برنامج — win · dataAsOf الثلاثة → 2026-09-15
+- **(4) جدول الرئيسية السريع:** صفان جديدان — «8+ أدوات مجانية (حاسبات ومتتبع ومخططات) / 8+ free tools (calculators, tracker, planners)» و«برنامج أفلييت (عمولة 20%) / Affiliate program (20% commission)» بخلايا «بعضها/Some» الصادقة لعمود التطبيقات (قانون 197) — الجدول 10 صفوف داخل details المطوي (SEO سليم)
+- **(5) جدول العضويات:** صف «برامج التدريب الجاهزة / Ready-made Programs» (✓ على كل الباقات — يطابق ميزة Free «تصفح برامج التدريب») + صف «حاسبات اللياقة» صار «الأدوات المجانية (8+)/Free Tools (8+)» مشتقًا من TOOLS_COUNT — 15 صفًا
+- **(6) اتساق الكوتشينج:** كارت $39.99 كان يحذف «كل مميزات Pro» التي يقولها memberships.ts — السطر أُضيف أول القائمة «كل مميزات Pro (8 خطط AI شهريًا، 6 تبديلات أسبوعيًا، بلا إعلانات) / All Pro features (8 AI plans/month, 6 swaps/week, ad-free)»
+- **(7) روابط الخدمات المحلية الصحيحة (بند المالك):** شريط 7 روابط واعية-لغة (Tools · AI Meal Planner · AI Workout Planner · Exercise Library · Food Database · Programs · Coaching — EN محلية وAR بـ/ar/*) تحت CTA «جرّب مجانًا/Try Alkemos Free» في صفحات المقارنة الست + توصيف القسم نفسه صار شاملًا (أدوات + برامج) — **صفر روابط EVO-chat جديدة** (الودجت العائم نقطة الوصول الوحيدة — القانون محترم)
+- **(8) إصلاحا تسريب لغة:** /ar/compare/[slug] «تعرّف على EVO» كان يربط /evo (الإنجليزية) → /ar/evo · /ar/authors/[slug] «مدرب EVO الذكي» كذلك → /ar/evo
+- **(9) Tools hub:** الوصف «حاسبات لياقة وتغذية مجانية/Free fitness and nutrition calculators» → «أدوات…/…tools» (الصفحة تقدم 8 أدوات لا حاسبات فقط — يطابق H1 وtools-shared)
+- **(10) الحرس محدّث للعقد الجديد:** marketing-msa-surface (Phase 197 canaries): ممنوع «5 calculators» و«خمس حاسبات» نهائيًا · الإلزام صار الصياغة الجديدة · dataAsOf=2026-09-15 · حارس جديد: كل صف في الجداول الثلاثة يحمل خلايا عربية غير فارغة + صف Affiliate program إلزامي · قانون ال«+» امتد للخلايا العربية · library-counts: عنوان اختبار العدّ صار (4 calculators + water tracker + meal planner + 2 AI planners)
+- **البوابات التسع:** tsc 0 (الأربعة الموثقة قديمة — مؤكدة موجودة على كوميت الأساس) · eslint 0/0 · vitest 1122/1122 (فشل أولي واحد: تعليقي حرفيًا احتوى «5 calculators» المحظورة — أُعيدت صياغته ثم أخضر) · next build exit 0 · docs_audit (phase=199) ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · دخان محلي ×17 فحصًا (الصفوف/الخلايا العربية/الروابط كلها خضراء على next start) + صفر overflow أفقي 390px على الصفحات العشر المتأثرة + تحقق DOM للجدول المطوي (10 صفوف بالـHTML)
+- **النطاق المحترم:** صفر تغيير على الأسعار (0/14.99/29.99/39.99) أو الكوتة (2/4/8/8 · 0/3/6/6 · 10 رسائل) أو الحدود أو المسارات أو الـAPI أو قاعدة البيانات · صفر مساس بالمدونة · صفر إعادة تنفيذ لإصلاحات 198 (LandingView: صفان بيانيان فقط داخل comparisonRows — لا CSS/بنية/هوية) · صفر روابط EVO جديدة
+
+Stage Summary:
+- المرايا العربية لصفحات المقارنة الست صارت عربية بالكامل (27 صفًا مترجمًا فصحى) بعد أن كانت خلاياها إنجليزية — أكبر إصلاح MSA في هذه الجولة
+- عدّ الأدوات صار دقيقًا في كل مكان (4 حاسبات + متتبع ماء ضمن 8) والجداول الثلاثة تحمل صفّي Free tools وAffiliate بتقييم صادق محقق حيًا (tie/tie/win) — وجدولا الرئيسية والعضويات يعكسان الخدمات الحالية (أدوات/برامج/أفلييت)
+- اتساق الكوتشينج مع العضويات مكتمل (كل مميزات Pro بالأرقام) + 7 روابط خدمة محلية صحيحة على كل صفحة مقارنة + موتا تسريبي /evo العربيين
+- Commit: (يُوثق بعد الـpush أدناه)
+- Push status: (يُحدَّث بعد الـpush)

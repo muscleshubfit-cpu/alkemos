@@ -26,10 +26,12 @@ export type ComparisonRow = {
   /** Feature label (bilingual) */
   labelEn: string;
   labelAr: string;
-  /** Alkemos's value for this feature */
+  /** Alkemos's value for this feature (bilingual — AR cells render on /ar) */
   alkemosValue: string;
-  /** Competitor's value for this feature */
+  alkemosValueAr: string;
+  /** Competitor's value for this feature (bilingual — AR cells render on /ar) */
   competitorValue: string;
+  competitorValueAr: string;
   /** "win" | "loss" | "tie" — drives the row's visual treatment */
   outcome: "win" | "loss" | "tie";
 };
@@ -69,7 +71,10 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "MyFitnessPal",
     competitorNameAr: "MyFitnessPal",
     competitorUrl: "https://www.myfitnesspal.com",
-    dataAsOf: "2026-09-14",
+    // 2026-09-15: affiliate-program row added after live re-verification
+    // (MFP runs its program via agency/partner networks — Acceleration
+    // Partners, announced on accelerationpartners.com 2023-04-03).
+    dataAsOf: "2026-09-15",
 
     titleEn: "Alkemos vs MyFitnessPal — Full Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل MyFitnessPal — مقارنة كاملة (2026) | Alkemos",
@@ -94,64 +99,99 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Food database size",
         labelAr: "حجم قاعدة الأطعمة",
         alkemosValue: "8,830+ foods (USDA-backed + curated)",
+        alkemosValueAr: "8,830+ صنف غذائي (بمعايير USDA ومنسّقة بدقة)",
         competitorValue: "Millions (user-contributed, varying accuracy)",
+        competitorValueAr: "ملايين المدخلات (مساهمات مستخدمين بدقة متفاوتة)",
         outcome: "loss",
       },
       {
         labelEn: "Exercise library",
         labelAr: "مكتبة التمارين",
         alkemosValue: "868+ exercises with step-by-step instructions",
+        alkemosValueAr: "868+ تمرينًا بشرح خطوة بخطوة",
         competitorValue: "No exercise library",
+        competitorValueAr: "لا توجد مكتبة تمارين",
         outcome: "win",
       },
       {
         labelEn: "Workout programs",
         labelAr: "برامج التدريب",
         alkemosValue: "Ready-made programs (home & gym, all levels)",
+        alkemosValueAr: "برامج جاهزة (للمنزل والجيم، كل المستويات)",
         competitorValue: "No workout programs",
+        competitorValueAr: "لا توجد برامج تدريب",
         outcome: "win",
       },
       {
         labelEn: "AI coach",
         labelAr: "مدرب الذكاء الاصطناعي",
         alkemosValue: "EVO AI — plan generation, meal & exercise swaps, 24/7 chat",
+        alkemosValueAr: "EVO AI — توليد خطط، تبديلات وجبات وتمارين، ومحادثة على مدار الساعة",
         competitorValue: "No AI coach (premium has basic insights)",
+        competitorValueAr: "لا مدرب ذكاء اصطناعي (النسخة المدفوعة فيها رؤى أساسية)",
         outcome: "win",
       },
       {
         labelEn: "Free tools & calculators",
         labelAr: "الأدوات والحاسبات المجانية",
-        alkemosValue: "8 free tools (5 calculators, meal planner, 2 AI planners)",
+        // 2026-09-15 accuracy fix: the hub serves 4 calculators + a water
+        // tracker (tools-shared.ts) — the old cell counted the water
+        // tracker as a fifth calculator.
+        alkemosValue: "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
+        alkemosValueAr: "8 أدوات مجانية (4 حاسبات، متتبع ماء، مخطط وجبات، ومخططا AI)",
         competitorValue: "Premium-only calculators",
+        competitorValueAr: "حاسبات مدفوعة فقط",
         outcome: "win",
       },
       {
         labelEn: "Arabic language support",
         labelAr: "دعم اللغة العربية",
         alkemosValue: "Full bilingual (Arabic + English) with RTL",
+        alkemosValueAr: "ثنائي اللغة بالكامل (عربية + إنجليزية) مع دعم RTL",
         competitorValue: "English-only interface",
+        competitorValueAr: "واجهة إنجليزية فقط",
         outcome: "win",
       },
       {
         labelEn: "Pricing (premium)",
         labelAr: "التسعير (النسخة المدفوعة)",
         alkemosValue: "$14.99/mo or $119/yr",
+        alkemosValueAr: "$14.99 شهريًا أو $119 سنويًا",
         competitorValue: "$19.99/mo or $79.99/yr",
+        competitorValueAr: "$19.99 شهريًا أو $79.99 سنويًا",
         outcome: "tie",
       },
       {
         labelEn: "Barcode scanner",
         labelAr: "ماسح الباركود",
         alkemosValue: "Not available",
+        alkemosValueAr: "غير متوفر",
         competitorValue: "Yes (extensive packaged-food database)",
+        competitorValueAr: "نعم (قاعدة واسعة من الأطعمة المعلّبة)",
         outcome: "loss",
       },
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
         alkemosValue: "Available ($39.99/mo) with vetted coaches",
+        alkemosValueAr: "متوفر ($39.99 شهريًا) مع مدربين موثّقين",
         competitorValue: "Not available",
+        competitorValueAr: "غير متوفر",
         outcome: "win",
+      },
+      {
+        // 2026-09-15 (owner directive — comparison tables must reflect the
+        // current Alkemos service set): the public affiliate program is a
+        // live Alkemos service (COMMISSION_RATE 20%, affiliate-constants.ts).
+        // MFP verified to run an affiliate program through partner
+        // networks/agency (Acceleration Partners) — honest tie.
+        labelEn: "Affiliate program",
+        labelAr: "برنامج الأفلييت",
+        alkemosValue: "Public program — 20% commission on subscriptions",
+        alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
+        competitorValue: "Affiliate program via partner networks",
+        competitorValueAr: "برنامج أفلييت عبر شبكات شريكة",
+        outcome: "tie",
       },
     ],
 
@@ -166,7 +206,7 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "Where Alkemos wins",
         paragraphs: [
-          "Alkemos wins decisively on platform breadth. MyFitnessPal is a calorie tracker — Alkemos is a complete fitness platform. The 868+-exercise library with step-by-step form instructions, ready-made workout programs for every goal and equipment setup, eight free tools — five calculators (calorie, BMI, macro, body fat, water), a meal planner, and two AI planners — and the EVO AI coach together cover what would cost you 3–4 separate subscriptions on the MyFitnessPal model.",
+          "Alkemos wins decisively on platform breadth. MyFitnessPal is a calorie tracker — Alkemos is a complete fitness platform. The 868+-exercise library with step-by-step form instructions, ready-made workout programs for every goal and equipment setup, eight free tools — four calculators (calorie, BMI, macro, body fat), a water tracker, a meal planner, and two AI planners — and the EVO AI coach together cover what would cost you 3–4 separate subscriptions on the MyFitnessPal model.",
           "The EVO AI coach is the single biggest differentiator. MyFitnessPal's premium tier offers 'insights' — basic charts and trends. Alkemos's EVO reads your health data, builds you a personalized nutrition and workout plan, suggests meal and exercise swaps based on your preferences, and answers fitness questions 24/7. This is closer to having a human coach than a tracker.",
           "Arabic speakers have no real choice: MyFitnessPal is English-only. Alkemos is fully bilingual with native RTL support, including Arabic exercise names, Arabic food names, and an Arabic AI coach. For the 400M+ Arabic speakers underserved by Western fitness apps, this alone is the deciding factor.",
         ],
@@ -190,7 +230,7 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "أين يتفوّق Alkemos",
         paragraphs: [
-          "Alkemos يتفوّق بوضوح في اتساع المنصة. MyFitnessPal متتبّع سعرات — Alkemos منصة لياقة كاملة. مكتبة الـ868+ تمرينًا مع شرح خطوة بخطوة، برامج التدريب الجاهزة لكل هدف وتجهيز، ثماني أدوات مجانية (خمس حاسبات: سعرات، BMI، ماكروز، نسبة دهون، ماء — إضافة إلى مخطط الوجبات ومولدا خطط الذكاء الاصطناعي)، ومدرب الذكاء الاصطناعي EVO مجتمعةً تغطّي ما كلّفك 3–4 اشتراكات منفصلة في نموذج MyFitnessPal.",
+          "Alkemos يتفوّق بوضوح في اتساع المنصة. MyFitnessPal متتبّع سعرات — Alkemos منصة لياقة كاملة. مكتبة الـ868+ تمرينًا مع شرح خطوة بخطوة، برامج التدريب الجاهزة لكل هدف وتجهيز، ثماني أدوات مجانية (أربع حاسبات: سعرات، BMI، ماكروز، نسبة دهون — إضافة إلى متتبع الماء ومخطط الوجبات ومولدا خطط الذكاء الاصطناعي)، ومدرب الذكاء الاصطناعي EVO مجتمعةً تغطّي ما كلّفك 3–4 اشتراكات منفصلة في نموذج MyFitnessPal.",
           "مدرب EVO الذكي هو الفارق الأكبر. النسخة المدفوعة من MyFitnessPal تُقدّم «رؤى» — رسوم بيانية واتجاهات أساسية. EVO في Alkemos يقرأ بياناتك الصحية، يبني لك خطة تغذية وتمارين مخصصة، يقترح تبديلات للوجبات والتمارين حسب تفضيلاتك، ويُجيب على أسئلة اللياقة 24/7. هذا أقرب لامتلاك مدرب بشري من امتلاك متتبّع.",
           "الناطقون بالعربية ليس لديهم خيار حقيقي: MyFitnessPal إنجليزي فقط. Alkemos ثنائي اللغة بالكامل مع دعم RTL أصلي، بما في ذلك أسماء التمارين بالعربية، أسماء الأطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. لأكثر من 400 مليون ناطق بالعربية غير مخدومين من تطبيقات اللياقة الغربية، هذه وحدها هي العامل الحاسم.",
         ],
@@ -213,7 +253,10 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "Freeletics",
     competitorNameAr: "Freeletics",
     competitorUrl: "https://www.freeletics.com",
-    dataAsOf: "2026-09-14",
+    // 2026-09-15: free-tools + affiliate rows added after live
+    // re-verification (Freeletics runs an affiliate program via networks
+    // such as FlexOffers/Awin; its site offers no free tools hub).
+    dataAsOf: "2026-09-15",
 
     titleEn: "Alkemos vs Freeletics — AI Coaching & Bodyweight Training (2026) | Alkemos",
     titleAr: "Alkemos مقابل Freeletics — تدريب الذكاء الاصطناعي وتمارين وزن الجسم (2026) | Alkemos",
@@ -238,70 +281,114 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Training focus",
         labelAr: "تركيز التدريب",
         alkemosValue: "Full-spectrum (gym, home, bodyweight, equipment-based)",
+        alkemosValueAr: "تدريب شامل (جيم، منزل، وزن الجسم، بالمعدات)",
         competitorValue: "Bodyweight HIIT only",
+        competitorValueAr: "تمارين HIIT بوزن الجسم فقط",
         outcome: "win",
       },
       {
         labelEn: "Exercise library size",
         labelAr: "حجم مكتبة التمارين",
         alkemosValue: "868+ exercises across all equipment",
+        alkemosValueAr: "868+ تمرينًا بكل أنواع المعدات",
         competitorValue: "AI-built workouts from a bodyweight movement pool (no public library)",
+        competitorValueAr: "تمارين يبنيها الذكاء الاصطناعي من مجموعة حركات وزن الجسم (لا مكتبة معلنة)",
         outcome: "win",
       },
       {
         labelEn: "AI coach",
         labelAr: "مدرب الذكاء الاصطناعي",
         alkemosValue: "EVO AI — plan generation + 24/7 chat + meal & exercise swaps",
+        alkemosValueAr: "EVO AI — توليد خطط + محادثة على مدار الساعة + تبديلات وجبات وتمارين",
         competitorValue: "AI Coach (workout personalization)",
+        competitorValueAr: "مدرب ذكي (تخصيص التمارين)",
         outcome: "tie",
       },
       {
         labelEn: "Nutrition tracking",
         labelAr: "تتبّع التغذية",
         alkemosValue: "8,830+ food database + AI meal planner",
+        alkemosValueAr: "قاعدة 8,830+ صنف غذائي + مخطط وجبات بالذكاء الاصطناعي",
         competitorValue: "AI Nutrition Coach (meal plans & recipes — no food tracking)",
+        competitorValueAr: "مدرب تغذية ذكي (خطط وجبات ووصفات — بلا تتبّع للطعام)",
         outcome: "win",
       },
       {
         labelEn: "Workout programs",
         labelAr: "برامج التدريب",
         alkemosValue: "Ready-made + AI-generated",
+        alkemosValueAr: "برامج جاهزة + مولّدة بالذكاء الاصطناعي",
         competitorValue: "AI-generated + preset training plans",
+        competitorValueAr: "مولّدة بالذكاء الاصطناعي + خطط جاهزة",
         outcome: "tie",
+      },
+      {
+        labelEn: "Free tools & calculators",
+        labelAr: "الأدوات والحاسبات المجانية",
+        // 2026-09-15 (owner directive — service coverage): Freeletics has
+        // no free tools/calculators hub (subscription app) — absence-based
+        // cell, same pattern as the MFP "no exercise library" cells.
+        alkemosValue: "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
+        alkemosValueAr: "8 أدوات مجانية (4 حاسبات، متتبع ماء، مخطط وجبات، ومخططا AI)",
+        competitorValue: "No free tools or calculators (subscription app)",
+        competitorValueAr: "لا أدوات أو حاسبات مجانية (تطبيق باشتراك)",
+        outcome: "win",
       },
       {
         labelEn: "Arabic language",
         labelAr: "اللغة العربية",
         alkemosValue: "Full Arabic + RTL",
+        alkemosValueAr: "عربية كاملة + دعم RTL",
         competitorValue: "English + 9 more languages (no Arabic)",
+        competitorValueAr: "إنجليزية + 9 لغات أخرى (بلا عربية)",
         outcome: "win",
       },
       {
         labelEn: "Pricing",
         labelAr: "التسعير",
         alkemosValue: "Premium $14.99/mo ($119/yr) · Pro $29.99/mo ($239/yr)",
+        alkemosValueAr: "بريميوم $14.99 شهريًا ($119 سنويًا) · برو $29.99 شهريًا ($239 سنويًا)",
         competitorValue: "Training Coach ~$80/yr (12-mo) — nutrition bundle costs more",
+        competitorValueAr: "مدرب التدريب ~$80 سنويًا (خطة 12 شهرًا) — حزمة التغذية بتكلفة إضافية",
         outcome: "tie",
       },
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
         alkemosValue: "Available — $39.99/mo with vetted coaches",
+        alkemosValueAr: "متوفر — $39.99 شهريًا مع مدربين موثّقين",
         competitorValue: "AI coaching only — no human coaches",
+        competitorValueAr: "تدريب ذكي فقط — لا مدربين بشريين",
         outcome: "win",
       },
       {
         labelEn: "Audio coaching",
         labelAr: "التدريب الصوتي",
         alkemosValue: "Not available",
+        alkemosValueAr: "غير متوفر",
         competitorValue: "Yes (motivational audio cues)",
+        competitorValueAr: "نعم (تحفيز صوتي أثناء التمرين)",
         outcome: "loss",
       },
       {
         labelEn: "Community",
         labelAr: "المجتمع",
         alkemosValue: "Coach marketplace + affiliate program",
+        alkemosValueAr: "سوق مدربين + برنامج أفلييت",
         competitorValue: "Large global community + challenges",
+        competitorValueAr: "مجتمع عالمي كبير + تحدّيات",
+        outcome: "tie",
+      },
+      {
+        // 2026-09-15 (owner directive — service coverage): affiliate row —
+        // Freeletics runs a real affiliate program (FlexOffers/Awin +
+        // application form) — honest tie.
+        labelEn: "Affiliate program",
+        labelAr: "برنامج الأفلييت",
+        alkemosValue: "Public program — 20% commission on subscriptions",
+        alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
+        competitorValue: "Affiliate program via affiliate networks",
+        competitorValueAr: "برنامج أفلييت عبر شبكات أفلييت",
         outcome: "tie",
       },
     ],
@@ -318,7 +405,7 @@ export const COMPARISONS: Comparison[] = [
         heading: "Where Alkemos wins",
         paragraphs: [
           "Alkemos wins on platform breadth. Freeletics is a bodyweight-only app — if you ever want to lift a barbell, use a cable machine, or follow a structured 4-day gym split, Freeletics cannot help you. Alkemos covers every equipment type: barbell, dumbbell, cable, machine, kettlebell, band, and bodyweight. The 868+-exercise library across every equipment type has no equivalent in Freeletics's bodyweight-only catalog.",
-          "Nutrition is the other major gap. Freeletics offers an AI Nutrition Coach with meal plans and recipes but no food tracking — you'd need a separate app (usually MyFitnessPal) for that. Alkemos ships an 8,830+ food database, eight free tools (five calculators, a meal planner, and two AI planners), and full macro tracking inside the same subscription. Paying for Freeletics + MyFitnessPal Premium costs more than Alkemos Premium and gives you less integration.",
+          "Nutrition is the other major gap. Freeletics offers an AI Nutrition Coach with meal plans and recipes but no food tracking — you'd need a separate app (usually MyFitnessPal) for that. Alkemos ships an 8,830+ food database, eight free tools (four calculators, a water tracker, a meal planner, and two AI planners), and full macro tracking inside the same subscription. Paying for Freeletics + MyFitnessPal Premium costs more than Alkemos Premium and gives you less integration.",
           "The pricing picture is nuanced. Freeletics Training Coach is about $80/year on the 12-month plan, with its nutrition bundle costing extra. Alkemos Premium is $119/year and bundles training plans, the 8,830+-food database, the free tools, and EVO in one subscription. For the same training + nutrition use case, Alkemos is the better value.",
         ],
       },
@@ -335,7 +422,7 @@ export const COMPARISONS: Comparison[] = [
         heading: "أين يتفوّق Alkemos",
         paragraphs: [
           "Alkemos يتفوّق في اتساع المنصة. Freeletics تطبيق بوزن الجسم فقط — إذا أردت يومًا رفع بار، استخدام ماكينة كابل، أو اتباع تقسيم 4 أيام جيم منظّم، Freeletics لا يستطيع مساعدتك. Alkemos يغطّي كل أنواع المعدات: بار، دمبل، كابل، ماكينة، كيتل بيل، مطاط، ووزن الجسم. مكتبة الـ868+ تمرين عبر كل أنواع المعدات لا نظير لها في كتالوج Freeletics المحدود بوزن الجسم.",
-          "التغذية هي الفجوة الكبرى الأخرى. Freeletics يُقدّم مدرب تغذية ذكي بخطط وجبات ووصفات لكن بلا تتبّع للطعام — ستحتاج تطبيقًا منفصلًا (عادة MyFitnessPal) لذلك. Alkemos يُقدّم قاعدة 8,830+ صنف غذائي، وثماني أدوات مجانية (خمس حاسبات، ومخطط وجبات، ومولدا خطط بالذكاء الاصطناعي)، وتتبّع ماكروز كامل داخل نفس الاشتراك. دفع Freeletics + MyFitnessPal Premium يكلّف أكثر من Alkemos Premium ويمنحك تكاملًا أقل.",
+          "التغذية هي الفجوة الكبرى الأخرى. Freeletics يُقدّم مدرب تغذية ذكي بخطط وجبات ووصفات لكن بلا تتبّع للطعام — ستحتاج تطبيقًا منفصلًا (عادة MyFitnessPal) لذلك. Alkemos يُقدّم قاعدة 8,830+ صنف غذائي، وثماني أدوات مجانية (أربع حاسبات، ومتتبع ماء، ومخطط وجبات، ومولدا خطط بالذكاء الاصطناعي)، وتتبّع ماكروز كامل داخل نفس الاشتراك. دفع Freeletics + MyFitnessPal Premium يكلّف أكثر من Alkemos Premium ويمنحك تكاملًا أقل.",
           "صورة التسعير دقيقة. مدرب تدريب Freeletics حوالي $80/سنة في الخطة السنوية، وحزمة التغذية تكلف إضافيًا. Alkemos Premium بـ$119/سنة ويجمع برامج التدريب وقاعدة 8,830+ صنف غذائي والأدوات المجانية وEVO في اشتراك واحد. لنفس حالة الاستخدام تدريب + تغذية، Alkemos قيمة أفضل.",
         ],
       },
@@ -350,7 +437,10 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "ExRx.net",
     competitorNameAr: "ExRx.net",
     competitorUrl: "https://exrx.net",
-    dataAsOf: "2026-09-14",
+    // 2026-09-15: free-tools + affiliate rows added after live
+    // re-verification (ExRx serves an extensive free calculator library;
+    // no affiliate program found on its site).
+    dataAsOf: "2026-09-15",
 
     titleEn: "Alkemos vs ExRx.net — Exercise Library Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل ExRx.net — مقارنة مكتبة التمارين (2026) | Alkemos",
@@ -375,64 +465,105 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Exercise count",
         labelAr: "عدد التمارين",
         alkemosValue: "868+ exercises",
+        alkemosValueAr: "868+ تمرينًا",
         competitorValue: "2,200+ exercises",
+        competitorValueAr: "2,200+ تمرين",
         outcome: "loss",
       },
       {
         labelEn: "Mobile UX",
         labelAr: "تجربة الجوال",
         alkemosValue: "Modern responsive design + PWA installable",
+        alkemosValueAr: "تصميم حديث متجاوب + تطبيق PWA قابل للتثبيت",
         competitorValue: "Legacy 1999 design, poor on mobile",
+        competitorValueAr: "تصميم قديم من عام 1999، ضعيف على الجوال",
         outcome: "win",
       },
       {
         labelEn: "AI coach",
         labelAr: "مدرب الذكاء الاصطناعي",
         alkemosValue: "EVO AI — plan generation + 24/7 chat",
+        alkemosValueAr: "EVO AI — توليد خطط + محادثة على مدار الساعة",
         competitorValue: "No AI (static reference)",
+        competitorValueAr: "لا ذكاء اصطناعي (مرجع ثابت)",
         outcome: "win",
       },
       {
         labelEn: "Arabic translations",
         labelAr: "الترجمات العربية",
         alkemosValue: "Full Arabic + RTL for every exercise",
+        alkemosValueAr: "عربية كاملة + دعم RTL لكل تمرين",
         competitorValue: "English-only",
+        competitorValueAr: "إنجليزية فقط",
         outcome: "win",
       },
       {
         labelEn: "Workout programs",
         labelAr: "برامج التدريب",
         alkemosValue: "Ready-made programs + AI-generated",
+        alkemosValueAr: "برامج جاهزة + مولّدة بالذكاء الاصطناعي",
         competitorValue: "Workout templates (advanced)",
+        competitorValueAr: "قوالب تمارين (متقدمة)",
         outcome: "tie",
       },
       {
         labelEn: "Nutrition database",
         labelAr: "قاعدة بيانات التغذية",
         alkemosValue: "8,830+ foods + AI meal planner",
+        alkemosValueAr: "8,830+ صنف غذائي + مخطط وجبات بالذكاء الاصطناعي",
         competitorValue: "No food database",
+        competitorValueAr: "لا توجد قاعدة أطعمة",
         outcome: "win",
       },
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
         alkemosValue: "Available ($39.99/mo) with vetted coaches",
+        alkemosValueAr: "متوفر ($39.99 شهريًا) مع مدربين موثّقين",
         competitorValue: "Not available",
+        competitorValueAr: "غير متوفر",
         outcome: "win",
       },
       {
         labelEn: "Pricing",
         labelAr: "التسعير",
         alkemosValue: "Free tier + $14.99–$39.99/mo",
+        alkemosValueAr: "فئة مجانية + $14.99–$39.99 شهريًا",
         competitorValue: "Free, ad-supported website + paid exercise apps",
+        competitorValueAr: "موقع مجاني بإعلانات + تطبيقات تمارين مدفوعة",
         outcome: "loss",
       },
       {
         labelEn: "Kinesiology depth",
         labelAr: "عمق علم الحركة",
         alkemosValue: "Basic muscle + equipment metadata",
+        alkemosValueAr: "بيانات أساسية عن العضلات والمعدات",
         competitorValue: "Deep joint articulation + muscle architecture",
+        competitorValueAr: "تفاصيل عميقة عن حركات المفاصل وبنية العضلات",
         outcome: "loss",
+      },
+      {
+        // 2026-09-15 (owner directive — service coverage): ExRx serves an
+        // extensive FREE calculator library (1RM, body fat, TDEE…) — the
+        // honest grade is a tie, not a win.
+        labelEn: "Free tools & calculators",
+        labelAr: "الأدوات والحاسبات المجانية",
+        alkemosValue: "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
+        alkemosValueAr: "8 أدوات مجانية (4 حاسبات، متتبع ماء، مخطط وجبات، ومخططا AI)",
+        competitorValue: "Extensive free calculators (1RM, body fat, TDEE, and more)",
+        competitorValueAr: "حاسبات مجانية واسعة (1RM، نسبة الدهون، TDEE، وأكثر)",
+        outcome: "tie",
+      },
+      {
+        // 2026-09-15 (owner directive — service coverage): no affiliate
+        // program found on exrx.net (verified 2026-09-15).
+        labelEn: "Affiliate program",
+        labelAr: "برنامج الأفلييت",
+        alkemosValue: "Public program — 20% commission on subscriptions",
+        alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
+        competitorValue: "Not available",
+        competitorValueAr: "غير متوفر",
+        outcome: "win",
       },
     ],
 

@@ -38,9 +38,12 @@ export default function ToolsPage() {
             {isAr ? "الأدوات المجانية" : "Free Tools"}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
+            {/* 2026-09-15 accuracy fix: the hub serves the full 8-tool
+                cluster (calculators + water tracker + planners), not
+                calculators only — "tools" matches the H1 and tools-shared. */}
             {isAr
-              ? "حاسبات لياقة وتغذية مجانية لمساعدتك في رحلتك."
-              : "Free fitness and nutrition calculators for your journey."}
+              ? "أدوات لياقة وتغذية مجانية لمساعدتك في رحلتك."
+              : "Free fitness and nutrition tools for your journey."}
           </p>
         </div>
 

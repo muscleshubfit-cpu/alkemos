@@ -185,7 +185,10 @@ export default async function ArabicAuthorProfilePage({
             <Link href="/ar/foods" className="btn-outline px-4 py-2 text-sm">الأطعمة</Link>
             <Link href="/ar/programs" className="btn-outline px-4 py-2 text-sm">البرامج</Link>
             <Link href="/ar/blog" className="btn-outline px-4 py-2 text-sm">المدوّنة</Link>
-            <Link href="/evo" className="btn-chrome px-4 py-2 text-sm">مدرب EVO الذكي</Link>
+            {/* Locale-leak fix (2026-09-15 audit): linked /evo (the EN page)
+                from the AR surface — now the AR mirror, matching the other
+                links in this strip. */}
+            <Link href="/ar/evo" className="btn-chrome px-4 py-2 text-sm">مدرب EVO الذكي</Link>
           </div>
         </section>
       </main>

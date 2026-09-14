@@ -183,11 +183,11 @@ export default async function ArabicComparisonPage({
                       <td className="p-4 font-medium">{row.labelAr}</td>
                       <td className={`p-4 ${alkemosBg}`}>
                         <span className="ml-2 font-bold">{alkemosIcon}</span>
-                        {row.alkemosValue}
+                        {row.alkemosValueAr}
                       </td>
                       <td className={`p-4 ${competitorBg}`}>
                         <span className="ml-2 font-bold">{competitorIcon}</span>
-                        {row.competitorValue}
+                        {row.competitorValueAr}
                       </td>
                     </tr>
                   );
@@ -220,12 +220,27 @@ export default async function ArabicComparisonPage({
         <section className="marble-card mt-16 p-8 text-center">
           <h2 className="text-2xl font-semibold tracking-tight">جرّب Alkemos مجانًا</h2>
           <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)]">
-            مكتبة تمارين كاملة، قاعدة أطعمة، حاسبات، وEVO AI محدود — بدون بطاقة ائتمان.
+            مكتبة تمارين كاملة، قاعدة أطعمة، 8 أدوات مجانية، برامج تدريب، ووصول محدود لـ EVO AI — بدون بطاقة ائتمان.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link href="/auth" className="btn-chrome px-6 py-2.5 text-sm">سجّل مجانًا</Link>
             <Link href="/ar/memberships" className="btn-outline px-6 py-2.5 text-sm">عرض الأسعار</Link>
-            <Link href="/evo" className="btn-outline px-6 py-2.5 text-sm">تعرّف على EVO</Link>
+            {/* Locale-leak fix (2026-09-15 audit): the AR page linked the EN
+                /evo — now the AR mirror, matching the other AR surfaces. */}
+            <Link href="/ar/evo" className="btn-outline px-6 py-2.5 text-sm">تعرّف على EVO</Link>
+          </div>
+          {/* Service access points (owner directive 2026-09-15 — comparison
+              tables must surface the current Alkemos services with their
+              correct LOCAL links). No EVO chat link here by law — the
+              floating widget stays the only EVO-chat access point. */}
+          <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
+            <Link href="/ar/tools" className="underline underline-offset-4 hover:opacity-80">الأدوات المجانية</Link>
+            <Link href="/ar/ai-meal-planner" className="underline underline-offset-4 hover:opacity-80">مخطط الوجبات الذكي</Link>
+            <Link href="/ar/ai-workout-planner" className="underline underline-offset-4 hover:opacity-80">مخطط التمارين الذكي</Link>
+            <Link href="/ar/exercises" className="underline underline-offset-4 hover:opacity-80">مكتبة التمارين</Link>
+            <Link href="/ar/foods" className="underline underline-offset-4 hover:opacity-80">قاعدة الأطعمة</Link>
+            <Link href="/ar/programs" className="underline underline-offset-4 hover:opacity-80">برامج التدريب</Link>
+            <Link href="/ar/coaching" className="underline underline-offset-4 hover:opacity-80">الكوتشينج البشري</Link>
           </div>
         </section>
 

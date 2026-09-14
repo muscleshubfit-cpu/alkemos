@@ -13,7 +13,8 @@ import {
  * محتاج اعاده تصميم مع فصلهم الى كارتين منفصليين»).
  *
  * TWO SEPARATE slim always-on cards rendered after tool results / plan
- * generation (5 calculators + meal planner + AI meal planner, EN + AR via
+ * generation (the 8 free tools — 4 calculators, water tracker, meal
+ * planner, and both AI planners — EN + AR via
  * the shared bilingual client pages):
  *   - The Trustpilot card — asks for an honest public review (green
  *     identity, one star mark: the platform's brand cue, NOT a rating
