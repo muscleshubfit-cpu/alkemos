@@ -332,7 +332,9 @@ export function LandingView() {
     {
       featureAr: `قاعدة أغذية ${FOODS_PLUS} بالسعرات والماكروز`,
       featureEn: `${FOODS_PLUS} food database with calories & macros`,
-      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "❌", appsEn: "❌",
+      // Phase 197 (owner directive): class-level ❌ cells were assumptions —
+      // «بعضها/Some» is the honest cell for heterogeneous app classes.
+      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "بعضها", appsEn: "Some",
     },
     {
       featureAr: "خطط تدريب وتغذية مخصصة",
@@ -342,12 +344,12 @@ export function LandingView() {
     {
       featureAr: "متابعة من مدربين معتمدين",
       featureEn: "Supervision by certified coaches",
-      us: "✅", tradAr: "✅", tradEn: "✅", appsAr: "❌", appsEn: "❌",
+      us: "✅", tradAr: "✅", tradEn: "✅", appsAr: "بعضها", appsEn: "Some",
     },
     {
       featureAr: "مساعد ذكاء اصطناعي متاح 24/7",
       featureEn: "AI coach available 24/7",
-      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "❌", appsEn: "❌",
+      us: "✅", tradAr: "❌", tradEn: "❌", appsAr: "بعضها", appsEn: "Some",
     },
     {
       featureAr: "برامج جاهزة لكل مستوى",

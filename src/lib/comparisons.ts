@@ -69,16 +69,16 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "MyFitnessPal",
     competitorNameAr: "MyFitnessPal",
     competitorUrl: "https://www.myfitnesspal.com",
-    dataAsOf: "2026-09-08",
+    dataAsOf: "2026-09-14",
 
     titleEn: "Alkemos vs MyFitnessPal — Full Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل MyFitnessPal — مقارنة كاملة (2026) | Alkemos",
     h1En: "Alkemos vs MyFitnessPal",
     h1Ar: "Alkemos مقابل MyFitnessPal",
     introEn:
-      "A head-to-head comparison between Alkemos and MyFitnessPal — two platforms that overlap on food tracking but differ sharply on coaching, exercise instruction, AI features, and pricing model. MyFitnessPal is the established calorie tracker with 350M+ users; Alkemos is a newer platform that combines food tracking with a full exercise library, workout programs, free calculators, and an AI coach. This page breaks down where each wins.",
+      "A head-to-head comparison between Alkemos and MyFitnessPal — two platforms that overlap on food tracking but differ sharply on coaching, exercise instruction, AI features, and pricing model. MyFitnessPal is the established calorie tracker with 280M+ users; Alkemos is a newer platform that combines food tracking with a full exercise library, workout programs, free tools, and an AI coach. This page breaks down where each wins.",
     introAr:
-      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكن تختلفان حادّة في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 350 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، حاسبات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
+      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكن تختلفان حادّة في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 280 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، أدوات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
     descriptionEn:
       "Alkemos vs MyFitnessPal 2026 comparison: food tracking, exercise library, AI coach, pricing, languages, and which platform fits your goals.",
     descriptionAr:
@@ -93,7 +93,7 @@ export const COMPARISONS: Comparison[] = [
       {
         labelEn: "Food database size",
         labelAr: "حجم قاعدة الأطعمة",
-        alkemosValue: "8,830 foods (USDA-backed + curated)",
+        alkemosValue: "8,830+ foods (USDA-backed + curated)",
         competitorValue: "Millions (user-contributed, varying accuracy)",
         outcome: "loss",
       },
@@ -119,9 +119,9 @@ export const COMPARISONS: Comparison[] = [
         outcome: "win",
       },
       {
-        labelEn: "Free fitness calculators",
-        labelAr: "حاسبات اللياقة المجانية",
-        alkemosValue: "6 free (calorie, BMI, macro, body fat, water, meal planner)",
+        labelEn: "Free tools & calculators",
+        labelAr: "الأدوات والحاسبات المجانية",
+        alkemosValue: "8 free tools (5 calculators, meal planner, 2 AI planners)",
         competitorValue: "Premium-only calculators",
         outcome: "win",
       },
@@ -174,8 +174,8 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "Pricing comparison",
         paragraphs: [
-          "MyFitnessPal Premium is $19.99/month or $79.99/year. Alkemos Premium is $14.99/month or $119/year — slightly cheaper monthly, slightly more annually, but with dramatically more features included. Alkemos Pro ($29.99/month) raises the unified AI pool to 8 plan generations/month with 6 meal/exercise swaps per week and removes ads; MyFitnessPal has no equivalent tier. Alkemos Coaching ($39.99/month) adds a human coach; MyFitnessPal offers no human coaching at any price.",
-          "The free tier comparison is even sharper. Alkemos Free includes the full exercise library, the full food database, all eight free tools, and limited EVO AI access. MyFitnessPal Free is essentially a calorie counter with ads — no macros, no insights, no barcode scanner. For users who want to evaluate the platform before paying, Alkemos Free is meaningfully more useful.",
+          "MyFitnessPal Premium is $19.99/month or $79.99/year, and a Premium+ tier ($24.99/month or $99.99/year) adds its Meal Planner. Alkemos Premium is $14.99/month or $119/year — slightly cheaper monthly, slightly more annually, but with dramatically more features included. Alkemos Pro ($29.99/month) raises the unified AI pool to 8 plan generations/month with 6 meal/exercise swaps per week and removes ads; MyFitnessPal has no equivalent tier. Alkemos Coaching ($39.99/month) adds a human coach; MyFitnessPal offers no human coaching at any price.",
+          "The free tier comparison is even sharper. Alkemos Free includes the full exercise library, the full food database, all eight free tools, and limited EVO AI access. MyFitnessPal Free is a calorie counter with ads — barcode scanning and its deeper insights are Premium-only. For users who want to evaluate the platform before paying, Alkemos Free is meaningfully more useful.",
         ],
       },
     ],
@@ -198,8 +198,8 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "مقارنة الأسعار",
         paragraphs: [
-          "MyFitnessPal Premium بسعر $19.99/شهر أو $79.99/سنة. Alkemos Premium بسعر $14.99/شهر أو $119/سنة — أرخص قليلًا شهريًا، أغلى قليلًا سنويًا، لكن بميزات أكثر بكثير. Alkemos Pro ($29.99/شهر) يرفع الرصيد الموحد إلى 8 توليدات خطط AI شهريًا مع 6 تبديلات للوجبات أو التمارين أسبوعيًا ويُزيل الإعلانات؛ MyFitnessPal لا يملك مستوى مكافئ. Alkemos Coaching ($39.99/شهر) يُضيف مدربًا بشريًا؛ MyFitnessPal لا يُقدّم تدريبًا بشريًا بأي سعر.",
-          "مقارنة المستوى المجاني أوضح. Alkemos مجاني يضم مكتبة التمارين الكاملة، قاعدة الأطعمة الكاملة، كل الأدوات الثماني، ووصول محدود لـ EVO. MyFitnessPal مجاني أساسًا عداد سعرات مع إعلانات — لا ماكروز، لا رؤى، لا ماسح باركود. للمستخدمين الذين يريدون تقييم المنصة قبل الدفع، Alkemos مجاني أكثر فائدة بشكل معنوي.",
+          "MyFitnessPal Premium بسعر $19.99/شهر أو $79.99/سنة، وهناك مستوى Premium+ ($24.99/شهر أو $99.99/سنة) يضيف مخطط الوجبات. Alkemos Premium بسعر $14.99/شهر أو $119/سنة — أرخص قليلًا شهريًا، أغلى قليلًا سنويًا، لكن بميزات أكثر بكثير. Alkemos Pro ($29.99/شهر) يرفع الرصيد الموحد إلى 8 توليدات خطط AI شهريًا مع 6 تبديلات للوجبات أو التمارين أسبوعيًا ويُزيل الإعلانات؛ MyFitnessPal لا يملك مستوى مكافئ. Alkemos Coaching ($39.99/شهر) يُضيف مدربًا بشريًا؛ MyFitnessPal لا يُقدّم تدريبًا بشريًا بأي سعر.",
+          "مقارنة المستوى المجاني أوضح. Alkemos مجاني يضم مكتبة التمارين الكاملة، قاعدة الأطعمة الكاملة، كل الأدوات الثماني، ووصول محدود لـ EVO. MyFitnessPal مجاني عدّاد سعرات مع إعلانات — ماسح الباركود والرؤى الأعمق ميزات مدفوعة. للمستخدمين الذين يريدون تقييم المنصة قبل الدفع، Alkemos مجاني أكثر فائدة بشكل معنوي.",
         ],
       },
     ],
@@ -213,7 +213,7 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "Freeletics",
     competitorNameAr: "Freeletics",
     competitorUrl: "https://www.freeletics.com",
-    dataAsOf: "2026-09-08",
+    dataAsOf: "2026-09-14",
 
     titleEn: "Alkemos vs Freeletics — AI Coaching & Bodyweight Training (2026) | Alkemos",
     titleAr: "Alkemos مقابل Freeletics — تدريب الذكاء الاصطناعي وتمارين وزن الجسم (2026) | Alkemos",
@@ -245,7 +245,7 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Exercise library size",
         labelAr: "حجم مكتبة التمارين",
         alkemosValue: "868+ exercises across all equipment",
-        competitorValue: "~200 bodyweight movements",
+        competitorValue: "AI-built workouts from a bodyweight movement pool (no public library)",
         outcome: "win",
       },
       {
@@ -259,28 +259,35 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Nutrition tracking",
         labelAr: "تتبّع التغذية",
         alkemosValue: "8,830+ food database + AI meal planner",
-        competitorValue: "Basic nutrition advice (no food tracking)",
+        competitorValue: "AI Nutrition Coach (meal plans & recipes — no food tracking)",
         outcome: "win",
       },
       {
         labelEn: "Workout programs",
         labelAr: "برامج التدريب",
         alkemosValue: "Ready-made + AI-generated",
-        competitorValue: "AI-generated only (no preset programs)",
-        outcome: "win",
+        competitorValue: "AI-generated + preset training plans",
+        outcome: "tie",
       },
       {
         labelEn: "Arabic language",
         labelAr: "اللغة العربية",
         alkemosValue: "Full Arabic + RTL",
-        competitorValue: "English + 8 European languages (no Arabic)",
+        competitorValue: "English + 9 more languages (no Arabic)",
         outcome: "win",
       },
       {
         labelEn: "Pricing",
         labelAr: "التسعير",
-        alkemosValue: "$14.99/mo Premium · $29.99/mo Pro",
-        competitorValue: "~$95/yr (Standard) · ~$150/yr (Premium)",
+        alkemosValue: "Premium $14.99/mo ($119/yr) · Pro $29.99/mo ($239/yr)",
+        competitorValue: "Training Coach ~$80/yr (12-mo) — nutrition bundle costs more",
+        outcome: "tie",
+      },
+      {
+        labelEn: "Human coaching",
+        labelAr: "التدريب البشري",
+        alkemosValue: "Available — $39.99/mo with vetted coaches",
+        competitorValue: "AI coaching only — no human coaches",
         outcome: "win",
       },
       {
@@ -310,9 +317,9 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "Where Alkemos wins",
         paragraphs: [
-          "Alkemos wins on platform breadth. Freeletics is a bodyweight-only app — if you ever want to lift a barbell, use a cable machine, or follow a structured 4-day gym split, Freeletics cannot help you. Alkemos covers every equipment type: barbell, dumbbell, cable, machine, kettlebell, band, and bodyweight. The 868+-exercise library dwarfs Freeletics's ~200 movements.",
-          "Nutrition is the other major gap. Freeletics offers basic nutrition advice but no food tracking — you'd need a separate app (usually MyFitnessPal) for that. Alkemos ships an 8,830+ food database, eight free tools (five calculators, a meal planner, and two AI planners), and full macro tracking inside the same subscription. Paying for Freeletics + MyFitnessPal Premium costs more than Alkemos Pro and gives you less integration.",
-          "The pricing differential is significant. Freeletics Premium is roughly $150/year; Alkemos Pro is $239/year but includes unlimited EVO AI, 8 AI plan generations/month, no ads, AND nutrition tracking. For the same training + nutrition use case, Alkemos is the better value.",
+          "Alkemos wins on platform breadth. Freeletics is a bodyweight-only app — if you ever want to lift a barbell, use a cable machine, or follow a structured 4-day gym split, Freeletics cannot help you. Alkemos covers every equipment type: barbell, dumbbell, cable, machine, kettlebell, band, and bodyweight. The 868+-exercise library across every equipment type has no equivalent in Freeletics's bodyweight-only catalog.",
+          "Nutrition is the other major gap. Freeletics offers an AI Nutrition Coach with meal plans and recipes but no food tracking — you'd need a separate app (usually MyFitnessPal) for that. Alkemos ships an 8,830+ food database, eight free tools (five calculators, a meal planner, and two AI planners), and full macro tracking inside the same subscription. Paying for Freeletics + MyFitnessPal Premium costs more than Alkemos Premium and gives you less integration.",
+          "The pricing picture is nuanced. Freeletics Training Coach is about $80/year on the 12-month plan, with its nutrition bundle costing extra. Alkemos Premium is $119/year and bundles training plans, the 8,830+-food database, the free tools, and EVO in one subscription. For the same training + nutrition use case, Alkemos is the better value.",
         ],
       },
     ],
@@ -327,9 +334,9 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "أين يتفوّق Alkemos",
         paragraphs: [
-          "Alkemos يتفوّق في اتساع المنصة. Freeletics تطبيق بوزن الجسم فقط — إذا أردت يومًا رفع بار، استخدام ماكينة كابل، أو اتباع تقسيم 4 أيام جيم منظّم، Freeletics لا يستطيع مساعدتك. Alkemos يغطّي كل أنواع المعدات: بار، دمبل، كابل، ماكينة، كيتل بيل، مطاط، ووزن الجسم. مكتبة الـ868+ تمرين تُطغّي على الـ200 حركة تقريبًا في Freeletics.",
-          "التغذية هي الفجوة الكبرى الأخرى. Freeletics يُقدّم نصائح تغذية أساسية لكن لا تتبّع للطعام — ستحتاج تطبيقًا منفصلًا (عادة MyFitnessPal) لذلك. Alkemos يُقدّم قاعدة 8,830+ صنف غذائي، وثماني أدوات مجانية (خمس حاسبات، ومخطط وجبات، ومولدا خطط بالذكاء الاصطناعي)، وتتبّع ماكروز كامل داخل نفس الاشتراك. دفع Freeletics + MyFitnessPal Premium يكلّف أكثر من Alkemos Pro ويمنحك تكاملًا أقل.",
-          "فارق التسعير معنوي. Freeletics Premium حوالي $150/سنة؛ Alkemos Pro $239/سنة لكنه يضم EVO غير محدود، و8 توليدات خطط AI شهريًا، بلا إعلانات، وتتبّع تغذية. لنفس حالة الاستخدام تدريب + تغذية، Alkemos قيمة أفضل.",
+          "Alkemos يتفوّق في اتساع المنصة. Freeletics تطبيق بوزن الجسم فقط — إذا أردت يومًا رفع بار، استخدام ماكينة كابل، أو اتباع تقسيم 4 أيام جيم منظّم، Freeletics لا يستطيع مساعدتك. Alkemos يغطّي كل أنواع المعدات: بار، دمبل، كابل، ماكينة، كيتل بيل، مطاط، ووزن الجسم. مكتبة الـ868+ تمرين عبر كل أنواع المعدات لا نظير لها في كتالوج Freeletics المحدود بوزن الجسم.",
+          "التغذية هي الفجوة الكبرى الأخرى. Freeletics يُقدّم مدرب تغذية ذكي بخطط وجبات ووصفات لكن بلا تتبّع للطعام — ستحتاج تطبيقًا منفصلًا (عادة MyFitnessPal) لذلك. Alkemos يُقدّم قاعدة 8,830+ صنف غذائي، وثماني أدوات مجانية (خمس حاسبات، ومخطط وجبات، ومولدا خطط بالذكاء الاصطناعي)، وتتبّع ماكروز كامل داخل نفس الاشتراك. دفع Freeletics + MyFitnessPal Premium يكلّف أكثر من Alkemos Premium ويمنحك تكاملًا أقل.",
+          "صورة التسعير دقيقة. مدرب تدريب Freeletics حوالي $80/سنة في الخطة السنوية، وحزمة التغذية تكلف إضافيًا. Alkemos Premium بـ$119/سنة ويجمع برامج التدريب وقاعدة 8,830+ صنف غذائي والأدوات المجانية وEVO في اشتراك واحد. لنفس حالة الاستخدام تدريب + تغذية، Alkemos قيمة أفضل.",
         ],
       },
     ],
@@ -343,16 +350,16 @@ export const COMPARISONS: Comparison[] = [
     competitorName: "ExRx.net",
     competitorNameAr: "ExRx.net",
     competitorUrl: "https://exrx.net",
-    dataAsOf: "2026-09-08",
+    dataAsOf: "2026-09-14",
 
     titleEn: "Alkemos vs ExRx.net — Exercise Library Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل ExRx.net — مقارنة مكتبة التمارين (2026) | Alkemos",
     h1En: "Alkemos vs ExRx.net",
     h1Ar: "Alkemos مقابل ExRx.net",
     introEn:
-      "ExRx.net has been the internet's exercise reference since 1999 — a 2,100+ exercise database used by coaches, physical therapists, and kinesiology students worldwide. Alkemos is newer and smaller (868+ exercises) but ships with a modern UI, AI coach, Arabic translations, and full workout programs. This comparison helps you choose the right tool for your use case.",
+      "ExRx.net has been the internet's exercise reference since 1999 — a 2,200+ exercise database used by coaches, physical therapists, and kinesiology students worldwide. Alkemos is newer and smaller (868+ exercises) but ships with a modern UI, AI coach, Arabic translations, and full workout programs. This comparison helps you choose the right tool for your use case.",
     introAr:
-      "ExRx.net كان مرجع التمارين على الإنترنت منذ 1999 — قاعدة 2,100+ تمرين يستخدمها المدربون وأخصائيو العلاج الطبيعي وطلاب علم الحركة حول العالم. Alkemos أحدث وأصغر (868+ تمرينًا) لكنه يأتي بواجهة حديثة، مدرب ذكاء اصطناعي، ترجمات عربية، وبرامج تمارين كاملة. هذه المقارنة تساعدك في اختيار الأداة المناسبة لحالتك.",
+      "ExRx.net كان مرجع التمارين على الإنترنت منذ 1999 — قاعدة 2,200+ تمرين يستخدمها المدربون وأخصائيو العلاج الطبيعي وطلاب علم الحركة حول العالم. Alkemos أحدث وأصغر (868+ تمرينًا) لكنه يأتي بواجهة حديثة، مدرب ذكاء اصطناعي، ترجمات عربية، وبرامج تمارين كاملة. هذه المقارنة تساعدك في اختيار الأداة المناسبة لحالتك.",
     descriptionEn:
       "Alkemos vs ExRx.net 2026: exercise count, UI quality, AI coach, Arabic support, pricing model, and best use case for each.",
     descriptionAr:
@@ -368,7 +375,7 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Exercise count",
         labelAr: "عدد التمارين",
         alkemosValue: "868+ exercises",
-        competitorValue: "2,100+ exercises",
+        competitorValue: "2,200+ exercises",
         outcome: "loss",
       },
       {
@@ -402,15 +409,22 @@ export const COMPARISONS: Comparison[] = [
       {
         labelEn: "Nutrition database",
         labelAr: "قاعدة بيانات التغذية",
-        alkemosValue: "8,830 foods + AI meal planner",
+        alkemosValue: "8,830+ foods + AI meal planner",
         competitorValue: "No food database",
+        outcome: "win",
+      },
+      {
+        labelEn: "Human coaching",
+        labelAr: "التدريب البشري",
+        alkemosValue: "Available ($39.99/mo) with vetted coaches",
+        competitorValue: "Not available",
         outcome: "win",
       },
       {
         labelEn: "Pricing",
         labelAr: "التسعير",
         alkemosValue: "Free tier + $14.99–$39.99/mo",
-        competitorValue: "Free (ad-supported) + $5/mo ad-free",
+        competitorValue: "Free, ad-supported website + paid exercise apps",
         outcome: "loss",
       },
       {
@@ -427,7 +441,7 @@ export const COMPARISONS: Comparison[] = [
         heading: "Where ExRx.net wins",
         paragraphs: [
           "ExRx.net is unmatched as a kinesiology reference. Every exercise page documents joint articulations, primary and secondary muscle actions, and the biomechanics behind the movement. For physical therapists, kinesiology students, and strength coaches who need to understand WHY an exercise works (not just HOW to do it), ExRx.net is the gold standard and will remain so for the foreseeable future.",
-          "ExRx.net is also free (ad-supported) with a $5/month ad-free option. If you only need a reference you can look up exercises on occasionally, paying nothing (or $5/month) beats any Alkemos subscription. The 2,100+ exercise count also wins on raw volume — Alkemos cannot match it today.",
+          "ExRx.net is also free and ad-supported. If you only need a reference you can look up exercises on occasionally, paying nothing beats any Alkemos subscription. The 2,200+ exercise count also wins on raw volume — Alkemos cannot match it today.",
         ],
       },
       {
@@ -444,7 +458,7 @@ export const COMPARISONS: Comparison[] = [
         heading: "أين يتفوّق ExRx.net",
         paragraphs: [
           "ExRx.net لا يُضاهى كمرجع لعلم الحركة. كل صفحة تمرين توثّق مفاصل العظام، تأثيرات العضلات الأساسية والثانوية، والبيوميكانيك خلف الحركة. لأخصائيي العلاج الطبيعي، طلاب علم الحركة، ومدربي القوة الذين يحتاجون فهم لماذا التمرين يعمل (وليس فقط كيف يؤدّى)، ExRx.net هو المعيار الذهبي وسيبقى كذلك للمستقبل المنظور.",
-          "ExRx.net أيضًا مجاني (مدعوم بالإعلانات) مع خيار $5/شهر بدون إعلانات. إذا كنت تحتاج فقط مرجعًا تبحث فيه عن التمارين أحيانًا، عدم الدفع (أو $5/شهر) يتفوّق على أي اشتراك Alkemos. عدد التمارين 2,100+ أيضًا يفوز بالحجم الصرف — Alkemos لا يستطيع مضاهاته اليوم.",
+          "ExRx.net أيضًا مجاني ومدعوم بالإعلانات. إذا كنت تحتاج فقط مرجعًا تبحث فيه عن التمارين أحيانًا، عدم الدفع يتفوّق على أي اشتراك Alkemos. عدد التمارين 2,200+ أيضًا يفوز بالحجم الصرف — Alkemos لا يستطيع مضاهاته اليوم.",
         ],
       },
       {

@@ -386,4 +386,77 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(coaching).toContain("part of every Alkemos membership");
     expect(coaching).toContain("جزء من كل عضويات Alkemos");
   });
+
+  // PHASE 197 (owner directive — competitor comparison tables refresh):
+  // the three /compare pages + the shared comparisons.ts data must carry
+  // only VERIFIED-CURRENT competitor facts (re-verified 2026-09-14 against
+  // the competitors' own pages) and must reflect the CURRENT Alkemos
+  // service set (8 free tools · 868+/8,830+ libraries · Coaching) — stale
+  // numbers and unverified claims may never return.
+  it("Phase 197: competitor-comparison accuracy + Alkemos service coverage canaries", async () => {
+    const src = readFileSync("src/lib/comparisons.ts", "utf8");
+    // Stale / unverified competitor claims (banned):
+    for (const banned of [
+      "6 free (calorie", // tools miscount — 8 tools since Phase 195
+      "2,100", // stale ExRx count (2,200+ verified from exrx.net)
+      "350M", // stale MFP user count (280M+ company-reported 2026)
+      "~$95/yr", // stale Freeletics pricing
+      "~$150/yr", // stale Freeletics pricing
+      "roughly $150/year", // stale Freeletics body claim
+      "حوالي $150/سنة", // stale Freeletics body claim (AR)
+      "$5/mo ad-free", // unverified ExRx pricing claim
+      "$5/month ad-free", // unverified ExRx pricing claim
+      "$5/شهر", // unverified ExRx pricing claim (AR)
+      "8,830 foods", // content volume always carries "+"
+      "English + 8 European languages", // stale Freeletics language list
+    ]) {
+      expect(src, `Phase 197 stale/unverified claim returned: "${banned}"`).not.toContain(banned);
+    }
+    // Verified-current claims + Alkemos service coverage (required):
+    for (const required of [
+      "8 free tools (5 calculators, meal planner, 2 AI planners)",
+      "8,830+ foods",
+      "2,200+",
+      "280M+",
+      "~$80/yr", // Freeletics 12-mo Training Coach (App Store, verified)
+      'dataAsOf: "2026-09-14"', // re-verification date on all three
+      "Premium+ tier ($24.99/month or $99.99/year)", // MFP Premium+
+      "AI Nutrition Coach (meal plans & recipes — no food tracking)",
+    ]) {
+      expect(src, `Phase 197 verified claim missing: "${required}"`).toContain(required);
+    }
+    // Every comparison covers the human-coaching service of Alkemos.
+    const { COMPARISONS } = await import("@/lib/comparisons");
+    for (const c of COMPARISONS) {
+      expect(
+        c.rows.some((r) => r.labelEn === "Human coaching" && r.alkemosValue.length > 0),
+        `${c.slug}: missing the Human coaching row`,
+      ).toBe(true);
+      expect(c.dataAsOf, `${c.slug}: dataAsOf not re-verified`).toBe("2026-09-14");
+      // Structural EN/AR parity: body sections align 1:1 (headings + counts).
+      expect(c.bodyEn.length, `${c.slug}: bodyEn/bodyAr section count drift`).toBe(c.bodyAr.length);
+      c.bodyEn.forEach((section, i) => {
+        expect(
+          section.paragraphs.length,
+          `${c.slug}: bodyEn[${i}] paragraph count drift`,
+        ).toBe(c.bodyAr[i].paragraphs.length);
+      });
+      // "+" law: content-volume numbers always carry "+" in table cells.
+      for (const row of c.rows) {
+        for (const value of [row.alkemosValue, row.competitorValue]) {
+          if (value.includes("8,830")) {
+            expect(value, `row "${row.labelEn}": 8,830 without "+"`).toContain("8,830+");
+          }
+          if (value.includes("868")) {
+            expect(value, `row "${row.labelEn}": 868 without "+"`).toContain("868+");
+          }
+        }
+      }
+    }
+    // Homepage quick-comparison: heterogeneous app classes use honest
+    // class-level cells (بعضها/Some) — never a bare assumption ❌.
+    const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
+    expect(landing).toContain('appsAr: "بعضها"');
+    expect(landing).toContain('appsEn: "Some"');
+  });
 });
