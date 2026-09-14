@@ -104,7 +104,7 @@ readability beats stylistic mirroring.
 |---|---|---|
 | Hero title | `text-4xl` | `md:text-6xl lg:text-7xl` |
 | Page title (h1) | `text-3xl` | `md:text-5xl` |
-| Section title (h2) | `text-2xl/3xl` | `md:text-4xl/5xl` |
+| Section title (h2) | `text-2xl/3xl` | `md:text-4xl` (Phase 198 Batch 3 unified the homepage on 4xl/36px) |
 | Card title (h3) | `text-lg` | `text-lg` |
 | Body text | `text-sm/base` | `text-base/lg` |
 

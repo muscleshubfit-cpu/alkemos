@@ -453,6 +453,15 @@
 .cmp-details summary::-webkit-details-marker { display: none; }
 .cmp-details summary::marker { content: ""; }
 
+/* Phase 198 Batch 3 (audit H4/M-mobile): hidden-scrollbar utility for the
+   mobile single-row quick-nav (chips) — keeps the row visually clean while
+   staying natively scrollable (and swipeable) in both directions. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* === EVO section card — Phase 127 (preview-sections reference) ===
    One full-width marble card: text left, warrior art right fading into
    the marble. RTL mirrors via logical inset-inline-end + mask flip. */

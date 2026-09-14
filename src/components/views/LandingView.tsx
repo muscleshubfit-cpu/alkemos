@@ -231,7 +231,7 @@ function BlogCarousel({
               >
                 {getCategoryLabel(post.category, isAr ? "ar" : "en")}
               </p>
-              <h3 className="mt-2 text-base font-semibold leading-tight tracking-tight line-clamp-2">
+              <h3 className="mt-2 text-lg font-semibold leading-tight tracking-tight line-clamp-2">
                 {post.title}
               </h3>
               {post.excerpt && (
@@ -548,7 +548,12 @@ export function LandingView() {
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
             {isAr ? "استكشف أقسام الموقع" : "Explore the site"}
           </p>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          {/* Phase 198 Batch 3 (audit H4/M-mobile): on phones the 11 chips
+              wrapped into ~4 rows (≈570px before any content) — they are ONE
+              horizontal snap-scroll row on mobile now (≈60px), and keep the
+              centered wrap on md+. Direction-safe: overflow-x + snap follow
+              dir=rtl natively. */}
+          <div className="scrollbar-none -mx-4 mt-3 flex snap-x items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:justify-center md:overflow-x-visible md:px-0">
                 {HERO_NAV.filter((s) => !s.needsPosts || latestPosts.length > 0).map((s) => {
                   const Icon = s.icon;
                   const isPrimary = !!s.primary;
@@ -557,7 +562,7 @@ export function LandingView() {
                       key={s.id}
                       href={`#${s.id}`}
                       title={isAr ? s.titleAr : s.titleEn}
-                      className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-300"
+                      className="inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-300"
                       style={
                         isPrimary
                           ? {
@@ -663,7 +668,7 @@ export function LandingView() {
               {/* Phase 194 (benefit-first pass): the headline sells the
                   outcome (knowing your body's numbers) — the tools are the
                   proof, not the story. */}
-              <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
+              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                 {isAr ? "اعرف ما يحتاجه جسمك بالأرقام" : "Know What Your Body Needs — In Numbers"}
               </h2>
             </Reveal>
@@ -757,7 +762,7 @@ export function LandingView() {
             <Reveal>
               {/* Phase 194 (benefit-first pass): the number is proof, the
                   headline is the benefit — train every muscle the right way. */}
-              <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
+              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                 {isAr ? "تدرّب على كل عضلة بالطريقة الصحيحة" : "Train Every Muscle the Right Way"}
               </h2>
             </Reveal>
@@ -767,7 +772,9 @@ export function LandingView() {
               </p>
             </Reveal>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+          {/* Phase 198 Batch 3 (audit Tablet): 4 columns at 768px made
+              ~172px cards — 3 columns on md, 4 from lg up. */}
+          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {/* Audit 2026-08-30: the homepage showed "Cardio" (0 exercises in the
                 library). Replaced by ALL 7 real muscle groups + an 8th dark
                 browse-all tile (replaces the old standalone button). */}
@@ -813,7 +820,7 @@ export function LandingView() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
-              <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
+              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                 {isAr ? "برامج تدريب جاهزة لكل الأهداف" : "Ready-Made Programs for Every Goal"}
               </h2>
             </Reveal>
@@ -853,7 +860,7 @@ export function LandingView() {
               {/* Phase 194 (benefit-first pass): the headline is the
                   benefit — knowing what you eat; the 8,830+ number moves
                   to the sub as proof. */}
-              <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
+              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                 {isAr ? "اعرف ما في طعامك قبل أن تتناوله" : "Know What's in Your Food Before You Eat It"}
               </h2>
             </Reveal>
@@ -927,7 +934,7 @@ export function LandingView() {
               <span className="seal-chip">{isAr ? "كوتشينج أونلاين" : "ONLINE COACHING"}</span>
             </Reveal>
             <Reveal delay={100}>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-5xl" style={{ color: PALETTE.textPrim }}>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
                 {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not Just a PDF"}
               </h2>
             </Reveal>
@@ -1052,7 +1059,7 @@ export function LandingView() {
             </span>
           </Reveal>
           <Reveal delay={100}>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
               {isAr ? "كوتش أو أخصائي تغذية؟ ابنِ عملك على منصتنا" : "Are you a coach? Run your whole business from one place."}
             </h2>
           </Reveal>
@@ -1109,7 +1116,7 @@ export function LandingView() {
       <section id="memberships" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionGray }}>
         <div className="mx-auto max-w-6xl">
           <Reveal>
-            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl" style={{ color: PALETTE.textPrim }}>
+            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {isAr ? "اختر الباقة المناسبة لك" : "Choose the Right Plan for You"}
             </h2>
           </Reveal>
@@ -1157,9 +1164,11 @@ export function LandingView() {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-auto pt-7">
+                  <div className="mt-auto pt-7">
+                  {/* Phase 198 Batch 3 (audit M1): card CTAs share ONE size —
+                      py-3.5 text-base (≈54px) across Free/Premium/Pro. */}
                   <span
-                    className="btn-outline flex w-full items-center justify-center gap-2 px-6 py-3 text-sm"
+                    className="btn-outline flex w-full items-center justify-center gap-2 px-6 py-3.5 text-base"
                   >
                     {isAr ? "ابدأ مجانًا" : "Start free"}
                     <span className="rtl:rotate-180">›</span>
@@ -1203,7 +1212,7 @@ export function LandingView() {
                 </ul>
                 <div className="mt-auto pt-7">
                   <span
-                    className="btn-chrome flex w-full items-center justify-center gap-2 px-6 py-3 text-sm"
+                    className="btn-chrome flex w-full items-center justify-center gap-2 px-6 py-3.5 text-base"
                   >
                     {isAr ? "اشترك الآن" : "Subscribe now"}
                     <span className="rtl:rotate-180">›</span>
@@ -1391,7 +1400,7 @@ export function LandingView() {
               <span className="seal-chip">{isAr ? "برنامج الأفلييت" : "AFFILIATE PROGRAM"}</span>
             </Reveal>
             <Reveal delay={100}>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-5xl" style={{ color: PALETTE.textPrim }}>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
                 {isAr ? "حوّل تأثيرك إلى دخل حقيقي" : "Turn Your Influence into Real Income"}
               </h2>
             </Reveal>
@@ -1454,7 +1463,7 @@ export function LandingView() {
             </h2>
             <a
               href={isAr ? "/ar/memberships" : "/memberships"}
-              className="btn-chrome mt-8 px-9 py-4 text-base"
+              className="btn-chrome mt-8 px-8 py-3.5 text-base"
             >
               {isAr ? "جرّب المنصة مجانًا" : "Try the platform free"}
               <span className="rtl:rotate-180">›</span>
@@ -1470,7 +1479,7 @@ export function LandingView() {
       <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-3xl">
           <Reveal>
-            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
+            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
               {isAr ? "أسئلة شائعة وإجاباتها" : "Frequently Asked Questions"}
             </h2>
           </Reveal>
@@ -1597,9 +1606,13 @@ function LandingExerciseCategoryCard({ cat, isAr }: { cat: LandingExerciseCatego
     >
       {/* Small doric-column icon per category (mission §7) */}
       <EngravedIcon name="doric" alt="" size={34} className="h-8 w-8 opacity-90" />
-      <h3 className="text-base font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.labelAr : cat.labelEn}</h3>
+      {/* Phase 198 Batch 3 (audit M2): card H3 unified on text-lg. */}
+      <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.labelAr : cat.labelEn}</h3>
       {/* Category number in chrome-gradient text (mission §7) */}
       <p className="chrome-text text-2xl font-bold tracking-tight">{cat.count}</p>
+      {/* Phase 198 Batch 3 (audit M4): the cards were two bare lines — a
+          levels line gives them substance (true for every library group). */}
+      <p className="text-[11px] font-medium" style={{ color: PALETTE.textMuted }}>{isAr ? "جميع المستويات" : "All levels"}</p>
     </a>
   );
 }
@@ -1652,7 +1665,7 @@ function LandingFoodCategoryCard({ cat, isAr }: { cat: LandingFoodCategory; isAr
         size={64}
         className="h-16 w-16"
       />
-      <h3 className="text-base font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.titleAr : cat.titleEn}</h3>
+      <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.titleAr : cat.titleEn}</h3>
       <p className="mt-0.5 text-xs font-normal" style={{ color: PALETTE.textSec }}>{isAr ? cat.descAr : cat.descEn}</p>
     </a>
   );

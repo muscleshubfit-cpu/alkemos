@@ -131,11 +131,15 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
       )}
 
       <div className={variant === "home" ? "mx-auto mt-6 flex max-w-md flex-col gap-2 sm:flex-row" : "mt-3"}>
+        {/* Phase 198 Batch 3 (audit M7): the long placeholder (with the
+            example address) truncated inside the sm row layout — the
+            short form fits every breakpoint; validation errors still
+            carry the full guidance. */}
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={isAr ? "بريدك الإلكتروني — مثال: name@example.com" : "Your email — e.g. name@example.com"}
+          placeholder={isAr ? "بريدك الإلكتروني" : "Your email address"}
           dir="ltr"
           maxLength={254}
           inputMode="email"

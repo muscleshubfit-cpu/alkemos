@@ -3,6 +3,27 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-198-UI-AUDIT-BATCH3-POLISH-2026-09-14
+Agent: Super Z (main)
+Task: الدفعة 3 (Polish) الختامية من خطة docs/UI-IMPLEMENTATION-PLAN.md للصفحة الرئيسية — UI-only
+
+Work Log:
+- (H4/M-جوال) chips التنقل: صف أفقي واحد snap-scroll بالجوال (‎~60px‎ بدل ‎~570px‎/4 صفوف) + التفاف ممركز md+ — ‎.scrollbar-none‎ جديدة بـglobals.css، الاتجاه RTL سليم تلقائيًا (overflow-x + snap يتبعان dir)
+- (تابلت) شبكة العضلات ‏grid-cols-2 md:grid-cols-3 lg:grid-cols-4 (كانت md:grid-cols-4 بكروت ‎~172px‎)
+- (M2/M3) سلم H2 موحد ‏md:text-4xl على 9 أقسام (36px — داخل سلم §3 الموثق؛ كان ‏md:text-5xl‎/48px)
+- (M1) أزرار الكروت الثلاثة (Free/Premium/Pro) موحدة ‏py-3.5/text-base + CTA الختامية ‏px-9/py-4→px-8/py-3.5 — المقياس الفعلي بعد التوحيد {42, 54} + Hero المصغر (قياس DOM)
+- (M2) H3 الكروت موحد ‏text-lg (عضلات · أطعمة · كروت المدونة)؛ (M4) سطر «جميع المستويات / All levels» بكروت العضلات (كانت سطرين عاريين)
+- (M7) placeholder النشرة يقصّر («بريدك الإلكتروني / Your email address») — كان يُقتطع بصف sm؛ الأخطاء التحققية تحمل الإرشاد الكامل
+- (H7) قصّ أول كارت AR: قياس حي على الإنتاج بعد الدفعة 2 — الكارت الأول كامل الظهور (flush) وscrollLeft=-640 بعد نقرتَي «التالي» بمحاذاة حدود كاملة — مغلق كمحلول بدمج H2 (الخريطة الاتجاهية للأزرار كانت سليمة)
+- **البوابات:** tsc 0 · eslint 0 · vitest 1122/1122 · build 0
+- **التحقق المحلي (6 سياقات شملت ar-mobile):** صفر overflow ×6 · chips صف واحد (لقطة AR-جوال) · تابلت 3 أعمدة (لقطة) · H2=36px ديسكتوب · placeholder باللغتين — لقطات download/phase198-batch3/
+
+Stage Summary:
+- الدفعات الثلاث (198) مكتملة — الرئيسية جاهزة: CTA في أول شاشة · حاوية واحدة · تباين AAA · كروت باقات ثلاثية · مدونة قسم واحد · EVO منحف · صفر أزرق · chips جوال صف واحد
+- البنود المغلقة كقرارات قائمة: H8 (خط عربي) · H9 (شريحة Memberships) · M5 (الميندر) · M6 (الكوكيز) · أسهم الكاروسيل 36px أصلاً
+- التالي وفق الخطة §4: جولة تدقيق بقية الصفحات (tools/exercises/programs/foods/blog/memberships/coaching/for-coaches/affiliate/evo/static + القوالب المشتركة) بنفس المنهجية
+
+---
 Task ID: PHASE-198-UI-AUDIT-BATCH2-HIGH-2026-09-14
 Agent: Super Z (main)
 Task: الدفعة 2 (High) من خطة docs/UI-IMPLEMENTATION-PLAN.md — دمج المدونة · كارت Free وطي الجدول · تنحيف EVO · صفر أزرق — UI-only
