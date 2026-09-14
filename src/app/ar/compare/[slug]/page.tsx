@@ -130,6 +130,22 @@ export default async function ArabicComparisonPage({
           <p className="mt-2 text-xs text-[var(--muted-foreground)]">
             البيانات حتى {comparison.dataAsOf} · راجعه أحمد زكي
           </p>
+          {/* إشارة الموقع الرسمي للمنافس (توجيه المالك 2026-09-14): رابط
+              خارجي ظاهر واحد فقط لكل صفحة — الصفحة الرسمية للمنافس بعد
+              التحقق منها (لا مراجعات ولا أدلة ولا Wikipedia ولا روابط
+              عمولة). الرابط كان سابقًا داخل ItemList JSON-LD فقط؛ الآن له
+              نقطة وصول مرئية مطابقة للنسخة الإنجليزية. */}
+          <p className="mt-4 text-sm">
+            <a
+              href={comparison.competitorUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-4 transition-opacity hover:opacity-80"
+            >
+              {comparison.competitorNameAr} — الموقع الرسمي{" "}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
           <p className="mt-4 text-lg font-normal leading-relaxed text-[var(--muted-foreground)] md:text-xl">
             {comparison.introAr}
           </p>

@@ -141,6 +141,23 @@ export default async function ComparisonPage({
           <p className="mt-2 text-xs text-[var(--muted-foreground)]">
             Data as of {comparison.dataAsOf} · Reviewed by Ahmed Zake
           </p>
+          {/* Competitor official-site citation (2026-09-14 owner directive):
+              exactly ONE visible external link per page — the competitor's
+              verified OFFICIAL homepage only (never reviews, guides,
+              Wikipedia, affiliate or intermediary sources). Previously the
+              competitor URL existed only inside the ItemList JSON-LD; it now
+              has a visible access point too. */}
+          <p className="mt-4 text-sm">
+            <a
+              href={comparison.competitorUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-4 transition-opacity hover:opacity-80"
+            >
+              {comparison.competitorName} — Official Website{" "}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
           <p className="mt-4 text-lg font-normal leading-relaxed text-[var(--muted-foreground)] md:text-xl">
             {comparison.introEn}
           </p>
