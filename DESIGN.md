@@ -123,9 +123,9 @@ prices/stat numbers.
 | `.btn-outline` | transparent + 1px `--text` border + `--text` + radius 999px | Secondary CTAs |
 | `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + marble texture `::before` at 5% (dark 7%) | Every card surface |
 | `.seal-chip` | chrome-border pill, small-caps tracking, `--muted-foreground`, translucent card bg | Stat seals, tags, badges |
-| `.chrome-text` | chrome gradient clipped to text (lightened ramp in dark) | Numbers, prices, "Learn more ›" links |
+| `.chrome-text` | Phase 198 (audit C3): light theme = dark-steel ramp (lightest stop ≈ 9.8:1 on white — the raw chrome ramp failed AA at ~2.1:1); dark theme = lightened ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
 | `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 | Section separators |
-| `.navbar-chrome` | sticky, `--navbar-bg` + blur(12px) + chrome bottom border | Site header |
+| `.navbar-chrome` | sticky, `--navbar-bg` (Phase 198 audit C5: alpha 0.85) + blur(12px) + chrome bottom border | Site header |
 | `.evo-hero-card` / `.evo-hero-art` | Phase 127 EVO section card — text left, warrior art right with a mask fade into the marble; `[dir=rtl]` flips the mask | Homepage EVO section |
 | `.hero-art` / `.hero-bg` | Phase 131 unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it; min-height floor 100vw×713/1280 (92vh on wide viewports) | Homepage hero |
 
@@ -141,7 +141,7 @@ blue buttons, no gradients besides chrome.
 
 | Context | Max width |
 |---|---|
-| Landing sections | `max-w-4xl` – `max-w-6xl` (per section) |
+| Landing content sections | ONE `max-w-6xl` container (Phase 198 audit C2 — card edges align across sections); inner text blocks keep their readable bounds (`max-w-2xl/3xl`) |
 | Hub pages | `max-w-4xl` (tools) / `max-w-6xl` (explorers, memberships, blog) |
 | Article body | `max-w-3xl` |
 
@@ -209,10 +209,20 @@ filenames — so they must NEVER be long-cached in browsers:
 ONE mode at every viewport (globals.css `.hero-art` / `.hero-bg`): the
 artwork is an absolutely-positioned COVER layer (`.hero-bg`, ThemeImg
 pair, eager LCP) with the content — chrome logo lockup (`w-32` mobile →
-`w-64` desktop) → serif H1 → 3 hero-scoped smaller seal chips
-(`.hero-seals`) — centered INSIDE it (owner directive Phase 131:
-«تصغير اللوجو والنص والازرار قليلا ثم نقلهم داخل الصورة»; the stats
-subline is REMOVED). **No CTA buttons, no eyebrow wordmark** (Phase 127).
+`w-64` desktop) → serif H1 (`.hero-copy` halo) → one-platform subtitle →
+compact CTA pair → hero-scoped smaller seal chips (`.hero-seals`) —
+centered INSIDE it (owner directive Phase 131: «تصغير اللوجو والنص
+والازرار قليلا ثم نقلهم داخل الصورة»; the stats subline is REMOVED).
+**CTA pair (Phase 198 — owner-approved UI audit C1, superseding the
+Phase 127 no-CTA state):** `.btn-chrome` «Start Free» → memberships
+(where the Free plan lives) + translucent-outline «Explore Free Tools»
+→ `#tools`, one step smaller (`px-5 py-2.5 text-sm`), inside the artwork
+composition. Decision record: docs/UI-IMPLEMENTATION-PLAN.md §0. No
+eyebrow wordmark (Phase 127).
+
+Hero copy legibility (Phase 198, audit C4): `.hero-copy` adds a
+theme-aware text-shadow halo to H1 + subtitle over artwork details — a
+glyph edge, NOT a veil (luminance law below stays intact).
 
 Height floors keep the artwork effectively complete:
 

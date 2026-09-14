@@ -122,7 +122,10 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                     {isAr ? "شهري" : "Monthly"}
                   </p>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className={`text-4xl font-semibold tracking-tight ${isFree ? "" : "chrome-text"}`}>
+                    <span className={`text-4xl font-semibold tracking-tight ${isFree ? "" : isPro ? "chrome-text chrome-text-on-dark" : "chrome-text"}`}>
+                      {/* chrome-text-on-dark (Phase 198, audit C3): the Pro card is
+                          #0B0B0D in BOTH themes — light mode pins the light metal
+                          ramp there; Premium keeps the dark-steel ramp. */}
                       {isFree ? (isAr ? "مجاني" : "Free") : `$${tier.priceMonthly!.toFixed(2)}`}
                     </span>
                     {!isFree && (
@@ -143,7 +146,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                       <span className="seal-chip">-33%</span>
                     </div>
                     <div className="mt-1.5 flex items-baseline gap-1">
-                      <span className="chrome-text text-xl font-semibold tracking-tight">
+                      <span className={`text-xl font-semibold tracking-tight ${isPro ? "chrome-text chrome-text-on-dark" : "chrome-text"}`}>
                         ${tier.priceYearly!.toFixed(2)}
                       </span>
                       <span className={`text-xs font-normal ${isPro ? "text-[#9BA0A6]" : "text-[var(--muted-foreground)]"}`}>

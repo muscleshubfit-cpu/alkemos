@@ -462,14 +462,41 @@ export function LandingView() {
               subtitle explains that Alkemos unifies training, nutrition,
               smart planning, and progress — instead of reading as a bundle
               of separate tools. Feature numbers stay as proof chips below. */}
-          <h1 className="font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
+          <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
             {isAr ? "تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي." : "Train smarter. Eat with precision. Progress with intelligence."}
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
+          <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
               ? "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم — كل ما تحتاجه لرحلتك في مكان واحد."
               : "One platform that brings training, nutrition, smart planning, and progress tracking together — everything you need in one place."}
           </p>
+
+          {/* Phase 198 (owner-approved UI audit C1 — decision record:
+              docs/UI-IMPLEMENTATION-PLAN.md §0): the hero conversion pair.
+              A NEW owner decision (2026-09-14, approving the audit fix)
+              supersedes the Phase 127 «no hero CTAs» state. Kept one step
+              smaller and INSIDE the artwork composition per Phase 131
+              («تصغير الازرار قليلا ثم نقلهم داخل الصورة»): primary chrome
+              button to memberships (where the Free plan lives), secondary
+              translucent-outline button to the free tools section. */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 md:mt-6">
+            <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-5 py-2.5 text-sm">
+              {isAr ? "ابدأ مجانًا" : "Start Free"}
+              <span className="rtl:rotate-180">›</span>
+            </a>
+            <a
+              href="#tools"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-normal backdrop-blur-sm transition-opacity hover:opacity-80"
+              style={{
+                backgroundColor: "color-mix(in srgb, var(--bg) 68%, transparent)",
+                color: "var(--text)",
+                border: "1px solid var(--text)",
+              }}
+            >
+              {isAr ? "استكشف الأدوات المجانية" : "Explore Free Tools"}
+              <span className="rtl:rotate-180">›</span>
+            </a>
+          </div>
 
           {/* Stat chips — engraved seals (mission §3), hero-scoped smaller
               (owner: «تصغير … الازرار قليلا» — .hero-seals in globals.css) */}
@@ -510,7 +537,7 @@ export function LandingView() {
           all sections. Memberships keeps the single filled primary chip; all
           chips smooth-scroll to their section id. */}
       <section className="px-4 pb-10 pt-2 md:pb-14" style={{ backgroundColor: PALETTE.sectionWhite }}>
-        <nav aria-label={isAr ? "التنقل بين أقسام الصفحة" : "Jump to a section"} className="mx-auto max-w-4xl text-center">
+        <nav aria-label={isAr ? "التنقل بين أقسام الصفحة" : "Jump to a section"} className="mx-auto max-w-6xl text-center">
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
             {isAr ? "استكشف أقسام الموقع" : "Explore the site"}
           </p>
@@ -582,7 +609,7 @@ export function LandingView() {
           point), the H2 is one step smaller, and the card min-height
           shrinks with it. */}
       <section id="evo" className="scroll-mt-20 px-4 py-16 md:py-24" style={{ backgroundColor: PALETTE.sectionGray, color: PALETTE.textPrim }}>
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="evo-hero-card marble-card relative w-full">
             {/* Warrior artwork — right side (left in RTL), fading into the marble */}
             <div className="evo-hero-art" aria-hidden="true">
@@ -617,7 +644,7 @@ export function LandingView() {
           part of the free experience — not just Libraries/Tools — so it
           gets the section's lead card with the unified-pool message. */}
       <section id="tools" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
               {/* Phase 194 (benefit-first pass): the headline sells the
@@ -712,7 +739,7 @@ export function LandingView() {
       <div className="meander-divider" aria-hidden="true" />
       {/* ===================== 5. EXERCISE LIBRARY ===================== */}
       <section id="exercises" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
               {/* Phase 194 (benefit-first pass): the number is proof, the
@@ -770,7 +797,7 @@ export function LandingView() {
 
       {/* ===================== 6. WORKOUT PROGRAMS ===================== */}
       <section id="programs" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
               <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
@@ -807,7 +834,7 @@ export function LandingView() {
 
       {/* ===================== 7. FOOD LIBRARY ===================== */}
       <section id="foods" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
               {/* Phase 194 (benefit-first pass): the headline is the
@@ -889,7 +916,7 @@ export function LandingView() {
           + two buttons. Added a 4-feature grid showing WHAT you actually get
           (nutrition plan / adaptive programs / follow-up / EVO AI). */}
       <section id="coaching" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <Reveal>
               <span className="seal-chip">{isAr ? "كوتشينج أونلاين" : "ONLINE COACHING"}</span>
@@ -955,7 +982,7 @@ export function LandingView() {
       {/* ===================== 9.5 FEATURED COACHES («أعلن معنا» ads) ===================== */}
       {featuredCoaches.length > 0 && (
         <section className="bg-[var(--tint)] px-4 py-12 md:py-20">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {/* §12.50-أ-3: this strip is PAID advertising (0037 wallet-debited
                   coach ads) — labeled as promo spots, not an endorsement. */}
@@ -1014,7 +1041,7 @@ export function LandingView() {
 
       {/* ===================== 9.7 JOIN AS A COACH (owner-approved homepage block) ===================== */}
       <section id="for-coaches" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionDark }}>
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-6xl text-center">
           <Reveal>
             <span
               className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium"
@@ -1079,7 +1106,7 @@ export function LandingView() {
 
       {/* ===================== 10. Premium Memberships ===================== */}
       <section id="memberships" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionGray }}>
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <Reveal>
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl" style={{ color: PALETTE.textPrim }}>
               {isAr ? "اختر الباقة المناسبة لك" : "Choose the Right Plan for You"}
@@ -1168,7 +1195,10 @@ export function LandingView() {
                     </span>
                   </div>
                   <div className="flex items-end gap-1">
-                    <span className="chrome-text text-3xl font-bold tracking-tight">$29.99</span>
+                    {/* chrome-text-on-dark (Phase 198, audit C3): this card is
+                        #0B0B0D in BOTH themes — light mode must keep the
+                        light metal ramp here, not the new dark-steel one. */}
+                    <span className="chrome-text chrome-text-on-dark text-3xl font-bold tracking-tight">$29.99</span>
                     <span className="pb-1 text-xs font-normal text-[#9BA0A6]">/{isAr ? "شهر" : "mo"}</span>
                   </div>
                 </div>
@@ -1310,7 +1340,7 @@ export function LandingView() {
           match AffiliateProgramView: 20% subscription commission, 30-day
           cookie window for one-time products, $10 minimum payout. */}
       <section id="affiliate" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-6xl text-center">
             <Reveal>
               <span className="seal-chip">{isAr ? "برنامج الأفلييت" : "AFFILIATE PROGRAM"}</span>
             </Reveal>

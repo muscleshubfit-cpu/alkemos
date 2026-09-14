@@ -191,7 +191,10 @@
   --shadow: 0 8px 24px rgba(11, 11, 13, 0.06);
   --ai: #38C7FF;
   --tint: #F5F6F8;
-  --navbar-bg: rgba(255, 255, 255, 0.72);
+  /* Phase 198 (UI audit C5): 0.72 let high-contrast artwork bleed through
+     the sticky bar on tablet/mobile — 0.85 keeps the translucent blur
+     character while content behind stops competing with the navbar row. */
+  --navbar-bg: rgba(255, 255, 255, 0.85);
   --marble-img: url("/images/brand/texture-marble-light.webp");
   --meander-img: url("/images/brand/divider-meander-light.webp");
   --prog-backdrop: url("/images/brand/evo-card-light.webp");
@@ -231,7 +234,8 @@
   --ai: #45D6FF;
   --tint: #121316;
   --card: #141518;
-  --navbar-bg: rgba(11, 11, 13, 0.72);
+  /* Phase 198 (UI audit C5): see the light-theme note above */
+  --navbar-bg: rgba(11, 11, 13, 0.85);
   --marble-img: url("/images/brand/texture-marble-dark.webp");
   --meander-img: url("/images/brand/divider-meander-dark.webp");
   --prog-backdrop: url("/images/brand/evo-card-dark.webp");
@@ -296,15 +300,29 @@
 }
 .btn-outline:hover { opacity: 0.72; }
 
-/* Chrome-gradient text (numbers, prices) — mission §7/§12 */
+/* Chrome-gradient text (numbers, prices) — mission §7/§12.
+   Phase 198 (UI audit C3 — docs/UI-AUDIT-HOMEPAGE.md): the light-theme
+   ramp was the raw chrome gradient whose mid-stops (#C9CED3/#878E94/
+   #9AA0A6) fail WCAG AA on white (~2.1:1) for muscle-card counts, prices,
+   and affiliate copy. The light ramp is now DARK STEEL — same engraved
+   metal identity, lightest stop #3F444A ≈ 9.8:1 on white (AAA). The dark
+   theme keeps its light ramp (readable on near-black). Surfaces that are
+   dark in BOTH themes (Pro/Coaching black cards) pin the light ramp via
+   .chrome-text-on-dark so light mode keeps a readable price. */
 .chrome-text {
-  background: var(--chrome);
+  background: linear-gradient(145deg, #262B31 0%, #0B0B0D 35%, #3F444A 50%, #14161A 70%, #2E3338 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 [data-theme="dark"] .chrome-text {
   /* درج كرومي فاتح على الداكن — يظل قابلاً للقراءة */
+  background: linear-gradient(145deg, #F5F5F7 0%, #B7BDC3 35%, #8A9096 50%, #DDE0E3 70%, #9AA0A6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.chrome-text.chrome-text-on-dark,
+[data-theme="dark"] .chrome-text.chrome-text-on-dark {
   background: linear-gradient(145deg, #F5F5F7 0%, #B7BDC3 35%, #8A9096 50%, #DDE0E3 70%, #9AA0A6 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -412,6 +430,21 @@
   padding: 0.3125rem 0.75rem;
   font-size: 0.625rem;
   gap: 0.25rem;
+  /* Phase 198 (UI audit C3): the chips sit directly ON the artwork —
+     a firmer card wash (85% vs 55%) keeps their muted-foreground label
+     on a stable, near-solid surface in both themes. */
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+}
+
+/* Phase 198 (UI audit C4): legibility edge for hero copy that overlaps
+   artwork details (the dumbbell band behind the subtitle). A theme-aware
+   text-shadow HALO — deliberately NOT a veil/overlay, so the DESIGN.md
+   luminance law («the artwork center is clean → no veil ever») stays
+   intact: the artwork itself is untouched, only the glyphs gain an edge. */
+.hero-copy {
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--bg) 60%, transparent),
+    0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
 }
 
 /* === EVO section card — Phase 127 (preview-sections reference) ===

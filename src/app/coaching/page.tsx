@@ -413,7 +413,8 @@ export default function CoachingPage() {
                     {isAr ? "كوتشينج" : "Coaching"}
                   </h3>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="chrome-text text-4xl font-semibold tracking-tight md:text-5xl">$39.99</span>
+                    {/* chrome-text-on-dark (Phase 198, audit C3): black card in BOTH themes */}
+                    <span className="chrome-text chrome-text-on-dark text-4xl font-semibold tracking-tight md:text-5xl">$39.99</span>
                     <span className="text-base font-normal opacity-60">{isAr ? "/شهر" : "/mo"}</span>
                   </div>
                   <p className="mt-1 text-sm font-normal opacity-60">{isAr ? "أو $359 سنويًا" : "or $359/yr"}</p>
