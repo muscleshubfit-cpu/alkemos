@@ -636,7 +636,7 @@ export function LandingView() {
           are REMOVED (the global floating EVO widget stays the entry
           point), the H2 is one step smaller, and the card min-height
           shrinks with it. */}
-      <section id="evo" className="scroll-mt-20 px-4 py-12 md:py-16" style={{ backgroundColor: PALETTE.sectionGray, color: PALETTE.textPrim }}>
+      <section id="evo" className="scroll-mt-20 px-4 py-12 md:py-16" style={{ backgroundColor: PALETTE.sectionWhite, color: PALETTE.textPrim }}>
         <div className="mx-auto max-w-6xl">
           <div className="evo-hero-card marble-card relative w-full">
             {/* Warrior artwork — right side (left in RTL), fading into the marble */}
@@ -921,7 +921,7 @@ export function LandingView() {
           <div className="mx-auto max-w-6xl">
             <Reveal>
               <div className="mb-6 flex items-end justify-between">
-                <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                   {isAr ? "اقرأ أحدث المقالات العلمية" : "Read the Latest Scientific Articles"}
                 </h2>
                 <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
@@ -939,71 +939,122 @@ export function LandingView() {
         </>
       )}
 
-      {/* ===================== 9. COACHING PREVIEW ===================== */}
-      {/* Improved 2026-08-30 (owner feedback): the section was only a headline
-          + two buttons. Added a 4-feature grid showing WHAT you actually get
-          (nutrition plan / adaptive programs / follow-up / EVO AI). */}
+      {/* ===================== 9. COACHING — PREMIUM SPOTLIGHT ===================== */}
+      {/* Visual UI Refinement (2026-09-15, owner directive): the section was
+          a plain centered feature list (4 tint cards + a button pair) that
+          read as "just another section" — and the dark For-Coaches band
+          right below it was stealing its premium thunder. It is now the
+          page's paid-offer SPOTLIGHT: ONE dark marble card with the 2px
+          chrome-gradient ring (the established identity treatment of the
+          top-tier cards — Pro here, Coaching on /coaching), a split
+          composition (copy column + 4-pillar grid), and a single direct
+          CTA to the real coaching page. Display-only: no prices, quotas,
+          destinations, or section order changed. The CTA wording deliberately
+          avoids any phrasing that could imply a separate per-session
+          booking service (coaching is one membership on /coaching). */}
       <section id="coaching" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <Reveal>
-              <span className="seal-chip">{isAr ? "كوتشينج أونلاين" : "ONLINE COACHING"}</span>
-            </Reveal>
-            <Reveal delay={100}>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not Just a PDF"}
-              </h2>
-            </Reveal>
-            <Reveal delay={150}>
-              <p className="mx-auto mt-4 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? "مدرب يتابع تقدمك خطوة بخطوة، وخطة تغذية وتمرين مصممة على جسمك وهدفك، مع تعديل مستمر مع تقدّمك — ومساعد EVO الذكي في خدمتك على مدار الساعة."
-                  : "A dedicated coach follows your progress step by step, custom nutrition and training plans built around your body and goal, continuous adjustments as you progress — with EVO AI available 24/7."}
-              </p>
-            </Reveal>
-          </div>
-          <Reveal delay={200}>
-            <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {(isAr
-                ? [
-                    { icon: Salad, t: "خطط تغذية مخصصة", d: "مبنية على جسمك وهدفك" },
-                    { icon: Dumbbell, t: "برامج تمارين متكيفة", d: "وتتطوّر مع تقدّمك" },
-                    { icon: LineChart, t: "متابعة شخصية", d: "مراجعة وتعديل مستمر" },
-                    { icon: Bot, t: "EVO AI — 24/7", d: "إجابات فورية في أي وقت" },
-                  ]
-                : [
-                    { icon: Salad, t: "Custom nutrition plans", d: "Built around your body & goal" },
-                    { icon: Dumbbell, t: "Adaptive workout programs", d: "They evolve as you progress" },
-                    { icon: LineChart, t: "Personal follow-up", d: "Continuous review & tweaks" },
-                    { icon: Bot, t: "EVO AI — 24/7", d: "Instant answers anytime" },
-                  ]
-              ).map((f) => {
-                const Icon = f.icon;
-                return (
-                  <div key={f.t} className="rounded-3xl p-5 text-center" style={{ backgroundColor: PALETTE.tint }}>
-                    <span
-                      className="mx-auto grid h-12 w-12 place-items-center rounded-2xl"
-                      style={{ backgroundColor: "var(--tint)", color: "var(--text)" }}
+          <div
+            className="relative overflow-hidden rounded-[var(--radius-chrome)]"
+            style={{
+              backgroundColor: "#0B0B0D",
+              color: "#F5F5F7",
+              border: "2px solid transparent",
+              backgroundImage:
+                "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
+              backgroundOrigin: "border-box",
+              backgroundClip: "padding-box, border-box",
+            }}
+          >
+            {/* Faded stadium backdrop — the same decorative layer as the
+                program cards (mission §8), one step quieter on the dark
+                surface. Purely decorative. */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.07] blur-[2px]"
+              aria-hidden="true"
+              style={{
+                backgroundImage: "var(--prog-backdrop)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            />
+            <div className="relative grid items-center gap-10 p-6 sm:p-8 md:p-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+              {/* Copy column */}
+              <div className="text-center lg:text-start">
+                <span
+                  className="seal-chip"
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.08)", color: "#C9CED3", borderColor: "#3A3F45" }}
+                >
+                  <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
+                  {isAr ? "كوتشينج أونلاين · الباقة الأعلى" : "ONLINE COACHING · TOP TIER"}
+                </span>
+                <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                  {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not Just a PDF"}
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-base font-normal leading-relaxed md:text-lg lg:mx-0" style={{ color: "#B9BEC4" }}>
+                  {isAr
+                    ? "مدرب بشري يبني خطة تغذيتك وتمارينك ويتابع تقدمك أسبوعيًا — ومعه EVO بلا حدود. كل مميزات Pro وأكثر، في باقة واحدة."
+                    : "A human coach builds your nutrition and training plans and follows your progress weekly — with unlimited EVO at your side. Every Pro feature and more, in one plan."}
+                </p>
+                {/* One direct CTA → the real coaching page (it explains the
+                    plan, how coaching works, and the price — NOT a session
+                    booking flow). Secondary quiet link keeps the ladder to
+                    the memberships comparison. */}
+                <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
+                  <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-chrome px-7 py-3 text-base">
+                    {isAr ? "ابدأ مع مدربك الشخصي" : "Start with a Personal Coach"}
+                    <span className="rtl:rotate-180">›</span>
+                  </a>
+                  <a
+                    href={isAr ? "/ar/memberships" : "/memberships"}
+                    className="text-sm font-semibold underline decoration-[#3A3F45] underline-offset-4 transition-opacity hover:opacity-70"
+                    style={{ color: "#C9CED3" }}
+                  >
+                    {isAr ? "قارن الباقات" : "Compare plans"}
+                  </a>
+                </div>
+                <p className="mt-4 text-xs font-normal leading-relaxed" style={{ color: "#8A9096" }}>
+                  {isAr ? "كل مميزات Pro مدرجة · استرداد كامل خلال 7 أيام" : "All Pro features included · Full 7-day refund"}
+                </p>
+              </div>
+              {/* The four coaching pillars — Human Coach + Personalized
+                  Plans + Follow-up + EVO (owner directive 2026-09-15). */}
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                {(isAr
+                  ? [
+                      { icon: Users, t: "مدرب بشري", d: "يبني خططك ويراجع تقدمك بنفسه" },
+                      { icon: ClipboardList, t: "خطط مخصصة", d: "تغذية وتمارين على مقاس هدفك" },
+                      { icon: LineChart, t: "متابعة أسبوعية", d: "مراجعة وتعديل مستمر مع تقدمك" },
+                      { icon: Bot, t: "EVO كامل", d: "مساعد ذكي 24/7 بلا حدود" },
+                    ]
+                  : [
+                      { icon: Users, t: "Human Coach", d: "Builds your plans & reviews your progress" },
+                      { icon: ClipboardList, t: "Personalized Plans", d: "Nutrition & training around your goal" },
+                      { icon: LineChart, t: "Weekly Follow-up", d: "Ongoing review & adjustments" },
+                      { icon: Bot, t: "Full EVO", d: "Unlimited 24/7 AI assistant" },
+                    ]
+                ).map((f) => {
+                  const Icon = f.icon;
+                  return (
+                    <div
+                      key={f.t}
+                      className="rounded-2xl p-4 text-start md:p-5"
+                      style={{ backgroundColor: "rgba(255, 255, 255, 0.06)", border: "1px solid rgba(255, 255, 255, 0.10)" }}
                     >
-                      <Icon className="h-6 w-6" aria-hidden="true" />
-                    </span>
-                    <p className="mt-3 text-sm font-semibold" style={{ color: PALETTE.textPrim }}>{f.t}</p>
-                    <p className="mt-1 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{f.d}</p>
-                  </div>
-                );
-              })}
+                      <span
+                        className="grid h-10 w-10 place-items-center rounded-xl"
+                        style={{ backgroundColor: "rgba(255, 255, 255, 0.08)", color: "#E6E9EC" }}
+                      >
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <p className="mt-3 text-sm font-semibold text-white">{f.t}</p>
+                      <p className="mt-1 text-xs font-normal leading-relaxed" style={{ color: "#A1A1A6" }}>{f.d}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </Reveal>
-          <Reveal delay={250}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-chrome px-6 py-2.5 text-sm">
-                {isAr ? "اعرف أكثر ›" : "Learn more ›"}
-              </a>
-              <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-outline px-6 py-2.5 text-sm font-normal">
-                {isAr ? "الأسعار" : "Pricing"}
-              </a>
-            </div>
-          </Reveal>
+          </div>
         </div>
       </section>
 
@@ -1296,6 +1347,47 @@ export function LandingView() {
             </Reveal>
           </div>
 
+          {/* Visual UI Refinement (2026-09-15): slim Coaching strip completes
+              the value ladder right where the tiers are compared — Free →
+              Premium → Pro → Coaching (the human-coach tier). Display-only
+              navigation to the real coaching page; prices and quotas are NOT
+              changed or restated beyond the published "from" price. */}
+          <Reveal delay={350}>
+            <a
+              href={isAr ? "/ar/coaching" : "/coaching"}
+              className="group relative mt-6 flex flex-col gap-3 overflow-hidden rounded-[var(--radius-chrome)] px-5 py-4 transition-transform duration-300 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
+              style={{
+                backgroundColor: "#0B0B0D",
+                color: "#F5F5F7",
+                border: "2px solid transparent",
+                backgroundImage:
+                  "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <EngravedIcon name="laurel" alt="" size={26} className="h-6 w-6 shrink-0" />
+                <span>
+                  <span className="block text-sm font-semibold text-white">
+                    {isAr ? "الكوتشينج — الباقة الأعلى" : "Coaching — the top tier"}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-normal leading-relaxed" style={{ color: "#A1A1A6" }}>
+                    {isAr
+                      ? "كل مميزات Pro + مدرب بشري يبني خططك ويتابع تقدمك أسبوعيًا"
+                      : "Everything in Pro + a human coach building your plans and following up weekly"}
+                  </span>
+                </span>
+              </span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="chrome-text chrome-text-on-dark text-lg font-bold tracking-tight">
+                  {isAr ? "من $39.99 شهريًا" : "From $39.99/mo"}
+                </span>
+                <span className="chrome-text chrome-text-on-dark text-xl font-semibold" aria-hidden="true">›</span>
+              </span>
+            </a>
+          </Reveal>
+
           {/* Phase 198 Batch 2 (audit H6): the free-tier paragraph moved INTO
               the Free card above — only the compare link remains here. */}
           <Reveal delay={400}>
@@ -1584,6 +1676,7 @@ type LandingFoodCategory = {
   descAr: string;
   descEn: string;
   icon: string; // engraved icon pair (protein / carbs / fats / fruits — mission §9)
+  image: string; // category artwork (same asset as the /foods hub pills)
 };
 
 // ─── Helper components (conditional rendering — no display:none in DOM) ───
@@ -1669,20 +1762,32 @@ function LandingProgramCard({ prog, isAr }: { prog: LandingProgram; isAr: boolea
 }
 
 function LandingFoodCategoryCard({ cat, isAr }: { cat: LandingFoodCategory; isAr: boolean }) {
+  // Visual UI Refinement (2026-09-15): image-led catalog card. The four
+  // library sections now each have their OWN card shape — Tools =
+  // horizontal utility rows · Exercises = compact centered stat tiles ·
+  // Programs = vertical product cards (laurel + backdrop) · Foods =
+  // image-led catalog cards — killing the "same card everywhere" feeling.
+  // The category artwork is the SAME asset the /foods hub pills already
+  // use (CATEGORY_LABELS), so no new assets and hub/homepage stay
+  // consistent. Behavior, hrefs, and data untouched.
   return (
     <a
       href={`${isAr ? "/ar" : ""}/foods?cat=${cat.slug}`}
-      className="marble-card group flex flex-col items-center justify-center gap-2 p-6 text-center transition-transform duration-300 hover:-translate-y-0.5"
+      className="marble-card group flex flex-col transition-transform duration-300 hover:-translate-y-0.5"
     >
-      {/* Engraved icon pair (mission §9: protein=steak / carbs=wheat / fats=avocado / fruits=olive branch) */}
-      <EngravedIcon
-        name={cat.icon}
-        alt={isAr ? cat.titleAr : cat.titleEn}
-        size={64}
-        className="h-16 w-16"
-      />
-      <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.titleAr : cat.titleEn}</h3>
-      <p className="mt-0.5 text-xs font-normal" style={{ color: PALETTE.textSec }}>{isAr ? cat.descAr : cat.descEn}</p>
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <Image
+          src={cat.image}
+          alt={isAr ? cat.titleAr : cat.titleEn}
+          fill
+          sizes="(max-width: 768px) 45vw, 22vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      </div>
+      <div className="flex flex-1 flex-col p-4 text-start">
+        <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>{isAr ? cat.titleAr : cat.titleEn}</h3>
+        <p className="mt-1 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{isAr ? cat.descAr : cat.descEn}</p>
+      </div>
     </a>
   );
 }
