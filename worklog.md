@@ -22,7 +22,9 @@ Stage Summary:
 - **صفر مساس:** بالوظائف/الأسعار/البوول/الحدود/business rules/المدونة/المسارات/التصميم — نقل مصفوفتا الـhub نقل بيانات صرف بنفس الرندر، وعقود الاختبار الثلاثة المتأثرة حُدّثت بنفس الفاز بوعي
 - التوثيق: SEO-GEO-MASTER-PLAN §12.52 + STATE.md (المرحلة 195) + هذا السجل
 - Commit SHA: 1082e67 — الكود + التوثيق بنفس الفاز (السجل الكامل أعلاه)
-- Push status: pushed إلى origin/main (5b016f7..1082e67) — SYNCED
+- Push status: pushed إلى origin/main (5b016f7..1082e67 + docs 41523bd) — SYNCED
+- **التحقق الحي (بعد نشر Vercel):** الرئيسية EN: شارات «868+ EXERCISES · 8,830+ FOODS · 8+ FREE TOOLS» + «6 meal/exercise swaps per week» ×2 + «8+ free tools» ×2 حية · الرئيسية AR: «8+ أدوات مجانية» ×3 + «6 تبديلات للوجبات أو التمارين أسبوعيًا» ×2 + «8,830+ صنفًا غذائيًا» ×6 حية · /memberships: صف «EVO: Meal & Exercise Swaps» + «3 meal/exercise swaps per week» + ملاحظة «never a full plan regeneration» حية · /ar/memberships: «تبديلات الوجبات والتمارين» + «3 تبديلات للوجبات أو التمارين أسبوعيًا» + «دون إعادة إنشاء الخطة كاملة» حية · /faq و/ar/faq: السؤالان الجديدان حيان (ظاهر + JSON-LD) · مقارنة MyFitnessPal: «eight free tools» ×4 + «raises the unified AI pool» ×2 حية · /terms EN: قسم «Meal & Exercise Swaps» حي
+- **ملاحظة موثقة (خارج النطاق — سابقة للمرحلة):** /ar/terms يرجع 404 لأن المسار غير موجود أصلًا في الكود (تحقق git show 5b016f7) — غير مرتبط داخليًا وغير موجود في sitemap (404 معزول غير قابل للوصول)؛ ليس انحدارًا من 195
 ---
 Task ID: PHASE-194-COPY-REFINEMENT-PASS-2026-09-14
 Agent: Super Z (main)
