@@ -32,9 +32,9 @@ export const BLOG_CATEGORY_CONTENT: Record<string, BlogCategoryContent> = {
     titleEn: "Workout Articles",
     titleAr: "مقالات التمارين",
     introEn:
-      "A good program is not a pile of exercises — it is an order, a dose, and a progression you can repeat next week. These articles cover training the way it is actually programmed: how splits are built around recovery, why rep ranges differ between strength and muscle goals, and when to add load instead of adding volume. The movement standards we reference match our exercise library of 868 entries, so every exercise an article names has a page with images and step-by-step form.",
+      "A good program is not a pile of exercises — it is an order, a dose, and a progression you can repeat next week. These articles cover training the way it is actually programmed: how splits are built around recovery, why rep ranges differ between strength and muscle goals, and when to add load instead of adding volume. The movement standards we reference match our exercise library of 868+ entries, so every exercise an article names has a page with images and step-by-step form.",
     introAr:
-      "البرنامج الجيد ليس كوماً من التمارين — بل ترتيبٌ وجرعةٌ وتدرّج تستطيع تكراره الأسبوع القادم. تغطي هذه المقالات التدريب كما يُبرمَج فعلاً: كيف تُبنى التقسيمات حول الاستشفاء، ولماذا تختلف نطاقات التكرار بين أهداف القوة وبناء العضلات، ومتى تضيف وزناً بدل أن تضيف حجماً. معايير الأداء التي نرجع إليها تطابق مكتبة تماريننا البالغة 868 تمريناً، فكل حركة تذكرها مقال لها صفحة بصور وخطوات أداء.",
+      "البرنامج الجيد ليس كوماً من التمارين — بل ترتيبٌ وجرعةٌ وتدرّج تستطيع تكراره الأسبوع القادم. تغطي هذه المقالات التدريب كما يُبرمَج فعلاً: كيف تُبنى التقسيمات حول الاستشفاء، ولماذا تختلف نطاقات التكرار بين أهداف القوة وبناء العضلات، ومتى تضيف وزناً بدل أن تضيف حجماً. معايير الأداء التي نرجع إليها تطابق مكتبة تماريننا البالغة 868+ تمرينًا، فكل حركة تذكرها مقال لها صفحة بصور وخطوات أداء.",
   },
   supplements: {
     titleEn: "Supplement Articles",

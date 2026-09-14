@@ -271,9 +271,16 @@ export default function CoachingPage() {
               {isAr ? "المدرب + EVO معك 24/7." : "Your coach + EVO, 24/7."}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
+              {/* Phase 196 (owner directive): EVO is part of EVERY Alkemos
+                  membership (free tier + Premium/Pro) — the old wording said
+                  EVO belongs to the coaching package and framed it against a
+                  hypothetical separate subscription, which implied
+                  exclusivity. The unified message keeps the coaching
+                  reassurance (included in full) without the exclusivity
+                  implication — zero entitlement change. */}
               {isAr
-                ? "ليس مجرد روبوت محادثة. محرك أداء ذكي يقرأ بياناتك وهدفك، ويبني لك خططًا مخصّصة، ويقترح تبديلات ذكية للوجبات والتمارين — وهو جزء من باقة الكوتشينج، لا اشتراك منفصل عنها."
-                : "Not just a chatbot. A smart engine that reads your data and goal, builds personalized plans, and suggests smart meal and exercise swaps — included in your coaching plan, not a separate subscription."}
+                ? "ليس مجرد روبوت محادثة. محرك أداء ذكي يقرأ بياناتك وهدفك، ويبني لك خططًا مخصّصة، ويقترح تبديلات ذكية للوجبات والتمارين — EVO جزء من كل عضويات Alkemos، وباقة الكوتشينج تشمله بكل ميزاته بلا أي اشتراك إضافي."
+                : "Not just a chatbot. A smart engine that reads your data and goal, builds personalized plans, and suggests smart meal and exercise swaps — EVO is part of every Alkemos membership, and your coaching plan includes it in full with no extra subscription."}
             </p>
             {/* Owner directive 2026-08-30: EVO is a service inside the
                 subscriptions, NOT a CTA. The old twin promo buttons

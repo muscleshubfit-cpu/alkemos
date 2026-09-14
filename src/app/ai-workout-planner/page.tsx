@@ -389,7 +389,7 @@ export default function AiWorkoutPlannerPage() {
                 into its bilingual pages (868+ exercises). */}
             <p className="mt-1 text-sm font-normal text-[var(--muted-foreground)]">
               {isAr
-                ? "الحركات المطابقة في مكتبة التمارين تظهر بصورها من المكتبة وترتبط بصفحة شرحها الكامل — أكثر من 868 تمريناً بالأداء الصحيح."
+                ? "الحركات المطابقة في مكتبة التمارين تظهر بصورها من المكتبة وترتبط بصفحة شرحها الكامل — 868+ تمرينًا بالأداء الصحيح."
                 : "Movements that match our exercise library carry its images and link to their full how-to pages — 868+ exercises with proper form."}
             </p>
             <div className="mt-4 space-y-4">
@@ -506,7 +506,7 @@ export default function AiWorkoutPlannerPage() {
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "كل زائر يحصل على توليديْن ناجحيْن شهريًا بلا حساب ولا تسجيل — والرصيد يُحسب للتوليد الناجح فقط، وخططك السابقة تبقى متاحة بعد استنفاده. بإنشاء حساب مجاني تُحفظ خططك من أي جهاز؛ ومع بريميوم يرتفع الرصيد إلى 4 توليدات شهريًا (و8 مع برو). للتصفح الجاهز فوراً، برامج التدريب الجاهزة معروضة لكل مستوى وهدف؛ ولكل حركة بشرحها، مكتبة التمارين تضم أكثر من 868 تمريناً — ولنظامك الغذائي، مخطط الوجبات بالذكاء الاصطناعي ينتظر رقم سعراتك."
+                ? "كل زائر يحصل على توليديْن ناجحيْن شهريًا بلا حساب ولا تسجيل — والرصيد يُحسب للتوليد الناجح فقط، وخططك السابقة تبقى متاحة بعد استنفاده. بإنشاء حساب مجاني تُحفظ خططك من أي جهاز؛ ومع بريميوم يرتفع الرصيد إلى 4 توليدات شهريًا (و8 مع برو). للتصفح الجاهز فوراً، برامج التدريب الجاهزة معروضة لكل مستوى وهدف؛ ولكل حركة بشرحها، مكتبة التمارين تضم 868+ تمرينًا — ولنظامك الغذائي، مخطط الوجبات بالذكاء الاصطناعي ينتظر رقم سعراتك."
                 : "Every visitor gets 2 successful generations per month — no account, no signup, and only successful generations count; your previous plans stay available after the quota runs out. Create a free account and your plans are saved from any device; Premium lifts the pool to 4 generations a month (8 with Pro). For instant browsing, the ready workout programs are laid out for every level and goal; for every movement explained, the exercise library holds 868+ exercises — and for the diet side of your week, the AI meal planner is waiting for your calorie number."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">

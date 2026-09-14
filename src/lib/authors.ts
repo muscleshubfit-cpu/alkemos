@@ -71,9 +71,9 @@ export const AHMED_ZAKE: AuthorProfile = {
   jobTitleEn: "Founder & Head Coach, Alkemos",
   jobTitleAr: "المؤسس والمدرب الرئيسي، Alkemos",
   bioEn:
-    "Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built Alkemos to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers. Ahmed oversees every piece of content published on the platform, from the 868-exercise library to the automated blog pipeline, and reviews each article for accuracy before publication.",
+    "Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built Alkemos to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers. Ahmed oversees every piece of content published on the platform, from the 868+ exercise library to the automated blog pipeline, and reviews each article for accuracy before publication.",
   bioAr:
-    "أحمد زكي مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى Alkemos ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين. يشرف أحمد على كل محتوى يُنشر على المنصة، من مكتبة الـ868 تمرينًا إلى خط المدوّنة الآلي، ويراجع كل مقال للدقّة قبل النشر.",
+    "أحمد زكي مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى Alkemos ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين. يشرف أحمد على كل محتوى يُنشر على المنصة، من مكتبة الـ868+ تمرينًا إلى خط المدوّنة الآلي، ويراجع كل مقال للدقّة قبل النشر.",
   credentials: [
     { en: "Certified Personal Trainer (CPT)", ar: "مدرب شخصي معتمد (CPT)" },
     { en: "Nutrition Coach certification", ar: "شهادة مدرب تغذية" },

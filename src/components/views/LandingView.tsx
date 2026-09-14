@@ -300,12 +300,12 @@ export function LandingView() {
   // Marketing-surface MSA law (Phase 178): Arabic copy stays فصحى — the
   // free-AI-generation pair (owner directive 2026-09-13) is MSA too.
   const faqs = [
-    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? `لا — الأدوات كلها (${TOOLS_COUNT} أداة: الحاسبات الخمس، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي) مجانية ودون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the 5 calculators, the meal planner, and the two AI planners) are completely free without signup.` },
+    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? `لا — الأدوات كلها (${TOOLS_COUNT} أداة: الحاسبات، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي) مجانية ودون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free without signup.` },
     { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ خططك دائمًا في حسابك وتتزامن عبر أجهزتك."
       : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting. No account: your plan stays on this device. A free account saves your plans permanently in your account & syncs them across your devices.", },
     { q: isAr ? "ما الفرق بين Premium و Pro؟" : "What's the difference between Premium and Pro?", a: isAr ? "يمنحك Premium وصولًا غير محدود إلى EVO و4 خطط شهريًا، ويضيف Pro خططًا أكثر (8 شهريًا)، وتبديلات أسبوعية للوجبات والتمارين داخل خطتك، ونتائج محفوظة أكثر، دون إعلانات." : "Premium ($14.99/mo): unlimited EVO and 4 AI plans per month. Pro ($29.99/mo) adds more plans (8/month), weekly meal & exercise swaps within your plan, more saved results, and no ads." },
     { q: isAr ? "ما هي طرق الدفع المتاحة؟" : "What payment methods are available?", a: isAr ? "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائيًا؛ الطرق اليدوية تتطلب رفع إيصال يُراجع خلال 24 ساعة." : "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt reviewed within 24 hours." },
-    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? `أكثر من ${EXERCISES_COUNT.toLocaleString("en-US")} تمرينًا و${FOODS_COUNT.toLocaleString("en-US")} صنف غذائي، والعدد يتزايد باستمرار.` : `${EX_PLUS} exercises with bilingual instructions and images, plus ${FOODS_PLUS} foods with calories and macros per 100g.` },
+    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? `${EX_PLUS} تمرينًا و${FOODS_PLUS} صنف غذائي، والعدد يتزايد باستمرار.` : `${EX_PLUS} exercises with bilingual instructions and images, plus ${FOODS_PLUS} foods with calories and macros per 100g.` },
     { q: isAr ? "هل تدعم المنصة اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "نعم بالكامل — النسخة العربية موجّهة إلى الجمهور العربي كافة لا إلى بلد بعينه، والنسخة الإنجليزية موجّهة إلى العالم أجمع." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
   ];
   const faqSchema = getFAQSchema(faqs);
@@ -719,7 +719,7 @@ export function LandingView() {
             </Reveal>
             <Reveal delay={100}>
               <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? `أكثر من ${EX_PLUS} تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم.` : `${EX_PLUS} exercises with clear instructions and difficulty levels — home or gym, beginner to advanced.`}
+                {isAr ? `${EX_PLUS} تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم.` : `${EX_PLUS} exercises with clear instructions and difficulty levels — home or gym, beginner to advanced.`}
               </p>
             </Reveal>
           </div>

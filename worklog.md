@@ -3,6 +3,30 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-196-COPY-MICRO-FIXES-2026-09-14
+Agent: Super Z (main)
+Task: أمر المالك «نفّذ Phase 196 — Copy Micro-Fixes»: (1) الرئيسية EN أي عبارة 5 calculators → 8+ free tools أو صياغة متسقة مع صفحة Tools؛ (2) الرئيسية AR «أكثر من 868+ تمرينًا» → «868+ تمرينًا»؛ (3) مراجعة weekly cap 1+1/2+2 مقابل مصدر الحقيقة بالعضويات بلا تغيير السلوك أو الحدود؛ (4) توحيد صياغة ملكية EVO عبر EVO/Memberships/Coaching بحيث لا توحي صفحة بأن EVO حصري للكوتشينج؛ (5) البحث عن بقايا مباشرة لنفس الأخطاء في EN/AR/SEO/FAQ/JSON-LD — ثم حراس + بوابات + STATE/worklog + docs/stale/ui-wiring + commit/push + تحقق حي — copy-only بلا أي تحسينات أخرى
+
+Work Log:
+- بروتوكول §3.6: STATE.md (195 على 3ec68d1) + AGENTS.md + fetch → SYNCED + آخر مدخلات worklog
+- **تدقيق مصدر الحقيقة قبل الصياغة (§3.1):** memberships.ts = swaps 0/3/6/6 أسبوعيًا · توليدات AI 2/4/8/8 شهريًا (رصيد موحد) · EVO chat 10/يوم ثم غير محدود — مسح كامل لكل الأسطح بالمطابقة: صياغات swaps/التوليدات كلها متسقة (3/6 أسبوعيًا · 8 شهريًا)؛ «1+1/2+2» لا وجود لها في copy المستخدم إطلاقًا — فقط تعليق كود تاريخي في memberships.ts:22 يوثق إلغاء القاعدة (يُترك — ليس copy) + تعليقات tier-limits/coach-limits/api-route المماثلة
+- **(1) الرئيسية EN (LandingView FAQ الأدوات):** «all 8 tools (the 5 calculators, …)» → «all 8 tools (the calculators, the meal planner, and the two AI planners)» — نزع عدد الحاسبات الفرعي من التعداد (العدّ الكلي 8 هو الرسالة)؛ تعداد «eight free tools — five calculators (…)» بالـcomparisons وllms-full بقي كما هو (نمط 195 المعتمد — تعداد مركب لا ادعاء عدّ)
+- **(2) الرئيسية AR:** قسم التمارين «أكثر من ${EX_PLUS} تمرينًا» الذي يرندر «أكثر من 868+ تمرينًا» (الخطأ الملكي الحرفي، مؤكد حيًا قبل الإصلاح) → «${EX_PLUS} تمرينًا»؛ سؤال الـFAQ «كم عدد التمارين والأطعمة؟» AR كان «أكثر من 868 تمرينًا و8,830 صنف غذائي» (بلا + ومخالف لـEN) → مشتق EX_PLUS/FOODS_PLUS مثل نظيره EN
+- **(3) Weekly cap:** راجع كل سطر يحمل «أسبوعي» على السطح العام مقابل مصدر الحقيقة — كل الأسطح تصف التبديلات (3/6 أسبوعيًا) لا التوليدات؛ لا صياغة متعارضة → الحد الأدنى: حارس يمنع «1+1»/«2+2»/«weekly cap» من الأسطح التسويقية الخمسة (LandingView · memberships/layout · faq-content · StaticPageView · comparisons) مع إبقاء التعليق التاريخي بمصدر الحقيقة
+- **(4) ملكية EVO (coaching/page.tsx):** «وهو جزء من باقة الكوتشينج، لا اشتراك منفصل عنها» / «included in your coaching plan, not a separate subscription» (مؤكد حيًا) توحي بالحصرية رغم أن EVO مجاني للجميع وداخل كل العضويات → «EVO جزء من كل عضويات Alkemos، وباقة الكوتشينج تشمله بكل ميزاته بلا أي اشتراك إضافي» / «EVO is part of every Alkemos membership, and your coaching plan includes it in full with no extra subscription» — رسالة موحدة مع /evo («متاح للجميع») وStaticPageView («Available to everyone — visitors and members alike») بلا أي تغيير entitlement
+- **(5) بقايا نفس التناقض (أكثر من/الترقيم/العدّ):** seo.ts ORG AR «أكثر من 868 تمرينًا، 8,830+» (خلط أسلوبين بجملة واحدة) → «868+ تمرينًا، 8,830+» · ar/meal-planner/layout meta «أكثر من 8830 أكلة» (صيغة 8830 القديمة الفاتتها canaries 195) → «8,830+ صنف غذائي» · ai-workout-planner AR ×2 «أكثر من 868 تمريناً» → «868+ تمرينًا» · blog-category-content «البالغة 868 تمريناً»/«library of 868 entries» → «868+» باللغتين · authors.ts (مصدر founder JSON-LD) «868-exercise library»/«مكتبة الـ868 تمرينًا» → «868+» باللغتين
+- **الحرس (منع عودة الأخطاء الأربعة):** canary جديد «Phase 196» بـmarketing-msa-surface.test.ts — يمنع: «the 5 calculators»/«الحاسبات الخمس»/«5 حاسبات»/«أكثر من ${EX_PLUS}»/«أكثر من 868» بالرئيسية · «أكثر من 868»/«868-exercise» بـseo.ts · «868-exercise»/«الـ868 تمرينًا» بـauthors.ts · «8830» بـar/meal-planner · «أكثر من 868» بـai-workout-planner · «868 تمريناً»/«868 entries» بـblog-category-content · «not a separate subscription»/«لا اشتراك منفصل»/«جزء من باقة الكوتشينج» بالكوتشينج · «1+1»/«2+2»/«weekly cap» على الأسطح التسويقية الخمسة + إلزام رسالة الـevery-membership باللغتين بالكوتشينج (الحارس أمسك اقتباس العبارة القديمة داخل تعليق الشرح فأعيدت صياغته — يثبت أن الحارس حي)
+- **docs/stale/ui-wiring:** docs_audit (phase=196 من STATE) · stale-reference: لا مراجع قديمة مستهدفة (كل التعديلات على ملفات حية مكتشفة بالمسح) · check-ui-wiring.sh: صفر أزرار/نقاط جديدة — copy-only
+- **البوابات:** tsc 0 · eslint 0/0 · vitest **1098/1098** (+1: canaries 196) · next build exit 0 · docs_audit ✓
+
+Stage Summary:
+- **النتيجة:** الأخطاء الأربعة مغلقة بحراس دائمين: عدّ الأدوات 8+ على كل الرئيسية (التعداد الفرعي نزع من FAQ) · كل الأعداد تحمل ترقيمًا واحدًا (868+/8,830+ بلا «أكثر من» المزدوجة أو المختلطة) على الرئيسية والميتاداتا وJSON-LD · الغطاء الأسبوعي الملغى محروس على الأسطح التسويقية · ملكية EVO موحدة (جزء من كل العضويات — الكوتشينج يشمله كاملًا) بلا أي تغيير في entitlement
+- **صفر مساس:** بالوظائف/الأسعار/الحدود/البوول/business rules/المدونة/المسارات/التصميم — copy-only + حراس
+- التوثيق: STATE.md (المرحلة 196) + هذا السجل
+- Commit SHA: (يُستكمل بعد الكوميت)
+- Push status: (يُستكمل بعد الدفع)
+
+---
 Task ID: PHASE-195-NUMBERS-PROOF-SWAPS-CLARITY-2026-09-14
 Agent: Super Z (main)
 Task: أمر المالك «نفّذ Copy Refinement صغير: (1) الأرقام في Homepage proof-of-depth لا مواصفات — Exercises 868+ · Foods 8,830+ · Tools 8 وليس 5 — واجعل أعداد المكتبات Dynamic من مصدر البيانات قدر الإمكان، و"+" لحجم المحتوى فقط لا حدود العضوية؛ (2) حافظ على Benefit-First (Phase 194)؛ (3) مهم جدًا: وضّح أن Swaps تبديلات وجبات/تمارين داخل الخطة لا إعادة توليد كامل — EN/AR بصياغة محددة — في Homepage وMemberships وFAQ وكل مكان؛ (4) تحقق terminology (توليد الخطة ≠ Meal Swap ≠ Food/Item Swap ≠ Workout Day ≠ Exercise Swap)؛ (5) Test → Document → Commit → Push → Verify live» — copy-only بلا مساس بالسلوك أو الحدود

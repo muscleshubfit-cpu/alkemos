@@ -328,4 +328,62 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(membershipsPage).toContain("دون إعادة إنشاء الخطة كاملة");
     expect(membershipsPage).toContain("never a full plan regeneration");
   });
+
+  // PHASE 196 (owner directive — copy micro-fixes): the four error classes
+  // may not return: (1) a bare «5 calculators» tools-count phrase on the
+  // homepage (the count is 8+ — the «eight free tools — five calculators
+  // (…)» enumeration lives only in comparisons/llms, never as a count
+  // claim); (2) the double-marked «أكثر من 868+» — a count carries EITHER
+  // «أكثر من N» OR «N+», never both, and AR/EN stay in the same marking;
+  // (3) user-facing copy of the RETIRED weekly generation cap (1+1 / 2+2 —
+  // the unified monthly pool is the only truth; memberships.ts keeps the
+  // historical code comment, which is not copy); (4) copy implying EVO
+  // belongs to Coaching alone (EVO is part of every membership — coaching
+  // includes it in full, zero entitlement change).
+  it("Phase 196: tools-count + count-marking + retired weekly cap + EVO-ownership canaries", () => {
+    const surfaces: Record<string, string[]> = {
+      "src/components/views/LandingView.tsx": [
+        "the 5 calculators",
+        "الحاسبات الخمس",
+        "5 حاسبات",
+        "أكثر من ${EX_PLUS}",
+        "أكثر من 868",
+      ],
+      "src/lib/seo.ts": ["أكثر من 868", "868-exercise"],
+      "src/lib/authors.ts": ["868-exercise", "الـ868 تمرينًا"],
+      "src/app/ar/meal-planner/layout.tsx": ["8830"],
+      "src/app/ai-workout-planner/page.tsx": ["أكثر من 868"],
+      "src/lib/blog-category-content.ts": ["868 تمريناً", "868 entries"],
+      "src/app/coaching/page.tsx": [
+        "not a separate subscription",
+        "لا اشتراك منفصل",
+        "جزء من باقة الكوتشينج",
+      ],
+    };
+    for (const [rel, bannedList] of Object.entries(surfaces)) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of bannedList) {
+        expect(src, `${rel}: Phase 196 phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+    // (3) The RETIRED weekly generation cap (1+1 / 2+2) may never appear on
+    // a user-facing marketing surface.
+    for (const rel of [
+      "src/components/views/LandingView.tsx",
+      "src/app/memberships/layout.tsx",
+      "src/lib/faq-content.ts",
+      "src/components/views/StaticPageView.tsx",
+      "src/lib/comparisons.ts",
+    ]) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of ["1+1", "2+2", "weekly cap"]) {
+        expect(src, `${rel}: retired weekly-cap phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+    // (4) The unified EVO-ownership message: the coaching page carries the
+    // every-membership fact in BOTH languages.
+    const coaching = readFileSync("src/app/coaching/page.tsx", "utf8");
+    expect(coaching).toContain("part of every Alkemos membership");
+    expect(coaching).toContain("جزء من كل عضويات Alkemos");
+  });
 });
