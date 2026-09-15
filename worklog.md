@@ -4174,3 +4174,22 @@ Stage Summary:
 - دفعة ١ كاملة عبر البوابات التسع؛ صفر مساس بالوظائف/البيانات/الأسعار؛ كل الأصول المستخدمة موجودة أصلًا
 - Commit SHA: (see below)
 - Push status: pushed
+
+---
+Task ID: SEO-GEO-15-BATCH1-LIVE-VERIFY
+Agent: Main (Z User)
+Task: التحقق الحي من دفعة ١ (المرحلة 206) على الإنتاج بعد نشر 5713713
+
+Work Log:
+- انتظار نشر Vercel حتى build-info = 5713713 (تحقق بعد ~90 ثانية)
+- سكربت تحقق حي 37/37 ✅: مخططا EVO/Coaching EN إنجليزيًا كاملاً (صفر عربي) والمرايا AR عربية كاملة (سكربت محفوظ خارج المستودع بكاسر كاش)
+- البطاقات التسع EN ظاهرة + og:url/og:locale على /memberships + og:locale على water-tracker + twitter للequipment = summary_large_image
+- عنوان الرئيسية «Alkemos — The Smart Fitness & Nutrition Platform» (48 حرفًا) + «Fitness & Nutrition Blog | Alkemos» + lastmod السايت مابين 2026-09-15
+- انحدارات AR سليمة (/ar و/ar/exercises و/ar/foods و/ar/programs و/ar/memberships = og-home-ar)
+- ملاحظة تشغيلية: Cloudflare يخدم HTML قديمًا حتى ~ساعة على بعض المسارات (age:3300 رغم max-age=300) — التحقق اجتاز بكاسر كاش؛ موثقة للمالك في §12.54
+- اكتشاف جديد خارج نطاق الدفعة: /ar/evo و/ar/coaching و/ar/diet-plan بلا og:image أصلًا (نفس نمط البند 4 عربيًا) — مقترح دفعة 1-ب بقرار المالك
+
+Stage Summary:
+- دفعة ١ مكتملة ومتحققة حيًا 37/37 على الإنتاج؛ جدول §12.53 حُدّث (البنود 1/3/4/5/7/12 = مكتمل)
+- Commit SHA: (verification docs commit)
+- Push status: pushed
