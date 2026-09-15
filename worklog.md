@@ -4298,5 +4298,5 @@ tsc 0 · eslint 0/0 · vitest (1215 → **1216/1216**, +1 wired surface) · buil
 ### Rollback
 Single revert of the two files (EN layout + guard) — zero migrations, zero AR-side changes.
 
-### Live verification on production
-(after push — evidence entry follows)
+### Live verification on production (512b193 — 14/14 green)
+build-info carried the commit ~2 min after push · `/affiliate` = 200 with `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) · `og:locale=en_US` · `twitter:image` + `twitter:card=summary_large_image` · asset og-home-en.png = 200 · title/canonical/hreflang pair identical to the pre-batch state (EN half untouched besides the card) · **regression checks:** `/ar/affiliate` intact (200 + og-home-ar + ar_EG) and `/memberships` intact (card present) · mastery note: one false-negative in the first script round — Next.js renders the attribute `hrefLang` (camel-case) while the script grepped `hreflang`; fixed and re-run → 14/14.

@@ -1743,7 +1743,7 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 
 **التراجع:** revert واحد لملفَي layout الـEN والحرس — صفر ترحيلات، صفر مساس AR.
 
-**التحقق الحي بعد النشر:** مدخل التوثيق أدناه (§12.57-أدلة) — 200 على /affiliate + og:image=og-home-en + og:locale=en_US + twitter:image حاضرة + og-home-en.png نفسه 200 (كاسر كاش Cloudflare على كل طلب).
+**التحقق الحي بعد النشر (512b193 — 14/14 على الإنتاج، كاسر كاش Cloudflare على كل طلب):** build-info حمل الكوميت بعد دقيقتين · `/affiliate` = 200 مع `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) و`og:locale=en_US` و`twitter:image` و`twitter:card=summary_large_image` · الأصل og-home-en.png نفسه = 200 · العنوان/canonical/زوج hreflang المتبادل (en/ar/x-default) مطابقة لحالة «قبل» · فحصا انحدار: المرآة العربية `/ar/affiliate` سليمة (200 + og-home-ar + ar_EG) وسطح `/memberships` من أسطح 206 سليم ببطاقته · ملاحظة إتقان: إنذار hreflang كاذب في الجولة الأولى لسكربت التحقق (Next.js يرسم الخاصية `hrefLang` بcase كبيرة بينما السكربت بحث عن `hreflang` — صُحح وأعيد التشغيل 14/14).
 
 **المتبقي من خطة §12.53:** البند 6 المستمر (عمق المقالات) · البند 8 (قرار مالك) · البنود 9/10/14 (مالك/خارجي) · البند 13 (اختياري كود).
 
