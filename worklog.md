@@ -4371,4 +4371,8 @@ docs_audit (phase=211, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-re
 Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
 
 ### Post-push sanity (light — HTML unchanged by construction)
-[TO BE APPENDED AFTER PUSH]
+build-info carried b1b3ce9 ~2 min after the push (checkedAt 2026-09-15T20:30:06Z). Live pages with
+Cloudflare cache-buster: / = 200 · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200 — and the very
+thing this decision preserves is confirmed intact post-deploy: the full reciprocal hreflang triple
+(en / ar / x-default, one element each) on /affiliate. No independent live-verification round needed
+for a docs-only batch (HTML unchanged by construction).
