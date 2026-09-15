@@ -66,7 +66,7 @@ export default function FoodDetailClient({
         <SiteHeader variant="landing" />
         <main className="mx-auto max-w-2xl px-4 py-20 text-center">
           <h1 className="text-3xl font-semibold tracking-tight">
-            {isAr ? "الأكلة غير موجودة" : "Food not found"}
+            {isAr ? "الصنف الغذائي غير موجود" : "Food not found"}
           </h1>
           <a
             href={base}
@@ -365,7 +365,7 @@ export default function FoodDetailClient({
         {/* Share buttons */}
         <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl bg-[#f5f5f7] p-4">
           <p className="text-sm font-medium text-[#1d1d1f]">
-            {isAr ? "شارك الأكلة دي" : "Share this food"}
+            {isAr ? "شارك هذا الصنف الغذائي" : "Share this food"}
           </p>
           <ShareButtons
             title={isAr ? `${food.nameAr} | Alkemos` : `${food.nameEn} | Alkemos`}

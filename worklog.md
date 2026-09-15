@@ -38,6 +38,20 @@ Task: Phase 205 — Final Internal Copy Audit «تدقيق عميق READ/WRITE �
 ### Gates
 tsc 0 · eslint 0/0 · vitest 1175/1175 (77 files) · build 0 (all routes) · live local QA EN/AR × desktop 1440 + mobile 390: ar/collections/low-carb-foods (title+H1 unified, zero old terms in HTML), ar/foods (title «قاعدة بيانات الأطعمة — Alkemos», H1 «مكتبة الأطعمة»), ar/foods/tilapia (breadcrumb JSON-LD «الأطعمة»), EVO widget (MSA subtitle), ar/exercises/clean + clean-and-jerk + lower-back-smr (fixed instructions live, ZERO-CJK), ar/equipment/cable («أداة الدقة في النادي الرياضي»), ar/collections/high-protein-foods (FAQ «أسطورة النادي الرياضي» + التونة), EN regression clean — zero horizontal overflow anywhere. Screenshots: /home/z/my-project/download/phase205-evidence/.
 
+### Round 2 (live production verification caught the prefixed forms the word-boundary list missed)
+The first production check of /ar/foods surfaced "ابحث عن أكلة… / ابحث في مكتبة الأكلات" (FoodsFilters) — the word-boundary banned list never matched «الأكلة/أكلة» because the ال- prefix shields them. A follow-up sweep found and fixed 14 more strings across 7 files:
+- FoodsExplorer.tsx — the count labels «أكلة» ×2 → «صنف غذائي» (mirrors ExercisesExplorer's «تمرين» pattern)
+- FoodsFilters.tsx — placeholder + aria-label → «ابحث عن صنف غذائي…» / «ابحث في مكتبة الأطعمة»
+- PageBottomPromo.tsx — promo card name «مكتبة الأكلات»→«مكتبة الأطعمة», desc «8,830+ أكلة»→«8,830+ صنف غذائي», CTA «شوف خطط الاشتراك ›»→«استعرض خطط الاشتراك ›» (STRONG dialect killed)
+- meal-planner/page.tsx — toast «أضف أكلة واحدة»→«أضف صنفًا غذائيًا واحدًا», intro «ابني … ٨٨٣٠+ أكلة وشوف الماكروز»→«ابنِ … 8,830+ صنف غذائي وتابع الماكروز» (dialect شوف + Arabic-Indic digit format unified), search placeholder
+- ar/meal-planner/layout.tsx — meta + OG description «8,830+ أكلة»→«8,830+ صنف غذائي» ×2
+- FoodDetailClient.tsx — «الأكلة غير موجودة»→«الصنف الغذائي غير موجود», «شارك الأكلة دي»→«شارك هذا الصنف الغذائي» (the weak «دي» killed)
+- ar/foods/[slug]/page.tsx — notFound title «الأكلة غير موجودة»→«الصنف الغذائي غير موجود»
+- CoachView.tsx — the client-invite hint «هيوصله دعوة على إيميله … يبقى عميلك وتشوف بياناته»→MSA («سيصله بريد إلكتروني بدعوة … يصبح عميلك وتستطيع الاطلاع على بياناته»)
+- api/ai/chat/route.ts — the EVO local-reply generic fallback was FULL Egyptian («مقدرش ألاقي … دلوقتي … سؤال تاني محدد أكتر») → natural MSA with the unified counts («مكتبة الأطعمة (8,830+ صنف غذائي)»)
+
+Guards round 2: marketing manifest +4 files (meal-planner page + AR layout + PageBottomPromo + the EVO chat route), Phase-205 canary extended with every round-2 removed phrase + replacements-present pins. Gates re-run: tsc 0 · eslint 0/0 · vitest 1183/1183 · build 0 · local live QA (AR foods/meal-planner/promo + EN regression + mobile 390 zero overflow).
+
 ### Out-of-scope findings (documented, not expanded)
 - «كارب» macro chip on the homepage (LandingView.tsx:1080) — homepage is a Phase-203-closed surface.
 - generateChatReply in ai-local.ts — dead code written in full Egyptian dialect (zero importers); needs a separate delete-or-rewrite decision.

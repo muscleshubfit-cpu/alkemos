@@ -239,7 +239,7 @@ export default function MealPlannerPage() {
     // Must have at least 1 meal with 1 item
     const hasItems = meals.some((m) => m.items.length > 0);
     if (!hasItems) {
-      toast.error(isAr ? "أضف أكلة واحدة على الأقل" : "Add at least one food");
+      toast.error(isAr ? "أضف صنفًا غذائيًا واحدًا على الأقل" : "Add at least one food");
       return;
     }
 
@@ -340,7 +340,7 @@ export default function MealPlannerPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ابني وجباتك من قاعدة بيانات ٨٨٣٠+ أكلة وشوف الماكروز لكل وجبة والإجمالي."
+              ? "ابنِ وجباتك من قاعدة بيانات 8,830+ صنف غذائي وتابع الماكروز لكل وجبة والإجمالي."
               : "Build your meals from 8,830+ foods and see per-meal + total macros."}
           </p>
           {/* Tier badge */}
@@ -734,7 +734,7 @@ function FoodSearchInput({
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 200)}
-          placeholder={isAr ? "بحث عن أكلة..." : "Search food..."}
+          placeholder={isAr ? "بحث عن صنف غذائي..." : "Search food..."}
           className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] ps-10 pe-4 py-2.5 text-sm font-normal outline-none focus:border-[var(--chrome-edge)]"
         />
         {loading && (

@@ -79,6 +79,14 @@ const MARKETING_SURFACE_FILES = [
   "src/app/ar/foods/[slug]/page.tsx",
   "src/lib/external-plan-text.ts",
   "src/lib/seo.ts",
+  // PHASE 205 round 2 (live production verification caught the prefixed
+  // «الأكلة/أكلة» forms the word-boundary audit list missed): the foods
+  // explorer counts/filters, the bottom promo cluster, the meal-planner
+  // page + AR metadata, and the EVO chat local-fallback copy joined too.
+  "src/app/meal-planner/page.tsx",
+  "src/app/ar/meal-planner/layout.tsx",
+  "src/components/PageBottomPromo.tsx",
+  "src/app/api/ai/chat/route.ts",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -613,11 +621,11 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         "قاعدة بيانات الأكلات", "أكلة 8,830", "احسب جرامك",
         "قاعدة بيانات الأطعمة | Alkemos",
       ],
-      "src/app/ar/foods/[slug]/page.tsx": ['{ name: "الأكلات"'],
+      "src/app/ar/foods/[slug]/page.tsx": ['{ name: "الأكلات"', "الأكلة غير موجودة"],
       "src/components/views/PlansView.tsx": [
         "هتحتاج تعمله", "كوتش أونلاين", 'stat-label">كارب', "ليتمكن الكوتش",
       ],
-      "src/components/views/CoachView.tsx": ["مفيش نتايج"],
+      "src/components/views/CoachView.tsx": ["مفيش نتايج", "هيوصله", "وتشوف بياناته"],
       "src/components/views/CheckoutView.tsx": ["موافقة الكوتش"],
       "src/lib/ai-local.ts": [
         "وجبة رئيسية — ركز على البروتين والكارب", "الكارب: ${carbsG}",
@@ -627,6 +635,14 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         "这将有助于", "拉伸", "面向", "远离", "滚动", "以便", "而是",
         "或在", "放松", "挂在", "引き", "几次", "后退", "立正",
       ],
+      // PHASE 205 round 2 — the prefixed food-term forms + EVO fallback:
+      "src/components/foods/FoodsExplorer.tsx": ['? "أكلة"'],
+      "src/components/foods/FoodsFilters.tsx": ["ابحث عن أكلة", "مكتبة الأكلات"],
+      "src/components/PageBottomPromo.tsx": ["مكتبة الأكلات", "8,830+ أكلة", "شوف خطط"],
+      "src/app/meal-planner/page.tsx": ["أضف أكلة", "٨٨٣٠+ أكلة", "وشوف الماكروز", "بحث عن أكلة"],
+      "src/app/ar/meal-planner/layout.tsx": ["8,830+ أكلة"],
+      "src/app/foods/[slug]/FoodDetailClient.tsx": ["الأكلة غير موجودة", "شارك الأكلة دي"],
+      "src/app/api/ai/chat/route.ts": ["مقدرش ألاقي", "دلوقتي", "سؤال تاني", "مكتبة الأكلات", "8830+ أكلة", "تقدر تتصفح"],
     };
     for (const [rel, bannedList] of Object.entries(surfaces)) {
       const src = readFileSync(rel, "utf8");
@@ -666,5 +682,28 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(exercises).toContain("مما سيساعد على الاستشفاء");
     expect(exercises).toContain("حتى تتمدد عضلات الصدر بالكامل");
     expect(exercises).toContain("عندما يقفون منتبهين");
+    // PHASE 205 round 2 — replacements present:
+    const filters = readFileSync("src/components/foods/FoodsFilters.tsx", "utf8");
+    expect(filters).toContain("ابحث عن صنف غذائي");
+    expect(filters).toContain("ابحث في مكتبة الأطعمة");
+    const explorer = readFileSync("src/components/foods/FoodsExplorer.tsx", "utf8");
+    expect(explorer).toContain('? "صنف غذائي"');
+    const promo = readFileSync("src/components/PageBottomPromo.tsx", "utf8");
+    expect(promo).toContain('nameAr: "مكتبة الأطعمة"');
+    expect(promo).toContain("8,830+ صنف غذائي بالسعرات والماكروز");
+    expect(promo).toContain("استعرض خطط الاشتراك");
+    const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
+    expect(mealPlanner).toContain("8,830+ صنف غذائي وتابع الماكروز");
+    const arMealPlanner = readFileSync("src/app/ar/meal-planner/layout.tsx", "utf8");
+    expect(arMealPlanner).toContain("8,830+ صنف غذائي وتتبّع الماكروز");
+    const foodDetail = readFileSync("src/app/foods/[slug]/FoodDetailClient.tsx", "utf8");
+    expect(foodDetail).toContain("شارك هذا الصنف الغذائي");
+    expect(foodDetail).toContain("الصنف الغذائي غير موجود");
+    const coachView2 = readFileSync("src/components/views/CoachView.tsx", "utf8");
+    expect(coachView2).toContain("سيصله بريد إلكتروني بدعوة");
+    const chatRoute = readFileSync("src/app/api/ai/chat/route.ts", "utf8");
+    expect(chatRoute).toContain("لم أجد معلومات محددة");
+    expect(chatRoute).toContain("مكتبة الأطعمة (8,830+ صنف غذائي)");
+    expect(chatRoute).toContain("اسألني سؤالًا آخر");
   });
 });

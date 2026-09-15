@@ -43,9 +43,9 @@ const EXPLORE_ITEMS: {
   {
     key: "foods",
     href: "/foods",
-    nameAr: "مكتبة الأكلات",
+    nameAr: "مكتبة الأطعمة",
     nameEn: "Food Library",
-    descAr: "8,830+ أكلة بالسعرات والماكروز",
+    descAr: "8,830+ صنف غذائي بالسعرات والماكروز",
     descEn: "8,830+ foods with calories and macros",
     icon: "protein",
   },
@@ -115,7 +115,7 @@ export function MembershipPromo({ isAr }: { isAr: boolean }) {
           href={isAr ? "/ar/memberships" : "/memberships"}
           className="btn-chrome px-6 py-3 text-sm font-medium"
         >
-          {isAr ? "شوف خطط الاشتراك ›" : "See membership plans ›"}
+          {isAr ? "استعرض خطط الاشتراك ›" : "See membership plans ›"}
         </a>
         <a
           href={isAr ? "/ar/coaching" : "/coaching"}

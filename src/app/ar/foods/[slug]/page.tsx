@@ -33,7 +33,7 @@ export async function generateMetadata({
 
   if (!food) {
     return {
-      title: "الأكلة غير موجودة",
+      title: "الصنف الغذائي غير موجود",
       robots: { index: false, follow: false },
     };
   }

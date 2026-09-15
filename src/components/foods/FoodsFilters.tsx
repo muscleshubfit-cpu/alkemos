@@ -83,8 +83,8 @@ export function FoodsFilters({
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={isAr ? "ابحث عن أكلة..." : "Search foods..."}
-          aria-label={isAr ? "ابحث في مكتبة الأكلات" : "Search the food library"}
+          placeholder={isAr ? "ابحث عن صنف غذائي..." : "Search foods..."}
+          aria-label={isAr ? "ابحث في مكتبة الأطعمة" : "Search the food library"}
           className="w-full rounded-full border border-[var(--edge)] bg-[var(--tint)] ps-11 pe-4 py-3 text-base font-normal outline-none focus:border-[var(--chrome-edge)]"
         />
       </div>

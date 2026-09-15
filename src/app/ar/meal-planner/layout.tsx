@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "مخطط الوجبات | Alkemos",
-    description: "ابنِ وجباتك من 8,830+ أكلة وتتبّع الماكروز — مجانًا.",
+    description: "ابنِ وجباتك من 8,830+ صنف غذائي وتتبّع الماكروز — مجانًا.",
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/meal-planner",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "مخطط الوجبات | Alkemos",
-    description: "ابنِ وجباتك من 8,830+ أكلة وتتبّع الماكروز — مجانًا.",
+    description: "ابنِ وجباتك من 8,830+ صنف غذائي وتتبّع الماكروز — مجانًا.",
   },
 };
 

@@ -702,7 +702,7 @@ export function CoachView() {
           </p>
           <p className="mt-1 text-xs font-normal text-[#6e6e73]">
             {isAr
-              ? "هيوصله دعوة على إيميله يحدد منها كلمة المرور — وبمجرد ما يسجّل يبقى عميلك وتشوف بياناته هنا."
+              ? "سيصله بريد إلكتروني بدعوة ليحدد منها كلمة المرور — وبمجرد تسجيله يصبح عميلك وتستطيع الاطلاع على بياناته هنا."
               : "He receives an invite email to set his own password — once he signs up he becomes your client and you see his data here."}
           </p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
