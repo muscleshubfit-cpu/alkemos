@@ -36,6 +36,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/programs",
+    // §12.53 item 4 (2026-09-15): og:image for the EN list surface —
+    // same-family home card, matching the AR mirror's og-home-ar
+    // inheritance (no programs-specific card exists; Phase 187 asset law).
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
 };
 

@@ -23,6 +23,25 @@ export const metadata: Metadata = {
     description:
       "Unlock unlimited EVO AI, meal planner, workout generation, and more.",
     type: "website",
+    // §12.53 item 4 (2026-09-15): og:image + og:url + og:locale were all
+    // absent — a child openGraph block REPLACES the root one (Next.js
+    // merging), so the surface showed no card and no canonical og:url.
+    // Same-family home card, matching the AR mirror's og-home-ar
+    // inheritance.
+    locale: "en_US",
+    url: "https://alkemos.com/memberships",
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
   alternates: {
     canonical: "https://alkemos.com/memberships",

@@ -47,6 +47,23 @@ export const metadata: Metadata = {
       "24 complete daily plans in grams: from 1200 to 3000 calories × 4 diet systems.",
     url: `${SITE_URL}/diet-plan`,
     type: "website",
+    locale: "en_US",
+    // §12.53 item 4 (2026-09-15): og:image + og:locale for the EN hub —
+    // a child openGraph block REPLACES the root one (Next.js merging).
+    // Same-family home card, matching the AR mirror's og-home-ar
+    // inheritance.
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
 };
 

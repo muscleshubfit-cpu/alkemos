@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     description:
       "Smart daily hydration goal from your body weight, cup logging, and history — free water tracker.",
     type: "website",
+    // §12.53 item 4 (2026-09-15): og:locale was missing (the only tool
+    // surface without one — the AR mirror declares ar_EG).
+    locale: "en_US",
     url: "https://alkemos.com/tools/water-tracker",
     // PHASE 187 (deep-audit P0-2): og:image — static branded family
     // card (design mirrors /api/og-image; see scripts/generate-og-cards.py).

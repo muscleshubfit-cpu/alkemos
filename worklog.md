@@ -4155,3 +4155,22 @@ Work Log:
 Stage Summary:
 - الحكم الحاكم: الأساس التقني SEO/GEO سليم ومتحقق حيًا على نطاق واسع؛ كل الحلول السابقة قائمة؛ الثغرات الجديدة في طبقة العرض/الأصول: (P0 خارج SEO) مفتاح OpenRouter المسرب حي — تدوير فوري بيد المالك · (P1) صور التمارين hot-linked من GitHub raw · مخططات EVO/Coaching JSON-LD بالعربية على صفحات EN · og:image غائب عن أسطح القوائم EN · (P2) عنوان الرئيسية 94 حرفًا · عمق مقالات ~1.0–1.3K كلمة · lastmod قديم + تعارض iad1/fra1 · FAQPage/HowTo متقاعدة ما زالت ترسل · (P3) Wikidata/تقييمات Trustpilot/مرآة /affiliate AR/لاحقة /blog EN/hreflang-footer/مراجعة USDA بعد 90 يومًا
 - المخرج الوحيد: docs/SEO-GEO-MASTER-PLAN.md §12.53 (خطة كاملة بترتيب تنفيذ وتبعيات ومخاطر وحالات) — Audit + توثيق فقط كما أمر المالك
+
+---
+Task ID: SEO-GEO-15-BATCH1-206-2026-09-15
+Agent: Main (Z User)
+Task: تنفيذ دفعة ١ من خطة تدقيق §12.53 (أمر المالك «تم تدوير وتعديل المفاتيح، ابدأ تنفيذ دفعة ١») — البنود 3/4/5/12 + البند 7 المرافق + إغلاق البند 1 توثيقيًا
+
+Work Log:
+- البند 3: getEVOApplicationSchema/getCoachingServiceSchema في seo.ts صارا locale-aware بمعامل إلزامي (نمط ORG_DESCRIPTIONS) — جداول EN/AR كاملة؛ الأسطح الأربعة حدّثت (/evo و/coaching بen والمرآتان بار)
+- البند 4: og:image لأسطح القوائم EN — /exercises و/foods ببطاقتي العائلة؛ /programs·/coaching·/memberships·/evo·/diet-plan hub+24 خلية·/equipment/* ببطاقة og-home-en (مطابقة سلوك وراثة AR)؛ +og:url/og:locale على /memberships وog:locale على water-tracker وdiet-plan؛ twitter للequipment رُقّي لsummary_large_image
+- البند 5: عنوان الرئيسية 94→47 حرفًا «Alkemos — The Smart Fitness & Nutrition Platform»
+- البند 12: «Fitness & Nutrition Blog | Alkemos»
+- البند 7: sitemap-lastmod — pages وcollections → 2026-09-15؛ STATE.md — تصحيح iad1→fra1 + مرحلة 206 + مسح بند مفتاح OpenRouter (المالك أكد التدوير — البند 1)
+- الحراس بنفس الفريم: schema-rating-law.test.ts وُسّع بقوانين locale + og-image-coverage.test.ts بـ9 أسطح WIRED_SURFACES جديدة
+- البوابات: tsc 0 (بعد .next/types) · eslint 0/0 · vitest 1199/1199 · build 0 · docs_audit/docs_parity/stale-refs/ui-wiring/migration_audit ✓
+
+Stage Summary:
+- دفعة ١ كاملة عبر البوابات التسع؛ صفر مساس بالوظائف/البيانات/الأسعار؛ كل الأصول المستخدمة موجودة أصلًا
+- Commit SHA: (see below)
+- Push status: pushed

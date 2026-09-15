@@ -51,9 +51,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Same EVO SoftwareApplication structured data as the EN layout —
-// its description/offers/featureList are already Arabic (src/lib/seo.ts).
-const evoSchema = getEVOApplicationSchema();
+// Same EVO SoftwareApplication structured data pattern as the EN layout —
+// §12.53 item 3: locale-aware, so the AR page keeps the Arabic
+// name/description/featureList while EN serves English.
+const evoSchema = getEVOApplicationSchema("ar");
 
 export default function ArEvoLayout({
   children,

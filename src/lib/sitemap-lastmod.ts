@@ -12,14 +12,16 @@
  * family's date to the ship date. The value must stay truthful: it is
  * the date the pages last meaningfully changed, in W3C day precision.
  *
- *   pages        — static pages + tools + programs (Phase 154: bilingual
- *                  validation UI on /tools/calorie-calculator)
+ *   pages        — static pages + tools + programs + diet-plan matrix
+ *                  (§12.53 batch 1: EVO/Coaching locale-aware schemas +
+ *                  og:image on the EN list surfaces + homepage/blog titles)
  *   exercises    — exercise detail pages: keyed to CONTENT_LAST_REVIEWED
  *                  (Phase 152 E-E-A-T review schema ships on every page;
  *                  Phase 155 adds spoke→hub link strip)
  *   foods        — food detail pages: same CONTENT_LAST_REVIEWED anchor
  *   collections  — /muscles/* + /equipment/* + /collections/* hubs
- *                  (Phase 155: CJK corruption fix in AR intros)
+ *                  (§12.53 batch 1: og:image + large twitter card on
+ *                  the EN /equipment/* hubs)
  *   comparisons  — /compare/* pages (last material change: SEO-GEO-4
  *                  compare index, 2026-09-08)
  *
@@ -30,10 +32,10 @@
 import { CONTENT_LAST_REVIEWED } from "./seo";
 
 export const SITEMAP_LASTMOD = {
-  pages: "2026-09-09",
+  pages: "2026-09-15",
   exercises: CONTENT_LAST_REVIEWED,
   foods: CONTENT_LAST_REVIEWED,
-  collections: "2026-09-09",
+  collections: "2026-09-15",
   comparisons: "2026-09-08",
 } as const;
 

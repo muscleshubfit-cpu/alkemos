@@ -24,6 +24,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/coaching",
+    // §12.53 item 4 (2026-09-15): og:image was absent — a child openGraph
+    // block replaces the root one (Next.js merging), so the EN surface
+    // showed no social card. Same-family home card, matching the AR
+    // mirror's og-home-ar inheritance.
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
   alternates: {
     canonical: "https://alkemos.com/coaching",
@@ -36,7 +52,9 @@ export const metadata: Metadata = {
   },
 };
 
-const coachingSchema = getCoachingServiceSchema();
+// §12.53 item 3: locale-aware schema — the EN page reads an English
+// entity description (was Arabic-only before the audit fix).
+const coachingSchema = getCoachingServiceSchema("en");
 
 export default function CoachingLayout({
   children,

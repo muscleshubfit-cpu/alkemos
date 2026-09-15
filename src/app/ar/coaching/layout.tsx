@@ -51,9 +51,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Same Service structured data as the EN layout — Arabic-first strings
-// (src/lib/seo.ts); aggregateRating stays removed (P0-5 law).
-const coachingSchema = getCoachingServiceSchema();
+// Same Service structured data pattern as the EN layout — §12.53 item 3:
+// locale-aware, so the AR page keeps the Arabic name/description while
+// EN serves English; aggregateRating stays removed (P0-5 law).
+const coachingSchema = getCoachingServiceSchema("ar");
 
 export default function ArCoachingLayout({
   children,

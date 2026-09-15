@@ -12,7 +12,12 @@ import type { Metadata, Viewport } from "next";
  */
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://alkemos.com'),
-  title: "Alkemos — The Smart Fitness & Nutrition Platform | Exercises, Programs, Calculators & Coaching",
+  // §12.53 item 5 (2026-09-15, deep audit): was 94 chars — SERP truncates
+  // ~60, so the feature tail ("| Exercises, Programs, Calculators &
+  // Coaching") never rendered. Shortened to the primary positioning line
+  // (47 chars, matches the og:title verbatim — the first keywords the
+  // audit required to keep lead the title).
+  title: "Alkemos — The Smart Fitness & Nutrition Platform",
   // Phase 117 completion (owner directive 2026-09-04): meta description
   // shortened to 150-160 chars with a clear CTA — the previous 245-char
   // version had no call to action and got truncated by search engines.

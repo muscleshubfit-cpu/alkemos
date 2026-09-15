@@ -150,12 +150,35 @@ export function getWebSiteSchema(lang: "en" | "ar") {
 /**
  * Service schema — for the coaching page.
  * Describes the coaching service without naming specific coaches.
+ *
+ * §12.53 item 3 (2026-09-15, deep-audit finding: Arabic JSON-LD on the
+ * EN /coaching page): name/description are LOCALE-AWARE, same law as
+ * getOrganizationSchema's ORG_DESCRIPTIONS above. The `lang` parameter
+ * is REQUIRED on purpose — every caller must state the locale explicitly
+ * (compile-time safety against a silent Arabic default leaking back onto
+ * EN surfaces, the same class of bug P2-14 fixed for Organization/WebSite).
  */
-export function getCoachingServiceSchema() {
+const COACHING_SERVICE_TEXT: Record<
+  "en" | "ar",
+  { name: string; description: string }
+> = {
+  en: {
+    name: "Online Coaching — Professional Coaches & Nutrition Specialists",
+    description:
+      "Online coaching with professional coaches and nutrition specialists. Personalized meal plans, adaptive workout programs, personal follow-up, and an AI assistant (EVO) available 24/7.",
+  },
+  ar: {
+    name: "Coaching Online — مدربين وأخصائيين تغذية",
+    description:
+      "كوتشينج أونلاين مع مدربين وأخصائيين تغذية محترفين. خطط تغذية مخصصة، برامج تمارين متكيفة، متابعة شخصية، ومساعد ذكاء اصطناعي (EVO) متاح 24/7.",
+  },
+};
+
+export function getCoachingServiceSchema(lang: "en" | "ar") {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "Coaching Online — مدربين وأخصائيين تغذية",
+    name: COACHING_SERVICE_TEXT[lang].name,
     serviceType: "Nutrition and Fitness Coaching",
     provider: {
       "@type": "Organization",
@@ -163,8 +186,7 @@ export function getCoachingServiceSchema() {
       url: SITE_URL,
     },
     areaServed: "Worldwide",
-    description:
-      "كوتشينج أونلاين مع مدربين وأخصائيين تغذية محترفين. خطط تغذية مخصصة، برامج تمارين متكيفة، متابعة شخصية، ومساعد ذكاء اصطناعي (EVO) متاح 24/7.",
+    description: COACHING_SERVICE_TEXT[lang].description,
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "USD",
@@ -182,25 +204,40 @@ export function getCoachingServiceSchema() {
 /**
  * SoftwareApplication schema — for EVO AI coach.
  * Describes EVO as an AI application, not just a chatbot.
+ *
+ * §12.53 item 3 (2026-09-15, deep-audit finding: Arabic JSON-LD on the
+ * EN /evo page): name/description/offers/featureList are LOCALE-AWARE,
+ * same law as getOrganizationSchema's ORG_DESCRIPTIONS. The `lang`
+ * parameter is REQUIRED on purpose (compile-time safety against a
+ * silent Arabic default leaking back onto EN surfaces).
  */
-export function getEVOApplicationSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+const EVO_APPLICATION_TEXT: Record<
+  "en" | "ar",
+  {
+    name: string;
+    description: string;
+    offerDescription: string;
+    featureList: string[];
+  }
+> = {
+  en: {
     name: "EVO — AI Coach",
-    applicationCategory: "Health & Fitness Application",
-    operatingSystem: "Web",
+    description:
+      "EVO is an intelligent performance engine — not just a chatbot. It reads your health data and goal, builds personalized nutrition and workout plans, suggests smart meal and exercise swaps, and provides 24/7 fitness and nutrition consulting via AI.",
+    offerDescription: "Free for everyone",
+    featureList: [
+      "Builds personalized nutrition and workout plans from your data",
+      "Instant fitness and nutrition consulting 24/7",
+      "Smart meal and exercise swaps",
+      "Tracks your progress, weight, and measurements",
+      "Available to visitors and members",
+    ],
+  },
+  ar: {
+    name: "EVO — المدرب الذكي",
     description:
       "EVO هو محرك أداء ذكي — ليس مجرد روبوت محادثة. يقرأ بياناتك الصحية وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين، ويوفر استشارات لياقة وتغذية 24/7 عبر الذكاء الاصطناعي.",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      description: "مجاني للجميع",
-    },
-    // Phase SEO-GEO-6.4 (§12.19 P0-5): hardcoded aggregateRating (4.9 /
-    // 300) removed — same fabricated-signal law as the Service schema
-    // above; re-enable only with a real, linkable review source.
+    offerDescription: "مجاني للجميع",
     featureList: [
       "بناء خطط تغذية وتمارين مخصصة من بياناتك",
       "استشارات لياقة وتغذية فورية 24/7",
@@ -208,6 +245,28 @@ export function getEVOApplicationSchema() {
       "تتبع تقدمك ووزنك وقياساتك",
       "متاح للزوار والمشتركين",
     ],
+  },
+};
+
+export function getEVOApplicationSchema(lang: "en" | "ar") {
+  const text = EVO_APPLICATION_TEXT[lang];
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: text.name,
+    applicationCategory: "Health & Fitness Application",
+    operatingSystem: "Web",
+    description: text.description,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description: text.offerDescription,
+    },
+    // Phase SEO-GEO-6.4 (§12.19 P0-5): hardcoded aggregateRating (4.9 /
+    // 300) removed — same fabricated-signal law as the Service schema
+    // above; re-enable only with a real, linkable review source.
+    featureList: text.featureList,
   };
 }
 

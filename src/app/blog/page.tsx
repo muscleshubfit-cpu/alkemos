@@ -14,7 +14,11 @@ const SITE_URL = "https://alkemos.com";
  * (src/app/ar/blog/page.tsx declares the reciprocal side).
  */
 export const metadata: Metadata = {
-  title: "Fitness & Nutrition Blog",
+  // §12.53 item 12 (2026-09-15, deep audit): brand suffix added — the
+  // AR mirror carries it via the /ar template ("المدونة الرياضية —
+  // Alkemos"); the EN list title was the only indexable EN surface with
+  // a brandless SERP title.
+  title: "Fitness & Nutrition Blog | Alkemos",
   description:
     "Science-based workout, nutrition, and supplement articles from the Alkemos team — English editions.",
   alternates: {

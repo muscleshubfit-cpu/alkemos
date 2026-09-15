@@ -59,11 +59,25 @@ export async function generateMetadata({
       description: hub.descriptionEn,
       siteName: "Alkemos",
       locale: "en_US",
+      // §12.53 item 4 (2026-09-15): og:image for the EN equipment hubs —
+      // same-family home card (matches the AR mirror's og-home-ar
+      // inheritance; the hubs card is muscle-group-specific on purpose).
+      images: [
+        {
+          url: "/images/og/og-home-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      // summary_large_image (a "summary" card ignores images — pointless
+      // with a 1200×630 asset; same law as the Phase 187 coverage test).
+      card: "summary_large_image",
       title: hub.titleEn,
       description: hub.descriptionEn,
+      images: ["/images/og/og-home-en.png"],
     },
   };
 }

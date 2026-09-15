@@ -66,6 +66,22 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description,
       url,
       type: "website",
+      locale: "en_US",
+      // §12.53 item 4 (2026-09-15): og:image + og:locale for the 24 EN
+      // cells — same-family home card as the hub above (matches the AR
+      // mirror's og-home-ar inheritance).
+      images: [
+        {
+          url: "/images/og/og-home-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/images/og/og-home-en.png"],
     },
   };
 }

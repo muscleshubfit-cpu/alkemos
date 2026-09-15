@@ -34,6 +34,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/exercises",
+    // §12.53 item 4 (2026-09-15): the EN list surface shared NO social
+    // card — a child openGraph block REPLACES the root one in Next.js
+    // metadata merging, so the root images never applied. Same family
+    // card the exercise DETAIL pages already use (Phase 187 pattern).
+    images: [
+      {
+        url: "/images/og/og-exercises-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos Exercise Library",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-exercises-en.png"],
   },
 };
 

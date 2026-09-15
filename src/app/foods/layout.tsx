@@ -33,6 +33,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/foods",
+    // §12.53 item 4 (2026-09-15): og:image for the EN list surface —
+    // same family card the food DETAIL pages already use (Phase 187).
+    images: [
+      {
+        url: "/images/og/og-foods-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos Food & Nutrition Database",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-foods-en.png"],
   },
 };
 
