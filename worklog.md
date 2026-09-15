@@ -43,6 +43,13 @@ The phrase renders DYNAMICALLY via durationWeeks (three 12-week programs in the 
 - ai-meal-planner: pins the new lead-card headline "A plan built around your goals — not generic templates" (was "Your plan. Built for you.").
 - tool-msa-surface «كارب» canary: my first draft used «كارب» in the new food-page presets — caught by the canary, corrected to «كربوهيدرات» before commit (the MSA law held).
 
+### Post-push live verification (production 304e70d0 — 2026-09-16)
+- `/api/build-info` → commit 304e70d0 (branch main) — deploy confirmed.
+- EN `/` : all 9 new strings present (H1, hero line, GEO paragraph, tools H2, lead-card headline, tech line, coaching h2, both seal chips) — spot-verified via curl.
+- AR `/ar` : all new strings present; ALL replaced old strings gone (H1/hero/H2/خطتك، مصممة لك/التوليدان/EVO مدرب ذكي 24/7). Program card renders «12 أسبوعًا» (PPL) with «8 أسابيع»/«6 أسابيع» correctly plural. Note: «صنفًا غذائيًا مع سعراته…» في مقدمة قسم التغذية بقيت عمدًا — البند 3 استهدف ختم الهيرو فقط (البند الموازي EN «8,830+ FOODS» هو نص الختم حصريًا).
+- `/ar/foods` : « كالوري»/« جم» + فلاتر «(جم/100 جم)»/«(كالوري/100 جم)» live. `/ar/foods/chicken-breast` : «القيم الغذائية لكل 100 جم» + «31 جم» + «0 جم» live.
+- `/ar/affiliate` : «برنامج الإفلييت (الشركاء)» ×17 live. EN surfaces (kcal/g labels) unchanged as intended.
+
 ### QA gates
 - `tsc --noEmit`: 0 errors in every touched file (4 pre-existing image-module errors in for-coaches/page.tsx verified IDENTICAL on the pristine tree via git stash).
 - `vitest run`: **1216/1216 passed** (78 files).
