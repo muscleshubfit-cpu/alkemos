@@ -428,16 +428,6 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* GEO paragraph (owner order 2026-09-16): a factual platform
-          summary directly after the hero — what Alkemos is and what a
-          visitor can do with zero account/payment. Bilingual, text only;
-          no links, structure, or icons touched. */}
-      <p className="mx-auto max-w-2xl px-4 pb-6 pt-8 text-center text-xs font-normal leading-relaxed md:text-sm" style={{ color: PALETTE.textSec }}>
-        {isAr
-          ? "منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع."
-          : "Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required."}
-      </p>
-
       {/* Greek meander divider — mission §4 */}
       <div className="meander-divider" aria-hidden="true" />
 

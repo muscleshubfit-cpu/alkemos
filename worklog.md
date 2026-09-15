@@ -57,6 +57,34 @@ The phrase renders DYNAMICALLY via durationWeeks (three 12-week programs in the 
 - `scripts/docs_audit.py`: phase=212, 99/100 lines ✓.
 - Diff audit: zero href target changes, zero icon changes, zero JSX structure changes (only text content + the one owner-ordered GEO `<p>` + the weeksUnitAr helper).
 
+---
+
+Task ID: PHASE-213-GEO-PARAGRAPH-REVERT-2026-09-16
+Agent: Super Z (main)
+Task: Phase 213 — Partial revert of Phase 212 items 8/15 (owner order 2026-09-16): remove the bilingual GEO paragraph added directly after the homepage hero — AR «منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع.» + EN «Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required.» — and nothing else from the last edit.
+
+**Scope:** exactly ONE source file (src/components/views/LandingView.tsx) — pure 10-line deletion (4-line comment + 5-line `<p>` element + 1 blank line). Verified zero other text/link/icon/structure touched: `git diff 304e70d0~1 -- LandingView.tsx` still contains all 15 added lines of the OTHER owner-ordered copy (H1, hero line, seal chips, tools H2, lead-card headline, tech line, coaching h2, food-card units, weeksUnitAr wiring) and ZERO GEO references.
+
+### Test-guard audit (owner item 3)
+Full-suite grep for the paragraph texts and their distinctive fragments (`no account or payment required`, `بدون حساب أو دفع`, `GEO paragraph`, `look up 8,830+ foods`, `browse 868+ exercises`, `868+ تمرينًا`, `ولّد خططك مع EVO`) across all test files: **ZERO guards added or updated for these paragraphs in 304e70d0.** The two test files that commit touched pin OTHER copy and were intentionally left unchanged:
+- `ai-meal-planner.test.ts` → pins the new lead-card headline "A plan built around your goals — not generic templates" (item 6/13 — still live).
+- `homepage-adoption.test.ts` → pins the retired warrior-card headline in its STANDALONE quoted form `"مدربك الذكي 24/7"` (item 2/4 — the hero line legitimately contains the phrase inside its sentence; still live).
+No test removal/revert was needed — confirmed empirically by the unchanged pass count below.
+
+### Structural restoration proof (owner item 5)
+The region between the hero `</section>` and the Greek meander divider returned byte-for-byte to its pre-304e70d0 shape: `</section>` → single blank line → `{/* Greek meander divider — mission §4 */}` (verified against `git show 304e70d0~1`). The working diff vs HEAD is a pure deletion of the 10 added lines; the diff vs the pre-paragraph baseline shows the GEO block gone while every other owner-ordered change remains.
+
+### QA gates
+- `tsc --noEmit`: exit 0 (clean).
+- `eslint` (LandingView.tsx): 0 problems.
+- `vitest run`: **1216/1216 passed** (78 files — identical count to Phase 212: no assertion anywhere depends on the two paragraphs).
+- `npm run build`: ✓ Compiled successfully — **2,057/2,057 pages** (identical count; a copy-only deletion cannot change the route table, and it didn't).
+- `scripts/docs_audit.py`: phase=213, 100/100 lines ✓.
+- Diff audit: 1 file changed, 10 deletions, 0 insertions in source; governance files (STATE.md + this worklog + scripts/phase213_state_update.py) ride the same commit per repo protocol.
+
+### Rollback
+Single revert of this commit re-instates the GEO paragraph — no other surface is entangled.
+
 Task ID: PHASE-205-FINAL-INTERNAL-COPY-AUDIT-2026-09-15
 Agent: Super Z (main)
 Task: Phase 205 — Final Internal Copy Audit «تدقيق عميق READ/WRITE على جميع الصفحات الداخلية AR/EN عدا المدونة» (owner order 2026-09-15)
