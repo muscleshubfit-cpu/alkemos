@@ -3446,7 +3446,6 @@ Stage Summary:
 
 **التالي:** أمر المالك لـEVO-4 (W4: التعلم من الخطط E1+E2+E3 — «يتعلم من كل شيء» معتمد) أو أمر تفعيل المتابعة D4 بعد فحص SMTP الحي.
 
-
 ---
 
 ## 2026-09-10 — فحص SMTP/Brevo لأمر المالك «افحصها ونفذ» + توجيه حاكم جديد: «لو محتاج أي مفاتيح توقف واطلبها بدلا من محاولة ايجاد طرق اخرى»
@@ -4193,3 +4192,43 @@ Stage Summary:
 - دفعة ١ مكتملة ومتحققة حيًا 37/37 على الإنتاج؛ جدول §12.53 حُدّث (البنود 1/3/4/5/7/12 = مكتمل)
 - Commit SHA: bbdac64
 - Push status: pushed
+
+---
+
+Task ID: PHASE-207-SEO-GEO-16-BATCH-1B-2-2026-09-16
+Agent: Super Z (main)
+Task: Phase 207 — SEO-GEO-16: batch 1-b (og:image for the three AR mirrors) + batch 2 (item 2 of §12.53 — self-hosting ALL exercise images in public/, owner order 2026-09-16 «نفّذ دفعة ١-ب، نفّذ دفعة 2 الخاصة باستضافة صور التمارين ذاتيًا… استخدم public/ مع تحسين الصور للصيغة والحجم والأداء دون تغيير جودة المحتوى أو وظائف الموقع»)
+
+**Scope:** presentation/metadata/assets only — zero routes/functions/prices/data changes; `images.unoptimized` untouched (one-variable-per-batch law).
+
+### Batch 1-b — og:image for the AR mirrors (live-verification catch of phase 206)
+- The three AR mirrors that declared their own openGraph block WITHOUT images (replacing /ar/layout.tsx so og-home-ar was never inherited) are now wired: `/ar/evo` + `/ar/coaching` (layouts), `/ar/diet-plan` (hub), `/ar/diet-plan/{level}/{system}` (24 cells — twitter block added too). Exact EN pattern; og-home-ar 1200×630.
+- Guard: `og-image-coverage.test.ts` WIRED_SURFACES +4 (35→39 tests).
+
+### Batch 2 — item 2: exercise images self-hosted
+- **Inventory:** all 868 exercises × 2 = 1,736 unique image paths, ALL standard `<Folder>/[0|1].jpg` (automated check: zero deviant paths), all flowing through the single builder `getExerciseImageUrl` (grep: no other src reference to the host).
+- **Migration:** 1,736/1,736 downloaded from raw.githubusercontent.com (JPEG magic-byte verification + retries) → re-encoded **JPEG → WebP q85 · method 6 · original dimensions (NO resize)** — PSNR-based decision (≥37.6dB vs source at q85: imperceptible; and 750–850px source matches the real display boxes 560px CSS × DPR2) — 93.6MB → 78.8MB (−15.8%). Content quality and site functionality unchanged (owner law).
+- **Storage:** `public/images/exercises/<Folder>/[0|1].webp` — dataset folder names preserved EXACTLY (§12.53-هـ stable-names law); only the builder maps the extension (.jpg → .webp, one line).
+- **Caching:** `Cache-Control: public, max-age=31536000, immutable` on `/images/exercises/:path*` — added in BOTH `next.config.ts` (headers()) and `vercel.json` (mirrors the brand-family convention). Immutable is justified: frozen MIT dataset + stable names; any future re-encode ships under new filenames.
+- **Attribution:** yuhonas/free-exercise-db (MIT) documented in `public/images/README.md` (new exercises/ section: source, optimization params, naming law, cache law, guard).
+- **Sweep result:** the URL builder was the only pass-through point — generated HTML now has ZERO raw.githubusercontent references (local smoke-verified EN + AR exercise pages + homepage samples + programs client). The remotePatterns entry for the host is intentionally kept as the documented one-line rollback path (commented).
+- **New guard** `src/lib/__tests__/exercise-images-selfhost.test.ts` (5 tests): mapping pinned (.jpg→.webp) + passthrough laws + **every imageKey of all 868 exercises resolves to an existing non-empty .webp on disk** (1,736 existsSync checks) + retired host absent from CODE (comments stripped first — history narration is allowed by repo law).
+- **Updated guards:** `ai-workout-exercise-match.test.ts` (two toContain assertions + the ENRICH regex) and `homepage-adoption.test.ts` (homepage exercise samples: https:// → /images/exercises/ + .webp).
+- **next.config/vercel.json:** exercises cache rule (see above); remotePatterns comment for raw.githubusercontent.com updated (dead config kept as documented rollback).
+
+### Companion documentation (same-frame law)
+- `sitemap-lastmod.ts`: pages + exercises families → **2026-09-16** (real served-HTML change per the module's UPDATE PROTOCOL). **exercises decoupled from CONTENT_LAST_REVIEWED** (which remains the E-E-A-T anchor in seo.ts, still 2026-09-09): an HTML change is not a content review — each semantic now has its own source. Guard `sitemap-lastmod.test.ts` updated in the same frame (foods alone derives from CONTENT_LAST_REVIEWED).
+- `STATE.md`: phase 207 entry + QA line (188/189 compressed to stay within the 100-line docs_audit cap).
+- `README.md` + `DEVELOPER_GUIDE.md`: self-hosting noted in the lib tree.
+- `docs/SEO-GEO-MASTER-PLAN.md`: §12.55 (this phase) + §12.53 table item 2 → completed + §12.54 remaining-list updated.
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9 new) · build 0 (2,056 pages) · docs_audit (phase=207) · docs_parity · check-stale-refs · check-ui-wiring · migration_audit ✓
+
+### Local smoke (next start)
+Exercise page EN/AR renders /images/exercises/*.webp · asset served 200 · image/webp · Cache-Control: public, max-age=31536000, immutable · /ar/evo + /ar/coaching + /ar/diet-plan hub + cell carry og-home-ar · homepage samples on local paths · ZERO raw.githubusercontent in any fetched HTML.
+
+### Rollback
+Single commit revert restores the GitHub raw builder (remotePatterns entry alive); on-disk WebP assets are inert without it.
+
+**Production commit:** <filled after push>

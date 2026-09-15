@@ -35,9 +35,32 @@ Upload square images (400×400 recommended).
 | `core.jpg` | كور | `/exercises` page + landing page |
 | `cardio.jpg` | كارديو | `/exercises` page + landing page |
 
-> **Note:** Exercise category images currently use the yuhonas/free-exercise-db
-> library on GitHub (raw URLs). If you upload local images here, we'll update
-> the code to use them instead.
+> **Note:** The 8 category thumbnails above are LOCAL `.png` files, served
+> from this folder. The 868 exercise PHOTOS themselves live in
+> `public/images/exercises/` — see the next section.
+
+### 📁 `exercises/` — 1,736 self-hosted exercise photos (batch 2, §12.53 item 2)
+
+The per-exercise start/end photos (`<Exercise>/0.webp` and `<Exercise>/1.webp`)
+were previously hot-linked from `raw.githubusercontent.com/yuhonas/free-exercise-db`.
+As of 2026-09-16 (owner order «نفّذ دفعة 2 الخاصة باستضافة صور التمارين ذاتيًا»)
+they are **self-hosted here as optimized WebP**:
+
+- **Source:** [yuhonas/free-exercise-db](https://github.com/yuhonas/free-exercise-db)
+  — MIT license. Attribution: `© yuhonas/free-exercise-db contributors`
+  (see the MIT license at the source repo). Redistribution of the derived
+  WebP re-encodes is permitted under the same MIT terms.
+- **Optimization:** JPEG → WebP, quality 85, method 6, **original dimensions
+  preserved** (no resize — content quality unchanged by owner law).
+  ~94 MB source → ~79 MB on disk.
+- **Naming law:** the dataset's `<Exercise_Folder>/<0|1>.webp` names are
+  preserved EXACTLY (only the extension changed); `src/lib/exercise-images.ts`
+  maps the dataset `.jpg` keys to these `.webp` assets — do NOT rename files.
+- **Caching:** served with `Cache-Control: public, max-age=31536000, immutable`
+  (rules in `next.config.ts` + `vercel.json`). If a file is ever re-encoded,
+  ship it under a NEW filename (or a versioned directory) to avoid stale caches.
+- **Guard:** `src/lib/__tests__/exercise-images-selfhost.test.ts` fails the
+  build if any exercise `imageKey` has no matching `.webp` on disk.
 
 ### 📁 `tools/` — 6 tool thumbnails
 

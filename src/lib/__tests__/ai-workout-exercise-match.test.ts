@@ -37,7 +37,9 @@ describe("ai-workout-exercise-match (§12.35)", () => {
     const bench = matchWorkoutExercise("Barbell bench press", "full-gym");
     expect(bench).not.toBeNull();
     expect(bench?.name).toContain("Bench Press");
-    expect(bench?.image).toContain("raw.githubusercontent.com");
+    // Batch 2 (§12.53 item 2): exercise images are self-hosted WebP now
+    expect(bench?.image).toContain("/images/exercises/");
+    expect(bench?.image).toMatch(/\.webp$/);
     expect(bench?.slug).toMatch(/bench-press/);
 
     const rdl = matchWorkoutExercise("Romanian deadlift", "full-gym");
@@ -83,7 +85,9 @@ describe("ai-workout-exercise-match (§12.35)", () => {
     const bench = matchWorkoutExercise("بنش برس بالبار", "full-gym");
     expect(bench).not.toBeNull();
     expect(bench?.name).toContain("Bench Press");
-    expect(bench?.image).toContain("raw.githubusercontent.com");
+    // Batch 2 (§12.53 item 2): exercise images are self-hosted WebP now
+    expect(bench?.image).toContain("/images/exercises/");
+    expect(bench?.image).toMatch(/\.webp$/);
 
     expect(matchWorkoutExercise("رفعة ميتة رومانية", "full-gym")?.name).toContain(
       "Romanian Deadlift",
@@ -185,7 +189,9 @@ describe("ai-workout-exercise-match (§12.35)", () => {
     expect(bench.reps).toBe("8-12");
     // Every image is a real library image URL.
     for (const ex of enriched.days[0].exercises) {
-      if (ex.library) expect(ex.library.image).toMatch(/^https:\/\/raw\.githubusercontent\.com\//);
+      // Batch 2 (§12.53 item 2): self-hosted WebP asset path now.
+      if (ex.library)
+        expect(ex.library.image).toMatch(/^\/images\/exercises\/.+\.webp$/);
     }
     // A focus-less day stays focus-less (no invented field).
     const bare = enrichWorkoutPlanWithLibrary(

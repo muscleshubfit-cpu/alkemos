@@ -1,7 +1,8 @@
 /**
  * Exercise Library — from  (MIT license)
  * https://github.com/yuhonas/
- * ALL 868 exercises imported. Images hosted on GitHub.
+ * ALL 868 exercises imported. Images SELF-HOSTED as optimized WebP under
+ * public/images/exercises/ (batch 2 — §12.53 item 2, 2026-09-16).
  */
 
 export type ExerciseCategory = "chest" | "back" | "shoulders" | "legs" | "biceps" | "triceps" | "core" | "cardio";

@@ -34,12 +34,27 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/evo",
+    // Batch 1-b (2026-09-16, §12.53 item 4 follow-up): same AR-side gap
+    // the batch-1 live verification caught — this layout declares
+    // openGraph without images, and a child openGraph block REPLACES the
+    // root one in Next.js metadata merging, so the og-home-ar card from
+    // /ar/layout.tsx was NOT inherited. Pinned explicitly — same pattern
+    // the EN mirror got in §12.53 item 4.
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "مدرب اللياقة الذكي EVO | Alkemos",
     description:
       "محرك أداء ذكي يبني خطط تغذية وتمارين مخصصة من بياناتك — مجاني للجميع.",
+    images: ["/images/og/og-home-ar.png"],
   },
   alternates: {
     canonical: "https://alkemos.com/ar/evo",

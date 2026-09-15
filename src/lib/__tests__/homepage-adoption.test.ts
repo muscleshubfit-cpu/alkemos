@@ -256,8 +256,11 @@ describe("Phase 202 — homepage sample drift guard (real content, curated)", ()
     const chicken = samples.foods.find((f) => f.slug === "chicken-breast");
     expect(chicken?.calories).toBe(165);
     expect(chicken?.protein).toBe(31);
+    // Batch 2 (§12.53 item 2): every exercise sample carries a SELF-HOSTED
+    // WebP image (previously a raw.githubusercontent.com https URL).
     for (const ex of samples.exercises) {
-      expect(ex.image.startsWith("https://")).toBe(true);
+      expect(ex.image.startsWith("/images/exercises/")).toBe(true);
+      expect(ex.image.endsWith(".webp")).toBe(true);
     }
   });
 });

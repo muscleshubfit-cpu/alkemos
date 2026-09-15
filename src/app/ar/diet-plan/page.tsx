@@ -47,6 +47,21 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/ar/diet-plan`,
     type: "website",
     locale: "ar_EG",
+    // Batch 1-b (2026-09-16, §12.53 item 4 follow-up): a child openGraph
+    // block REPLACES the root one in Next.js merging, so og-home-ar was
+    // NOT inherited — pinned explicitly (same pattern as the EN hub).
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-ar.png"],
   },
 };
 

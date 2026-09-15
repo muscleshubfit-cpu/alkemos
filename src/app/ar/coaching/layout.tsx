@@ -34,12 +34,25 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/coaching",
+    // Batch 1-b (2026-09-16, §12.53 item 4 follow-up): same AR-side gap
+    // the batch-1 live verification caught — openGraph without images
+    // replaces the root block in Next.js merging, so og-home-ar was NOT
+    // inherited. Pinned explicitly — same pattern as the EN mirror.
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "الكوتشينج أونلاين | Alkemos",
     description:
       "خطط مخصصة من مدربين معتمدين + متابعة شخصية + مساعد ذكي على مدار الساعة.",
+    images: ["/images/og/og-home-ar.png"],
   },
   alternates: {
     canonical: "https://alkemos.com/ar/coaching",

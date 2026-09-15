@@ -65,6 +65,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       url,
       type: "website",
       locale: "ar_EG",
+      // Batch 1-b (2026-09-16, §12.53 item 4 follow-up): og:image for the
+      // 24 AR cells — same-family home card as the hub (matches the EN
+      // cells' og-home-en pattern).
+      images: [
+        {
+          url: "/images/og/og-home-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "منصة Alkemos الرياضية الشاملة",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/images/og/og-home-ar.png"],
     },
   };
 }

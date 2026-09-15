@@ -293,6 +293,7 @@ alkemos/
 │   │   ├── ai-provider.ts      # Unified AI layer: OpenRouter + Groq + NVIDIA NIM ONLY (callAI, callAIWithFallback,
 │   │   │                       #   callFreeOpenRouterRace, callFreeAIFallbackChain, callAIStream; ≤52s clamp)
 │   │   ├── exercises.ts        # 868 exercises dataset (yuhonas MIT-licensed)
+│   │   ├── (images self-hosted: public/images/exercises/*.webp — batch 2, immutable long-cache)
 │   │   ├── foods.ts            # 8,830 foods dataset
 │   │   ├── workout-programs.ts # Workout programs library content
 │   │   ├── blog-*.ts           # Blog generation pipeline (research → outline → content → images → publish)

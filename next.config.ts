@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "z-cdn.chatglm.cn" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "wger.de" },
+      // Batch 2 (§12.53 item 2, 2026-09-16): exercise images are now
+      // self-hosted from public/images/exercises/ — this pattern is DEAD
+      // config kept only as the documented one-line rollback path (revert
+      // exercise-images.ts IMAGE_BASE to the GitHub raw URL).
       { protocol: "https", hostname: "raw.githubusercontent.com" },
       { protocol: "https", hostname: "images.pexels.com" },
       { protocol: "https", hostname: "alkemos.com" },
@@ -174,6 +178,22 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=300, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
+        // Batch 2 — §12.53 item 2 (2026-09-16): the 868×2 self-hosted
+        // exercise WebP assets (public/images/exercises/). The source
+        // dataset is frozen (MIT, yuhonas/free-exercise-db) and the file
+        // names are stable, so this is a legitimately immutable family —
+        // long-cache law the audit recommended («كاش طويل»). Any future
+        // re-encode ships under new filenames (or a versioned dir) to
+        // avoid stale-cache conflicts. (Mirrored in vercel.json.)
+        source: "/images/exercises/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

@@ -22,6 +22,12 @@ import { resolve } from "node:path";
  * matching one exists — exercises/foods — the home card elsewhere,
  * mirroring the AR inheritance behavior exactly).
  *
+ * Batch 1-b (2026-09-16): the SAME replace-not-inherit gap existed on
+ * three AR mirrors the batch-1 live verification caught — /ar/evo,
+ * /ar/coaching and /ar/diet-plan (hub + 24 cells) declared openGraph
+ * without images, so og-home-ar was NOT inherited. All four surfaces are
+ * now wired with the home card — exact mirror of the EN fix.
+ *
  * Guarded contracts:
  *   1. Every wired surface references its family og asset in BOTH
  *      openGraph.images and twitter.images.
@@ -80,6 +86,12 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/diet-plan/page.tsx", "og-home-en"],
   ["src/app/diet-plan/[level]/[system]/page.tsx", "og-home-en"],
   ["src/app/equipment/[type]/page.tsx", "og-home-en"],
+  // AR list surfaces (batch 1-b — the same replace-not-inherit gap on
+  // the AR side, caught by batch-1 live verification)
+  ["src/app/ar/evo/layout.tsx", "og-home-ar"],
+  ["src/app/ar/coaching/layout.tsx", "og-home-ar"],
+  ["src/app/ar/diet-plan/page.tsx", "og-home-ar"],
+  ["src/app/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
 ];
 
 function repoRootPath(rel: string): string {

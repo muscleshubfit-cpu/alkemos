@@ -201,7 +201,7 @@ src/
 │   ├── seo.ts                   # JSON-LD schema generators
 │   ├── plans.ts                 # أنظمة الاشتراكات القديمة (legacy)
 │   ├── workout-programs.ts      # برامج التدريب الجاهزة
-│   ├── exercise-images.ts       # حل روابط صور التمارين
+│   ├── exercise-images.ts       # حل روابط صور التمارين (self-hosted WebP — batch 2)
 │   ├── supabase/
 │   │   ├── client.ts            # Supabase browser client
 │   │   ├── admin.ts             # Supabase admin client (service_role)
