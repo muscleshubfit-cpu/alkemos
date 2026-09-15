@@ -4172,7 +4172,7 @@ Work Log:
 
 Stage Summary:
 - دفعة ١ كاملة عبر البوابات التسع؛ صفر مساس بالوظائف/البيانات/الأسعار؛ كل الأصول المستخدمة موجودة أصلًا
-- Commit SHA: (see below)
+- Commit SHA: 5713713
 - Push status: pushed
 
 ---
@@ -4191,5 +4191,5 @@ Work Log:
 
 Stage Summary:
 - دفعة ١ مكتملة ومتحققة حيًا 37/37 على الإنتاج؛ جدول §12.53 حُدّث (البنود 1/3/4/5/7/12 = مكتمل)
-- Commit SHA: (verification docs commit)
+- Commit SHA: bbdac64
 - Push status: pushed
