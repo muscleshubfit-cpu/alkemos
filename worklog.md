@@ -4336,3 +4336,39 @@ zero HTML diff by construction). Live pages with Cloudflare cache-buster: / = 20
 «Alkemos — The Smart Fitness & Nutrition Platform») · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200
 (the single 308 seen was only the trailing-slash redirect of the test URL shape /ar/ → /ar).
 No independent live-verification round needed for a docs-only batch.
+
+---
+Task ID: PHASE-211-SEO-GEO-20-ITEM13-DROPPED-2026-09-16
+Agent: Super Z (main)
+Task: Phase 211 — SEO-GEO-20: review §12.53 item 13 (the last undecided item), verify the live hreflang/language-discovery state, and close it as DROPPED with a documented rationale (owner order 2026-09-16: «راجع البند 13… إن كان الوضع الحالي كافيًا تقنيًا عبر head ولا توجد فائدة SEO حقيقية… أغلق البند بقرار إسقاط موثق… لا تعدّل كود الموقع»).
+
+**Scope:** review + documented decision ONLY — zero production code touched (owner's explicit limit).
+
+### Technical investigation (live evidence on production 929a7ea, Cloudflare cache-buster)
+1. **Item description verified accurate:** LanguageToggle is a `<Button onClick>` (client JS) — not a crawlable `<a href>` (`src/components/LanguageToggle.tsx`); its coverage includes every mirror pair up to /affiliate (208).
+2. **Official channel #1 — head alternates:** live on every page checked (EN + AR homepages, /affiliate, /tools/bmi-calculator) with the full reciprocal en/ar/x-default triple.
+3. **Official channel #2 — sitemaps:** reciprocal `xhtml:link` pairs in sitemap-pages for every entry (checked / · /ar · /exercises · /ar/exercises) and in sitemap-blog for every paired article (14 entries = 7 pairs × both directions, of 71); unpaired articles stay honestly self-only (settled-list behavior, §12.53-ج).
+4. **Internal linking:** the footer is locale-aware with plain textual `<a href>` anchors covering each language tree fully — URL discovery never depended on the toggle.
+
+### The verdict — DROP (no technical reason to implement)
+1. Google never reads the `hreflang` attribute on `<a>` anchors: its three officially supported methods are head links tags, HTTP headers, and sitemap xhtml:link — two of which are fully live here. Footer `<a hreflang>` links would add ZERO hreflang signal.
+2. Discovery is triple-covered (sitemaps with all mirrors + head alternates on every page + same-tree textual internal links) — the original audit's premise («discovery via head only») was conservative; reality is stronger.
+3. The JS toggle is a UX matter, not an SEO one — crawlers discover by URLs, all of which are covered.
+4. Negative cost/benefit: a fresh code batch touching the site-wide footer for zero hreflang value + slight link-equity dilution.
+
+### Effect — §12.53 plan is now FULLY CLOSED (14/14 rows decided)
+8 executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (207/209) + keep (8) + drop (13) + 4 postponed by owner (6/9/10/14). Zero Pending rows remain.
+
+### Files changed (docs only)
+- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table row 13 → محسوم: إسقاط · §12.58 impact line got the closure pointer · new §12.59 (the decision record with the live evidence).
+- STATE.md — phase 211 (header, ladder, new (٠٠) 211 entry, QA header, official-phase footer); the 197+196 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» still 929a7ea's parent pin until the post-push evidence commit.
+- worklog.md — this entry.
+
+### Gates (docs batch)
+docs_audit (phase=211, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push).
+
+### Rollback
+Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
+
+### Post-push sanity (light — HTML unchanged by construction)
+[TO BE APPENDED AFTER PUSH]
