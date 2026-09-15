@@ -46,6 +46,23 @@ const MARKETING_SURFACE_FILES = [
   "src/app/for-coaches/register/page.tsx",
   "src/app/ar/for-coaches/layout.tsx",
   "src/app/ar/for-coaches/register/layout.tsx",
+  // PHASE 204 (owner order 2026-09-15 — internal-pages MSA cleanup): the
+  // program library data + program detail CTA, the affiliate share
+  // templates + toolkit UI, the static pages (about/terms/faq visible
+  // copy), the FAQ JSON-LD source, and the foods-library labels joined
+  // the law — the whole public non-blog surface is MSA-guarded now.
+  "src/lib/workout-programs.ts",
+  "src/app/programs/[slug]/ProgramDetailClient.tsx",
+  // NOTE: src/lib/affiliate-content.ts is deliberately NOT in the scanned
+  // manifest — its escapeHtml() quote-regexes desync the naive string
+  // tokenizer (pre-existing). It stays guarded by the raw Phase 204
+  // banned-phrase canary below.
+  "src/components/views/AffiliateToolkit.tsx",
+  "src/components/views/StaticPageView.tsx",
+  "src/lib/faq-content.ts",
+  "src/lib/tools-shared.ts",
+  "src/lib/foods-shared.ts",
+  "src/components/foods/FoodsFilters.tsx",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -480,5 +497,79 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(landing).not.toContain("appsAr:");
     expect(landing).not.toContain("appsEn:");
     expect(landing).not.toContain("comparisonRows");
+  });
+
+  // PHASE 204 (owner order — تنظيف وتوحيد النصوص في الصفحات الداخلية):
+  // every phrase removed by the internal-pages cleanup stays dead, and
+  // the contradictory «حجز جلسة/Book» framing of the Coaching SUBSCRIPTION
+  // (ai-job-processors.ts already bans it in generated CTAs) is pinned
+  // dead on the static surfaces too — the service is a subscription you
+  // join, never a session you book.
+  it("Phase 204: the removed internal-page phrases stay dead (dialect + old claims + terminology)", () => {
+    const surfaces: Record<string, string[]> = {
+      "src/lib/workout-programs.ts": [
+        "الجيم", "اللي ", "عايز", "تمرينة", "الكور", "تعلية",
+        "بالوزن الجسم", "في البيت", "بس. مثالي",
+      ],
+      "src/app/programs/[slug]/ProgramDetailClient.tsx": [
+        "عايز خطة", "ليك؟", "بتعمل خطط",
+      ],
+      "src/lib/affiliate-content.ts": [
+        "بتدور", "الرابط ده", "مفيش", "إيه الأخبار", "حابب", "بتتعمل",
+        "بتوريك", "بيحمّسك", "اسكتشات", "بيأثرش", "equipment اللي",
+        "affiliate link — أقدر", "رابط affiliate،",
+      ],
+      "src/components/views/AffiliateToolkit.tsx": [
+        "بتاعك", "الرابط ده", "متشاركوش", "هتشوفها", "بتتسجل", "مكان بتعمل",
+      ],
+      "src/components/views/StaticPageView.tsx": [
+        "هل فيه كوتش", "كوتش ذكاء", "شات بوت", "وأكلات (", "من هو EVO",
+        "وصول لخطط", "من الكوتش", "الكوتش بمراجعته", "كم يستغرق رؤية نتائج",
+      ],
+      "src/lib/faq-content.ts": [
+        "حجزه", "you can book", "Who is EVO",
+      ],
+      "src/app/memberships/page.tsx": [
+        "كوتش بشري", "يراجعه الكوتش", 'q: isAr ? "طرق الدفع؟"',
+        "Pro يعطيك صلاحيات المنصة",
+      ],
+      "src/app/coaching/page.tsx": [
+        "من هو EVO", "Who is EVO", "مشفرة على Supabase",
+        'q: isAr ? "طرق الدفع؟"', 'q: isAr ? "بياناتي آمنة؟"',
+      ],
+      "src/app/evo/page.tsx": ["كوتش ذكاء اصطناعي", "شات بوت"],
+      "src/app/coaches/[slug]/page.tsx": ["Book private coaching"],
+      "src/app/ar/coaches/[slug]/page.tsx": ["احجز متابعة"],
+      "src/app/for-coaches/page.tsx": [
+        "للكوتشات", "أسئلة الكوتشات", "ابدأ شغلك", "في الجيم",
+      ],
+      "src/app/ar/for-coaches/layout.tsx": ["فلوسك", "شغل كوتش"],
+      "src/app/ar/for-coaches/register/layout.tsx": ["انشاء حساب كوتش"],
+      "src/components/views/ContactView.tsx": ['"سجل دخول وافتح'],
+      "src/lib/comparisons.ts": ["والجيم،"],
+    };
+    for (const [rel, bannedList] of Object.entries(surfaces)) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of bannedList) {
+        expect(src, `${rel}: Phase 204 phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+    // The unified replacements are present (terminology + facts):
+    const workoutPrograms = readFileSync("src/lib/workout-programs.ts", "utf8");
+    expect(workoutPrograms).toContain('gym: { ar: "النادي الرياضي"');
+    const faqJsonld = readFileSync("src/lib/faq-content.ts", "utf8");
+    expect(faqJsonld).toContain("اشتراك كوتشينج بشري منفصل يمكنك الانضمام إليه");
+    expect(faqJsonld).toContain("coaching subscription you can join");
+    const faqVisible = readFileSync(
+      "src/components/views/StaticPageView.tsx",
+      "utf8",
+    );
+    expect(faqVisible).toContain('heading: "هل يوجد مدرب بشري؟"');
+    expect(faqVisible).toContain('heading: "ما هو EVO؟"');
+    const aboutVisible = faqVisible;
+    expect(aboutVisible).toContain("والأطعمة (8,830+)");
+    expect(aboutVisible).toContain("4 توليدات خطط شهريًا");
+    const arCoaches = readFileSync("src/app/ar/coaches/[slug]/page.tsx", "utf8");
+    expect(arCoaches).toContain("اشترك في متابعة خاصة");
   });
 });

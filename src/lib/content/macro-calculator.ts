@@ -13,7 +13,7 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
   slug: "macro-calculator",
   intro: {
     en: "Calories decide whether your weight moves; macros decide what that weight is made of, how you feel while moving it, and how well you perform. This macro calculator takes your daily calorie budget and splits it into protein, carbohydrate, and fat grams across five diet patterns — balanced, low-carb, high-protein, keto, and low-fat — so the same 2,000 calories can become a muscle-retention cut, an endurance machine's fuel plan, or a ketogenic protocol. Below the tool you will find the complete reference: what each macro actually does in your body, the evidence behind protein targets, how to choose a split for your specific goal, how to turn daily grams into real meals, and honest answers to the questions people argue about most.",
-    ar: "السعرات تحدد هل يتحرك وزنك؛ والماكروز تحدد مما يتكون هذا الوزن، وكيف تشعر أثناء تحركه، ومستوى أدائك. تأخذ حاسبة الماكروز هذه ميزانية سعراتك اليومية وتوزعها إلى غرامات بروتين وكربوهيدرات ودهون عبر خمسة أنماط غذائية — متوازن، قليل الكارب، عالي البروتين، كيتو، قليل الدهون — بحيث يمكن لسعرات الـ2000 نفسها أن تصبح خطة خسارة تحافظ على العضلات، أو وقوداً لآلة تحمل، أو بروتوكول كيتوجيني. وتحت الأداة ستجد المرجع الكامل: ما يفعله كل مغذٍّ منها فعلاً في جسمك، والأدلة وراء أهداف البروتين، وكيف تختار توزيعاً لهدفك تحديداً، وكيف تحوّل الغرامات اليومية إلى وجبات حقيقية، وإجابات صادقة عن أكثر الأسئلة جدلاً.",
+    ar: "السعرات تحدد هل يتحرك وزنك؛ والماكروز تحدد مما يتكون هذا الوزن، وكيف تشعر أثناء تحركه، ومستوى أدائك. تأخذ حاسبة الماكروز هذه ميزانية سعراتك اليومية وتوزعها إلى غرامات بروتين وكربوهيدرات ودهون عبر خمسة أنماط غذائية — متوازن، قليل الكربوهيدرات، عالي البروتين، كيتو، قليل الدهون — بحيث يمكن لسعرات الـ2000 نفسها أن تصبح خطة خسارة تحافظ على العضلات، أو وقوداً لآلة تحمل، أو بروتوكول كيتوجيني. وتحت الأداة ستجد المرجع الكامل: ما يفعله كل مغذٍّ منها فعلاً في جسمك، والأدلة وراء أهداف البروتين، وكيف تختار توزيعاً لهدفك تحديداً، وكيف تحوّل الغرامات اليومية إلى وجبات حقيقية، وإجابات صادقة عن أكثر الأسئلة جدلاً.",
   },
   sections: [
     {
@@ -41,7 +41,7 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "A useful mental model: protein sets your structure, fat sets your hormones and health floor, and carbohydrates fill the remaining budget around your activity. This is why the presets below all keep protein and fat deliberate and let carbs be the flexible variable — and why \"how many carbs per day\" has a different answer for a marathoner than for an office worker with the same calorie target.",
-            ar: "نموذج ذهني مفيد: البروتين يحدد بنيتك، والدهون تحدد هرموناتك وأرضية صحتك، والكربوهيدرات تملأ الميزانية المتبقية حول نشاطك. لهذا تحافظ الأنماط أدناه كلها على بروتين ودهون مقصودين وتترك الكارب متغيراً مرناً — ولهذا يختلف جواب «كم كربوهيدرات في اليوم» لعدّاء ماراثون عن موظف مكتبي بالهدف السعري نفسه.",
+            ar: "نموذج ذهني مفيد: البروتين يحدد بنيتك، والدهون تحدد هرموناتك وأرضية صحتك، والكربوهيدرات تملأ الميزانية المتبقية حول نشاطك. لهذا تحافظ الأنماط أدناه كلها على بروتين ودهون مقصودين وتترك الكربوهيدرات متغيراً مرناً — ولهذا يختلف جواب «كم كربوهيدرات في اليوم» لعدّاء ماراثون عن موظف مكتبي بالهدف السعري نفسه.",
           },
         },
       ],
@@ -65,17 +65,17 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           table: {
             caption: {
               en: "The five diet presets (percent of calories: protein / carbs / fat)",
-              ar: "الأنماط الغذائية الخمسة (نسبة السعرات: بروتين / كارب / دهون)",
+              ar: "الأنماط الغذائية الخمسة (نسبة السعرات: بروتين / كربوهيدرات / دهون)",
             },
             columns: [
               { en: "Preset", ar: "النمط" },
               { en: "Protein", ar: "البروتين" },
-              { en: "Carbs", ar: "الكارب" },
+              { en: "Carbs", ar: "الكربوهيدرات" },
               { en: "Fat", ar: "الدهون" },
             ],
             rows: [
               { en: ["Balanced", "30%", "40%", "30%"], ar: ["متوازن", "30%", "40%", "30%"] },
-              { en: ["Low carb", "40%", "20%", "40%"], ar: ["قليل الكارب", "40%", "20%", "40%"] },
+              { en: ["Low carb", "40%", "20%", "40%"], ar: ["قليل الكربوهيدرات", "40%", "20%", "40%"] },
               { en: ["High protein", "45%", "35%", "20%"], ar: ["عالي البروتين", "45%", "35%", "20%"] },
               { en: ["Keto", "25%", "5%", "70%"], ar: ["كيتو", "25%", "5%", "70%"] },
               { en: ["Low fat", "35%", "55%", "10%"], ar: ["قليل الدهون", "35%", "55%", "10%"] },
@@ -86,7 +86,7 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "Each preset exists for a real use case. Balanced is the default for general health and mixed training. Low carb suits people who control appetite better with fewer starches without needing ketosis. High protein serves cutting phases and muscle-focused diets where sparing muscle outranks fuel variety. Keto is the therapeutic-and-performance protocol that restricts carbohydrates to about 5% to shift the body into ketone metabolism — a commitment with real adaptation costs, not a casual slider. Low fat is the classic endurance-athlete pattern that maximizes carbohydrate room for high training volumes.",
-            ar: "لكل نمط حالة استخدام حقيقية. «المتوازن» افتراضي الصحة العامة والتدريب المختلط. و«قليل الكارب» يناسب من يضبط شهيته بشكل أفضل بنشويات أقل دون حاجة للكيتوزس. و«عالي البروتين» يخدم مراحل الخسارة والحميات العضلية حيث توفيرُ العضلة يتقدم على تنوع الوقود. و«كيتو» بروتوكول علاجي-أدائي يقيد الكربوهيدرات إلى نحو 5% لنقل الجسم إلى أيض الكيتونات — التزام بكلفة تكيف حقيقية لا منزلق عابر. و«قليل الدهون» النمط الكلاسيكي لرياضيي التحمّل الذي يعظّم حصة الكربوهيدرات لأحجام تدريب عالية.",
+            ar: "لكل نمط حالة استخدام حقيقية. «المتوازن» افتراضي الصحة العامة والتدريب المختلط. و«قليل الكربوهيدرات» يناسب من يضبط شهيته بشكل أفضل بنشويات أقل دون حاجة للكيتوزس. و«عالي البروتين» يخدم مراحل الخسارة والحميات العضلية حيث توفيرُ العضلة يتقدم على تنوع الوقود. و«كيتو» بروتوكول علاجي-أدائي يقيد الكربوهيدرات إلى نحو 5% لنقل الجسم إلى أيض الكيتونات — التزام بكلفة تكيف حقيقية لا منزلق عابر. و«قليل الدهون» النمط الكلاسيكي لرياضيي التحمّل الذي يعظّم حصة الكربوهيدرات لأحجام تدريب عالية.",
           },
         },
       ],
@@ -173,14 +173,14 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "Carbohydrates are stored as glycogen — roughly 300–500 g across muscle and liver in an average adult — and that storage is the tank for intense effort: lifting, sprinting, sparring, interval work. This is why the low-fat preset (55% carbs) exists for high-volume endurance training and why a keto athlete must go through weeks of adaptation before high-intensity performance normalizes. If you train hard most days, the 40% balanced default or higher serves you; if you train lightly or prioritize fat loss appetite control over performance, the low-carb and keto patterns trade some top-end fuel for steadier hunger.",
-            ar: "تُخزَّن الكربوهيدرات جليكوجيناً — نحو 300–500 غرام في العضلات والكبد عند بالغ متوسط — وذلك المخزون هو خزان الجهد الشاق: رفع الأثقال، والعدو، والنزال، والعمل المتقطع. لهذا وُجد نمط «قليل الدهون» (55% كارب) لتدريب التحمّل عالي الحجم، ولهذا يحتاج ريااضي الكيتو أسابيع تكيف قبل أن يعود أداؤه عالي الشدة إلى طبيعته. إن كنت تتدرب بقوة معظم الأيام فالافتراضي المتوازن 40% أو أعلى يخدمك؛ وإن كنت تتدرب بخفة أو تقدم ضبط شهية الخسارة على الأداء فنمطا «قليل الكارب» و«كيتو» يستبدلان بعض وقود القمة بجوع أكثر استقراراً.",
+            ar: "تُخزَّن الكربوهيدرات جليكوجيناً — نحو 300–500 غرام في العضلات والكبد عند بالغ متوسط — وذلك المخزون هو خزان الجهد الشاق: رفع الأثقال، والعدو، والنزال، والعمل المتقطع. لهذا وُجد نمط «قليل الدهون» (55% كربوهيدرات) لتدريب التحمّل عالي الحجم، ولهذا يحتاج ريااضي الكيتو أسابيع تكيف قبل أن يعود أداؤه عالي الشدة إلى طبيعته. إن كنت تتدرب بقوة معظم الأيام فالافتراضي المتوازن 40% أو أعلى يخدمك؛ وإن كنت تتدرب بخفة أو تقدم ضبط شهية الخسارة على الأداء فنمطا «قليل الكربوهيدرات» و«كيتو» يستبدلان بعض وقود القمة بجوع أكثر استقراراً.",
           },
         },
         {
           kind: "p",
           text: {
             en: "Fiber deserves its own sentence: target roughly 25–38 g per day (14 g per 1,000 kcal is the common guideline), which on any preset is best reached through legumes, vegetables, fruit, and intact grains rather than supplements. Fiber slows glucose delivery, feeds the microbiome, and is the difference between a 40%-carb diet that feels steady and one that swings you between sugar highs and crashes.",
-            ar: "تستحق الألياف جملة خاصة: استهدف نحو 25–38 غراماً يومياً (14 غراماً لكل 1000 سعرة هو الإرشاد الشائع)، وهو على أي نمط يُبلَغ أفضل عبر البقول والخضروات والفاكهة والحبوب الكاملة لا المكمّلات. فالألياف تبطئ تسليم الغلوكوز وتغذي ميكروبيوم الأمعاء، وهي الفارق بين حمية كارب 40% تشعر فيها بالاستقرار وأخرى تتأرجح بك بين نشوة السكر وانهياره.",
+            ar: "تستحق الألياف جملة خاصة: استهدف نحو 25–38 غراماً يومياً (14 غراماً لكل 1000 سعرة هو الإرشاد الشائع)، وهو على أي نمط يُبلَغ أفضل عبر البقول والخضروات والفاكهة والحبوب الكاملة لا المكمّلات. فالألياف تبطئ تسليم الغلوكوز وتغذي ميكروبيوم الأمعاء، وهي الفارق بين حمية 40% كربوهيدرات تشعر فيها بالاستقرار وأخرى تتأرجح بك بين نشوة السكر وانهياره.",
           },
         },
       ],
@@ -226,7 +226,7 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "For muscle gain, the balanced preset (30/40/30) with a modest calorie surplus is the workhorse: carbohydrates fuel the training that builds the stimulus, and the extra insulin environment supports recovery. Skin-and-bones beginners can push carbs higher; anyone gaining fat faster than muscle should trim the surplus, not the protein. For general health and long-term maintenance, the honest answer is that several splits work: the Mediterranean-style balanced pattern wins adherence studies not through magic ratios but through food quality, fiber, and enjoyable meals — the split you can live with beats the split you can only survive for two weeks.",
-            ar: "لبناء العضلات، النمط المتوازن (30/40/30) مع فائض سعري معتدل هو حصان العمل: فالكربوهيدرات تزود التدريب الذي يبني التحفيز، والبيئة الأنسولينية المضافة تدعم الاستشفاء. يمكن للنحافين المبتدئين دفع الكارب أعلى؛ ومن يتكسب دهناً أسرع من العضلات يقلّص الفائض لا البروتين. وللصحة العامة والتثبيت طويل الأمد، الإجابة الصادقة أن عدة توزيعات تصلح: فالنمط المتوازن على طريقة المتوسط يفوز في دراسات الالتزام لا بنسب سحرية بل بجودة الطعام والألياف والوجبات الممتعة — التوزيع الذي تستطيع العيش معه يتفوق على التوزيع الذي تنجو منه أسبوعين فقط.",
+            ar: "لبناء العضلات، النمط المتوازن (30/40/30) مع فائض سعري معتدل هو حصان العمل: فالكربوهيدرات تزود التدريب الذي يبني التحفيز، والبيئة الأنسولينية المضافة تدعم الاستشفاء. يمكن للنحافين المبتدئين دفع الكربوهيدرات أعلى؛ ومن يتكسب دهناً أسرع من العضلات يقلّص الفائض لا البروتين. وللصحة العامة والتثبيت طويل الأمد، الإجابة الصادقة أن عدة توزيعات تصلح: فالنمط المتوازن على طريقة المتوسط يفوز في دراسات الالتزام لا بنسب سحرية بل بجودة الطعام والألياف والوجبات الممتعة — التوزيع الذي تستطيع العيش معه يتفوق على التوزيع الذي تنجو منه أسبوعين فقط.",
           },
         },
         {
@@ -272,7 +272,7 @@ export const MACRO_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "Run any chosen split for two to three weeks under consistent measurement — same scale, same time of day, weekly averages — before judging it. If weight trend, training performance, hunger, and digestion all point the right way, change nothing. If fat loss stalls with everything else clean, the first lever is total calories, not the macro ratio; if you feel flat and weak in training on low carbs, raise carbohydrate (and reduce fat to keep calories equal) before abandoning the plan. The split serves the outcome, never the reverse.",
-            ar: "شغّل أي توزيع تختاره أسبوعين إلى ثلاثة تحت قياس متسق — الميزان نفسه، الوقت نفسه من اليوم، متوسطات أسبوعية — قبل الحكم عليه. إن أشار اتجاه الوزن وأداء التدريب والجوع والهضم كلها إلى الاتجاه الصحيح فلا تغيّر شيئاً. إن توقفت خسارة الدهون وكل ما عدا ذلك نظيف، فالرافعة الأولى إجمالي السعرات لا نسبة الماكروز؛ وإن شعرت بالخمول والضعف في التدريب على قليل الكارب فارفع الكربوهيدرات (واخفض الدهون لتبقى السعرات متساوية) قبل التخلي عن الخطة. التوزيع يخدم النتيجة، ولا عكس أبداً.",
+            ar: "شغّل أي توزيع تختاره أسبوعين إلى ثلاثة تحت قياس متسق — الميزان نفسه، الوقت نفسه من اليوم، متوسطات أسبوعية — قبل الحكم عليه. إن أشار اتجاه الوزن وأداء التدريب والجوع والهضم كلها إلى الاتجاه الصحيح فلا تغيّر شيئاً. إن توقفت خسارة الدهون وكل ما عدا ذلك نظيف، فالرافعة الأولى إجمالي السعرات لا نسبة الماكروز؛ وإن شعرت بالخمول والضعف في التدريب على قليل الكربوهيدرات فارفع الكربوهيدرات (واخفض الدهون لتبقى السعرات متساوية) قبل التخلي عن الخطة. التوزيع يخدم النتيجة، ولا عكس أبداً.",
           },
         },
         {

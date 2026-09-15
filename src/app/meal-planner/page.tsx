@@ -408,7 +408,7 @@ export default function MealPlannerPage() {
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label={isAr ? "سعرات" : "Calories"} value={grandTotal.calories} unit="kcal" color="#ff9500" big />
             <Stat label={isAr ? "بروتين" : "Protein"} value={grandTotal.protein} unit="g" color="#34c759" big />
-            <Stat label={isAr ? "كارب" : "Carbs"} value={grandTotal.carbs} unit="g" color="#0071e3" big />
+            <Stat label={isAr ? "كربوهيدرات" : "Carbs"} value={grandTotal.carbs} unit="g" color="#0071e3" big />
             <Stat label={isAr ? "دهون" : "Fat"} value={grandTotal.fat} unit="g" color="#8b5cf6" big />
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function MealPlannerPage() {
             toolSlug="meal-planner"
             resultSummary={
               isAr
-                ? `خطتي: ${meals.length} وجبات · ${grandTotal.calories} سعرة · بروتين ${grandTotal.protein}g · كارب ${grandTotal.carbs}g · دهون ${grandTotal.fat}g`
+                ? `خطتي: ${meals.length} وجبات · ${grandTotal.calories} سعرة · بروتين ${grandTotal.protein}g · كربوهيدرات ${grandTotal.carbs}g · دهون ${grandTotal.fat}g`
                 : `My plan: ${meals.length} meals · ${grandTotal.calories} kcal · protein ${grandTotal.protein}g · carbs ${grandTotal.carbs}g · fat ${grandTotal.fat}g`
             }
             resultJson={{
@@ -595,7 +595,7 @@ function MealCard({
         <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl border border-[var(--edge)] bg-[var(--card)] p-3">
           <MiniStat label={isAr ? "سعرات" : "Cal"} value={totals.calories} unit="kcal" color="#ff9500" />
           <MiniStat label={isAr ? "بروتين" : "Pro"} value={totals.protein} unit="g" color="#34c759" />
-          <MiniStat label={isAr ? "كارب" : "Carb"} value={totals.carbs} unit="g" color="#0071e3" />
+          <MiniStat label={isAr ? "كربوهيدرات" : "Carb"} value={totals.carbs} unit="g" color="#0071e3" />
           <MiniStat label={isAr ? "دهون" : "Fat"} value={totals.fat} unit="g" color="#8b5cf6" />
         </div>
       )}

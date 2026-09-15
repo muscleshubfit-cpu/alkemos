@@ -81,7 +81,7 @@ export function ContactView() {
                 {isAr ? "دعم سريع" : "Quick Support"}
               </h3>
               <p className="mt-2 text-lg font-normal text-[var(--muted-foreground)]">
-                {isAr ? "سجل دخول وافتح تذكرة دعم من لوحة التحكم" : "Log in and open a support ticket from dashboard"}
+                {isAr ? "سجّل الدخول وافتح تذكرة دعم من لوحة التحكم" : "Log in and open a support ticket from dashboard"}
               </p>
             </div>
             <div>

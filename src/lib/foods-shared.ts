@@ -50,7 +50,7 @@ export type Food = {
 
 export const CATEGORY_LABELS: Record<FoodCategory, { ar: string; en: string; emoji: string; image: string }> = {
   protein: { ar: "بروتين", en: "Protein", emoji: "🥩", image: "/images/categories/foods/protein.png" },
-  carb: { ar: "كارب", en: "Carbs", emoji: "🍚", image: "/images/categories/foods/carb.png" },
+  carb: { ar: "كربوهيدرات", en: "Carbs", emoji: "🍚", image: "/images/categories/foods/carb.png" },
   fat: { ar: "دهون", en: "Fats", emoji: "🥑", image: "/images/categories/foods/fat.png" },
   vegetable: { ar: "خضار", en: "Vegetables", emoji: "🥦", image: "/images/categories/foods/vegetable.png" },
   fruit: { ar: "فواكه", en: "Fruits", emoji: "🍎", image: "/images/categories/foods/fruit.png" },
@@ -62,7 +62,7 @@ export const CATEGORY_LABELS: Record<FoodCategory, { ar: string; en: string; emo
 
 export const TAG_LABELS: Record<string, { ar: string; en: string; color: string }> = {
   "high-protein": { ar: "عالي البروتين", en: "High Protein", color: "#0071e3" },
-  "low-carb": { ar: "قليل الكارب", en: "Low Carb", color: "#34c759" },
+  "low-carb": { ar: "قليل الكربوهيدرات", en: "Low Carb", color: "#34c759" },
   "keto-friendly": { ar: "كيتو", en: "Keto", color: "#ff9500" },
   vegan: { ar: "نباتي", en: "Vegan", color: "#34c759" },
   vegetarian: { ar: "vegetarian", en: "Vegetarian", color: "#34c759" },

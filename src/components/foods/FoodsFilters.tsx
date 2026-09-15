@@ -113,7 +113,7 @@ export function FoodsFilters({
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--muted-foreground)]" htmlFor="food-max-carbs">
-              {isAr ? "حد أقصى للكارب (g/100g)" : "Max carbs (g/100g)"}
+              {isAr ? "حد أقصى للكربوهيدرات (g/100g)" : "Max carbs (g/100g)"}
             </label>
             <input
               id="food-max-carbs"

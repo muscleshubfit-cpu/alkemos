@@ -472,11 +472,11 @@ export default function CoachingPage() {
               <Accordion type="single" collapsible className="mt-12">
                 {[
                   { q: isAr ? "ما هو الكوتشينج في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
-                  { q: isAr ? "من هو EVO؟" : "Who is EVO?", a: isAr ? "محرك الأداء الذكي. ليس روبوت محادثة — يجيب على أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
+                  { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "محرك الأداء الذكي. ليس روبوت محادثة — يجيب على أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
                   { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، تُبنى كل خطة من استبياناتك على يد مدرب بشري، ويمكنك طلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
                   { q: isAr ? "هل المدربون حقيقيون؟" : "Are the coaches real?", a: isAr ? "نعم، مدربون حقيقيون يراجعون خططك بأنفسهم." : "Yes, real coaches review your plans personally." },
-                  { q: isAr ? "طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
-                  { q: isAr ? "بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم، مشفرة على Supabase مع RLS." : "Yes, encrypted on Supabase with RLS." },
+                  { q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
+                  { q: isAr ? "هل بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل." : "Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
                 ].map((faq, i) => (
                   <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
                     <AccordionTrigger className="py-5 text-start text-lg font-normal hover:no-underline">

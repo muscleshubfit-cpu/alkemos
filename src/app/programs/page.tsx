@@ -60,7 +60,7 @@ export default function ProgramsPage({ lang: langProp }: { lang?: Lang } = {}) {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "برامج تدريبية جاهزة لكل المستويات والأهداف — منزل، جيم، أو معدات بسيطة."
+              ? "برامج تدريبية جاهزة لكل المستويات والأهداف — في المنزل أو النادي الرياضي أو بمعدات بسيطة."
               : "Ready-to-use training programs for all levels and goals — home, gym, or minimal equipment."}
           </p>
         </div>

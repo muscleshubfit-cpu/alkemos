@@ -298,7 +298,7 @@ export default function CalorieCalculatorPage() {
                 <div className="text-center">
                   <p className="text-2xl font-semibold text-[var(--text)]">{result.carbs}g</p>
                   <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
-                    {isAr ? "كارب" : "Carbs"}
+                    {isAr ? "كربوهيدرات" : "Carbs"}
                   </p>
                 </div>
                 <div className="text-center">
@@ -337,7 +337,7 @@ export default function CalorieCalculatorPage() {
               toolSlug="calorie-calculator"
               resultSummary={
                 isAr
-                  ? `السعرات: ${result.target}/يوم · بروتين: ${result.protein}g · كارب: ${result.carbs}g · دهون: ${result.fat}g`
+                  ? `السعرات: ${result.target}/يوم · بروتين: ${result.protein}g · كربوهيدرات: ${result.carbs}g · دهون: ${result.fat}g`
                   : `Calories: ${result.target}/day · Protein: ${result.protein}g · Carbs: ${result.carbs}g · Fat: ${result.fat}g`
               }
               resultJson={result}

@@ -47,7 +47,7 @@ export async function generateMetadata({
   const name = coachDisplayName(data, "ar");
   const title = `${name} — ${copy.headline || "مدرب معتمد على Alkemos"}`;
   const description =
-    copy.bio.slice(0, 160) || `احجز متابعة خاصة مع ${name} على Alkemos`;
+    copy.bio.slice(0, 160) || `اشترك في متابعة خاصة مع ${name} على Alkemos`;
 
   return {
     title,

@@ -141,7 +141,7 @@ export function generateWorkoutPlan(ctx: ClientContext): WorkoutContent {
  تفاصيل البرنامج:
 • أيام التدريب: ${daysPerWeek} أيام/أسبوع
 • أيام الراحة: ${7 - daysPerWeek} أيام
-• مكان التدريب: ${isHome ? "المنزل" : "الجيم"}
+• مكان التدريب: ${isHome ? "المنزل" : "النادي الرياضي"}
 • المستوى: ${isBeginner ? "مبتدئ" : "متوسط/متقدم"}
 • إجمالي المجموعات الأسبوعية: ${totalVolume} مجموعة
 • عدد التمارين: ${trainingDays.reduce((s, d) => s + d.exercises.length, 0)} تمرين

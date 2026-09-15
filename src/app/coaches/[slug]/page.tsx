@@ -49,7 +49,7 @@ export async function generateMetadata({
   const name = coachDisplayName(data, "en");
   const title = `${name} — ${copy.headline || "Certified coach on Alkemos"}`;
   const description =
-    copy.bio.slice(0, 160) || `Book private coaching with ${name} on Alkemos`;
+    copy.bio.slice(0, 160) || `Coaching subscriptions with ${name} on Alkemos`;
 
   return {
     title,

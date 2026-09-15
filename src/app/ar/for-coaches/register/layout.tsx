@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "تسجيل مدرب — أنشئ حسابك المجاني | Alkemos",
   description:
     "سجّل كمدرب على Alkemos في دقيقة: تفعيل فوري بدون انتظار، أضف عملاءك وحدد أسعارك بنفسك واحصل منهم مباشرة — بدون أي نسبة من دخلك.",
-  keywords: ["تسجيل مدرب", "انشاء حساب كوتش", "انضم كمدرب"],
+  keywords: ["تسجيل مدرب", "إنشاء حساب مدرب", "انضم كمدرب"],
   alternates: {
     canonical: `${SITE_URL}/ar/for-coaches/register`,
     languages: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "تسجيل مدرب — Alkemos",
     description:
-      "أنشئ حسابك كمدرب مجانًا — تفعيل فوري، عملاؤك بأسعارك، وفلوسك بين يديك.",
+      "أنشئ حسابك كمدرب مجانًا — تفعيل فوري، عملاؤك بأسعارك، وأموالك بين يديك.",
     url: `${SITE_URL}/ar/for-coaches/register`,
     siteName: "Alkemos",
     locale: "ar_EG",

@@ -160,7 +160,7 @@ export default function FoodDetailClient({
                 </div>
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
                   <p className="text-sm font-semibold text-[#ff9500]">{food.per100g.carbs}g</p>
-                  <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "كارب" : "Carbs"}</p>
+                  <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "كربوهيدرات" : "Carbs"}</p>
                 </div>
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
                   <p className="text-sm font-semibold text-[#ff3b30]">{food.per100g.fat}g</p>
@@ -244,7 +244,7 @@ export default function FoodDetailClient({
               <div className="rounded-2xl bg-white p-4 text-center">
                 <p className="text-2xl font-semibold text-[#ff9500]">{nutrition.carbs}g</p>
                 <p className="mt-0.5 text-[10px] font-normal text-[#6e6e73]">
-                  {isAr ? "كارب" : "Carbs"}
+                  {isAr ? "كربوهيدرات" : "Carbs"}
                 </p>
               </div>
               <div className="rounded-2xl bg-white p-4 text-center">
@@ -279,7 +279,7 @@ export default function FoodDetailClient({
               {([
                 { macro: "calories", labelAr: "سعرات", labelEn: "Calories", color: "#0071e3", unit: "kcal" },
                 { macro: "protein", labelAr: "بروتين", labelEn: "Protein", color: "#34c759", unit: "g" },
-                { macro: "carbs", labelAr: "كارب", labelEn: "Carbs", color: "#ff9500", unit: "g" },
+                { macro: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", color: "#ff9500", unit: "g" },
                 { macro: "fat", labelAr: "دهون", labelEn: "Fat", color: "#ff3b30", unit: "g" },
               ] as const).map((m) => {
                 const per100 = food.per100g[m.macro as keyof typeof food.per100g];

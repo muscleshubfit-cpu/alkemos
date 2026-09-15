@@ -244,7 +244,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="seal-chip" style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}>
-                    {isAr ? "كوتش بشري" : "Human Coach"}
+                    {isAr ? "مدرب بشري" : "Human Coach"}
                   </span>
                   <h3 className="text-2xl font-bold tracking-tight">
                     {isAr ? coaching.nameAr : coaching.nameEn}
@@ -392,7 +392,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               {
                 q: isAr ? "هل الكوتشينج مشمول في Pro؟" : "Is coaching included in Pro?",
                 a: isAr
-                  ? "لا، الكوتشينج منفصل تماماً عن العضويات. Pro يعطيك صلاحيات المنصة، الكوتشينج مدرب بشري."
+                  ? "لا، الكوتشينج منفصل تماماً عن العضويات: Pro يمنحك مزايا المنصة، والكوتشينج يمنحك مدربًا بشريًا يتابعك شخصيًا."
                   : "No, coaching is completely separate from memberships. Pro gives you platform features, coaching gives you a human coach.",
               },
               {
@@ -402,8 +402,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                   : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). No account keeps your plan on this device; a free account saves it permanently in your account & syncs it across your devices. There is no temporary trial subscription — the Free tier is free forever.",
               },
               {
-                q: isAr ? "طرق الدفع؟" : "Payment methods?",
-                a: isAr ? "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ الطرق اليدوية تتطلب رفع إيصال يراجعه الكوتش خلال 24 ساعة." : "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt reviewed within 24 hours.",
+                q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?",
+                a: isAr ? "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ الطرق اليدوية تتطلب رفع إيصال يراجعه الفريق خلال 24 ساعة." : "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt reviewed within 24 hours.",
               },
             ].map((faq, i) => (
               <div key={i} className="marble-card p-5">

@@ -63,6 +63,10 @@ const TOOL_SURFACE_FILES = [
   "src/app/ar/faq/page.tsx",
   // — the main FAQ data —
   "src/lib/faq-content.ts",
+  // PHASE 204 (owner order 2026-09-15 — internal-pages MSA/terminology
+  // cleanup): the tools-hub data source renders on /tools — dialect and
+  // Latin law now cover the source itself, not just the hub page.
+  "src/lib/tools-shared.ts",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -229,6 +233,54 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
         `${rel} regressed to the مفيش dialect form`,
       ).toBe(false);
     }
+  });
+
+  // PHASE 204 (owner order 2026-09-15 — تنظيف وتوحيد النصوص في الصفحات
+  // الداخلية): the «كارب» colloquial abbreviation and the «اعرف هل»
+  // construction were retired from the tool surface — the homepage already
+  // reads «كربوهيدرات» / «اعرف إن كان» (Phase 203) and the internal tool
+  // surfaces now match it. Both classes stay dead, and the BMI hub entry
+  // keeps the approved phrasing.
+  it("CANARY Phase 204: «كارب» and «اعرف هل» stay dead on the tool surface", () => {
+    const KARB_FILES = [
+      "src/app/tools/macro-calculator/page.tsx",
+      "src/app/tools/calorie-calculator/page.tsx",
+      "src/app/meal-planner/page.tsx",
+      "src/app/ar/diet-plan/page.tsx",
+      "src/app/ar/tools/macro-calculator/layout.tsx",
+      "src/app/ar/tools/calorie-calculator/layout.tsx",
+      "src/app/ar/tools/bmi-calculator/layout.tsx",
+      "src/app/ar/meal-planner/layout.tsx",
+      "src/app/ar/foods/[slug]/page.tsx",
+      "src/app/foods/[slug]/FoodDetailClient.tsx",
+      "src/lib/tools-shared.ts",
+      "src/lib/foods-shared.ts",
+      "src/components/foods/FoodsFilters.tsx",
+      "src/lib/content/macro-calculator.ts",
+    ];
+    for (const rel of KARB_FILES) {
+      const src = readFileSync(rel, "utf8");
+      expect(
+        src.includes("كارب"),
+        `${rel}: the «كارب» abbreviation returned — the unified term is «كربوهيدرات»`,
+      ).toBe(false);
+    }
+    const KNOW_FILES = [
+      "src/app/tools/bmi-calculator/page.tsx",
+      "src/app/ar/tools/bmi-calculator/layout.tsx",
+      "src/lib/tools-shared.ts",
+    ];
+    for (const rel of KNOW_FILES) {
+      const src = readFileSync(rel, "utf8");
+      expect(
+        src.includes("اعرف هل"),
+        `${rel}: the «اعرف هل» construction returned — the approved form is «اعرف إن كان»`,
+      ).toBe(false);
+    }
+    // The unified terminology is present (grows-with-data phrases):
+    const toolsShared = readFileSync("src/lib/tools-shared.ts", "utf8");
+    expect(toolsShared).toContain("اعرف إن كان وزنك ضمن المعدل الصحي");
+    expect(toolsShared).toContain("وكربوهيدرات ودهون");
   });
 
   it("CANARY: the tokenizer really strips comments — a dialect word in a comment is never flagged", () => {

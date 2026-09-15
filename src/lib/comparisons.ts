@@ -117,7 +117,7 @@ export const COMPARISONS: Comparison[] = [
         labelEn: "Workout programs",
         labelAr: "برامج التدريب",
         alkemosValue: "Ready-made programs (home & gym, all levels)",
-        alkemosValueAr: "برامج جاهزة (للمنزل والجيم، كل المستويات)",
+        alkemosValueAr: "برامج جاهزة (للمنزل والنادي الرياضي، كل المستويات)",
         competitorValue: "No workout programs",
         competitorValueAr: "لا توجد برامج تدريب",
         outcome: "win",

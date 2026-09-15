@@ -18,7 +18,7 @@ type DietType = "balanced" | "low_carb" | "high_protein" | "keto" | "low_fat";
 
 const DIET_PRESETS: Record<DietType, { protein: number; carbs: number; fat: number; label_ar: string; label_en: string }> = {
   balanced: { protein: 30, carbs: 40, fat: 30, label_ar: "متوازن", label_en: "Balanced" },
-  low_carb: { protein: 40, carbs: 20, fat: 40, label_ar: "قليل الكارب", label_en: "Low Carb" },
+  low_carb: { protein: 40, carbs: 20, fat: 40, label_ar: "قليل الكربوهيدرات", label_en: "Low Carb" },
   high_protein: { protein: 45, carbs: 35, fat: 20, label_ar: "عالي البروتين", label_en: "High Protein" },
   keto: { protein: 25, carbs: 5, fat: 70, label_ar: "كيتو", label_en: "Keto" },
   low_fat: { protein: 35, carbs: 55, fat: 10, label_ar: "قليل الدهون", label_en: "Low Fat" },
@@ -62,7 +62,7 @@ export default function MacroCalculatorPage() {
             {isAr ? "حاسبة الماكروز" : "Macro Calculator"}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
-            {isAr ? "وزّع سعراتك على بروتين وكارب ودهون حسب نظامك الغذائي." : "Split your calories into protein, carbs, and fat."}
+            {isAr ? "وزّع سعراتك على بروتين وكربوهيدرات ودهون حسب نظامك الغذائي." : "Split your calories into protein, carbs, and fat."}
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function MacroCalculatorPage() {
               </div>
               <div className="rounded-[var(--radius-chrome)] bg-black p-6 text-center text-white">
                 <p className="text-3xl font-semibold tracking-tight">{result.carbs_g}g</p>
-                <p className="mt-1 text-xs font-normal text-gray-400">{isAr ? "كارب" : "Carbs"}</p>
+                <p className="mt-1 text-xs font-normal text-gray-400">{isAr ? "كربوهيدرات" : "Carbs"}</p>
                 <p className="mt-1 text-xs font-normal text-gray-500">{result.carbs_cal} {isAr ? "سعرة" : "cal"}</p>
               </div>
               <div className="rounded-3xl bg-[var(--muted-foreground)] p-6 text-center text-white">
@@ -129,7 +129,7 @@ export default function MacroCalculatorPage() {
               toolSlug="macro-calculator"
               resultSummary={
                 isAr
-                  ? `السعرات: ${calories} · ${DIET_PRESETS[diet].label_ar} · بروتين: ${result.protein_g}g · كارب: ${result.carbs_g}g · دهون: ${result.fat_g}g`
+                  ? `السعرات: ${calories} · ${DIET_PRESETS[diet].label_ar} · بروتين: ${result.protein_g}g · كربوهيدرات: ${result.carbs_g}g · دهون: ${result.fat_g}g`
                   : `Calories: ${calories} · ${DIET_PRESETS[diet].label_en} · Protein: ${result.protein_g}g · Carbs: ${result.carbs_g}g · Fat: ${result.fat_g}g`
               }
               resultJson={{ ...result, calories, diet }}
@@ -140,7 +140,7 @@ export default function MacroCalculatorPage() {
               <ShareButtons
                 title={
                   isAr
-                    ? `ماكروزي: بروتين ${result.protein_g}g · كارب ${result.carbs_g}g · دهون ${result.fat_g}g | Alkemos`
+                    ? `ماكروزي: بروتين ${result.protein_g}g · كربوهيدرات ${result.carbs_g}g · دهون ${result.fat_g}g | Alkemos`
                     : `My macros: Protein ${result.protein_g}g · Carbs ${result.carbs_g}g · Fat ${result.fat_g}g | Alkemos`
                 }
               />

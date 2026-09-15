@@ -42,7 +42,7 @@ export default function ForCoachesPage() {
   const REGISTER_HREF = isAr ? `/ar${REGISTER_HREF_BASE}` : REGISTER_HREF_BASE;
 
   const shareMsg = isAr
-    ? "اعمل كمدرب على Alkemos — عملاؤك بأسعارك وفلوسك في يدك:"
+    ? "اعمل كمدرب على Alkemos — عملاؤك بأسعارك وأموالك بين يديك:"
     : "Coach on Alkemos — your clients, your prices, your money:";
 
   return (
@@ -57,14 +57,14 @@ export default function ForCoachesPage() {
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 pt-10 md:grid-cols-2 md:pt-16">
         <div>
           <span className="seal-chip">
-            {isAr ? "للكوتشات وأخصائيي التغذية" : "For coaches & nutrition specialists"}
+            {isAr ? "للمدربين وأخصائيي التغذية" : "For coaches & nutrition specialists"}
           </span>
           <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight md:text-5xl md:leading-tight">
             {isAr ? (
               <>
                 درِّب عملاءك بأسعارك
                 <br />
-                وفلوسك في يدك
+                وأموالك بين يديك
               </>
             ) : (
               <>
@@ -102,7 +102,7 @@ export default function ForCoachesPage() {
         <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-2xl shadow-[#1d1d1f]/10">
           <Image
             src={heroCoach}
-            alt={isAr ? "مدرب شخصي في الجيم" : "Personal trainer in the gym"}
+            alt={isAr ? "مدرب شخصي في النادي الرياضي" : "Personal trainer in the gym"}
             className="h-auto w-full object-cover"
             priority
             sizes="(max-width: 768px) 90vw, 420px"
@@ -274,7 +274,7 @@ export default function ForCoachesPage() {
       <section id="how" className="mx-auto max-w-6xl px-4 pb-16 md:pb-20">
         <div className="text-center">
           <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-            {isAr ? "ابدأ شغلك في 4 خطوات" : "Start in 4 steps"}
+            {isAr ? "ابدأ عملك في 4 خطوات" : "Start in 4 steps"}
           </h2>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-4">
@@ -332,7 +332,7 @@ export default function ForCoachesPage() {
           },
           {
             img: imgDumbbell,
-            alt: isAr ? "دمبل في الجيم" : "Dumbbells in the gym",
+            alt: isAr ? "دمبل في النادي الرياضي" : "Dumbbells in the gym",
             t: isAr ? "برامج تمارين من مكتبة 868+ تمرين" : "Workout programs from an 868+ exercise library",
             b: isAr
               ? "برامج تمارين متكيّفة بمستويات مختلفة، ومكتبة تمارين مشروحة بالفيديو يمكنك بناء أي جلسة منها — ويمكنك أيضًا إعادة توليد أي يوم تدريبي كامل أو استبدال أي تمرين بالذكاء الاصطناعي."
@@ -363,7 +363,7 @@ export default function ForCoachesPage() {
       <section id="faq" className="mx-auto max-w-4xl px-4 pb-16 md:pb-20">
         <div className="text-center">
           <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-            {isAr ? "أسئلة الكوتشات" : "Coach FAQs"}
+            {isAr ? "أسئلة المدربين" : "Coach FAQs"}
           </h2>
         </div>
         <div className="mt-10 space-y-4">

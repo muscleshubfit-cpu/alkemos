@@ -104,7 +104,7 @@ export default function BMICalculatorPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "احسب مؤشر كتلة الجسم (BMI) واعرف هل وزنك مثالي."
+              ? "احسب مؤشر كتلة الجسم (BMI) واعرف إن كان وزنك مثاليًا."
               : "Calculate your Body Mass Index (BMI) and check if your weight is healthy."}
           </p>
         </div>

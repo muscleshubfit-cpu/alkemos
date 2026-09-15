@@ -257,7 +257,7 @@ export default function EvoPage() {
                 {isAr ? "المقارنة" : "Comparison"}
               </div>
               <div className="border-s border-[var(--edge)] p-4 text-center text-xs font-medium text-[var(--muted-foreground)]">
-                {isAr ? "شات بوت عادي" : "Regular Chatbot"}
+                {isAr ? "روبوت محادثة عادي" : "Regular Chatbot"}
               </div>
               <div className="p-4 text-center text-xs font-semibold uppercase tracking-wider text-[var(--text)]">
                 EVO
@@ -655,7 +655,7 @@ export default function EvoPage() {
             {isAr ? "شارك صفحة EVO" : "Share EVO page"}
           </p>
           <ShareButtons
-            title={isAr ? "EVO — كوتش ذكاء اصطناعي | Alkemos" : "EVO — AI Coach | Alkemos"}
+            title={isAr ? "EVO — مدرب ذكاء اصطناعي | Alkemos" : "EVO — AI Coach | Alkemos"}
             text={isAr ? "محرك أداء ذكي ليس مجرد روبوت محادثة — متاح للجميع" : "An intelligent performance engine, not just a chatbot — available to everyone"}
           />
         </div>

@@ -50,7 +50,7 @@ export type WorkoutProgram = {
 export const LOCATION_LABELS: Record<ProgramLocation, { ar: string; en: string; emoji: string }> = {
   home: { ar: "المنزل (بدون معدات)", en: "Home (No Equipment)", emoji: "🏠" },
   "home-equipment": { ar: "المنزل (بمعدات بسيطة)", en: "Home (Minimal Equipment)", emoji: "🏡" },
-  gym: { ar: "الجيم", en: "Gym", emoji: "🏋️" },
+  gym: { ar: "النادي الرياضي", en: "Gym", emoji: "🏋️" },
 };
 
 export const LEVEL_LABELS: Record<ProgramLevel, { ar: string; en: string; color: string }> = {
@@ -93,7 +93,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     nameAr: "برنامج المنزل للمبتدئين — كامل الجسم",
     nameEn: "Home Beginner Full Body",
     descriptionAr:
-      "برنامج 3 أيام في الأسبوع بالوزن الجسم بدون أي معدات. مثالي للمبتدئين اللي عايزين يبدأوا رحلتهم من المنزل.",
+      "برنامج 3 أيام في الأسبوع بوزن الجسم دون أي معدات. مثالي للمبتدئين الذين يبدأون رحلتهم من المنزل.",
     descriptionEn:
       "3-day-per-week bodyweight program with zero equipment. Perfect for beginners starting their fitness journey at home.",
     location: "home",
@@ -173,7 +173,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     nameAr: "حرق دهون — HIIT منزلي",
     nameEn: "Fat Loss — Home HIIT",
     descriptionAr:
-      "برنامج HIIT مكثف 4 أيام/أسبوع لحرق الدهون بسرعة. كل تمرينة 20-30 دقيقة فقط. للناس المتوسطة واللي عندها أساس.",
+      "برنامج HIIT مكثف 4 أيام/أسبوع لحرق الدهون بسرعة، بجلسات من 20-30 دقيقة فقط. مخصص للمستوى المتوسط ممن لديهم أساس تدريبي.",
     descriptionEn:
       "Intense 4-day/week HIIT program for fast fat loss. Each session only 20-30 minutes. For intermediate level with some base.",
     location: "home",
@@ -190,10 +190,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — كامل الجسم",
         titleEn: "HIIT — Full Body",
         exercises: [
-          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 5, reps: "40 ثانية شغل / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 5, reps: "40 ثانية جهد / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 5, reps: "40 ثانية جهد / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "40 ثانية جهد / 20 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 5, reps: "40 ثانية جهد / 20 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -208,10 +208,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — كور + كارديو",
         titleEn: "HIIT — Core + Cardio",
         exercises: [
-          { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -226,10 +226,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — أرجل + قوة",
         titleEn: "HIIT — Legs + Strength",
         exercises: [
-          { exerciseSlug: "bodyweight-walking-lunge", nameAr: "طعن متحرك بوزن الجسم", nameEn: "Bodyweight Walking Lunge", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "dips-triceps-version", nameAr: "ديبس", nameEn: "Dips", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "45 ثانية شغل / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "bodyweight-walking-lunge", nameAr: "طعن متحرك بوزن الجسم", nameEn: "Bodyweight Walking Lunge", sets: 5, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "pushups", nameAr: "ضغط أرضي", nameEn: "Push-up", sets: 5, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "dips-triceps-version", nameAr: "ديبس", nameEn: "Dips", sets: 5, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "star-jump", nameAr: "قفزة النجمة", nameEn: "Star Jump", sets: 5, reps: "45 ثانية جهد / 15 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
       {
@@ -244,11 +244,11 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleAr: "HIIT — تحدي كامل",
         titleEn: "HIIT — Full Challenge",
         exercises: [
-          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
-          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 4, reps: "30 ثانية شغل / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "frog-hops", nameAr: "قفزات الضفدع", nameEn: "Frog Hops", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
+          { exerciseSlug: "fast-skipping", nameAr: "تخطي سريع", nameEn: "Fast Skipping", sets: 4, reps: "30 ثانية جهد / 30 ثانية راحة", restAr: "—", restEn: "—" },
         ],
       },
     ],
@@ -258,7 +258,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     nameAr: "تخصص كور منزلي",
     nameEn: "Home Core Specialization",
     descriptionAr:
-      "برنامج 4 أيام/أسبوع لتمرين الكور والبطن بعمق. مناسب لكل المستويات، يقدر المبتدئ يخفف الأعداد.",
+      "برنامج 4 أيام/أسبوع لتمرين عضلات الجذع والبطن بعمق، مناسب لكل المستويات، ويمكن للمبتدئين تخفيف الأعداد.",
     descriptionEn:
       "4-day/week program for deep core and abs training. Suitable for all levels, beginners can reduce reps.",
     location: "home",
@@ -342,7 +342,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     nameAr: "Push Pull Legs — دمبل منزلي",
     nameEn: "Push Pull Legs — Home Dumbbell",
     descriptionAr:
-      "برنامج PPL بـ 6 أيام/أسبوع باستخدام الدمبل بس. مثالي للي عنده دمبل في البيت وعايز يبني عضلات.",
+      "برنامج PPL بمعدل 6 أيام/أسبوع باستخدام الدمبل فقط، مثالي لمن لديه دمبل في المنزل ويريد بناء العضلات.",
     descriptionEn:
       "6-day/week PPL program using only dumbbells. Ideal for those with dumbbells at home who want to build muscle.",
     location: "home-equipment",
@@ -430,10 +430,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
   // ==================== GYM ====================
   {
     slug: "gym-beginner-fullbody",
-    nameAr: "جيم مبتدئ — كامل الجسم",
+    nameAr: "برنامج النادي للمبتدئين — كامل الجسم",
     nameEn: "Gym Beginner Full Body",
     descriptionAr:
-      "برنامج 3 أيام/أسبوع في الجيم لأساسيات بناء القوة والعضلات. يناسب المبتدئين اللي بدأوا في الجيم.",
+      "برنامج 3 أيام/أسبوع في النادي الرياضي لأساسيات بناء القوة والعضلات، يناسب المبتدئين في النادي.",
     descriptionEn:
       "3-day/week gym program for foundational strength and muscle building. Suitable for gym beginners.",
     location: "gym",
@@ -442,7 +442,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     durationWeeks: 8,
     daysPerWeek: 3,
     image: IMAGES.gymBeginner,
-    imageAltAr: "تمرين جيم",
+    imageAltAr: "تمرين في النادي الرياضي",
     imageAltEn: "Gym workout",
     days: [
       {
@@ -510,10 +510,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
   },
   {
     slug: "gym-ppl-intermediate",
-    nameAr: "Push Pull Legs — جيم متوسط",
+    nameAr: "Push Pull Legs — نادي رياضي متوسط",
     nameEn: "Push Pull Legs — Gym Intermediate",
     descriptionAr:
-      "برنامج PPL كلاسيكي 6 أيام/أسبوع في الجيم لتضخيم عضلي. مناسب للمتدرب المتوسط اللي عايز يبني حجم عضلي.",
+      "برنامج PPL كلاسيكي بمعدل 6 أيام/أسبوع في النادي الرياضي للتضخيم العضلي، مناسب للمتدرب المتوسط الذي يريد بناء كتلة عضلية.",
     descriptionEn:
       "Classic 6-day/week PPL gym program for hypertrophy. Suitable for intermediate trainees looking to build muscle mass.",
     location: "gym",
@@ -522,7 +522,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     durationWeeks: 12,
     daysPerWeek: 6,
     image: IMAGES.gymHypertrophy,
-    imageAltAr: "تضخيم عضلي في الجيم",
+    imageAltAr: "تضخيم عضلي في النادي الرياضي",
     imageAltEn: "Hypertrophy gym training",
     days: [
       {
@@ -601,10 +601,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
   },
   {
     slug: "gym-strength-5x5",
-    nameAr: "قوة 5×5 — جيم متقدم",
+    nameAr: "قوة 5×5 — نادي رياضي متقدم",
     nameEn: "Strength 5×5 — Gym Advanced",
     descriptionAr:
-      "برنامج قوة كلاسيكي 5×5 لتعلية الأوزان الثقيلة. 3 أيام/أسبوع، تركيز على البنش والسكوات والديدليفت. للمتقدمين.",
+      "برنامج قوة كلاسيكي 5×5 لرفع الأوزان الثقيلة تدريجيًا. 3 أيام/أسبوع، تركيز على البنش والسكوات والديدليفت. للمتقدمين.",
     descriptionEn:
       "Classic 5×5 strength program for lifting heavy. 3 days/week, focused on bench, squat, and deadlift. For advanced trainees.",
     location: "gym",
