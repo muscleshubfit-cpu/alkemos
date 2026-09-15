@@ -4331,4 +4331,8 @@ docs_audit (phase=210, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-re
 Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
 
 ### Post-push sanity (light — HTML unchanged by construction)
-[TO BE APPENDED AFTER PUSH: build-info commit + homepage 200]
+build-info carried 634fe96 ~25s after the push (checkedAt 2026-09-15T20:14:39Z — Vercel auto-deploy;
+zero HTML diff by construction). Live pages with Cloudflare cache-buster: / = 200 (title intact:
+«Alkemos — The Smart Fitness & Nutrition Platform») · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200
+(the single 308 seen was only the trailing-slash redirect of the test URL shape /ar/ → /ar).
+No independent live-verification round needed for a docs-only batch.
