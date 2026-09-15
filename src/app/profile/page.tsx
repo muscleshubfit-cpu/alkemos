@@ -1043,7 +1043,7 @@ function SavedMealPlansSection({ isAr, userId }: { isAr: boolean; userId?: strin
                         {p.title || (isAr ? "جدول وجبات" : "Meal Plan")}
                       </p>
                       <p className="mt-0.5 text-xs font-normal text-[#6e6e73]" dir="ltr">
-                        {totals.calories} kcal · P{totals.protein}g · C{totals.carbs}g · F{totals.fat}g · {mealCount} {isAr ? "وجبات" : "meals"} · {new Date(p.created_at ?? "").toLocaleDateString()}
+                        {totals.calories}{isAr ? " كالوري" : " kcal"} · P{totals.protein}{isAr ? " جم" : "g"} · C{totals.carbs}{isAr ? " جم" : "g"} · F{totals.fat}{isAr ? " جم" : "g"} · {mealCount} {isAr ? "وجبات" : "meals"} · {new Date(p.created_at ?? "").toLocaleDateString()}
                       </p>
                     </div>
                   </button>

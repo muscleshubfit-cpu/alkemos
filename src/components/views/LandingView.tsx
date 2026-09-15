@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useI18n } from "@/lib/i18n";
+import { weeksUnitAr } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Accordion,
@@ -366,12 +367,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               visitor (free tools, real libraries, EVO) and what the free
               account adds. A simple intro, not a sales pitch. */}
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي." : "Train smarter. Eat with precision. Progress with intelligence."}
+            {isAr ? "تدرّب بذكاء، كُل بوعي، وتقدّم نحو هدفك كل يوم." : "Train smarter. Eat smarter. Progress with numbers on your side."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? "أدوات مجانية، ومكتبات حقيقية للتمارين والأطعمة، وEVO مدربك الذكي — ابدأ فورًا، وأنشئ حسابًا مجانيًا لتحفظ خططك."
-              : "Free tools, real exercise and food libraries, and EVO — your smart coach. Start right away; create a free account to keep your plans."}
+              ? "حاسبات سعرات وماكروز مجانية، 868+ تمرين بالشرح والصور، قاعدة أطعمة بأكثر من 8,830 صنف، وEVO مدربك الذكي 24/7 — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها."
+              : "Free calorie & macro calculators, 868+ exercises, 8,830+ foods with nutrition facts, and EVO, your 24/7 AI coach. Start free — create an account only to save and sync your plans."}
           </p>
 
           {/* Phase 203 account-action CTA pair: guests (most homepage
@@ -413,7 +414,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </span>
             <span className="seal-chip">
               <EngravedIcon name="hydration" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${FOODS_PLUS} صنفًا غذائيًا` : `${FOODS_PLUS} FOODS`}
+              {isAr ? `${FOODS_PLUS} صنف غذائي بالسعرات والماكروز` : `${FOODS_PLUS} foods with calories & macros`}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="calories" alt="" size={14} className="h-3 w-3" />
@@ -421,11 +422,21 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </span>
             <span className="seal-chip">
               <EngravedIcon name="evo" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "EVO مدرب ذكي 24/7" : "EVO AI COACH 24/7"}
+              {isAr ? "EVO مدربك الذكي — متاح 24/7" : "EVO — your AI coach, 24/7"}
             </span>
           </div>
         </div>
       </section>
+
+      {/* GEO paragraph (owner order 2026-09-16): a factual platform
+          summary directly after the hero — what Alkemos is and what a
+          visitor can do with zero account/payment. Bilingual, text only;
+          no links, structure, or icons touched. */}
+      <p className="mx-auto max-w-2xl px-4 pb-6 pt-8 text-center text-xs font-normal leading-relaxed md:text-sm" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? "منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع."
+          : "Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required."}
+      </p>
 
       {/* Greek meander divider — mission §4 */}
       <div className="meander-divider" aria-hidden="true" />
@@ -503,7 +514,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <div className="text-center">
             <Reveal>
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "اعرف ما يحتاجه جسمك بالأرقام" : "Know What Your Body Needs — In Numbers"}
+                {isAr ? "احسب احتياجك اليومي من السعرات والماكروز خلال ثوانٍ" : "Your Daily Targets, Calculated in Seconds"}
               </h2>
             </Reveal>
             <Reveal delay={100}>
@@ -522,7 +533,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 </span>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "خطتك، مصممة لك." : "Your plan. Built for you."}
+                    {isAr ? "خطة تناسبك أنت — لا قوالب جاهزة عامة" : "A plan built around your goals — not generic templates"}
                   </h3>
                   <p className="mt-2 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
                     {isAr
@@ -533,8 +544,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                       to a small secondary line (Phase 194 benefit-first). */}
                   <p className="mt-2 text-xs font-normal leading-relaxed md:text-sm" style={{ color: PALETTE.textMuted }}>
                     {isAr
-                      ? "توليدان ناجحان شهريًا لكل زائر، ويُحتسب التوليد الناجح فقط · بدون حساب تبقى خطتك على جهازك · بحساب مجاني تُحفظ وتتزامن عبر أجهزتك · والباقات المدفوعة تمنح إدارة أوسع حسب باقتك."
-                      : "2 successful generations/month for every visitor, success-only counting · No account: your plan stays on this device · Free account: saved & synced across devices · Paid tiers add broader management per plan."}
+                      ? "خططك تبقى على جهازك بدون حساب، وتُحفظ وتتزامن عبر أجهزتك مع الحساب المجاني — والباقة المدفوعة تمنحك إدارة أوسع."
+                      : "No account? Your plan stays on this device. Free account? Saved and synced across devices. Paid tiers add fuller plan management."}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">
@@ -796,7 +807,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   {isAr ? "كوتشينج أونلاين" : "ONLINE COACHING"}
                 </span>
                 <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white md:text-4xl">
-                  {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not Just a PDF"}
+                  {isAr ? "كوتشينج حقيقي، لا مجرد PDF" : "Real Coaching, Not a One-Time PDF"}
                 </h2>
                 <p className="mx-auto mt-4 max-w-xl text-base font-normal leading-relaxed md:text-lg lg:mx-0" style={{ color: "#B9BEC4" }}>
                   {isAr
@@ -1072,11 +1083,11 @@ function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }
           <span style={{ color: PALETTE.textMuted }}>{isAr ? "كالوري" : "kcal"}</span>
         </div>
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-          <span className="block font-semibold text-[#34c759]">{food.protein}g</span>
+          <span className="block font-semibold text-[#34c759]">{isAr ? `${food.protein} جم` : `${food.protein}g`}</span>
           <span style={{ color: PALETTE.textMuted }}>{isAr ? "بروتين" : "protein"}</span>
         </div>
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-          <span className="block font-semibold text-[#ff9500]">{food.carbs}g</span>
+          <span className="block font-semibold text-[#ff9500]">{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</span>
           <span style={{ color: PALETTE.textMuted }}>{isAr ? "كارب" : "carbs"}</span>
         </div>
       </div>
@@ -1125,7 +1136,7 @@ function LandingProgramCard({ prog, isAr }: { prog: HomeProgramSample; isAr: boo
         <p className="mt-2 text-xs font-medium" style={{ color: PALETTE.textSec }}>
           {isAr ? prog.locationLabelAr : prog.locationLabelEn}
           <span aria-hidden="true" style={{ opacity: 0.4 }}> · </span>
-          {isAr ? `${prog.durationWeeks} أسابيع · ${prog.daysPerWeek} أيام/أسبوع` : `${prog.durationWeeks} weeks · ${prog.daysPerWeek} days/week`}
+          {isAr ? `${prog.durationWeeks} ${weeksUnitAr(prog.durationWeeks)} · ${prog.daysPerWeek} أيام/أسبوع` : `${prog.durationWeeks} weeks · ${prog.daysPerWeek} days/week`}
         </p>
         <p className="chrome-text mt-4 text-sm font-semibold">{isAr ? "استكشف البرنامج ›" : "Explore program ›"}</p>
       </div>

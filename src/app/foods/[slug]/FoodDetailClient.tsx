@@ -140,14 +140,14 @@ export default function FoodDetailClient({
                 {isAr ? "الحصة الافتراضية" : "Default serving"}
               </p>
               <p className="mt-0.5 text-sm font-semibold">
-                {isAr ? food.defaultServingAr : food.defaultServingEn} ({food.defaultGrams}g)
+                {isAr ? `${food.defaultServingAr} (${food.defaultGrams} جم)` : `${food.defaultServingEn} (${food.defaultGrams}g)`}
               </p>
             </div>
 
             {/* Per 100g reference */}
             <div className="mt-4">
               <p className="text-xs font-medium text-[#6e6e73]">
-                {isAr ? "القيم الغذائية لكل 100g:" : "Nutrition per 100g:"}
+                {isAr ? "القيم الغذائية لكل 100 جم:" : "Nutrition per 100g:"}
               </p>
               <div className="mt-2 grid grid-cols-4 gap-2">
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
@@ -155,15 +155,15 @@ export default function FoodDetailClient({
                   <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "سعرة" : "kcal"}</p>
                 </div>
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
-                  <p className="text-sm font-semibold text-[#34c759]">{food.per100g.protein}g</p>
+                  <p className="text-sm font-semibold text-[#34c759]">{isAr ? `${food.per100g.protein} جم` : `${food.per100g.protein}g`}</p>
                   <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "بروتين" : "Protein"}</p>
                 </div>
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
-                  <p className="text-sm font-semibold text-[#ff9500]">{food.per100g.carbs}g</p>
+                  <p className="text-sm font-semibold text-[#ff9500]">{isAr ? `${food.per100g.carbs} جم` : `${food.per100g.carbs}g`}</p>
                   <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "كربوهيدرات" : "Carbs"}</p>
                 </div>
                 <div className="rounded-lg bg-[#f5f5f7] p-2 text-center">
-                  <p className="text-sm font-semibold text-[#ff3b30]">{food.per100g.fat}g</p>
+                  <p className="text-sm font-semibold text-[#ff3b30]">{isAr ? `${food.per100g.fat} جم` : `${food.per100g.fat}g`}</p>
                   <p className="text-[10px] font-normal text-[#6e6e73]">{isAr ? "دهون" : "Fat"}</p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function FoodDetailClient({
                 min="0"
                 className="w-24 rounded-lg border border-[#d2d2d7] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[#0071e3]"
               />
-              <span className="text-sm font-normal text-[#6e6e73]">g</span>
+              <span className="text-sm font-normal text-[#6e6e73]">{isAr ? "جم" : "g"}</span>
             </div>
 
             {/* Quick presets */}
@@ -220,7 +220,7 @@ export default function FoodDetailClient({
                       : "bg-white text-[#6e6e73] hover:text-[#1d1d1f]"
                   }`}
                 >
-                  {g}g
+                  {g}{isAr ? " جم" : "g"}
                 </button>
               ))}
             </div>
@@ -236,25 +236,25 @@ export default function FoodDetailClient({
                 </p>
               </div>
               <div className="rounded-2xl bg-white p-4 text-center">
-                <p className="text-2xl font-semibold text-[#34c759]">{nutrition.protein}g</p>
+                <p className="text-2xl font-semibold text-[#34c759]">{isAr ? `${nutrition.protein} جم` : `${nutrition.protein}g`}</p>
                 <p className="mt-0.5 text-[10px] font-normal text-[#6e6e73]">
                   {isAr ? "بروتين" : "Protein"}
                 </p>
               </div>
               <div className="rounded-2xl bg-white p-4 text-center">
-                <p className="text-2xl font-semibold text-[#ff9500]">{nutrition.carbs}g</p>
+                <p className="text-2xl font-semibold text-[#ff9500]">{isAr ? `${nutrition.carbs} جم` : `${nutrition.carbs}g`}</p>
                 <p className="mt-0.5 text-[10px] font-normal text-[#6e6e73]">
                   {isAr ? "كربوهيدرات" : "Carbs"}
                 </p>
               </div>
               <div className="rounded-2xl bg-white p-4 text-center">
-                <p className="text-2xl font-semibold text-[#ff3b30]">{nutrition.fat}g</p>
+                <p className="text-2xl font-semibold text-[#ff3b30]">{isAr ? `${nutrition.fat} جم` : `${nutrition.fat}g`}</p>
                 <p className="mt-0.5 text-[10px] font-normal text-[#6e6e73]">
                   {isAr ? "دهون" : "Fat"}
                 </p>
               </div>
               <div className="col-span-2 rounded-2xl bg-white p-4 text-center sm:col-span-1">
-                <p className="text-2xl font-semibold text-[#8b5cf6]">{nutrition.fiber}g</p>
+                <p className="text-2xl font-semibold text-[#8b5cf6]">{isAr ? `${nutrition.fiber} جم` : `${nutrition.fiber}g`}</p>
                 <p className="mt-0.5 text-[10px] font-normal text-[#6e6e73]">
                   {isAr ? "ألياف" : "Fiber"}
                 </p>
@@ -277,10 +277,10 @@ export default function FoodDetailClient({
             {/* Macro type selector + custom input */}
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {([
-                { macro: "calories", labelAr: "سعرات", labelEn: "Calories", color: "#0071e3", unit: "kcal" },
-                { macro: "protein", labelAr: "بروتين", labelEn: "Protein", color: "#34c759", unit: "g" },
-                { macro: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", color: "#ff9500", unit: "g" },
-                { macro: "fat", labelAr: "دهون", labelEn: "Fat", color: "#ff3b30", unit: "g" },
+                { macro: "calories", labelAr: "سعرات", labelEn: "Calories", color: "#0071e3", unit: "kcal", unitAr: "كالوري" },
+                { macro: "protein", labelAr: "بروتين", labelEn: "Protein", color: "#34c759", unit: "g", unitAr: "جم" },
+                { macro: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", color: "#ff9500", unit: "g", unitAr: "جم" },
+                { macro: "fat", labelAr: "دهون", labelEn: "Fat", color: "#ff3b30", unit: "g", unitAr: "جم" },
               ] as const).map((m) => {
                 const per100 = food.per100g[m.macro as keyof typeof food.per100g];
                 const targetValue = customTarget.macro === m.macro ? customTarget.value : "";
@@ -303,7 +303,7 @@ export default function FoodDetailClient({
                       <span style={{ color: m.color }}>
                         {isAr ? m.labelAr : m.labelEn}
                       </span>
-                      <span className="text-[10px] text-[#6e6e73]">{m.unit}</span>
+                      <span className="text-[10px] text-[#6e6e73]">{isAr ? m.unitAr : m.unit}</span>
                     </button>
                     <input
                       type="number"
@@ -318,7 +318,7 @@ export default function FoodDetailClient({
                         onClick={() => setGrams(gramsNeeded)}
                         className="mt-1 w-full rounded-lg bg-[#0071e3] px-2 py-1 text-[10px] font-medium text-white hover:bg-[#0058b9]"
                       >
-                        {isAr ? "اضبط" : "Set"} {gramsNeeded}g →
+                        {isAr ? "اضبط" : "Set"} {gramsNeeded}{isAr ? " جم" : "g"} →
                       </button>
                     )}
                   </div>
@@ -333,13 +333,13 @@ export default function FoodDetailClient({
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  { macro: "protein", label: "30g protein", target: 30 },
-                  { macro: "protein", label: "50g protein", target: 50 },
-                  { macro: "carbs", label: "50g carbs", target: 50 },
-                  { macro: "carbs", label: "100g carbs", target: 100 },
-                  { macro: "fat", label: "20g fat", target: 20 },
-                  { macro: "calories", label: "300 kcal", target: 300 },
-                  { macro: "calories", label: "500 kcal", target: 500 },
+                  { macro: "protein", label: "30g protein", labelAr: "30 جم بروتين", target: 30 },
+                  { macro: "protein", label: "50g protein", labelAr: "50 جم بروتين", target: 50 },
+                  { macro: "carbs", label: "50g carbs", labelAr: "50 جم كربوهيدرات", target: 50 },
+                  { macro: "carbs", label: "100g carbs", labelAr: "100 جم كربوهيدرات", target: 100 },
+                  { macro: "fat", label: "20g fat", labelAr: "20 جم دهون", target: 20 },
+                  { macro: "calories", label: "300 kcal", labelAr: "300 كالوري", target: 300 },
+                  { macro: "calories", label: "500 kcal", labelAr: "500 كالوري", target: 500 },
                 ].map((preset) => {
                   const per100 = food.per100g[preset.macro as keyof typeof food.per100g];
                   const gramsNeeded = per100 > 0 ? Math.round((preset.target / per100) * 100) : 0;
@@ -350,9 +350,9 @@ export default function FoodDetailClient({
                       disabled={gramsNeeded === 0 || gramsNeeded > 2000}
                       className="rounded-full bg-[#0071e3]/10 px-3 py-1 text-[11px] font-medium text-[#0071e3] transition-colors hover:bg-[#0071e3]/20 disabled:opacity-40"
                     >
-                      {preset.label}
+                      {isAr ? preset.labelAr : preset.label}
                       {gramsNeeded > 0 && gramsNeeded <= 2000 && (
-                        <span className="ms-1 text-[#6e6e73]">→ {gramsNeeded}g</span>
+                        <span className="ms-1 text-[#6e6e73]">→ {gramsNeeded}{isAr ? " جم" : "g"}</span>
                       )}
                     </button>
                   );
@@ -369,7 +369,7 @@ export default function FoodDetailClient({
           </p>
           <ShareButtons
             title={isAr ? `${food.nameAr} | Alkemos` : `${food.nameEn} | Alkemos`}
-            text={isAr ? `${food.per100g.calories} سعرة و ${food.per100g.protein}g بروتين لكل 100g` : `${food.per100g.calories} cal and ${food.per100g.protein}g protein per 100g`}
+            text={isAr ? `${food.per100g.calories} سعرة و ${food.per100g.protein} جم بروتين لكل 100 جم` : `${food.per100g.calories} cal and ${food.per100g.protein}g protein per 100g`}
           />
         </div>
 
@@ -403,7 +403,7 @@ export default function FoodDetailClient({
                 >
                   <p className="text-sm font-semibold">{isAr ? rel.nameAr : rel.nameEn}</p>
                   <p className="mt-0.5 text-xs font-normal text-[#6e6e73]">
-                    {rel.per100g.calories} kcal · {rel.per100g.protein}g protein
+                    {isAr ? `${rel.per100g.calories} كالوري · ${rel.per100g.protein} جم بروتين` : `${rel.per100g.calories} kcal · ${rel.per100g.protein}g protein`}
                   </p>
                 </a>
               ))}

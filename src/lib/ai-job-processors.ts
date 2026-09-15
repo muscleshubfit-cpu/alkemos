@@ -24,6 +24,7 @@ import { generateSocialPost } from "@/lib/social-posts";
 import { pickSmartTopic } from "@/lib/blog-topics";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { recordUnifiedPlanUsage } from "@/lib/tier-limits";
+import { weeksUnitAr } from "@/lib/utils";
 import type { PlanContent } from "@/lib/data/plans";
 import type { SocialPlatform, SocialTone } from "@/lib/social-posts";
 import { VALID_CATEGORY_IDS } from "@/lib/blog";
@@ -531,7 +532,7 @@ async function runPlanWorkout(payload: Record<string, unknown>) {
     mealsCount: overrides.mealsCount, // legacy reuse → daysPerWeek
     foods: overrides.foods,
     notes: overrides.notes
-      ? `${overrides.notes}${payload.durationWeeks ? ` — مدة البرنامج المستهدفة: ${payload.durationWeeks} أسابيع` : ""}`
+      ? `${overrides.notes}${payload.durationWeeks ? ` — مدة البرنامج المستهدفة: ${payload.durationWeeks} ${weeksUnitAr(Number(payload.durationWeeks))}` : ""}`
       : undefined,
   });
   const plan_id = await materializePlanDraftRow(payload, res.title, res.content, "workout");

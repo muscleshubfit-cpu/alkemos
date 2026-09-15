@@ -194,7 +194,7 @@ export function ReferralView() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-          {isAr ? "برنامج الأفلييت والعمولات" : "Affiliate & Commission Program"}
+          {isAr ? "برنامج الإفلييت (الشركاء) والعمولات" : "Affiliate & Commission Program"}
         </h1>
         <p className="mt-2 text-base font-normal text-[#6e6e73] md:text-lg">
           {isAr

@@ -82,16 +82,16 @@ type ToolSlug = (typeof ALLOWED_TOOLS)[number];
 /* ------------------------------------------------------------------ */
 /*  Per-tool result labels + smart tips (ar / en)                      */
 /* ------------------------------------------------------------------ */
-type FieldDef = { key: string; ar: string; en: string; suffix?: string };
+type FieldDef = { key: string; ar: string; en: string; suffix?: string; suffixAr?: string };
 
 const TOOL_FIELDS: Record<ToolSlug, FieldDef[]> = {
   "calorie-calculator": [
-    { key: "target", ar: "سعرات الهدف اليومية", en: "Daily target calories", suffix: " kcal" },
-    { key: "tdee", ar: "سعرات الثبات (TDEE)", en: "Maintenance (TDEE)", suffix: " kcal" },
-    { key: "bmr", ar: "معدل الأيض الأساسي (BMR)", en: "Basal metabolic rate (BMR)", suffix: " kcal" },
-    { key: "protein", ar: "بروتين", en: "Protein", suffix: " g" },
-    { key: "carbs", ar: "كارب", en: "Carbs", suffix: " g" },
-    { key: "fat", ar: "دهون", en: "Fat", suffix: " g" },
+    { key: "target", ar: "سعرات الهدف اليومية", en: "Daily target calories", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "tdee", ar: "سعرات الثبات (TDEE)", en: "Maintenance (TDEE)", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "bmr", ar: "معدل الأيض الأساسي (BMR)", en: "Basal metabolic rate (BMR)", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "protein", ar: "بروتين", en: "Protein", suffix: " g", suffixAr: " جم" },
+    { key: "carbs", ar: "كارب", en: "Carbs", suffix: " g", suffixAr: " جم" },
+    { key: "fat", ar: "دهون", en: "Fat", suffix: " g", suffixAr: " جم" },
   ],
   "bmi-calculator": [
     { key: "bmi", ar: "كتلة الجسم (BMI)", en: "Body Mass Index (BMI)" },
@@ -100,13 +100,13 @@ const TOOL_FIELDS: Record<ToolSlug, FieldDef[]> = {
     { key: "idealWeightMax", ar: "الوزن الصحي — أقصى حد", en: "Healthy weight — max", suffix: " kg" },
   ],
   "macro-calculator": [
-    { key: "calories", ar: "سعراتك اليومية", en: "Your daily calories", suffix: " kcal" },
-    { key: "protein_g", ar: "بروتين", en: "Protein", suffix: " g" },
-    { key: "carbs_g", ar: "كارب", en: "Carbs", suffix: " g" },
-    { key: "fat_g", ar: "دهون", en: "Fat", suffix: " g" },
-    { key: "protein_cal", ar: "سعرات البروتين", en: "Protein calories", suffix: " kcal" },
-    { key: "carbs_cal", ar: "سعرات الكارب", en: "Carb calories", suffix: " kcal" },
-    { key: "fat_cal", ar: "سعرات الدهون", en: "Fat calories", suffix: " kcal" },
+    { key: "calories", ar: "سعراتك اليومية", en: "Your daily calories", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "protein_g", ar: "بروتين", en: "Protein", suffix: " g", suffixAr: " جم" },
+    { key: "carbs_g", ar: "كارب", en: "Carbs", suffix: " g", suffixAr: " جم" },
+    { key: "fat_g", ar: "دهون", en: "Fat", suffix: " g", suffixAr: " جم" },
+    { key: "protein_cal", ar: "سعرات البروتين", en: "Protein calories", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "carbs_cal", ar: "سعرات الكارب", en: "Carb calories", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "fat_cal", ar: "سعرات الدهون", en: "Fat calories", suffix: " kcal", suffixAr: " كالوري" },
   ],
   "body-fat-calculator": [
     { key: "bf", ar: "نسبة الدهون", en: "Body fat percentage", suffix: "%" },
@@ -121,10 +121,10 @@ const TOOL_FIELDS: Record<ToolSlug, FieldDef[]> = {
   ],
   "meal-planner": [
     { key: "meals", ar: "عدد الوجبات", en: "Meals" },
-    { key: "calories", ar: "إجمالي السعرات", en: "Total calories", suffix: " kcal" },
-    { key: "protein", ar: "إجمالي البروتين", en: "Total protein", suffix: " g" },
-    { key: "carbs", ar: "إجمالي الكارب", en: "Total carbs", suffix: " g" },
-    { key: "fat", ar: "إجمالي الدهون", en: "Total fat", suffix: " g" },
+    { key: "calories", ar: "إجمالي السعرات", en: "Total calories", suffix: " kcal", suffixAr: " كالوري" },
+    { key: "protein", ar: "إجمالي البروتين", en: "Total protein", suffix: " g", suffixAr: " جم" },
+    { key: "carbs", ar: "إجمالي الكارب", en: "Total carbs", suffix: " g", suffixAr: " جم" },
+    { key: "fat", ar: "إجمالي الدهون", en: "Total fat", suffix: " g", suffixAr: " جم" },
   ],
 };
 
@@ -255,7 +255,7 @@ function resultsRows(tool: ToolSlug, results: ToolResults, isAr: boolean): strin
     const raw = results[f.key];
     if (raw === undefined || raw === null || String(raw).trim() === "") continue;
     const label = isAr ? f.ar : f.en;
-    const value = `${esc(raw)}${f.suffix ?? ""}`;
+    const value = `${esc(raw)}${isAr ? (f.suffixAr ?? f.suffix ?? "") : (f.suffix ?? "")}`;
     rows.push(
       `<tr style="background:${rows.length % 2 === 0 ? "#ffffff" : "#f5f5f7"};">
         <td style="padding:12px 16px;font-weight:600;color:#1d1d1f;border-bottom:1px solid #e5e5ea;">${esc(label)}</td>
@@ -364,7 +364,7 @@ function buildEmailText(
   for (const f of TOOL_FIELDS[tool]) {
     const raw = results[f.key];
     if (raw === undefined || raw === null || String(raw).trim() === "") continue;
-    lines.push(`- ${isAr ? f.ar : f.en}: ${raw}${f.suffix ?? ""}`);
+    lines.push(`- ${isAr ? f.ar : f.en}: ${raw}${isAr ? (f.suffixAr ?? f.suffix ?? "") : (f.suffix ?? "")}`);
   }
   return [
     isAr ? (name ? `أهلاً ${name}،` : "أهلاً بك،") : name ? `Hi ${name},` : "Hi there,",

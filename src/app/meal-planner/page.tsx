@@ -406,10 +406,10 @@ export default function MealPlannerPage() {
             </span>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat label={isAr ? "سعرات" : "Calories"} value={grandTotal.calories} unit="kcal" color="#ff9500" big />
-            <Stat label={isAr ? "بروتين" : "Protein"} value={grandTotal.protein} unit="g" color="#34c759" big />
-            <Stat label={isAr ? "كربوهيدرات" : "Carbs"} value={grandTotal.carbs} unit="g" color="#0071e3" big />
-            <Stat label={isAr ? "دهون" : "Fat"} value={grandTotal.fat} unit="g" color="#8b5cf6" big />
+            <Stat label={isAr ? "سعرات" : "Calories"} value={grandTotal.calories} unit={isAr ? "كالوري" : "kcal"} color="#ff9500" big />
+            <Stat label={isAr ? "بروتين" : "Protein"} value={grandTotal.protein} unit={isAr ? "جم" : "g"} color="#34c759" big />
+            <Stat label={isAr ? "كربوهيدرات" : "Carbs"} value={grandTotal.carbs} unit={isAr ? "جم" : "g"} color="#0071e3" big />
+            <Stat label={isAr ? "دهون" : "Fat"} value={grandTotal.fat} unit={isAr ? "جم" : "g"} color="#8b5cf6" big />
           </div>
         </div>
 
@@ -450,7 +450,7 @@ export default function MealPlannerPage() {
             toolSlug="meal-planner"
             resultSummary={
               isAr
-                ? `خطتي: ${meals.length} وجبات · ${grandTotal.calories} سعرة · بروتين ${grandTotal.protein}g · كربوهيدرات ${grandTotal.carbs}g · دهون ${grandTotal.fat}g`
+                ? `خطتي: ${meals.length} وجبات · ${grandTotal.calories} سعرة · بروتين ${grandTotal.protein} جم · كربوهيدرات ${grandTotal.carbs} جم · دهون ${grandTotal.fat} جم`
                 : `My plan: ${meals.length} meals · ${grandTotal.calories} kcal · protein ${grandTotal.protein}g · carbs ${grandTotal.carbs}g · fat ${grandTotal.fat}g`
             }
             resultJson={{
@@ -593,10 +593,10 @@ function MealCard({
       {/* Meal totals */}
       {meal.items.length > 0 && (
         <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl border border-[var(--edge)] bg-[var(--card)] p-3">
-          <MiniStat label={isAr ? "سعرات" : "Cal"} value={totals.calories} unit="kcal" color="#ff9500" />
-          <MiniStat label={isAr ? "بروتين" : "Pro"} value={totals.protein} unit="g" color="#34c759" />
-          <MiniStat label={isAr ? "كربوهيدرات" : "Carb"} value={totals.carbs} unit="g" color="#0071e3" />
-          <MiniStat label={isAr ? "دهون" : "Fat"} value={totals.fat} unit="g" color="#8b5cf6" />
+          <MiniStat label={isAr ? "سعرات" : "Cal"} value={totals.calories} unit={isAr ? "كالوري" : "kcal"} color="#ff9500" />
+          <MiniStat label={isAr ? "بروتين" : "Pro"} value={totals.protein} unit={isAr ? "جم" : "g"} color="#34c759" />
+          <MiniStat label={isAr ? "كربوهيدرات" : "Carb"} value={totals.carbs} unit={isAr ? "جم" : "g"} color="#0071e3" />
+          <MiniStat label={isAr ? "دهون" : "Fat"} value={totals.fat} unit={isAr ? "جم" : "g"} color="#8b5cf6" />
         </div>
       )}
     </div>
@@ -627,7 +627,7 @@ function ItemRow({
             ? isAr ? "محلي" : "Local"
             : isAr ? "منتج" : "Product"}
           {" · "}
-          {item.per100g.calories} kcal / 100g
+          {isAr ? `${item.per100g.calories} كالوري / 100 جم` : `${item.per100g.calories} kcal / 100g`}
         </p>
       </div>
       {/* Grams input */}
@@ -640,12 +640,12 @@ function ItemRow({
           className="w-20 rounded-full border border-[var(--edge)] bg-[var(--tint)] px-3 py-1.5 text-sm font-medium text-center outline-none focus:border-[var(--chrome-edge)]"
           dir="ltr"
         />
-        <span className="text-xs text-[var(--muted-foreground)]">g</span>
+        <span className="text-xs text-[var(--muted-foreground)]">{isAr ? "جم" : "g"}</span>
       </div>
       {/* Computed macros */}
       <div className="flex items-center gap-1.5 text-xs">
         <span className="rounded-full bg-[#ff9500]/10 px-2 py-0.5 font-medium text-[#ff9500]">
-          {mac.calories} kcal
+          {isAr ? `${mac.calories} كالوري` : `${mac.calories} kcal`}
         </span>
         <span className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-2 py-0.5 font-semibold text-[var(--text)]">
           P{mac.protein}
@@ -756,7 +756,7 @@ function FoodSearchInput({
                     ? isAr ? "محلي" : "Local"
                     : isAr ? "منتج" : "Product"}
                   {" · "}
-                  {r.per100g.calories} kcal · P{r.per100g.protein} C{r.per100g.carbs} F{r.per100g.fat}
+                  {r.per100g.calories} {isAr ? "كالوري" : "kcal"} · P{r.per100g.protein} C{r.per100g.carbs} F{r.per100g.fat}
                 </p>
               </div>
               <Plus className="h-4 w-4 shrink-0 text-[var(--muted-2)]" />

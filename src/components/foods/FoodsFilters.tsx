@@ -99,7 +99,7 @@ export function FoodsFilters({
         <div className="mt-3 grid grid-cols-1 gap-3 rounded-2xl bg-[var(--tint)] p-4 border border-[var(--edge)] sm:grid-cols-3">
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--muted-foreground)]" htmlFor="food-min-protein">
-              {isAr ? "حد أدنى للبروتين (g/100g)" : "Min protein (g/100g)"}
+              {isAr ? "حد أدنى للبروتين (جم/100 جم)" : "Min protein (g/100g)"}
             </label>
             <input
               id="food-min-protein"
@@ -113,7 +113,7 @@ export function FoodsFilters({
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--muted-foreground)]" htmlFor="food-max-carbs">
-              {isAr ? "حد أقصى للكربوهيدرات (g/100g)" : "Max carbs (g/100g)"}
+              {isAr ? "حد أقصى للكربوهيدرات (جم/100 جم)" : "Max carbs (g/100g)"}
             </label>
             <input
               id="food-max-carbs"
@@ -127,7 +127,7 @@ export function FoodsFilters({
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--muted-foreground)]" htmlFor="food-max-calories">
-              {isAr ? "حد أقصى للسعرات (kcal/100g)" : "Max calories (kcal/100g)"}
+              {isAr ? "حد أقصى للسعرات (كالوري/100 جم)" : "Max calories (kcal/100g)"}
             </label>
             <input
               id="food-max-calories"

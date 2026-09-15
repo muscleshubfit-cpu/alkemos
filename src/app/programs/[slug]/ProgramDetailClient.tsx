@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { weeksUnitAr } from "@/lib/utils";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -130,7 +131,7 @@ export default function ProgramDetailClient({
                   </span>
                 </div>
                 <p className="mt-1 text-lg font-semibold">
-                  {program.durationWeeks} {isAr ? "أسابيع" : "weeks"}
+                  {program.durationWeeks} {isAr ? weeksUnitAr(program.durationWeeks) : "weeks"}
                 </p>
               </div>
               <div className="rounded-2xl bg-[var(--card)] border border-[var(--edge)] p-4">
@@ -311,7 +312,7 @@ export default function ProgramDetailClient({
                   <div className="p-3">
                     <p className="text-sm font-semibold">{isAr ? rel.nameAr : rel.nameEn}</p>
                     <p className="mt-0.5 text-xs font-normal text-[var(--muted-foreground)]">
-                      {isAr ? LEVEL_LABELS[rel.level].ar : LEVEL_LABELS[rel.level].en} · {rel.durationWeeks} {isAr ? "أسابيع" : "wks"}
+                      {isAr ? LEVEL_LABELS[rel.level].ar : LEVEL_LABELS[rel.level].en} · {rel.durationWeeks} {isAr ? weeksUnitAr(rel.durationWeeks) : "wks"}
                     </p>
                   </div>
                 </a>

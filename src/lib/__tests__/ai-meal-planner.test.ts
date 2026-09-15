@@ -273,7 +273,10 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     expect(landing).toContain("أنشئ خطتي");
     expect(landing).toContain("Create My Plan");
-    expect(landing).toContain("Your plan. Built for you.");
+    // 2026-09-16 owner copy order: the lead-card headline is now the
+    // benefit-first «A plan built around your goals — not generic
+    // templates» (was «Your plan. Built for you.»).
+    expect(landing).toContain("A plan built around your goals — not generic templates");
     // Access-point fix (2026-09-14): the footer (with its locale-aware
     // AI-planner links) moved from LandingView into the SHARED
     // SiteFooter component — the contract follows the markup.

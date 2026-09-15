@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { weeksUnitAr } from "@/lib/utils";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
@@ -196,7 +197,7 @@ export default function ProgramsPage({ lang: langProp }: { lang?: Lang } = {}) {
                     {isAr ? program.descriptionAr : program.descriptionEn}
                   </p>
                   <div className="mt-3 flex items-center gap-3 text-xs font-normal text-[var(--muted-foreground)]">
-                    <span>{program.durationWeeks} {isAr ? "أسابيع" : "weeks"}</span>
+                    <span>{program.durationWeeks} {isAr ? weeksUnitAr(program.durationWeeks) : "weeks"}</span>
                     <span>·</span>
                     <span>{program.daysPerWeek} {isAr ? "أيام/أسبوع" : "days/week"}</span>
                   </div>

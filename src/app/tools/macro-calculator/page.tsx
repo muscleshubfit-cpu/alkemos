@@ -94,17 +94,17 @@ export default function MacroCalculatorPage() {
           <div className="mt-8 space-y-6">
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-[var(--radius-chrome)] bg-black p-6 text-center text-white">
-                <p className="text-3xl font-semibold tracking-tight">{result.protein_g}g</p>
+                <p className="text-3xl font-semibold tracking-tight">{isAr ? `${result.protein_g} جم` : `${result.protein_g}g`}</p>
                 <p className="mt-1 text-xs font-normal text-blue-100">{isAr ? "بروتين" : "Protein"}</p>
                 <p className="mt-1 text-xs font-normal text-blue-200">{result.protein_cal} {isAr ? "سعرة" : "cal"}</p>
               </div>
               <div className="rounded-[var(--radius-chrome)] bg-black p-6 text-center text-white">
-                <p className="text-3xl font-semibold tracking-tight">{result.carbs_g}g</p>
+                <p className="text-3xl font-semibold tracking-tight">{isAr ? `${result.carbs_g} جم` : `${result.carbs_g}g`}</p>
                 <p className="mt-1 text-xs font-normal text-gray-400">{isAr ? "كربوهيدرات" : "Carbs"}</p>
                 <p className="mt-1 text-xs font-normal text-gray-500">{result.carbs_cal} {isAr ? "سعرة" : "cal"}</p>
               </div>
               <div className="rounded-3xl bg-[var(--muted-foreground)] p-6 text-center text-white">
-                <p className="text-3xl font-semibold tracking-tight">{result.fat_g}g</p>
+                <p className="text-3xl font-semibold tracking-tight">{isAr ? `${result.fat_g} جم` : `${result.fat_g}g`}</p>
                 <p className="mt-1 text-xs font-normal text-gray-300">{isAr ? "دهون" : "Fat"}</p>
                 <p className="mt-1 text-xs font-normal text-gray-400">{result.fat_cal} {isAr ? "سعرة" : "cal"}</p>
               </div>
@@ -129,7 +129,7 @@ export default function MacroCalculatorPage() {
               toolSlug="macro-calculator"
               resultSummary={
                 isAr
-                  ? `السعرات: ${calories} · ${DIET_PRESETS[diet].label_ar} · بروتين: ${result.protein_g}g · كربوهيدرات: ${result.carbs_g}g · دهون: ${result.fat_g}g`
+                  ? `السعرات: ${calories} · ${DIET_PRESETS[diet].label_ar} · بروتين: ${result.protein_g} جم · كربوهيدرات: ${result.carbs_g} جم · دهون: ${result.fat_g} جم`
                   : `Calories: ${calories} · ${DIET_PRESETS[diet].label_en} · Protein: ${result.protein_g}g · Carbs: ${result.carbs_g}g · Fat: ${result.fat_g}g`
               }
               resultJson={{ ...result, calories, diet }}
@@ -140,7 +140,7 @@ export default function MacroCalculatorPage() {
               <ShareButtons
                 title={
                   isAr
-                    ? `ماكروزي: بروتين ${result.protein_g}g · كربوهيدرات ${result.carbs_g}g · دهون ${result.fat_g}g | Alkemos`
+                    ? `ماكروزي: بروتين ${result.protein_g} جم · كربوهيدرات ${result.carbs_g} جم · دهون ${result.fat_g} جم | Alkemos`
                     : `My macros: Protein ${result.protein_g}g · Carbs ${result.carbs_g}g · Fat ${result.fat_g}g | Alkemos`
                 }
               />

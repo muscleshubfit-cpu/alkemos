@@ -186,7 +186,7 @@ export const COMPARISONS: Comparison[] = [
         // MFP verified to run an affiliate program through partner
         // networks/agency (Acceleration Partners) — honest tie.
         labelEn: "Affiliate program",
-        labelAr: "برنامج الأفلييت",
+        labelAr: "برنامج الإفلييت (الشركاء)",
         alkemosValue: "Public program — 20% commission on subscriptions",
         alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
         competitorValue: "Affiliate program via partner networks",
@@ -384,7 +384,7 @@ export const COMPARISONS: Comparison[] = [
         // Freeletics runs a real affiliate program (FlexOffers/Awin +
         // application form) — honest tie.
         labelEn: "Affiliate program",
-        labelAr: "برنامج الأفلييت",
+        labelAr: "برنامج الإفلييت (الشركاء)",
         alkemosValue: "Public program — 20% commission on subscriptions",
         alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
         competitorValue: "Affiliate program via affiliate networks",
@@ -558,7 +558,7 @@ export const COMPARISONS: Comparison[] = [
         // 2026-09-15 (owner directive — service coverage): no affiliate
         // program found on exrx.net (verified 2026-09-15).
         labelEn: "Affiliate program",
-        labelAr: "برنامج الأفلييت",
+        labelAr: "برنامج الإفلييت (الشركاء)",
         alkemosValue: "Public program — 20% commission on subscriptions",
         alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
         competitorValue: "Not available",

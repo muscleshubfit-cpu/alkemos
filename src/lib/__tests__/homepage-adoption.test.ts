@@ -72,9 +72,13 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
     expect(src).not.toContain("evo-hero-card");
     expect(src).not.toContain("evo-hero-art");
     expect(src).not.toContain('id="evo"');
-    // The old warrior-card headline is gone too.
+    // The old warrior-card headline is gone too. (2026-09-16 owner copy
+    // order: the new hero subtitle legitimately contains «مدربك الذكي
+    // 24/7» INSIDE its platform-summary sentence, so the guard pins the
+    // STANDALONE card headline — the quoted literal form — instead of
+    // the bare phrase.)
     expect(src).not.toContain("Your 24/7 Smart Coach");
-    expect(src).not.toContain("مدربك الذكي 24/7");
+    expect(src).not.toContain('"مدربك الذكي 24/7"');
   });
 
   // (3) The real content entry points exist: the three sample sections

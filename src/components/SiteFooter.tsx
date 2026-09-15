@@ -147,7 +147,7 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
               {/* §12.53 item 11 (2026-09-16): locale-aware affiliate link —
                   the AR mirror exists now. */}
-              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="hover:underline">{isAr ? "برنامج الأفلييت" : "Affiliate Program"}</a></li>
+              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
               <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
             </ul>
           </div>

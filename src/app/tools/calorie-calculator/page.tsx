@@ -290,19 +290,19 @@ export default function CalorieCalculatorPage() {
               </h3>
               <div className="mt-4 grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <p className="chrome-text text-2xl font-semibold">{result.protein}g</p>
+                  <p className="chrome-text text-2xl font-semibold">{isAr ? `${result.protein} جم` : `${result.protein}g`}</p>
                   <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
                     {isAr ? "بروتين" : "Protein"}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-semibold text-[var(--text)]">{result.carbs}g</p>
+                  <p className="text-2xl font-semibold text-[var(--text)]">{isAr ? `${result.carbs} جم` : `${result.carbs}g`}</p>
                   <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
                     {isAr ? "كربوهيدرات" : "Carbs"}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-semibold text-[var(--muted-foreground)]">{result.fat}g</p>
+                  <p className="text-2xl font-semibold text-[var(--muted-foreground)]">{isAr ? `${result.fat} جم` : `${result.fat}g`}</p>
                   <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
                     {isAr ? "دهون" : "Fat"}
                   </p>
@@ -337,7 +337,7 @@ export default function CalorieCalculatorPage() {
               toolSlug="calorie-calculator"
               resultSummary={
                 isAr
-                  ? `السعرات: ${result.target}/يوم · بروتين: ${result.protein}g · كربوهيدرات: ${result.carbs}g · دهون: ${result.fat}g`
+                  ? `السعرات: ${result.target}/يوم · بروتين: ${result.protein} جم · كربوهيدرات: ${result.carbs} جم · دهون: ${result.fat} جم`
                   : `Calories: ${result.target}/day · Protein: ${result.protein}g · Carbs: ${result.carbs}g · Fat: ${result.fat}g`
               }
               resultJson={result}

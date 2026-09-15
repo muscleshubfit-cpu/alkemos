@@ -20,11 +20,11 @@ export const metadata: Metadata = {
   // BRANDLESS by law: the /ar/layout template appends exactly one
   // " — Alkemos" to depth-1 titles — including a brand here would render
   // a double-brand title (the same class of bug P0-3 fixed on blog).
-  title: "برنامج الأفلييت — حوّل تأثيرك إلى دخل",
+  title: "برنامج الإفلييت (الشركاء) — حوّل تأثيرك إلى دخل",
   description:
-    "انضم إلى برنامج الأفلييت من Alkemos: شارك حلول اللياقة والتغذية الأذكى مع من يثقون بتوصياتك، واكسب 20% عمولة على كل عملية شراء مؤهلة تتم عبر رابط الأفلييت الخاص بك، مع حد أدنى للصرف 10 دولارات.",
+    "انضم إلى برنامج الإفلييت (الشركاء) من Alkemos: شارك حلول اللياقة والتغذية الأذكى مع من يثقون بتوصياتك، واكسب 20% عمولة على كل عملية شراء مؤهلة تتم عبر رابط الأفلييت الخاص بك، مع حد أدنى للصرف 10 دولارات.",
   keywords: [
-    "برنامج الأفلييت",
+    "برنامج الإفلييت (الشركاء)",
     "أفلييت اللياقة",
     "أفلييت التغذية",
     "اكسب عمولة لياقة",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     "تسويق بالعمولة لياقة",
   ],
   openGraph: {
-    title: "برنامج الأفلييت — حوّل تأثيرك إلى دخل | Alkemos",
+    title: "برنامج الإفلييت (الشركاء) — حوّل تأثيرك إلى دخل | Alkemos",
     description:
       "شارك Alkemos مع من يثقون بتوصياتك واكسب عمولة من عمليات الشراء المؤهلة عبر رابطك الخاص.",
     type: "website",
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
         url: "/images/og/og-home-ar.png",
         width: 1200,
         height: 630,
-        alt: "برنامج الأفلييت من Alkemos",
+        alt: "برنامج الإفلييت (الشركاء) من Alkemos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "برنامج الأفلييت — حوّل تأثيرك إلى دخل | Alkemos",
+    title: "برنامج الإفلييت (الشركاء) — حوّل تأثيرك إلى دخل | Alkemos",
     description:
       "شارك Alkemos مع من يثقون بتوصياتك واكسب عمولة من عمليات الشراء المؤهلة عبر رابطك الخاص.",
     images: ["/images/og/og-home-ar.png"],

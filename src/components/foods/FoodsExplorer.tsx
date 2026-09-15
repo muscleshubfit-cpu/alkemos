@@ -225,13 +225,13 @@ export function FoodsExplorer({
                     <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal">
                       <div className="rounded bg-white px-1 py-0.5 text-center">
                         <span className="font-semibold text-[var(--text)]">{food.per100g.calories}</span>
-                        <span className="text-[var(--muted-foreground)]"> kcal</span>
+                        <span className="text-[var(--muted-foreground)]">{isAr ? " كالوري" : " kcal"}</span>
                       </div>
                       <div className="rounded bg-white px-1 py-0.5 text-center">
-                        <span className="font-semibold text-[#34c759]">{food.per100g.protein}g</span>
+                        <span className="font-semibold text-[#34c759]">{isAr ? `${food.per100g.protein} جم` : `${food.per100g.protein}g`}</span>
                       </div>
                       <div className="rounded bg-white px-1 py-0.5 text-center">
-                        <span className="font-semibold text-[#ff9500]">{food.per100g.carbs}g</span>
+                        <span className="font-semibold text-[#ff9500]">{isAr ? `${food.per100g.carbs} جم` : `${food.per100g.carbs}g`}</span>
                       </div>
                     </div>
                   </div>

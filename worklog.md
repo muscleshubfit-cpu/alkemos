@@ -4,6 +4,52 @@
 
 ---
 
+Task ID: PHASE-212-HOMEPAGE-COPY-UNITS-2026-09-16
+Agent: Super Z (main)
+Task: Phase 212 — Homepage EN/AR copy refresh + nutrition unit unification (جم/كالوري) + Arabic weeks grammar + affiliate program naming (owner order 2026-09-16 — 18 numbered items, copy-only: zero links/structure/icons changes)
+
+**Scope:** 21 source files + 2 test-guard updates + STATE.md. Verified: zero href target changes (the only href-line diff is a label-only change), zero icon changes, zero business-logic changes.
+
+### (1) Homepage — LandingView.tsx (owner items 1-8 AR, 10-16 EN)
+- H1: «تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي.» → «تدرّب بذكاء، كُل بوعي، وتقدّم نحو هدفك كل يوم.» / EN → "Train smarter. Eat smarter. Progress with numbers on your side."
+- Hero line (AR verbatim item 2): «حاسبات سعرات وماكروز مجانية، 868+ تمرين بالشرح والصور، قاعدة أطعمة بأكثر من 8,830 صنف، وEVO مدربك الذكي 24/7 — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها.» / EN item 11 verbatim.
+- Seal chips: «صنفًا غذائيًا»→«صنف غذائي بالسعرات والماكروز» + EN `${FOODS_PLUS} foods with calories & macros`; «EVO مدرب ذكي 24/7»→«EVO مدربك الذكي — متاح 24/7» + EN "EVO — your AI coach, 24/7". Note: .seal-chip CSS applies text-transform:uppercase (pre-existing design) — DOM text is verbatim as ordered.
+- H2 tools: «اعرف ما يحتاجه جسمك بالأرقام»→«احسب احتياجك اليومي من السعرات والماكروز خلال ثوانٍ» / EN → "Your Daily Targets, Calculated in Seconds".
+- Lead-card h3: «خطتك، مصممة لك.»→«خطة تناسبك أنت — لا قوالب جاهزة عامة» / EN → "A plan built around your goals — not generic templates".
+- Tech line: full replacement both languages (items 7/14 verbatim).
+- NEW GEO paragraph (bilingual, items 8/15) directly after the hero section — plain centered `<p>`, no links/icons/structure touched.
+- Coaching h2 EN: "Real Coaching, Not Just a PDF" → "Real Coaching, Not a One-Time PDF" (AR untouched — not in the order).
+
+### (2) Affiliate naming (item 9 — site-wide)
+«برنامج الأفلييت» → «برنامج الإفلييت (الشركاء)» — 16 occurrences / 7 files: SiteHeader (nav label), SiteFooter (link label), AffiliateProgramView ×3 (h1 + 2 FAQ/answers), ReferralView (h1 «…والعمولات»), comparisons.ts ×3 labelAr, BlogComponents CTA, ar/affiliate/layout.tsx ×6 (title/description/keyword/OG/Twitter/alt). Phrases «رابط الأفلييت»/«قسم الأفلييت» (no «برنامج») intentionally untouched — outside the order's wording.
+
+### (3) Unit unification g→«جم» / kcal→«كالوري» + space-after-number (item 17 — Arabic nutrition texts)
+- LandingView food cards: `{food.protein}g`/`{food.carbs}g` → isAr-aware « جم» (kcal side was already «كالوري»).
+- FoodsExplorer card row: kcal + protein/carbs g → isAr-aware.
+- FoodsFilters labels: (g/100g)→(جم/100 جم) ×2, (kcal/100g)→(كالوري/100 جم).
+- FoodDetailClient: 13 spots — default serving grams, «لكل 100g» label, per-100g grid ×3, grams input unit + presets, computed macros ×4, macro-selector units (unitAr «كالوري»/«جم»), «اضبط Ng», quick-target presets (labelAr «30 جم بروتين»… «300 كالوري» — كربوهيدرات per the MSA law, NOT كارب), share text, related-foods line.
+- meal-planner: Stat/MiniStat units ×8, ItemRow (kcal/100g line, grams unit, computed kcal chip), search-result kcal, AR lead-capture summary.
+- tools/macro-calculator: result cards ×3 + AR summary/share strings.
+- tools/calorie-calculator: macro cards ×3 + AR summary.
+- profile: saved-plan stats line (isAr units).
+- api/send-email: FieldDef gains `suffixAr` — « كالوري»/« جم» on the 15 kcal/g fields (kg/ml/% shared, untouched); both render sites (HTML rows + text fallback) now language-aware.
+- evo-system-prompt: nutrition context «لكل 100g …Ng» → «لكل 100 جم …N جم».
+
+### (4) Arabic weeks grammar — «12 أسابيع»→«12 أسبوعًا» (item 18 — site-wide)
+The phrase renders DYNAMICALLY via durationWeeks (three 12-week programs in the live library). Added `weeksUnitAr(n)` to src/lib/utils.ts (1→أسبوع · 2→أسبوعين · 3-10→أسابيع · 11+→أسبوعًا) and wired it in the 5 display sites: LandingView program card, programs listing, ProgramDetailClient (duration + related), ai-job-processors AR note. 6/8-week labels stay grammatically plural (أسابيع) — correct Arabic, zero regression.
+
+### Test guards updated to pin the NEW owner copy (intent preserved)
+- homepage-adoption: the retired EVO warrior-card guard now pins the STANDALONE quoted headline `"مدربك الذكي 24/7"` instead of the bare phrase (the new hero sentence legitimately contains it inside the owner-ordered platform summary); structural guards (evo-hero-card/id="evo") unchanged and green.
+- ai-meal-planner: pins the new lead-card headline "A plan built around your goals — not generic templates" (was "Your plan. Built for you.").
+- tool-msa-surface «كارب» canary: my first draft used «كارب» in the new food-page presets — caught by the canary, corrected to «كربوهيدرات» before commit (the MSA law held).
+
+### QA gates
+- `tsc --noEmit`: 0 errors in every touched file (4 pre-existing image-module errors in for-coaches/page.tsx verified IDENTICAL on the pristine tree via git stash).
+- `vitest run`: **1216/1216 passed** (78 files).
+- `bun run build`: success — 2,057 pages.
+- `scripts/docs_audit.py`: phase=212, 99/100 lines ✓.
+- Diff audit: zero href target changes, zero icon changes, zero JSX structure changes (only text content + the one owner-ordered GEO `<p>` + the weeksUnitAr helper).
+
 Task ID: PHASE-205-FINAL-INTERNAL-COPY-AUDIT-2026-09-15
 Agent: Super Z (main)
 Task: Phase 205 — Final Internal Copy Audit «تدقيق عميق READ/WRITE على جميع الصفحات الداخلية AR/EN عدا المدونة» (owner order 2026-09-15)

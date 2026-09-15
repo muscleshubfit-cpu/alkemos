@@ -82,7 +82,7 @@ export function buildSystemPrompt(
   // Build food nutrition context
   let nutritionContext = "";
   if (foodNutrition) {
-    nutritionContext = `\n\nمعلومات غذائية لـ ${foodNutrition.nameAr}:\nلكل 100g: ${foodNutrition.per100g.calories} سعرة، ${foodNutrition.per100g.protein}g بروتين، ${foodNutrition.per100g.carbs}g كارب، ${foodNutrition.per100g.fat}g دهون\nالرابط: ${foodNutrition.url}`;
+    nutritionContext = `\n\nمعلومات غذائية لـ ${foodNutrition.nameAr}:\nلكل 100 جم: ${foodNutrition.per100g.calories} سعرة، ${foodNutrition.per100g.protein} جم بروتين، ${foodNutrition.per100g.carbs} جم كارب، ${foodNutrition.per100g.fat} جم دهون\nالرابط: ${foodNutrition.url}`;
   }
 
   // Build blog context

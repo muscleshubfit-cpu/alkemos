@@ -121,7 +121,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  <Gift className="h-6 w-6" />
  </span>
  <h3 className="mt-4 text-xl font-semibold tracking-tight md:text-2xl">
- {isAr ? "حوّل تأثيرك إلى دخل مع برنامج الأفلييت" : "Turn Your Influence Into Income — Affiliate Program"}
+ {isAr ? "حوّل تأثيرك إلى دخل مع برنامج الإفلييت (الشركاء)" : "Turn Your Influence Into Income — Affiliate Program"}
  </h3>
  <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
  {isAr
