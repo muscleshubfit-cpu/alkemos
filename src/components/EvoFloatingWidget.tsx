@@ -586,7 +586,7 @@ export function EvoFloatingWidget() {
                   <h3 className="mt-4 text-lg font-semibold">EVO</h3>
                   <p className="mt-1 max-w-[260px] text-sm font-normal text-[#6e6e73]">
                     {isAr
-                      ? "محرك أداء ذكي. اسألني عن التمارين، الأكلات، التغذية، أو أي حاجة رياضية."
+                      ? "محرك أداء ذكي. اسألني عن التمارين، والأطعمة، والتغذية، أو أي موضوع يخص اللياقة."
                       : "Smart performance engine. Ask me about exercises, foods, nutrition, or anything fitness."}
                   </p>
                   {/* Suggested questions */}

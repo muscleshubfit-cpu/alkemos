@@ -3,6 +3,47 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+
+Task ID: PHASE-205-FINAL-INTERNAL-COPY-AUDIT-2026-09-15
+Agent: Super Z (main)
+Task: Phase 205 — Final Internal Copy Audit «تدقيق عميق READ/WRITE على جميع الصفحات الداخلية AR/EN عدا المدونة» (owner order 2026-09-15)
+
+**Scope:** deep READ/WRITE audit of every internal page AR/EN (visible copy + metadata + JSON-LD + FAQ/schema + shared content) excluding the blog; copy-only — zero functionality/API/DB/quotas/pricing changes.
+
+### Audit (READ pass — scripts/phase205_audit.ts, 123 files scanned)
+- **Truth-source verification (all clean):** TOOLS_COUNT=8; Unified Pool 2/4/8/8; prices $0/$14.99/$29.99/$39.99 (+yearly); EVO free 10 msgs/day; swaps 3/6; foods 8,830; exercises 868; affiliate = 20% commission (math verified) + $10 min payout; competitor prices in comparisons.ts = correct external facts; «كوتشينج بشري» = approved Phase-204 term (EN twin «Human coaching»); EN booking language fully retired.
+- **Real findings:** 23 CJK machine-translation splices in exercises.ts instructionsAr; «الكارب» ×8 in hub-collections (incl. low-carb collection title/H1/metadata); «الجيم» ×3 + «الصالة» ×5 in hub depth guides; «التونا» ×21 + «سمك التلبية» ×5 typos; «الأكلات/أكلة/أي حاجة رياضية» in EVO widget + seo.ts + ar/foods metadata + breadcrumb JSON-LD; dialect on app surfaces (PlansView toast «هتحتاج تعمله تاني», «كوتش أونلاين» export tag, «كارب» export label, CheckoutView «موافقة الكوتش», CoachView «مفيش نتايج»); «الكارب/كارب» ×2 in ai-local visible plan strings + external-plan-text ×1; ar/foods title branding mismatch.
+- **False positives (verified, no action):** exercises.ts «حاجة» ×8 = MSA "need" usage; «كوتش» substring inside «كوتشينج»; tools count "8"/EVO "10 msgs" correct values; affiliate $3/$6/$8 commissions correct; PlansView Latin-in-AR = code-in-template-literal artifacts.
+
+### Fixes (WRITE pass — 14 source files)
+1. exercises.ts — all 23 CJK fragments replaced with MSA derived from the parallel EN instructions (surgical replacements with expected-count assertions: scripts/phase205_fix_exercises.py).
+2. hub-collections.ts — كارب→كربوهيدرات across the low-carb/keto collection copy + spelling fixes (كاربوهيدرات→كربوهيدرات ×2) + «الأكل»→«الطعام».
+3. hub-depth-collections.ts — الجيم→النادي الرياضي ×3; «تُجوّع الجيم»→«تُجوّع تدريبك»; «كما يفعل أي أحد»→«كما يفعل أي شخص آخر»; «ما تزن الأدلة»→«ما تزنه الأدلة»; التونا→التونة ×21; «سمك التلبية»→«سمك البلطي» ×5; الصالة→النادي الرياضي.
+4. hub-depth-equipment.ts — الصالة→النادي الرياضي ×4.
+5. EvoFloatingWidget.tsx — «اسألني عن التمارين، الأكلات، التغذية، أو أي حاجة رياضية»→«…والأطعمة، والتغذية، أو أي موضوع يخص اللياقة».
+6. seo.ts — site description «مكتبة أكلات»→«مكتبة أطعمة».
+7. ar/foods/page.tsx — title «قاعدة بيانات الأكلات»→«قاعدة بيانات الأطعمة» (no «| Alkemos» — the /ar layout template appends «— Alkemos»; double-branding caught in live QA and fixed); description rewritten MSA with «8,830+ صنف غذائي».
+8. ar/foods/[slug]/page.tsx — breadcrumb JSON-LD «الأكلات»→«الأطعمة».
+9. PlansView.tsx — toast dialect→MSA; export brand-tag «كوتش أونلاين»→«مدرب أونلاين»; export macro label «كارب»→«كربوهيدرات»; «ليتمكن الكوتش»→«ليتمكن المدرب».
+10. CoachView.tsx — «مفيش نتايج مطابقة»→«لا توجد نتائج مطابقة».
+11. CheckoutView.tsx — «موافقة الكوتش»→«موافقة المدرب».
+12. ai-local.ts — the two user-visible fallback-plan strings (meal note + macro line) كارب→كربوهيدرات. generateChatReply (dead code, zero importers) left untouched — documented.
+13. external-plan-text.ts — macro line كارب→كربوهيدرات.
+
+### Guards (only what prevents regression)
+- **NEW** `src/lib/__tests__/no-cjk-contamination.test.ts` — walks every non-blog src file, extracts string literals, fails on any CJK char (sanctioned: the blog sanitizer module, blog routes, all test files). This is the guard for the exact contamination class found.
+- marketing-msa-surface manifest +9 files: hub-collections, hub-depth-collections, hub-depth-equipment, hub-depth-muscles, hub-depth, ar/foods/page, ar/foods/[slug]/page, external-plan-text, seo. (exercises.ts stays OUT — its 8 legitimate MSA «حاجة» (need) hits exceed the weak<5 tolerance; covered by the CJK guard instead.)
+- Phase-205 describe: every removed phrase pinned dead + every unified replacement pinned present (incl. the tilapia/tuna names, the no-double-branding title, and the CJK fragment bytes).
+
+### Gates
+tsc 0 · eslint 0/0 · vitest 1175/1175 (77 files) · build 0 (all routes) · live local QA EN/AR × desktop 1440 + mobile 390: ar/collections/low-carb-foods (title+H1 unified, zero old terms in HTML), ar/foods (title «قاعدة بيانات الأطعمة — Alkemos», H1 «مكتبة الأطعمة»), ar/foods/tilapia (breadcrumb JSON-LD «الأطعمة»), EVO widget (MSA subtitle), ar/exercises/clean + clean-and-jerk + lower-back-smr (fixed instructions live, ZERO-CJK), ar/equipment/cable («أداة الدقة في النادي الرياضي»), ar/collections/high-protein-foods (FAQ «أسطورة النادي الرياضي» + التونة), EN regression clean — zero horizontal overflow anywhere. Screenshots: /home/z/my-project/download/phase205-evidence/.
+
+### Out-of-scope findings (documented, not expanded)
+- «كارب» macro chip on the homepage (LandingView.tsx:1080) — homepage is a Phase-203-closed surface.
+- generateChatReply in ai-local.ts — dead code written in full Egyptian dialect (zero importers); needs a separate delete-or-rewrite decision.
+- MT quality of the 868-exercise instruction corpus (typos like «اسحل/تقمص/قلي») — needs a dedicated re-translation pass, not a copy patch.
+
+---
 Task ID: PHASE-204-INTERNAL-PAGES-MSA-2026-09-15
 Agent: Super Z (main)
 Task: تنظيف وتوحيد النصوص في الصفحات الداخلية فقط (أمر المالك 2026-09-15): Programs/Tools/EVO/FAQ/About/Coaching/Memberships + الأسطح التسويقية المشابهة — عامية→فصحى، توحيد مصطلحات/أرقام مع النظام، تصحيح نصوص قديمة متناقضة (حجز جلسة) — صفر مساس بالأسعار/الحدود/business logic/API/DB/التصميم/الرئيسية/المدونة

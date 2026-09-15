@@ -63,6 +63,22 @@ const MARKETING_SURFACE_FILES = [
   "src/lib/tools-shared.ts",
   "src/lib/foods-shared.ts",
   "src/components/foods/FoodsFilters.tsx",
+  // PHASE 205 (owner order 2026-09-15 — Final Internal Copy Audit): the
+  // collections/equipment/muscles hub depth content, the AR foods mirror
+  // (metadata + breadcrumb JSON-LD), the external-plan text renderer, and
+  // the site-wide SEO description joined the MSA law. NOTE:
+  // src/lib/exercises.ts stays OUT of this manifest — its 8 legitimate
+  // MSA «حاجة» (need) hits exceed the weak<5 tolerance; it is guarded by
+  // the dedicated no-cjk-contamination test instead.
+  "src/lib/hub-collections.ts",
+  "src/lib/hub-depth-collections.ts",
+  "src/lib/hub-depth-equipment.ts",
+  "src/lib/hub-depth-muscles.ts",
+  "src/lib/hub-depth.ts",
+  "src/app/ar/foods/page.tsx",
+  "src/app/ar/foods/[slug]/page.tsx",
+  "src/lib/external-plan-text.ts",
+  "src/lib/seo.ts",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -571,5 +587,84 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(aboutVisible).toContain("4 توليدات خطط شهريًا");
     const arCoaches = readFileSync("src/app/ar/coaches/[slug]/page.tsx", "utf8");
     expect(arCoaches).toContain("اشترك في متابعة خاصة");
+  });
+
+  // PHASE 205 (owner order — Final Internal Copy Audit): every phrase
+  // removed by the final sweep stays dead — the residual كارب/الجيم/
+  // الصالة/الأكلات terminology drift on the hub + foods surfaces, the
+  // dialect strings on the member/coach app surfaces, and the CJK
+  // machine-translation splices in the exercise library.
+  it("Phase 205: the final-sweep removed phrases stay dead (terminology + dialect + stale copy)", () => {
+    const surfaces: Record<string, string[]> = {
+      "src/lib/hub-collections.ts": [
+        "أطعمة قليلة الكارب", "والبروتين والكارب", "الكارب، والدهون",
+        "الأكل قليل", "الكاربوهيدرات الأدنى", "جرام كاربوهيدرات يوميًا",
+      ],
+      "src/lib/hub-depth-collections.ts": [
+        "أسطورة الجيم", "تُجوّع الجيم", "في الجيم", "كما يفعل أي أحد",
+        "والتونا", "التلبية", "في الصالة", "ما تزن الأدلة أكثر",
+      ],
+      "src/lib/hub-depth-equipment.ts": ["في الصالة"],
+      "src/components/EvoFloatingWidget.tsx": [
+        "أي حاجة رياضية", "الأكلات، التغذية",
+      ],
+      "src/lib/seo.ts": ["مكتبة أكلات"],
+      "src/app/ar/foods/page.tsx": [
+        "قاعدة بيانات الأكلات", "أكلة 8,830", "احسب جرامك",
+        "قاعدة بيانات الأطعمة | Alkemos",
+      ],
+      "src/app/ar/foods/[slug]/page.tsx": ['{ name: "الأكلات"'],
+      "src/components/views/PlansView.tsx": [
+        "هتحتاج تعمله", "كوتش أونلاين", 'stat-label">كارب', "ليتمكن الكوتش",
+      ],
+      "src/components/views/CoachView.tsx": ["مفيش نتايج"],
+      "src/components/views/CheckoutView.tsx": ["موافقة الكوتش"],
+      "src/lib/ai-local.ts": [
+        "وجبة رئيسية — ركز على البروتين والكارب", "الكارب: ${carbsG}",
+      ],
+      "src/lib/external-plan-text.ts": ["جم • كارب ${m.carbs_g}"],
+      "src/lib/exercises.ts": [
+        "这将有助于", "拉伸", "面向", "远离", "滚动", "以便", "而是",
+        "或在", "放松", "挂在", "引き", "几次", "后退", "立正",
+      ],
+    };
+    for (const [rel, bannedList] of Object.entries(surfaces)) {
+      const src = readFileSync(rel, "utf8");
+      for (const banned of bannedList) {
+        expect(src, `${rel}: Phase 205 phrase returned: "${banned}"`).not.toContain(banned);
+      }
+    }
+    // The unified replacements are present (terminology + facts):
+    const hubCollections = readFileSync("src/lib/hub-collections.ts", "utf8");
+    expect(hubCollections).toContain('titleAr: "أطعمة قليلة الكربوهيدرات');
+    expect(hubCollections).toContain('h1Ar: "أطعمة قليلة الكربوهيدرات"');
+    const hubDepthCollections = readFileSync("src/lib/hub-depth-collections.ts", "utf8");
+    expect(hubDepthCollections).toContain("أسطورة النادي الرياضي");
+    expect(hubDepthCollections).toContain("تُجوّع تدريبك");
+    expect(hubDepthCollections).toContain("كما يفعل أي شخص آخر");
+    const arFoods = readFileSync("src/app/ar/foods/page.tsx", "utf8");
+    expect(arFoods).toContain('title: "قاعدة بيانات الأطعمة"');
+    expect(arFoods).toContain("8,830+ صنف غذائي");
+    const widget = readFileSync("src/components/EvoFloatingWidget.tsx", "utf8");
+    expect(widget).toContain("أي موضوع يخص اللياقة");
+    const plans = readFileSync("src/components/views/PlansView.tsx", "utf8");
+    expect(plans).toContain("مدرب أونلاين للتغذية واللياقة");
+    expect(plans).toContain('stat-label">كربوهيدرات');
+    expect(plans).toContain("ستحتاج إلى إعادته");
+    const coachView = readFileSync("src/components/views/CoachView.tsx", "utf8");
+    expect(coachView).toContain("لا توجد نتائج مطابقة");
+    const checkout = readFileSync("src/components/views/CheckoutView.tsx", "utf8");
+    expect(checkout).toContain("موافقة المدرب");
+    const aiLocal = readFileSync("src/lib/ai-local.ts", "utf8");
+    expect(aiLocal).toContain("الكربوهيدرات: ${carbsG}");
+    expect(aiLocal).toContain("ركّز على البروتين والكربوهيدرات");
+    const externalPlan = readFileSync("src/lib/external-plan-text.ts", "utf8");
+    expect(externalPlan).toContain("كربوهيدرات ${m.carbs_g ?? 0} جم");
+    const seo = readFileSync("src/lib/seo.ts", "utf8");
+    expect(seo).toContain("مكتبة أطعمة");
+    const exercises = readFileSync("src/lib/exercises.ts", "utf8");
+    expect(exercises).toContain("مما سيساعد على الاستشفاء");
+    expect(exercises).toContain("حتى تتمدد عضلات الصدر بالكامل");
+    expect(exercises).toContain("عندما يقفون منتبهين");
   });
 });

@@ -125,7 +125,7 @@ export function getOrganizationSchema(lang: "en" | "ar") {
  */
 const WEBSITE_DESCRIPTIONS: Record<"en" | "ar", string> = {
   en: "A comprehensive sports platform: an exercise library, workout programs, fitness calculators, a food database, and a fitness blog.",
-  ar: "منصة رياضية شاملة: مكتبة تمارين، برامج تدريب، حاسبات لياقة، مكتبة أكلات، ومدونة رياضية.",
+  ar: "منصة رياضية شاملة: مكتبة تمارين، برامج تدريب، حاسبات لياقة، مكتبة أطعمة، ومدونة رياضية.",
 };
 
 export function getWebSiteSchema(lang: "en" | "ar") {

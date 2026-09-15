@@ -58,7 +58,7 @@ export function renderMealPlanText(p: ExternalMealPlan): string {
   out.push(`السعرات اليومية: ${p.daily_calories || 0} سعرة`);
   const m = p.macros || { protein_g: 0, carbs_g: 0, fat_g: 0 };
   out.push(
-    `الماكروز: بروتين ${m.protein_g ?? 0} جم • كارب ${m.carbs_g ?? 0} جم • دهون ${m.fat_g ?? 0} جم`,
+    `الماكروز: بروتين ${m.protein_g ?? 0} جم • كربوهيدرات ${m.carbs_g ?? 0} جم • دهون ${m.fat_g ?? 0} جم`,
   );
   if (p.water_target) out.push(`الماء: ${p.water_target}`);
   if (p.overview) {

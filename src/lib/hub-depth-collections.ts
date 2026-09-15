@@ -22,7 +22,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Set your personal target with the macro calculator, then build meals backwards from it",
     guideAr:
       "البروتين هو المادة الخام لكل عمليات الترميم والنمو في الجسم: النسيج العضلي، والإنزيمات، وخلايا المناعة. وهو أيضًا أكثر المغذيات الكبيرة إشباعًا وأغلاها هضمًا — ولهذا يساعد الأكل الغني بالبروتين في بناء العضل وخسارة الدهون معًا. الكمية: البالغون غير النشطين يكفيهم نحو 0.8 جم لكل كجم من وزن الجسم يوميًا، أما التدريب بالمقاومة المنتظم فيدفع النطاق المفيد نحو 1.6–2.2 جم/كجم موزعة على 3–4 وجبات.\n\n" +
-      "تضم هذه المجموعة أبطال البروتين في المكتبة — صدر الدجاج (نحو 31 جم بروتين لكل 100 جم)، واللحم البقري الخالي، والسلمون، والتونا، والبيض وبياض البيض — مع باقي الاختيارات الكثيفة، وكل منها بملفه الغذائي الكامل وبيانات حصته.\n\n" +
+      "تضم هذه المجموعة أبطال البروتين في المكتبة — صدر الدجاج (نحو 31 جم بروتين لكل 100 جم)، واللحم البقري الخالي، والسلمون، والتونة، والبيض وبياض البيض — مع باقي الاختيارات الكثيفة، وكل منها بملفه الغذائي الكامل وبيانات حصته.\n\n" +
       "كيف تستخدمها:\n" +
       "- اجعل عنصرًا من هذه المجموعة مرساة كل وجبة (25–40 جم بروتين للوجبة يعمل جيدًا)\n" +
       "- وازن بين الاختيارات الخالية (صدر الدجاج، بياض البيض) ومصادر الأحماض الدهنية (السلمون، البيض)\n" +
@@ -42,7 +42,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "The lean champions in this collection: chicken breast (about 31 g protein per 100 g with minimal fat), tuna, egg whites (nearly pure protein), turkey breast, shrimp and tilapia. These let you hit aggressive protein targets without spending your fat or calorie budget — exactly what a cutting phase or a high-volume training block calls for.",
         qAr: "ما أخف الأطعمة الغنية بالبروتين دهونًا؟",
         aAr:
-          "أبطال الخفة في هذه المجموعة: صدر الدجاج (نحو 31 جم بروتين لكل 100 جم بأقل الدهون)، والتونا، وبياض البيض (بروتين شبه خالص)، وصدر الديك الرومي، والجمبري، وسمك التلبية. هذه تتيح بلوغ أهداف بروتين طموحة دون صرف ميزانية الدهون أو السعرات — تمامًا ما يطلبه مرحلة التنشيف أو كتلة تدريب عالية الحجم.",
+          "أبطال الخفة في هذه المجموعة: صدر الدجاج (نحو 31 جم بروتين لكل 100 جم بأقل الدهون)، والتونة، وبياض البيض (بروتين شبه خالص)، وصدر الديك الرومي، والجمبري، وسمك البلطي. هذه تتيح بلوغ أهداف بروتين طموحة دون صرف ميزانية الدهون أو السعرات — تمامًا ما يطلبه مرحلة التنشيف أو كتلة تدريب عالية الحجم.",
       },
       {
         qEn: "Do I need animal protein to build muscle?",
@@ -66,7 +66,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Total daily intake is what the evidence weighs most; the so-called anabolic window is wider than gym legend suggests — hours, not minutes. A practical habit that covers you: 25–40 g of protein within a couple of hours after training, and evenly spaced meals across the day. Worry about hitting your daily total first; the timing details refine an already-correct plan.",
         qAr: "هل توقيت البروتين مهم — وهل هناك نافذة بنائية؟",
         aAr:
-          "إجمالي الكمية اليومية هو ما تزن الأدلة أكثر؛ والنافذة البنائية المزعومة أوسع من أسطورة الجيم — ساعات لا دقائق. عادة عملية تكفيك: 25–40 جم بروتين خلال ساعتين بعد التدريب، ووجبات موزعة بانتظام عبر اليوم. انشغل أولًا ببلوغ إجماليك اليومي؛ تفاصيل التوقيت تُنقّح لخطة صحيحة أصلًا.",
+          "إجمالي الكمية اليومية هو ما تزنه الأدلة أكثر؛ والنافذة البنائية المزعومة أوسع مما توحي به أسطورة النادي الرياضي — ساعات لا دقائق. عادة عملية تكفيك: 25–40 جم بروتين خلال ساعتين بعد التدريب، ووجبات موزعة بانتظام عبر اليوم. انشغل أولًا ببلوغ إجماليك اليومي؛ تفاصيل التوقيت تُنقّح لخطة صحيحة أصلًا.",
       },
       {
         qEn: "How do I hit my protein target without meat?",
@@ -88,12 +88,12 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Watch hidden carbs in sauces and drinks; the collection itself is clean\n" +
       "- If performance in the gym drops for over a week, reintroduce carbs before sessions — that signal matters more than any template",
     guideAr:
-      "النشويات هي وقود الجسم المفضل للتدريب الشاق — وهذا يجعل الأكل قليل النشويات أداة لا عقيدة. المستخدمة بوعي، تضغط ميزانية السعرات وتُهدّم الشهية وتناسب أيامًا بلا تدريب مكثف. والمستخدمة بعمى، تُجوّع الجيم. الإطار الصائب: طابق تناول النشويات مع طلب التدريب بدل حذف المغذيات الكبيرة من قاموسك.\n\n" +
-      "تجمع هذه المجموعة ركائز المكتبة قليلة النشويات — صدر الدجاج واللحم البقري الخالي والسلمون والتونا والبيض وبياض البيض بينها — أطعمة بروتينية التوجه ترسو عليها يوم منخفض النشويات بينما تحمل الخضروات والدهون من حولها القوام والإشباع.\n\n" +
+      "النشويات هي وقود الجسم المفضل للتدريب الشاق — وهذا يجعل الطعام قليل النشويات أداة لا عقيدة. المستخدمة بوعي، تضغط ميزانية السعرات وتُهدّم الشهية وتناسب أيامًا بلا تدريب مكثف. والمستخدمة بعمى، تُجوّع تدريبك. الإطار الصائب: طابق تناول النشويات مع طلب التدريب بدل حذف المغذيات الكبيرة من قاموسك.\n\n" +
+      "تجمع هذه المجموعة ركائز المكتبة قليلة النشويات — صدر الدجاج واللحم البقري الخالي والسلمون والتونة والبيض وبياض البيض بينها — أطعمة بروتينية التوجه ترسو عليها يوم منخفض النشويات بينما تحمل الخضروات والدهون من حولها القوام والإشباع.\n\n" +
       "كيف تستخدمها:\n" +
       "- ابنِ أيام التدريب حول البروتين + الخضار، وضع النشويات الأكثف حول الجلسات إن كنت تتدرب بشدة\n" +
       "- راقب النشويات المخفية في الصلصات والمشروبات؛ المجموعة نفسها نظيفة\n" +
-      "- إن تراجع أداؤك في الصالة أكثر من أسبوع، أعد النشويات قبل الجلسات — هذه الإشارة أهم من أي قالب",
+      "- إن تراجع أداؤك في النادي الرياضي أكثر من أسبوع، أعد النشويات قبل الجلسات — هذه الإشارة أهم من أي قالب",
     faq: [
       {
         qEn: "What actually counts as low carb?",
@@ -125,7 +125,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "The backbone of this collection: chicken breast, salmon, tuna, lean beef and eggs — complete proteins with essentially no carbohydrate. Egg whites push the ratio furthest (protein with nothing else). Build each meal around one of these, add fiber-rich vegetables for volume, and the day lands low-carb almost by accident.",
         qAr: "ما أفضل مصادر البروتين قليلة النشويات؟",
         aAr:
-          "العمود الفقري لهذه المجموعة: صدر الدجاج، والسلمون، والتونا، واللحم البقري الخالي، والبيض — بروتينات كاملة بلا نشويات تقريبًا. وبياض البيض يدفع النسبة لأقصاها (بروتين لا شيء غيره). ابنِ كل وجبة حول أحدها، وأضف خضارًا غنية بالألياف للحجم، فيهبط اليوم قليل النشويات بالصدفة تقريبًا.",
+          "العمود الفقري لهذه المجموعة: صدر الدجاج، والسلمون، والتونة، واللحم البقري الخالي، والبيض — بروتينات كاملة بلا نشويات تقريبًا. وبياض البيض يدفع النسبة لأقصاها (بروتين لا شيء غيره). ابنِ كل وجبة حول أحدها، وأضف خضارًا غنية بالألياف للحجم، فيهبط اليوم قليل النشويات بالصدفة تقريبًا.",
       },
       {
         qEn: "Do I need carbs before a workout?",
@@ -156,7 +156,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Keep protein adequate (1.6–2.2 g/kg if training) — keto is not a protein-restriction diet",
     guideAr:
       "يُبقي النظام الكيتوجيني النشويات منخفضة بما يكفي — عادة تحت 20–50 جم صافي يوميًا — فيتحول الجسم لحرق الدهون وأجسام الكيتون وقودًا رئيسيًا. والتأقلم الكيتوني يأخذ أيامًا إلى أسابيع، ويغيّر أنماط الشهية بوضوح، ويتطلب انتباهًا للإلكتروليتات خلال الانتقال، لأن انخفاض مخازن الإنسولين يعني أن الجسم يغسل الماء والمعادن أسرع.\n\n" +
-      "تحتفظ هذه المجموعة بركائز الكيتو في المكتبة: صدر الدجاج والسلمون والتونا والبيض والجمبري والأفوكادو بينها — بروتينات تحتمل الدهون العالية ودهونًا ترسو عليها يوم كيتوجيني مع إبقاء البروتين كافيًا للتدريب.\n\n" +
+      "تحتفظ هذه المجموعة بركائز الكيتو في المكتبة: صدر الدجاج والسلمون والتونة والبيض والجمبري والأفوكادو بينها — بروتينات تحتمل الدهون العالية ودهونًا ترسو عليها يوم كيتوجيني مع إبقاء البروتين كافيًا للتدريب.\n\n" +
       "كيف تستخدمها:\n" +
       "- رسّ الوجبات بهذه البروتينات ثم أضف دهونًا (زيت زيتون، أفوكادو) وخضارًا فوق الأرض للحجم\n" +
       "- مِح طعامك بوعي خلال الأسبوعين الأولين؛ فقدان الصوديوم يسبب أغلب شكاوى «إنفلونزا الكيتو»\n" +
@@ -184,7 +184,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Eggs, salmon, tuna, shrimp, chicken breast and avocado are the collection's keto backbone: protein and fat with negligible carbs. Chicken and tuna lean toward the protein side, so pair them with added fats (olive oil, avocado) to keep the ketogenic ratio. The collection's 17 foods all fit the carb ceiling — your job is composing them into meals you actually enjoy.",
         qAr: "أي أطعمة هذه المجموعة تناسب الكيتو أكثر؟",
         aAr:
-          "البيض والسلمون والتونا والجمبري وصدر الدجاج والأفوكادو هي العمود الفقري الكيتوني للمجموعة: بروتين ودهون بنشويات مهملة. يميل الدجاج والتونا لجانب البروتين، فاقرنهما بدهون مضافة (زيت زيتون، أفوكادو) للحفاظ على النسبة الكيتوجينية. أطعمة المجموعة الـ17 كلها تناسب سقف النشويات — ومهمتك تأليفها لوجبات تستمتع بها فعلًا.",
+          "البيض والسلمون والتونة والجمبري وصدر الدجاج والأفوكادو هي العمود الفقري الكيتوني للمجموعة: بروتين ودهون بنشويات مهملة. يميل الدجاج والتونة لجانب البروتين، فاقرنهما بدهون مضافة (زيت زيتون، أفوكادو) للحفاظ على النسبة الكيتوجينية. أطعمة المجموعة الـ17 كلها تناسب سقف النشويات — ومهمتك تأليفها لوجبات تستمتع بها فعلًا.",
       },
       {
         qEn: "How long does it take to enter ketosis?",
@@ -223,7 +223,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Cook lean picks with methods that add no fat: grilling, baking, poaching, steaming",
     guideAr:
       "الدهون الغذائية ضرورية — الهرمونات وامتصاص الفيتامينات وأغشية الخلايا تعتمد عليها — لذا فالأكل قليل الدهون يعني تقليم الزائد لا محو المغذيات. تحمل الدهون 9 سعرات لكل جرام مقابل 4 للبروتين والنشويات، وهذا يجعل القطع الدهنية والزيوت أسرع طريق لتضخيم ميزانية السعرات دون ملاحظة. تقليم هذه الكثافة مع إبقاء البروتين عاليًا هو بالضبط غاية الأكل قليل الدهون.\n\n" +
-      "أطعمة هذه المجموعة الـ47 هي الأخف في المكتبة: صدر الدجاج والتونا وبياض البيض وصدر الديك الرومي والجمبري وسمك التلبية في المقدمة — أطعمة كثيفة البروتين يبقى محتواها الدهني منخفضًا طبيعيًا بلا تقليم صناعي.\n\n" +
+      "أطعمة هذه المجموعة الـ47 هي الأخف في المكتبة: صدر الدجاج والتونة وبياض البيض وصدر الديك الرومي والجمبري وسمك البلطي في المقدمة — أطعمة كثيفة البروتين يبقى محتواها الدهني منخفضًا طبيعيًا بلا تقليم صناعي.\n\n" +
       "كيف تستخدمها:\n" +
       "- احتفظ بأرضية دهون صحية (نحو 20–35% من السعرات هي الإرشاد الشائع)؛ أضفها بوعي — زيت زيتون، مكسرات، سمك دهني\n" +
       "- استخدم هذه المجموعة لإبقاء البروتين عاليًا بينما تبقى السعرات متحكَّمة\n" +
@@ -243,7 +243,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "This collection's leaders: chicken breast (about 31 g protein per 100 g at minimal fat), tuna, shrimp, tilapia, turkey breast and egg whites — the leanest protein sources the library tracks. They share a pattern: protein density with naturally low fat, which means large, filling portions inside a tight calorie budget.",
         qAr: "ما أفضل الأطعمة قليلة الدهون غنية البروتين؟",
         aAr:
-          "قادة هذه المجموعة: صدر الدجاج (نحو 31 جم بروتين لكل 100 جم بأدنى دهون)، والتونا، والجمبري، وسمك التلبية، وصدر الديك الرومي، وبياض البيض — أخف مصادر البروتين التي تتبعها المكتبة. تشترك جميعها في نمط: كثافة بروتين بدهون منخفضة طبيعيًا، أي حصص كبيرة مُشبِعة داخل ميزانية سعرات ضيقة.",
+          "قادة هذه المجموعة: صدر الدجاج (نحو 31 جم بروتين لكل 100 جم بأدنى دهون)، والتونة، والجمبري، وسمك البلطي، وصدر الديك الرومي، وبياض البيض — أخف مصادر البروتين التي تتبعها المكتبة. تشترك جميعها في نمط: كثافة بروتين بدهون منخفضة طبيعيًا، أي حصص كبيرة مُشبِعة داخل ميزانية سعرات ضيقة.",
       },
       {
         qEn: "Low fat or low carb for weight loss?",
@@ -385,7 +385,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Absolutely — eggs, dairy, tofu and legumes deliver complete or complementary protein, and resistance training does not check the grocery receipt. Evidence on lacto-ovo vegetarians shows muscle gain comparable to omnivores at matched protein intake. Anchor meals with eggs and dairy, add tofu and legumes for volume, keep calories honest, and progress in the gym exactly as anyone would.",
         qAr: "هل يبني النباتيون عضلات بفعالية؟",
         aAr:
-          "قطعًا — البيض والألبان والتوفو والبقوليات توفر بروتينًا كاملًا أو متكاملًا، والتدريب بالمقاومة لا يفحص فاتورة البقالة. الأدلة على النباتيين (بالبيض والألبان) تُظهر نموًا عضليًا متكافئًا مع آكلي كل شيء عند تساوي البروتين. رسّ الوجبات بالبيض والألبان، وأضف التوفو والبقوليات للحجم، وأبقِ السعرات صادقة، وتدرّج في الجيم كما يفعل أي أحد.",
+          "قطعًا — البيض والألبان والتوفو والبقوليات توفر بروتينًا كاملًا أو متكاملًا، والتدريب بالمقاومة لا يفحص فاتورة البقالة. الأدلة على النباتيين (بالبيض والألبان) تُظهر نموًا عضليًا متكافئًا مع آكلي كل شيء عند تساوي البروتين. رسّ الوجبات بالبيض والألبان، وأضف التوفو والبقوليات للحجم، وأبقِ السعرات صادقة، وتدرّج في النادي الرياضي كما يفعل أي شخص آخر.",
       },
       {
         qEn: "What are the best vegetarian protein foods in this collection?",
@@ -425,7 +425,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Keep training heavy: the deficit is when the body needs the strongest reason to keep muscle",
     guideAr:
       "مرحلة التنشيف عجزٌ حراري يُستمر فيه طويلًا بما يكفي لفقدان الدهون بينما يحافظ التدريب على العضل تحتها. وخدمة اختيار الطعام لذلك تأتي من جهتين: البروتين يحمي النسيج العضلي ويكلّف أغلى سعرات في الهضم، والأطعمة قليلة الكثافة الحرارية تملأ الطبق والمعدة لسعرات قليلة. وهذه المجموعة مُرشّحة لهاتين الخاصيتين بالضبط.\n\n" +
-      "تتقدم أطعمة هذه المجموعة الـ28 صدر الدجاج والتونا وبياض البيض وصدر الديك الرومي والجمبري وسمك التلبية — بروتينات خالية تجعل العجز يشبه الأكل لا المعاناة الحسابية.\n\n" +
+      "تتقدم أطعمة هذه المجموعة الـ28 صدر الدجاج والتونة وبياض البيض وصدر الديك الرومي والجمبري وسمك البلطي — بروتينات خالية تجعل العجز يشبه الأكل لا المعاناة الحسابية.\n\n" +
       "كيف تستخدمها:\n" +
       "- اضبط العجز أولًا بحاسبة السعرات (عجز معتدل 300–500 سعرة يوميًا هو نقطة البداية المعيارية)\n" +
       "- رسّ كل وجبة بطعام من هنا، 25–40 جم بروتين لكل وجبة\n" +
@@ -438,7 +438,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Two properties decide: high protein per calorie (protection and satiety) and low calorie density per volume (a full plate for few calories). Chicken breast, tuna, shrimp and egg whites exemplify both — 100+ grams of protein-rich food for 100–150 calories. Everything else in a cut (vegetables, portioned carbs and fats) arranges itself around that anchor.",
         qAr: "ما الذي يجعل طعامًا جيدًا للتنشيف؟",
         aAr:
-          "خاصيتان تحسمان: بروتين مرتفع لكل سعرة (حماية وإشباع) وكثافة حرارية منخفضة لكل حجم (طبق ممتلئ لسعرات قليلة). صدر الدجاج والتونا والجمبري وبياض البيض نموذج للاثنين — أكثر من 100 جرام طعام غني بالبروتين بـ100–150 سعرة. وكل ما عداه في التنشيف (خضار، نشويات ودهون مقننة) يرتّب نفسه حول هذه المرساة.",
+          "خاصيتان تحسمان: بروتين مرتفع لكل سعرة (حماية وإشباع) وكثافة حرارية منخفضة لكل حجم (طبق ممتلئ لسعرات قليلة). صدر الدجاج والتونة والجمبري وبياض البيض نموذج للاثنين — أكثر من 100 جرام طعام غني بالبروتين بـ100–150 سعرة. وكل ما عداه في التنشيف (خضار، نشويات ودهون مقننة) يرتّب نفسه حول هذه المرساة.",
       },
       {
         qEn: "How large should my calorie deficit be?",
@@ -454,7 +454,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "The leanest, densest ones this collection leads with: chicken breast, tuna, egg whites, shrimp, tilapia and turkey breast. They deliver maximum protein per calorie — the macro that both preserves muscle in a deficit and digests expensively enough to help satiety. Fattier proteins (salmon, beef) still fit; they simply cost more of a cutting calorie budget per gram of protein.",
         qAr: "أي البروتينات أفضل أثناء التنشيف؟",
         aAr:
-          "الأخف والأكثف التي تتقدم بها هذه المجموعة: صدر الدجاج والتونا وبياض البيض والجمبري وسمك التلبية وصدر الديك الرومي. توفر أقصى بروتين لكل سعرة — المغذي الذي يحمي العضل في العجز ويكلّف هضمه بما يخدم الإشباع. والبروتينات الأدهم (السلمون، اللحم البقري) ما تزال تناسب؛ إنما تكلّف حصة أكبر من ميزانية تنشيفك لكل جرام بروتين.",
+          "الأخف والأكثف التي تتقدم بها هذه المجموعة: صدر الدجاج والتونة وبياض البيض والجمبري وسمك البلطي وصدر الديك الرومي. توفر أقصى بروتين لكل سعرة — المغذي الذي يحمي العضل في العجز ويكلّف هضمه بما يخدم الإشباع. والبروتينات الأدهم (السلمون، اللحم البقري) ما تزال تناسب؛ إنما تكلّف حصة أكبر من ميزانية تنشيفك لكل جرام بروتين.",
       },
       {
         qEn: "Can I cut without feeling hungry all the time?",
@@ -563,7 +563,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Keep perishables refrigerated and mind storage guidance; convenience never outranks safety",
     guideAr:
       "الحياة الحقيقية تضم أيامًا بلا مطبخ: غداء المكتب، والسفر، وغرف السكن الجامعي، أو مجرد أمسيات يكون فيها الطبخ آخر طاقة متاحة. نظام الأكل بلا طهي ليس خدعة غذائية — إنه بنية تحتية للأكل جيدًا حين تكون الظروف سيئة. والمبادئ تبقى عادية: بروتين مرساة، وقواعد حبوب كاملة، وشيء من رف الخضار.\n\n" +
-      "أطعمة هذه المجموعة الـ52 لا تحتاج حرارة: صدر الدجاج (مطبوخ جاهزًا)، والتونا، وخبز القمح الكامل، والحبوب، والغرانولا، والأفوكادو بينها — تنويع كافٍ لتأليف إفطار وغداء ووجبات خفيفة بلا قدر واحد.\n\n" +
+      "أطعمة هذه المجموعة الـ52 لا تحتاج حرارة: صدر الدجاج (مطبوخ جاهزًا)، والتونة، وخبز القمح الكامل، والحبوب، والغرانولا، والأفوكادو بينها — تنويع كافٍ لتأليف إفطار وغداء ووجبات خفيفة بلا قدر واحد.\n\n" +
       "كيف تستخدمها:\n" +
       "- رسّ كل وجبة ببروتين جاهز (تونا، دجاج مطبوخ مسبقًا، بيض حيثما توفر)\n" +
       "- أضف قاعدة حبوب (خبز قمح كامل، حبوب) ومصدر دهون (أفوكادو، مكسرات)\n" +
@@ -576,7 +576,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Health is a property of composition, not cooking temperature. Tuna with whole-wheat bread and vegetables outperforms most hot canteen meals; a granola-and-fruit bowl beats most vending machines. The watch-items are sodium in processed ready foods and the quality of the grain base — pick whole-grain versions and rotate fresh produce in, and no-cook becomes a legitimate daily system.",
         qAr: "هل الوجبات بلا طهي صحية فعلًا؟",
         aAr:
-          "الصحة خاصية التركيب لا حرارة الطهي. التونا مع خبز القمح الكامل والخضار تتفوق على أغلب وجبات المطاعم الساخنة؛ وطبق غرانولا وفواكه يهزم أغلب ماكينات البيع. عناصر الانتباه هي الصوديوم في الجاهزات المصنعة وجودة قاعدة الحبوب — اختر نسخ الحبوب الكاملة وأدخل الخضار الطازجة، فيصير بلا طهي نظامًا يوميًا مشروعًا.",
+          "الصحة خاصية التركيب لا حرارة الطهي. التونة مع خبز القمح الكامل والخضار تتفوق على أغلب وجبات المطاعم الساخنة؛ وطبق غرانولا وفواكه يهزم أغلب ماكينات البيع. عناصر الانتباه هي الصوديوم في الجاهزات المصنعة وجودة قاعدة الحبوب — اختر نسخ الحبوب الكاملة وأدخل الخضار الطازجة، فيصير بلا طهي نظامًا يوميًا مشروعًا.",
       },
       {
         qEn: "What are the best no-cook protein sources?",
@@ -584,7 +584,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "The collection's leaders: canned tuna, ready-to-eat chicken breast, eggs (boiled ahead or bought pre-boiled), and dairy-based options where available. Tuna is the classic for a reason — shelf-stable, dense, and affordable. Pair any of them with whole-wheat bread and you have a 25–30 g protein meal assembled in two minutes.",
         qAr: "ما أفضل مصادر البروتين بلا طهي؟",
         aAr:
-          "قادة المجموعة: التونا المعلبة، وصدر الدجاج الجاهز للأكل، والبيض (مسلوق مسبقًا أو مشترى مسلوقًا)، وخيارات الألبان حيثما توفر. التونا كلاسيكية لسبب — تتحمل الرف، وكثيفة، وميسورة. اقرن أيًا منها بخبز القمح الكامل فتملك وجبة 25–30 جم بروتين مؤلَّفة في دقيقتين.",
+          "قادة المجموعة: التونة المعلبة، وصدر الدجاج الجاهز للأكل، والبيض (مسلوق مسبقًا أو مشترى مسلوقًا)، وخيارات الألبان حيثما توفر. التونة كلاسيكية لسبب — تتحمل الرف، وكثيفة، وميسورة. اقرن أيًا منها بخبز القمح الكامل فتملك وجبة 25–30 جم بروتين مؤلَّفة في دقيقتين.",
       },
       {
         qEn: "What quick no-cook meals can I assemble?",
@@ -598,9 +598,9 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
         qEn: "Is canned tuna okay to eat regularly?",
         aEn:
           "As a protein convenience, yes — it is shelf-stable, lean and inexpensive. Two watch-items keep it honest: mercury (larger predatory fish accumulate more; rotating tuna with smaller fish and other proteins is the standard sensible advice) and sodium in brined varieties, solved by rinsing or choosing water-packed versions. For personalized frequency — especially in pregnancy — a professional's guidance applies.",
-        qAr: "هل التونا المعلبة تصلح للأكل المنتظم؟",
+        qAr: "هل التونة المعلبة تصلح للأكل المنتظم؟",
         aAr:
-          "كراحة بروتين، نعم — تتحمل الرف، وخالية، وميسورة. وعنصرا انتباه يُبقيانها صادقة: الزئبق (الأسماك المفترسة الكبيرة تتراكم أكثر؛ وتناوب التونا مع أسماك أصغر وبروتينات أخرى هو النصيحة الحسّية المعيارية) والصوديوم في الأنواع المملحة، ويُحل بالشطف أو اختيار المعلبة بالماء. وللتكرار المخصص — خصوصًا في الحمل — يُرجع لإرشاد مختص.",
+          "كراحة بروتين، نعم — تتحمل الرف، وخالية، وميسورة. وعنصرا انتباه يُبقيانها صادقة: الزئبق (الأسماك المفترسة الكبيرة تتراكم أكثر؛ وتناوب التونة مع أسماك أصغر وبروتينات أخرى هو النصيحة الحسّية المعيارية) والصوديوم في الأنواع المملحة، ويُحل بالشطف أو اختيار المعلبة بالماء. وللتكرار المخصص — خصوصًا في الحمل — يُرجع لإرشاد مختص.",
       },
       {
         qEn: "How do I keep no-cook foods safe to eat?",
@@ -631,8 +631,8 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
       "- Speed comes from repetition: two or three breakfasts and dinners you can make half-asleep\n" +
       "- Add one vegetable and one fruit daily and the system stays nutritionally complete",
     guideAr:
-      "الطبخ السريع هو الطريق الأوسط بين التبعية للمطاعم وأحداث تحضير الوجبات الأسبوعية: أطعمة تنتقل من التخزين إلى الطبق في دقائق بأقل المعدات ودون وصفة. تُعرَّف الفئة بالسرعة لا بالتنازل — البيض والتونا والأرز والشوفان ركائز في برامج تغذية النخبة لا اختصارات عنها.\n\n" +
-      "أطعمة هذه المجموعة الـ15 هي الأسرع بين السريعين: التونا والبيض وبياض البيض والأرز الأبيض والشوفان وخبز القمح الكامل بينها — كل منها يُقرن في وجبات متوازنة في أقل من عشر دقائق.\n\n" +
+      "الطبخ السريع هو الطريق الأوسط بين التبعية للمطاعم وأحداث تحضير الوجبات الأسبوعية: أطعمة تنتقل من التخزين إلى الطبق في دقائق بأقل المعدات ودون وصفة. تُعرَّف الفئة بالسرعة لا بالتنازل — البيض والتونة والأرز والشوفان ركائز في برامج تغذية النخبة لا اختصارات عنها.\n\n" +
+      "أطعمة هذه المجموعة الـ15 هي الأسرع بين السريعين: التونة والبيض وبياض البيض والأرز الأبيض والشوفان وخبز القمح الكامل بينها — كل منها يُقرن في وجبات متوازنة في أقل من عشر دقائق.\n\n" +
       "كيف تستخدمها:\n" +
       "- احتفظ بمخزون دائم: بيض، تونا معلبة، أرز، شوفان، خبز — مخزن الخمس دقائق\n" +
       "- الأرز والشوفان كلاهما يُطهى جيدًا في الميكروويف في دقائق\n" +
@@ -645,7 +645,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Minutes, not hours: a meal is quick-prep when its hands-on time is under ten minutes with no technique required. Eggs, canned tuna, microwave rice, oatmeal and bread define the category — which is why this collection holds the library's 15 fastest foods. If a recipe needs a shopping trip or a technique tutorial, it is a weekend project, not quick prep.",
         qAr: "ما الذي يُعد تحضيرًا سريعًا؟",
         aAr:
-          "دقائق لا ساعات: الوجبة سريعة التحضير حين لا يتجاوز وقت العمل الفعلي فيها عشر دقائق بلا تقنية مطلوبة. البيض والتونا المعلبة والأرز بالميكروويف والشوفان والخبز هي التي تحدد الفئة — ولهذا تحتفظ هذه المجموعة بأسرع 15 طعامًا في المكتبة. وإن احتاجت الوصفة رحلة تسوق أو درس تقنية، فهي مشروع نهاية أسبوع لا تحضير سريع.",
+          "دقائق لا ساعات: الوجبة سريعة التحضير حين لا يتجاوز وقت العمل الفعلي فيها عشر دقائق بلا تقنية مطلوبة. البيض والتونة المعلبة والأرز بالميكروويف والشوفان والخبز هي التي تحدد الفئة — ولهذا تحتفظ هذه المجموعة بأسرع 15 طعامًا في المكتبة. وإن احتاجت الوصفة رحلة تسوق أو درس تقنية، فهي مشروع نهاية أسبوع لا تحضير سريع.",
       },
       {
         qEn: "Are quick meals less healthy than cooked ones?",
@@ -685,7 +685,7 @@ export const COLLECTION_DEPTH: Record<string, HubDepthContent> = {
           "Vary the accents, not the architecture: eggs become omelet, scramble or sandwich depending on the day; tuna shifts by seasoning — lemon-pepper, yogurt-based dressings, spices; rice and oatmeal accept different toppings weekly. Keep five or six flavor additions in rotation and the same fifteen-minute pantry produces a month of distinct meals.",
         qAr: "كيف أضيف تنويعًا لنفس الركائز السريعة؟",
         aAr:
-          "غيّر التوابل لا الهندسة: البيض يصير عجة أو مخفوقًا أو ساندويتش بحسب اليوم؛ والتونا تتبدل بالتتبيل — ليمون وفلفل، صلصات أساسها زبادي، توابل؛ والأرز والشوفان يقبلان إضافات مختلفة كل أسبوع. احتفظ بخمس أو ست إضافات نكهة في التدوير فينتج المخزن نفسه شهرًا من الوجبات المتمايزة.",
+          "غيّر التوابل لا الهندسة: البيض يصير عجة أو مخفوقًا أو ساندويتش بحسب اليوم؛ والتونة تتبدل بالتتبيل — ليمون وفلفل، صلصات أساسها زبادي، توابل؛ والأرز والشوفان يقبلان إضافات مختلفة كل أسبوع. احتفظ بخمس أو ست إضافات نكهة في التدوير فينتج المخزن نفسه شهرًا من الوجبات المتمايزة.",
       },
     ],
   },

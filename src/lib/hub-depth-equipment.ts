@@ -188,7 +188,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
           "The Pull-Up — nothing else loads the lats through a full vertical pull so honestly. If you cannot do one yet, Band-Assisted Pull-Ups and negative pull-ups build toward it. For horizontal pulling without equipment, the Bodyweight Mid-Row under a sturdy table or low bar fills the role of a row. Train vertical and horizontal pulling weekly, just as you would in a gym.",
         qAr: "ما أفضل تمرين ظهر بوزن الجسم؟",
         aAr:
-          "العلق — لا شيء آخر يحمّل الجناحية بسحب رأسي كامل بهذه الأمانة. إن لم تستطع واحدة بعد، فالعلق بمساعدة المطاط والعلق السلبي يبنيان الطريق إليها. وللسحب الأفقي بلا معدات، يلعب التجديف الوسطي تحت طاولة متينة أو بار منخفض دور التجديف. درّب السحب الرأسي والأفقي أسبوعيًا كما في الصالة تمامًا.",
+          "العلق — لا شيء آخر يحمّل الجناحية بسحب رأسي كامل بهذه الأمانة. إن لم تستطع واحدة بعد، فالعلق بمساعدة المطاط والعلق السلبي يبنيان الطريق إليها. وللسحب الأفقي بلا معدات، يلعب التجديف الوسطي تحت طاولة متينة أو بار منخفض دور التجديف. درّب السحب الرأسي والأفقي أسبوعيًا كما في النادي الرياضي تمامًا.",
       },
       {
         qEn: "How often should I do bodyweight workouts?",
@@ -227,7 +227,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
       "- Judge effort by proximity to failure, not by the number on the stack\n" +
       "- Cables pair well after free-weight compounds: constant tension finishes tired muscles cleanly",
     guideAr:
-      "آلات الكابل تسحب عبر رجّ حديدي محرك، وهذا يمنحها خاصية لا يضاهيها الوزن الحر: شد ثابت عبر كامل مدى الحركة. أعلى ذبابة دمبل يخفف عنك الجاذبية؛ وأعلى ذبابة كابل ما يزال الرجّ يسحب. هذا الشد الثابت مع زوايا قابلة للضبط من الأرض إلى فوق الرأس يجعل الكابل أداة الدقة في الصالة.\n\n" +
+      "آلات الكابل تسحب عبر رجّ حديدي محرك، وهذا يمنحها خاصية لا يضاهيها الوزن الحر: شد ثابت عبر كامل مدى الحركة. أعلى ذبابة دمبل يخفف عنك الجاذبية؛ وأعلى ذبابة كابل ما يزال الرجّ يسحب. هذا الشد الثابت مع زوايا قابلة للضبط من الأرض إلى فوق الرأس يجعل الكابل أداة الدقة في النادي الرياضي.\n\n" +
       "تُظهر عائلة الكابل في المكتبة (81 تمرينًا) الاتساع: السحب الواسع وشبك الوجه للظهر والكتف الخلفي، وضغط الصدر بالكابل لدفع بشد ثابت، وثني الكابل لثني محمّل، والرف الجانبي الجالس للكتف الجانبي، وثني الكاهل للعزل الصارم للذراع.\n\n" +
       "كيف تتدرب بالكابل:\n" +
       "- اضبط ارتفاع البكرة بوعي — إنه يحدد أي جزء من القوس يُحمّل الأصعب\n" +
@@ -365,7 +365,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
       "- Blend strength sets (5–8 reps, heavy) with longer grind or interval sets (10–20 reps, moderate)\n" +
       "- Two to four sessions weekly; ballistics are systemically expensive — respect recovery",
     guideAr:
-      "كتلة الكيتل بيل تجلس بإزاحة عن المقبض، وهذا يغيّر كل شيء: كل رفعة يجب أيضًا أن تسيطر على حمل يتأرجح ويدور. هذا الاختيار التصميمي وحده يجعل الكيتل بيل أفضل أداة في الصالة لقوة التحمل — توليد القوة مرارًا مع بقاء الشدّ — ولعمل الثبات الأحادي الذي يقلّده البار والدمبل فقط.\n\n" +
+      "كتلة الكيتل بيل تجلس بإزاحة عن المقبض، وهذا يغيّر كل شيء: كل رفعة يجب أيضًا أن تسيطر على حمل يتأرجح ويدور. هذا الاختيار التصميمي وحده يجعل الكيتل بيل أفضل أداة في النادي الرياضي لقوة التحمل — توليد القوة مرارًا مع بقاء الشدّ — ولعمل الثبات الأحادي الذي يقلّده البار والدمبل فقط.\n\n" +
       "تضم عائلة الكيتل بيل في المكتبة (52 تمرينًا) الأساسيات: سكوات جوبلت لنمط سكوات يصحح نفسه، وضغط متبادل وبنت بريس للقوة فوق الرأس، وطاحونة الكيتل المتقدمة للمرونة تحت الحمل، وتجديف متبادل وتجديف متمرد للسحب مع مقاومة الدوران، وتنظيفات بجرسين مزدوجين للياقة.\n\n" +
       "كيف تتدرب بالكيتل بيل:\n" +
       "- تعلّم الأنماط بوزن خفيف — الحمل المزاح يعاقب التقنية المتعجلة أشد من أي بار\n" +
@@ -379,7 +379,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
           "Three zones of excellence: power-endurance (repeated forceful hinge and press patterns), unilateral stability (the offset load recruits the whole shoulder and hip girdle), and efficient conditioning that builds work capacity without a treadmill. If your goals include athletic power, grip strength and training that doubles as cardio, a kettlebell earns its corner of the gym faster than any single tool.",
         qAr: "ما الذي يتفوق فيه الكيتل بيل؟",
         aAr:
-          "ثلاث مناطق تفوق: قوة التحمل (أنماط مفصلية وضغط متكررة قوية)، والثبات الأحادي (الحمل المزاح يستشرك حزام الكتف والورك كاملًا)، ولياقة فعّالة تبني قدرة العمل دون جهاز جري. إن كانت أهدافك قوة رياضية وقبضة وتدريب يعمل كارديو في الوقت نفسه، فالكيتل بيل يستحق ركنه في الصالة أسرع من أي أداة منفردة.",
+          "ثلاث مناطق تفوق: قوة التحمل (أنماط مفصلية وضغط متكررة قوية)، والثبات الأحادي (الحمل المزاح يستشرك حزام الكتف والورك كاملًا)، ولياقة فعّالة تبني قدرة العمل دون جهاز جري. إن كانت أهدافك قوة رياضية وقبضة وتدريب يعمل كارديو في الوقت نفسه، فالكيتل بيل يستحق ركنه في النادي الرياضي أسرع من أي أداة منفردة.",
       },
       {
         qEn: "Kettlebell or dumbbell — which should I buy first?",

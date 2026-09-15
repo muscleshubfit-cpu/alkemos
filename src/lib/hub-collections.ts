@@ -369,27 +369,27 @@ export const FOOD_COLLECTIONS: FoodCollection[] = [
     introEn:
       "A curated list of high-protein foods from the Alkemos nutrition database — chicken breast, lean beef, eggs, tuna, salmon, turkey, Greek yogurt, cottage cheese, and more. Each entry includes calories, protein, carbs, and fat per 100g, plus the default serving size and weight in grams. Whether you are building muscle, losing fat, or hitting a daily protein target, this collection gives you the macros you need at a glance.",
     introAr:
-      "قائمة مُختارة لأطعمة عالية البروتين من قاعدة تغذية Alkemos — صدور دجاج، لحم بقري قليل الدهن، بيض، تونة، سلمون، ديك رومي، زبادي يوناني، جبن قريش، والمزيد. كل عنصر يتضمّن السعرات، البروتين، الكارب، والدهون لكل 100 جرام، بالإضافة إلى حجم الحصة الافتراضي والوزن بالجرام. سواء كنت تبني عضلات، تفقد دهون، أو تسعى لهدف بروتين يومي، هذه المجموعة تمنحك الماكروز بنظرة سريعة.",
+      "قائمة مُختارة لأطعمة عالية البروتين من قاعدة تغذية Alkemos — صدور دجاج، لحم بقري قليل الدهن، بيض، تونة، سلمون، ديك رومي، زبادي يوناني، جبن قريش، والمزيد. كل عنصر يتضمّن السعرات، البروتين، الكربوهيدرات، والدهون لكل 100 جرام، بالإضافة إلى حجم الحصة الافتراضي والوزن بالجرام. سواء كنت تبني عضلات، تفقد دهون، أو تسعى لهدف بروتين يومي، هذه المجموعة تمنحك الماكروز بنظرة سريعة.",
     descriptionEn:
       "Complete list of high protein foods with calories, protein, carbs, and fat per 100g. Chicken, beef, eggs, tuna, salmon, and more.",
     descriptionAr:
-      "قائمة كاملة لأطعمة عالية البروتين مع السعرات والبروتين والكارب والدهون لكل 100 جرام. دجاج، لحم، بيض، تونة، سلمون، والمزيد.",
+      "قائمة كاملة لأطعمة عالية البروتين مع السعرات والبروتين والكربوهيدرات والدهون لكل 100 جرام. دجاج، لحم، بيض، تونة، سلمون، والمزيد.",
   },
   {
     slug: "low-carb-foods",
     tag: "low-carb",
     titleEn: "Low Carb Foods — Best Options for Keto & Cutting | Alkemos",
-    titleAr: "أطعمة قليلة الكارب — أفضل الخيارات للكيتو والتخسيس | Alkemos",
+    titleAr: "أطعمة قليلة الكربوهيدرات — أفضل الخيارات للكيتو والتخسيس | Alkemos",
     h1En: "Low Carb Foods",
-    h1Ar: "أطعمة قليلة الكارب",
+    h1Ar: "أطعمة قليلة الكربوهيدرات",
     introEn:
       "Every low-carb food in the Alkemos database — meats, fish, eggs, cheese, oils, and low-carb vegetables. Low-carb eating is the foundation of ketogenic diets, fat-loss phases, and blood-sugar management. This collection filters the curated food library to only those with minimal carbohydrate content, with full macros per 100g and per serving.",
     introAr:
-      "كل أطعمة قليلة الكارب في قاعدة Alkemos — لحوم، أسماك، بيض، جبن، زيوت، وخضار قليلة الكارب. الأكل قليل الكارب هو أساس الحميات الكيتونية، مراحل خسارة الدهون، وإدارة سكر الدم. هذه المجموعة تُفلتر المكتبة المُختارة لتشمل فقط الأطعمة ذات الكاربوهيدرات الأدنى، مع الماكروز الكاملة لكل 100 جرام ولكل حصة.",
+      "كل أطعمة قليلة الكربوهيدرات في قاعدة Alkemos — لحوم، أسماك، بيض، جبن، زيوت، وخضار قليلة الكربوهيدرات. الطعام قليل الكربوهيدرات هو أساس الحميات الكيتونية، مراحل خسارة الدهون، وإدارة سكر الدم. هذه المجموعة تُفلتر المكتبة المُختارة لتشمل فقط الأطعمة ذات الكربوهيدرات الأدنى، مع الماكروز الكاملة لكل 100 جرام ولكل حصة.",
     descriptionEn:
       "Complete list of low carb foods with macros per 100g. Meats, fish, eggs, cheese, and low-carb vegetables for keto and cutting.",
     descriptionAr:
-      "قائمة كاملة لأطعمة قليلة الكارب مع الماكروز لكل 100 جرام. لحوم، أسماك، بيض، جبن، وخضار قليلة الكارب للكيتو والتخسيس.",
+      "قائمة كاملة لأطعمة قليلة الكربوهيدرات مع الماكروز لكل 100 جرام. لحوم، أسماك، بيض، جبن، وخضار قليلة الكربوهيدرات للكيتو والتخسيس.",
   },
   {
     slug: "keto-friendly-foods",
@@ -401,11 +401,11 @@ export const FOOD_COLLECTIONS: FoodCollection[] = [
     introEn:
       "The complete collection of keto-friendly foods from the Alkemos nutrition database. The ketogenic diet requires under 20–50g of carbohydrates per day, with the majority of calories from fat and moderate protein. This curated list shows every food tagged keto-friendly, with full macros per 100g so you can plan your keto meals accurately.",
     introAr:
-      "المجموعة الكاملة لأطعمة صديقة للكيتو من قاعدة تغذية Alkemos. حمية الكيتو تتطلّب أقل من 20–50 جرام كاربوهيدرات يوميًا، مع أغلب السعرات من الدهون وبروتين معتدل. هذه القائمة المُختارة تعرض كل أطعمة الكيتو، مع الماكروز الكاملة لكل 100 جرام لتخطّط وجبات الكيتو بدقة.",
+      "المجموعة الكاملة لأطعمة صديقة للكيتو من قاعدة تغذية Alkemos. حمية الكيتو تتطلّب أقل من 20–50 جرام كربوهيدرات يوميًا، مع أغلب السعرات من الدهون وبروتين معتدل. هذه القائمة المُختارة تعرض كل أطعمة الكيتو، مع الماكروز الكاملة لكل 100 جرام لتخطّط وجبات الكيتو بدقة.",
     descriptionEn:
       "Complete list of keto-friendly foods with macros per 100g. Meats, fish, eggs, cheese, oils, and low-carb vegetables for ketogenic diets.",
     descriptionAr:
-      "قائمة كاملة لأطعمة صديقة للكيتو مع الماكروز لكل 100 جرام. لحوم، أسماك، بيض، جبن، زيوت، وخضار قليلة الكارب لحميات الكيتو.",
+      "قائمة كاملة لأطعمة صديقة للكيتو مع الماكروز لكل 100 جرام. لحوم، أسماك، بيض، جبن، زيوت، وخضار قليلة الكربوهيدرات لحميات الكيتو.",
   },
   {
     slug: "low-fat-foods",

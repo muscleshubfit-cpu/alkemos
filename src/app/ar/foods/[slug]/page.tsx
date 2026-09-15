@@ -111,7 +111,7 @@ export default async function Page({
   const breadcrumbSchema = food
     ? getBreadcrumbSchema([
         { name: "الرئيسية", url: "/ar" },
-        { name: "الأكلات", url: "/ar/foods" },
+        { name: "الأطعمة", url: "/ar/foods" },
         { name: food.nameAr, url: `/ar/foods/${food.slug}` },
       ])
     : null;

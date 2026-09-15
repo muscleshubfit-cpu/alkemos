@@ -813,7 +813,7 @@ export function CoachView() {
                   )}
                   {singleQuery.trim() && singleResults.length === 0 && (
                     <p className="mt-1 px-1 text-xs text-[#86868b]">
-                      {isAr ? "مفيش نتايج مطابقة" : "No matches"}
+                      {isAr ? "لا توجد نتائج مطابقة" : "No matches"}
                     </p>
                   )}
                 </div>

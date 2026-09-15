@@ -113,7 +113,7 @@ export function PlansView() {
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  } catch (e) {
  console.error("[PlansView] swap persist failed (state kept):", e);
- toast.error("الاستبدال ظاهر حالياً لكن تعذر حفظه — هتحتاج تعمله تاني لو حدّثت الصفحة.");
+ toast.error("الاستبدال ظاهر حاليًا لكن تعذّر حفظه — ستحتاج إلى إعادته إذا حدّثت الصفحة.");
  }
  }, []);
 
@@ -409,7 +409,7 @@ export function PlansView() {
  <div class="brand-logo">MH</div>
  <div>
  <div class="brand-name">Alkemos</div>
- <div class="brand-tag">كوتش أونلاين للتغذية واللياقة | alkemos.com</div>
+ <div class="brand-tag">مدرب أونلاين للتغذية واللياقة | alkemos.com</div>
  </div>
 </div>
 <h1>${escapeHtml(plan.title)}</h1>`;
@@ -440,7 +440,7 @@ export function PlansView() {
  html += `<h2> السعرات والماكروز</h2><div class="stats">`;
  if (content.daily_calories) html += `<div class="stat"><span class="stat-label">السعرات اليومية</span><span class="stat-value">${content.daily_calories}</span></div>`;
  if (content.macros?.protein_g) html += `<div class="stat"><span class="stat-label">بروتين</span><span class="stat-value">${content.macros.protein_g}جم</span></div>`;
- if (content.macros?.carbs_g) html += `<div class="stat"><span class="stat-label">كارب</span><span class="stat-value">${content.macros.carbs_g}جم</span></div>`;
+ if (content.macros?.carbs_g) html += `<div class="stat"><span class="stat-label">كربوهيدرات</span><span class="stat-value">${content.macros.carbs_g}جم</span></div>`;
  if (content.macros?.fat_g) html += `<div class="stat"><span class="stat-label">دهون</span><span class="stat-value">${content.macros.fat_g}جم</span></div>`;
  html += `</div>`;
  }
@@ -601,7 +601,7 @@ function EmptyCard({ text }: { text: string }) {
  <div className="rounded-2xl bg-[#f5f5f7] p-12 text-center">
  <p className="text-base font-normal text-[#6e6e73]">{text}</p>
  <p className="mt-2 text-sm font-normal text-[#6e6e73]">
- {isAr ? "املأ استبيانك ليتمكن الكوتش من تجهيز خطتك المخصصة." : "Fill out your questionnaire so the coach can prepare your personalized plan."}
+ {isAr ? "املأ استبيانك ليتمكن المدرب من تجهيز خطتك المخصصة." : "Fill out your questionnaire so the coach can prepare your personalized plan."}
  </p>
  <button
  onClick={() => navigate("questionnaires")}

@@ -14,9 +14,11 @@ const SITE_URL = "https://alkemos.com";
  * crawler language attribution.
  */
 export const metadata: Metadata = {
-  title: "قاعدة بيانات الأكلات",
+  // NOTE: the /ar layout template appends «— Alkemos» automatically — a
+  // static «| Alkemos» here would double-brand the SERP title.
+  title: "قاعدة بيانات الأطعمة",
   description:
-    "أكلة 8,830+ بالسعرات والماكروز لكل 100 جرام — ابحث، فلتر، واحسب جرامك على Alkemos.",
+    "قاعدة بيانات أطعمة كاملة بالسعرات والماكروز لكل 100 جرام — 8,830+ صنف غذائي. ابحث، صفِّ النتائج، واحسب الكميات بالجرام على Alkemos.",
   alternates: {
     canonical: "/ar/foods",
     languages: {

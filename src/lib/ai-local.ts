@@ -723,7 +723,7 @@ export function generateNutritionPlan(ctx: ClientContext): NutritionContent {
  if (idx === 0) notes = "تناولها خلال ساعة من الاستيقاظ — مهمة لتشغيل الأيض";
  else if (idx === mealsCount - 1) notes = "وجبة خفيفة قبل النوم بـ 2-3 ساعات";
  else if (mealType === "snack") notes = "وجبة خفيفة للحفاظ على الطاقة بين الوجبات الرئيسية";
- else notes = "وجبة رئيسية — ركز على البروتين والكارب";
+ else notes = "وجبة رئيسية — ركّز على البروتين والكربوهيدرات";
 
  return { name: mealNames[idx] || `وجبة ${idx + 1}`, items, notes };
  });
@@ -741,7 +741,7 @@ export function generateNutritionPlan(ctx: ClientContext): NutritionContent {
 
  السعرات المستهدفة: ${dailyCalories} كالوري/يوم
  البروتين: ${proteinG}جم (≈${(proteinG * 4 / dailyCalories * 100).toFixed(0)}%)
- الكارب: ${carbsG}جم (≈${(carbsG * 4 / dailyCalories * 100).toFixed(0)}%)
+ الكربوهيدرات: ${carbsG}جم (≈${(carbsG * 4 / dailyCalories * 100).toFixed(0)}%)
  الدهون: ${fatG}جم (≈${(fatG * 9 / dailyCalories * 100).toFixed(0)}%)
 
 ${allergies ? ` تم استبعاد: ${allergies}\n` : ""}${disliked ? ` تم تجنب: ${disliked}\n` : ""}${isVeg ? " نظام نباتي\n" : ""}وزّع الوجبات على مدار اليوم لتحقيق أفضل امتصاص للبروتين.`;

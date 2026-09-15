@@ -358,7 +358,7 @@ export function CheckoutView({ tier, months }: { tier: TierId | MembershipTier; 
         </h1>
         <p className="mt-2 text-base font-normal text-[var(--muted-foreground)]">
           {isAr
-            ? "اختر طريقة الدفع. الدفع عبر PayPal سريع وآمن، أما الدفع اليدوي فيتطلب موافقة الكوتش."
+            ? "اختر طريقة الدفع. الدفع عبر PayPal سريع وآمن، أما الدفع اليدوي فيتطلب موافقة المدرب."
             : "Choose a payment method. PayPal is instant, manual methods require coach approval."}
         </p>
 
