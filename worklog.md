@@ -4263,3 +4263,11 @@ Single revert: delete ar/affiliate/ + restore 4 internal links + 2 sitemap lines
 
 ### Documented discovery (out of batch scope — proposal for owner decision)
 The EN /affiliate page itself has NO og:image at all (its openGraph block has no images, so nothing is inherited from the root — same defect class as §12.53 item 4, which was fixed for 9 EN surfaces in 206 but /affiliate was not on that audit list). Expected fix: one og-home-en card line in the EN layout. NOT executed — the owner's explicit limit for this batch was «don't change the EN page».
+
+### Live verification on production (515a16f — deployed & verified 2026-09-16)
+**24/24 checks green** (script outside the repo, Cloudflare cache-buster on every fetch; build-info carried 515a16f after 63s):
+- `/ar/affiliate` = 200 · html lang=ar · dir=rtl · AR hero + 20% commission facts rendered.
+- Title = «برنامج الأفلييت — حوّل تأثيرك إلى دخل — Alkemos» · canonical self · og:image/og:locale/og:url/twitter card all correct (og-home-ar 200).
+- **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
+- Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
+- Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
