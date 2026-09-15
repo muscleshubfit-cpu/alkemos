@@ -264,14 +264,14 @@ export const CALORIE_CALCULATOR_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "Alongside your calorie target, this calculator shows a starter macro split of 40% carbohydrates, 30% protein, and 30% fat — a balanced default that supports training, recovery, and satiety for most people. Translated to grams: protein and carbohydrates each carry 4 kcal per gram and fat 9 kcal per gram, so the calculator divides your protein and carb calories by 4 and your fat calories by 9.",
-            ar: "إلى جانب هدف السعرات تعرض الحاسبة توزيع ماكروز افتتاحياً من 40% كربوهيدرات و30% بروتين و30% دهون — افتراض متوازن يدعم التدريب والاستشفاء والشبع لدى معظم الناس. وترجمةً إلى غرامات: البروتين والكربوهيدرات يحمل كل منهما 4 سعرة للغرام والدهون 9 سعرة للغرام، لذا تقسم الحاسبة سعرات البروتين والكارب على 4 وسعرات الدهون على 9.",
+            ar: "إلى جانب هدف السعرات تعرض الحاسبة توزيع ماكروز افتتاحياً من 40% كربوهيدرات و30% بروتين و30% دهون — افتراض متوازن يدعم التدريب والاستشفاء والشبع لدى معظم الناس. وترجمةً إلى غرامات: البروتين والكربوهيدرات يحمل كل منهما 4 سعرة للغرام والدهون 9 سعرة للغرام، لذا تقسم الحاسبة سعرات البروتين والكربوهيدرات على 4 وسعرات الدهون على 9.",
           },
         },
         {
           kind: "p",
           text: {
             en: "The starter split is a floor, not a verdict. If you train hard, prefer low-carb eating, follow a ketogenic diet, or need higher protein while cutting, the dedicated macro calculator redistributes the same calorie budget across five preset patterns (balanced, low-carb, high-protein, keto, low-fat) with full gram breakdowns and the reasoning behind each split. Calories decide whether your weight moves; macros decide what the weight consists of and how the diet feels.",
-            ar: "هذا التوزيع الافتتاحي أرضية لا حكماً نهائياً. إن كنت تتدرب بقوة، أو تفضل الأكل قليل الكارب، أو تتبع حمية الكيتو، أو تحتاج بروتيناً أعلى أثناء الخسارة، فحاسبة الماكروز المخصصة تعيد توزيع ميزانية السعرات نفسها عبر خمسة أنماط جاهزة (متوازن، قليل الكارب، عالي البروتين، كيتو، قليل الدهون) بتفصيل الغرامات الكامل ومسوّغات كل توزيع. السعرات تحدد هل يتحرك وزنك؛ والماكروز تحدد مما يتكون هذا الوزن وكيف تشعر الحمية.",
+            ar: "هذا التوزيع الافتتاحي أرضية لا حكماً نهائياً. إن كنت تتدرب بقوة، أو تفضل الأكل قليل الكربوهيدرات، أو تتبع حمية الكيتو، أو تحتاج بروتيناً أعلى أثناء الخسارة، فحاسبة الماكروز المخصصة تعيد توزيع ميزانية السعرات نفسها عبر خمسة أنماط جاهزة (متوازن، قليل الكربوهيدرات، عالي البروتين، كيتو، قليل الدهون) بتفصيل الغرامات الكامل ومسوّغات كل توزيع. السعرات تحدد هل يتحرك وزنك؛ والماكروز تحدد مما يتكون هذا الوزن وكيف تشعر الحمية.",
           },
         },
       ],

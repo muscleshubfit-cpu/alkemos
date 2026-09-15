@@ -257,6 +257,9 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
       "src/lib/foods-shared.ts",
       "src/components/foods/FoodsFilters.tsx",
       "src/lib/content/macro-calculator.ts",
+      "src/lib/tool-schema.ts",
+      "src/lib/content/calorie-calculator.ts",
+      "src/lib/content/meal-planner.ts",
     ];
     for (const rel of KARB_FILES) {
       const src = readFileSync(rel, "utf8");

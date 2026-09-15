@@ -368,7 +368,7 @@ export const MEAL_PLANNER_CONTENT: ToolReference = {
       },
       a: {
         en: "A diet is a set of restrictions; a meal plan is a schedule of what you will actually eat inside whatever philosophy you follow — balanced, low-carb, vegetarian, or none in particular. The planner is philosophy-agnostic: it computes grams and totals, and the macro calculator's presets tell you which totals to aim for within your chosen philosophy.",
-        ar: "الحمية مجموعة قيود؛ وخطة الوجبات جدولٌ بما ستأكله فعلاً داخل أي فلسفة تتبعها — متوازنة، أو قليلة الكارب، أو نباتية، أو لا شيء بذات. المخطط لافلسفي: يحسب الغرامات والإجماليات، وأنماط حاسبة الماكروز تخبرك بأي إجماليات تستهدف داخل فلسفتك المختارة.",
+        ar: "الحمية مجموعة قيود؛ وخطة الوجبات جدولٌ بما ستأكله فعلاً داخل أي فلسفة تتبعها — متوازنة، أو قليلة الكربوهيدرات، أو نباتية، أو لا شيء بذات. المخطط لافلسفي: يحسب الغرامات والإجماليات، وأنماط حاسبة الماكروز تخبرك بأي إجماليات تستهدف داخل فلسفتك المختارة.",
       },
     },
     {

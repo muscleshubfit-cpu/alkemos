@@ -109,7 +109,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     name: { en: "Macro Calculator", ar: "حاسبة الماكروز" },
     description: {
       en: "Split your daily calories into protein, carbohydrate, and fat grams across five diet presets — balanced, low-carb, high-protein, keto, and low-fat.",
-      ar: "وزّع سعراتك اليومية إلى غرامات بروتين وكربوهيدرات ودهون عبر خمسة أنماط غذائية — متوازن، قليل الكارب، عالي البروتين، كيتو، قليل الدهون.",
+      ar: "وزّع سعراتك اليومية إلى غرامات بروتين وكربوهيدرات ودهون عبر خمسة أنماط غذائية — متوازن، قليل الكربوهيدرات، عالي البروتين، كيتو، قليل الدهون.",
     },
     features: {
       en: [
@@ -136,7 +136,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
       },
       description: {
         en: "Turn your daily calorie budget into protein, carb, and fat grams in seconds with the free Alkemos macro calculator.",
-        ar: "حوّل ميزانية سعراتك اليومية إلى غرامات بروتين وكارب ودهون في ثوانٍ مع حاسبة الماكروز المجانية من Alkemos.",
+        ar: "حوّل ميزانية سعراتك اليومية إلى غرامات بروتين وكربوهيدرات ودهون في ثوانٍ مع حاسبة الماكروز المجانية من Alkemos.",
       },
       steps: {
         en: [
@@ -148,8 +148,8 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         ar: [
           "احصل على هدف سعراتك اليومي من حاسبة السعرات.",
           "أدخل ميزانية السعرات.",
-          "اختر نمطاً غذائياً: متوازن أو قليل الكارب أو عالي البروتين أو كيتو أو قليل الدهون.",
-          "اضغط «احسب» لغرامات البروتين والكارب والدهون.",
+          "اختر نمطاً غذائياً: متوازن أو قليل الكربوهيدرات أو عالي البروتين أو كيتو أو قليل الدهون.",
+          "اضغط «احسب» لغرامات البروتين والكربوهيدرات والدهون.",
         ],
       },
     },
