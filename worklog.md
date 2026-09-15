@@ -4271,3 +4271,32 @@ The EN /affiliate page itself has NO og:image at all (its openGraph block has no
 - **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
 - Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
 - Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
+
+---
+Task ID: PHASE-209-SEO-GEO-18-DISCOVERY208-2026-09-16
+Agent: Super Z (main)
+Task: Phase 209 — SEO-GEO-18: execute discovery 208 — og:image for the EN /affiliate page (owner order 2026-09-16 «بعد إغلاق البند 11، نفّذ اكتشاف 208 الخاص بـ"og:image" لصفحة "/affiliate" EN. فقط»)
+
+**Scope:** ONE variable — the social card of one EN surface. The layout's own openGraph block REPLACES the root one in Next.js metadata merging (the §12.53 item 4 defect family, fixed for the 9 EN list surfaces in 206 but /affiliate was never on that audit list; the AR mirror got its card in 208). Full detail: §12.57.
+
+### What shipped
+- **src/app/affiliate/layout.tsx (the only production file touched):**
+  - `openGraph.images` → og-home-en card (1200×630, the family alt «Alkemos — The Smart Fitness & Nutrition Platform» — identical to /programs · /coaching · /memberships · /evo · /diet-plan from 206).
+  - `openGraph.locale = "en_US"` (was absent — same item-4 family; og:url already existed).
+  - `twitter.images` (the card was already summary_large_image but image-less — pointless with a 1200×630 asset).
+  - Header comment refreshed: the old text still described the pre-208 world («AR metadata is provided via hreflang on the same path») — stale since the /ar/affiliate mirror exists.
+- **Guard og-image-coverage.test.ts:** the EN entry added to WIRED_SURFACES (40 → 41) + a header-doc line — both halves of the affiliate pair (EN + AR) are now guarded by the same test.
+- **Sitemap:** untouched — the pages-family lastmod is already 2026-09-16 (same ship-day, truthful, no bump needed). Internal linking untouched (locale-aware since 208).
+
+### Pre-push "before" evidence (production be7e5b1, Cloudflare cache-buster)
+Present: og:title · og:description · og:url · og:site_name · og:type · twitter:card=summary_large_image · twitter:title · twitter:description.
+**Absent: og:image · og:locale · twitter:image** — the exact gap the discovery documented.
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest (1215 → **1216/1216**, +1 wired surface) · build 0 (2,057 pages — metadata-only change on an existing surface, count unchanged) · docs_audit (phase=209, STATE=100 lines) · docs_parity · check-stale-refs · migration_audit ✓
+
+### Rollback
+Single revert of the two files (EN layout + guard) — zero migrations, zero AR-side changes.
+
+### Live verification on production
+(after push — evidence entry follows)

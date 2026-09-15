@@ -28,6 +28,12 @@ import { resolve } from "node:path";
  * without images, so og-home-ar was NOT inherited. All four surfaces are
  * now wired with the home card — exact mirror of the EN fix.
  *
+ * Discovery 208 → Phase 209 (2026-09-16, owner order): the EN side of the
+ * affiliate pair had the identical gap all along — /affiliate's own
+ * openGraph block served no card at all (it wasn't on the item-4 audit
+ * list of EN surfaces). og-home-en pinned; both halves of the pair are
+ * now guarded.
+ *
  * Guarded contracts:
  *   1. Every wired surface references its family og asset in BOTH
  *      openGraph.images and twitter.images.
@@ -95,6 +101,9 @@ const WIRED_SURFACES: Array<[string, string]> = [
   // §12.53 item 11 (2026-09-16): the affiliate AR mirror — same gap
   // (its layout declares openGraph, so og-home-ar must be pinned).
   ["src/app/ar/affiliate/layout.tsx", "og-home-ar"],
+  // Discovery 208 → Phase 209 (2026-09-16): the EN half of the affiliate
+  // pair — same replace-not-inherit gap (see header note).
+  ["src/app/affiliate/layout.tsx", "og-home-en"],
 ];
 
 function repoRootPath(rel: string): string {
