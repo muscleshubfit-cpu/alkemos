@@ -16,14 +16,12 @@ import { FOODS_COUNT } from "@/lib/foods-shared";
 import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { NewsletterForm } from "@/components/NewsletterForm";
 import { getFAQSchema, jsonLd } from "@/lib/seo";
 import Image from "next/image";
 import { ThemeImg, EngravedIcon } from "@/components/ThemeImg";
 import {
   Bot,
   BookOpen,
-  Briefcase,
   Calculator,
   Check,
   CircleHelp,
@@ -31,8 +29,6 @@ import {
   Crown,
   Dumbbell,
   LineChart,
-  Megaphone,
-  Salad,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -72,15 +68,14 @@ const PALETTE = {
 const CARD = PALETTE;
 
 // ============================================================
-// HERO quick-nav — owner directive 2026-08-30: the hero buttons
-// should be section navigation for the WHOLE homepage ("ازرار تنقل
-// للأقسام كلها بشكل جميل"), not product CTAs. Rationale: EVO is a
-// service INSIDE the subscriptions, not a destination — advertising
-// it as a hero CTA (and in the old final-CTA section) felt like
-// repetition. Memberships keeps the single filled "primary" chip so
-// the business CTA stays visible. Anchors target the section ids
-// added below; scroll-mt-20 clears the sticky header, and
-// globals.css already provides smooth scrolling.
+// HERO quick-nav — restructure order (owner directive 2026-09-15,
+// «تحويل الرئيسية من Presentation إلى Product Website»): the chips
+// mirror the SIX homepage acts now (Hero → Tools/AI → Library →
+// Coaching → Memberships → Closing/FAQ) instead of the old 11-chip
+// section-per-service catalog. EVO lives inside the Tools act; the
+// three libraries + blog live in ONE discovery section (tabs);
+// For-Coaches & Affiliate moved to the footer/header navigation;
+// Newsletter moved into the shared footer.
 // ============================================================
 type HeroNavItem = {
   id: string;
@@ -90,8 +85,25 @@ type HeroNavItem = {
   titleAr: string;
   icon: LucideIcon;
   primary?: boolean;
-  needsPosts?: boolean; // blog section only renders when posts exist
+  needsPosts?: boolean; // blog tab only renders when posts exist
+  tab?: LibraryTab; // chip opens this tab of the library section
 };
+
+// ============================================================
+// LIBRARY — the ONE discovery system (owner order 2026-09-15: «اجعل
+// Exercises/Foods/Programs جزءًا من منظومة الاستكشاف، وليس 3 أقسام
+// مبيعات منفصلة»). Four content families share one section; only the
+// ACTIVE tab renders, so the homepage stops being a deck of parallel
+// sales slides while every library keeps its homepage presence.
+// ============================================================
+type LibraryTab = "exercises" | "programs" | "foods" | "blog";
+
+const LIBRARY_TABS: { id: LibraryTab; labelEn: string; labelAr: string }[] = [
+  { id: "exercises", labelEn: "Exercises", labelAr: "التمارين" },
+  { id: "programs", labelEn: "Programs", labelAr: "البرامج" },
+  { id: "foods", labelEn: "Foods", labelAr: "الأطعمة" },
+  { id: "blog", labelEn: "Blog", labelAr: "المدونة" },
+];
 
 // ============================================================
 // Phase 195 (owner directive «الأرقام تعمل كـ proof لا قائمة مواصفات» +
@@ -109,17 +121,9 @@ const TOOLS_PLUS = `${TOOLS_COUNT}+`;
 const HERO_NAV: HeroNavItem[] = [
   { id: "memberships", labelEn: "Memberships", labelAr: "العضويات", titleEn: "Alkemos Premium memberships", titleAr: "عضويات Alkemos المميزة", icon: Crown, primary: true },
   { id: "tools", labelEn: "Free Tools", labelAr: "أدوات مجانية", titleEn: "Free fitness & nutrition tools — no signup", titleAr: "أدوات لياقة وتغذية مجانية بدون تسجيل", icon: Calculator },
-  // Final Visual Review (2026-09-15, owner directive): the chip order now
-  // mirrors the section order — EVO follows the Free experience so the
-  // page's visual sequence reads Free → EVO → … → Coaching → Memberships.
-  { id: "evo", labelEn: "EVO", labelAr: "EVO", titleEn: "Smart performance engine — included in memberships", titleAr: "محرك أداء ذكي — داخل الاشتراكات", icon: Bot },
-  { id: "exercises", labelEn: "Exercises", labelAr: "التمارين", titleEn: `${EX_PLUS} exercise library`, titleAr: `مكتبة ${EX_PLUS} تمرين`, icon: Dumbbell },
-  { id: "programs", labelEn: "Programs", labelAr: "البرامج", titleEn: "Ready-made workout programs", titleAr: "برامج تدريب جاهزة", icon: ClipboardList },
-  { id: "foods", labelEn: "Foods", labelAr: "الأطعمة", titleEn: `${FOODS_PLUS} foods with calories & macros`, titleAr: `${FOODS_PLUS} صنفًا غذائيًا بالسعرات والماكروز`, icon: Salad },
-  { id: "blog", labelEn: "Blog", labelAr: "المدونة", titleEn: "Scientific fitness articles", titleAr: "مقالات رياضية علمية", icon: BookOpen, needsPosts: true },
+  { id: "library", labelEn: "Library", labelAr: "المكتبة", titleEn: "Exercises, programs, foods, and scientific articles", titleAr: "التمارين والبرامج والأطعمة والمقالات العلمية", icon: Dumbbell },
+  { id: "blog", labelEn: "Blog", labelAr: "المدونة", titleEn: "Scientific fitness articles", titleAr: "مقالات رياضية علمية", icon: BookOpen, needsPosts: true, tab: "blog" },
   { id: "coaching", labelEn: "Coaching", labelAr: "الكوتشينج", titleEn: "Online coaching with real coaches", titleAr: "كوتشينج أونلاين مع مدربين حقيقيين", icon: Users },
-  { id: "for-coaches", labelEn: "For Coaches", labelAr: "كن مدرباً", titleEn: "Run your coaching business on Alkemos", titleAr: "اعمل شغلك كله من مكان واحد", icon: Briefcase },
-  { id: "affiliate", labelEn: "Affiliate", labelAr: "الأفلييت", titleEn: "Earn 20% commission as an affiliate", titleAr: "اكسب عمولة 20% كأفلييت", icon: Megaphone },
   { id: "faq", labelEn: "FAQ", labelAr: "أسئلة شائعة", titleEn: "Frequently asked questions", titleAr: "أسئلة شائعة", icon: CircleHelp },
 ];
 
@@ -268,6 +272,9 @@ export function LandingView() {
   // 0037 «أعلن معنا» — coaches with a running ad (homepage featured strip)
   type FeaturedCoach = { slug: string | null; name: string; headline: string; photo: string | null };
   const [featuredCoaches, setFeaturedCoaches] = useState<FeaturedCoach[]>([]);
+  // Restructure 2026-09-15: the active tab of the ONE library discovery
+  // section (exercises / programs / foods / blog) — exercises by default.
+  const [activeTab, setActiveTab] = useState<LibraryTab>("exercises");
 
   useEffect(() => {
     // Silent fetch — the strip only renders when active ads exist, so a
@@ -497,27 +504,20 @@ export function LandingView() {
               : "One platform that brings training, nutrition, smart planning, and progress tracking together — everything you need in one place."}
           </p>
 
-          {/* Phase 198 (owner-approved UI audit C1 — decision record:
-              docs/UI-IMPLEMENTATION-PLAN.md §0): the hero conversion pair.
-              A NEW owner decision (2026-09-14, approving the audit fix)
-              supersedes the Phase 127 «no hero CTAs» state. Kept one step
-              smaller and INSIDE the artwork composition per Phase 131
-              («تصغير الازرار قليلا ثم نقلهم داخل الصورة»): primary chrome
-              button to memberships (where the Free plan lives), secondary
-              translucent-outline button to the free tools section. */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 md:mt-6">
-            <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-5 py-2.5 text-sm">
+          {/* Restructure order (owner directive 2026-09-15 — «CTA أساسي
+              واحد بوزن بصري واضح + ثانويات أقل بروزًا»): ONE primary chrome
+              button owns the hero at the unified closing-CTA size; tools
+              discovery demotes to a quiet text link. Supersedes the
+              Phase-198 equal pair; still inside the artwork (Phase 131). */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:mt-6">
+            <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
               {isAr ? "ابدأ مجانًا" : "Start Free"}
               <span className="rtl:rotate-180">›</span>
             </a>
             <a
               href="#tools"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-normal backdrop-blur-sm transition-opacity hover:opacity-80"
-              style={{
-                backgroundColor: "color-mix(in srgb, var(--bg) 68%, transparent)",
-                color: "var(--text)",
-                border: "1px solid var(--text)",
-              }}
+              className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: PALETTE.textSec }}
             >
               {isAr ? "استكشف الأدوات المجانية" : "Explore Free Tools"}
               <span className="rtl:rotate-180">›</span>
@@ -579,7 +579,12 @@ export function LandingView() {
                   return (
                     <a
                       key={s.id}
-                      href={`#${s.id}`}
+                      href={`#${s.tab ? "library" : s.id}`}
+                      onClick={() => {
+                        // Restructure 2026-09-15: the Blog chip scrolls to the
+                        // library section AND activates its tab.
+                        if (s.tab) setActiveTab(s.tab);
+                      }}
                       title={isAr ? s.titleAr : s.titleEn}
                       className="inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-300"
                       style={
@@ -695,20 +700,18 @@ export function LandingView() {
             </div>
           </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Restructure order (owner directive 2026-09-15 — «صفحة أقصر
+                وأسهل تصفحًا، Mobile-first»): the grid shows the FOUR
+                goal-essential tools; Body-Fat & Water Tracker stay fully
+                available via «كل الأدوات» + the /tools hub + the footer
+                (display-only curation — no tool, route, or quota touched).
+                The AI planners remain the lead card above (§12.31/§12.32
+                retired), NOT grid tools. */}
             {[
               { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي من السعرات والماكروز بدقة، بدون تسجيل.", descEn: "Find your daily calorie and macro needs — no signup", icon: "calories", href: "/tools/calorie-calculator" },
-              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف هل وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
               { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكارب ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
-              { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat %", descAr: "تابع تقدّمك بمقاييس حقيقية لا بالميزان وحده.", descEn: "Track progress with real measurements, not just the scale", icon: "bodyfat", href: "/tools/body-fat-calculator" },
-              { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", descAr: "حدّد هدفك اليومي وسجّل أكوابك.", descEn: "Set a daily goal and log your cups", icon: "hydration", href: "/tools/water-tracker" },
+              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف هل وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: `ابنِ وجباتك من ${FOODS_PLUS} صنف غذائي وتابع الماكروز.`, descEn: `Build meals from ${FOODS_PLUS} foods and track macros`, icon: "mealplanner", href: "/meal-planner" },
-              // Owner directive (2026-09-13): the AI Meal Planner & AI Workout
-              // Planner cards were REMOVED from the homepage tools grid ONLY
-              // (§12.31/§12.32 entries retired) — the AI plan generators are
-              // the flagship of the free experience via the lead card + its
-              // «ولّد خطتك المجانية الآن» CTA above, NOT grid tools. The
-              // routes, the Navbar links, the footer links, /tools, and all
-              // functionality/quotas are untouched.
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
                 <LandingToolCard tool={tool} isAr={isAr} />
@@ -720,33 +723,17 @@ export function LandingView() {
               {isAr ? "كل الأدوات ›" : "View all tools ›"}
             </a>
           </div>
-        </div>
-      </section>
 
-      {/* ===================== 4.5 EVO PREVIEW — Phase 127 card (preview-sections + 1788658797 reference) ===================== */}
-      {/* Owner directive (Phase 127): «راجع صور الأمثلة … خصوصا كارت قسم
-          evo» — the reference design is ONE full-width marble card: text on
-          the left, the warrior artwork on the right blending into the
-          marble with a soft fade (no separate image block below). The
-          warrior crop (evo-hero-light/dark.webp) is generated by
-          scripts/build_assets_v127.py (source x[180,1060] puts him at
-          67-85% of the crop). RTL mirrors automatically: logical
-          inset-inline-end + a [dir="rtl"] mask flip in globals.css
-          (.evo-hero-card / .evo-hero-art).
-          Phase 131 (owner feedback 2026-09-06): «قسم ايفو ازاله الازرار
-          وتصغير حجم النص قليلا وتصغير ارتفاع الصورة قليلا» — the two CTAs
-          are REMOVED (the global floating EVO widget stays the entry
-          point), the H2 is one step smaller, and the card min-height
-          shrinks with it.
-          Final Visual Review (2026-09-15, owner directive «التسلسل البصري
-          Free → EVO → Coaching → Memberships»): the card MOVES below the
-          Free-experience section (it sat directly under the quick-nav) so
-          the homepage reads Free → EVO — card design, bg, and content are
-          untouched. */}
-      <section id="evo" className="scroll-mt-20 px-4 py-12 md:py-16" style={{ backgroundColor: PALETTE.sectionWhite, color: PALETTE.textPrim }}>
-        <div className="mx-auto max-w-6xl">
-          <div className="evo-hero-card marble-card relative w-full">
-            {/* Warrior artwork — right side (left in RTL), fading into the marble */}
+          {/* EVO — merged INTO the Tools/AI act (owner order 2026-09-15:
+              «دمج EVO داخل تجربة Tools/AI بدل عرضه كـSection مستقل بلا
+              وظيفة واضحة» — supersedes the standalone #evo section of
+              Phases 127/128/131 and the 2026-09-15 «Free → EVO» ordering).
+              The warrior card keeps its §7.3 recipe (art + fade mask, RTL
+              mirror, slim min-height from audit H5) and now carries ONE
+              benefit line so it explains EVO instead of just titling it.
+              The floating EVO widget stays the access point (owner
+              directive 2026-09-14) — no new CTA added. */}
+          <div className="evo-hero-card marble-card relative mt-10 w-full">
             <div className="evo-hero-art" aria-hidden="true">
               <ThemeImg
                 light="/images/brand/evo-hero-light.webp"
@@ -760,196 +747,173 @@ export function LandingView() {
                 sizes="(max-width: 768px) 300px, 560px"
               />
             </div>
-            {/* Text column — title only (Phase 128). Phase 198 Batch 2
-                (audit H5): the card was ~534px of section for a single
-                title — min-height slims 280/340→220/260 and section padding
-                tightens (16/24→12/16). The standalone card recipe (§7.3 —
-                title only, no CTAs, warrior art + mask) is preserved; the
-                audit's original «merge into Coaching» was REJECTED in the
-                conflict review (plan §0) as it would fight the documented
-                owner directives 127/128/131. */}
-            <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-4 p-7 md:min-h-[260px] md:p-10 lg:max-w-[56%]">
-              {/* Phase 117 H2 correction (supervisor order 2026-09-04):
-                  punchy marketing headline, not a question. */}
-              <h2 className="text-2xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
+            <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-3 p-7 md:min-h-[260px] md:p-10 lg:max-w-[56%]">
+              <h3 className="text-2xl font-semibold tracking-tight md:text-3xl" style={{ color: PALETTE.textPrim }}>
                 {isAr ? "EVO: مدربك الذكي 24/7" : "EVO: Your 24/7 Smart Coach"}
-              </h2>
+              </h3>
+              <p className="text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? "اسأله عن تمرينك أو وجبتك، واطلب تعديل خطتك في أي وقت — 10 رسائل يوميًا مجانًا، وبلا حدود من Premium."
+                  : "Ask about your workout or meal and adjust your plan anytime — 10 messages a day free, unlimited from Premium."}
+              </p>
             </div>
           </div>
         </div>
       </section>
-      {/* (removed: GradientFade gray→gray — audit 2026-08-30, purely dead strip) */}
 
-      {/* Greek meander divider — mission §4 */}
-      <div className="meander-divider" aria-hidden="true" />
-      {/* ===================== 5. EXERCISE LIBRARY ===================== */}
-      <section id="exercises" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      {/* ===================== LIBRARY — ONE discovery system =====================
+          Restructure order (owner directive 2026-09-15): Exercises,
+          Programs, Foods, and Blog stop being four parallel sections with
+          identical anatomy (centered H2 + sub + card grid + CTA + meander
+          — the "presentation deck" pattern) and become ONE exploration
+          hub with tabs. Only the ACTIVE tab renders, so the page loses
+          ~3 sections of height while every library keeps its homepage
+          presence, its cards, and its "view all" link. Card shapes stay
+          per-family (Visual UI Refinement 2026-09-15) and the blog
+          selection logic (selectHomeBlogCarousels) is untouched. */}
+      <section id="library" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <Reveal>
-              {/* Phase 194 (benefit-first pass): the number is proof, the
-                  headline is the benefit — train every muscle the right way. */}
-              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "تدرّب على كل عضلة بالطريقة الصحيحة" : "Train Every Muscle the Right Way"}
-              </h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? `${EX_PLUS} تمرينًا بشرح واضح ومستويات صعوبة متدرّجة — للمنزل والنادي، من المبتدئ إلى المتقدم.` : `${EX_PLUS} exercises with clear instructions and difficulty levels — home or gym, beginner to advanced.`}
-              </p>
-            </Reveal>
+            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "مكتبة واحدة للتدريب والغذاء والمعرفة" : "One Library for Training, Food, and Knowledge"}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? `${EX_PLUS} تمرينًا، وبرامج جاهزة، و${FOODS_PLUS} صنفًا غذائيًا، ومقالات علمية — اختر من حيث تبدأ.`
+                : `${EX_PLUS} exercises, ready-made programs, ${FOODS_PLUS} foods, and scientific articles — pick where to start.`}
+            </p>
           </div>
-          {/* Phase 198 Batch 3 (audit Tablet): 4 columns at 768px made
-              ~172px cards — 3 columns on md, 4 from lg up. */}
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {/* Audit 2026-08-30: the homepage showed "Cardio" (0 exercises in the
-                library). Replaced by ALL 7 real muscle groups + an 8th dark
-                browse-all tile (replaces the old standalone button). */}
-            {[
-              { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
-              { labelAr: "ظهر", labelEn: "Back", slug: "back" },
-              { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
-              { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
-              { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
-              { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-              { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
-            ].map((cat) => (
-              <Reveal key={cat.slug}>
-                <LandingExerciseCategoryCard
-                  cat={{ ...cat, count: EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0 }}
+
+          {/* Tabs — one control, four content families. The blog tab
+              renders only when posts loaded (the needsPosts law). */}
+          <div role="tablist" aria-label={isAr ? "أقسام المكتبة" : "Library sections"} className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            {LIBRARY_TABS.filter((t) => t.id !== "blog" || latestPosts.length > 0).map((t) => {
+              const isActive = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  id={`library-tab-${t.id}`}
+                  role="tab"
+                  type="button"
+                  aria-selected={isActive}
+                  onClick={() => setActiveTab(t.id)}
+                  className="rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300"
+                  style={
+                    isActive
+                      ? { backgroundColor: "var(--card)", color: "var(--text)", border: "var(--border-chrome)" }
+                      : { backgroundColor: "transparent", color: "var(--muted-foreground)", border: "1px solid var(--edge)" }
+                  }
+                >
+                  {isAr ? t.labelAr : t.labelEn}
+                </button>
+              );
+            })}
+          </div>
+
+          <div role="tabpanel" aria-labelledby={`library-tab-${activeTab}`} className="mt-10">
+            {activeTab === "exercises" && (
+              <>
+                {/* Phase 198 Batch 3 (audit Tablet): 4 columns at 768px made
+                    ~172px cards — 3 columns on md, 4 from lg up. */}
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                  {/* Audit 2026-08-30: ALL 7 real muscle groups (never the
+                      empty "Cardio") + an 8th browse-all tile. */}
+                  {[
+                    { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
+                    { labelAr: "ظهر", labelEn: "Back", slug: "back" },
+                    { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
+                    { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
+                    { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
+                    { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
+                    { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
+                  ].map((cat) => (
+                    <LandingExerciseCategoryCard
+                      key={cat.slug}
+                      cat={{ ...cat, count: EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0 }}
+                      isAr={isAr}
+                    />
+                  ))}
+                  {/* 8th tile — browse-all. Restructure 2026-09-15: a quiet
+                      marble tile now (was a chrome tile) — the ONE-primary-CTA
+                      law; the library browses, it doesn't sell. */}
+                  <a
+                    href={isAr ? "/ar/exercises" : "/exercises"}
+                    className="marble-card group flex h-full flex-col items-center justify-center p-4 text-center transition-transform duration-300 hover:-translate-y-0.5"
+                    style={{ color: PALETTE.textPrim }}
+                  >
+                    <EngravedIcon name="dumbbell" alt="" size={40} className="h-10 w-10" />
+                    <span className="mt-2 text-base font-semibold">{isAr ? "كل التمارين" : "All Exercises"}</span>
+                    <span className="mt-1 text-xs font-medium" style={{ color: PALETTE.textMuted }}>
+                      {EXERCISES_COUNT.toLocaleString()}+ {isAr ? "تمرين" : "exercises"}
+                    </span>
+                  </a>
+                </div>
+              </>
+            )}
+            {activeTab === "programs" && (
+              <>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {[
+                    { icon: "house", levelAr: "مبتدئ", levelEn: "Beginner", titleAr: "منزلي بدون معدات", titleEn: "Home (No Equipment)", descAr: "تمارين بالوزن فقط", descEn: "Bodyweight only", slug: "home-beginner-fullbody", image: "/images/programs/home-workout.png" },
+                    { icon: "rack", levelAr: "متوسط", levelEn: "Intermediate", titleAr: "جيم كامل", titleEn: "Full Gym", descAr: "بمعدات كاملة", descEn: "Full equipment", slug: "gym-ppl-intermediate", image: "/images/programs/full-gym.png" },
+                    { icon: "runner", levelAr: "متقدم", levelEn: "Advanced", titleAr: "حرق دهون HIIT", titleEn: "Fat Loss HIIT", descAr: "حارب الدهون بسرعة", descEn: "Burn fat fast", slug: "home-fat-loss-hiit", image: "/images/programs/hiit.png" },
+                  ].map((prog) => (
+                    <LandingProgramCard key={prog.slug} prog={prog} isAr={isAr} />
+                  ))}
+                </div>
+                {/* Restructure 2026-09-15: the per-section chrome CTA buttons
+                    demote to quiet text links (ONE primary CTA law). */}
+                <div className="mt-8 text-center">
+                  <a href={isAr ? "/ar/programs" : "/programs"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? "كل البرامج ›" : "View all programs ›"}
+                  </a>
+                </div>
+              </>
+            )}
+            {activeTab === "foods" && (
+              <>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  {[
+                    { icon: "protein", titleAr: "بروتين", titleEn: "Protein", descAr: "لحم، دجاج، بيض", descEn: "Meat, chicken, eggs", slug: "protein", image: "/images/categories/foods/protein.png" },
+                    { icon: "carbs", titleAr: "كارب", titleEn: "Carbs", descAr: "أرز، شوفان، بطاطس", descEn: "Rice, oats, potato", slug: "carb", image: "/images/categories/foods/carb.png" },
+                    { icon: "fats", titleAr: "دهون", titleEn: "Fats", descAr: "أفوكادو، مكسرات", descEn: "Avocado, nuts", slug: "fat", image: "/images/categories/foods/fat.png" },
+                    { icon: "fruits", titleAr: "فواكه", titleEn: "Fruits", descAr: "طازجة وصحية", descEn: "Fresh and healthy", slug: "fruit", image: "/images/categories/foods/fruit.png" },
+                  ].map((cat) => (
+                    <LandingFoodCategoryCard key={cat.titleEn} cat={cat} isAr={isAr} />
+                  ))}
+                </div>
+                <div className="mt-8 text-center">
+                  <a href={isAr ? "/ar/foods" : "/foods"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? "تصفّح كل الأطعمة ›" : "Browse all foods ›"}
+                  </a>
+                </div>
+              </>
+            )}
+            {activeTab === "blog" && latestPosts.length > 0 && (
+              <>
+                {/* Phase 198 Batch 2 (audit H2): ONE carousel — featured
+                    posts lead the row as dark cards, latest follows. */}
+                <BlogCarousel
+                  posts={[...featuredPosts, ...latestPosts].slice(0, 10)}
+                  featuredSlugs={featuredPosts.map((p) => p.slug)}
                   isAr={isAr}
                 />
-              </Reveal>
-            ))}
-            {/* 8th tile — browse-all CTA (replaces the old button below) */}
-            <Reveal>
-              <a
-                href={isAr ? "/ar/exercises" : "/exercises"}
-                className="group flex h-full flex-col items-center justify-center rounded-3xl p-4 text-center transition-transform duration-300 hover:-translate-y-0.5"
-                style={{ background: "var(--chrome)", border: "1px solid var(--chrome-edge)", color: "#0B0B0D", boxShadow: "var(--shadow)" }}
-              >
-                <EngravedIcon name="dumbbell" alt="" size={40} className="h-10 w-10" />
-                <span className="mt-2 text-base font-semibold">{isAr ? "كل التمارين" : "All Exercises"}</span>
-                <span className="mt-1 text-xs font-medium" style={{ color: "#3F444A" }}>
-                  {EXERCISES_COUNT.toLocaleString()}+ {isAr ? "تمرين" : "exercises"}
-                </span>
-              </a>
-            </Reveal>
+                <div className="mt-6 text-center">
+                  <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? "كل المقالات ›" : "View all articles ›"}
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Greek meander divider — mission §4 */}
+      {/* Greek meander divider — mission §4. Restructure 2026-09-15: the
+          dividers now mark the TWO narrative acts (exploration ends /
+          premium offer begins) instead of separating every section —
+          background alternation handles the rest of the rhythm. */}
       <div className="meander-divider" aria-hidden="true" />
-
-      {/* ===================== 6. WORKOUT PROGRAMS ===================== */}
-      <section id="programs" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <Reveal>
-              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "برامج تدريب جاهزة لكل الأهداف" : "Ready-Made Programs for Every Goal"}
-              </h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? "برامج جاهزة لكل مستوى وهدف — في المنزل بدون معدات، أو في الجيم بمعدات كاملة، أو حرق دهون مكثف — اختر برنامجك وابدأ فورًا." : "Ready-made programs for every level and goal — home, full gym, or fat-burn HIIT. Pick yours and start instantly."}
-              </p>
-            </Reveal>
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              { icon: "house", levelAr: "مبتدئ", levelEn: "Beginner", titleAr: "منزلي بدون معدات", titleEn: "Home (No Equipment)", descAr: "تمارين بالوزن فقط", descEn: "Bodyweight only", slug: "home-beginner-fullbody", image: "/images/programs/home-workout.png" },
-              { icon: "rack", levelAr: "متوسط", levelEn: "Intermediate", titleAr: "جيم كامل", titleEn: "Full Gym", descAr: "بمعدات كاملة", descEn: "Full equipment", slug: "gym-ppl-intermediate", image: "/images/programs/full-gym.png" },
-              { icon: "runner", levelAr: "متقدم", levelEn: "Advanced", titleAr: "حرق دهون HIIT", titleEn: "Fat Loss HIIT", descAr: "حارب الدهون بسرعة", descEn: "Burn fat fast", slug: "home-fat-loss-hiit", image: "/images/programs/hiit.png" },
-            ].map((prog, i) => (
-              <Reveal key={prog.slug} delay={i * 100}>
-                <LandingProgramCard prog={prog} isAr={isAr} />
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <a href={isAr ? "/ar/programs" : "/programs"} className="btn-chrome px-6 py-2.5 text-sm">
-              {isAr ? "كل البرامج ›" : "View all programs ›"}
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Greek meander divider — mission §4 */}
-      <div className="meander-divider" aria-hidden="true" />
-
-      {/* ===================== 7. FOOD LIBRARY ===================== */}
-      <section id="foods" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <Reveal>
-              {/* Phase 194 (benefit-first pass): the headline is the
-                  benefit — knowing what you eat; the 8,830+ number moves
-                  to the sub as proof. */}
-              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "اعرف ما في طعامك قبل أن تتناوله" : "Know What's in Your Food Before You Eat It"}
-              </h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <p className="mx-auto mt-3 max-w-md text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr ? `${FOODS_PLUS} صنفًا غذائيًا بالسعرات والماكروز — من البروتين إلى الكربوهيدرات والدهون والفواكه، مع حاسبة الجرامات.` : `${FOODS_PLUS} foods with calories and macros — protein, carbs, fats, and fruits, plus a grams calculator.`}
-              </p>
-            </Reveal>
-          </div>
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              { icon: "protein", titleAr: "بروتين", titleEn: "Protein", descAr: "لحم، دجاج، بيض", descEn: "Meat, chicken, eggs", slug: "protein", image: "/images/categories/foods/protein.png" },
-              { icon: "carbs", titleAr: "كارب", titleEn: "Carbs", descAr: "أرز، شوفان، بطاطس", descEn: "Rice, oats, potato", slug: "carb", image: "/images/categories/foods/carb.png" },
-              { icon: "fats", titleAr: "دهون", titleEn: "Fats", descAr: "أفوكادو، مكسرات", descEn: "Avocado, nuts", slug: "fat", image: "/images/categories/foods/fat.png" },
-              { icon: "fruits", titleAr: "فواكه", titleEn: "Fruits", descAr: "طازجة وصحية", descEn: "Fresh and healthy", slug: "fruit", image: "/images/categories/foods/fruit.png" },
-            ].map((cat, i) => (
-              <Reveal key={cat.titleEn} delay={i * 80}>
-                <LandingFoodCategoryCard cat={cat} isAr={isAr} />
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <a href={isAr ? "/ar/foods" : "/foods"} className="btn-chrome px-6 py-2.5 text-sm">
-              {isAr ? "تصفّح كل الأطعمة ›" : "Browse all foods ›"}
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== 8. BLOG — Phase 198 Batch 2 (audit H2): the
-          old Latest + Featured two-section split (≈1,226px of carousel
-          duplication) is ONE section with ONE carousel now: the featured
-          posts lead the row as dark featured cards, latest follows. The
-          selection logic (selectHomeBlogCarousels) and both pools are
-          untouched — display-only merge; section header/copy preserved. */}
-      {latestPosts.length > 0 && (
-        <>
-
-      {/* Greek meander divider — mission §4 */}
-      <div className="meander-divider" aria-hidden="true" />
-        <section id="blog" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <Reveal>
-              <div className="mb-6 flex items-end justify-between">
-                <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                  {isAr ? "اقرأ أحدث المقالات العلمية" : "Read the Latest Scientific Articles"}
-                </h2>
-                <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                  {isAr ? "كل المقالات ›" : "View all ›"}
-                </a>
-              </div>
-            </Reveal>
-            <BlogCarousel
-              posts={[...featuredPosts, ...latestPosts].slice(0, 10)}
-              featuredSlugs={featuredPosts.map((p) => p.slug)}
-              isAr={isAr}
-            />
-          </div>
-        </section>
-        </>
-      )}
-
       {/* ===================== 9. COACHING — PREMIUM SPOTLIGHT ===================== */}
       {/* Visual UI Refinement (2026-09-15, owner directive): the section was
           a plain centered feature list (4 tint cards + a button pair) that
@@ -1091,20 +1055,11 @@ export function LandingView() {
         </div>
       </section>
 
-      {/* Greek meander divider — mission §4.
-          Final Visual Review (2026-09-15, owner directive «اجعل الانتقال
-          بصريًا واضحًا بين Coaching وFor Coaches»): the Coaching spotlight
-          card and the For-Coaches band share the same #0B0B0D surface, so
-          with only the section padding between them they read as ONE
-          continuous dark zone (worst on phones: 48px). The established
-          section-break marker (the same meander band used between every
-          library section) now closes the Coaching act — a clear B2C-offer
-          end / B2B-recruit start boundary, no colors touched. */}
-      <div className="meander-divider" aria-hidden="true" />
-
       {/* ===================== 9.5 FEATURED COACHES («أعلن معنا» ads) ===================== */}
+      {/* Restructure 2026-09-15: bg tint → bg so the strip never merges
+          with the Memberships tint band when active (display-only). */}
       {featuredCoaches.length > 0 && (
-        <section className="bg-[var(--tint)] px-4 py-12 md:py-20">
+        <section className="bg-[var(--bg)] px-4 py-12 md:py-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {/* §12.50-أ-3: this strip is PAID advertising (0037 wallet-debited
@@ -1153,75 +1108,13 @@ export function LandingView() {
         </section>
       )}
 
-      {/* ===================== 9.7 JOIN AS A COACH (owner-approved homepage block) ===================== */}
-      <section id="for-coaches" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionDark }}>
-        <div className="mx-auto max-w-6xl text-center">
-          <Reveal>
-            {/* Phase 198 Batch 2 (audit M10 — zero-blue law): the pill was
-                rgba(0,113,227,.15)/#7CB8F8 — the only chromatic accent on
-                the homepage outside --ai. Now the dark-surface seal-chip
-                treatment (translucent white + chrome-edge border), matching
-                the Pro-card chip. */}
-            <span
-              className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.08em]"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.08)", color: "#C9CED3", border: "1px solid #3A3F45" }}
-            >
-              {isAr ? "للمدربين والأخصائيين" : "For Coaches & Specialists"}
-            </span>
-          </Reveal>
-          <Reveal delay={100}>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
-              {isAr ? "كوتش أو أخصائي تغذية؟ ابنِ عملك على منصتنا" : "Are you a coach? Run your whole business from one place."}
-            </h2>
-          </Reveal>
-          <Reveal delay={150}>
-            <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: "#A1A1A6" }}>
-              {isAr
-                ? `سعر عملائك قرارك أنت، وتحصّل أموالك مباشرة — المنصة تتقاضى رسمًا ثابتًا لكل عميل نشط فقط، لا نسبة من عملك. وكل الأدوات (${EX_PLUS} تمرينًا، و${FOODS_PLUS} صنفًا غذائيًا، ومساعد EVO) وصفحتك العامة الخاصة في خدمتك.`
-                : `Your client's price is your call alone, and you collect your money directly — you keep 100% of what you charge; the platform applies a fixed fee per active client, never a percentage of your work. And the whole toolkit (${EX_PLUS} exercises, ${FOODS_PLUS} foods, and EVO) works for you, with your own public page.`}
-            </p>
-          </Reveal>
-          <Reveal delay={200}>
-            <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-start md:grid-cols-3">
-              {[
-                isAr
-                  ? { t: "السعر الذي تختاره أنت", d: "احتفظ بكل ما تحصّله — بلا أي عمولة من دخلك، ورسم منصة ثابت فقط لكل عميل نشط." }
-                  : { t: "Keep 100% of what you charge", d: "0% revenue commission — a fixed platform fee applies per active client." },
-                isAr
-                  ? { t: "عملاؤك وصلاحياتك كاملة", d: "خطط وإدارة كاملة لعملائك من لوحة المدرب" }
-                  : { t: "Your clients, your rules", d: "Full plans & management from the coach dashboard" },
-                isAr
-                  ? { t: "أدوات المنصة في خدمتك", d: `EVO، و${EX_PLUS} تمرينًا، و${FOODS_PLUS} صنفًا غذائيًا، وصفحة عامة لك` }
-                  : { t: "Platform tools included", d: `EVO, ${EX_PLUS} exercises, ${FOODS_PLUS} foods, and your own page` },
-              ].map((item) => (
-                <div
-                  key={item.t}
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "rgba(255, 255, 255, 0.06)" }}
-                >
-                  <p className="text-sm font-semibold text-white">{item.t}</p>
-                  <p className="mt-1.5 text-xs font-normal leading-relaxed" style={{ color: "#A1A1A6" }}>
-                    {item.d}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-          <Reveal delay={250}>
-            <div className="mt-8">
-              {/* Access-point fix (2026-09-14 audit): this was the ONLY
-                  access point to /ar/for-coaches — the hardcoded EN href
-                  left the whole AR mirror page orphaned. */}
-              <a
-                href={isAr ? "/ar/for-coaches" : "/for-coaches"}
-                className="btn-chrome px-8 py-3.5 text-base"
-              >
-                {isAr ? "انضم كمدرب ›" : "Join as a coach ›"}
-              </a>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* (removed: For-Coaches B2B section — restructure order 2026-09-15:
+          «إخراج B2B / For Coaches من الصفحة الرئيسية ونقله إلى الـFooter/
+          Navigation»). The pitch moved to the SHARED footer Partners list +
+          the header Partners group (SiteFooter.tsx / SiteHeader.tsx); the
+          /for-coaches + /ar/for-coaches pages, registration, and all
+          business logic are untouched. The B2B recruit band no longer
+          interrupts the B2C funnel between Coaching and Memberships. */}
 
       {/* ===================== 10. Premium Memberships ===================== */}
       <section id="memberships" className="scroll-mt-20 px-4 py-12 md:py-20" style={{ backgroundColor: PALETTE.sectionGray }}>
@@ -1545,129 +1438,60 @@ export function LandingView() {
         </div>
       </section>
 
-      {/* ===================== 11. AFFILIATE PROGRAM ===================== */}
-      {/* Audit 2026-08-30: /affiliate had ZERO homepage presence (footer/header
-          only) → section added. Owner directive 2026-08-30: visible to
-          EVERYONE — the old `{!isCoach}` gate hid it from admins/coaches too,
-          and the owner (admin role) reported the section as missing. Facts
-          match AffiliateProgramView: 20% subscription commission, 30-day
-          cookie window for one-time products, $10 minimum payout. */}
-      <section id="affiliate" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-          <div className="mx-auto max-w-6xl text-center">
-            <Reveal>
-              <span className="seal-chip">{isAr ? "برنامج الأفلييت" : "AFFILIATE PROGRAM"}</span>
-            </Reveal>
-            <Reveal delay={100}>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "حوّل تأثيرك إلى دخل حقيقي" : "Turn Your Influence into Real Income"}
-              </h2>
-            </Reveal>
-            <Reveal delay={150}>
-              <p className="mx-auto mt-4 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? "شارك رابطك الخاص واكسب عمولة 20% من كل اشتراك مؤهل — مع تتبّع دقيق وحد أدنى للسحب 10 دولار."
-                  : "Share your personal affiliate link and earn a 20% commission on every qualified subscription — real-time tracking, $10 minimum payout."}
-              </p>
-            </Reveal>
-            <Reveal delay={200}>
-              {/* Phase 198 Batch 2 (audit M8): three separate cards for three
-                  stats was the section's bulk — ONE marble-card strip now,
-                  stats inline with the dark-steel chrome numbers (readable
-                  since the Batch 1 C3 fix). Copy unchanged (canary-safe). */}
-              <div className="marble-card mx-auto mt-8 flex max-w-2xl flex-col items-center justify-center gap-5 px-6 py-6 sm:flex-row sm:gap-0 sm:divide-x sm:divide-[var(--edge)] rtl:sm:divide-x-reverse">
-                {[
-                  isAr
-                    ? { v: "20%", d: "عمولة على الاشتراكات المؤهلة" }
-                    : { v: "20%", d: "Commission on qualified subscriptions" },
-                  isAr
-                    ? { v: "30 يوم", d: "تتبع بالكوكيز للمنتجات لمرة واحدة" }
-                    : { v: "30 days", d: "Cookie tracking for one-time products" },
-                  isAr
-                    ? { v: "10$", d: "الحد الأدنى للصرف" }
-                    : { v: "$10", d: "Minimum payout" },
-                ].map((s) => (
-                  <div key={s.d} className="flex flex-col items-center gap-1.5 px-6 text-center">
-                    <span className="chrome-text text-3xl font-bold tracking-tight">{s.v}</span>
-                    <p className="max-w-[180px] text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{s.d}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <Reveal delay={250}>
-              <div className="mt-8">
-                <a
-                  href="/affiliate"
-                  className="btn-chrome px-8 py-3.5 text-base"
-                >
-                  {isAr ? "اكسب كأفلييت ›" : "Earn as an affiliate ›"}
-                </a>
-              </div>
-            </Reveal>
-          </div>
-      </section>
+      {/* (removed: Affiliate section — restructure order 2026-09-15: «إخراج
+          Affiliate من الصفحة الرئيسية ونقله إلى الـFooter». The program
+          stays reachable via the footer Partners list (already present
+          since 2026-09-14) + the header Partners group; the /affiliate
+          page, its 20%/30-day/$10 facts, and all business logic are
+          untouched. The B2C funnel no longer detours through a
+          side-program between Memberships and the closing CTA.) */}
 
-      {/* ===================== 11.5 PRIMARY CTA (owner SEO plan 2026-09-03:
-          «دعوة لاتخاذ إجراء [CTA] الرئيسية» — verbatim AR copy. The 2026-08-30
-          removal objection was duplication + pushing EVO; this strip is the
-          single free-start message, no EVO push, and links to memberships
-          where the Free tier lives) ==== */}
-      <section className="bg-[var(--bg)] px-4 py-16 md:py-20">
-        <Reveal>
-          <div className="marble-card mx-auto max-w-3xl px-6 py-12 text-center md:py-16">
-            <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
+      {/* ===================== CLOSING ACT — FAQ + final CTA (merged) ==========
+          Restructure order (owner directive 2026-09-15): the old TRIPLE
+          ending (standalone CTA strip → FAQ → Newsletter — the page "ended"
+          three times) collapsed into ONE closing section: FAQ handles
+          objections, then the slim final CTA card ends the page with the
+          single free-start action right before the footer. The Newsletter
+          moved into the SHARED footer (SiteFooter) — same form, same
+          /api/tools/lead pipeline, now on every public page. Copy,
+          destinations, and the FAQPage JSON-LD (faqs → faqSchema above)
+          are unchanged. */}
+      <section id="faq" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
+            {isAr ? "أسئلة شائعة وإجاباتها" : "Frequently Asked Questions"}
+          </h2>
+          <Accordion type="single" collapsible className="mt-12">
+            {faqs.map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
+                <AccordionTrigger className="py-5 text-start text-lg font-normal hover:no-underline">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-base font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+
+          {/* Final CTA — the page's closing action (kept from the old
+              standalone strip; verbatim owner copy + destination). One
+              step slimmer (text-2xl/3xl, py-10/12) so it reads as the
+              quiet end of the page, not a second hero. */}
+          <div className="marble-card mt-12 px-6 py-10 text-center md:py-12">
+            <h2 className="mx-auto max-w-2xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl" style={{ color: PALETTE.textPrim }}>
               {isAr
                 ? "ابدأ رحلتك الآن مجانًا — خطتك الأولى خلال دقائق"
                 : "Start your journey free today — your first plan in minutes"}
             </h2>
             <a
               href={isAr ? "/ar/memberships" : "/memberships"}
-              className="btn-chrome mt-8 px-8 py-3.5 text-base"
+              className="btn-chrome mt-6 px-8 py-3.5 text-base"
             >
               {isAr ? "جرّب المنصة مجانًا" : "Try the platform free"}
               <span className="rtl:rotate-180">›</span>
             </a>
           </div>
-        </Reveal>
-      </section>
-
-      {/* ===================== 12. FAQ (now the closing section — the old
-          "13. FINAL CTA / ابدأ رحلتك الرياضية" was removed 2026-08-30 per
-          owner: it repeated the hero + memberships CTAs and pushed EVO,
-          which is a service inside subscriptions, not a standalone CTA) ==== */}
-      <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-3xl">
-          <Reveal>
-            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "أسئلة شائعة وإجاباتها" : "Frequently Asked Questions"}
-            </h2>
-          </Reveal>
-          <Reveal delay={150}>
-            <Accordion type="single" collapsible className="mt-12">
-              {faqs.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
-                  <AccordionTrigger className="py-5 text-start text-lg font-normal hover:no-underline">
-                    {faq.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-5 text-base font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== 13. NEWSLETTER — Phase 72 (owner request) ====
-          Daily/weekly newsletter signup on the homepage. Saved in tool_leads
-          with type="newsletter" via /api/tools/lead. Since 2026-09-03 this is
-          the SINGLE newsletter surface on the homepage — the duplicate footer
-          card right below was removed per owner («النشرة البريدية المجانية
-          مكررة في الصفحة الرئيسية»), same dedup pattern as the 2026-08-30
-          footer CTA removal. ===================== */}
-      <section className="bg-[var(--bg)] px-4 py-12 md:py-16">
-        <div className="mx-auto max-w-2xl">
-          <NewsletterForm variant="home" />
         </div>
       </section>
 

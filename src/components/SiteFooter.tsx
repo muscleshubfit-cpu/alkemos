@@ -3,6 +3,7 @@
 import { useI18n } from "@/lib/i18n";
 import { ThemeImg } from "@/components/ThemeImg";
 import { SOCIAL_PROFILES } from "@/lib/social";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 /**
  * SiteFooter — the SHARED public footer (Access-Point Fix, 2026-09-14).
@@ -92,14 +93,19 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* List 2: Affiliate & Referral — «Referral Dashboard» removed
-              (access-point fix 2026-09-14): /referral is an authenticated,
-              noindex app page; private surfaces never live in the public
-              footer. The public /affiliate program stays. */}
+          {/* List 2: Partners — Affiliate + For Coaches. Restructure order
+              2026-09-15: the homepage B2B/affiliate sections moved to the
+              footer (display-only — /affiliate and /for-coaches pages,
+              business logic, and quotas untouched). For Coaches gains its
+              first persistent footer entry — its old homepage section was
+              its only UI access point. «Referral Dashboard» stays removed
+              (access-point fix 2026-09-14: private surfaces never live in
+              the public footer). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأفلييت" : "Affiliate"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الشراكات" : "Partners"}</p>
             <ul className="mt-3 space-y-2 text-xs">
               <li><a href="/affiliate" className="hover:underline">{isAr ? "برنامج الأفلييت" : "Affiliate Program"}</a></li>
+              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "كن مدرباً" : "For Coaches"}</a></li>
             </ul>
           </div>
 
@@ -162,6 +168,14 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/terms" : "/terms"} className="hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
             </ul>
           </div>
+        </div>
+
+        {/* Newsletter — restructure order 2026-09-15: moved from the
+            homepage body into the SHARED footer; this is now the SINGLE
+            newsletter surface, present on every public page (same form,
+            same /api/tools/lead pipeline, tool_slug="newsletter"). */}
+        <div className="mx-auto mt-10 max-w-md border-t border-[var(--edge)] pt-8">
+          <NewsletterForm variant="footer" />
         </div>
 
         <div className="mt-8 border-t border-[var(--edge)] pt-4 text-center text-[10px] text-[var(--muted-foreground)]">

@@ -34,6 +34,7 @@ import {
   Megaphone,
   Wallet,
   ShieldQuestion,
+  Briefcase,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -179,16 +180,25 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     });
   }
 
-  // Group 3: Affiliate Program (public marketing page) — staff never see it
+  // Group 3: Partners — Affiliate + For Coaches. Restructure order
+  // 2026-09-15: the homepage B2B/affiliate sections moved to navigation
+  // (display-only); For Coaches gains a persistent header entry — its old
+  // homepage section was its only UI access point. Staff never see it
+  // (coaches already joined; the funnel is visitor-facing).
   if (!isCoach) {
     groups.push({
-      id: "affiliate",
-      title: isAr ? "الأفلييت" : "Affiliate",
+      id: "partners",
+      title: isAr ? "الشراكات" : "Partners",
       items: [
         {
           label: isAr ? "برنامج الأفلييت" : "Affiliate Program",
           icon: Gift,
           href: "/affiliate",
+        },
+        {
+          label: isAr ? "كن مدرباً" : "For Coaches",
+          icon: Briefcase,
+          href: isAr ? "/ar/for-coaches" : "/for-coaches",
         },
       ],
     });
