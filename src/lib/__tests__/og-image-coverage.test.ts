@@ -92,6 +92,9 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/ar/coaching/layout.tsx", "og-home-ar"],
   ["src/app/ar/diet-plan/page.tsx", "og-home-ar"],
   ["src/app/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
+  // §12.53 item 11 (2026-09-16): the affiliate AR mirror — same gap
+  // (its layout declares openGraph, so og-home-ar must be pinned).
+  ["src/app/ar/affiliate/layout.tsx", "og-home-ar"],
 ];
 
 function repoRootPath(rel: string): string {

@@ -37,9 +37,11 @@ import { getBlogPost, getLinkedPost } from "@/lib/blog";
  *                   now has an Arabic mirror: /ar/tools/* + /ar/meal-planner)
  *   /compare     <-> /ar/compare (SEO-GEO-4, 2026-09-08 — comparison
  *                   index + detail pages mirror by prefix swap)
+ *   /affiliate   <-> /ar/affiliate (§12.53 item 11, 2026-09-16 — the
+ *                   last monolingual page on the site)
  * 
- * Pages without Arabic mirrors (e.g. /affiliate — and private surfaces
- * like /checkout, /profile, /admin): just toggle the UI language (the
+ * Pages without Arabic mirrors (private surfaces like /checkout,
+ * /profile, /admin, /auth): just toggle the UI language (the
  * page content is already bilingual via useI18n, so the user sees the
  * new language without a URL change).
  */
@@ -147,6 +149,8 @@ export function LanguageToggle() {
  // SEO-GEO-6.4 (P1-9): evo + coaching now have Arabic mirrors.
  { en: "/evo", ar: "/ar/evo" },
  { en: "/coaching", ar: "/ar/coaching" },
+ // §12.53 item 11 (2026-09-16): the affiliate AR mirror.
+ { en: "/affiliate", ar: "/ar/affiliate" },
  ];
 
  for (const route of MIRROR_ROUTES) {

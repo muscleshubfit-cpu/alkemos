@@ -48,7 +48,10 @@ export async function GET() {
     ]),
     { loc: `${base}/coaching`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/coaching`, ar: `${base}/ar/coaching` } },
     { loc: `${base}/ar/coaching`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/coaching`, ar: `${base}/ar/coaching` } },
-    { loc: `${base}/affiliate`, changefreq: "monthly", priority: 0.7 },
+    // §12.53 item 11 (2026-09-16): /affiliate is now bilingual — the AR
+    // mirror exists at /ar/affiliate (was the last monolingual page).
+    { loc: `${base}/affiliate`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/affiliate`, ar: `${base}/ar/affiliate` } },
+    { loc: `${base}/ar/affiliate`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/affiliate`, ar: `${base}/ar/affiliate` } },
     { loc: `${base}/memberships`, changefreq: "monthly", priority: 0.9, alternates: { en: `${base}/memberships`, ar: `${base}/ar/memberships` } },
     { loc: `${base}/ar/memberships`, changefreq: "monthly", priority: 0.9, alternates: { en: `${base}/memberships`, ar: `${base}/ar/memberships` } },
     // Coach recruitment funnel

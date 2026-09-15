@@ -129,7 +129,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  : "Share Alkemos with your audience and earn 20% commission on every eligible subscription. 30-day cookie."}
  </p>
  <a
- href="/affiliate"
+ href={isAr ? "/ar/affiliate" : "/affiliate"}
  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#1d8a3d] px-6 py-2.5 text-sm font-normal text-white transition-opacity hover:opacity-90"
  >
  {isAr ? "تعرف على البرنامج" : "Learn about the program"}
