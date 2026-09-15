@@ -60,6 +60,10 @@ Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
 > - **Existing FAQPage**: Flag at Info priority, not Critical. Do **not** recommend removal solely because rich results retired.
 > - **Adding new FAQPage**: No Google SERP benefit; do not recommend it for Google SERP benefit.
 > - **Genuine single-question pages** where users submit answers: use **QAPage** (Google's recommended type), not FAQPage.
+>
+> **Owner decision (2026-09-16 — SEO-GEO-MASTER-PLAN §12.58):** Alkemos keeps serving its existing
+> FAQPage (home page + /faq) and HowTo (exercise pages) markup — no Google harm (the rich-result
+> seats are retired anyway) and potential AI/GEO reading value. Revisit only by a new owner order.
 
 ---
 

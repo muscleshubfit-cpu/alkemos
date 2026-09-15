@@ -4300,3 +4300,35 @@ Single revert of the two files (EN layout + guard) — zero migrations, zero AR-
 
 ### Live verification on production (512b193 — 14/14 green)
 build-info carried the commit ~2 min after push · `/affiliate` = 200 with `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) · `og:locale=en_US` · `twitter:image` + `twitter:card=summary_large_image` · asset og-home-en.png = 200 · title/canonical/hreflang pair identical to the pre-batch state (EN half untouched besides the card) · **regression checks:** `/ar/affiliate` intact (200 + og-home-ar + ar_EG) and `/memberships` intact (card present) · mastery note: one false-negative in the first script round — Next.js renders the attribute `hrefLang` (camel-case) while the script grepped `hreflang`; fixed and re-run → 14/14.
+
+---
+Task ID: PHASE-210-SEO-GEO-19-OWNER-DECISIONS-2026-09-16
+Agent: Super Z (main)
+Task: Phase 210 — SEO-GEO-19: record the owner's decisions on the remaining §12.53 items (owner order 2026-09-16 «البند ٦ اجلة ، البند ٨ القرار إبقاء، البنود ٩ و ١٠ و ١٤ اجلهم، ثم افحص ملف توثيق seo واخبرنى ما التالى»)
+
+**Scope:** documentation-only batch — zero production code/assets/data/migrations. The §12.53 table's "awaiting owner decision" cells are closed with the recorded decisions; no production file touched. (Batches 11 + discovery 208 were already shipped & live-verified as phases 208/209 before this.)
+
+### Decisions recorded (all 2026-09-16)
+- **Item 6 (blog article depth): POSTPONED** — the pipeline depth-raise work is suspended until reopened by an owner order. Nothing was in flight (it was a "continuous/pipeline" item, never started).
+- **Item 8 (FAQPage on home + /faq, HowTo on exercise pages): DECISION = KEEP.** The deprecated-schema markup stays served as-is — exactly the second option in the table: no Google harm (rich-result seats retired anyway), potential AI/GEO reading value. Decision line added to docs/SEO-SCHEMA-REFERENCE.md (FAQPage section) in the same frame. Revisit only by a new owner order.
+- **Item 9 (Wikidata entity + sameAs): POSTPONED** (external item by nature).
+- **Item 10 (first 10 real Trustpilot reviews → re-enable aggregateRating): POSTPONED** — law P0-5 stays in force: no rating signal without a real source.
+- **Item 14 (USDA EN policy review after 90 days of GSC data): POSTPONED** — the ~2026-12-07 data milestone stays informational, not a scheduled commitment.
+
+### Effect on the plan
+The §12.53 table is now fully closed EXCEPT item 13 (P3 optional: textual hreflang links in the footer — still undecided). Plan scorecard: 8 items executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (AR og:image trio in 207 · EN /affiliate card in 209) + 1 decided-keep (8) + 4 postponed (6/9/10/14) + 1 undecided (13).
+
+### Files changed (docs only)
+- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table status column (items 6/8/9/10/14) + §12.57 trailing remainder line + new §12.58 section (the decision record).
+- docs/SEO-SCHEMA-REFERENCE.md — one owner-decision line in the FAQPage guidance block (same-frame documentation law).
+- STATE.md — phase 210: header, phase ladder, new (٠٠) 210 entry, QA header, official-phase footer; the 198-ب2+ب3 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» stays 512b193 (the last production-verified commit — nothing shipped past it).
+- worklog.md — this entry.
+
+### Gates (docs batch)
+docs_audit (phase=210, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push as always).
+
+### Rollback
+Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
+
+### Post-push sanity (light — HTML unchanged by construction)
+[TO BE APPENDED AFTER PUSH: build-info commit + homepage 200]
