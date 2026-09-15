@@ -3973,3 +3973,20 @@ Stage Summary:
 - الرئيسية صارت مسارًا سرديًا واحدًا (Hero → Tools/AI → Library استكشاف → Coaching → Memberships → Why Alkemos → ختام FAQ/CTA) أقصر بـ37–38% على كل السياقات مع صفر حذف خدمات: كل ما خرج من الصفحة موجود بالفوتر/الهيدر، وكل مكتبة موجودة بتبويبها
 - 3 ملفات فقط تغيّرت: src/components/views/LandingView.tsx (الهيكل) · src/components/SiteFooter.tsx (Partners + النشرة) · src/components/SiteHeader.tsx (مجموعة Partners) + التوثيق الإلزامي (README For Users + STATE 201 + هذا المدخل) — بلا أي ميجريشن أو API أو منطق أعمال
 - البوابات كلها خضراء قبل الدفع؛ التحقق الحي على الإنتاج بعد نشر Vercel
+
+---
+Task ID: HOMEPAGE-RESTRUCTURE-201-LIVE-VERIFY
+Agent: Super Z (main)
+Task: التحقق الحي من Production بعد نشر المرحلة 201 (1a9e0fa) — إثبات على كل السياقات المطلوبة بأمر المالك (EN + AR × Desktop + Mobile × Light + Dark)
+
+Work Log:
+- build-info حي: commit 1a9e0fa (branch main) ✓ — نشر Vercel اكتمل خلال ~80 ثانية
+- **EN Desktop (1440px):** الهيكل الجديد حيًا (Hero → Tools&AI → Library → Coaching → Memberships → FAQ+CTA) · 4 tabs كاملة مع Blog (11 كارت كاروسيل بمقالات حقيقية) · quick-nav ‏6 شرائح · أزرار chrome بالصفحة 6 (Hero · Create My Plan · Coaching · Subscribe ×2 · الختام) + Accept الكوكيز + اشتراك النشرة بالفوتر = 8 · فاصلان meander فقط · صفر overflow
+- **EN Mobile (390px):** الصفحة 8,250px (كانت 12,993px) · نقرة شريحة Blog تفعّل تبويب المدونة ✓ (مؤكد حتى من تبويب آخر مفتوح) · CTA الـHero واحد بالضبط
+- **AR Desktop + Mobile:** dir=rtl · 4 تبويبات عربية (التمارين/البرامج/الأطعمة/المدونة) · 6 شرائح عربية · فوتر Partners (برنامج الأفلييت + كن مدرباً ← /ar/for-coaches) · الصفحة 6,126px ديسكتوب و7,794px جوال (كانت 9,847px و12,250px)
+- **Dark mode (alkemos-theme=dark):** data-theme=dark مطبق بالخلفية #0B0B0D في الغتين — نفس الأرقام بلا فرق
+- **الأقسام القديمة كلها غابت:** #evo و#exercises و#programs و#foods و#blog و#for-coaches و#affiliate لم تعد موجودة كأقسام (كلها داخل Tools/Library/الفوتر) — مؤكد برمجيًا
+- **أخطاء الكونسول:** صفر أخطاء كود على الإنتاج (طلبات Vercel-insights السابقة تُحمَّل الآن من نطاق Vercel نفسه)
+
+Stage Summary:
+- المرحلة 201 منشورة ومتحقق منها حيًا بالكامل على alkemos.com (1a9e0fa) — أقصر بـ37–38% على كل السياقات، صفر overflow، tabs تعمل بالغتين، وكل خدمة خرجت من الصفحة حاضرة بالفوتر/الهيدر
