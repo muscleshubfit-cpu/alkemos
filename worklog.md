@@ -52,6 +52,9 @@ The first production check of /ar/foods surfaced "ابحث عن أكلة… / ا
 
 Guards round 2: marketing manifest +4 files (meal-planner page + AR layout + PageBottomPromo + the EVO chat route), Phase-205 canary extended with every round-2 removed phrase + replacements-present pins. Gates re-run: tsc 0 · eslint 0/0 · vitest 1183/1183 · build 0 · local live QA (AR foods/meal-planner/promo + EN regression + mobile 390 zero overflow).
 
+### Round 3 (production sweep caught the library strip + breadcrumb + keywords)
+The production sweep (scripts/phase205_prod_sweep.py — 52 URLs) found: (a) the OtherTools libraries-strip «مكتبة الأكلات» rendered on the tool/planner pages → «مكتبة الأطعمة»; (b) the VISIBLE food-detail breadcrumb «الأكلات» in FoodDetailClient (the JSON-LD one was already fixed) → «الأطعمة»; (c) AR for-coaches meta keywords carried «عمل كوتش اونلاين / إدارة عملاء الكوتش / كوتش جيم» → «عمل مدرب اونلاين / إدارة عملاء المدرب / مدرب نادي رياضي» (كوتشينج the service-name kept). The /ar/foods hits were proven STALE EDGE CACHE — with a cache-buster query the origin serves the round-2 copy clean (9× «صنف غذائي», zero أكلة). Guards: manifest +2 (OtherTools, ar/for-coaches layout) + round-3 canaries; tsc 0 · eslint 0/0 · vitest 1187/1187 · build 0.
+
 ### Out-of-scope findings (documented, not expanded)
 - «كارب» macro chip on the homepage (LandingView.tsx:1080) — homepage is a Phase-203-closed surface.
 - generateChatReply in ai-local.ts — dead code written in full Egyptian dialect (zero importers); needs a separate delete-or-rewrite decision.

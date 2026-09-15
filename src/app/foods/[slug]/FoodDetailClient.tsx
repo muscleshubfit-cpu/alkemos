@@ -100,7 +100,7 @@ export default function FoodDetailClient({
         <nav aria-label="breadcrumb" className="mb-6 flex items-center gap-1.5 text-sm text-[#6e6e73]">
           <a href={isAr ? "/ar" : "/"} className="hover:text-[#0071e3]">{isAr ? "الرئيسية" : "Home"}</a>
           <span className="text-[#d2d2d7]">›</span>
-          <a href={base} className="hover:text-[#0071e3]">{isAr ? "الأكلات" : "Foods"}</a>
+          <a href={base} className="hover:text-[#0071e3]">{isAr ? "الأطعمة" : "Foods"}</a>
           <span className="text-[#d2d2d7]">›</span>
           <span className="font-medium text-[#1d1d1f]">{isAr ? food.nameAr : food.nameEn}</span>
         </nav>

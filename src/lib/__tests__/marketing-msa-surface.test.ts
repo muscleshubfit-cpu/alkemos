@@ -87,6 +87,11 @@ const MARKETING_SURFACE_FILES = [
   "src/app/ar/meal-planner/layout.tsx",
   "src/components/PageBottomPromo.tsx",
   "src/app/api/ai/chat/route.ts",
+  // PHASE 205 round 3 (production sweep caught the library-strip +
+  // visible-breadcrumb + keywords leftovers): OtherTools (the libraries
+  // cluster strip on tool/planner pages) and the AR for-coaches metadata.
+  "src/components/OtherTools.tsx",
+  "src/app/ar/for-coaches/layout.tsx",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -641,8 +646,11 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "src/components/PageBottomPromo.tsx": ["مكتبة الأكلات", "8,830+ أكلة", "شوف خطط"],
       "src/app/meal-planner/page.tsx": ["أضف أكلة", "٨٨٣٠+ أكلة", "وشوف الماكروز", "بحث عن أكلة"],
       "src/app/ar/meal-planner/layout.tsx": ["8,830+ أكلة"],
-      "src/app/foods/[slug]/FoodDetailClient.tsx": ["الأكلة غير موجودة", "شارك الأكلة دي"],
+      "src/app/foods/[slug]/FoodDetailClient.tsx": ["الأكلة غير موجودة", "شارك الأكلة دي", '? "الأكلات"'],
       "src/app/api/ai/chat/route.ts": ["مقدرش ألاقي", "دلوقتي", "سؤال تاني", "مكتبة الأكلات", "8830+ أكلة", "تقدر تتصفح"],
+      // PHASE 205 round 3 — library strip + breadcrumb + keywords:
+      "src/components/OtherTools.tsx": ["مكتبة الأكلات"],
+      "src/app/ar/for-coaches/layout.tsx": ["عمل كوتش اونلاين", "إدارة عملاء الكوتش", "كوتش جيم"],
     };
     for (const [rel, bannedList] of Object.entries(surfaces)) {
       const src = readFileSync(rel, "utf8");
@@ -705,5 +713,13 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(chatRoute).toContain("لم أجد معلومات محددة");
     expect(chatRoute).toContain("مكتبة الأطعمة (8,830+ صنف غذائي)");
     expect(chatRoute).toContain("اسألني سؤالًا آخر");
+    // PHASE 205 round 3 — replacements present:
+    const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
+    expect(otherTools).toContain('nameAr: "مكتبة الأطعمة"');
+    const foodDetail2 = readFileSync("src/app/foods/[slug]/FoodDetailClient.tsx", "utf8");
+    expect(foodDetail2).toContain('? "الأطعمة"');
+    const arForCoaches = readFileSync("src/app/ar/for-coaches/layout.tsx", "utf8");
+    expect(arForCoaches).toContain("عمل مدرب اونلاين");
+    expect(arForCoaches).toContain("مدرب نادي رياضي");
   });
 });

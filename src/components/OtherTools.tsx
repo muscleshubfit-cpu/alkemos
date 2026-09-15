@@ -29,7 +29,7 @@ const ALL_TOOLS = [
 // The content libraries cluster (DELIVERY 0050 + §12.33).
 const LIBRARIES = [
   { slug: "/exercises", nameAr: "مكتبة التمارين", nameEn: "Exercise Library", icon: "dumbbell" },
-  { slug: "/foods", nameAr: "مكتبة الأكلات", nameEn: "Food Library", icon: "protein" },
+  { slug: "/foods", nameAr: "مكتبة الأطعمة", nameEn: "Food Library", icon: "protein" },
   // §12.33: moved from the tools list into the libraries, renamed per the
   // owner's directive.
   { slug: "/diet-plan", nameAr: "مكتبة الخطط الغذائية الجاهزة", nameEn: "Diet Plan Library", icon: "fruits" },
