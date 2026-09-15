@@ -23,8 +23,10 @@ export const metadata: Metadata = {
   // PHASE 194 (owner directive — Copy Refinement Pass): the time-frame
   // results claim was removed from the FAQ content — the description
   // no longer promises "when to expect results".
+  // PHASE 203 (copy refinement): the Arabic-support question was retired
+  // (replaced by the free-account question) — the description follows.
   description:
-    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, and Arabic support.",
+    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, and what a free account gives you.",
   alternates: {
     canonical: "https://alkemos.com/faq",
     languages: {

@@ -341,7 +341,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
           href: "/affiliate",
         },
         {
-          label: isAr ? "كن مدرباً" : "For Coaches",
+          label: isAr ? "للمدربين" : "For Coaches",
           icon: Briefcase,
           href: isAr ? "/ar/for-coaches" : "/for-coaches",
         },

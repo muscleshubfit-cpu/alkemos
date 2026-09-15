@@ -102,13 +102,22 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
     }
   });
 
-  // (4) The usage-first hero: the primary CTA scrolls to the free tools
-  //     (no /memberships destination from the hero).
-  it("the hero CTA pair points at usage (tools anchor + exercise library), not the sales funnel", () => {
+  // (4) The account-action hero (Phase 203 copy refinement, owner-
+  //     approved 2026-09-15): guests get the signup primary + login
+  //     secondary (the usage path is owned by the quick-nav chip + the
+  //     tools lead card — no duplicated CTA message), signed-in members
+  //     get their own console. The hero still never links the sales
+  //     funnel.
+  it("the hero CTA pair drives the account action (signup/login), not a duplicated usage CTA or the sales funnel", () => {
     const src = readFileSync(LANDING, "utf8");
-    expect(src).toContain('href="#tools"');
-    expect(src).toContain("Try the Free Tools");
-    expect(src).toContain("جرّب الأدوات المجانية");
+    expect(src).toContain('"/auth?mode=signup"');
+    expect(src).toContain("Create your free account");
+    expect(src).toContain("أنشئ حسابك المجاني");
+    expect(src).toContain('"/auth?mode=login"');
+    // The retired Phase 202 usage-CTA pair stays dead (the usage paths
+    // belong to the quick-nav chip + the tools section, never the hero).
+    expect(src).not.toContain("Try the Free Tools");
+    expect(src).not.toContain("جرّب الأدوات المجانية");
     // The hero's primary button must not link the memberships page.
     expect(src).not.toContain('href={isAr ? "/ar/memberships" : "/memberships"}');
   });
@@ -160,6 +169,55 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
     expect(src).not.toContain("مجتمع اللياقة العربي");
     expect(src).not.toContain("Paid Services");
     expect(src).not.toContain("الخدمات المدفوعة");
+  });
+});
+
+describe("Phase 203 — homepage copy refinement canaries", () => {
+  // The five REAL usage questions (owner-approved FAQ reselection): every
+  // limit in the answers matches the implementation verbatim (unified
+  // pool 2/4/8/8 — memberships.ts; guest-plan device persistence —
+  // plan-persistence.ts; EVO for everyone with tier-based limits;
+  // database-level access control).
+  it("the homepage FAQ answers the five usage questions; the retired questions stay dead", () => {
+    const src = readFileSync(LANDING, "utf8");
+    for (const required of [
+      "Do I need an account or subscription to use the tools?",
+      "Can I try AI plan generation for free?",
+      "Will my plan disappear if I don't create an account?",
+      "What is EVO?",
+      "Is my data safe?",
+    ]) {
+      expect(src, `usage question missing: ${required}`).toContain(required);
+    }
+    // The Arabic-support question is illogical on a page the visitor is
+    // already reading IN Arabic; the count question is answered by the
+    // live seal chips + section copy.
+    for (const banned of [
+      "Does the site support Arabic?",
+      "هل تدعم المنصة اللغة العربية؟",
+      "How many exercises and foods are there?",
+      "كم عدد التمارين والأطعمة المتاحة؟",
+    ]) {
+      expect(src, `retired FAQ question returned: "${banned}"`).not.toContain(banned);
+    }
+  });
+
+  // The exercise-library browse paths sit ABOVE the samples: the
+  // «Browse by muscle group» chips row + the clear All Exercises CTA;
+  // the old quiet duplicate bottom link is retired.
+  it("the muscle-group chips + All Exercises CTA precede the samples; the duplicate bottom link is retired", () => {
+    const src = readFileSync(LANDING, "utf8");
+    const chipsAt = src.indexOf("Browse by muscle group");
+    const ctaAt = src.indexOf('"All Exercises"');
+    const samplesAt = src.indexOf("samples.exercises.map");
+    expect(chipsAt, "the Browse-by-muscle-group label is missing").toBeGreaterThan(-1);
+    expect(ctaAt, "the All Exercises CTA label is missing").toBeGreaterThan(-1);
+    expect(samplesAt, "the exercise samples grid is missing").toBeGreaterThan(-1);
+    expect(chipsAt).toBeLessThan(samplesAt);
+    expect(ctaAt).toBeLessThan(samplesAt);
+    // The retired quiet bottom link stays dead.
+    expect(src).not.toContain("Browse all exercises");
+    expect(src).not.toContain("كل التمارين ›");
   });
 });
 

@@ -242,8 +242,14 @@ function BlogCarousel({
 
 export function LandingView({ samples }: { samples: HomeSamples }) {
   const { lang } = useI18n();
-  const { isCoach } = useAuth();
+  const { isCoach, isAdmin, profile } = useAuth();
   const isAr = lang === "ar";
+  // Phase 203 (owner-approved copy refinement 2026-09-15): the hero CTA
+  // is account-driven — guests get signup/login, signed-in members get
+  // their own console. Destination resolution mirrors the header's account
+  // icon law (staff → admin, coach → coach console, member → dashboard).
+  const isLoggedIn = !!profile;
+  const memberHref = isAdmin ? "/admin" : isCoach ? "/coach" : "/dashboard";
 
   const [latestPosts, setLatestPosts] = useState<BlogPostCard[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<BlogPostCard[]>([]);
@@ -280,18 +286,27 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   const blogHref = isCoach ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
 
   // FAQ schema for SEO.
-  // Phase 202 (owner order 2026-09-15: «لا تعرض Membership pricing أو
-  // جداول الأسعار في Homepage» + «قلل لغة الشرح التسويقي»): the
-  // pricing/payments objection pairs retired with the memberships
-  // section — the visible FAQ answers the four USAGE questions a new
-  // visitor actually asks. The FAQPage JSON-LD derives from the same
-  // array (single source, Phase 117 law preserved).
+  // Phase 203 (owner-approved FAQ reselection 2026-09-15): the five REAL
+  // pre-use questions a new visitor asks — every limit matches the
+  // implementation verbatim (unified plan pool: guests 2 successful
+  // generations/month, success-only counting — memberships.ts +
+  // tier-limits.ts; guest-plan device persistence — plan-persistence.ts;
+  // EVO open to everyone with tier-based limits; database-level access
+  // control — the RLS law). The Arabic-support question is retired (a
+  // visitor reading the Arabic page never asks it), and the library-count
+  // question retired with it — the live seal chips + the section copy
+  // answer it better than prose. The FAQPage JSON-LD derives from the
+  // same array (single source, Phase 117 law preserved).
   const faqs = [
-    { q: isAr ? "هل أحتاج اشتراكًا لاستخدام الأدوات؟" : "Do I need a subscription to use the tools?", a: isAr ? `لا — الأدوات كلها (${TOOLS_COUNT} أداة: الحاسبات، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي) مجانية ودون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free without signup.` },
-    { q: isAr ? "هل يمكنني تجربة توليد خطط الذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — التوليد جزء أساسي من التجربة المجانية: كل زائر يملك رصيدًا شهريًا موحدًا للتغذية والتمارين معًا (توليدان ناجحان شهريًا) بدون تسجيل، ويُحتسب التوليد الناجح فقط. بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ خططك دائمًا في حسابك وتتزامن عبر أجهزتك."
-      : "Yes — generation is a core part of the free experience: every visitor gets one unified monthly pool for nutrition and workout combined (2 successful generations) with no signup, success-only counting. No account: your plan stays on this device. A free account saves your plans permanently in your account & syncs them across your devices.", },
-    { q: isAr ? "كم عدد التمارين والأطعمة المتاحة؟" : "How many exercises and foods are there?", a: isAr ? `${EX_PLUS} تمرينًا و${FOODS_PLUS} صنف غذائي، والعدد يتزايد باستمرار.` : `${EX_PLUS} exercises with bilingual instructions and images, plus ${FOODS_PLUS} foods with calories and macros per 100g.` },
-    { q: isAr ? "هل تدعم المنصة اللغة العربية؟" : "Does the site support Arabic?", a: isAr ? "نعم بالكامل — النسخة العربية موجّهة إلى الجمهور العربي كافة لا إلى بلد بعينه، والنسخة الإنجليزية موجّهة إلى العالم أجمع." : "Yes, fully bilingual (Arabic/English) with complete RTL support, Arabic mirror pages, and a blog with independent content per language." },
+    { q: isAr ? "هل أحتاج حسابًا أو اشتراكًا لاستخدام الأدوات؟" : "Do I need an account or subscription to use the tools?", a: isAr ? `لا — جميع الأدوات (${TOOLS_COUNT}) مجانية بالكامل وتعمل دون تسجيل: الحاسبات، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free to use without an account.` },
+    { q: isAr ? "هل يمكنني تجربة توليد الخطط بالذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — كل زائر يملك رصيدًا شهريًا موحدًا يجمع خطط التغذية والتمارين معًا (توليدان ناجحان شهريًا) دون تسجيل، ويُحتسب التوليد الناجح فقط؛ أما المحاولات الفاشلة فلا تستهلك الرصيد."
+      : "Yes — every visitor gets one unified monthly pool for nutrition and workout plans combined (2 successful generations) with no signup. Only successful generations count; failed attempts never touch your balance." },
+    { q: isAr ? "هل تختفي خطتي إذا لم أنشئ حسابًا؟" : "Will my plan disappear if I don't create an account?", a: isAr ? "لا — خطتك تبقى على هذا الجهاز في التنقل والتحديث، ولا تختفي عند نفاد رصيد الشهر. وبحساب مجاني تُحفظ كل خطة تولّدها في حسابك بشكل دائم وتتزامن عبر أجهزتك."
+      : "No — your plan stays on this device across navigation and refreshes, and never disappears when the month's quota runs out. With a free account, every plan you generate is saved to your account permanently and synced across your devices." },
+    { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "EVO هو مدربك الذكي داخل المنصة — تراه كفقاعة محادثة في كل صفحة. اسأله عن التدريب والتغذية أو اطلب منه بناء خطة، وهو متاح للجميع بمن فيهم الزوار وفق حدود الاستخدام."
+      : "EVO is the AI coach built into Alkemos — you'll see it as a chat bubble on every page. Ask it about training or nutrition, or have it build a plan for you. It's available to everyone, visitors included, with tier-based limits." },
+    { q: isAr ? "هل بياناتي آمنة؟" : "Is my data safe?", a: isAr ? "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل."
+      : "Yes — access to your data is controlled at the database level itself: only you can view it, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
   ];
   const faqSchema = getFAQSchema(faqs);
 
@@ -309,11 +324,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       {/* Phase 202 (owner order 2026-09-15: «Hero: تعريف بسيط بـAlkemos
           مع توجيه مباشر لاستخدام الموقع، وليس Sales Pitch»): the hero
           keeps the Phase-131 overlay scene (artwork + logo + H1 + seal
-          chips) but the CTA pair now points at USAGE — the primary
-          chrome button scrolls to the free tools below (the flagship
-          no-signup entry) and the quiet secondary link opens the real
-          exercise library. The old «Start Free» → /memberships sales
-          CTA is retired with the memberships section. */}
+          chips). Phase 203 (owner-approved copy refinement 2026-09-15):
+          the CTA pair now drives the ACCOUNT action — signup/login for
+          guests, the member's own console when signed in — while the
+          USAGE paths stay owned by the quick-nav chip (#tools) and the
+          content sections below (no duplicated CTA message). The old
+          «Start Free» → /memberships sales CTA stays retired. */}
       <section className="hero-art relative w-full">
         {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP). */}
         <div className="hero-bg" aria-hidden="true">
@@ -345,33 +361,47 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             srcSetDark="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
             sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
-          {/* Phase 194 positioning line + the one-platform subtitle
-              (kept — a simple intro, not a sales pitch). */}
+          {/* Phase 194 positioning line (kept verbatim) + the Phase 203
+              concrete subtitle — what the platform actually gives a first
+              visitor (free tools, real libraries, EVO) and what the free
+              account adds. A simple intro, not a sales pitch. */}
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
             {isAr ? "تدرّب بذكاء. تغذَّ بدقة. وتقدّم بوعي." : "Train smarter. Eat with precision. Progress with intelligence."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم — كل ما تحتاجه لرحلتك في مكان واحد."
-              : "One platform that brings training, nutrition, smart planning, and progress tracking together — everything you need in one place."}
+              ? "أدوات مجانية، ومكتبات حقيقية للتمارين والأطعمة، وEVO مدربك الذكي — ابدأ فورًا، وأنشئ حسابًا مجانيًا لتحفظ خططك."
+              : "Free tools, real exercise and food libraries, and EVO — your smart coach. Start right away; create a free account to keep your plans."}
           </p>
 
-          {/* Phase 202 usage-first CTA pair: ONE primary chrome button
-              (scrolls to the free tools — immediate use, zero signup)
-              + ONE quiet link into the real exercise library. */}
+          {/* Phase 203 account-action CTA pair: guests (most homepage
+              traffic) get ONE primary chrome button → signup (the auth
+              route is bilingual BY DESIGN — no /ar mirror) + ONE quiet
+              login link; signed-in members get their own console. The
+              usage CTAs stay where the usage happens (quick-nav chip →
+              #tools, tools lead card → the planners, training section →
+              the library). */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:mt-6">
-            <a href="#tools" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
-              {isAr ? "جرّب الأدوات المجانية" : "Try the Free Tools"}
-              <span className="rtl:rotate-180">↓</span>
-            </a>
-            <a
-              href={isAr ? "/ar/exercises" : "/exercises"}
-              className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textSec }}
-            >
-              {isAr ? "تصفّح مكتبة التمارين" : "Browse the Exercise Library"}
-              <span className="rtl:rotate-180">›</span>
-            </a>
+            {isLoggedIn ? (
+              <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+                {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
+                <span className="rtl:rotate-180">›</span>
+              </a>
+            ) : (
+              <>
+                <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+                  {isAr ? "أنشئ حسابك المجاني" : "Create your free account"}
+                  <span className="rtl:rotate-180">›</span>
+                </a>
+                <a
+                  href="/auth?mode=login"
+                  className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+                  style={{ color: PALETTE.textSec }}
+                >
+                  {isAr ? "تسجيل الدخول" : "Log in"}
+                </a>
+              </>
+            )}
           </div>
 
           {/* Stat chips — engraved seals (mission §3), hero-scoped smaller
@@ -527,8 +557,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 hub + the footer (display-only curation). */}
             {[
               { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي من السعرات والماكروز بدقة، بدون تسجيل.", descEn: "Find your daily calorie and macro needs — no signup", icon: "calories", href: "/tools/calorie-calculator" },
-              { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكارب ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
-              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف هل وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
+              { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكربوهيدرات ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
+              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف إن كان وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: `ابنِ وجباتك من ${FOODS_PLUS} صنف غذائي وتابع الماكروز.`, descEn: `Build meals from ${FOODS_PLUS} foods and track macros`, icon: "mealplanner", href: "/meal-planner" },
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
@@ -557,7 +587,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "مكتبة التدريب — تصفّحها يبدأ من هنا" : "The Training Library — Start Browsing"}
+              {isAr ? "مكتبة التدريب" : "The Training Library"}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
@@ -566,42 +596,54 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </p>
           </div>
 
+          {/* Phase 203 (owner-approved copy refinement 2026-09-15): the
+              library browse paths promoted ABOVE the samples — the
+              «Browse by muscle group» chips row (counts are real, from
+              the shared constants) + ONE clear All Exercises CTA. The old
+              quiet duplicate link below the samples is retired. Data and
+              sample selection are untouched (getHomeSamples props). */}
+          <div className="mt-8">
+            <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "تصفّح حسب المجموعة العضلية" : "Browse by muscle group"}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              {[
+                { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
+                { labelAr: "ظهر", labelEn: "Back", slug: "back" },
+                { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
+                { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
+                { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
+                { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
+                { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
+              ].map((cat) => (
+                <a
+                  key={cat.slug}
+                  href={`${isAr ? "/ar" : ""}/exercises?cat=${cat.slug}`}
+                  className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
+                  title={isAr ? `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} exercises`}
+                >
+                  {isAr ? cat.labelAr : cat.labelEn}
+                  <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0}</span>
+                </a>
+              ))}
+            </div>
+            <div className="mt-5 text-center">
+              <a
+                href={isAr ? "/ar/exercises" : "/exercises"}
+                className="btn-outline px-6 py-2.5 text-sm font-medium"
+              >
+                {isAr ? "كل التمارين" : "All Exercises"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </a>
+            </div>
+          </div>
+
           {/* REAL exercise samples — 8 curated lifts (one per muscle
               family), each card links to its /exercises/[slug] page. */}
           <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
             {samples.exercises.map((ex) => (
               <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
             ))}
-          </div>
-
-          {/* Muscle-group quick links — the compact browse path into the
-              library hubs (counts are real, from the shared constants). */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {[
-              { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
-              { labelAr: "ظهر", labelEn: "Back", slug: "back" },
-              { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
-              { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
-              { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
-              { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-              { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
-            ].map((cat) => (
-              <a
-                key={cat.slug}
-                href={`${isAr ? "/ar" : ""}/exercises?cat=${cat.slug}`}
-                className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
-                title={isAr ? `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} exercises`}
-              >
-                {isAr ? cat.labelAr : cat.labelEn}
-                <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0}</span>
-              </a>
-            ))}
-          </div>
-
-          <div className="mt-6 text-center">
-            <a href={isAr ? "/ar/exercises" : "/exercises"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "كل التمارين ›" : "Browse all exercises ›"}
-            </a>
           </div>
 
           {/* REAL program samples — 3 curated programs from the live
@@ -642,7 +684,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? `${FOODS_PLUS} صنفًا غذائيًا مع سعراته وبروتينه وكاربه ودهونه لكل 100 جرام — هذه عيّنات حقيقية منها.`
+                ? `${FOODS_PLUS} صنفًا غذائيًا مع سعراته وبروتينه وكربوهيدراته ودهونه لكل 100 جرام — هذه عيّنات حقيقية منها.`
                 : `${FOODS_PLUS} foods with calories, protein, carbs, and fat per 100g — these are real samples from the database.`}
             </p>
           </div>

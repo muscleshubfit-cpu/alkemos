@@ -371,8 +371,12 @@ export default function AiMealPlannerPage() {
                     : "Right now your plan lives on this device only. Create a free account and every plan you generate is saved to it automatically — reachable from any device and managed from your plans page. Premium lifts your monthly pool to 4 generations (8 with Pro) plus full plan saving and export."}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  {/* Phase 203 (copy refinement fix 2026-09-15): the auth
+                      route has NO /ar mirror BY DESIGN (the page is
+                      bilingual via i18n) — the old /ar/auth?mode=signup
+                      variant 404'd. One EN path for both locales. */}
                   <Link
-                    href={isAr ? "/ar/auth?mode=signup" : "/auth?mode=signup"}
+                    href="/auth?mode=signup"
                     className="btn-chrome inline-flex items-center gap-2 px-4 py-2 text-sm"
                   >
                     {isAr ? "أنشئ حساباً مجانياً" : "Create a free account"}

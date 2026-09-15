@@ -56,12 +56,12 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.error || (isAr ? "حصل خطأ" : "Something went wrong"));
+        setError(data.error || (isAr ? "حدث خطأ" : "Something went wrong"));
         return;
       }
       setDone(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : (isAr ? "حصل خطأ" : "Something went wrong"));
+      setError(e instanceof Error ? e.message : (isAr ? "حدث خطأ" : "Something went wrong"));
     } finally {
       setSubmitting(false);
     }
@@ -87,7 +87,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           </p>
           <p className="mt-0.5 text-xs font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "ستصلك أحدث النصائح والعروض أولاً بأول — مجاناً."
+              ? "ستصلك أحدث النصائح والعروض أولًا بأول — مجانًا."
               : "You'll receive our latest tips and offers — free."}
           </p>
         </div>
@@ -113,7 +113,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           </h2>
           <p className="mx-auto mt-2 max-w-md text-base font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "نصائح تدريب وتغذية يومية توصلك على بريدك، مجاناً تماماً."
+              ? "نصائح تدريب وتغذية يومية توصلك على بريدك، مجانًا تمامًا."
               : "Daily training and nutrition tips straight to your inbox — completely free."}
           </p>
         </div>
@@ -124,7 +124,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           </p>
           <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "نصائح تدريب وتغذية توصلك أولاً بأول."
+              ? "نصائح تدريب وتغذية توصلك أولًا بأول."
               : "Training & nutrition tips, straight to you."}
           </p>
         </div>
@@ -169,7 +169,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           ) : (
             <>
               <Send className="h-4 w-4" />
-              {isAr ? "اشترك الآن مجاناً" : "Subscribe free"}
+              {isAr ? "اشترك الآن مجانًا" : "Subscribe free"}
             </>
           )}
         </button>

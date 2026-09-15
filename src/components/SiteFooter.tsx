@@ -146,7 +146,7 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
               <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
               <li><a href="/affiliate" className="hover:underline">{isAr ? "برنامج الأفلييت" : "Affiliate Program"}</a></li>
-              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "كن مدرباً" : "For Coaches"}</a></li>
+              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
             </ul>
           </div>
 

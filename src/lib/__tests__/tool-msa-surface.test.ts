@@ -201,7 +201,12 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
     expect(caloriePage).toContain('"معدل الأيض الأساسي (BMR)"');
     expect(caloriePage).toContain('"الاحتياج اليومي (TDEE)"');
     const faq = readFileSync("src/lib/faq-content.ts", "utf8");
-    expect(faq).toContain("سياسات الأمان على مستوى الصفوف (RLS)");
+    // Phase 203 (owner-approved security rewrite 2026-09-15): the data
+    // answer is simple MSA now — no acronym gloss needed (the database-
+    // level access wording replaced the old RLS-gloss sentence).
+    expect(faq).toContain(
+      "الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها",
+    );
     expect(faq).toContain("تطبيق ويب تقدمي (PWA)");
     const calorieLayout = readFileSync(
       "src/app/ar/tools/calorie-calculator/layout.tsx",
