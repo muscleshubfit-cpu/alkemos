@@ -22,8 +22,8 @@ Work Log:
 Stage Summary:
 - الرئيسية صارت Product-Website: كل خدمة عائلة محتوى بنقطة دخول حقيقية قابلة للتصفح (Discover + Use + Explore) — صفر أسعار وصفر لغة مبيعات على الصفحة؛ صفحة العضويات وكل الأسعار/الكوتات/الـAPIs/الـDB دون مساس
 - منصة العينات: نمط Server-selects → client-renders قابل لإعادة الاستخدام لأي صفحة تريد محتوى حقيقيًا دون كسر قانون الـbundle
-- Commit SHA: (يُستكمل بعد الـpush)
-- Push status: pushed (origin/main) — التحقق الحي على alkemos.com بعد نشر Vercel
+- Commit SHA: be161f61f29f3acd254dbd0246baf3bb82e449d6 (be161f6)
+- Push status: pushed (origin/main) — SYNCED؛ التحقق الحي على الإنتاج (be161f6) أخضر كامل: EN/AR × Desktop/Mobile + المقالات ببيانات Supabase الحية (10 كروت) + EVO ودجت + الفوتر الجديد + صفر overflow — الكاش الحافي لـCF ينتهي خلال دقائق (التحقق تم عبر cache-bust وبنفس القيم بعد انتهاء العمر)
 
 ---
 Task ID: PHASE-198-UI-ROUNDC2-PAGES-2026-09-14
