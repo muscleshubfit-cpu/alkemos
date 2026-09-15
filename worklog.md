@@ -4136,3 +4136,22 @@ Work Log:
 
 Stage Summary:
 - المرحلة 201 منشورة ومتحقق منها حيًا بالكامل على alkemos.com (1a9e0fa) — أقصر بـ37–38% على كل السياقات، صفر overflow، tabs تعمل بالغتين، وكل خدمة خرجت من الصفحة حاضرة بالفوتر/الهيدر
+
+---
+Task ID: SEO-GEO-14-AUDIT-2026-09-15
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-15 — تدقيق عميق مستقل READ-ONLY لمشروع Alkemos بالكامل (SEO/GEO/indexing/content/E-E-A-T/performance/اتساق النصوص) من أحدث حالة فعلية للمستودع والإنتاج، ثم توثيق النتائج وخطة العمل داخل docs/SEO-GEO-MASTER-PLAN.md §12.53 فقط — صفر تعديل كود/وظائف.
+
+Work Log:
+- بروتوكول §3.6: STATE.md قُرئ · git clone نظيف على رأس main (3f40731 = آخر كوميت) · build-info حي يؤكد الإنتاج على نفس الكوميت (متزامن)
+- فحص حي مباشر: 40+ صفحة EN/AR بأنواعها (قوائم/تفاصيل/hubs/collections/مقارنات/مؤلف/مدونة/أدوات/برامج/خطط) — استخراج title/canonical/hreflang/robots/JSON-LD/og/داخلية من الـHTML الفعلي
+- السايت مابز الستة كاملة (2,158 URL) نُزّلت وحُلّلت (hreflang coverage · lastmod · تعداد الأنواع) + عينة عشوائية 70/70 = 200 بلا redirect
+- robots.txt بالـUser-agents العادية وزواحف AI الثلاثة (GPTBot/ClaudeBot/PerplexityBot) = 200 ✓ · فحص 404/301/308/trailing-slash/www/http وصفحات البحث الداخلي وpreview/coaches
+- تحليل كود: seo.ts (المخططات ولغتها) · metadata.ts · layouts الأسطح · foods-sitemap policy · canonical-tier USDA AR · blog pairing · redirects next.config · LanguageToggle · og-image-coverage test
+- أداء: TTFB مكرر (40–70ms عبر الحافة) · وزن HTML مضغوطًا 25KB · جرد أوزان الصور المحلية والخارجية — اكتشاف hot-linking كامل لصور التمارين من raw.githubusercontent.com (كاش 5 دقائق، ليس CDN)
+- مراجعة توثيق كاملة: SEO-GEO-MASTER-PLAN §12 كاملًا (بما فيه خطة §12.19 وتنفيذاتها) · STATE · worklog · EEAT/CWV/SCHEMA-REFERENCE — تحقق تراجعي: P0s السابقة كلها قائمة في الإنتاج؛ رصد 4 تعارضات توثيقية (iad1/fra1 · lastmod قديم · نطاق §12.45 أوسع من اختبارها · Wikidata مخطط غير منفذ بلا حالة معلنة)
+- توثيق النتائج + خطة العمل (14 بندًا بحالات Pending/InProgress/Verified/Completed) داخل §12.53 بملف الخطة وحده — صفر ملفات جديدة، STATE.md لم يُمس (جلسة تدقيق بلا تغيير حالة)
+
+Stage Summary:
+- الحكم الحاكم: الأساس التقني SEO/GEO سليم ومتحقق حيًا على نطاق واسع؛ كل الحلول السابقة قائمة؛ الثغرات الجديدة في طبقة العرض/الأصول: (P0 خارج SEO) مفتاح OpenRouter المسرب حي — تدوير فوري بيد المالك · (P1) صور التمارين hot-linked من GitHub raw · مخططات EVO/Coaching JSON-LD بالعربية على صفحات EN · og:image غائب عن أسطح القوائم EN · (P2) عنوان الرئيسية 94 حرفًا · عمق مقالات ~1.0–1.3K كلمة · lastmod قديم + تعارض iad1/fra1 · FAQPage/HowTo متقاعدة ما زالت ترسل · (P3) Wikidata/تقييمات Trustpilot/مرآة /affiliate AR/لاحقة /blog EN/hreflang-footer/مراجعة USDA بعد 90 يومًا
+- المخرج الوحيد: docs/SEO-GEO-MASTER-PLAN.md §12.53 (خطة كاملة بترتيب تنفيذ وتبعيات ومخاطر وحالات) — Audit + توثيق فقط كما أمر المالك
