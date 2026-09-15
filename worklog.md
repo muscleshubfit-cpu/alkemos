@@ -4231,4 +4231,9 @@ Exercise page EN/AR renders /images/exercises/*.webp · asset served 200 · imag
 ### Rollback
 Single commit revert restores the GitHub raw builder (remotePatterns entry alive); on-disk WebP assets are inert without it.
 
-**Production commit:** <filled after push>
+**Production commit:** 3da58f8 (pushed to origin/main e6e67bc..3da58f8; Vercel deployed; build-info live = 3da58f8).
+
+### Live verification on production (3da58f8)
+- **23/23 checks** (script outside the repo, Cloudflare cache-buster on every HTML fetch): the four AR surfaces serve og:image=og-home-ar + twitter images · EN/AR exercise pages + homepage samples serve /images/exercises/*.webp with ZERO raw.githubusercontent references · asset served 200 · image/webp · RIFF/WEBP magic · Cache-Control: public, max-age=31536000, immutable · sitemap exercises+pages lastmod = 2026-09-16 (exercises sitemap carries all 1,736 URLs) · regressions clean (og-home-en on the EN surfaces, og-home-ar inherited on AR lists, family cards on detail pages).
+- **Deep random sample 30/30:** 30 random URLs from the live exercises sitemap (seed 207) — every page serves local webp references and every referenced asset (60 checks) resolves 200.
+- Note: the first deep-sample run reported 6/30 "no images" — root cause was a regex bug in the verification script itself (letter `s` wrongly excluded from the character class), NOT a site defect; script fixed, re-run = 30/30. Documented for honesty of record.

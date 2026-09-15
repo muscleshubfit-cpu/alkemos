@@ -66,7 +66,7 @@
 - **(203) البوابات والمنهجية:** tsc 0 (الأربعة الموثقة فقط) · eslint 0/0 · vitest **1134/1134** (1132 + 2 حراس 203 + pin محدّث) · build 0 (2056/2056) · docs_audit (phase=203) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · دخان محلي EN/AR × ديسكتوب 1440/جوال 390 (RTL): زرا الهيرو يعملان (signup يفتح نموذج الإنشاء وlogin نموذج الدخول) · التصفح فوق العينات وCTA كل التمارين → ‏/exercises ورقاقة صدر → ‏?cat=chest · FAQ الخمسة مرئية ومطابقة JSON-LD · /faq المستقلة بالسؤالين الجديدين EN/AR · /ar/auth القديم 404 والجديد 200 · صفر overflow — التحقق الحي تم (فحص SSR مباشر بالنسختين — أعلاه)
 - **(QA — المرحلة 202):** بوابات خضرت وقتها (tsc 0 · eslint 0/0 · vitest 1132/1132 · build 0 · docs_audit/docs_parity/stale-refs/ui-wiring ✓) + دخان DOM ×6 سياقات (EN/AR×ديسكتوب/جوال+داكن+RTL) + 50 رابط نقطة دخول = 200 — التفصيل worklog
 - **(QA — المرحلة 201):** بوابات خضراء + فحص حي كامل EN/AR × Desktop/Mobile × Light/Dark + tabs + chip-activation + فوتر Partners/النشرة (1a9e0fa)
-- **(207) البوابات:** tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9: 4 أسطح og-image AR + 5 حراس selfhost) · build 0 (2056 صفحة) · docs_audit (phase=207) · docs_parity/stale-refs/ui-wiring/migration_audit ✓ · دخان محلي: صفحة تمرين EN/AR تعرض /images/exercises/*.webp + ترويسة immutable + صفر مراجع raw في HTML · تحقق الإنتاج بعد النشر موثق §12.55
+- **(207) البوابات:** tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9: 4 أسطح og-image AR + 5 حراس selfhost) · build 0 (2056 صفحة) · docs_audit (phase=207) · docs_parity/stale-refs/ui-wiring/migration_audit ✓ · دخان محلي: ترويسة immutable + صفر مراجع raw · **تحقق حي على الإنتاج (3da58f8): 23/23 + عينة عشوائية 30/30 (كل أصل يخدم webp محلي 200) — §12.55**
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)
 
