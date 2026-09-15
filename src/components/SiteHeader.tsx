@@ -81,6 +81,12 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   const isLoggedIn = !!profile;
   const isAr = lang === "ar";
   const [open, setOpen] = useState(false);
+  // Phase 202: which DESKTOP service dropdown is click-opened. Mouse
+  // users get the CSS hover path (group-hover); keyboard users get
+  // focus-within; touch users on large screens (hover:none devices —
+  // iPad landscape) get this click-toggle path, so every input modality
+  // can open the dropdowns.
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -102,24 +108,36 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     return () => window.removeEventListener("keydown", handler);
   }, [open]);
 
+  // Phase 202: close the click-opened desktop dropdown when clicking
+  // (or tapping) anywhere outside the service nav.
+  useEffect(() => {
+    if (!openMenu) return;
+    const onDocPointer = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (target && !target.closest("[data-service-nav]")) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("click", onDocPointer);
+    return () => document.removeEventListener("click", onDocPointer);
+  }, [openMenu]);
+
   // Blog link: admin manages the CMS (/admin/blog); everyone else —
   // including future coach accounts — reads the public blog.
   const blogHref = isAdmin ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
 
   // ─── Menu data model (grouped) ─────────────────────────────────────────
-  // The drawer is organised into clear sections:
-  //   1. Home
-  //   2. Paid Services (Coaching + Memberships + EVO AI Coach) — premium offerings
-  //   3. Affiliate Program — monetization for promoters
-  //   4. Tools (expandable dropdown) — 6 free calculators + meal planner
-  //   5. Resources — content libraries (Exercises, Programs, Foods, Blog)
-  //   6. Authenticated-only items (Dashboard, My Plans, etc.) — appended below
-  //   7. Coach-only items — appended when isCoach
-  //
-  // Legal & basic pages (Privacy, Terms, About, FAQ, Contact) are intentionally
-  // NOT in the header — they live in the footer only (per Owner directive
-  // 2026-08-25). Visitors scanning the header should see the product offering
-  // first; legal/contact pages are secondary.
+  // Phase 202 (owner order 2026-09-15: «Header: اجعل الـNavigation واضحًا
+  // للخدمات الأساسية التي يأتي الزائر لاستخدامها: Training / Nutrition /
+  // Tools / AI / Coaching، مع تنظيم الخدمات الثانوية مثل For Coaches
+  // وAffiliate في مكان مناسب دون أن تهيمن على الواجهة»): the drawer is
+  // now organised SERVICE-FIRST (the five core services a visitor comes
+  // to USE), and the navbar gained the matching DESKTOP navigation
+  // (SERVICE_NAV below). Secondary services (Memberships / Affiliate /
+  // For Coaches) live in the slim «More» group + the footer — reachable,
+  // never dominant. Legal & basic pages (Privacy, Terms, About, FAQ,
+  // Contact) are intentionally NOT in the header — footer only (per
+  // Owner directive 2026-08-25).
 
   type MenuItem = {
     label: string;
@@ -149,67 +167,76 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     ],
   });
 
-  // Group 2: Paid Services (Coaching + Memberships + EVO AI Coach)
-  // ROLE SURFACE LAW (2026-08-29): hidden from platform staff — the
-  // owner/coach must not browse his own sales funnel in the header.
-  if (!isCoach) {
-    groups.push({
-      id: "paid-services",
-      title: isAr ? "الخدمات المدفوعة" : "Paid Services",
-      items: [
-        {
-          label: isAr ? "الكوتشينج" : "Coaching",
-          icon: Users,
-          href: isAr ? "/ar/coaching" : "/coaching",
-        },
-        {
-          label: isAr ? "العضويات" : "Memberships",
-          icon: Sparkles,
-          // AR-aware (Phase 45 follow-up, owner-approved): /memberships has an
-          // Arabic mirror at /ar/memberships — send Arabic users there.
-          // /evo has an AR mirror too, but per owner directive 2026-09-14
-          // the EVO entry stays EXACTLY as it was (no changes to its paths).
-          href: isAr ? "/ar/memberships" : "/memberships",
-        },
-        {
-          label: "EVO AI Coach",
-          icon: Bot,
-          href: "/evo",
-        },
-      ],
-    });
-  }
+  // Group 2: Training — the training content services (exercises hub,
+  // muscle-group hub, equipment hub, programs).
+  groups.push({
+    id: "training",
+    title: isAr ? "التدريب" : "Training",
+    items: [
+      {
+        label: isAr ? "مكتبة التمارين" : "Exercises",
+        icon: Dumbbell,
+        href: isAr ? "/ar/exercises" : "/exercises",
+      },
+      {
+        label: isAr ? "حسب المجموعة العضلية" : "By Muscle Group",
+        icon: Target,
+        href: isAr ? "/ar/muscles/chest" : "/muscles/chest",
+      },
+      // Access-point fix (2026-09-14): the equipment hubs had ZERO nav
+      // entries — the sample bodyweight hub joins the drawer (every
+      // /equipment/[type] page cross-links the rest).
+      {
+        label: isAr ? "حسب المعدات" : "By Equipment",
+        icon: Dumbbell,
+        href: isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight",
+      },
+      {
+        label: isAr ? "برامج التدريب" : "Programs",
+        icon: ClipboardList,
+        href: isAr ? "/ar/programs" : "/programs",
+      },
+    ],
+  });
 
-  // Group 3: Partners — Affiliate + For Coaches. Restructure order
-  // 2026-09-15: the homepage B2B/affiliate sections moved to navigation
-  // (display-only); For Coaches gains a persistent header entry — its old
-  // homepage section was its only UI access point. Staff never see it
-  // (coaches already joined; the funnel is visitor-facing).
-  if (!isCoach) {
-    groups.push({
-      id: "partners",
-      title: isAr ? "الشراكات" : "Partners",
-      items: [
-        {
-          label: isAr ? "برنامج الأفلييت" : "Affiliate Program",
-          icon: Gift,
-          href: "/affiliate",
-        },
-        {
-          label: isAr ? "كن مدرباً" : "For Coaches",
-          icon: Briefcase,
-          href: isAr ? "/ar/for-coaches" : "/for-coaches",
-        },
-      ],
-    });
-  }
+  // Group 3: Nutrition — the nutrition content services (foods hub,
+  // meal planner, ready-made diet plans, collections hub).
+  groups.push({
+    id: "nutrition",
+    title: isAr ? "التغذية" : "Nutrition",
+    items: [
+      {
+        label: isAr ? "مكتبة الأطعمة" : "Foods",
+        icon: Utensils,
+        href: isAr ? "/ar/foods" : "/foods",
+      },
+      {
+        label: isAr ? "مخطط الوجبات" : "Meal Planner",
+        icon: Pizza,
+        href: isAr ? "/ar/meal-planner" : "/meal-planner",
+      },
+      // §12.33: the ready-made diet plans join the content libraries
+      // under the owner's name.
+      {
+        label: isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans",
+        icon: Pizza,
+        href: isAr ? "/ar/diet-plan" : "/diet-plan",
+      },
+      // Phase SEO-GEO-1 (2026-09-08): the collections hub entry point.
+      {
+        label: isAr ? "مجموعات الأطعمة" : "Food Collections",
+        icon: Pizza,
+        href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods",
+      },
+    ],
+  });
 
-  // Group 4: Tools (dropdown — expandable to show all 6 tools + meal planner)
-  // Per Owner directive 2026-08-25: tools must be a dropdown menu showing all
-  // individual tools, NOT a single link to /tools.
-  // Access-point fix (2026-09-14): every tool href is now locale-aware —
-  // all tools have Arabic mirrors (/ar/tools/*, /ar/meal-planner), so an
-  // AR drawer no longer links EN-only URLs.
+  // Group 4: Tools (dropdown — expandable to show the 5 standalone tools
+  // + the hub link). The AI planners live in the AI group below (they are
+  // AI services — §12.31/§12.32 naming preserved).
+  // Per Owner directive 2026-08-25: tools must be a dropdown menu showing
+  // all individual tools, NOT a single link to /tools.
+  // Access-point fix (2026-09-14): every tool href is now locale-aware.
   groups.push({
     id: "tools",
     title: isAr ? "الأدوات" : "Tools",
@@ -240,80 +267,95 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker",
       },
       {
-        label: isAr ? "مخطط الوجبات" : "Meal Planner",
-        icon: Pizza,
-        href: isAr ? "/ar/meal-planner" : "/meal-planner",
+        label: isAr ? "كل الأدوات" : "All Tools",
+        icon: Calculator,
+        href: isAr ? "/ar/tools" : "/tools",
       },
-      // §12.31: the AI meal planner joins the nav tools group under its
-      // full unified name (owner directive «عدل الاسم الى مخطط الوجبات
-      // بالذكاء الاصطناعي» — it was missing from the drawer entirely).
+    ],
+  });
+
+  // Group 5: AI — the AI services (both planners + EVO).
+  // ROLE SURFACE LAW: EVO joins Coaching/Memberships in the
+  // visitor-facing funnel — staff never see these entries.
+  groups.push({
+    id: "ai",
+    title: isAr ? "الذكاء الاصطناعي" : "AI",
+    items: [
+      // §12.31: the AI meal planner under its full unified name.
       {
         label: isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner",
         icon: Sparkles,
         href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner",
       },
-      // §12.32: the AI workout planner (owner directive «ضيف أداة جديده
-      // مخطط التمارين بالذكاء الاصطناعي").
+      // §12.32: the AI workout planner.
       {
         label: isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner",
         icon: Sparkles,
         href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner",
       },
+      ...(isCoach
+        ? []
+        : [
+            {
+              label: "EVO AI Coach",
+              icon: Bot,
+              // Owner directive 2026-09-14: the EVO entry stays EXACTLY
+              // as it was (no changes to its paths).
+              href: "/evo",
+            },
+          ]),
     ],
   });
 
-  // Group 5: Resources (content libraries — exercises / programs / foods / blog)
-  // Phase SEO-GEO-1 (2026-09-08): added hub-page entry points (Muscle Groups,
-  // Food Collections) so the new hub pages receive internal link equity from
-  // every page on the site and become discoverable from the nav drawer.
+  // Group 6: Coaching — a core service, its own drawer entry.
+  // ROLE SURFACE LAW (2026-08-29): hidden from platform staff — the
+  // owner/coach must not browse his own sales funnel in the header.
+  if (!isCoach) {
+    groups.push({
+      id: "coaching",
+      title: "",
+      items: [
+        {
+          label: isAr ? "الكوتشينج" : "Coaching",
+          icon: Users,
+          href: isAr ? "/ar/coaching" : "/coaching",
+        },
+      ],
+    });
+
+    // Group 7: More services — the SECONDARY surfaces (Memberships,
+    // Affiliate, For Coaches): reachable but never dominant (owner
+    // order 2026-09-15). Staff never see the funnel entries.
+    groups.push({
+      id: "more",
+      title: isAr ? "خدمات أخرى" : "More",
+      items: [
+        {
+          label: isAr ? "العضويات" : "Memberships",
+          icon: Sparkles,
+          href: isAr ? "/ar/memberships" : "/memberships",
+        },
+        {
+          label: isAr ? "برنامج الأفلييت" : "Affiliate Program",
+          icon: Gift,
+          href: "/affiliate",
+        },
+        {
+          label: isAr ? "كن مدرباً" : "For Coaches",
+          icon: Briefcase,
+          href: isAr ? "/ar/for-coaches" : "/for-coaches",
+        },
+      ],
+    });
+  }
+
+  // Group 8: Resources — the remaining content verticals (comparisons,
+  // blog). The library entries moved into their service groups above.
   groups.push({
     id: "resources",
     title: isAr ? "المحتوى" : "Resources",
     items: [
-      {
-        label: isAr ? "مكتبة التمارين" : "Exercises",
-        icon: Dumbbell,
-        href: isAr ? "/ar/exercises" : "/exercises",
-      },
-      {
-        label: isAr ? "حسب المجموعة العضلية" : "By Muscle Group",
-        icon: Target,
-        href: isAr ? "/ar/muscles/chest" : "/muscles/chest",
-      },
-      // Access-point fix (2026-09-14): the equipment hubs had ZERO nav
-      // entries — the sample bodyweight hub joins the drawer (every
-      // /equipment/[type] page cross-links the rest).
-      {
-        label: isAr ? "حسب المعدات" : "By Equipment",
-        icon: Dumbbell,
-        href: isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight",
-      },
-      {
-        label: isAr ? "برامج التدريب" : "Programs",
-        icon: ClipboardList,
-        href: isAr ? "/ar/programs" : "/programs",
-      },
-      {
-        label: isAr ? "مكتبة الأطعمة" : "Foods",
-        icon: Utensils,
-        href: isAr ? "/ar/foods" : "/foods",
-      },
-      // §12.33: the ready-made diet plans join the content libraries
-      // under the owner's name (owner directive «انقل خطط غذائيه جاهزة
-      // الى المكتبات باسم مكتبة الخطط الغذاييه الجاهزه»).
-      {
-        label: isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans",
-        icon: Pizza,
-        href: isAr ? "/ar/diet-plan" : "/diet-plan",
-      },
-      {
-        label: isAr ? "مجموعات الأطعمة" : "Food Collections",
-        icon: Pizza,
-        href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods",
-      },
-      // Access-point fix (2026-09-14): the /compare vertical had ZERO UI
-      // access points (EVO chat only) — it now joins the Resources drawer
-      // with its AR mirror (owner-approved discoverability item).
+      // Access-point fix (2026-09-14): the /compare vertical entry.
       {
         label: isAr ? "المقارنات" : "Comparisons",
         icon: LineChart,
@@ -420,6 +462,82 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     if (item.onClick) item.onClick();
   };
 
+  // ─── DESKTOP SERVICE NAV (Phase 202 — owner order 2026-09-15:
+  // «Header: اجعل الـNavigation واضحًا للخدمات الأساسية التي يأتي
+  // الزائر لاستخدامها»). The five core services render as visible
+  // navbar entries (dropdown for the four families with children, a
+  // direct link for Coaching) from lg up; the drawer keeps the FULL
+  // menu (including the secondary «More» services) on every size.
+  // ROLE SURFACE LAW: Coaching stays hidden from platform staff; EVO
+  // keeps its exact /evo path (owner directive 2026-09-14). ───
+  const SERVICE_NAV: Array<{
+    id: string;
+    labelAr: string;
+    labelEn: string;
+    icon: LucideIcon;
+    href?: string;
+    items?: Array<{ labelAr: string; labelEn: string; href: string }>;
+  }> = [
+    {
+      id: "training",
+      labelAr: "التدريب",
+      labelEn: "Training",
+      icon: Dumbbell,
+      items: [
+        { labelAr: "مكتبة التمارين", labelEn: "Exercises", href: isAr ? "/ar/exercises" : "/exercises" },
+        { labelAr: "حسب المجموعة العضلية", labelEn: "By Muscle Group", href: isAr ? "/ar/muscles/chest" : "/muscles/chest" },
+        { labelAr: "حسب المعدات", labelEn: "By Equipment", href: isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight" },
+        { labelAr: "برامج التدريب", labelEn: "Programs", href: isAr ? "/ar/programs" : "/programs" },
+      ],
+    },
+    {
+      id: "nutrition",
+      labelAr: "التغذية",
+      labelEn: "Nutrition",
+      icon: Utensils,
+      items: [
+        { labelAr: "مكتبة الأطعمة", labelEn: "Foods", href: isAr ? "/ar/foods" : "/foods" },
+        { labelAr: "مخطط الوجبات", labelEn: "Meal Planner", href: isAr ? "/ar/meal-planner" : "/meal-planner" },
+        { labelAr: "الخطط الغذائية الجاهزة", labelEn: "Diet Plans", href: isAr ? "/ar/diet-plan" : "/diet-plan" },
+        { labelAr: "مجموعات الأطعمة", labelEn: "Food Collections", href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods" },
+      ],
+    },
+    {
+      id: "tools",
+      labelAr: "الأدوات",
+      labelEn: "Tools",
+      icon: Calculator,
+      items: [
+        { labelAr: "حاسبة السعرات", labelEn: "Calorie Calculator", href: isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator" },
+        { labelAr: "حاسبة الماكروز", labelEn: "Macro Calculator", href: isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator" },
+        { labelAr: "حاسبة BMI", labelEn: "BMI Calculator", href: isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator" },
+        { labelAr: "حاسبة الدهون", labelEn: "Body Fat Calculator", href: isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator" },
+        { labelAr: "متتبع الماء", labelEn: "Water Tracker", href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker" },
+        { labelAr: "كل الأدوات", labelEn: "All Tools", href: isAr ? "/ar/tools" : "/tools" },
+      ],
+    },
+    {
+      id: "ai",
+      labelAr: "الذكاء الاصطناعي",
+      labelEn: "AI",
+      icon: Sparkles,
+      items: [
+        { labelAr: "مخطط الوجبات بالذكاء الاصطناعي", labelEn: "AI Meal Planner", href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner" },
+        { labelAr: "مخطط التمارين بالذكاء الاصطناعي", labelEn: "AI Workout Planner", href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner" },
+        // Owner directive 2026-09-14: the EVO entry keeps its exact
+        // path — no locale mirror here, mirroring the drawer's entry.
+        { labelAr: "EVO AI Coach", labelEn: "EVO AI Coach", href: "/evo" },
+      ],
+    },
+    {
+      id: "coaching",
+      labelAr: "الكوتشينج",
+      labelEn: "Coaching",
+      icon: Users,
+      href: isAr ? "/ar/coaching" : "/coaching",
+    },
+  ].filter((section) => section.id !== "coaching" || !isCoach);
+
   return (
     <>
       {/* G1 → Phase 126 «Marble & Chrome»: navbar-chrome (mission §1) —
@@ -472,6 +590,86 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                 className="h-9 w-9 object-contain"
               />
             </button>
+
+            {/* DESKTOP SERVICE NAV (Phase 202): the five core services —
+                Training / Nutrition / Tools / AI / Coaching — visible
+                directly in the navbar from lg up. Dropdowns open on hover
+                AND on keyboard focus (focus-within keeps tabbing into the
+                panel); the panel wrapper bridges the hover gap (pt-2).
+                Logical positioning (start-0) flips correctly under RTL. */}
+            <nav
+              aria-label={isAr ? "خدمات المنصة" : "Platform services"}
+              data-service-nav
+              className="ms-2 hidden items-center gap-0.5 lg:flex"
+            >
+              {SERVICE_NAV.map((section) => {
+                const Icon = section.icon;
+                if (section.items) {
+                  return (
+                    <div key={section.id} className="relative group">
+                      <button
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-expanded={openMenu === section.id}
+                        onClick={() =>
+                          setOpenMenu((prev) => (prev === section.id ? null : section.id))
+                        }
+                        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                      >
+                        <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
+                        {isAr ? section.labelAr : section.labelEn}
+                        <ChevronDown
+                          className="h-3.5 w-3.5 text-[var(--muted-foreground)] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180"
+                          aria-hidden="true"
+                        />
+                      </button>
+                      {/* Dropdown panel — part of the hover group; the pt-2
+                          bridge keeps it open while the pointer moves from
+                          the button to the panel. Three open paths: mouse
+                          hover (group-hover), keyboard (focus-within), and
+                          the click-toggle (openMenu) for hover:none touch
+                          screens — see the state above. */}
+                      <div
+                        className={cn(
+                          "absolute start-0 top-full z-50 min-w-[15rem] pt-2 transition-all duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100",
+                          openMenu === section.id ? "visible opacity-100" : "invisible opacity-0",
+                        )}
+                      >
+                        <div
+                          className="rounded-xl border bg-[var(--bg)] p-2 shadow-2xl"
+                          style={{ borderColor: "var(--edge)" }}
+                          role="menu"
+                          aria-label={isAr ? section.labelAr : section.labelEn}
+                        >
+                          {section.items.map((item) => (
+                            <a
+                              key={item.href + item.labelEn}
+                              href={item.href}
+                              role="menuitem"
+                              onClick={() => setOpenMenu(null)}
+                              className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                            >
+                              <span className="flex-1 truncate">{isAr ? item.labelAr : item.labelEn}</span>
+                              <ChevronRight className="h-4 w-4 shrink-0 opacity-30 rtl:rotate-180" aria-hidden="true" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <a
+                    key={section.id}
+                    href={section.href}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                  >
+                    <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
+                    {isAr ? section.labelAr : section.labelEn}
+                  </a>
+                );
+              })}
+            </nav>
           </div>
 
           {/* End side: theme + language + notifications + account — Phase

@@ -3,6 +3,29 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-202-HOMEPAGE-ADOPTION-2026-09-15
+Agent: Super Z (main)
+Task: إعادة تصميم الـHomepage لتصبح Homepage حقيقية لموقع Fitness Platform هدفه الانتشار والاستخدام (أمر المالك 2026-09-15) — نقاط دخول محتوى حقيقية، صفر أسعار، Header خدمي، Footer منظومي
+
+Work Log:
+- (بنية البيانات) `src/lib/home-samples.ts` جديد: اختيار Server-side منعزل لـ8 تمارين حقيقية (بنش/عقلة/سكوات/كتف/روماني/كيرل/ترايسبس/بلانك) + 8 أطعمة حقيقية (دجاج/سلمون/أرز/شوفان/بطاطا/أفوكادو/موز/زبادي) + 3 برامج حقيقية من WORKOUT_PROGRAMS — أشكال serializable بلا أي استيراد مكتبات عملاقة للعميل (قانون الـbundle سليم) + slug-lists مُصدَّرة لحرس الانجراف
+- (بنية المسار) `(home)/page.tsx` و`ar/page.tsx` صارا Server Components يمرران العينات كـprops؛ تأثير toast الأوثنتيكيكي انتقل حرفيًا إلى جزيرة `src/components/AuthErrorToast.tsx`
+- (LandingView) الهيكل الجديد: Hero استخدامي (CTA أساسي → ‎#tools‎ «جرّب الأدوات المجانية/Try the Free Tools» + رابط هادئ → ‎/exercises‎) → Tools & AI (كارت AI القائد محفوظ بعقد 185/194 + شبكة 4 أدوات) → قسم Training (8 كروت تمارين حقيقية بصور ومستويات ومعدات + chips مجموعات عضلية بأعداد حية + 3 كروت برامج حقيقية بصور ومدد وأنساب) → قسم Nutrition (8 كروت أطعمة بسعرات وماكروز حقيقية لكل 100جم) → قسم Articles (الكاروسيل قسمه الخاص — بلا tabs) → كوتشينج مختصر (بلا أسعار، CTA «استكشف الكوتشينج») → شريط المدربين المموَّل (كما هو) → FAQ (أسئلة الاستخدام الأربعة) → الفوتر
+- (الإخراجات المأمورة) قسم Memberships (الكروت الثلاثة المسعّرة) + جدول المقارنة + CTA الختام البيعي + كارت EVO الدعائي نُزلت من الرئيسية (ودجت EVO العائم نقطة الوصول) + سؤالا الأسعار والدفع من FAQ — صفحة /memberships والأسعار والكوتات وكل business logic دون أي مساس
+- (SiteHeader) تنقل ديسكتوب مرئي للخدمات الخمس (Training/Nutrition/Tools/AI/Coaching) بقوائم تفتح hover (group-hover) + focus-within (لوحة مفاتيح) + click-toggle (شاشات لمس كبيرة hover:none) مع إغلاق خارج-النقر + aria-expanded؛ الدرج أعيد ترتيبه خدمة-أولاً (Training → Nutrition → Tools → AI → Coaching) والثانويات (Memberships/Affiliate/For-Coaches) في مجموعة «More» هادئة؛ قانون ROLE SURFACE محفوظ (الكوتشينج/العضويات/EVO مخفية عن الطاقم)؛ رابط EVO ب مساره الحرفي ‎/evo
+- (SiteFooter) الأعمدة أعيد تنظيمها كخريطة خدمات المنظومة (Training/Nutrition/Tools & AI/Coaching & Services/Company) — كل رابط قديم محفوظ بمساره ووعي-لغته (قوانين نقاط الوصول كاملة) + الـtagline الجديد: «Built with care for the fitness community» / «صُنع بحب لمجتمع اللياقة»
+- (CSS) كتلة ‎.evo-hero-card/.evo-hero-art‎ الميتة حُذفت من globals.css (38 سطرًا — قانون حذف الميت بنفس الفريم)
+- (الحرس) `src/lib/__tests__/homepage-adoption.test.ts` جديد (10 اختبارات): منع أي أسعار/CTA مبيعي/جدول مقارنة على الرئيسية + منع كارت EVO الدعائي + إلزام أقسام ونقاط دخول المحتوى + Hero استخدامي + عقد الهيدر/الفوتر الجديد + drift-guard للعينات المختارة ضد المصفوفات الحية؛ عقد Phase 197 في marketing-msa-surface حُدّث (جدول الرئيسية السريع نزل — قانون الخلايا الصادقة «بعضها/Some» يخص جداول /compare حصرًا الآن)
+- **البوابات:** tsc 0 · eslint 0/0 · vitest 1132/1132 · build 0 (2056/2056) · docs_audit (phase=202) ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓
+- **التحقق المحلي (next start + agent-browser):** DOM ×6 سياقات (EN/AR × 1440/390 + داكن + RTL): الخدمات الخمس ظاهرة · قائمة Training تفتح click (vis:visible/op:1/aria-expanded) وتغلق خارج-النقر وعند blur · التنقل عبر menuitem يعمل → ‎/programs‎ · 8+8+3 عينات بأسماء وصور وروابط محلية (11/11 صورة تمرين + 3/3 صورة برنامج بعد التمرير الحمل الكسول) · درج الجوال بالترتيب الخدمي · 50 رابط نقطة دخول = 200 جميعًا · صفر overflow أفقي 390px/1440px · الفوتر بالأعمدة الخمسة والـtagline الجديد + VLM (EN hero · AR desktop · AR mobile) — لقطات download/phase202/
+
+Stage Summary:
+- الرئيسية صارت Product-Website: كل خدمة عائلة محتوى بنقطة دخول حقيقية قابلة للتصفح (Discover + Use + Explore) — صفر أسعار وصفر لغة مبيعات على الصفحة؛ صفحة العضويات وكل الأسعار/الكوتات/الـAPIs/الـDB دون مساس
+- منصة العينات: نمط Server-selects → client-renders قابل لإعادة الاستخدام لأي صفحة تريد محتوى حقيقيًا دون كسر قانون الـbundle
+- Commit SHA: (يُستكمل بعد الـpush)
+- Push status: pushed (origin/main) — التحقق الحي على alkemos.com بعد نشر Vercel
+
+---
 Task ID: PHASE-198-UI-ROUNDC2-PAGES-2026-09-14
 Agent: Super Z (main)
 Task: جولة تدقيق بقية الصفحات (§4 من الخطة) — مسح آلي شامل + قرار + تحصين ThemeImg

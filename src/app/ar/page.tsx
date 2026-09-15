@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { LandingView } from "@/components/views/LandingView";
+import { AuthErrorToast } from "@/components/AuthErrorToast";
+import { getHomeSamples } from "@/lib/home-samples";
 
 const SITE_URL = "https://alkemos.com";
 
@@ -42,5 +44,14 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <LandingView />;
+  // Phase 202: the AR mirror passes the same curated REAL samples as the
+  // EN homepage (server-side selection — see (home)/page.tsx), plus the
+  // shared OAuth-error toast island (EN/AR parity).
+  const samples = getHomeSamples();
+  return (
+    <>
+      <AuthErrorToast />
+      <LandingView samples={samples} />
+    </>
+  );
 }

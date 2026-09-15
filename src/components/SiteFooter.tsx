@@ -9,16 +9,25 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  * SiteFooter — the SHARED public footer (Access-Point Fix, 2026-09-14).
  *
  * HISTORY: this footer lived INLINE inside LandingView (the homepage), so
- * the full marble link grid (Paid Services / Affiliate / Tools / Resources /
- * Legal) existed ONLY on "/" and "/ar" — every other public page carried a
- * bare «© Alkemos» line. The FULL-SITE ACCESS-POINT AUDIT (2026-09-14) found
- * the consequence: legal pages, /compare, hub families (muscles / equipment /
- * collections) had no persistent crawlable entry point outside the homepage.
+ * the full marble link grid existed ONLY on "/" and "/ar" — every other
+ * public page carried a bare «© Alkemos» line. The FULL-SITE ACCESS-POINT
+ * AUDIT (2026-09-14) found the consequence: legal pages, /compare, hub
+ * families (muscles / equipment / collections) had no persistent crawlable
+ * entry point outside the homepage. This component extracts the EXACT same
+ * markup so every public route renders the identical footer.
  *
- * This component extracts the EXACT same markup (Phase 131 menu-grid +
- * Phase 132 theme-aware marble slab) so every public route renders the
- * identical footer. Locale-aware hrefs throughout — an AR visitor never
- * lands on an EN URL when an Arabic mirror exists.
+ * PHASE 202 (owner order 2026-09-15: «Footer: اجعله Navigation فعليًا إلى
+ * منظومة Alkemos وخدماتها، وليس مجرد نهاية شكلية»): the link grid is now
+ * organized as the platform's SERVICE MAP — Training / Nutrition / Tools &
+ * AI / Coaching & Services / Company — matching the header's five core
+ * services, so the footer reads as a real navigation to the ecosystem.
+ * REORGANIZATION ONLY: every link that existed before still exists with its
+ * exact href and locale-awareness (access-point laws preserved — diet-plan,
+ * compare, hub families, EVO entry untouched).
+ *
+ * The bottom tagline is the owner's new pair (owner order 2026-09-15):
+ * EN "Built with care for the fitness community" · AR "صُنع بحب لمجتمع اللياقة"
+ * (the old geographically-scoped pair is retired).
  *
  * Placement law: render AFTER the page's <main> inside the
  * min-h-screen flex-col wrapper (mt-auto keeps it pinned to the bottom).
@@ -27,9 +36,8 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  *  - NO /evo or /coaches/[slug] links added or removed here beyond what the
  *    homepage footer already had (EVO stays exactly as it was; coaches pages
  *    stay self-promoted by their owners).
- *  - NO private surfaces linked: the old «Referral Dashboard» entry pointed
- *    at the authenticated, noindex /referral app page — removed per the
- *    «no private routes in public navigation» rule.
+ *  - NO private surfaces linked (the «no private routes in public
+ *    navigation» rule).
  */
 
 export function SiteFooter() {
@@ -83,84 +91,74 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* List 1: Paid Services */}
+          {/* List 1: TRAINING (Phase 202 service map — same links as the
+              old Resources list, grouped under the service the visitor
+              comes to use). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الخدمات المدفوعة" : "Paid Services"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
-              <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
-              <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
+              <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
+              <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
+              <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
+              {/* Access-point fix (2026-09-14 audit): locale-aware programs
+                  link. */}
+              <li><a href={isAr ? "/ar/programs" : "/programs"} className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
             </ul>
           </div>
 
-          {/* List 2: Partners — Affiliate + For Coaches. Restructure order
-              2026-09-15: the homepage B2B/affiliate sections moved to the
-              footer (display-only — /affiliate and /for-coaches pages,
-              business logic, and quotas untouched). For Coaches gains its
-              first persistent footer entry — its old homepage section was
-              its only UI access point. «Referral Dashboard» stays removed
-              (access-point fix 2026-09-14: private surfaces never live in
-              the public footer). */}
+          {/* List 2: NUTRITION (Phase 202 service map — foods, meal
+              planner, diet plans, collections). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الشراكات" : "Partners"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href="/affiliate" className="hover:underline">{isAr ? "برنامج الأفلييت" : "Affiliate Program"}</a></li>
-              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "كن مدرباً" : "For Coaches"}</a></li>
+              <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
+              {/* §12.27: locale-aware mirrors + the diet-plan matrix entry. */}
+              <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+              <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
+              <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
             </ul>
           </div>
 
-          {/* List 3: Tools */}
+          {/* List 3: TOOLS & AI (Phase 202 service map — the free tools
+              cluster + the AI planners; exact same links as the old Tools
+              list). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات" : "Tools"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              {/* §12.27: locale-aware mirrors + the diet-plan matrix entry
-                  (owner directive «لا يوجد رابط واضح للمستخدم ولا ذكر فى
-                  اى قسم» — the matrix is now reachable from the footer in
-                  both languages). */}
               <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
-              <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
               <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
               <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
             </ul>
           </div>
 
-          {/* List 4: Resources — access-point fix (2026-09-14): the hub
-              families (muscles / equipment / collections) and the /compare
-              vertical join the list with locale-aware mirrors, so every
-              hub receives footer link equity from EVERY public page (they
-              previously had near-zero UI entry points). */}
+          {/* List 4: COACHING & SERVICES (Phase 202 service map — the
+              coaching service + the secondary surfaces: memberships,
+              EVO, affiliate, for-coaches; exact same links as the old
+              sales + partners lists). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المحتوى" : "Resources"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
-              <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
-              <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
-              {/* Access-point fix (2026-09-14 audit): this was the last
-                  hardcoded EN href in the footer — AR visitors hit /programs
-                  (EN) instead of the /ar/programs mirror. */}
-              <li><a href={isAr ? "/ar/programs" : "/programs"} className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
-              <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
-              <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
-              <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
-              <li><a href={isAr ? "/ar/compare" : "/compare"} className="hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
-              <li><a href={isAr ? "/ar/blog" : "/blog"} className="hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
+              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
+              <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
+              <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
+              <li><a href="/affiliate" className="hover:underline">{isAr ? "برنامج الأفلييت" : "Affiliate Program"}</a></li>
+              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "كن مدرباً" : "For Coaches"}</a></li>
             </ul>
           </div>
 
-          {/* List 5: Legal & Basic — moved from the old single horizontal
-              bottom row into the list grid (Phase 131; per Owner directive
-              2026-08-25 these pages live in the footer only, not in the
-              header). Access-point fix (2026-09-14): /contact /privacy
-              /terms now resolve to their NEW Arabic mirrors (/ar/contact,
-              /ar/privacy, /ar/terms) instead of dragging AR visitors to
-              the EN URLs. */}
+          {/* List 5: COMPANY (Phase 202 service map — the blog + the
+              compare vertical join the legal/basic pages so every
+              remaining public surface is reachable; exact same links as
+              the old Legal & Basic list + Blog + Comparisons). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "قانوني وأساسي" : "Legal & Basic"}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المنصة" : "Company"}</p>
             <ul className="mt-3 space-y-2 text-xs">
+              <li><a href={isAr ? "/ar/blog" : "/blog"} className="hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
+              <li><a href={isAr ? "/ar/compare" : "/compare"} className="hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
               <li><a href={isAr ? "/ar/about" : "/about"} className="hover:underline">{isAr ? "من نحن" : "About"}</a></li>
               <li><a href={isAr ? "/ar/contact" : "/contact"} className="hover:underline">{isAr ? "تواصل معنا" : "Contact"}</a></li>
               <li><a href={isAr ? "/ar/faq" : "/faq"} className="hover:underline">{isAr ? "أسئلة شائعة" : "FAQ"}</a></li>
@@ -179,7 +177,11 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 border-t border-[var(--edge)] pt-4 text-center text-[10px] text-[var(--muted-foreground)]">
-          {isAr ? "صُنع بحب لمجتمع اللياقة العربي" : "Built with care for the Arab fitness community"}
+          {/* Phase 202 (owner order 2026-09-15): the footer tagline —
+              EN "Built with care for the fitness community" ·
+              AR "صُنع بحب لمجتمع اللياقة" (the old geographically-
+              scoped pair is retired). */}
+          {isAr ? "صُنع بحب لمجتمع اللياقة" : "Built with care for the fitness community"}
         </div>
       </div>
     </footer>

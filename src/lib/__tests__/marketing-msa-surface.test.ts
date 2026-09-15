@@ -470,8 +470,15 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     }
     // Homepage quick-comparison: heterogeneous app classes use honest
     // class-level cells (بعضها/Some) — never a bare assumption ❌.
+    // PHASE 202 (owner order 2026-09-15: «قلل لغة الشرح التسويقي» — the
+    // homepage quick-comparison table retired with the memberships
+    // section, see homepage-adoption.test.ts): the honest-cell law now
+    // applies to the /compare tables exclusively — verified by the
+    // c.rows loop above over comparisons.ts. The homepage pins below
+    // keep the retired table dead (it must not return as inline rows).
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    expect(landing).toContain('appsAr: "بعضها"');
-    expect(landing).toContain('appsEn: "Some"');
+    expect(landing).not.toContain("appsAr:");
+    expect(landing).not.toContain("appsEn:");
+    expect(landing).not.toContain("comparisonRows");
   });
 });
