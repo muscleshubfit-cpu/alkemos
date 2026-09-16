@@ -60,6 +60,11 @@ jobs:
       # README/DEVELOPER_GUIDE (single-source law §3.8), no duplicate
       # section numbers in AGENTS.md (the duplicated §3.6 incident),
       # slim living docs with archive pointers.
+      # Phase 215 truth checks (deep-audit P1-4): H worklog newest-on-
+      # top (top-12 window order + newest-at-top + frozen tail ≤
+      # 2026-09-15) · I governed-doc Last-updated vs git history
+      # (forward-only from 2026-09-16) · J frozen-verbatim archive
+      # integrity (archive/PROGRESS.md + QA_CHECKLIST.md untouched).
       - name: Knowledge operating system gate (docs_audit.py)
         run: python3 scripts/docs_audit.py --ci
 

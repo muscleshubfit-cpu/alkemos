@@ -27,6 +27,27 @@ Stage Summary:
 
 ---
 
+Task ID: DOC-AUDIT-2026-09-16
+Agent: Super Z (main — Phase 215 session)
+
+Task: §12.5.2 periodic documentation audit — the cadence is formally RESUMED (first DOC-AUDIT entry since 2026-08-25; the ~130-phase gap is audit finding المؤكد 3). This entry formalizes the documentation-audit results of the 2026-09-16 independent Deep Audit (Phase 214) and rides Phase 215's P1-4 gate-hardening commit; it sits directly under the Phase 214 entry it documents.
+
+Work Log:
+- Audit source: docs/DEEP-AUDIT-REPORT-2026-09-16.md (Phase 214 — full evidence; 27 confirmed findings + 10 notes).
+- Doc violations confirmed by that round (report numbering): المؤكد 4 (migration-law contradiction SECURITY↔AGENTS) · المؤكد 5 (self-neutered BRAND NAME LAW) · المؤكد 6 (worklog order: stages 206-211 at the bottom + 213 under 212) · المؤكد 20-25 (SECURITY.md factual errors · README variable number · 5 stale Last-updated headers · STATE orphan line at the 100-line cap · frozen TECH_REFERENCE/CI_GATES/DEVELOPER_GUIDE gaps · archive/PROGRESS.md edited after the Phase-115 freeze + §12.5.1 template abandonment).
+- Fixed in Phase 215 (WAVE 1): P1-1 ✓ P1-2 ✓ P1-3 ✓ P1-4 ✓ P1-8 ✓ (commits d8f5e552 · abfd8357 · 8aec3368 + this gate commit).
+- Gate hardened — docs_audit.py v2, three TRUTH checks: H worklog newest-on-top (top-12 window: dates non-increasing + same-date phases descending, newest entry at the top, tail frozen ≤ 2026-09-15) · I governed-docs (AGENTS/README/DEVELOPER_GUIDE/SECURITY/DESIGN) Last-updated header vs git history — forward-only from the gate birthday 2026-09-16 · J frozen-verbatim archive integrity (archive/PROGRESS.md + archive/QA_CHECKLIST.md: zero commits since 2026-09-16).
+- Sensitivity PROVEN per the plan's acceptance criterion: on the pre-fix state (abfd8357) the new gate fails with exactly the two audit breaks — H/worklog-window-order (213 below 212) + H/worklog-tail-freeze (2026-09-16 entries hiding in the tail) — and passes on the fixed state (8aec3368+).
+- Remaining doc debt → WAVE 3 / Phase 217 (P3-1..P3-8): README/DEVELOPER_GUIDE/DESIGN headers, TECH_REFERENCE 0069→0087, CI_GATES workflows table, DEVELOPER_GUIDE §8 routes, .env.example vars, §12.5.1-template/deprecated markers.
+
+Stage Summary:
+- The §12.5.2 cadence law is live again: monthly + post-major-feature + post-force-push documentation audits now have a worklog trail AND a gate that catches the documented rot classes (order drift, header lies, archive edits).
+- docs_audit.py now verifies TRUTH (order/dates/freeze) in addition to STRUCTURE; pre-gate violations are grandfathered forward-only (baselines: worklog tail 2026-09-15 · gate birth 2026-09-16).
+- Commit SHA: d8f5e552 (P1-8) · abfd8357 (P1-1+P1-2) · 8aec3368 (P1-3) + this P1-4 gate commit (full ladder in the Phase 215 closing entry)
+- Push status: pushed
+
+---
+
 Task ID: PHASE-213-GEO-PARAGRAPH-REVERT-2026-09-16
 Agent: Super Z (main)
 Task: Phase 213 — Partial revert of Phase 212 items 8/15 (owner order 2026-09-16): remove the bilingual GEO paragraph added directly after the homepage hero — AR «منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع.» + EN «Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required.» — and nothing else from the last edit.
