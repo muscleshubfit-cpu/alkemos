@@ -35,8 +35,23 @@ export function AdminNotificationBell() {
  setLoading(false);
  };
  load();
+ // VERCEL-USAGE cleanup (2026-09-16): pause polling while the tab is
+ // hidden (same law as NotificationBell) — background tabs no longer
+ // burn API invocations + middleware getUser() hops all day.
+ const handleVisibility = () => {
+ if (document.hidden) {
+ clearInterval(interval);
+ } else {
+ load();
  interval = setInterval(load, 30000);
- return () => clearInterval(interval);
+ }
+ };
+ document.addEventListener("visibilitychange", handleVisibility);
+ interval = setInterval(load, 30000);
+ return () => {
+ clearInterval(interval);
+ document.removeEventListener("visibilitychange", handleVisibility);
+ };
  }, []);
 
  const unread = items.filter((n) => !n.read).length;

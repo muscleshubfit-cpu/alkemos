@@ -54,8 +54,24 @@ export function CoachHelpView() {
 
   useEffect(() => {
     void load();
-    const interval = setInterval(load, 30000); // poll for admin replies
-    return () => clearInterval(interval);
+    // VERCEL-USAGE cleanup (2026-09-16): pause polling while the tab is
+    // hidden (same law as NotificationBell) — background tabs no longer
+    // burn API invocations all day.
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        void load();
+        interval = setInterval(load, 30000);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    interval = setInterval(load, 30000); // poll for admin replies
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [load]);
 
   const send = async () => {

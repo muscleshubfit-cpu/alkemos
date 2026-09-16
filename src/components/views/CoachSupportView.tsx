@@ -39,8 +39,24 @@ export function CoachSupportView() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 20000);
-    return () => clearInterval(interval);
+    // VERCEL-USAGE cleanup (2026-09-16): pause polling while the tab is
+    // hidden (same law as NotificationBell) — background tabs no longer
+    // burn API invocations all day.
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        load();
+        interval = setInterval(load, 20000);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    interval = setInterval(load, 20000);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   if (loading)
@@ -148,7 +164,25 @@ function TicketDetail({ ticket, onClose, onReplied, onStatusChange }: { ticket: 
     })();
     // M20 fix: poll for new messages every 10s while the ticket is open
     // so the coach sees client replies in real-time.
-    const interval = setInterval(async () => {
+    // VERCEL-USAGE cleanup (2026-09-16): pause while the tab is hidden —
+    // an open ticket in a background tab no longer polls every 10s.
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        interval = setInterval(async () => {
+          try {
+            const data = await listTicketMessagesStaff(ticket.id);
+            setMessages(data);
+          } catch {
+            /* keep the last snapshot on transient failures */
+          }
+        }, 10000);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    interval = setInterval(async () => {
       try {
         const data = await listTicketMessagesStaff(ticket.id);
         setMessages(data);
@@ -156,7 +190,10 @@ function TicketDetail({ ticket, onClose, onReplied, onStatusChange }: { ticket: 
         /* keep the last snapshot on transient failures */
       }
     }, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [ticket.id]);
 
   const send = async () => {

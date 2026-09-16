@@ -3,6 +3,25 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: VERCEL-USAGE-1-2026-09-16
+Agent: Super Z (main)
+
+Task: فحص وتنظيف استهلاك Vercel (أمر المالك المباشر «مطلوب فحص و تنظيف استهلاك vercel» — IM 2026-09-16). فريم مستقل عن موجات خطة التدقيق العميق (لا يغيّر ترقيم 216/217).
+
+Work Log:
+- **الفحص:** مسح شامل لمصادر الاستهلاك — كل مسارات API الـ77 (قبل الحذف) + middleware (getUser لكل طلب) + next.config/vercel.json (الكاش/الصور/crons) + workflows (خط المدونة يعمل داخل GitHub Actions in-process — «NO Vercel hop» في run-step.mts → صفر وقت دوال للـ pipeline) + الأصول العامة (96MB، exercises 86MB بكاش immutable يكاشها CF) + سلوك كاش CF الموثق (TECH_REFERENCE §5) + polling العميل + sitemaps/llms (ISR 3600) + robots (يحجب /api/).
+- **ن-1 حذف المسار الميت `/api/exercise-image`:** صفر مستدعين (rg شامل — الواجهة تخدم صور التمارين من الاستضافة الذاتية /images/exercises/ منذ الدفعة 2 §12.53-2)؛ كان مسارًا عامًا غير موثق يحرق استدعاء دالة + طلبين صادرين لـ wger.de لكل اسم بارد. حُذف معه: المخطط `exerciseNameSchema` (schemas.ts) + كتلة اختباره (validation-schemas.test.ts) + نمط `wger.de` الميت في next.config remotePatterns + سطر جدول §8 في DEVELOPER_GUIDE.md (ترويسته رُفعت — بوابة I). **يُسقط نصف بند P3-11 من خطة التدقيق** (الحذف أنظف من rate-limit المقترح — تعليق مؤرخ أُضيف لصف الخطة).
+- **ن-2 إيقاف الاستقصاء عند إخفاء التبويب** (نمط NotificationBell المعتمد — visibilitychange + استئناف فوري): AdminNotificationBell (30ث) · CoachSupportView (20ث + مستقصي التذكرة المفتوحة 10ث) · AdminCoachSupportView (30ث) · CoachHelpView (30ث). التبويبات الخلفية كانت تحرق استدعاء API + middleware (بقفزة getUser لكل موثق) كل 10–30ث بلا نهاية.
+- **التوثيق:** docs/VERCEL-USAGE-AUDIT-2026-09-16.md جديد — خريطة الاستهلاك الكاملة (مرتبة) + ما هو محسّن أصلًا (متحقق منه) + توصيات لوحة التحكم ت-1..ت-4 (كلها بقرار المالك وفق §7: ت-1 قاعدة كاش CF لـ/api/og-image/* = الأعلى أثرًا · ت-2 قرار SpeedInsights/Analytics · ت-3 رفع Edge TTL للـHTML · ت-4 getClaims() في middleware لاحقًا) + جدول حدود Hobby وماذا يحدث عند التجاوز + مسار الفحص الذاتي في لوحة Vercel · STATE.md: مدخل إطار جديد + بند قرارات معلقة في «المفتوح الآن» (بضغط سطرين قديمين للحفاظ على سقف 100) · DEEP-AUDIT-PLAN: تعليق مؤرخ على P3-11.
+- **البوابات (الشجرة النهائية):** tsc --noEmit = 0 · eslint . = 0/0 · vitest run = **1241/1241** (79 ملفًا — كان 1243: −2 = كتلة exerciseNameSchema المحذوفة بالضبط، صفر انحدار) · next build ✓ **2,056 صفحة** (كان 2,057: −1 = المسار المحذوف) · docs_audit ✓ (STATE lines=100) · docs_parity ✓ (endpoints=76 — الجدول في DEVELOPER_GUIDE طابَق) · check-stale-refs ✓ · migration_audit ✓.
+
+Stage Summary:
+- التنظيف المباشر: مسار ميت غير موثق حُذف بالكامل (استدعاءات + طلاب صادرون لطرف ثالث) + التبويبات الخلفية لم تعد تستنزف API — سلوك الواجهة المرئي بلا تغيير (jsdom يرى التبويب مرئيًا فالحرّاس لم تتأثر).
+- الرافعة الأكبر المتبقية خارج الكود: `/api/og-image/[slug]` خارج قاعدة كاش CF (مسار api/) → كل جلب بطاقة سوشيال = دولة Edge + Supabase + Satori عند الأصل. الحل قرار لوحة CF (ت-1 — صفر كود؛ لم يُنقل المسار عمدًا: عشرات الاختبارات تثبّت URL المفهرسة لدى المنصات) — مع ت-2/ت-3/ت-4 موثقة للمالك.
+- قرار المعلق: بند P3-11 نصفه الأول أُسقط (الحذف) والباقي receipt_path فقط.
+- Push status: pushed — التحقق الحي أدناه (مدخل الإغلاق).
+
+---
 Task ID: PHASE-215B-OWNER-DECISIONS-EXECUTION-2026-09-16
 Agent: Super Z (main)
 

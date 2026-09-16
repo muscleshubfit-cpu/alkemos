@@ -39,7 +39,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "randomuser.me" },
       { protocol: "https", hostname: "z-cdn.chatglm.cn" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "wger.de" },
+      // VERCEL-USAGE cleanup (2026-09-16): wger.de pattern removed with
+      // its only consumer /api/exercise-image (dead route — exercise
+      // images are self-hosted from public/images/exercises/ since
+      // Batch 2 §12.53 item 2; zero live wger references remain).
       // Batch 2 (§12.53 item 2, 2026-09-16): exercise images are now
       // self-hosted from public/images/exercises/ — this pattern is DEAD
       // config kept only as the documented one-line rollback path (revert

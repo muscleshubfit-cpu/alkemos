@@ -114,12 +114,12 @@ export const searchQuerySchema = z
   .min(1)
   .max(MAX_QUERY_LEN);
 
-/** Exercise name param: trimmed, non-empty, bounded. */
-export const exerciseNameSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(MAX_NAME_LEN);
+// ── VERCEL-USAGE cleanup (2026-09-16): exerciseNameSchema removed with
+//    its only consumer /api/exercise-image (dead route — zero callers
+//    since Batch 2 self-hosted exercise images under /images/exercises/;
+//    it burned an unauthenticated function invocation + 2 outbound
+//    wger.de fetches per cold name). Supersedes the deep-audit P3-11
+//    «rate-limit exercise-image» half — deletion is strictly cleaner. ──
 
 // ── P1-7 (deep-audit 2026-09-16): bounded inserts for the three
 //    previously-unbounded JSONB/text routes — save-result ·

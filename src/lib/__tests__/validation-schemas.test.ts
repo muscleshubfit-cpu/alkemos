@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   emailSchema,
-  exerciseNameSchema,
   langSchema,
   leadBodySchema,
   searchQuerySchema,
@@ -160,17 +159,10 @@ describe("searchQuerySchema — /api/food-search", () => {
   });
 });
 
-describe("exerciseNameSchema — /api/exercise-image", () => {
-  it("normal names pass (EN + AR)", () => {
-    expect(exerciseNameSchema.parse(" bench press ")).toBe("bench press");
-    expect(exerciseNameSchema.parse("سكوات")).toBe("سكوات");
-  });
-  it("hostile: >80 chars rejected (never reach the wger URL)", () => {
-    expect(
-      exerciseNameSchema.safeParse("x".repeat(MAX_NAME_LEN + 1)).success,
-    ).toBe(false);
-  });
-});
+// ── VERCEL-USAGE cleanup (2026-09-16): the exerciseNameSchema describe
+//    block was removed together with /api/exercise-image (dead route —
+//    zero callers since exercise images moved to self-hosted WebP under
+//    /images/exercises/, Batch 2 §12.53 item 2). ──
 
 // ── P1-7 (deep-audit 2026-09-16): the bounded-insert wave — save-result
 //    · save-meal-plan · notifications/broadcast. Boundary + hostile cases

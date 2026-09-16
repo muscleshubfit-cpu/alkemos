@@ -1,6 +1,6 @@
 # Developer Guide — Alkemos
 
-> **آخر تحديث:** 2026-09-03 (Phase 112 — أمر المالك: اختصار الملف وحذف الشرح التقني العميق إلى `docs/TECH_REFERENCE.md`)
+> **آخر تحديث:** 2026-09-16 (VERCEL-USAGE-1 — إزالة `/api/exercise-image` من جدول §8: المسار حُذف من الكود (ميت — صفر مستدعين منذ استضافة صور التمارين ذاتيًا) · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
 > **الجمهور المستهدف:** مطورين جدد ينضمون للمشروع، أو المطور الحالي كمرجع
 > **المرجع التقني العميق:** [`docs/TECH_REFERENCE.md`](./docs/TECH_REFERENCE.md) — بنية Supabase وقانون الميجريشنز وجداول القواعد الخاصة · شرح RLS التفصيلي (predicates · نمط الأدوار v2 · عوالم المال) · قائمة Shadcn كاملة بأسمائها · كل أكواد SQL المعقدة منظمة. الملف ده بيفضل مختصص: الإعداد والتدفقات والمراجع السريعة فقط.
 > **Note (Phase 7):** Several stale claims in this file were reconciled
@@ -469,7 +469,6 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/cron/blog/p5-publish` | GET | Cron (CRON_SECRET) | النشر (مرحلة 5) |
 | `/api/cron/dispatch-pipelines` | GET | Cron (CRON_SECRET) | الموزع اليومي 23:40 UTC (مدونة + مهام AI — فترة سماح 90 دقيقة وحصر 1+1 يفرضها P5) |
 | `/api/cron/progress-reminder` | GET | Cron (CRON_SECRET) | تذكير التقدم الأسبوعي (الأحد 07:00 UTC) |
-| `/api/exercise-image` | GET | Public | بروكسي صور التمارين |
 | `/api/file` | GET | User | قراءة ملف من التخزين للمستخدم المصرّح |
 | `/api/food-search` | GET | Public | بحث الأكلات (محلي + Open Food Facts) |
 | `/api/my/coach-whatsapp` | GET | User | رقم واتساب مدرب العميل |
