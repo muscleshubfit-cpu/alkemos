@@ -22,7 +22,7 @@ Stage Summary:
 - Production == main at 9c3ab80d; crawl 2,160/2,160 = 200; all project gates reproduced green (with the tsc-conditional caveat documented).
 - Biggest systemic findings: documented SEO-GEO-4 cache policy is not what production serves (Cloudflare layer undocumented) + §12.5.2 documentation-audit cadence abandoned = root cause of the 24 doc findings.
 - Remediation plan: docs/DEEP-AUDIT-PLAN-2026-09-16.md (waves W0-W3, per-item acceptance criteria, security items pre-gated by §7 owner approval). EXECUTION PENDING OWNER ORDER.
-- Commit SHA: (this commit)
+- Commit SHA: 6f861804 (audit deliverables) + follow-up SHA-recording commit (this one)
 - Push status: pushed
 
 ---
