@@ -23,7 +23,7 @@ Stage Summary:
 - Cache truth: the documented cache policy now matches the measured production behavior (CF edge 3600s / browser 300s) — the audit's root documentation-lie (المؤكد 2) is closed.
 - Commit SHA: fe50d5d0 (P1-6) · 7c08f6de (P1-7) · e4d3b1f5 (P1-5(ب)+W0-1) + this closure commit (worklog+STATE)
 - Push status: pushed
-- (post-push live evidence appended after deploy)
+- Post-push live evidence (production dcd6d92e, build-info carried the commit 2026-09-16T13:08 UTC): cache-policy truth verified against the NEW documentation — `/` = `private, max-age=300, must-revalidate` + `cf-cache-status: HIT` + `age: 1756` (<3600, the CF edge entry) · `/for-coaches` = same browser header + `cf EXPIRED` → Vercel function re-fetch + re-cache (exactly the documented lifecycle) · `/sitemap-pages.xml` = `public, max-age=3600, stale-while-revalidate=86400` + Vercel PRERENDER + `cf DYNAMIC` (route-set header, outside the CF rule — as documented) · smoke on the changed routes: save-result 401 · save-meal-plan 401 · broadcast 401 · evo/followup/dispatch 401 (the followup kill-switch flag is LIVE on prod — the request passed GATE 1 and was rejected by the admin/cron gate exactly as designed) · homepage 200.
 
 ---
 Task ID: PHASE-215-AUDIT-REMEDIATION-W1-2026-09-16
