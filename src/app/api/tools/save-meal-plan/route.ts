@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireUser, authRequired } from "@/lib/auth-server";
 import { getLimits, type MembershipTier } from "@/lib/memberships";
+import { savedMealPlanBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/tools/save-meal-plan
@@ -27,6 +28,14 @@ import { getLimits, type MembershipTier } from "@/lib/memberships";
  *       }>
  *     }
  *   }
+ *
+ * P1-7 (deep-audit 2026-09-16, owner-approved §7): the body passes the
+ * central zod gate FIRST — title ≤200 chars and plan_data ≤32KB
+ * (MAX_PLAN_JSON_BYTES; calibrated above the 10KB result_data cap
+ * because a legit 8-meal coaching plan carries per-item macros and
+ * legitimately reaches low-tens-of-KB) now 400 instead of landing in
+ * the DB unbounded. Legacy failure classes keep their exact responses
+ * (the fallback re-derives "Missing plan_data.meals").
  */
 export async function POST(request: NextRequest) {
   if (!authRequired) {
@@ -37,7 +46,25 @@ export async function POST(request: NextRequest) {
   if (auth instanceof Response) return auth;
 
   const body = await request.json().catch(() => ({}));
-  const { title, plan_data } = body;
+  const parsed = savedMealPlanBodySchema.safeParse(body);
+  if (!parsed.success) {
+    // Legacy response preserved verbatim (§3.8 compat law):
+    const raw = (body ?? {}) as { plan_data?: { meals?: unknown } };
+    if (!raw.plan_data || !Array.isArray(raw.plan_data?.meals)) {
+      return NextResponse.json(
+        { error: "Missing plan_data.meals" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+  const { title, plan_data } = parsed.data as {
+    title?: string;
+    plan_data: { meals?: unknown } & Record<string, unknown>;
+  };
 
   if (!plan_data || !Array.isArray(plan_data.meals)) {
     return NextResponse.json(

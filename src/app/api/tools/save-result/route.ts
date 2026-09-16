@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireUser, authRequired } from "@/lib/auth-server";
 import { getLimits, type MembershipTier } from "@/lib/memberships";
+import {
+  savedResultBodySchema,
+  SAVED_RESULT_TOOL_SLUGS,
+} from "@/lib/validation/schemas";
 
 /**
  * POST /api/tools/save-result
@@ -13,6 +17,14 @@ import { getLimits, type MembershipTier } from "@/lib/memberships";
  *
  * Body:
  *   { tool_slug: string, title?: string, result_data: object }
+ *
+ * P1-7 (deep-audit 2026-09-16, owner-approved §7): the body passes the
+ * central zod gate FIRST — title ≤200 chars and result_data ≤10KB
+ * (MAX_RESULT_JSON_BYTES) now 400 instead of landing in the DB
+ * unbounded. Legacy failure classes keep their exact responses: the
+ * fallback below re-derives "Invalid tool" / "Missing result_data"
+ * before the zod message, and falsy result_data values (0/""/false)
+ * keep the legacy "Missing result_data" path on the success side.
  */
 export async function POST(request: NextRequest) {
   if (!authRequired) {
@@ -22,20 +34,27 @@ export async function POST(request: NextRequest) {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
 
+  const ALLOWED_TOOLS: readonly string[] = SAVED_RESULT_TOOL_SLUGS;
+
   const body = await request.json().catch(() => ({}));
-  const { tool_slug, title, result_data } = body;
-
-  const ALLOWED_TOOLS = [
-    "calorie-calculator",
-    "bmi-calculator",
-    "macro-calculator",
-    "body-fat-calculator",
-    "water-tracker",
-  ];
-
-  if (!ALLOWED_TOOLS.includes(tool_slug)) {
-    return NextResponse.json({ error: "Invalid tool" }, { status: 400 });
+  const parsed = savedResultBodySchema.safeParse(body);
+  if (!parsed.success) {
+    // Legacy responses preserved verbatim (§3.8 compat law):
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!ALLOWED_TOOLS.includes(raw.tool_slug as string)) {
+      return NextResponse.json({ error: "Invalid tool" }, { status: 400 });
+    }
+    if (!raw.result_data) {
+      return NextResponse.json({ error: "Missing result_data" }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
   }
+  const { tool_slug, title, result_data } = parsed.data;
+
+  // Legacy falsy semantics: 0/false/"" were always "Missing result_data".
   if (!result_data) {
     return NextResponse.json({ error: "Missing result_data" }, { status: 400 });
   }

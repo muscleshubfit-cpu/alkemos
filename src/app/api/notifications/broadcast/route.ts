@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { broadcastBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/notifications/broadcast
@@ -21,6 +22,14 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * can only message HIS assigned clients (coach_assignments). "all"
  * means all-of-MY-clients for a coach, all site clients for the
  * admin. Targets outside the coach's roster are rejected with 403.
+ *
+ * P1-7 (deep-audit 2026-09-16, owner-approved §7): the body passes the
+ * central zod gate FIRST — title ≤200, body ≤2000, link ≤500, the
+ * userIds array ≤1000 entries. These are SHAPE bounds and apply to
+ * staff callers too; the staff COUNT privileges (unlimited recipients
+ * via the multi-coach scoping above, the 500-batch chunking below)
+ * are NOT touched. Legacy failure classes keep their exact responses
+ * (the fallback re-derives each legacy message before the zod one).
  */
 export async function POST(request: NextRequest) {
   let caller: AuthUser | null = null;
@@ -38,21 +47,53 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { target, userId, userIds, title, body: notifBody, link } = body;
-
-  if (!title || !notifBody) {
+  const parsed = broadcastBodySchema.safeParse(body);
+  if (!parsed.success) {
+    // Legacy responses preserved verbatim (§3.8 compat law):
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawTitle = raw.title;
+    const rawBody = raw.body;
+    const rawTarget = raw.target;
+    if (!rawTitle || !rawBody) {
+      return NextResponse.json(
+        { error: "Missing title or body" },
+        { status: 400 },
+      );
+    }
+    if (
+      !rawTarget ||
+      !["all", "selected", "single"].includes(rawTarget as string)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid target. Must be 'all', 'selected', or 'single'" },
+        { status: 400 },
+      );
+    }
+    if (rawTarget === "single" && !raw.userId) {
+      return NextResponse.json(
+        { error: "Missing userId for single target" },
+        { status: 400 },
+      );
+    }
+    if (
+      rawTarget === "selected" &&
+      (!raw.userIds || !Array.isArray(raw.userIds) || raw.userIds.length === 0)
+    ) {
+      return NextResponse.json(
+        { error: "Missing userIds array for selected target" },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
-      { error: "Missing title or body" },
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
       { status: 400 },
     );
   }
+  const { target, userId, userIds, title, body: notifBody, link } = parsed.data;
 
-  if (!target || !["all", "selected", "single"].includes(target)) {
-    return NextResponse.json(
-      { error: "Invalid target. Must be 'all', 'selected', or 'single'" },
-      { status: 400 },
-    );
-  }
+  // (title/body presence + target validity are now guaranteed by
+  // broadcastBodySchema — the legacy 400s above cover every failing
+  // shape with the exact original messages.)
 
   // --- Multi-coach scoping: resolve the caller's client roster ---
   // (caller is non-null when authRequired — requireCoach passed;
