@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq AI · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-06 (Phase 121 — brand renamed to Alkemos; for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-16 (Phase 216 — WAVE 2 of the deep-audit plan: hub display cap + og:image coverage ×17 + EVO link/deferral + Arabic CLS fallback + API error hardening; for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
