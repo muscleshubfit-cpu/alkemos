@@ -6,6 +6,7 @@ import {
   savedResultBodySchema,
   SAVED_RESULT_TOOL_SLUGS,
 } from "@/lib/validation/schemas";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 /**
  * POST /api/tools/save-result
@@ -59,6 +60,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing result_data" }, { status: 400 });
   }
 
+  // Phase 216 (P2-7 — deep-audit confirmed-17): config gate before the
+  // raw env reads — a missing service key now answers a graceful 500
+  // instead of crashing mid-request (same law as the rest of the API).
+  if (!isSupabaseAdminConfigured) {
+    return NextResponse.json({ error: "Server not configured" }, { status: 500 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const supabase = createClient(supabaseUrl, serviceKey, {

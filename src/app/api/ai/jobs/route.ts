@@ -288,10 +288,12 @@ export async function POST(request: NextRequest) {
       message: `تم إرسال الطلب — النتيجة تظهر خلال ~${runnerDispatched ? 3 : JOB_ETA_MINUTES} دقائق.`,
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("[api/ai/jobs] POST error:", msg);
+    // Phase 216 (P2-6 — deep-audit confirmed-16, owner §7-approved
+    // 2026-09-16): raw internal error text never reaches the client —
+    // the server log keeps the detail, the client gets a generic message.
+    console.error("[api/ai/jobs] POST error:", e);
     return NextResponse.json(
-      { error: msg || "Internal server error" },
+      { error: "Something went wrong on our side. Please try again in a moment." },
       { status: 500 },
     );
   }
@@ -348,10 +350,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ jobs: data ?? [] });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("[api/ai/jobs] GET error:", msg);
+    // Phase 216 (P2-6 — deep-audit confirmed-16, owner §7-approved
+    // 2026-09-16): same law as the POST handler — generic client message,
+    // full detail stays in the server log.
+    console.error("[api/ai/jobs] GET error:", e);
     return NextResponse.json(
-      { error: msg || "Internal server error" },
+      { error: "Something went wrong on our side. Please try again in a moment." },
       { status: 500 },
     );
   }

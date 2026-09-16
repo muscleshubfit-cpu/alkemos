@@ -832,9 +832,13 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (e) {
-    console.error("[api/ai/chat] Error:", e instanceof Error ? e.message : e);
+    // Phase 216 (P2-6 — deep-audit confirmed-16, owner §7-approved
+    // 2026-09-16): the raw error text can leak provider/internal detail —
+    // the server log keeps the full detail; the client gets a stable,
+    // generic message only.
+    console.error("[api/ai/chat] Error:", e);
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Internal server error" },
+      { error: "Something went wrong on our side. Please try again in a moment." },
       { status: 500 },
     );
   }

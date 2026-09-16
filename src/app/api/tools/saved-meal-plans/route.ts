@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireUser, authRequired } from "@/lib/auth-server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 /**
  * GET /api/tools/saved-meal-plans
@@ -17,6 +18,12 @@ export async function GET(request: NextRequest) {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
 
+  // Phase 216 (P2-7 — deep-audit confirmed-17): config gate before the
+  // raw env reads — graceful 500 instead of a crash when the service
+  // key is missing (same law as the rest of the API).
+  if (!isSupabaseAdminConfigured) {
+    return NextResponse.json({ error: "Server not configured" }, { status: 500 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const supabase = createClient(supabaseUrl, serviceKey, {
@@ -50,6 +57,12 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
+  // Phase 216 (P2-7 — deep-audit confirmed-17): config gate before the
+  // raw env reads — graceful 500 instead of a crash when the service
+  // key is missing (same law as the rest of the API).
+  if (!isSupabaseAdminConfigured) {
+    return NextResponse.json({ error: "Server not configured" }, { status: 500 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const supabase = createClient(supabaseUrl, serviceKey, {
