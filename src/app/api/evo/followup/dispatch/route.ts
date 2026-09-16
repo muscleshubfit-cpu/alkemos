@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase/admin";
+import { timingSafeSecretEqual } from "@/lib/cron-auth";
 import {
   isFollowupDue,
   buildFollowupEmail,
@@ -21,7 +22,8 @@ import { computeWeightDelta } from "@/lib/evo-coach";
  *
  * CALLERS (either passes):
  *   - a platform ADMIN session (requireAdmin — role==='admin' only), or
- *   - the future cron scheduler with header  x-cron-secret: <EVO_CRON_SECRET>.
+ *   - the future cron scheduler with header  x-cron-secret: <EVO_CRON_SECRET>
+ *     (timing-safe compare — P1-6 deep-audit 2026-09-16).
  *   Anonymous/no-flag calls get 401/404 — never a user-facing surface.
  *
  * WHAT IT DOES per run:
@@ -56,9 +58,14 @@ export async function POST(request: NextRequest) {
   }
 
   // ACTIVATION GATE 2 — admin session OR the cron secret.
+  // P1-6 (deep-audit 2026-09-16, owner-approved per §7): the plain
+  // `===` compare was replaced by the repo-wide timing-safe discipline
+  // (same pattern as verifyCronAuth — cron-auth.ts). EVO_CRON_SECRET
+  // stays a SEPARATE, independently-rotatable secret from CRON_SECRET
+  // (documented in SECURITY.md §3.3 + .env.example).
   const cronSecret = process.env.EVO_CRON_SECRET;
   const providedSecret = request.headers.get("x-cron-secret");
-  const isCron = Boolean(cronSecret) && providedSecret === cronSecret;
+  const isCron = timingSafeSecretEqual(providedSecret, cronSecret);
   if (!isCron) {
     const admin = await requireAdmin(request);
     if (admin instanceof Response) return admin;
