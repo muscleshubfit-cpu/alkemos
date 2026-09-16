@@ -140,6 +140,10 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={isAr ? "بريدك الإلكتروني" : "Your email address"}
+          // P3-10/م26 (deep-audit Phase 217): placeholder-only labeling
+          // disappears while typing — the field needs a persistent
+          // accessible name.
+          aria-label={isAr ? "بريدك الإلكتروني" : "Your email address"}
           dir="ltr"
           maxLength={254}
           inputMode="email"

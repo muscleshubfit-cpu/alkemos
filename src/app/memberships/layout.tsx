@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   // 158 EN budget. Prices match src/lib/memberships.ts exactly (the
   // single source of truth for pricing).
   description:
-    "Choose your Alkemos plan: Free, Premium ($14.99/mo or $119/yr), or Pro ($29.99/mo or $239/yr) — unlimited EVO AI, planners, and higher limits.",
+    // P3-10/م6 (Phase 217): the EN description now lists ALL four tiers —
+    // it dropped Coaching while the AR twin lists it. Monthly prices only
+    // (mirrors the AR twin; still inside the 158-char EN budget).
+    "Choose your Alkemos plan: Free, Premium ($14.99/mo), Pro ($29.99/mo), or Coaching ($39.99/mo) — unlimited EVO AI, planners, and higher limits.",
   keywords: [
     "membership",
     "premium",

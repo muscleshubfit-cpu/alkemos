@@ -596,7 +596,10 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(faqVisible).toContain('heading: "هل يوجد مدرب بشري؟"');
     expect(faqVisible).toContain('heading: "ما هو EVO؟"');
     const aboutVisible = faqVisible;
-    expect(aboutVisible).toContain("والأطعمة (8,830+)");
+    // PHASE 217 (P3-10/م4): the about counts now derive from FOODS_COUNT
+    // — the pin follows the derived template (still proves the AR about
+    // copy carries the food-library size claim).
+    expect(aboutVisible).toContain("والأطعمة (${FOOD_LIB})");
     expect(aboutVisible).toContain("4 توليدات خطط شهريًا");
     const arCoaches = readFileSync("src/app/ar/coaches/[slug]/page.tsx", "utf8");
     expect(arCoaches).toContain("اشترك في متابعة خاصة");

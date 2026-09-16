@@ -2,6 +2,15 @@
 
 import { ArrowRight, Check, Facebook, Linkedin, Twitter, MessageCircle, Copy, Check as CheckIcon, Share2, Crown, Gift } from "lucide-react";
 import { useState, useEffect } from "react";
+// P3-10/م4+م5 (Phase 217): library sizes derive from the shared count
+// constants, and the AR line keeps ONE numeral system (Western digits —
+// the site-wide AR convention); the old string mixed "868+" with
+// "٠٨٬٨٣٠+" Arabic-Indic digits in one sentence.
+import { EXERCISES_COUNT } from "@/lib/exercises-shared";
+import { FOODS_COUNT } from "@/lib/foods-shared";
+
+const EX_LIB = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
+const FOOD_LIB = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
 /**
  * BlogMembershipCard — compact single-card CTA shown inside blog articles.
@@ -99,7 +108,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  </div>
  <div className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
  <Check className="h-3.5 w-3.5 text-[#34c759]" />
- {isAr ? "868+ تمرين و ٨٬٨٣٠+ أكلة" : "868+ exercises, 8,830+ foods"}
+ {isAr ? `${EX_LIB} تمرين و${FOOD_LIB} أكلة` : `${EX_LIB} exercises, ${FOOD_LIB} foods`}
  </div>
  </div>
 

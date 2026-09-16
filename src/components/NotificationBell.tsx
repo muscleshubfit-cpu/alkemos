@@ -13,6 +13,11 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
+// P3-10 (deep-audit Phase 217 — safeNext expansion): notification links
+// ride the SAME open-redirect validator as the auth flows — a startsWith
+// "/" check alone still lets "//evil.com" (protocol-relative) and
+// "/\\" (backslash bypass) through on malformed DB rows.
+import { safeNext } from "@/lib/safe-redirect";
 // PHASE 182: type-only import (erased at compile) — the notification
 // functions are dynamically imported at their call sites so this
 // header-mounted bell never pulls @supabase/ssr into first-load JS.
@@ -84,12 +89,16 @@ export function NotificationBell() {
  }
  const link = typeof n.link === "string" ? n.link : "";
  if (!link.startsWith("/")) return;
+ // safeNext rejects "//", "/\\" and absolute-URL smuggling; an invalid
+ // link simply does not navigate (never a silent fallback to "/").
+ const safeLink = safeNext(link);
+ if (safeLink === "/" && link !== "/") return;
  if (link === "/dashboard") navigate("dashboard");
  else if (link === "/memberships") navigate("memberships");
  else if (link === "/questionnaires") navigate("questionnaires");
  else if (link === "/plans") navigate("plans");
  else if (link === "/support") navigate("support");
- else router.push(link);
+ else router.push(safeLink);
  };
 
  return (

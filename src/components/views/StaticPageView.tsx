@@ -5,6 +5,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useNav, type View } from "@/hooks/use-nav";
 import { CONSENT_REOPEN_EVENT } from "@/components/CookieConsent";
+// P3-10/م4 (Phase 217): the About page's library sizes derive from the
+// shared count constants (client-safe slices — never the giant arrays),
+// so the copy grows with the libraries instead of aging silently.
+import { EXERCISES_COUNT } from "@/lib/exercises-shared";
+import { FOODS_COUNT } from "@/lib/foods-shared";
+
+const EX_LIB = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
+const FOOD_LIB = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
 export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" | "faq" }) {
   const { t, lang } = useI18n();
@@ -110,9 +118,9 @@ function getContent(page: string, isAr: boolean) {
  title: "عن Alkemos",
  updated: `آخر تحديث: ${date}`,
  sections: [
- { heading: "من نحن", paragraphs: ["Alkemos هي منصة اللياقة والتغذية الذكية المتكاملة: محرك الذكاء الاصطناعي EVO يعمل جنبًا إلى جنب مع قاعدة بيانات ضخمة للتمارين (868+) والأطعمة (8,830+) لتقديم تجربة لياقة وتغذية أذكى وأكثر تكاملًا.", "تأسست Alkemos برؤية بسيطة: المستقبل ليس إنسان ضد AI، بل إنسان + AI. نحن نؤمن بأن أفضل النتائج تأتي من الجمع بين حكمة الإنسان وذكاء الآلة."] },
+ { heading: "من نحن", paragraphs: [`Alkemos هي منصة اللياقة والتغذية الذكية المتكاملة: محرك الذكاء الاصطناعي EVO يعمل جنبًا إلى جنب مع قاعدة بيانات ضخمة للتمارين (${EX_LIB}) والأطعمة (${FOOD_LIB}) لتقديم تجربة لياقة وتغذية أذكى وأكثر تكاملًا.`, "تأسست Alkemos برؤية بسيطة: المستقبل ليس إنسان ضد AI، بل إنسان + AI. نحن نؤمن بأن أفضل النتائج تأتي من الجمع بين حكمة الإنسان وذكاء الآلة."] },
  { heading: "رؤيتنا", paragraphs: ["أن نكون المنصة الأولى للكوتشينج الرياضي والتغذوي في العالم العربي، ونقدم تجربة عالمية المستوى لكل عضو."] },
- { heading: "المؤسس: أحمد زكي", paragraphs: ["أحمد زكي هو مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين.", "يشرف أحمد شخصيًا على كل محتوى يُنشر على المنصة: من مكتبة الـ868+ تمرينًا، إلى قاعدة الـ8,830+ صنف غذائي بالقيم الغذائية، إلى كل مقال في المدوّنة — يراجع كل قطعة محتوى للدقّة العلمية قبل النشر. يعكس هذا الالتزام طريقة عمل Alkemos: يجمع المنصة بين قدرات الذكاء الاصطناعي والإشراف البشري والمحتوى الواعي بالأدلة العلمية."] },
+ { heading: "المؤسس: أحمد زكي", paragraphs: ["أحمد زكي هو مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين.", `يشرف أحمد شخصيًا على كل محتوى يُنشر على المنصة: من مكتبة الـ${EX_LIB} تمرينًا، إلى قاعدة الـ${FOOD_LIB} صنف غذائي بالقيم الغذائية، إلى كل مقال في المدوّنة — يراجع كل قطعة محتوى للدقّة العلمية قبل النشر. يعكس هذا الالتزام طريقة عمل Alkemos: يجمع المنصة بين قدرات الذكاء الاصطناعي والإشراف البشري والمحتوى الواعي بالأدلة العلمية.`] },
  { heading: "EVO — محرك الأداء الذكي", paragraphs: ["EVO ليس روبوت محادثة عاديًا. بل محرك ذكاء اصطناعي يقرأ بياناتك وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام."] },
  { heading: "العضويات", paragraphs: ["Alkemos تقدم 3 باقات: مجاني (وصول محدود)، بريميوم $14.99/شهر أو $119/سنة (EVO غير محدود + 4 توليدات خطط شهريًا)، برو $29.99/شهر أو $239/سنة (8 توليدات خطط AI شهريًا + بدون إعلانات). وكوتشينج بشري منفصل بـ $39.99/شهر أو $359/سنة للمهتمين بمتابعة فردية."] },
  ],
@@ -120,9 +128,9 @@ function getContent(page: string, isAr: boolean) {
  title: "About Alkemos",
  updated: `Last updated: ${date}`,
  sections: [
- { heading: "Who We Are", paragraphs: ["Alkemos is the smart, all-in-one fitness & nutrition platform: the EVO AI engine works alongside a massive library of 868+ exercises and 8,830+ foods to deliver a smarter, more connected fitness and nutrition experience.", "Alkemos was founded on a simple vision: the future isn't Human vs AI, it's Human + AI. We believe the best results come from combining human wisdom with machine intelligence."] },
+ { heading: "Who We Are", paragraphs: [`Alkemos is the smart, all-in-one fitness & nutrition platform: the EVO AI engine works alongside a massive library of ${EX_LIB} exercises and ${FOOD_LIB} foods to deliver a smarter, more connected fitness and nutrition experience.`, "Alkemos was founded on a simple vision: the future isn't Human vs AI, it's Human + AI. We believe the best results come from combining human wisdom with machine intelligence."] },
  { heading: "Our Vision", paragraphs: ["To be the leading fitness and nutrition platform in the Arab world, delivering a world-class experience to every member."] },
- { heading: "Founder: Ahmed Zake", paragraphs: ["Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built the platform to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers.", "Ahmed personally oversees every piece of content published on the platform: from the 868+-exercise library, to the 8,830+-food nutrition database, to every article in the blog — he reviews each piece of content for scientific accuracy before publication. This commitment reflects how Alkemos works: the platform combines AI capabilities with human oversight and evidence-aware content."] },
+ { heading: "Founder: Ahmed Zake", paragraphs: ["Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built the platform to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers.", `Ahmed personally oversees every piece of content published on the platform: from the ${EX_LIB}-exercise library, to the ${FOOD_LIB}-food nutrition database, to every article in the blog — he reviews each piece of content for scientific accuracy before publication. This commitment reflects how Alkemos works: the platform combines AI capabilities with human oversight and evidence-aware content.`] },
  { heading: "EVO — The AI Performance Engine", paragraphs: ["EVO is not a regular chatbot. It's an AI engine that reads your data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Available to everyone — visitors and members alike — with tier-based limits."] },
  { heading: "Memberships", paragraphs: ["Alkemos offers 3 tiers: Free (limited access), Premium $14.99/mo or $119/yr (unlimited EVO + 4 monthly plan generations), Pro $29.99/mo or $239/yr (8 AI plan generations/month + no ads). Human coaching is available separately at $39.99/mo or $359/yr for those who want 1-on-1 supervision."] },
  ],

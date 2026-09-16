@@ -32,6 +32,10 @@ export const metadata: Metadata = {
       "Generate a balanced weekly split in seconds — free trial, no signup.",
     type: "website",
     url: "https://alkemos.com/ai-workout-planner",
+    // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin
+    // declares ar_EG; this EN block replaces the root's, so it must
+    // state its own locale.
+    locale: "en_US",
     // Phase 216 (P2-1 — deep-audit confirmed-7): a child openGraph block
     // replaces the root one in Next.js merging, so this surface served NO
     // og:image — the tools family card is pinned explicitly.

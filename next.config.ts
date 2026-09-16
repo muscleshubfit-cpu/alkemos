@@ -78,7 +78,13 @@ const nextConfig: NextConfig = {
   // links/bookmarks land on the EVO page whose CTAs open the widget.
   async redirects() {
     return [
-      { source: "/chat", destination: "/evo", permanent: true },
+      { source: "/chat", destination: "/evo", statusCode: 301 },
+      // ↑ P3-10/المؤكد-27 (deep-audit Phase 217 evaluation): was
+      // `permanent: true` → HTTP 308, while this file's own documented
+      // preference (the Phase-178/192 consolidation block below) is
+      // statusCode 301 «for maximum crawler compatibility». The /chat
+      // legacy redirect now follows the same law — one legacy GET
+      // navigation, method-preservation is irrelevant.
       // ─────────────────────────────────────────────────────────────
       // PHASE 178 (§12.42) — keyword-cannibalization consolidation
       // (owner-approved 2026-09-12). The AR blog published 7 sleep

@@ -119,7 +119,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const breadcrumbSchema = og
     ? getBreadcrumbSchema([
-        { name: "الرئيسية", url: "/" },
+        // P3-9 (deep-audit confirmed 15, Phase 217): AR breadcrumbs must
+        // point at the AR home — "/" was an EN leak in a copy-paste pair.
+        { name: "الرئيسية", url: "/ar" },
         { name: "المدونة", url: "/ar/blog" },
         { name: og.title, url: `/ar/blog/${slug}` },
       ])

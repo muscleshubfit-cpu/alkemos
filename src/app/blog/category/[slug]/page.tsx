@@ -46,6 +46,10 @@ export async function generateMetadata({
       title: `${content.titleEn} | Alkemos Blog`,
       description: content.introEn.slice(0, 158),
       siteName: "Alkemos",
+      // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin
+      // declares ar_EG; this EN block replaces the root's, so it must
+      // state its own locale.
+      locale: "en_US",
       // PHASE 187 (deep-audit P0-2): og:image for the blog-category
       // surface — static branded family card (design mirrors
       // /api/og-image) + the twitter card that was missing entirely.

@@ -370,9 +370,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             {isAr ? "تدرّب بذكاء، كُل بوعي، وتقدّم نحو هدفك كل يوم." : "Train smarter. Eat smarter. Progress with numbers on your side."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
+            {/* P3-10/م4 (Phase 217): the hero counts ride the shared count
+                constants — same law as the muscle chips above; the library
+                grows and the copy follows (Phase 195 owner directive). */}
             {isAr
-              ? "حاسبات سعرات وماكروز مجانية، 868+ تمرين بالشرح والصور، قاعدة أطعمة بأكثر من 8,830 صنف، وEVO مدربك الذكي 24/7 — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها."
-              : "Free calorie & macro calculators, 868+ exercises, 8,830+ foods with nutrition facts, and EVO, your 24/7 AI coach. Start free — create an account only to save and sync your plans."}
+              ? `حاسبات سعرات وماكروز مجانية، ${EX_PLUS} تمرين بالشرح والصور، قاعدة أطعمة بأكثر من ${FOODS_COUNT.toLocaleString("en-US")} صنف، وEVO مدربك الذكي 24/7 — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها.`
+              : `Free calorie & macro calculators, ${EX_PLUS} exercises, ${FOODS_PLUS} foods with nutrition facts, and EVO, your 24/7 AI coach. Start free — create an account only to save and sync your plans.`}
           </p>
 
           {/* Phase 203 account-action CTA pair: guests (most homepage

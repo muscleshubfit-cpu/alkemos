@@ -53,6 +53,19 @@ export function LanguageToggle() {
  const handleToggle = async () => {
  const nextLang = lang === "ar" ? "en" : "ar";
 
+ // P3-10/م8 (deep-audit Phase 217): usePathname() carries no search, so
+ // toggling the language used to DROP the query string (/exercises?
+ // equipment=barbell lost its filters). Read it from window.location at
+ // click time and carry it to the mirror — deliberately NOT
+ // useSearchParams(): that hook would involve every page in a
+ // client-side re-render/suspense for data used by one button click.
+ const qs =
+ typeof window !== "undefined" && window.location.search
+ ? window.location.search
+ : "";
+ const withQs = (path: string) =>
+ qs && !path.includes("?") ? `${path}${qs}` : path;
+
  // Blog article page: /blog/[slug] <-> /ar/blog/[slug] (via linked_post_id)
  const enMatch = pathname.match(/^\/blog\/([^/]+)$/);
  const arMatch = pathname.match(/^\/ar\/blog\/([^/]+)$/);
@@ -64,14 +77,14 @@ export function LanguageToggle() {
  const post = await getBlogPost(currentArticleLang, currentSlug);
  const linked = post ? await getLinkedPost(post) : null;
  if (linked) {
- router.push(linked.language === "ar" ? `/ar/blog/${linked.slug}` : `/blog/${linked.slug}`);
+ router.push(withQs(linked.language === "ar" ? `/ar/blog/${linked.slug}` : `/blog/${linked.slug}`));
  return;
  }
  } catch {
  // fall through to list-page fallback below
  }
  // No translated version exists yet — land on the blog list in the new language.
- router.push(nextLang === "ar" ? "/ar/blog" : "/blog");
+ router.push(withQs(nextLang === "ar" ? "/ar/blog" : "/blog"));
  return;
  }
 
@@ -83,7 +96,7 @@ export function LanguageToggle() {
  if (coachEnMatch || coachArMatch) {
  const slug = (coachEnMatch || coachArMatch)![1];
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar/coaches/${slug}` : `/coaches/${slug}`);
+ router.push(withQs(nextLang === "ar" ? `/ar/coaches/${slug}` : `/coaches/${slug}`));
  return;
  }
 
@@ -95,7 +108,7 @@ export function LanguageToggle() {
  if (progEnMatch || progArMatch) {
  const slug = (progEnMatch || progArMatch)![1];
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar/programs/${slug}` : `/programs/${slug}`);
+ router.push(withQs(nextLang === "ar" ? `/ar/programs/${slug}` : `/programs/${slug}`));
  return;
  }
 
@@ -106,7 +119,7 @@ export function LanguageToggle() {
  if (compareEnMatch || compareArMatch) {
  const slug = (compareEnMatch || compareArMatch)![1];
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar/compare/${slug}` : `/compare/${slug}`);
+ router.push(withQs(nextLang === "ar" ? `/ar/compare/${slug}` : `/compare/${slug}`));
  return;
  }
 
@@ -117,7 +130,7 @@ export function LanguageToggle() {
  if (toolEnMatch || toolArMatch) {
  const slug = (toolEnMatch || toolArMatch)![1];
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar/tools/${slug}` : `/tools/${slug}`);
+ router.push(withQs(nextLang === "ar" ? `/ar/tools/${slug}` : `/tools/${slug}`));
  return;
  }
 
@@ -156,12 +169,12 @@ export function LanguageToggle() {
  for (const route of MIRROR_ROUTES) {
  if (pathname === route.en) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? route.ar : route.en);
+ router.push(withQs(nextLang === "ar" ? route.ar : route.en));
  return;
  }
  if (pathname === route.ar) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? route.ar : route.en);
+ router.push(withQs(nextLang === "ar" ? route.ar : route.en));
  return;
  }
  }
@@ -171,12 +184,12 @@ export function LanguageToggle() {
  // matching can't cover 24 pairs, so the subtree swaps by prefix.
  if (pathname.startsWith("/diet-plan/")) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar${pathname}` : pathname);
+ router.push(withQs(nextLang === "ar" ? `/ar${pathname}` : pathname));
  return;
  }
  if (pathname.startsWith("/ar/diet-plan/")) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, ""));
+ router.push(withQs(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, "")));
  return;
  }
 
@@ -197,12 +210,12 @@ export function LanguageToggle() {
  for (const prefix of PREFIX_MIRROR) {
  if (pathname.startsWith(prefix)) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? `/ar${pathname}` : pathname);
+ router.push(withQs(nextLang === "ar" ? `/ar${pathname}` : pathname));
  return;
  }
  if (pathname.startsWith(`/ar${prefix}`)) {
  setLang(nextLang);
- router.push(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, ""));
+ router.push(withQs(nextLang === "ar" ? pathname : pathname.replace(/^\/ar/, "")));
  return;
  }
  }

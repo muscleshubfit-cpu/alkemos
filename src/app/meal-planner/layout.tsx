@@ -37,6 +37,10 @@ export const metadata: Metadata = {
       "Build a personalized meal plan from the full food database and download it for free.",
     type: "website",
     url: "https://alkemos.com/meal-planner",
+    // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin
+    // declares ar_EG; this EN block replaces the root's, so it must
+    // state its own locale.
+    locale: "en_US",
     // Phase 216 (P2-1 discovery beyond the audit list — same replace-
     // not-inherit gap, live-verified): the tools family card is pinned
     // explicitly.

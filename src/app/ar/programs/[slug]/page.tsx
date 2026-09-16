@@ -85,9 +85,11 @@ export default async function Page({
 
   const breadcrumbSchema = program
     ? getBreadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "Programs", url: "/ar/programs" },
-        { name: program.nameEn, url: `/ar/programs/${program.slug}` },
+        // P3-9 (deep-audit confirmed 15, Phase 217): full AR breadcrumb —
+        // "Home" + "/" were EN leftovers on an Arabic page (copy-paste).
+        { name: "الرئيسية", url: "/ar" },
+        { name: "برامج التدريب", url: "/ar/programs" },
+        { name: program.nameAr, url: `/ar/programs/${program.slug}` },
       ])
     : null;
 

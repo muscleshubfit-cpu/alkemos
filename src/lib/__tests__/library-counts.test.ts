@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { FOODS } from "@/lib/foods";
 import { EXERCISES } from "@/lib/exercises";
 import { FOODS_COUNT } from "@/lib/foods-shared";
@@ -54,5 +55,53 @@ describe("tools count guard (Phase 195)", () => {
   it("tools census: the hub serves 8 tools (4 calculators + water tracker + meal planner + 2 AI planners)", async () => {
     const { TOOLS_COUNT } = await import("@/lib/tools-shared");
     expect(TOOLS_COUNT).toBe(8);
+  });
+});
+
+// PHASE 217 (deep-audit P3-10 م4+م5, owner approval «أوافق على التنفيذ
+// كاملاً»): user-visible library counts must DERIVE from the shared count
+// constants — a hardcoded "868+"/"8,830+" copy ages silently when the
+// libraries grow (Phase 195 owner directive: derive counts from the data
+// source). Same source-canary style as marketing-msa-surface.test.ts.
+describe("Phase 217 م4+م5: marketing surfaces derive library counts", () => {
+  const SURFACES = [
+    "src/components/views/LandingView.tsx",
+    "src/components/views/StaticPageView.tsx",
+    "src/components/blog/BlogComponents.tsx",
+  ];
+
+  it("every surface imports the shared count constants", () => {
+    for (const rel of SURFACES) {
+      const src = readFileSync(rel, "utf8");
+      expect(src, `${rel}: exercises-shared import missing`).toContain(
+        "exercises-shared",
+      );
+      expect(src, `${rel}: foods-shared import missing`).toContain(
+        "foods-shared",
+      );
+    }
+  });
+
+  it("no hardcoded library counts survive outside comments (م4) and AR lines keep ONE numeral system (م5)", () => {
+    // The Phase-202 owner-order QUOTES inside LandingView comments mention
+    // "868+"/"8,830+" historically — comments are law TEXTS, strip them
+    // first (same rule as every source-scan guard in this repo).
+    const stripComments = (s: string) =>
+      s
+        .replace(/\/\*[\s\S]*?\*\//g, " ")
+        .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+    for (const rel of SURFACES) {
+      const src = stripComments(readFileSync(rel, "utf8"));
+      expect(src, `${rel}: hardcoded exercise count returned`).not.toContain(
+        "868+",
+      );
+      expect(src, `${rel}: hardcoded food count returned`).not.toContain(
+        "8,830",
+      );
+      expect(
+        src,
+        `${rel}: Arabic-Indic food digits (mixed numeral systems) returned`,
+      ).not.toContain("٨٬٨٣٠");
+    }
   });
 });

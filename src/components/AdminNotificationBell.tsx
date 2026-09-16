@@ -12,6 +12,10 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
+// P3-10 (deep-audit Phase 217 — safeNext expansion): same law as the
+// client bell — notification links pass the shared open-redirect
+// validator before any router.push.
+import { safeNext } from "@/lib/safe-redirect";
 // PHASE 182: type-only import (erased at compile) — the notification
 // functions are dynamically imported at their call sites so this
 // header-mounted bell never pulls @supabase/ssr into first-load JS.
@@ -70,8 +74,13 @@ export function AdminNotificationBell() {
  // "/admin/payments" — both land on the admin-only review page.
  else if (link === "coach-payments" || link === "/admin/payments") navigate("admin-payments");
  // 0049 — anything else that is a real path (e.g. the coach-pages
- // review queue "/admin/coach-pages") opens directly.
- else if (link.startsWith("/")) router.push(link);
+ // review queue "/admin/coach-pages") opens directly — through the
+ // shared open-redirect validator (P3-10 Phase 217); invalid links
+ // do not navigate at all.
+ else if (link.startsWith("/")) {
+ const safeLink = safeNext(link);
+ if (safeLink !== "/" || link === "/") router.push(safeLink);
+ }
  };
 
  // 0049 — clicking a notification = READ (same rule as the client bell).
