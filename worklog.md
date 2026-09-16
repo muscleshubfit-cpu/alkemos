@@ -19,7 +19,8 @@ Stage Summary:
 - التنظيف المباشر: مسار ميت غير موثق حُذف بالكامل (استدعاءات + طلاب صادرون لطرف ثالث) + التبويبات الخلفية لم تعد تستنزف API — سلوك الواجهة المرئي بلا تغيير (jsdom يرى التبويب مرئيًا فالحرّاس لم تتأثر).
 - الرافعة الأكبر المتبقية خارج الكود: `/api/og-image/[slug]` خارج قاعدة كاش CF (مسار api/) → كل جلب بطاقة سوشيال = دولة Edge + Supabase + Satori عند الأصل. الحل قرار لوحة CF (ت-1 — صفر كود؛ لم يُنقل المسار عمدًا: عشرات الاختبارات تثبّت URL المفهرسة لدى المنصات) — مع ت-2/ت-3/ت-4 موثقة للمالك.
 - قرار المعلق: بند P3-11 نصفه الأول أُسقط (الحذف) والباقي receipt_path فقط.
-- Push status: pushed — التحقق الحي أدناه (مدخل الإغلاق).
+- Push status: pushed (06834dd6).
+- Post-push live evidence (production carried 06834dd6 at 2026-09-16T13:50Z via /api/build-info): `/api/exercise-image?name=squat` = **404** (route gone as designed) · `/` = 200 · og-image AR card = 200 image/png (untouched surface) · self-hosted exercise WebP (`Barbell_Bench_Press_-_Medium_Grip/0.webp`) = 200 · `Cache-Control: public, max-age=31536000, immutable` (first fetch cf MISS — the edge entry caches per PoP).
 
 ---
 Task ID: PHASE-215B-OWNER-DECISIONS-EXECUTION-2026-09-16
