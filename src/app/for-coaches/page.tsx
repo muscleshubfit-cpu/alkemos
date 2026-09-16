@@ -8,11 +8,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { CoachShareButtons } from "@/components/CoachShareButtons";
 import { COACH_FAQ_AR, COACH_FAQ_EN } from "./content";
 
-import heroCoach from "../../../public/images/coach-portrait.jpg";
-import imgDumbbell from "../../../public/images/dumbbell-gym.jpg";
-import imgMeal from "../../../public/images/meal-nutrition.jpg";
-import imgCoaching from "../../../public/images/hero/coaching-1.jpg";
-
 /**
  * FOR-COACHES — recruitment landing page (owner directive 2026-08-29:
  * «صفحة داخل الموقع عربى وانجليزى دعايا وشرح لجذب المدربين»).
@@ -28,8 +23,14 @@ import imgCoaching from "../../../public/images/hero/coaching-1.jpg";
  *     premium features («يمكنهم الاشتراك فى عضويات الموقع»).
  *   - No icons / no emojis on this page — text, cards and buttons only.
  *
- * Images are STATIC imports — next/image turns them into responsive
- * AVIF/WebP at the edge (owner: «استيراد كامل مع التحويل لتخفيف السرعة»).
+ * Images are URL-string references (Phase 215 / P1-8, owner-approved
+ * remediation plan) — the pattern used everywhere else on the site:
+ * next/image still optimizes them into responsive AVIF/WebP through the
+ * default /_next/image loader (owner intent «الاستيراد مع التحويل
+ * لتخفيف السرعة» preserved); explicit width/height carry the intrinsic
+ * aspect ratios. The previous STATIC imports (`../../../public/…`) broke
+ * the clean-clone `tsc --noEmit` gate (4× TS2307 — next-env.d.ts is
+ * gitignored), the exact finding المؤكد 12 of the 2026-09-16 deep audit.
  */
 
 const REGISTER_HREF_BASE = "/for-coaches/register";
@@ -101,8 +102,10 @@ export default function ForCoachesPage() {
         </div>
         <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-2xl shadow-[#1d1d1f]/10">
           <Image
-            src={heroCoach}
+            src="/images/coach-portrait.jpg"
             alt={isAr ? "مدرب شخصي في النادي الرياضي" : "Personal trainer in the gym"}
+            width={1122}
+            height={1402}
             className="h-auto w-full object-cover"
             priority
             sizes="(max-width: 768px) 90vw, 420px"
@@ -237,8 +240,10 @@ export default function ForCoachesPage() {
           <div className="order-1 md:order-2">
             <div className="overflow-hidden rounded-3xl shadow-xl shadow-[#1d1d1f]/10">
               <Image
-                src={imgCoaching}
+                src="/images/hero/coaching-1.jpg"
                 alt={isAr ? "مدرب يتابع عميله أثناء التمرين" : "Coach guiding a client through training"}
+                width={1200}
+                height={800}
                 className="h-auto w-full object-cover"
                 sizes="(max-width: 768px) 90vw, 520px"
               />
@@ -323,7 +328,9 @@ export default function ForCoachesPage() {
       <section className="mx-auto max-w-6xl space-y-10 px-4 pb-16 md:pb-20">
         {[
           {
-            img: imgMeal,
+            img: "/images/meal-nutrition.jpg",
+            w: 1254,
+            h: 1254,
             alt: isAr ? "خطة تغذية صحية" : "Healthy nutrition plan",
             t: isAr ? "خطط تغذية بالذكاء الاصطناعي" : "AI nutrition plans",
             b: isAr
@@ -331,7 +338,9 @@ export default function ForCoachesPage() {
               : "The EVO engine builds each client a nutrition plan around his goal, with full calorie and macro targets — hand-tune every meal, or AI-regenerate any meal or food item with one tap until it fits your client perfectly.",
           },
           {
-            img: imgDumbbell,
+            img: "/images/dumbbell-gym.jpg",
+            w: 1920,
+            h: 1080,
             alt: isAr ? "دمبل في النادي الرياضي" : "Dumbbells in the gym",
             t: isAr ? "برامج تمارين من مكتبة 868+ تمرين" : "Workout programs from an 868+ exercise library",
             b: isAr
@@ -347,6 +356,8 @@ export default function ForCoachesPage() {
               <Image
                 src={f.img}
                 alt={f.alt}
+                width={f.w}
+                height={f.h}
                 className="h-auto w-full object-cover"
                 sizes="(max-width: 768px) 90vw, 480px"
               />
