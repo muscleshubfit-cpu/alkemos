@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-08
+> **Last updated:** 2026-09-16 (Phase 215 — §6/§9.11 migration-application law unified with AGENTS.md §3.3/§6: auto-apply via the Supabase–GitHub integration is the default path; the manual path is the documented exception set)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -205,13 +205,24 @@ Any of the following:
   `https://supabase.com/dashboard/project/wyopqryzfjifyeyvyxfy/sql/new`.
   This is the dashboard URL, not a connection string — it's safe to
   keep in the repo.
-- Agents do not have access to the production database. Any
-  production-side fix is shipped as a SQL file under
-  `supabase/migrations/NNNN_*.sql` and is applied by the owner
-  via the Supabase SQL Editor (see `AGENTS.md` §6).
-- After any schema change in production, the owner must run
-  `NOTIFY pgrst, 'reload schema';` so PostgREST picks up the change.
-  (Phase 5 fixes followed this protocol — see `archive/PROGRESS.md`.)
+- Agents do not hold production database credentials and never run
+  write SQL (`DELETE`/`UPDATE`/`TRUNCATE`/`DROP`) against production
+  (AGENTS.md §3.3; read-only verification queries are allowed when
+  necessary).
+- Migrations are applied to production **automatically** by the
+  Supabase–GitHub integration when the commit lands on `main`
+  (Phase 120 law correction, owner directive 2026-09-05 — the
+  Supabase Preview gate stops a failing migration BEFORE production;
+  auto-apply proven since Phase 61). This is the DEFAULT and only
+  ordinary path — the same law lives in AGENTS.md §3.3/§6.
+- The ONLY manual path is the documented exception set: the
+  `auth.users` migrations (0040/0050/0055/0066 — an auto-migration
+  failing on integration-role auth privileges would block the whole
+  pipeline: the 0054 lesson) plus the legacy
+  `RUN_ON_SUPABASE_*`/`VERIFY_*` files. Those deliveries attach the
+  raw GitHub link + ONE consolidated `RUN_ON_SUPABASE_<IDs>.sql`
+  (closing `NOTIFY pgrst, 'reload schema';` + VERIFY block) and the
+  owner runs them via the Supabase SQL Editor (see AGENTS.md §6).
 - Schema changes are written as **idempotent** migrations so
   re-running them is safe (this matters because production may
   already have the change applied via ad-hoc SQL).
@@ -336,8 +347,13 @@ These are in addition to the general operating rules in `AGENTS.md`:
 10. **Never expose the service-role key to the browser.** The
     service-role key bypasses RLS — if it leaks, the database is
     fully compromised.
-11. **Never auto-apply migrations to production.** Migrations are
-    files; the owner runs them.
+11. **Never apply SQL to production yourself.** Migrations are
+    idempotent files under `supabase/migrations/`; the
+    Supabase–GitHub integration applies them automatically when the
+    commit lands on `main` (Phase 120 law correction — the agent
+    never runs them). The owner runs SQL by hand ONLY on the
+    documented manual path (the `auth.users` exception + legacy
+    `RUN_ON_SUPABASE_*`/`VERIFY_*` files) — AGENTS.md §3.3/§6.
 12. **Always update this file** when adding a new env var, a new
     external service, a new auth flow, or a new data category.
 
