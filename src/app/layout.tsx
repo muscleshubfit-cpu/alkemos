@@ -33,7 +33,20 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
  * (display: swap). Cairo keeps preload:false — its @font-face unicode-range
  * means only /ar pages ever download the arabic subset, and preloading it
  * on EN pages would be pure waste (EN homepage downloaded ZERO Cairo files
- * before and still does). */
+ * before and still does).
+ *
+ * PHASE 218 (D-01 — owner deferred-item reopened 2026-09-17): Cairo moved
+ * swap → optional. The P2-5 "Arabic Fallback" face (globals.css) carries
+ * Cairo's exact metrics, so a fallback render is geometrically identical —
+ * which makes optional the radical CLS end-game: the ~0.04 transient swap
+ * pulse on cold+slow first visits (the residue P2-5 documented) can no
+ * longer occur, because the browser never swaps mid-page. Trade-off the
+ * owner accepted by reopening the item: on a first cold+slow visit the
+ * Arabic text may render in the metric-adjusted system face (Cairo is
+ * downloaded in the background for FUTURE visits, which then render it
+ * instantly from cache). Inter/Playfair stay swap — Latin fallbacks here
+ * are metric-adjusted by next/font itself and their swap never measably
+ * shifted layout (Phase 136 evidence). */
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -48,7 +61,10 @@ const playfair = Playfair_Display({
 });
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
-  display: "swap",
+  // D-01 (Phase 218, owner decision 2026-09-17): optional — zero mid-page
+  // swap ⇒ zero Cairo CLS pulse; first cold visit may fall back to the
+  // metric-identical "Arabic Fallback" face (see the Phase 136/218 note above).
+  display: "optional",
   variable: "--font-cairo",
   preload: false,
 });

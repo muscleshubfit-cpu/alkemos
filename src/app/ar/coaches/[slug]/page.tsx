@@ -70,6 +70,23 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "ar_EG",
+      // D-02 (Phase 218, owner deferred-item reopened 2026-09-17): AR half
+      // of the coach-landing pair — same replace-not-inherit gap as the EN
+      // twin (a child openGraph block discards the /ar/layout.tsx card).
+      // og-home-ar pinned per the AR convention; guarded in
+      // og-image-coverage.test.ts.
+      images: [
+        {
+          url: "/images/og/og-home-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "منصة Alkemos الرياضية الشاملة",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/images/og/og-home-ar.png"],
     },
   };
 }

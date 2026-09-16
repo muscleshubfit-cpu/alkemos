@@ -34,6 +34,12 @@ import { resolve } from "node:path";
  * list of EN surfaces). og-home-en pinned; both halves of the pair are
  * now guarded.
  *
+ * Phase 218 (D-02 — owner deferred-item reopened 2026-09-17): the coach
+ * landing pair (EN canonical + AR mirror). noindex pages, but coaches
+ * share the URLs DIRECTLY (WhatsApp/X embeds) and the child openGraph
+ * block replaces the root card — every share rendered cardless. Home
+ * card pinned on both halves.
+ *
  * Guarded contracts:
  *   1. Every wired surface references its family og asset in BOTH
  *      openGraph.images and twitter.images.
@@ -129,6 +135,12 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/meal-planner/layout.tsx", "og-tools-en"],
   ["src/app/ar/meal-planner/layout.tsx", "og-tools-ar"],
   ["src/app/ar/equipment/[type]/page.tsx", "og-home-ar"],
+  // Phase 218 (D-02 — owner deferred-item reopened 2026-09-17): the
+  // coach-landing pair — noindex, but shared directly by coaches
+  // (WhatsApp/X embeds), so a cardless share was the defect (same
+  // replace-not-inherit class as every surface above).
+  ["src/app/coaches/[slug]/page.tsx", "og-home-en"],
+  ["src/app/ar/coaches/[slug]/page.tsx", "og-home-ar"],
 ];
 
 function repoRootPath(rel: string): string {

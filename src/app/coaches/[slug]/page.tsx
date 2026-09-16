@@ -74,6 +74,24 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "en_US",
+      // D-02 (Phase 218, owner deferred-item reopened 2026-09-17): the page
+      // is noindex, but coaches share these URLs DIRECTLY (WhatsApp/X
+      // embeds) — and a child openGraph block REPLACES the root card in
+      // Next.js metadata merging, so every share rendered cardless. Home
+      // card pinned per the list-surface convention (Phase 206); guarded
+      // in og-image-coverage.test.ts.
+      images: [
+        {
+          url: "/images/og/og-home-en.png",
+          width: 1200,
+          height: 630,
+          alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/images/og/og-home-en.png"],
     },
   };
 }
