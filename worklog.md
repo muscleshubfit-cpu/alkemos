@@ -27,6 +27,34 @@ Stage Summary:
 
 ---
 
+Task ID: PHASE-213-GEO-PARAGRAPH-REVERT-2026-09-16
+Agent: Super Z (main)
+Task: Phase 213 — Partial revert of Phase 212 items 8/15 (owner order 2026-09-16): remove the bilingual GEO paragraph added directly after the homepage hero — AR «منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع.» + EN «Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required.» — and nothing else from the last edit.
+
+**Scope:** exactly ONE source file (src/components/views/LandingView.tsx) — pure 10-line deletion (4-line comment + 5-line `<p>` element + 1 blank line). Verified zero other text/link/icon/structure touched: `git diff 304e70d0~1 -- LandingView.tsx` still contains all 15 added lines of the OTHER owner-ordered copy (H1, hero line, seal chips, tools H2, lead-card headline, tech line, coaching h2, food-card units, weeksUnitAr wiring) and ZERO GEO references.
+
+### Test-guard audit (owner item 3)
+Full-suite grep for the paragraph texts and their distinctive fragments (`no account or payment required`, `بدون حساب أو دفع`, `GEO paragraph`, `look up 8,830+ foods`, `browse 868+ exercises`, `868+ تمرينًا`, `ولّد خططك مع EVO`) across all test files: **ZERO guards added or updated for these paragraphs in 304e70d0.** The two test files that commit touched pin OTHER copy and were intentionally left unchanged:
+- `ai-meal-planner.test.ts` → pins the new lead-card headline "A plan built around your goals — not generic templates" (item 6/13 — still live).
+- `homepage-adoption.test.ts` → pins the retired warrior-card headline in its STANDALONE quoted form `"مدربك الذكي 24/7"` (item 2/4 — the hero line legitimately contains the phrase inside its sentence; still live).
+No test removal/revert was needed — confirmed empirically by the unchanged pass count below.
+
+### Structural restoration proof (owner item 5)
+The region between the hero `</section>` and the Greek meander divider returned byte-for-byte to its pre-304e70d0 shape: `</section>` → single blank line → `{/* Greek meander divider — mission §4 */}` (verified against `git show 304e70d0~1`). The working diff vs HEAD is a pure deletion of the 10 added lines; the diff vs the pre-paragraph baseline shows the GEO block gone while every other owner-ordered change remains.
+
+### QA gates
+- `tsc --noEmit`: exit 0 (clean).
+- `eslint` (LandingView.tsx): 0 problems.
+- `vitest run`: **1216/1216 passed** (78 files — identical count to Phase 212: no assertion anywhere depends on the two paragraphs).
+- `npm run build`: ✓ Compiled successfully — **2,057/2,057 pages** (identical count; a copy-only deletion cannot change the route table, and it didn't).
+- `scripts/docs_audit.py`: phase=213, 100/100 lines ✓.
+- Diff audit: 1 file changed, 10 deletions, 0 insertions in source; governance files (STATE.md + this worklog + scripts/phase213_state_update.py) ride the same commit per repo protocol.
+
+### Rollback
+Single revert of this commit re-instates the GEO paragraph — no other surface is entangled.
+
+---
+
 Task ID: PHASE-212-HOMEPAGE-COPY-UNITS-2026-09-16
 Agent: Super Z (main)
 Task: Phase 212 — Homepage EN/AR copy refresh + nutrition unit unification (جم/كالوري) + Arabic weeks grammar + affiliate program naming (owner order 2026-09-16 — 18 numbered items, copy-only: zero links/structure/icons changes)
@@ -81,32 +109,227 @@ The phrase renders DYNAMICALLY via durationWeeks (three 12-week programs in the 
 - Diff audit: zero href target changes, zero icon changes, zero JSX structure changes (only text content + the one owner-ordered GEO `<p>` + the weeksUnitAr helper).
 
 ---
-
-Task ID: PHASE-213-GEO-PARAGRAPH-REVERT-2026-09-16
+Task ID: PHASE-211-SEO-GEO-20-ITEM13-DROPPED-2026-09-16
 Agent: Super Z (main)
-Task: Phase 213 — Partial revert of Phase 212 items 8/15 (owner order 2026-09-16): remove the bilingual GEO paragraph added directly after the homepage hero — AR «منصة Alkemos منصة لياقة وتغذية مجانية: احسب سعراتك وماكروزك، تصفّح 868+ تمرينًا، واعرف قيمة أكثر من 8,830 صنف غذائي، وولّد خططك مع EVO — بدون حساب أو دفع.» + EN «Alkemos is a free fitness and nutrition platform where you can calculate calories and macros, browse 868+ exercises, look up 8,830+ foods, and generate plans with EVO — no account or payment required.» — and nothing else from the last edit.
+Task: Phase 211 — SEO-GEO-20: review §12.53 item 13 (the last undecided item), verify the live hreflang/language-discovery state, and close it as DROPPED with a documented rationale (owner order 2026-09-16: «راجع البند 13… إن كان الوضع الحالي كافيًا تقنيًا عبر head ولا توجد فائدة SEO حقيقية… أغلق البند بقرار إسقاط موثق… لا تعدّل كود الموقع»).
 
-**Scope:** exactly ONE source file (src/components/views/LandingView.tsx) — pure 10-line deletion (4-line comment + 5-line `<p>` element + 1 blank line). Verified zero other text/link/icon/structure touched: `git diff 304e70d0~1 -- LandingView.tsx` still contains all 15 added lines of the OTHER owner-ordered copy (H1, hero line, seal chips, tools H2, lead-card headline, tech line, coaching h2, food-card units, weeksUnitAr wiring) and ZERO GEO references.
+**Scope:** review + documented decision ONLY — zero production code touched (owner's explicit limit).
 
-### Test-guard audit (owner item 3)
-Full-suite grep for the paragraph texts and their distinctive fragments (`no account or payment required`, `بدون حساب أو دفع`, `GEO paragraph`, `look up 8,830+ foods`, `browse 868+ exercises`, `868+ تمرينًا`, `ولّد خططك مع EVO`) across all test files: **ZERO guards added or updated for these paragraphs in 304e70d0.** The two test files that commit touched pin OTHER copy and were intentionally left unchanged:
-- `ai-meal-planner.test.ts` → pins the new lead-card headline "A plan built around your goals — not generic templates" (item 6/13 — still live).
-- `homepage-adoption.test.ts` → pins the retired warrior-card headline in its STANDALONE quoted form `"مدربك الذكي 24/7"` (item 2/4 — the hero line legitimately contains the phrase inside its sentence; still live).
-No test removal/revert was needed — confirmed empirically by the unchanged pass count below.
+### Technical investigation (live evidence on production 929a7ea, Cloudflare cache-buster)
+1. **Item description verified accurate:** LanguageToggle is a `<Button onClick>` (client JS) — not a crawlable `<a href>` (`src/components/LanguageToggle.tsx`); its coverage includes every mirror pair up to /affiliate (208).
+2. **Official channel #1 — head alternates:** live on every page checked (EN + AR homepages, /affiliate, /tools/bmi-calculator) with the full reciprocal en/ar/x-default triple.
+3. **Official channel #2 — sitemaps:** reciprocal `xhtml:link` pairs in sitemap-pages for every entry (checked / · /ar · /exercises · /ar/exercises) and in sitemap-blog for every paired article (14 entries = 7 pairs × both directions, of 71); unpaired articles stay honestly self-only (settled-list behavior, §12.53-ج).
+4. **Internal linking:** the footer is locale-aware with plain textual `<a href>` anchors covering each language tree fully — URL discovery never depended on the toggle.
 
-### Structural restoration proof (owner item 5)
-The region between the hero `</section>` and the Greek meander divider returned byte-for-byte to its pre-304e70d0 shape: `</section>` → single blank line → `{/* Greek meander divider — mission §4 */}` (verified against `git show 304e70d0~1`). The working diff vs HEAD is a pure deletion of the 10 added lines; the diff vs the pre-paragraph baseline shows the GEO block gone while every other owner-ordered change remains.
+### The verdict — DROP (no technical reason to implement)
+1. Google never reads the `hreflang` attribute on `<a>` anchors: its three officially supported methods are head links tags, HTTP headers, and sitemap xhtml:link — two of which are fully live here. Footer `<a hreflang>` links would add ZERO hreflang signal.
+2. Discovery is triple-covered (sitemaps with all mirrors + head alternates on every page + same-tree textual internal links) — the original audit's premise («discovery via head only») was conservative; reality is stronger.
+3. The JS toggle is a UX matter, not an SEO one — crawlers discover by URLs, all of which are covered.
+4. Negative cost/benefit: a fresh code batch touching the site-wide footer for zero hreflang value + slight link-equity dilution.
 
-### QA gates
-- `tsc --noEmit`: exit 0 (clean).
-- `eslint` (LandingView.tsx): 0 problems.
-- `vitest run`: **1216/1216 passed** (78 files — identical count to Phase 212: no assertion anywhere depends on the two paragraphs).
-- `npm run build`: ✓ Compiled successfully — **2,057/2,057 pages** (identical count; a copy-only deletion cannot change the route table, and it didn't).
-- `scripts/docs_audit.py`: phase=213, 100/100 lines ✓.
-- Diff audit: 1 file changed, 10 deletions, 0 insertions in source; governance files (STATE.md + this worklog + scripts/phase213_state_update.py) ride the same commit per repo protocol.
+### Effect — §12.53 plan is now FULLY CLOSED (14/14 rows decided)
+8 executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (207/209) + keep (8) + drop (13) + 4 postponed by owner (6/9/10/14). Zero Pending rows remain.
+
+### Files changed (docs only)
+- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table row 13 → محسوم: إسقاط · §12.58 impact line got the closure pointer · new §12.59 (the decision record with the live evidence).
+- STATE.md — phase 211 (header, ladder, new (٠٠) 211 entry, QA header, official-phase footer); the 197+196 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» still 929a7ea's parent pin until the post-push evidence commit.
+- worklog.md — this entry.
+
+### Gates (docs batch)
+docs_audit (phase=211, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push).
 
 ### Rollback
-Single revert of this commit re-instates the GEO paragraph — no other surface is entangled.
+Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
+
+### Post-push sanity (light — HTML unchanged by construction)
+build-info carried b1b3ce9 ~2 min after the push (checkedAt 2026-09-15T20:30:06Z). Live pages with
+Cloudflare cache-buster: / = 200 · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200 — and the very
+thing this decision preserves is confirmed intact post-deploy: the full reciprocal hreflang triple
+(en / ar / x-default, one element each) on /affiliate. No independent live-verification round needed
+for a docs-only batch (HTML unchanged by construction).
+---
+Task ID: PHASE-210-SEO-GEO-19-OWNER-DECISIONS-2026-09-16
+Agent: Super Z (main)
+Task: Phase 210 — SEO-GEO-19: record the owner's decisions on the remaining §12.53 items (owner order 2026-09-16 «البند ٦ اجلة ، البند ٨ القرار إبقاء، البنود ٩ و ١٠ و ١٤ اجلهم، ثم افحص ملف توثيق seo واخبرنى ما التالى»)
+
+**Scope:** documentation-only batch — zero production code/assets/data/migrations. The §12.53 table's "awaiting owner decision" cells are closed with the recorded decisions; no production file touched. (Batches 11 + discovery 208 were already shipped & live-verified as phases 208/209 before this.)
+
+### Decisions recorded (all 2026-09-16)
+- **Item 6 (blog article depth): POSTPONED** — the pipeline depth-raise work is suspended until reopened by an owner order. Nothing was in flight (it was a "continuous/pipeline" item, never started).
+- **Item 8 (FAQPage on home + /faq, HowTo on exercise pages): DECISION = KEEP.** The deprecated-schema markup stays served as-is — exactly the second option in the table: no Google harm (rich-result seats retired anyway), potential AI/GEO reading value. Decision line added to docs/SEO-SCHEMA-REFERENCE.md (FAQPage section) in the same frame. Revisit only by a new owner order.
+- **Item 9 (Wikidata entity + sameAs): POSTPONED** (external item by nature).
+- **Item 10 (first 10 real Trustpilot reviews → re-enable aggregateRating): POSTPONED** — law P0-5 stays in force: no rating signal without a real source.
+- **Item 14 (USDA EN policy review after 90 days of GSC data): POSTPONED** — the ~2026-12-07 data milestone stays informational, not a scheduled commitment.
+
+### Effect on the plan
+The §12.53 table is now fully closed EXCEPT item 13 (P3 optional: textual hreflang links in the footer — still undecided). Plan scorecard: 8 items executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (AR og:image trio in 207 · EN /affiliate card in 209) + 1 decided-keep (8) + 4 postponed (6/9/10/14) + 1 undecided (13).
+
+### Files changed (docs only)
+- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table status column (items 6/8/9/10/14) + §12.57 trailing remainder line + new §12.58 section (the decision record).
+- docs/SEO-SCHEMA-REFERENCE.md — one owner-decision line in the FAQPage guidance block (same-frame documentation law).
+- STATE.md — phase 210: header, phase ladder, new (٠٠) 210 entry, QA header, official-phase footer; the 198-ب2+ب3 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» stays 512b193 (the last production-verified commit — nothing shipped past it).
+- worklog.md — this entry.
+
+### Gates (docs batch)
+docs_audit (phase=210, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push as always).
+
+### Rollback
+Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
+
+### Post-push sanity (light — HTML unchanged by construction)
+build-info carried 634fe96 ~25s after the push (checkedAt 2026-09-15T20:14:39Z — Vercel auto-deploy;
+zero HTML diff by construction). Live pages with Cloudflare cache-buster: / = 200 (title intact:
+«Alkemos — The Smart Fitness & Nutrition Platform») · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200
+(the single 308 seen was only the trailing-slash redirect of the test URL shape /ar/ → /ar).
+No independent live-verification round needed for a docs-only batch.
+
+---
+Task ID: PHASE-209-SEO-GEO-18-DISCOVERY208-2026-09-16
+Agent: Super Z (main)
+Task: Phase 209 — SEO-GEO-18: execute discovery 208 — og:image for the EN /affiliate page (owner order 2026-09-16 «بعد إغلاق البند 11، نفّذ اكتشاف 208 الخاص بـ"og:image" لصفحة "/affiliate" EN. فقط»)
+
+**Scope:** ONE variable — the social card of one EN surface. The layout's own openGraph block REPLACES the root one in Next.js metadata merging (the §12.53 item 4 defect family, fixed for the 9 EN list surfaces in 206 but /affiliate was never on that audit list; the AR mirror got its card in 208). Full detail: §12.57.
+
+### What shipped
+- **src/app/affiliate/layout.tsx (the only production file touched):**
+  - `openGraph.images` → og-home-en card (1200×630, the family alt «Alkemos — The Smart Fitness & Nutrition Platform» — identical to /programs · /coaching · /memberships · /evo · /diet-plan from 206).
+  - `openGraph.locale = "en_US"` (was absent — same item-4 family; og:url already existed).
+  - `twitter.images` (the card was already summary_large_image but image-less — pointless with a 1200×630 asset).
+  - Header comment refreshed: the old text still described the pre-208 world («AR metadata is provided via hreflang on the same path») — stale since the /ar/affiliate mirror exists.
+- **Guard og-image-coverage.test.ts:** the EN entry added to WIRED_SURFACES (40 → 41) + a header-doc line — both halves of the affiliate pair (EN + AR) are now guarded by the same test.
+- **Sitemap:** untouched — the pages-family lastmod is already 2026-09-16 (same ship-day, truthful, no bump needed). Internal linking untouched (locale-aware since 208).
+
+### Pre-push "before" evidence (production be7e5b1, Cloudflare cache-buster)
+Present: og:title · og:description · og:url · og:site_name · og:type · twitter:card=summary_large_image · twitter:title · twitter:description.
+**Absent: og:image · og:locale · twitter:image** — the exact gap the discovery documented.
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest (1215 → **1216/1216**, +1 wired surface) · build 0 (2,057 pages — metadata-only change on an existing surface, count unchanged) · docs_audit (phase=209, STATE=100 lines) · docs_parity · check-stale-refs · migration_audit ✓
+
+### Rollback
+Single revert of the two files (EN layout + guard) — zero migrations, zero AR-side changes.
+
+### Live verification on production (512b193 — 14/14 green)
+build-info carried the commit ~2 min after push · `/affiliate` = 200 with `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) · `og:locale=en_US` · `twitter:image` + `twitter:card=summary_large_image` · asset og-home-en.png = 200 · title/canonical/hreflang pair identical to the pre-batch state (EN half untouched besides the card) · **regression checks:** `/ar/affiliate` intact (200 + og-home-ar + ar_EG) and `/memberships` intact (card present) · mastery note: one false-negative in the first script round — Next.js renders the attribute `hrefLang` (camel-case) while the script grepped `hreflang`; fixed and re-run → 14/14.
+
+---
+
+Task ID: PHASE-208-SEO-GEO-17-ITEM11-2026-09-16
+Agent: Super Z (main)
+Task: Phase 208 — SEO-GEO-17: item 11 of the §12.53 plan — full Arabic mirror for /affiliate at /ar/affiliate (owner order 2026-09-16 «نفّذ البند 11: أنشئ مرآة عربية كاملة لـ /affiliate على /ar/affiliate لأن Alkemos يستهدف شركاء عربًا وغير عرب. قبل التنفيذ راجع الصفحة الإنجليزية الحالية ومرآتها العربية إن وجدت… لا تغيّر صفحة EN أو أي وظائف أخرى»)
+
+**Scope:** the AR mirror only — EN page, functions, prices, and data untouched (owner's explicit limit). Full detail: §12.56.
+
+### What shipped
+- **Route `/ar/affiliate`:** `page.tsx` re-exports the shared bilingual EN page (the /ar/for-coaches pattern — useI18n is URL-first, so Arabic renders automatically under /ar/*; the AR copy already existed inside the component in guarded MSA). `layout.tsx` adds natural-MSA metadata: brandless title «برنامج الأفلييت — حوّل تأثيرك إلى دخل» (36 chars + template suffix = 46 ≤ 70), 168-char description carrying the same facts (20% commission · $10 minimum payout), 10 AR keywords mirroring the EN set.
+- **hreflang:** self-canonical + full reciprocal en/ar/x-default pair. The EN layout already declared ar → /ar/affiliate since the H2 fix (2026-09-07) — the URL was the dangling half (404). The pair is now real with ZERO EN file edits.
+- **og:image:** og-home-ar (1200×630) pinned explicitly (replace-not-inherit law from batch 1-b) + twitter summary_large_image + og:locale ar_EG + og:url.
+- **Sitemap:** the EN /affiliate entry gained its alternates (was a bare loc) + a new AR entry — both with the full pair.
+- **Internal linking (every point that targeted EN only):** footer «برنامج الأفلييت», mobile-header drawer «خدمات أخرى», the blog-article affiliate CTA (BlogMembershipCard §3), and the LanguageToggle (mirror pair added + doc comment updated — /affiliate removed from the "no mirror" list).
+- **Guards:** og-image-coverage +1 surface (40) · ar-mirrors +6 tests (sitemap pair with reciprocal hreflang · full metadata contract for the AR layout · EN half-pair completion · re-export no-fork · toggle pair). Suite 1208 → 1215.
+- **lastmod:** pages family stays 2026-09-16 (same ship-day as phase 207 — truthful, no bump needed).
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest **1215/1215** · build 0 (**2,057 pages — +1 = /ar/affiliate**) · docs_audit (phase=208, 100 lines) · docs_parity · check-stale-refs · migration_audit ✓
+
+### Rollback
+Single revert: delete ar/affiliate/ + restore 4 internal links + 2 sitemap lines + the two guard updates — zero data migrations, zero EN changes.
+
+### Documented discovery (out of batch scope — proposal for owner decision)
+The EN /affiliate page itself has NO og:image at all (its openGraph block has no images, so nothing is inherited from the root — same defect class as §12.53 item 4, which was fixed for 9 EN surfaces in 206 but /affiliate was not on that audit list). Expected fix: one og-home-en card line in the EN layout. NOT executed — the owner's explicit limit for this batch was «don't change the EN page».
+
+### Live verification on production (515a16f — deployed & verified 2026-09-16)
+**24/24 checks green** (script outside the repo, Cloudflare cache-buster on every fetch; build-info carried 515a16f after 63s):
+- `/ar/affiliate` = 200 · html lang=ar · dir=rtl · AR hero + 20% commission facts rendered.
+- Title = «برنامج الأفلييت — حوّل تأثيرك إلى دخل — Alkemos» · canonical self · og:image/og:locale/og:url/twitter card all correct (og-home-ar 200).
+- **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
+- Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
+- Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
+
+---
+
+Task ID: PHASE-207-SEO-GEO-16-BATCH-1B-2-2026-09-16
+Agent: Super Z (main)
+Task: Phase 207 — SEO-GEO-16: batch 1-b (og:image for the three AR mirrors) + batch 2 (item 2 of §12.53 — self-hosting ALL exercise images in public/, owner order 2026-09-16 «نفّذ دفعة ١-ب، نفّذ دفعة 2 الخاصة باستضافة صور التمارين ذاتيًا… استخدم public/ مع تحسين الصور للصيغة والحجم والأداء دون تغيير جودة المحتوى أو وظائف الموقع»)
+
+**Scope:** presentation/metadata/assets only — zero routes/functions/prices/data changes; `images.unoptimized` untouched (one-variable-per-batch law).
+
+### Batch 1-b — og:image for the AR mirrors (live-verification catch of phase 206)
+- The three AR mirrors that declared their own openGraph block WITHOUT images (replacing /ar/layout.tsx so og-home-ar was never inherited) are now wired: `/ar/evo` + `/ar/coaching` (layouts), `/ar/diet-plan` (hub), `/ar/diet-plan/{level}/{system}` (24 cells — twitter block added too). Exact EN pattern; og-home-ar 1200×630.
+- Guard: `og-image-coverage.test.ts` WIRED_SURFACES +4 (35→39 tests).
+
+### Batch 2 — item 2: exercise images self-hosted
+- **Inventory:** all 868 exercises × 2 = 1,736 unique image paths, ALL standard `<Folder>/[0|1].jpg` (automated check: zero deviant paths), all flowing through the single builder `getExerciseImageUrl` (grep: no other src reference to the host).
+- **Migration:** 1,736/1,736 downloaded from raw.githubusercontent.com (JPEG magic-byte verification + retries) → re-encoded **JPEG → WebP q85 · method 6 · original dimensions (NO resize)** — PSNR-based decision (≥37.6dB vs source at q85: imperceptible; and 750–850px source matches the real display boxes 560px CSS × DPR2) — 93.6MB → 78.8MB (−15.8%). Content quality and site functionality unchanged (owner law).
+- **Storage:** `public/images/exercises/<Folder>/[0|1].webp` — dataset folder names preserved EXACTLY (§12.53-هـ stable-names law); only the builder maps the extension (.jpg → .webp, one line).
+- **Caching:** `Cache-Control: public, max-age=31536000, immutable` on `/images/exercises/:path*` — added in BOTH `next.config.ts` (headers()) and `vercel.json` (mirrors the brand-family convention). Immutable is justified: frozen MIT dataset + stable names; any future re-encode ships under new filenames.
+- **Attribution:** yuhonas/free-exercise-db (MIT) documented in `public/images/README.md` (new exercises/ section: source, optimization params, naming law, cache law, guard).
+- **Sweep result:** the URL builder was the only pass-through point — generated HTML now has ZERO raw.githubusercontent references (local smoke-verified EN + AR exercise pages + homepage samples + programs client). The remotePatterns entry for the host is intentionally kept as the documented one-line rollback path (commented).
+- **New guard** `src/lib/__tests__/exercise-images-selfhost.test.ts` (5 tests): mapping pinned (.jpg→.webp) + passthrough laws + **every imageKey of all 868 exercises resolves to an existing non-empty .webp on disk** (1,736 existsSync checks) + retired host absent from CODE (comments stripped first — history narration is allowed by repo law).
+- **Updated guards:** `ai-workout-exercise-match.test.ts` (two toContain assertions + the ENRICH regex) and `homepage-adoption.test.ts` (homepage exercise samples: https:// → /images/exercises/ + .webp).
+- **next.config/vercel.json:** exercises cache rule (see above); remotePatterns comment for raw.githubusercontent.com updated (dead config kept as documented rollback).
+
+### Companion documentation (same-frame law)
+- `sitemap-lastmod.ts`: pages + exercises families → **2026-09-16** (real served-HTML change per the module's UPDATE PROTOCOL). **exercises decoupled from CONTENT_LAST_REVIEWED** (which remains the E-E-A-T anchor in seo.ts, still 2026-09-09): an HTML change is not a content review — each semantic now has its own source. Guard `sitemap-lastmod.test.ts` updated in the same frame (foods alone derives from CONTENT_LAST_REVIEWED).
+- `STATE.md`: phase 207 entry + QA line (188/189 compressed to stay within the 100-line docs_audit cap).
+- `README.md` + `DEVELOPER_GUIDE.md`: self-hosting noted in the lib tree.
+- `docs/SEO-GEO-MASTER-PLAN.md`: §12.55 (this phase) + §12.53 table item 2 → completed + §12.54 remaining-list updated.
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9 new) · build 0 (2,056 pages) · docs_audit (phase=207) · docs_parity · check-stale-refs · check-ui-wiring · migration_audit ✓
+
+### Local smoke (next start)
+Exercise page EN/AR renders /images/exercises/*.webp · asset served 200 · image/webp · Cache-Control: public, max-age=31536000, immutable · /ar/evo + /ar/coaching + /ar/diet-plan hub + cell carry og-home-ar · homepage samples on local paths · ZERO raw.githubusercontent in any fetched HTML.
+
+### Rollback
+Single commit revert restores the GitHub raw builder (remotePatterns entry alive); on-disk WebP assets are inert without it.
+
+**Production commit:** 3da58f8 (pushed to origin/main e6e67bc..3da58f8; Vercel deployed; build-info live = 3da58f8).
+
+### Live verification on production (3da58f8)
+- **23/23 checks** (script outside the repo, Cloudflare cache-buster on every HTML fetch): the four AR surfaces serve og:image=og-home-ar + twitter images · EN/AR exercise pages + homepage samples serve /images/exercises/*.webp with ZERO raw.githubusercontent references · asset served 200 · image/webp · RIFF/WEBP magic · Cache-Control: public, max-age=31536000, immutable · sitemap exercises+pages lastmod = 2026-09-16 (exercises sitemap carries all 1,736 URLs) · regressions clean (og-home-en on the EN surfaces, og-home-ar inherited on AR lists, family cards on detail pages).
+- **Deep random sample 30/30:** 30 random URLs from the live exercises sitemap (seed 207) — every page serves local webp references and every referenced asset (60 checks) resolves 200.
+- Note: the first deep-sample run reported 6/30 "no images" — root cause was a regex bug in the verification script itself (letter `s` wrongly excluded from the character class), NOT a site defect; script fixed, re-run = 30/30. Documented for honesty of record.
+
+---
+Task ID: SEO-GEO-15-BATCH1-LIVE-VERIFY
+Agent: Main (Z User)
+Task: التحقق الحي من دفعة ١ (المرحلة 206) على الإنتاج بعد نشر 5713713
+
+Work Log:
+- انتظار نشر Vercel حتى build-info = 5713713 (تحقق بعد ~90 ثانية)
+- سكربت تحقق حي 37/37 ✅: مخططا EVO/Coaching EN إنجليزيًا كاملاً (صفر عربي) والمرايا AR عربية كاملة (سكربت محفوظ خارج المستودع بكاسر كاش)
+- البطاقات التسع EN ظاهرة + og:url/og:locale على /memberships + og:locale على water-tracker + twitter للequipment = summary_large_image
+- عنوان الرئيسية «Alkemos — The Smart Fitness & Nutrition Platform» (48 حرفًا) + «Fitness & Nutrition Blog | Alkemos» + lastmod السايت مابين 2026-09-15
+- انحدارات AR سليمة (/ar و/ar/exercises و/ar/foods و/ar/programs و/ar/memberships = og-home-ar)
+- ملاحظة تشغيلية: Cloudflare يخدم HTML قديمًا حتى ~ساعة على بعض المسارات (age:3300 رغم max-age=300) — التحقق اجتاز بكاسر كاش؛ موثقة للمالك في §12.54
+- اكتشاف جديد خارج نطاق الدفعة: /ar/evo و/ar/coaching و/ar/diet-plan بلا og:image أصلًا (نفس نمط البند 4 عربيًا) — مقترح دفعة 1-ب بقرار المالك
+
+Stage Summary:
+- دفعة ١ مكتملة ومتحققة حيًا 37/37 على الإنتاج؛ جدول §12.53 حُدّث (البنود 1/3/4/5/7/12 = مكتمل)
+- Commit SHA: bbdac64
+- Push status: pushed
+
+---
+Task ID: SEO-GEO-15-BATCH1-206-2026-09-15
+Agent: Main (Z User)
+Task: تنفيذ دفعة ١ من خطة تدقيق §12.53 (أمر المالك «تم تدوير وتعديل المفاتيح، ابدأ تنفيذ دفعة ١») — البنود 3/4/5/12 + البند 7 المرافق + إغلاق البند 1 توثيقيًا
+
+Work Log:
+- البند 3: getEVOApplicationSchema/getCoachingServiceSchema في seo.ts صارا locale-aware بمعامل إلزامي (نمط ORG_DESCRIPTIONS) — جداول EN/AR كاملة؛ الأسطح الأربعة حدّثت (/evo و/coaching بen والمرآتان بار)
+- البند 4: og:image لأسطح القوائم EN — /exercises و/foods ببطاقتي العائلة؛ /programs·/coaching·/memberships·/evo·/diet-plan hub+24 خلية·/equipment/* ببطاقة og-home-en (مطابقة سلوك وراثة AR)؛ +og:url/og:locale على /memberships وog:locale على water-tracker وdiet-plan؛ twitter للequipment رُقّي لsummary_large_image
+- البند 5: عنوان الرئيسية 94→47 حرفًا «Alkemos — The Smart Fitness & Nutrition Platform»
+- البند 12: «Fitness & Nutrition Blog | Alkemos»
+- البند 7: sitemap-lastmod — pages وcollections → 2026-09-15؛ STATE.md — تصحيح iad1→fra1 + مرحلة 206 + مسح بند مفتاح OpenRouter (المالك أكد التدوير — البند 1)
+- الحراس بنفس الفريم: schema-rating-law.test.ts وُسّع بقوانين locale + og-image-coverage.test.ts بـ9 أسطح WIRED_SURFACES جديدة
+- البوابات: tsc 0 (بعد .next/types) · eslint 0/0 · vitest 1199/1199 · build 0 · docs_audit/docs_parity/stale-refs/ui-wiring/migration_audit ✓
+
+Stage Summary:
+- دفعة ١ كاملة عبر البوابات التسع؛ صفر مساس بالوظائف/البيانات/الأسعار؛ كل الأصول المستخدمة موجودة أصلًا
+- Commit SHA: 5713713
+- Push status: pushed
+
+---
 
 Task ID: PHASE-205-FINAL-INTERNAL-COPY-AUDIT-2026-09-15
 Agent: Super Z (main)
@@ -4258,225 +4481,3 @@ Work Log:
 Stage Summary:
 - الحكم الحاكم: الأساس التقني SEO/GEO سليم ومتحقق حيًا على نطاق واسع؛ كل الحلول السابقة قائمة؛ الثغرات الجديدة في طبقة العرض/الأصول: (P0 خارج SEO) مفتاح OpenRouter المسرب حي — تدوير فوري بيد المالك · (P1) صور التمارين hot-linked من GitHub raw · مخططات EVO/Coaching JSON-LD بالعربية على صفحات EN · og:image غائب عن أسطح القوائم EN · (P2) عنوان الرئيسية 94 حرفًا · عمق مقالات ~1.0–1.3K كلمة · lastmod قديم + تعارض iad1/fra1 · FAQPage/HowTo متقاعدة ما زالت ترسل · (P3) Wikidata/تقييمات Trustpilot/مرآة /affiliate AR/لاحقة /blog EN/hreflang-footer/مراجعة USDA بعد 90 يومًا
 - المخرج الوحيد: docs/SEO-GEO-MASTER-PLAN.md §12.53 (خطة كاملة بترتيب تنفيذ وتبعيات ومخاطر وحالات) — Audit + توثيق فقط كما أمر المالك
-
----
-Task ID: SEO-GEO-15-BATCH1-206-2026-09-15
-Agent: Main (Z User)
-Task: تنفيذ دفعة ١ من خطة تدقيق §12.53 (أمر المالك «تم تدوير وتعديل المفاتيح، ابدأ تنفيذ دفعة ١») — البنود 3/4/5/12 + البند 7 المرافق + إغلاق البند 1 توثيقيًا
-
-Work Log:
-- البند 3: getEVOApplicationSchema/getCoachingServiceSchema في seo.ts صارا locale-aware بمعامل إلزامي (نمط ORG_DESCRIPTIONS) — جداول EN/AR كاملة؛ الأسطح الأربعة حدّثت (/evo و/coaching بen والمرآتان بار)
-- البند 4: og:image لأسطح القوائم EN — /exercises و/foods ببطاقتي العائلة؛ /programs·/coaching·/memberships·/evo·/diet-plan hub+24 خلية·/equipment/* ببطاقة og-home-en (مطابقة سلوك وراثة AR)؛ +og:url/og:locale على /memberships وog:locale على water-tracker وdiet-plan؛ twitter للequipment رُقّي لsummary_large_image
-- البند 5: عنوان الرئيسية 94→47 حرفًا «Alkemos — The Smart Fitness & Nutrition Platform»
-- البند 12: «Fitness & Nutrition Blog | Alkemos»
-- البند 7: sitemap-lastmod — pages وcollections → 2026-09-15؛ STATE.md — تصحيح iad1→fra1 + مرحلة 206 + مسح بند مفتاح OpenRouter (المالك أكد التدوير — البند 1)
-- الحراس بنفس الفريم: schema-rating-law.test.ts وُسّع بقوانين locale + og-image-coverage.test.ts بـ9 أسطح WIRED_SURFACES جديدة
-- البوابات: tsc 0 (بعد .next/types) · eslint 0/0 · vitest 1199/1199 · build 0 · docs_audit/docs_parity/stale-refs/ui-wiring/migration_audit ✓
-
-Stage Summary:
-- دفعة ١ كاملة عبر البوابات التسع؛ صفر مساس بالوظائف/البيانات/الأسعار؛ كل الأصول المستخدمة موجودة أصلًا
-- Commit SHA: 5713713
-- Push status: pushed
-
----
-Task ID: SEO-GEO-15-BATCH1-LIVE-VERIFY
-Agent: Main (Z User)
-Task: التحقق الحي من دفعة ١ (المرحلة 206) على الإنتاج بعد نشر 5713713
-
-Work Log:
-- انتظار نشر Vercel حتى build-info = 5713713 (تحقق بعد ~90 ثانية)
-- سكربت تحقق حي 37/37 ✅: مخططا EVO/Coaching EN إنجليزيًا كاملاً (صفر عربي) والمرايا AR عربية كاملة (سكربت محفوظ خارج المستودع بكاسر كاش)
-- البطاقات التسع EN ظاهرة + og:url/og:locale على /memberships + og:locale على water-tracker + twitter للequipment = summary_large_image
-- عنوان الرئيسية «Alkemos — The Smart Fitness & Nutrition Platform» (48 حرفًا) + «Fitness & Nutrition Blog | Alkemos» + lastmod السايت مابين 2026-09-15
-- انحدارات AR سليمة (/ar و/ar/exercises و/ar/foods و/ar/programs و/ar/memberships = og-home-ar)
-- ملاحظة تشغيلية: Cloudflare يخدم HTML قديمًا حتى ~ساعة على بعض المسارات (age:3300 رغم max-age=300) — التحقق اجتاز بكاسر كاش؛ موثقة للمالك في §12.54
-- اكتشاف جديد خارج نطاق الدفعة: /ar/evo و/ar/coaching و/ar/diet-plan بلا og:image أصلًا (نفس نمط البند 4 عربيًا) — مقترح دفعة 1-ب بقرار المالك
-
-Stage Summary:
-- دفعة ١ مكتملة ومتحققة حيًا 37/37 على الإنتاج؛ جدول §12.53 حُدّث (البنود 1/3/4/5/7/12 = مكتمل)
-- Commit SHA: bbdac64
-- Push status: pushed
-
----
-
-Task ID: PHASE-207-SEO-GEO-16-BATCH-1B-2-2026-09-16
-Agent: Super Z (main)
-Task: Phase 207 — SEO-GEO-16: batch 1-b (og:image for the three AR mirrors) + batch 2 (item 2 of §12.53 — self-hosting ALL exercise images in public/, owner order 2026-09-16 «نفّذ دفعة ١-ب، نفّذ دفعة 2 الخاصة باستضافة صور التمارين ذاتيًا… استخدم public/ مع تحسين الصور للصيغة والحجم والأداء دون تغيير جودة المحتوى أو وظائف الموقع»)
-
-**Scope:** presentation/metadata/assets only — zero routes/functions/prices/data changes; `images.unoptimized` untouched (one-variable-per-batch law).
-
-### Batch 1-b — og:image for the AR mirrors (live-verification catch of phase 206)
-- The three AR mirrors that declared their own openGraph block WITHOUT images (replacing /ar/layout.tsx so og-home-ar was never inherited) are now wired: `/ar/evo` + `/ar/coaching` (layouts), `/ar/diet-plan` (hub), `/ar/diet-plan/{level}/{system}` (24 cells — twitter block added too). Exact EN pattern; og-home-ar 1200×630.
-- Guard: `og-image-coverage.test.ts` WIRED_SURFACES +4 (35→39 tests).
-
-### Batch 2 — item 2: exercise images self-hosted
-- **Inventory:** all 868 exercises × 2 = 1,736 unique image paths, ALL standard `<Folder>/[0|1].jpg` (automated check: zero deviant paths), all flowing through the single builder `getExerciseImageUrl` (grep: no other src reference to the host).
-- **Migration:** 1,736/1,736 downloaded from raw.githubusercontent.com (JPEG magic-byte verification + retries) → re-encoded **JPEG → WebP q85 · method 6 · original dimensions (NO resize)** — PSNR-based decision (≥37.6dB vs source at q85: imperceptible; and 750–850px source matches the real display boxes 560px CSS × DPR2) — 93.6MB → 78.8MB (−15.8%). Content quality and site functionality unchanged (owner law).
-- **Storage:** `public/images/exercises/<Folder>/[0|1].webp` — dataset folder names preserved EXACTLY (§12.53-هـ stable-names law); only the builder maps the extension (.jpg → .webp, one line).
-- **Caching:** `Cache-Control: public, max-age=31536000, immutable` on `/images/exercises/:path*` — added in BOTH `next.config.ts` (headers()) and `vercel.json` (mirrors the brand-family convention). Immutable is justified: frozen MIT dataset + stable names; any future re-encode ships under new filenames.
-- **Attribution:** yuhonas/free-exercise-db (MIT) documented in `public/images/README.md` (new exercises/ section: source, optimization params, naming law, cache law, guard).
-- **Sweep result:** the URL builder was the only pass-through point — generated HTML now has ZERO raw.githubusercontent references (local smoke-verified EN + AR exercise pages + homepage samples + programs client). The remotePatterns entry for the host is intentionally kept as the documented one-line rollback path (commented).
-- **New guard** `src/lib/__tests__/exercise-images-selfhost.test.ts` (5 tests): mapping pinned (.jpg→.webp) + passthrough laws + **every imageKey of all 868 exercises resolves to an existing non-empty .webp on disk** (1,736 existsSync checks) + retired host absent from CODE (comments stripped first — history narration is allowed by repo law).
-- **Updated guards:** `ai-workout-exercise-match.test.ts` (two toContain assertions + the ENRICH regex) and `homepage-adoption.test.ts` (homepage exercise samples: https:// → /images/exercises/ + .webp).
-- **next.config/vercel.json:** exercises cache rule (see above); remotePatterns comment for raw.githubusercontent.com updated (dead config kept as documented rollback).
-
-### Companion documentation (same-frame law)
-- `sitemap-lastmod.ts`: pages + exercises families → **2026-09-16** (real served-HTML change per the module's UPDATE PROTOCOL). **exercises decoupled from CONTENT_LAST_REVIEWED** (which remains the E-E-A-T anchor in seo.ts, still 2026-09-09): an HTML change is not a content review — each semantic now has its own source. Guard `sitemap-lastmod.test.ts` updated in the same frame (foods alone derives from CONTENT_LAST_REVIEWED).
-- `STATE.md`: phase 207 entry + QA line (188/189 compressed to stay within the 100-line docs_audit cap).
-- `README.md` + `DEVELOPER_GUIDE.md`: self-hosting noted in the lib tree.
-- `docs/SEO-GEO-MASTER-PLAN.md`: §12.55 (this phase) + §12.53 table item 2 → completed + §12.54 remaining-list updated.
-
-### Gates (all green before push)
-tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9 new) · build 0 (2,056 pages) · docs_audit (phase=207) · docs_parity · check-stale-refs · check-ui-wiring · migration_audit ✓
-
-### Local smoke (next start)
-Exercise page EN/AR renders /images/exercises/*.webp · asset served 200 · image/webp · Cache-Control: public, max-age=31536000, immutable · /ar/evo + /ar/coaching + /ar/diet-plan hub + cell carry og-home-ar · homepage samples on local paths · ZERO raw.githubusercontent in any fetched HTML.
-
-### Rollback
-Single commit revert restores the GitHub raw builder (remotePatterns entry alive); on-disk WebP assets are inert without it.
-
-**Production commit:** 3da58f8 (pushed to origin/main e6e67bc..3da58f8; Vercel deployed; build-info live = 3da58f8).
-
-### Live verification on production (3da58f8)
-- **23/23 checks** (script outside the repo, Cloudflare cache-buster on every HTML fetch): the four AR surfaces serve og:image=og-home-ar + twitter images · EN/AR exercise pages + homepage samples serve /images/exercises/*.webp with ZERO raw.githubusercontent references · asset served 200 · image/webp · RIFF/WEBP magic · Cache-Control: public, max-age=31536000, immutable · sitemap exercises+pages lastmod = 2026-09-16 (exercises sitemap carries all 1,736 URLs) · regressions clean (og-home-en on the EN surfaces, og-home-ar inherited on AR lists, family cards on detail pages).
-- **Deep random sample 30/30:** 30 random URLs from the live exercises sitemap (seed 207) — every page serves local webp references and every referenced asset (60 checks) resolves 200.
-- Note: the first deep-sample run reported 6/30 "no images" — root cause was a regex bug in the verification script itself (letter `s` wrongly excluded from the character class), NOT a site defect; script fixed, re-run = 30/30. Documented for honesty of record.
-
----
-
-Task ID: PHASE-208-SEO-GEO-17-ITEM11-2026-09-16
-Agent: Super Z (main)
-Task: Phase 208 — SEO-GEO-17: item 11 of the §12.53 plan — full Arabic mirror for /affiliate at /ar/affiliate (owner order 2026-09-16 «نفّذ البند 11: أنشئ مرآة عربية كاملة لـ /affiliate على /ar/affiliate لأن Alkemos يستهدف شركاء عربًا وغير عرب. قبل التنفيذ راجع الصفحة الإنجليزية الحالية ومرآتها العربية إن وجدت… لا تغيّر صفحة EN أو أي وظائف أخرى»)
-
-**Scope:** the AR mirror only — EN page, functions, prices, and data untouched (owner's explicit limit). Full detail: §12.56.
-
-### What shipped
-- **Route `/ar/affiliate`:** `page.tsx` re-exports the shared bilingual EN page (the /ar/for-coaches pattern — useI18n is URL-first, so Arabic renders automatically under /ar/*; the AR copy already existed inside the component in guarded MSA). `layout.tsx` adds natural-MSA metadata: brandless title «برنامج الأفلييت — حوّل تأثيرك إلى دخل» (36 chars + template suffix = 46 ≤ 70), 168-char description carrying the same facts (20% commission · $10 minimum payout), 10 AR keywords mirroring the EN set.
-- **hreflang:** self-canonical + full reciprocal en/ar/x-default pair. The EN layout already declared ar → /ar/affiliate since the H2 fix (2026-09-07) — the URL was the dangling half (404). The pair is now real with ZERO EN file edits.
-- **og:image:** og-home-ar (1200×630) pinned explicitly (replace-not-inherit law from batch 1-b) + twitter summary_large_image + og:locale ar_EG + og:url.
-- **Sitemap:** the EN /affiliate entry gained its alternates (was a bare loc) + a new AR entry — both with the full pair.
-- **Internal linking (every point that targeted EN only):** footer «برنامج الأفلييت», mobile-header drawer «خدمات أخرى», the blog-article affiliate CTA (BlogMembershipCard §3), and the LanguageToggle (mirror pair added + doc comment updated — /affiliate removed from the "no mirror" list).
-- **Guards:** og-image-coverage +1 surface (40) · ar-mirrors +6 tests (sitemap pair with reciprocal hreflang · full metadata contract for the AR layout · EN half-pair completion · re-export no-fork · toggle pair). Suite 1208 → 1215.
-- **lastmod:** pages family stays 2026-09-16 (same ship-day as phase 207 — truthful, no bump needed).
-
-### Gates (all green before push)
-tsc 0 · eslint 0/0 · vitest **1215/1215** · build 0 (**2,057 pages — +1 = /ar/affiliate**) · docs_audit (phase=208, 100 lines) · docs_parity · check-stale-refs · migration_audit ✓
-
-### Rollback
-Single revert: delete ar/affiliate/ + restore 4 internal links + 2 sitemap lines + the two guard updates — zero data migrations, zero EN changes.
-
-### Documented discovery (out of batch scope — proposal for owner decision)
-The EN /affiliate page itself has NO og:image at all (its openGraph block has no images, so nothing is inherited from the root — same defect class as §12.53 item 4, which was fixed for 9 EN surfaces in 206 but /affiliate was not on that audit list). Expected fix: one og-home-en card line in the EN layout. NOT executed — the owner's explicit limit for this batch was «don't change the EN page».
-
-### Live verification on production (515a16f — deployed & verified 2026-09-16)
-**24/24 checks green** (script outside the repo, Cloudflare cache-buster on every fetch; build-info carried 515a16f after 63s):
-- `/ar/affiliate` = 200 · html lang=ar · dir=rtl · AR hero + 20% commission facts rendered.
-- Title = «برنامج الأفلييت — حوّل تأثيرك إلى دخل — Alkemos» · canonical self · og:image/og:locale/og:url/twitter card all correct (og-home-ar 200).
-- **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
-- Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
-- Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
-
----
-Task ID: PHASE-209-SEO-GEO-18-DISCOVERY208-2026-09-16
-Agent: Super Z (main)
-Task: Phase 209 — SEO-GEO-18: execute discovery 208 — og:image for the EN /affiliate page (owner order 2026-09-16 «بعد إغلاق البند 11، نفّذ اكتشاف 208 الخاص بـ"og:image" لصفحة "/affiliate" EN. فقط»)
-
-**Scope:** ONE variable — the social card of one EN surface. The layout's own openGraph block REPLACES the root one in Next.js metadata merging (the §12.53 item 4 defect family, fixed for the 9 EN list surfaces in 206 but /affiliate was never on that audit list; the AR mirror got its card in 208). Full detail: §12.57.
-
-### What shipped
-- **src/app/affiliate/layout.tsx (the only production file touched):**
-  - `openGraph.images` → og-home-en card (1200×630, the family alt «Alkemos — The Smart Fitness & Nutrition Platform» — identical to /programs · /coaching · /memberships · /evo · /diet-plan from 206).
-  - `openGraph.locale = "en_US"` (was absent — same item-4 family; og:url already existed).
-  - `twitter.images` (the card was already summary_large_image but image-less — pointless with a 1200×630 asset).
-  - Header comment refreshed: the old text still described the pre-208 world («AR metadata is provided via hreflang on the same path») — stale since the /ar/affiliate mirror exists.
-- **Guard og-image-coverage.test.ts:** the EN entry added to WIRED_SURFACES (40 → 41) + a header-doc line — both halves of the affiliate pair (EN + AR) are now guarded by the same test.
-- **Sitemap:** untouched — the pages-family lastmod is already 2026-09-16 (same ship-day, truthful, no bump needed). Internal linking untouched (locale-aware since 208).
-
-### Pre-push "before" evidence (production be7e5b1, Cloudflare cache-buster)
-Present: og:title · og:description · og:url · og:site_name · og:type · twitter:card=summary_large_image · twitter:title · twitter:description.
-**Absent: og:image · og:locale · twitter:image** — the exact gap the discovery documented.
-
-### Gates (all green before push)
-tsc 0 · eslint 0/0 · vitest (1215 → **1216/1216**, +1 wired surface) · build 0 (2,057 pages — metadata-only change on an existing surface, count unchanged) · docs_audit (phase=209, STATE=100 lines) · docs_parity · check-stale-refs · migration_audit ✓
-
-### Rollback
-Single revert of the two files (EN layout + guard) — zero migrations, zero AR-side changes.
-
-### Live verification on production (512b193 — 14/14 green)
-build-info carried the commit ~2 min after push · `/affiliate` = 200 with `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) · `og:locale=en_US` · `twitter:image` + `twitter:card=summary_large_image` · asset og-home-en.png = 200 · title/canonical/hreflang pair identical to the pre-batch state (EN half untouched besides the card) · **regression checks:** `/ar/affiliate` intact (200 + og-home-ar + ar_EG) and `/memberships` intact (card present) · mastery note: one false-negative in the first script round — Next.js renders the attribute `hrefLang` (camel-case) while the script grepped `hreflang`; fixed and re-run → 14/14.
-
----
-Task ID: PHASE-210-SEO-GEO-19-OWNER-DECISIONS-2026-09-16
-Agent: Super Z (main)
-Task: Phase 210 — SEO-GEO-19: record the owner's decisions on the remaining §12.53 items (owner order 2026-09-16 «البند ٦ اجلة ، البند ٨ القرار إبقاء، البنود ٩ و ١٠ و ١٤ اجلهم، ثم افحص ملف توثيق seo واخبرنى ما التالى»)
-
-**Scope:** documentation-only batch — zero production code/assets/data/migrations. The §12.53 table's "awaiting owner decision" cells are closed with the recorded decisions; no production file touched. (Batches 11 + discovery 208 were already shipped & live-verified as phases 208/209 before this.)
-
-### Decisions recorded (all 2026-09-16)
-- **Item 6 (blog article depth): POSTPONED** — the pipeline depth-raise work is suspended until reopened by an owner order. Nothing was in flight (it was a "continuous/pipeline" item, never started).
-- **Item 8 (FAQPage on home + /faq, HowTo on exercise pages): DECISION = KEEP.** The deprecated-schema markup stays served as-is — exactly the second option in the table: no Google harm (rich-result seats retired anyway), potential AI/GEO reading value. Decision line added to docs/SEO-SCHEMA-REFERENCE.md (FAQPage section) in the same frame. Revisit only by a new owner order.
-- **Item 9 (Wikidata entity + sameAs): POSTPONED** (external item by nature).
-- **Item 10 (first 10 real Trustpilot reviews → re-enable aggregateRating): POSTPONED** — law P0-5 stays in force: no rating signal without a real source.
-- **Item 14 (USDA EN policy review after 90 days of GSC data): POSTPONED** — the ~2026-12-07 data milestone stays informational, not a scheduled commitment.
-
-### Effect on the plan
-The §12.53 table is now fully closed EXCEPT item 13 (P3 optional: textual hreflang links in the footer — still undecided). Plan scorecard: 8 items executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (AR og:image trio in 207 · EN /affiliate card in 209) + 1 decided-keep (8) + 4 postponed (6/9/10/14) + 1 undecided (13).
-
-### Files changed (docs only)
-- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table status column (items 6/8/9/10/14) + §12.57 trailing remainder line + new §12.58 section (the decision record).
-- docs/SEO-SCHEMA-REFERENCE.md — one owner-decision line in the FAQPage guidance block (same-frame documentation law).
-- STATE.md — phase 210: header, phase ladder, new (٠٠) 210 entry, QA header, official-phase footer; the 198-ب2+ب3 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» stays 512b193 (the last production-verified commit — nothing shipped past it).
-- worklog.md — this entry.
-
-### Gates (docs batch)
-docs_audit (phase=210, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push as always).
-
-### Rollback
-Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
-
-### Post-push sanity (light — HTML unchanged by construction)
-build-info carried 634fe96 ~25s after the push (checkedAt 2026-09-15T20:14:39Z — Vercel auto-deploy;
-zero HTML diff by construction). Live pages with Cloudflare cache-buster: / = 200 (title intact:
-«Alkemos — The Smart Fitness & Nutrition Platform») · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200
-(the single 308 seen was only the trailing-slash redirect of the test URL shape /ar/ → /ar).
-No independent live-verification round needed for a docs-only batch.
-
----
-Task ID: PHASE-211-SEO-GEO-20-ITEM13-DROPPED-2026-09-16
-Agent: Super Z (main)
-Task: Phase 211 — SEO-GEO-20: review §12.53 item 13 (the last undecided item), verify the live hreflang/language-discovery state, and close it as DROPPED with a documented rationale (owner order 2026-09-16: «راجع البند 13… إن كان الوضع الحالي كافيًا تقنيًا عبر head ولا توجد فائدة SEO حقيقية… أغلق البند بقرار إسقاط موثق… لا تعدّل كود الموقع»).
-
-**Scope:** review + documented decision ONLY — zero production code touched (owner's explicit limit).
-
-### Technical investigation (live evidence on production 929a7ea, Cloudflare cache-buster)
-1. **Item description verified accurate:** LanguageToggle is a `<Button onClick>` (client JS) — not a crawlable `<a href>` (`src/components/LanguageToggle.tsx`); its coverage includes every mirror pair up to /affiliate (208).
-2. **Official channel #1 — head alternates:** live on every page checked (EN + AR homepages, /affiliate, /tools/bmi-calculator) with the full reciprocal en/ar/x-default triple.
-3. **Official channel #2 — sitemaps:** reciprocal `xhtml:link` pairs in sitemap-pages for every entry (checked / · /ar · /exercises · /ar/exercises) and in sitemap-blog for every paired article (14 entries = 7 pairs × both directions, of 71); unpaired articles stay honestly self-only (settled-list behavior, §12.53-ج).
-4. **Internal linking:** the footer is locale-aware with plain textual `<a href>` anchors covering each language tree fully — URL discovery never depended on the toggle.
-
-### The verdict — DROP (no technical reason to implement)
-1. Google never reads the `hreflang` attribute on `<a>` anchors: its three officially supported methods are head links tags, HTTP headers, and sitemap xhtml:link — two of which are fully live here. Footer `<a hreflang>` links would add ZERO hreflang signal.
-2. Discovery is triple-covered (sitemaps with all mirrors + head alternates on every page + same-tree textual internal links) — the original audit's premise («discovery via head only») was conservative; reality is stronger.
-3. The JS toggle is a UX matter, not an SEO one — crawlers discover by URLs, all of which are covered.
-4. Negative cost/benefit: a fresh code batch touching the site-wide footer for zero hreflang value + slight link-equity dilution.
-
-### Effect — §12.53 plan is now FULLY CLOSED (14/14 rows decided)
-8 executed & live-verified (1/2/3/4/5/7/11/12) + 2 companion discoveries executed (207/209) + keep (8) + drop (13) + 4 postponed by owner (6/9/10/14). Zero Pending rows remain.
-
-### Files changed (docs only)
-- docs/SEO-GEO-MASTER-PLAN.md — §12.53 table row 13 → محسوم: إسقاط · §12.58 impact line got the closure pointer · new §12.59 (the decision record with the live evidence).
-- STATE.md — phase 211 (header, ladder, new (٠٠) 211 entry, QA header, official-phase footer); the 197+196 history entries merged into one line to hold the 100-line cap; «آخر كوميت متحقق منه» still 929a7ea's parent pin until the post-push evidence commit.
-- worklog.md — this entry.
-
-### Gates (docs batch)
-docs_audit (phase=211, STATE=100 lines) ✓ · docs_parity ✓ · check-stale-refs ✓ · migration_audit ✓ — tsc/eslint/vitest/build not applicable by construction (zero code files; CI runs the full battery on push).
-
-### Rollback
-Single revert of the docs commit — zero production impact possible (HTML output unchanged by construction).
-
-### Post-push sanity (light — HTML unchanged by construction)
-build-info carried b1b3ce9 ~2 min after the push (checkedAt 2026-09-15T20:30:06Z). Live pages with
-Cloudflare cache-buster: / = 200 · /ar = 200 · /affiliate = 200 · /ar/affiliate = 200 — and the very
-thing this decision preserves is confirmed intact post-deploy: the full reciprocal hreflang triple
-(en / ar / x-default, one element each) on /affiliate. No independent live-verification round needed
-for a docs-only batch (HTML unchanged by construction).
