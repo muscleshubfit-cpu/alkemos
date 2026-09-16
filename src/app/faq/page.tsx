@@ -42,6 +42,21 @@ export const metadata: Metadata = {
     url: "https://alkemos.com/faq",
     type: "website",
     locale: "en_US",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): a child openGraph block
+    // replaces the root one in Next.js merging, so this page served NO
+    // og:image — the home card is pinned explicitly.
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
 };
 

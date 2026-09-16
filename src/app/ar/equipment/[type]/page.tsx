@@ -10,6 +10,11 @@ import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
+import {
+  HUB_INITIAL_EXERCISES,
+  type HubExerciseCard,
+} from "@/components/hubs/hub-exercises-shared";
+import { ShowMoreExercises } from "@/components/hubs/ShowMoreExercises";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
@@ -55,11 +60,22 @@ export async function generateMetadata({
       description: hub.descriptionAr,
       siteName: "Alkemos",
       locale: "ar_AR",
+      // Phase 216 (P2-1 discovery beyond the audit list — the AR twin of
+      // a WIRED EN surface, live-verified serving no og:image + a
+      // "summary" card): the home card is pinned + the card upgraded to
+      // summary_large_image, mirroring the EN equipment hubs.
+      images: [
+        {
+          url: "/images/og/og-home-ar.png",
+          width: 1200,
+          height: 630,
+          alt: "منصة Alkemos الرياضية الشاملة",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
-      title: hub.titleAr,
-      description: hub.descriptionAr,
+      card: "summary_large_image",
+      images: ["/images/og/og-home-ar.png"],
     },
   };
 }
@@ -74,6 +90,24 @@ export default async function ArabicEquipmentHubPage({
   if (!hub) notFound();
 
   const exercises = getExercisesForEquipmentHub(hub);
+  // Phase 216 (P2-3 — deep-audit confirmed-9): أول HUB_INITIAL_EXERCISES
+  // بطاقة تُرندر من الخادم والباقي عبر جزيرة العميل — نفس قانون النسخة
+  // الإنجليزية (كل تمرين يبقى متاحًا وItemList يبقى بحد الـ50).
+  const visibleExercises = exercises.slice(0, HUB_INITIAL_EXERCISES);
+  const moreExercises: HubExerciseCard[] = exercises
+    .slice(HUB_INITIAL_EXERCISES)
+    .map((ex) => {
+      const catLabel = CATEGORY_LABELS[ex.category];
+      const lvlLabel = LEVEL_LABELS[ex.level];
+      return {
+        href: `/ar/exercises/${ex.slug}`,
+        name: ex.nameAr,
+        chip: catLabel.ar,
+        levelLabel: lvlLabel.ar,
+        levelColor: lvlLabel.color,
+        muscles: ex.primaryMuscles.join("، "),
+      };
+    });
   // Phase SEO-GEO-5.2: §6.3 template items 4+5 — depth content for every
   // populated equipment hub (none is exempt — empty library family).
   const depth = getHubDepth("equipment", hub.slug);
@@ -128,7 +162,7 @@ export default async function ArabicEquipmentHubPage({
           <span className="text-sm text-muted-foreground">{exercises.length} تمرين</span>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {exercises.map((ex) => {
+          {visibleExercises.map((ex) => {
             const catLabel = CATEGORY_LABELS[ex.category];
             const lvlLabel = LEVEL_LABELS[ex.level];
             return (
@@ -156,6 +190,7 @@ export default async function ArabicEquipmentHubPage({
               </li>
             );
           })}
+          <ShowMoreExercises cards={moreExercises} lang="ar" />
         </ul>
       </section>
 

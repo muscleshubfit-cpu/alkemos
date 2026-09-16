@@ -7,7 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { cn } from "@/lib/utils";
 import { useNav, type View } from "@/hooks/use-nav";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { openEvoFloatingChat } from "@/lib/evo-chat-context";
+import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import { ShieldCheck, Users } from "lucide-react";
 
 /**

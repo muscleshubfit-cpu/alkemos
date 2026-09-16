@@ -39,11 +39,22 @@ export const metadata: Metadata = {
     siteName: "Alkemos",
     locale: "en_US",
     type: "website",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): a child openGraph block
+    // replaces the root one in Next.js merging, so this surface served NO
+    // og:image; the twitter card was "summary" (ignores images) — the
+    // home card is pinned + the card upgraded to summary_large_image.
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "Coach registration — Alkemos",
-    description: "Create your free coach account — instant activation.",
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
   },
   robots: { index: true, follow: true },
 };

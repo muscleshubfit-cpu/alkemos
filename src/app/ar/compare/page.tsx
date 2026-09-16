@@ -31,12 +31,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/compare",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): the openGraph block had
+    // no images (replace-not-inherit) and the twitter card was "summary"
+    // (which ignores images) — pin the home card + upgrade to
+    // summary_large_image so the 1200×630 asset actually shows.
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "Alkemos مقابل المنافسين — مقارنات صادقة | Alkemos",
-    description:
-      "جداول الميزات والأسعار وعمق المحتوى: Alkemos مقابل MyFitnessPal وFreeletics وExRx.net.",
+    card: "summary_large_image",
+    images: ["/images/og/og-home-ar.png"],
   },
 };
 

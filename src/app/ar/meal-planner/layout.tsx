@@ -32,11 +32,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/meal-planner",
+    // Phase 216 (P2-1 discovery beyond the audit list — same replace-
+    // not-inherit gap as the EN twin, live-verified): the tools family
+    // card is pinned explicitly.
+    images: [
+      {
+        url: "/images/og/og-tools-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "حاسبات اللياقة المجانية من Alkemos",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "مخطط الوجبات | Alkemos",
-    description: "ابنِ وجباتك من 8,830+ صنف غذائي وتتبّع الماكروز — مجانًا.",
+    images: ["/images/og/og-tools-ar.png"],
   },
 };
 

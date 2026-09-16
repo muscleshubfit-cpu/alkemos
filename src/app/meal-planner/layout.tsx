@@ -37,6 +37,21 @@ export const metadata: Metadata = {
       "Build a personalized meal plan from the full food database and download it for free.",
     type: "website",
     url: "https://alkemos.com/meal-planner",
+    // Phase 216 (P2-1 discovery beyond the audit list — same replace-
+    // not-inherit gap, live-verified): the tools family card is pinned
+    // explicitly.
+    images: [
+      {
+        url: "/images/og/og-tools-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos Free Fitness Calculators",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-tools-en.png"],
   },
 };
 

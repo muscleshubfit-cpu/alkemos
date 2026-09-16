@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
 import { getLimits } from "@/lib/memberships";
 import { ensureGuestId } from "@/lib/plan-persistence";
+import { EVO_OPEN_CHAT_EVENT } from "@/lib/evo-chat-events";
 
 /**
  * EvoChatContext — manages EVO chat state across all pages.
@@ -42,19 +43,6 @@ import { ensureGuestId } from "@/lib/plan-persistence";
  *      out on load, so a reopened conversation renders exactly like
  *      the live one.
  */
-
-/** Global event that opens the floating EVO chat from ANY component. */
-export const EVO_OPEN_CHAT_EVENT = "mhe:open-evo-chat";
-
-/**
- * Open the floating EVO chat from anywhere (client-side no-op on server).
- * Works from any CTA regardless of provider depth — the provider listens
- * for this event and opens the drawer.
- */
-export function openEvoFloatingChat() {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent(EVO_OPEN_CHAT_EVENT));
-}
 
 /** History sentinel flag marking the entry pushed while the drawer is open. */
 const EVO_HISTORY_FLAG = "mheEvoChat";

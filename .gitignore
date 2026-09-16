@@ -59,6 +59,8 @@ pnpm-lock.yaml
 #   scripts/legacy-msa-patches/ → hand-written MSA conversions for the chain-unconvertible stubborn AR articles (legacy-ar-cleanup.yml PATCH mode, 2026-09-11)
 #   scripts/vercel-cleanup/    → daily Vercel stale-deployment purge (vercel-cleanup.yml, Phase 145)
 #   scripts/generate-og-cards.py → og:image family-card generator (Phase 188 — guarded by og-image-coverage.test.ts; the file was never committed because the /scripts/* blanket swallowed it, so the guard failed in CI from f954e85 until Phase 189 fixed the exception list)
+#   scripts/cls-measure.mjs    → lab CLS measurement with throttling + per-shift attribution (Phase 216 P2-5 — the verification tool for the Arabic-fallback fix)
+#   scripts/js-transfer-measure.mjs → critical-vs-post-load JS transfer measurement (Phase 216 P2-4 — the calibration evidence tool)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
@@ -73,6 +75,8 @@ pnpm-lock.yaml
 !/scripts/retro-pair-blog.mjs
 !/scripts/retro-pair-blog.pairs.json
 !/scripts/generate-og-cards.py
+!/scripts/cls-measure.mjs
+!/scripts/js-transfer-measure.mjs
 /skills/
 /tests/
 /examples/

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { openEvoFloatingChat } from "@/lib/evo-chat-context";
+import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import {
   Menu,
   X,
@@ -299,9 +299,10 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
             {
               label: "EVO AI Coach",
               icon: Bot,
-              // Owner directive 2026-09-14: the EVO entry stays EXACTLY
-              // as it was (no changes to its paths).
-              href: "/evo",
+              // Phase 216 (P2-2 — owner decision 2026-09-16 «نفّذ الإصلاح»):
+              // supersedes the 2026-09-14 freeze — the entry is now
+              // language-aware like the logo and the footer (SEO-GEO-6.4).
+              href: isAr ? "/ar/evo" : "/evo",
             },
           ]),
     ],
@@ -525,9 +526,10 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       items: [
         { labelAr: "مخطط الوجبات بالذكاء الاصطناعي", labelEn: "AI Meal Planner", href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner" },
         { labelAr: "مخطط التمارين بالذكاء الاصطناعي", labelEn: "AI Workout Planner", href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner" },
-        // Owner directive 2026-09-14: the EVO entry keeps its exact
-        // path — no locale mirror here, mirroring the drawer's entry.
-        { labelAr: "EVO AI Coach", labelEn: "EVO AI Coach", href: "/evo" },
+        // Phase 216 (P2-2 — owner decision 2026-09-16 «نفّذ الإصلاح»):
+        // supersedes the 2026-09-14 freeze — language-aware like the
+        // drawer's entry, the logo and the footer (SEO-GEO-6.4).
+        { labelAr: "EVO AI Coach", labelEn: "EVO AI Coach", href: isAr ? "/ar/evo" : "/evo" },
       ],
     },
     {

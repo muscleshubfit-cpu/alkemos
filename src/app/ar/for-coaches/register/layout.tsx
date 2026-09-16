@@ -33,11 +33,21 @@ export const metadata: Metadata = {
     siteName: "Alkemos",
     locale: "ar_EG",
     type: "website",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): same replace-not-inherit
+    // gap as the EN twin — the home card is pinned explicitly (the twitter
+    // card was already summary_large_image but carried no image).
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "تسجيل مدرب — Alkemos",
-    description: "أنشئ حسابك كمدرب مجانًا — تفعيل فوري، بدون أي نسبة من دخلك.",
+    images: ["/images/og/og-home-ar.png"],
   },
   robots: { index: true, follow: true },
 };

@@ -33,6 +33,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/ai-workout-planner",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): same replace-not-inherit
+    // gap as the EN twin — the tools family card is pinned explicitly.
+    images: [
+      {
+        url: "/images/og/og-tools-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "حاسبات اللياقة المجانية من Alkemos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-tools-ar.png"],
   },
 };
 

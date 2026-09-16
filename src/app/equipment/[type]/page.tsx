@@ -10,6 +10,11 @@ import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
+import {
+  HUB_INITIAL_EXERCISES,
+  type HubExerciseCard,
+} from "@/components/hubs/hub-exercises-shared";
+import { ShowMoreExercises } from "@/components/hubs/ShowMoreExercises";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
 /**
@@ -92,6 +97,26 @@ export default async function EquipmentHubPage({
   if (!hub) notFound();
 
   const exercises = getExercisesForEquipmentHub(hub);
+  // Phase 216 (P2-3 — deep-audit confirmed-9): render the first
+  // HUB_INITIAL_EXERCISES cards server-side; the rest ride a compact
+  // client island revealed on click (every exercise stays reachable,
+  // the ItemList schema keeps its top-50 slice, and the served HTML
+  // drops from ~550KB to a fraction on the heaviest hubs).
+  const visibleExercises = exercises.slice(0, HUB_INITIAL_EXERCISES);
+  const moreExercises: HubExerciseCard[] = exercises
+    .slice(HUB_INITIAL_EXERCISES)
+    .map((ex) => {
+      const catLabel = CATEGORY_LABELS[ex.category];
+      const lvlLabel = LEVEL_LABELS[ex.level];
+      return {
+        href: `/exercises/${ex.slug}`,
+        name: ex.nameEn,
+        chip: catLabel.en,
+        levelLabel: lvlLabel.en,
+        levelColor: lvlLabel.color,
+        muscles: ex.primaryMuscles.join(", "),
+      };
+    });
   // Phase SEO-GEO-5.2: §6.3 template items 4+5 (guide + FAQ) — depth
   // content exists for every populated equipment hub (none is exempt).
   const depth = getHubDepth("equipment", hub.slug);
@@ -146,7 +171,7 @@ export default async function EquipmentHubPage({
           <span className="text-sm text-muted-foreground">{exercises.length} exercises</span>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {exercises.map((ex) => {
+          {visibleExercises.map((ex) => {
             const catLabel = CATEGORY_LABELS[ex.category];
             const lvlLabel = LEVEL_LABELS[ex.level];
             return (
@@ -174,6 +199,7 @@ export default async function EquipmentHubPage({
               </li>
             );
           })}
+          <ShowMoreExercises cards={moreExercises} lang="en" />
         </ul>
       </section>
 

@@ -39,6 +39,22 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/ar/about`,
     type: "website",
     locale: "ar_EG",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): a child openGraph block
+    // replaces the parent's in Next.js merging, so this page served NO
+    // og:image while twitter:image was still inherited — pin the home
+    // card explicitly (what /ar/layout.tsx intends for every AR page).
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-ar.png"],
   },
 };
 

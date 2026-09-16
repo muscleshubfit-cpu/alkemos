@@ -104,6 +104,31 @@ const WIRED_SURFACES: Array<[string, string]> = [
   // Discovery 208 → Phase 209 (2026-09-16): the EN half of the affiliate
   // pair — same replace-not-inherit gap (see header note).
   ["src/app/affiliate/layout.tsx", "og-home-en"],
+  // Phase 216 (P2-1 — deep-audit confirmed-7): the 14 audited surfaces —
+  // static AR pages (about/privacy/terms/contact), FAQ ×2, compare ×2,
+  // the two AI planners ×2 and the coach-registration pair; the compare
+  // + register + AR-equipment twitter cards were "summary" (ignores
+  // images) and are now summary_large_image.
+  ["src/app/ar/about/page.tsx", "og-home-ar"],
+  ["src/app/ar/privacy/page.tsx", "og-home-ar"],
+  ["src/app/ar/terms/page.tsx", "og-home-ar"],
+  ["src/app/ar/contact/page.tsx", "og-home-ar"],
+  ["src/app/faq/page.tsx", "og-home-en"],
+  ["src/app/ar/faq/page.tsx", "og-home-ar"],
+  ["src/app/compare/page.tsx", "og-home-en"],
+  ["src/app/ar/compare/page.tsx", "og-home-ar"],
+  ["src/app/ai-meal-planner/layout.tsx", "og-tools-en"],
+  ["src/app/ar/ai-meal-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/ai-workout-planner/layout.tsx", "og-tools-en"],
+  ["src/app/ar/ai-workout-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/for-coaches/register/layout.tsx", "og-home-en"],
+  ["src/app/ar/for-coaches/register/layout.tsx", "og-home-ar"],
+  // Phase 216 (P2-1 discoveries beyond the audit list — same defect
+  // class, live-verified missing og:image): the meal-planner pair and
+  // the AR equipment hub (twin of the already-wired EN surface).
+  ["src/app/meal-planner/layout.tsx", "og-tools-en"],
+  ["src/app/ar/meal-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/ar/equipment/[type]/page.tsx", "og-home-ar"],
 ];
 
 function repoRootPath(rel: string): string {

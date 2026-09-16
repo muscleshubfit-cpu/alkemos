@@ -32,6 +32,20 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/ar/privacy`,
     type: "website",
     locale: "ar_EG",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): same replace-not-inherit
+    // gap as /ar/about — the home card is pinned explicitly.
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-ar.png"],
   },
 };
 

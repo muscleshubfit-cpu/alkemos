@@ -10,6 +10,11 @@ import { CATEGORY_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
+import {
+  HUB_INITIAL_EXERCISES,
+  type HubExerciseCard,
+} from "@/components/hubs/hub-exercises-shared";
+import { ShowMoreExercises } from "@/components/hubs/ShowMoreExercises";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
 /**
@@ -93,6 +98,24 @@ export default async function ArabicMuscleHubPage({
   if (!hub) notFound();
 
   const exercises = getExercisesForMuscleHub(hub);
+  // Phase 216 (P2-3 — deep-audit confirmed-9): أول HUB_INITIAL_EXERCISES
+  // بطاقة تُرندر من الخادم والباقي عبر جزيرة العميل — نفس قانون النسخة
+  // الإنجليزية (كل تمرين يبقى متاحًا وItemList يبقى بحد الـ50).
+  const visibleExercises = exercises.slice(0, HUB_INITIAL_EXERCISES);
+  const moreExercises: HubExerciseCard[] = exercises
+    .slice(HUB_INITIAL_EXERCISES)
+    .map((ex) => {
+      const eqLabel = EQUIPMENT_LABELS[ex.equipment];
+      const lvlLabel = LEVEL_LABELS[ex.level];
+      return {
+        href: `/ar/exercises/${ex.slug}`,
+        name: ex.nameAr,
+        chip: eqLabel.ar,
+        levelLabel: lvlLabel.ar,
+        levelColor: lvlLabel.color,
+        muscles: ex.primaryMuscles.join("، "),
+      };
+    });
   const label = CATEGORY_LABELS[hub.category];
   // Phase SEO-GEO-5.2: §6.3 template items 4+5 — depth content for every
   // populated muscle hub (cardio is exempt — empty library family).
@@ -152,7 +175,7 @@ export default async function ArabicMuscleHubPage({
           </span>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {exercises.map((ex) => {
+          {visibleExercises.map((ex) => {
             const eqLabel = EQUIPMENT_LABELS[ex.equipment];
             const lvlLabel = LEVEL_LABELS[ex.level];
             return (
@@ -180,6 +203,7 @@ export default async function ArabicMuscleHubPage({
               </li>
             );
           })}
+          <ShowMoreExercises cards={moreExercises} lang="ar" />
         </ul>
       </section>
 

@@ -12,6 +12,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* PHASE 216 (P2-5 — deep-audit confirmed-13): the ARABIC half of the
+ * font-swap CLS story Phase 136 fixed for Latin. next/font's automatic
+ * "Cairo Fallback" is local(Arial) — which has NO Arabic glyphs — so
+ * every Arabic run skipped the metric-adjusted fallback entirely and
+ * rendered in the raw system Arabic font (taller lines, extra wraps).
+ * When Cairo finally swapped in (display:swap, preload:false) the hero
+ * text shrank and SECTION#tools jumped 55px (CLS 0.095 on /ar, live
+ * audit + lab reproduction). This face carries the SAME metric
+ * overrides next/font computed for Cairo (ascent 137.65% /
+ * descent 60.32% / size-adjust 94.66% — Cairo's own metrics, stable
+ * across builds; revisit only on a Next major upgrade): whichever
+ * system Arabic font the src cascade picks renders with Cairo's line
+ * metrics, so the swap reflows at most a wrap point, not the page.
+ * Arabic-only by construction: Latin runs match at "Cairo Fallback"
+ * (Arial) before ever reaching this face in the --font-arabic stack. */
+@font-face {
+  font-family: "Arabic Fallback";
+  src: local("Segoe UI"), local("Tahoma"), local("Geeza Pro"),
+    local("Noto Naskh Arabic"), local("Noto Sans Arabic"),
+    local("DejaVu Sans"), local("FreeSerif"), local("Arial");
+  ascent-override: 137.65%;
+  descent-override: 60.32%;
+  line-gap-override: 0%;
+  size-adjust: 94.66%;
+}
+
 /*
  * ALKEMOS — AI-powered fitness & nutrition platform.
  * "Liquid Glass" design system: light airy canvas, soft indigo/blue accent,
@@ -30,7 +56,7 @@
   --font-display: var(--font-playfair), var(--font-inter), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
-  --font-arabic: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-cairo), "Arabic Fallback", ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

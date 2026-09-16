@@ -9,7 +9,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ReferralCookieChecker } from "@/components/ReferralCookieChecker";
 import { CoachSlugClaimer } from "@/components/CoachSlugClaimer";
 import { CookieConsent } from "@/components/CookieConsent";
-import { EvoChatProvider } from "@/lib/evo-chat-context";
 import { EvoWidgetLazy } from "@/components/EvoWidgetLazy";
 import { getOrganizationSchema, getWebSiteSchema, jsonLd } from "@/lib/seo";
 import { isAdFreePath } from "@/lib/ads-routes";
@@ -360,19 +359,21 @@ export default async function RootLayout({
             {/* COACH ATTRIBUTION (0033) — claims a coach-signup cookie for
                 Google OAuth clients (needs useAuth → inside AuthProvider). */}
             <CoachSlugClaimer />
-            <EvoChatProvider>
-              {/* C23 fix: wrap children in a div with id="main-content-skip"
-                  so the skip-to-content link always has a target, on both
-                  public pages (no <main id="main-content">) and app pages
-                  (AppLayout has its own <main id="main-content">). */}
-              <div id="main-content-skip">
-                {children}
-              </div>
-              {/* EVO Floating Widget — lazy (H5 audit 2026-09-05): loads
-                  after first paint via requestIdleCallback, off the critical
-                  path of every page. Provider stays eager (light). */}
-              <EvoWidgetLazy />
-            </EvoChatProvider>
+            {/* C23 fix: wrap children in a div with id="main-content-skip"
+                so the skip-to-content link always has a target, on both
+                public pages (no <main id="main-content">) and app pages
+                (AppLayout has its own <main id="main-content">). */}
+            <div id="main-content-skip">{children}</div>
+            {/* EVO Floating Widget — lazy (H5 audit 2026-09-05): loads
+                after first paint via requestIdleCallback, off the critical
+                path of every page. PHASE 216 (P2-4): the EvoChatProvider
+                now mounts INSIDE EvoWidgetLazy with the widget — the only
+                useEvoChat consumer is the widget itself, and mounting it
+                here eagerly dragged the whole chat state machine (~48KB:
+                tier + intent + persistence) into every page's critical
+                bundle (measured). Eager CTAs open the widget via the
+                event dispatcher in @/lib/evo-chat-events (zero deps). */}
+            <EvoWidgetLazy />
           </AuthProvider>
         </I18nProvider>
         <Toaster position="top-center" richColors />

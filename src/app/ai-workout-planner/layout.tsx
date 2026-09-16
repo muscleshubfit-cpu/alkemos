@@ -32,6 +32,21 @@ export const metadata: Metadata = {
       "Generate a balanced weekly split in seconds — free trial, no signup.",
     type: "website",
     url: "https://alkemos.com/ai-workout-planner",
+    // Phase 216 (P2-1 — deep-audit confirmed-7): a child openGraph block
+    // replaces the root one in Next.js merging, so this surface served NO
+    // og:image — the tools family card is pinned explicitly.
+    images: [
+      {
+        url: "/images/og/og-tools-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos Free Fitness Calculators",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-tools-en.png"],
   },
 };
 

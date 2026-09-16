@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
 import { useNav } from "@/hooks/use-nav";
 import { SiteHeader } from "@/components/SiteHeader";
-import { openEvoFloatingChat } from "@/lib/evo-chat-context";
+import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import { supabase } from "@/lib/supabase/client";
 import { buildFollowupPrefWrite } from "@/lib/evo-followup";
 import { compressImageFile } from "@/lib/image-compress";

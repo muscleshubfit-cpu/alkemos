@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ThemeImg } from "@/components/ThemeImg";
-import { openEvoFloatingChat } from "@/lib/evo-chat-context";
+import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 
 export default function EvoPage() {
   const { lang } = useI18n();
