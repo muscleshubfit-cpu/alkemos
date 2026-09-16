@@ -51,7 +51,20 @@ export async function POST(request: NextRequest) {
     );
   }
   // Receipt is mandatory — the admin has nothing to review without it.
-  if (!receiptPath || !receiptPath.startsWith("receipts/") || receiptPath.length > 500) {
+  // P3-11 🔐 (deep-audit confirmed 19, Phase 217 — owner §7 approval
+  // «أوافق على التنفيذ كاملاً»): the path must be the caller's OWN upload.
+  // /api/upload rebuilds receipt paths SERVER-SIDE as
+  // receipts/<caller-uid>/<ts>-<name> (the UPLOAD LAW), so the uid
+  // segment is the ownership proof — anything else (another user's
+  // receipt, a fabricated path, a traversal attempt) is rejected here
+  // before the request row is ever created. Legacy rows keep whatever
+  // path they were stored with; this gate only guards NEW inserts.
+  const receiptOwner = receiptPath.split("/")[1] || "";
+  if (
+    !receiptPath.startsWith("receipts/") ||
+    receiptPath.length > 500 ||
+    receiptOwner !== auth.id
+  ) {
     return NextResponse.json(
       { error: "bad_receipt", message: "ارفع صورة إيصال الدفع (أو PDF) الأول" },
       { status: 400 },

@@ -358,16 +358,30 @@ export async function getReceiptSignedUrl(filePath: string): Promise<string> {
 }
 
 export async function uploadReceipt(file: File): Promise<string> {
- // M7 fix: validate file type + size before uploading
+ // P3-11 🔐 (deep-audit confirmed 18/19, Phase 217 — owner §7 approval
+ // «أوافق على التنفيذ كاملاً»): receipts ride the LAW-ful upload path
+ // (POST /api/upload) like every other upload. The old browser-side
+ // Storage write (a) violated the UPLOAD LAW (AGENTS.md §8: uploads go
+ // EXCLUSIVELY through /api/upload) and (b) has been dead weight since
+ // the 0071 storage hardening dropped the blanket authenticated-INSERT
+ // policy — no browser INSERT is allowed on the receipts bucket anymore.
+ // /api/upload re-validates type/size, rebuilds the storage path
+ // SERVER-SIDE under the caller's uid (receipts/<uid>/<ts>-<name>), and
+ // that uid segment is what /api/coach/wallet/topup now verifies as the
+ // ownership proof. Returns the bucket-prefixed path for DB storage
+ // (same shape the previous flow produced).
  validateUploadFile(file, ["image/jpeg", "image/png", "image/webp", "application/pdf"], 5 * 1024 * 1024);
- if (isSupabaseConfigured && supabase) {
- const ext = file.name.split(".").pop();
- const path = `receipts/${Date.now()}.${ext}`;
- const { error } = await supabase.storage.from("receipts").upload(path, file);
- if (error) throw new Error(error.message);
- return path;
+ const formData = new FormData();
+ formData.append("file", file);
+ formData.append("bucket", "receipts");
+ const res = await fetch("/api/upload", { method: "POST", body: formData });
+ if (!res.ok) {
+ const json = (await res.json().catch(() => ({}))) as { error?: string };
+ throw new Error(json.error || `Receipt upload failed (${res.status})`);
  }
- return "";
+ const json = (await res.json()) as { path?: string };
+ if (!json.path) throw new Error("Receipt upload failed");
+ return `receipts/${json.path}`;
 }
 
 // ---------------------------------------------------------------------------
