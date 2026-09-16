@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-16 (VERCEL-USAGE-3 — §10 Cloudflare updated to TWO zone cache rules: OG-image rule (T-1, 1-day edge TTL) + HTML rule edge TTL 3600→14400s (T-3), owner order «نفّذ ت-1 وت-3» · Phase 215 — P1-5(ب): Cloudflare documented as the official production HTML cache layer · P1-6: EVO_CRON_SECRET verified timing-safe, §3.3 rewritten)
+> **Last updated:** 2026-09-17 (Phase 217 — P3-3 deep-audit fixes: data-residency region corrected sin1→fra1 (matches vercel.json), the retired step2-generate citation replaced with the live 300s pipeline routes, the coach-register + send-email rate-limit docs now describe the Upstash-shared limiter accurately · Phase 216 — VERCEL-USAGE-3 §10 two cache rules · P1-5(ب) Cloudflare official HTML cache layer · P1-6 EVO_CRON_SECRET timing-safe §3.3)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -294,7 +294,9 @@ Alkemos processes the following categories of personal data:
 - Supabase region: configured at project creation (the production
   project ref is `wyopqryzfjifyeyvyxfy` — see
   `supabase/migrations/RUN_ON_SUPABASE.sql` header).
-- Vercel deployment region: `sin1` (Singapore) — see `vercel.json`.
+- Vercel deployment region: `fra1` (Frankfurt) — see `vercel.json`
+  (P3-3, deep-audit confirmed 20, Phase 217: this line claimed `sin1`
+  for months — the doc now matches the actual `regions` field).
 - Agents must NOT change the deployment region without explicit
   owner approval (data residency / latency trade-off).
 
@@ -351,9 +353,11 @@ These are in addition to the general operating rules in `AGENTS.md`:
    In demo mode they return `null` — the route must decide whether
    to 401 or fall through to a local fallback.
 9. **Always set `maxDuration`** on long-running API routes to stay
-   within the Vercel Hobby plan's 60s default (or 300s for explicit
-   long routes like article generation — see `src/app/api/cron/blog/
-   step2-generate/route.ts`).
+   within the Vercel Hobby plan's 60s default (or 300s for the explicit
+   long pipeline routes — the blog content and review steps,
+   `src/app/api/cron/blog/p2-content/route.ts` and
+   `src/app/api/cron/blog/p4-review/route.ts`; P3-3 Phase 217 replaced
+   the retired `step2-generate` citation from the pre-v3 pipeline).
 10. **Never expose the service-role key to the browser.** The
     service-role key bypasses RLS — if it leaks, the database is
     fully compromised.
@@ -485,8 +489,13 @@ source):
 
 - **Endpoint:** `POST /api/coach/register` — PUBLIC (it must be: it is
   the signup form behind `/for-coaches/register`). Hardened:
-  - Rate limited in-memory: 3 attempts / 10 min / IP (same pattern as
-    `/api/tools/lead`); per-instance caveat documented there applies.
+  - Rate limited: 3 attempts / 10 min / IP through the shared
+    cross-instance limiter `src/lib/rate-limit.ts` — fixed-window
+    counters in Upstash Redis (shared across ALL serverless instances,
+    survive cold starts) when `UPSTASH_REDIS_REST_URL`/
+    `UPSTASH_REDIS_REST_TOKEN` are set, with the per-instance in-memory
+    Map as the dev/demo-only fallback (P3-3 Phase 217: this line said
+    "in-memory" — the H3 upgrade made that stale).
   - Honeypot field `website`: filled → fake success, nothing created.
   - Password minimum 8 chars enforced server-side (not just HTML).
 - **Role assignment law:** the role is NEVER read from client-sent
@@ -547,6 +556,17 @@ source):
   is the single debit calculator; `coach_fees.fee_per_client` can no
   longer undercut the owner's 300/800 package prices for 1/3-month
   activations (it remains the linear base only for legacy durations).
+- **Wallet top-up receipt ownership (P3-11, Phase 217 — owner §7
+  approval «أوافق على التنفيذ كاملاً», deep-audit confirmed 18/19):**
+  `POST /api/coach/wallet/topup` accepts ONLY the requesting coach's
+  own receipt upload — receipts ride `POST /api/upload` (the UPLOAD
+  LAW), which rebuilds the storage path server-side as
+  `receipts/<caller-uid>/<file>`, and the top-up route rejects any
+  path whose uid segment does not match the authenticated caller
+  (another user's receipt, a fabricated path, or a traversal never
+  creates a review row). The retired browser-side Storage write is
+  banned by guard `receipt-ownership.test.ts`; legacy rows keep the
+  path they were stored with (read-only surfaces are unaffected).
 
 ---
 
@@ -713,8 +733,13 @@ recorded here so the policy stays the single reference:
 - `src/lib/email-validation.ts` — strict syntax + domain validation on
   **both** the client form and the `/api/send-email` server path.
 - `/api/send-email` enforces a **daily cap of 100 messages / rolling
-  24h** per instance (in-memory ledger) to contain SMTP abuse; the
-  cron-secret-protected paths are the only bulk senders.
+  24h** counted from the `tool_leads` rows the flow itself creates
+  (DB-derived, exact — checked before the lead is saved), plus per-IP
+  and per-email rolling caps through the shared Upstash-backed limiter
+  (`src/lib/rate-limit.ts`) to contain SMTP abuse; the
+  cron-secret-protected paths are the only bulk senders. (P3-3 Phase
+  217: this section claimed a per-instance in-memory ledger — stale
+  since the H3 limiter migration and the DB-counted daily cap.)
 
 ### 15.4 Refunds + Payout Safety (Phase 76)
 

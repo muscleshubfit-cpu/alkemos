@@ -54,9 +54,26 @@
 | `profiles` | `role` تعداد ثلاثي `client | coach | admin` (ميجريشن 0029) — سياسة SELECT ممتدة (0031): العميل يقرأ **فقط** صف مدربه المُسنَد عبر `coach_of(auth.uid()) = id` |
 | `coach_emails` | القائمة البيضاء للترقية — إضافة مدرب = INSERT فيها؛ `auto_promote_coach_if_allowed()` تحمي الدور عند كل دخول، ولا تُنزل أدمن أبدًا |
 
+#### 1.4.1 الجداول الحاكمة من الموجات 0070–0087 (P3-5 — تحديث المرحلة 217؛ كان القسم متجمدًا عند 0069)
+
+> الفهرس الكامل بالتواريخ والأسباب: `supabase/migrations/INDEX.md` (المصدر). هنا القواعد الخاصة للجداول التي تحكم سلوكًا حيًّا:
+
+| الجدول/التغيير | الميجريشن | القاعدة الخاصة |
+|---|---|---|
+| `site_coach_of()` + `member_kind`/`site_member_active` | 0072 | فصل الأدوار الثلاثة (أدمن/مدرب موقع/مدرب B2B) — توسيع `is_coach_over` بفرع مدرب الموقع هو نقطة الاختناق الوحيدة لكل قراءات بيانات العميل؛ `coach_of()` الأصلية لم تُمس |
+| `blog_generation_queue.pair_id` | 0076 | الإقران ثنائي اللغة: صفّان (en+ar) يشتركان في `pair_id` + sharedBrief مختومة — بلا FK عمدًا (التوأم يُدرج best-effort، غيابه حالة مشروعة تسقط للسلوك الليجاسي) |
+| `evo_feedback` | 0077 | إشارة 👍/👎 على ردود EVO — insert للمصادق بصفوفه، select للأدمن، **صفر update/delete للجميع** (append-only) |
+| `evo_memory` + `evo_memory_state` | 0078 | الذاكرة الدائمة: `evo_memory` بنمط chat_owner_or_coach (delete أدمن فقط)؛ `evo_memory_state` **صفر سياسات عميل** (service-role الكاتب الوحيد — عائلة evo_chat_usage المضادة للعبث) |
+| `evo_followup_prefs` | 0079 | opt-in إجباري (default false — لا تسجيل صامت أبدًا)؛ الإلغاء update لا delete؛ `last_sent_at` يُختم من مسار الإرسال بـservice-role فقط |
+| `evo_nutrition_patterns` | 0080 | معرفة منصة مجمعة مجهولة الهوية — **RLS مفعّل وصفر سياسات عميل عمدًا** (يستهلكها مولد الخطط server-side) |
+| `evo_chat_cache` + `evo_call_stats` + `evo_eval_runs` | 0081 | كاش الأسئلة الشائعة (pg_trgm + `evo_cache_lookup()` بضربة واحدة — بلا مزود embeddings رابع) + قياس كل نداء نموذج + نتائج التقييم الأسبوعي — نفس انحراف «صفر سياسات عميل» الموثق |
+| ~~`evo_api_keys`/`evo_api_usage`~~ | 0082→0083 | **شاهد قبر:** أنشِئا ثم أُسقطا بأمر المالك (إلغاء API الشركاء EVO-6) — المعرفات محظورة بguard-stale-refs ولا توجد في الإنتاج بعد 0083 |
+| `ai_plan_usage` | 0085 + 0086 | **البوول الموحد**: صف لكل توليد ناجح فقط (الفشل/التعديل/العرض لا يُحتسب) — `user_id` أو `guest_key` (قيود CHECK)؛ الهوية المزدوجة للزوار: `guest_key` (تجزئة مملّحة لـUUID المتصفح) **و** `ip_key` (G6 — تنجو من النافذة الخفية ومسح التخزين؛ العرض يقرأ used=max(الاثنين))؛ RLS بلا سياسات عميل (service-role وحده) — مزيد القواعد في AGENTS.md §8 USAGE LIMIT ENFORCEMENT LAW |
+| 0084 + 0087 | — | موجات بيانات فقط (توحيد جودة المحتوى + دمج النوايا بـ301s في next.config بنفس الكوميت) — types.ts بلا تغيير |
+
 ### 1.5 التخزين (Storage) — من AGENTS.md §8 (UPLOAD LAW)
 
-- الرفع يمر حصريًا عبر `POST /api/upload`: تحقق `requireUser` + قائمة سماح للباكتس (`questionnaire-photos` / `progress-photos` / `receipts`) + حراسة MIME و5MB + **إعادة بناء مسار التخزين سيرفر-سايد تحت user id الخاص بالمتصل** + كتابة service-role.
+- الرفع يمر حصريًا عبر `POST /api/upload`: تحقق `requireUser` + قائمة سماح للباكتس (`questionnaire-photos` / `progress-photos` / `receipts`) + حراسة MIME و5MB + **إعادة بناء مسار التخزين سيرفر-سايد تحت user id الخاص بالمتصل** + كتابة service-role. **(P3-11 — المرحلة 217، بموافقة §7):** إيصالات شحن المحفظة تسلك هذا المسار كذلك منذ المرحلة 217 (كانت ترتفع من المتصفح مباشرة بالمخالفة للقانون) — ومسار `/api/coach/wallet/topup` يرفض أي `receipt_path` لا يحمل uid الطالب نفسه في مقطعه الثاني (`receipts/<uid>/<file>` = إثبات الملكية).
 - القراءة عبر `GET /api/file?bucket&path` (بروكسي streaming بصلاحية owner-or-coach) — **الباكتس الخاصة تأخذ روابط same-origin دائمة**، وليست signed URLs منتهية.
 - الباكتس تُنشأ بميجريشن `RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql` (idempotent، **بدون سياسات** — service role يتجاوز RLS أصلاً).
 - باكت عام `coach-public` (5MB، jpg/png/webp، مجلد `<uid>/` الخاص بكل مستخدم مفروض بـstorage RLS) — صور الصفحة العامة للمدربين؛ والـAPI تقبل فقط مسارات same-origin من `/storage/v1/object/public/coach-public/` أو روابط https.

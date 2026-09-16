@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-06 (Phase 127 — owner feedback pass on the Marble & Chrome identity: hero rework, page banners, EVO reference card, site-wide application)
+> **Last updated:** 2026-09-17 (Phase 217 — P3-1 header-truth fix: this doc's header claimed Phase 127 / 2026-09-06 while the last substantive change was Phase 198 Batch 3 (2026-09-14, homepage UI-audit polish — git b5164e9e); the claim now matches reality. No design-system content changed in this phase.)
 > **Status:** Active — binding reference for all UI/UX decisions
 > **Audience:** AI agents, developers, designers
 

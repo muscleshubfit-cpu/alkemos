@@ -1,6 +1,6 @@
 # Developer Guide — Alkemos
 
-> **آخر تحديث:** 2026-09-16 (VERCEL-USAGE-1 — إزالة `/api/exercise-image` من جدول §8: المسار حُذف من الكود (ميت — صفر مستدعين منذ استضافة صور التمارين ذاتيًا) · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
+> **آخر تحديث:** 2026-09-17 (المرحلة 217 / P3-7 — جدول §8 اكتمل بالمسارات السبعة الحية الناقصة: ai/feedback · ai/meal-plan-demo · ai/planner-plan · ai/workout-plan-demo · csp-report · evo/followup/dispatch · exercise-mini، وأصلح وصف lead المنقّح للأدوات · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
 > **الجمهور المستهدف:** مطورين جدد ينضمون للمشروع، أو المطور الحالي كمرجع
 > **المرجع التقني العميق:** [`docs/TECH_REFERENCE.md`](./docs/TECH_REFERENCE.md) — بنية Supabase وقانون الميجريشنز وجداول القواعد الخاصة · شرح RLS التفصيلي (predicates · نمط الأدوار v2 · عوالم المال) · قائمة Shadcn كاملة بأسمائها · كل أكواد SQL المعقدة منظمة. الملف ده بيفضل مختصص: الإعداد والتدفقات والمراجع السريعة فقط.
 > **Note (Phase 7):** Several stale claims in this file were reconciled
@@ -445,9 +445,13 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/affiliate/payout-notify` | POST | User | إشعار الأدمن بطلب سحب أفيليت |
 | `/api/affiliate/referred-coaches` | GET | User | المدربون المسجلون عبر رابط الإحالة |
 | `/api/ai/chat` | POST | User (اختياري للمجهول) | محادثة EVO — توليد الخطة يخصم من الرصيد الموحد (429 يميز أسبوعي/شهري) · النجاح يُبث SSE (delta/final) والأخطاء JSON |
+| `/api/ai/feedback` | POST | User (اختياري للمجهول — EVO-1) | إشارة 👍/👎 على ردود EVO إلى `evo_feedback` (append-only، حد 20/دقيقة/IP) — الكتابة service-role بعد تحقق نقي |
 | `/api/ai/jobs` | POST/GET | User/Coach + JOB_GATE | طابور مهام AI (توليد/استبدال/إعادة توليد) — فحص ملكية + رصيد العميل، مهام الموظفين محجوبة عن العملاء |
+| `/api/ai/meal-plan-demo` | POST | مجاني للجميع (بواب البوول الموحد) | مولد خطة الوجبات التجريبي — الزائر والعضو يحرقان من البوول الموحد (هوية الزائر مزدوجة الأبعاد: متصفح + IP) · حفظ تلقائي للأعضاء |
+| `/api/ai/planner-plan` | GET | User (الأعضاء فقط — الزائر 401) | ترطيب خطة المولد الأخيرة بنوعها (المصدر العابر للأجهزة) — خطة التمرين تُخزّن خامًا وتُثرى وقت القراءة من مكتبة التمارين |
 | `/api/ai/queue-health` | GET/DELETE | Admin | صحة الطابور + تنظيف المهام العالقة |
 | `/api/ai/quota` | GET | User session | عدادات الرصيد الموحد (أسبوعي + شهري + التبديلات) |
+| `/api/ai/workout-plan-demo` | POST | مجاني للجميع (بواب البوول الموحد) | مولد خطة التمرين التجريبي — نفس بواب البوول الموحد والحفظ التلقائي للأعضاء |
 | `/api/blog/fetch-images` | POST | Admin | جلب صور مقترحة للمقال |
 | `/api/blog/suggest-image` | POST | Admin | اقتراح وصف صورة للمقال بـ AI |
 | `/api/build-info` | GET | Public | معلومات البناء (commit الحالي) |
@@ -470,6 +474,9 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/cron/blog/p5-publish` | GET | Cron (CRON_SECRET) | النشر (مرحلة 5) |
 | `/api/cron/dispatch-pipelines` | GET | Cron (CRON_SECRET) | الموزع اليومي 23:40 UTC (مدونة + مهام AI — فترة سماح 90 دقيقة وحصر 1+1 يفرضها P5) |
 | `/api/cron/progress-reminder` | GET | Cron (CRON_SECRET) | تذكير التقدم الأسبوعي (الأحد 07:00 UTC) |
+| `/api/csp-report` | POST | Public (Report-Only sink) | مستقبل مخالفات CSP — قراءة/تسجيل فقط وصفر كتابة (204 دائمًا)؛ مصدر قرار تفعيل السياسة الكاملة لاحقًا |
+| `/api/evo/followup/dispatch` | POST | Admin أو cron (x-cron-secret — EVO_CRON_SECRET) | مرسل رسالة التحقق الأسبوعية من EVO (opt-in إجباري D4 · إيقاع ≥7 أيام · 404 ما لم يكن EVO_FOLLOWUP_ENABLED=true حرفيًا) |
+| `/api/exercise-mini` | GET | Public (بيانات ثابتة — كاش 24س) | مكتبة التمارين كسجلات MINI (~30KB مضغوط) لعرض الخطط — البديل عن إدخال مصفوفة 1.6MB للمتصفح (قانون الحزمة) |
 | `/api/file` | GET | User | قراءة ملف من التخزين للمستخدم المصرّح |
 | `/api/food-search` | GET | Public | بحث الأكلات (محلي + Open Food Facts) |
 | `/api/my/coach-whatsapp` | GET | User | رقم واتساب مدرب العميل |
@@ -485,7 +492,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/send-email` | POST | Server (service-role) | إرسال بريد عبر Brevo REST API (HTTPS) + تحقق صارم + حد 100/24h |
 | `/api/subscription/cancel` | POST | User | إلغاء اشتراك (يمنح أهلية استرداد + عكس عمولات معلّقة) |
 | `/api/support/tickets` | GET/POST | User | تذاكر الدعم بين العميل والمدرب |
-| `/api/tools/lead` | POST | Public (rate-limited) | التقاط عميل محتمل من الأدوات الست |
+| `/api/tools/lead` | POST | Public (rate-limited) | التقاط عميل محتمل من كل الأدوات (مصدر العدد: tools-shared.ts) |
 | `/api/tools/save-meal-plan` | POST | User | حفظ خطة وجبات |
 | `/api/tools/save-result` | POST | User | حفظ نتيجة أداة |
 | `/api/tools/saved-meal-plans` | GET/DELETE | User | إدارة خطط الوجبات المحفوظة |

@@ -40,6 +40,13 @@
 | Process AI jobs | `process-ai-jobs.yml` | عامل طابور `ai_jobs` (جدولة + dispatch) — بيفشل بصدق لو أي job فشل نهائيًا |
 | Auto-publish AR / EN article | `blog-post-ar.yml` / `blog-post-en.yml` | خط أنابيب المدونة v3 منفصل اللغات (فتحة يومية واحدة لكل لغة — Phase 119) |
 | Remediate blog images | `remediate-blog-images.yml` | إعادة توليد صور المقالات القديمة عبر خط السلامة (workflow_dispatch) |
+| Daily DB backup | `db-backup.yml` | (P3-6 — المرحلة 217؛ الجدول صار كاملًا بعد ما كان ناقصًا ورش العمل دي) لقطة يومية لكل الجداول العامة + auth لمستودع نسخ خاص — بديل الطبقة المدفوعة الغائبة في خطة Supabase المجانية (مُوثّق README §Backups) |
+| EVO weekly eval | `evo-weekly-eval.yml` | EVO-5: مجموعة مرجعية AR/EN تُجاب بالبرومبت الحقيقي ويقيّمها نموذج قاضٍ رخيص إلى `evo_eval_runs` — تشغيل بصفر أسئلة مُقيَّمة يخرج أحمر بصدق (قانون EVO-5) |
+| EVO weekly learning | `evo-weekly-learning.yml` | EVO-4: إعادة تجميع معرفة المنصة الغذائية من الخطط الحقيقية (E1/E2) وتعلّم أنماط الاستبدال (E3) إلى `evo_nutrition_patterns` — أمر المالك «نعم يتعلم من كل شيء» |
+| Legacy AR cleanup | `legacy-ar-cleanup.yml` | المرحلة 175 («ابدا التنظيف»): تنظيف جودة مقالات AR الليجاسي على دفعات (workflow_dispatch) — قوائم انتظار مقيدة ببوابات جودة المحتوى |
+| Meta-title remediation | `meta-title-remediation.yml` | المرحلة 181: إعادة قطع أحادية `meta_title` المخزّنة عبر clampMetaTitle المحسّن — لقطة تشغيل بلايست (workflow_dispatch) |
+| Retro-pair blog | `retro-pair-blog.yml` | الاقتراح 3 («نفذ المقترح ٣»): إقران مكتبة المدونة ما قبل-157 بأزواج hreflang رجعيًا بنفس مصافحة P5 (workflow_dispatch) |
+| Vercel deployment purge | `vercel-cleanup.yml` | (Phase 145 + شدد VERCEL-USAGE-2) تنقية نشرات Vercel المتقاعدة مع كل push + مرتين يوميًا — حماية حصة النشر المجانية |
 
 > قواعد ملزمة للمهام الجديدة على البوابات: أي سكربت ي referenced بـworkflow لازم يتدفع **في نفس الكوميت** (مناعة الجدولة/الحارس — «حارس مش متكمّم مش حارس»)، وأي تعديل يلمس التشغيل يُختبر بـdispatch يدوي قبل الاعتماد عليه.
 >
