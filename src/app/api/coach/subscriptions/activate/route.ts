@@ -7,6 +7,7 @@ import {
   isCoachPaymentMethod,
   type CoachPaymentMethod,
 } from "@/lib/coach-limits";
+import { coachActivationBodySchema } from "@/lib/validation/schemas";
 import { processCoachClientActivationServer } from "@/lib/affiliate-engine-server";
 
 /**
@@ -33,6 +34,15 @@ import { processCoachClientActivationServer } from "@/lib/affiliate-engine-serve
  * - The extension itself runs extend_subscription() (0018 math, now
  *   0034-guarded) through the service role, then a coach_payments row
  *   is written and the client gets a notification.
+ *
+ * Wave 2A (2026-09-17): the body passes the central zod gate (types +
+ * raw bounds + unknown-key stripping) BEFORE the domain checks below —
+ * the zod gate is SHAPE only: UUID_RE / tier allowlist / months 1-12 /
+ * amount 0-10M / payment-method allowlist stay the policy here, and
+ * every legacy 400 class (bad_request · bad_tier · bad_months ·
+ * bad_amount · bad_method) is re-derived verbatim on gate failure.
+ * The months/amount string-union members preserve the legacy Number()
+ * coercion for numeric strings; note ≤500 (the legacy slice point).
  */
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -53,12 +63,65 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const clientId = String(body.client_id ?? "").trim();
-  const tier = String(body.tier ?? "").trim();
-  const months = Number(body.months);
-  const amountRaw = body.amount;
-  const method = (body.method ?? "cash") as CoachPaymentMethod;
-  const note = String(body.note ?? "").trim().slice(0, 500) || null;
+
+  // Wave 2A zod gate — shape only; every legacy 400 class below is
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = coachActivationBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawClientId = String(raw.client_id ?? "").trim();
+    const rawTier = String(raw.tier ?? "").trim();
+    const rawMonths = Number(raw.months);
+    if (!UUID_RE.test(rawClientId)) {
+      return NextResponse.json(
+        { error: "bad_request", message: "عميل غير صحيح" },
+        { status: 400 },
+      );
+    }
+    if (!(COACH_ACTIVATABLE_TIERS as readonly string[]).includes(rawTier)) {
+      return NextResponse.json(
+        { error: "bad_tier", message: "اختر باقة صحيحة (بريميوم / برو / كوتشينج)" },
+        { status: 400 },
+      );
+    }
+    if (!Number.isInteger(rawMonths) || rawMonths < 1 || rawMonths > 12) {
+      return NextResponse.json(
+        { error: "bad_months", message: "المدة من شهر إلى ١٢ شهر" },
+        { status: 400 },
+      );
+    }
+    if (
+      raw.amount !== undefined &&
+      raw.amount !== null &&
+      raw.amount !== ""
+    ) {
+      const n = Number(raw.amount);
+      if (!Number.isFinite(n) || n < 0 || n > 10_000_000) {
+        return NextResponse.json(
+          { error: "bad_amount", message: "المبلغ غير صحيح" },
+          { status: 400 },
+        );
+      }
+    }
+    if (!isCoachPaymentMethod(raw.method ?? "cash")) {
+      return NextResponse.json(
+        { error: "bad_method", message: "طريقة دفع غير معروفة" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const clientId = parsed.data.client_id.trim();
+  const tier = parsed.data.tier.trim();
+  const months = Number(parsed.data.months);
+  const amountRaw = parsed.data.amount;
+  const method = (parsed.data.method ?? "cash") as CoachPaymentMethod;
+  const note =
+    (parsed.data.note ?? "").toString().trim().slice(0, 500) || null;
 
   if (!UUID_RE.test(clientId)) {
     return NextResponse.json(

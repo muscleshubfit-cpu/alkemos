@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { COACH_AD_PACKAGES, coachAdPackageById } from "@/lib/coach-limits";
+import { coachAdPackageBodySchema } from "@/lib/validation/schemas";
 import type { CoachAd } from "@/lib/supabase/types";
 
 /**
@@ -21,6 +22,11 @@ import type { CoachAd } from "@/lib/supabase/types";
  * atomic (coach_adjust_wallet) and happens BEFORE the ad write; if the
  * ad write fails the debit is refunded — the coach never pays for a
  * failed subscription. Each purchase notifies the admins.
+ *
+ * Wave 2A (2026-09-17): the POST body passes the central zod gate
+ * (package_id type + ≤100 raw bound + unknown-key stripping); the
+ * allowlist lookup coachAdPackageById stays the policy and its legacy
+ * bad_package response is re-derived verbatim on gate failure.
  */
 
 export async function GET(request: NextRequest) {
@@ -90,7 +96,24 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const pkg = coachAdPackageById(body.package_id);
+
+  // Wave 2A zod gate — legacy bad_package re-derived verbatim on failure.
+  const parsed = coachAdPackageBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!coachAdPackageById(raw.package_id)) {
+      return NextResponse.json(
+        { error: "bad_package", message: "اختر باقة إعلان صحيحة" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const pkg = coachAdPackageById(parsed.data.package_id);
   if (!pkg) {
     return NextResponse.json(
       { error: "bad_package", message: "اختر باقة إعلان صحيحة" },

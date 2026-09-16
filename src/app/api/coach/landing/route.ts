@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { coachLandingBodySchema } from "@/lib/validation/schemas";
 import type { Database } from "@/lib/supabase/types";
 
 // 0049 SOFT-ROLL LAW: certificates is sent only on the FIRST attempt —
@@ -26,6 +27,15 @@ type CoachPageBaseUpsert = Omit<CoachPageUpsert, "certificates">;
  * 'approved' (he IS the reviewer). Before migration 0046 exists the
  * review columns are skipped gracefully (42703 → 503 with a clear
  * message telling the owner to run it).
+ *
+ * Wave 2A (2026-09-17): the body passes the central zod gate — types +
+ * ceilings equal to this editor's own maxLengths (headline 140 · bio
+ * 4000 · specialties 80/item, 800 total) + unknown-key stripping; the
+ * safe* helpers below stay the SOLE URL/phone/photo policy (zod bounds
+ * the media arrays' COUNT only — hostile items are dropped by the
+ * policy exactly as before). The legacy invalid_slug class is
+ * re-derived verbatim on gate failure; oversize/type violations are
+ * the only new 400s.
  */
 
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
@@ -155,29 +165,47 @@ export async function PUT(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const slug = String(body.slug ?? "").trim().toLowerCase();
-  const headline = String(body.headline ?? "").slice(0, 140);
-  const bio = String(body.bio ?? "").slice(0, 4000);
+
+  // Wave 2A zod gate — legacy invalid_slug re-derived verbatim on failure.
+  const parsed = coachLandingBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!SLUG_RE.test(String(raw.slug ?? "").trim().toLowerCase())) {
+      return NextResponse.json(
+        { error: "invalid_slug", message: "الرابط يجب أن يكون 3-40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة (-)" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const rawBody = parsed.data;
+  const slug = rawBody.slug.trim().toLowerCase();
+  const headline = (rawBody.headline ?? "").slice(0, 140);
+  const bio = (rawBody.bio ?? "").slice(0, 4000);
   // specialties arrive as an array of strings → stored one-per-line
-  const specialties = Array.isArray(body.specialties)
-    ? body.specialties.map((s: unknown) => String(s).slice(0, 80)).filter(Boolean).join("\n").slice(0, 800)
-    : String(body.specialties ?? "").slice(0, 800);
+  const specialties = Array.isArray(rawBody.specialties)
+    ? rawBody.specialties.map((s: string) => s.slice(0, 80)).filter(Boolean).join("\n").slice(0, 800)
+    : (rawBody.specialties ?? "").slice(0, 800);
   // English copy (migration 0032) — optional, same limits as the AR fields
-  const headlineEn = String(body.headline_en ?? "").slice(0, 140);
-  const bioEn = String(body.bio_en ?? "").slice(0, 4000);
-  const specialtiesEn = Array.isArray(body.specialties_en)
-    ? body.specialties_en.map((s: unknown) => String(s).slice(0, 80)).filter(Boolean).join("\n").slice(0, 800)
-    : String(body.specialties_en ?? "").slice(0, 800);
-  const isPublished = Boolean(body.is_published);
+  const headlineEn = (rawBody.headline_en ?? "").slice(0, 140);
+  const bioEn = (rawBody.bio_en ?? "").slice(0, 4000);
+  const specialtiesEn = Array.isArray(rawBody.specialties_en)
+    ? rawBody.specialties_en.map((s: string) => s.slice(0, 80)).filter(Boolean).join("\n").slice(0, 800)
+    : (rawBody.specialties_en ?? "").slice(0, 800);
+  const isPublished = rawBody.is_published === true;
   // 0037 — public profile enrichment
-  const photoUrl = safeMediaUrl(body.photo_url);
-  const resultsPhotos = safeResultsPhotos(body.results_photos);
-  const certificates = safeCertificates(body.certificates);
-  const instagramUrl = safeSocialUrl(body.instagram_url);
-  const facebookUrl = safeSocialUrl(body.facebook_url);
-  const tiktokUrl = safeSocialUrl(body.tiktok_url);
-  const youtubeUrl = safeSocialUrl(body.youtube_url);
-  const whatsappPhone = safeWhatsappPhone(body.whatsapp_phone);
+  const photoUrl = safeMediaUrl(rawBody.photo_url);
+  const resultsPhotos = safeResultsPhotos(rawBody.results_photos);
+  const certificates = safeCertificates(rawBody.certificates);
+  const instagramUrl = safeSocialUrl(rawBody.instagram_url);
+  const facebookUrl = safeSocialUrl(rawBody.facebook_url);
+  const tiktokUrl = safeSocialUrl(rawBody.tiktok_url);
+  const youtubeUrl = safeSocialUrl(rawBody.youtube_url);
+  const whatsappPhone = safeWhatsappPhone(rawBody.whatsapp_phone);
 
   if (!SLUG_RE.test(slug)) {
     return NextResponse.json(

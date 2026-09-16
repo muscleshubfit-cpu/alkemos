@@ -4,6 +4,30 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: ZOD-WAVE2A-219-2026-09-17
+Agent: Super Z (main)
+
+Task: أمر المالك 2026-09-17 («نفّذ الآن Wave 2A الخاصة بـ Zod وفق تدقيق READ-ONLY الأخير... لا تفتح Wave 3 ولا تضف بنودًا خارج النطاق») — بوابة الحدود المركزية لثمانية مسارات كوتش
+
+Work Log:
+- بروتوكول §3.6: STATE.md قُرئ (218 على 36b5e207) · مزامنة origin/main SYNCED · آخر مدخلات worklog (PHASE-218 + 217-close) · AGENTS.md كاملًا
+- تحديد النطاق من الخطة الأصلية (STATE.md وقت 141): «Zod الموجات 2-3 (مسارات المستخدم/المدرب ثم الدفع وadmin وcron)» — **Wave 2A = نصف المدرب: المسارات الثمانية ذات جسم الطلب تحت coach/** · جرد الحقيقة: 75 مسارًا، 5 فقط تستورد schemas (موجة 1: tools/lead · food-search — P1-7: save-result · save-meal-plan · broadcast) · GET-فقط (coach/wallet · coach/ai-usage) بلا جسم فلا بوابة مطلوبة · paypal/refund/affiliate/admin/cron = موجة 3 لم تُفتح · plans/my/support-tickets/ai = موجة 2B لم تُفتح
+- schemas.ts +181 سطرًا: 8 مخططات جسم + ثوابت سقوف موثقة — قانون الطبقات الثابت: zod=نوع/سقف/تقليم/تجريد المفاتيح المهرّبة، والسياسة باقية في المسارات (cleanPhone · safeMediaUrl/safeSocialUrl/safeWhatsappPhone/safeResultsPhotos/safeCertificates · SLUG_RE · EMAIL_RE · UUID_RE · قوائم tier/method/package · ملكية الإيصال · حساب المحفظة والاسترداد)
+- قانون التوافق حرفيًا: كل فئة خطأ إرثية معاد اشتقاقها في fallback المسار عند فشل البوابة (register: invalid_name/invalid_email/weak_password · claim+landing: invalid_slug · support: bad_request · ads: bad_package · activate: bad_request/bad_tier/bad_months/bad_amount/bad_method · topup: bad_amount/bad_method/bad_receipt) — الفئات الجديدة الوحيدة (أنواع خاطئة/أحجام فائقة) ترجع رسالة zod 400
+- السقوف = نقاط قصّ المسارات نفسها (140/4000/800/120/500/300) = maxLength محرر الصفحة (CoachLandingEditor) — صفر انحدار لمستخدم حقيقي · مصفوفات الوسائط (results_photos/certificates): العدد فقط ≤24 والسياسة تُسقط العناصر العدوائية كما سابقًا (hostile item dropped, never stored)
+- register (الحمولة العامة الوحيدة بالموجة): honeypot على الجسم الخام قبل البوابة (النجاح الزائف للبوتات محفوظ لأي قيمة truthy) · phone يبقى مفتوح الشكل (cleanPhone سياسة وحيدة — invalid → null كما الإرث) · password ≤200 واسم ≤120 وبريد ≤254 يُغلقون قبل جولة Supabase createUser
+- الاختبارات: +30 في validation-schemas.test.ts (60 بالمجموع) — صحيح/خاطئ/عدوائي لكل مخطط + تجريد مفاتيح مهرّبة (role/coach_id/review_status/p_ref_id/subscription_id) + توثيق اختباري لفصل الطبقات (بريد بصيغة رديئة يمر بالبوابة الشكلية ويموته EMAIL_RE بالمسار)
+- البوابات: tsc 0 · eslint 0/0 · vitest 1304/1304 (81 ملفًا) · next build 0 (2,056 صفحة) · docs_audit (phase=219) · docs_parity/stale-refs/migration_audit ✓
+- دخان محلي حي (خادم next start + curl): المصادقة أولًا — المسارات المصدّقة السبعة = 401 نظيفة بالترتيب الصحيح · register: honeypot {ok:true} · اسم مفقود → invalid_name 400 (إعادة الاشتقاق الإرثية) · كلمة سر 300 حرف → رسالة zod 400 (الفئة الجديدة) — ثلاث طلقات ضمن حد المعدل 3/10د، صفر كتابة DB (بيئة دخان وهمية محلية .env.local بقيم dummy حُذفت بعد الدخان — غير مرفوعة أصلًا بالـgitignore)
+
+Stage Summary:
+- Wave 2A مغلقة كاملة: 8/8 حدود كتابة المدربين خلف البوابة المركزية — تغطية zod الكلية الآن 13/75 مسارًا (العامة + المدربين + الإدراجات المقيدة)
+- العقد المحفوظ: صفر تغيير في رسائل/أحوال الأخطاء الإرثية لأي حملة كانت تمر — التشديد الحصري على ما كان يُخزَّن مقصوصًا أو يُمرَّر صامتة (النمط المعتمد P1-7)
+- المتبقي الموثق بأمر ملكي يسميه: Wave 2B (plans/member-edit · plans/normalize · support/tickets · ai/* · subscription/cancel · refund/request · tools/saved-* DELETE) ثم Wave 3 (paypal · admin · cron · affiliate)
+- Commit SHA: كوميت هذا الفريم يحمل هذا المدخل نفسه.
+- Push status: pushed (origin/main)
+
+---
 Task ID: PHASE-218-LIVE-VERIF-2026-09-17
 Agent: Super Z (main)
 

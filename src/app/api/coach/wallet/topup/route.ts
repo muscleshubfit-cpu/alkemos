@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { isCoachTopupMethod } from "@/lib/coach-limits";
+import { coachTopupBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH WALLET TOP-UP REQUEST (0035).
@@ -16,6 +17,13 @@ import { isCoachTopupMethod } from "@/lib/coach-limits";
  * the admin review route may credit.
  *
  * No fixed prices by owner decree — the coach types the amount he paid.
+ *
+ * Wave 2A (2026-09-17): the body passes the central zod gate (types +
+ * raw bounds + unknown-key stripping) — the numeric-range, method
+ * allowlist and receipt-ownership checks stay the policy below, and
+ * every legacy 400 class (bad_amount · bad_method · bad_receipt) is
+ * re-derived verbatim on gate failure. note ≤300 (the legacy slice
+ * point); receipt_path keeps its own >500 rejection.
  */
 export async function POST(request: NextRequest) {
   const auth = await requireUser(request);
@@ -33,10 +41,46 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const amount = Number(body.amount);
-  const method = body.method;
-  const note = String(body.note ?? "").trim().slice(0, 300) || null;
-  const receiptPath = String(body.receipt_path ?? "").trim();
+
+  // Wave 2A zod gate — legacy 400 classes re-derived verbatim on failure.
+  const parsed = coachTopupBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawAmount = Number(raw.amount);
+    if (!Number.isFinite(rawAmount) || rawAmount <= 0 || rawAmount > 1_000_000) {
+      return NextResponse.json(
+        { error: "bad_amount", message: "اكتب مبلغ شحن صحيح" },
+        { status: 400 },
+      );
+    }
+    if (!isCoachTopupMethod(raw.method)) {
+      return NextResponse.json(
+        { error: "bad_method", message: "طريقة الشحن غير معروفة" },
+        { status: 400 },
+      );
+    }
+    const legacyReceipt = String(raw.receipt_path ?? "").trim();
+    const legacyOwner = legacyReceipt.split("/")[1] || "";
+    if (
+      !legacyReceipt.startsWith("receipts/") ||
+      legacyReceipt.length > 500 ||
+      legacyOwner !== auth.id
+    ) {
+      return NextResponse.json(
+        { error: "bad_receipt", message: "ارفع صورة إيصال الدفع (أو PDF) الأول" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const amount = Number(parsed.data.amount);
+  const method = parsed.data.method;
+  const note = (parsed.data.note ?? "").toString().trim().slice(0, 300) || null;
+  const receiptPath = parsed.data.receipt_path.trim();
 
   if (!Number.isFinite(amount) || amount <= 0 || amount > 1_000_000) {
     return NextResponse.json(

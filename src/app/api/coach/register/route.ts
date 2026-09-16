@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { passwordBreachCount } from "@/lib/password-breach";
+import { coachRegisterBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH SELF-REGISTRATION (owner-approved «التسجيل الفورى», 2026-08-29).
@@ -38,6 +39,16 @@ import { passwordBreachCount } from "@/lib/password-breach";
  * Migration 0036 hardens handle_new_user() to ignore client-sent role
  * metadata — with a PUBLIC coach funnel open, the old metadata-role
  * trigger would be a self-promotion hole.
+ *
+ * Wave 2A (2026-09-17): the body passes the central zod gate — type
+ * enforcement + ceilings (name ≤120, password ≤200, email ≤254) +
+ * unknown-key stripping. The honeypot is checked on the RAW body
+ * BEFORE the gate (bots get the legacy fake-success for any truthy
+ * website value), and every LEGACY failure class (invalid_name /
+ * invalid_email / weak_password) is re-derived verbatim on gate
+ * failure; only NEW violations (non-string fields, oversize) get a
+ * fresh 400 with the zod message. cleanPhone stays the sole phone
+ * policy (invalid → null, unchanged).
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,15 +97,47 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
 
   // Honeypot — bots fill every field. Fake success, create nothing.
+  // Checked on the RAW body BEFORE the zod gate (bots send any type).
   const website = String(body.website ?? "").trim();
   if (website) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const password = String(body.password ?? "");
-  const fullName = String(body.full_name ?? "").trim().slice(0, NAME_MAX);
-  const phone = cleanPhone(body.phone);
+  // Wave 2A zod gate — legacy failure classes re-derived verbatim below.
+  const parsed = coachRegisterBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (String(raw.full_name ?? "").trim().slice(0, NAME_MAX).length < NAME_MIN) {
+      return NextResponse.json(
+        { error: "invalid_name", message: "اكتب اسمك الكامل" },
+        { status: 400 },
+      );
+    }
+    if (!EMAIL_RE.test(String(raw.email ?? "").trim().toLowerCase())) {
+      return NextResponse.json(
+        { error: "invalid_email", message: "اكتب بريدًا إلكترونيًا صحيحًا" },
+        { status: 400 },
+      );
+    }
+    if (String(raw.password ?? "").length < PASSWORD_MIN) {
+      return NextResponse.json(
+        {
+          error: "weak_password",
+          message: "كلمة السر لازم تكون 8 حروف أو أكتر",
+        },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const email = parsed.data.email;
+  const password = parsed.data.password;
+  const fullName = parsed.data.full_name.trim().slice(0, NAME_MAX);
+  const phone = cleanPhone(parsed.data.phone);
 
   if (fullName.length < NAME_MIN) {
     return NextResponse.json(

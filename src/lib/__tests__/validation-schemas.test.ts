@@ -23,6 +23,30 @@ import {
   savedMealPlanBodySchema,
   savedResultBodySchema,
 } from "@/lib/validation/schemas";
+import {
+  coachActivationBodySchema,
+  coachAdPackageBodySchema,
+  coachClaimBodySchema,
+  coachInviteBodySchema,
+  coachLandingBodySchema,
+  coachRegisterBodySchema,
+  coachSupportBodySchema,
+  coachTopupBodySchema,
+  MAX_ACTIVATION_NOTE,
+  MAX_BIO_LEN,
+  MAX_CERTIFICATES,
+  MAX_COACH_NAME_LEN,
+  MAX_HEADLINE_LEN,
+  MAX_PASSWORD_LEN,
+  MAX_RESULTS_PHOTOS,
+  MAX_SLUG_RAW_LEN,
+  MAX_SPECIALTIES_TOTAL,
+  MAX_SPECIALTY_ITEMS,
+  MAX_SPECIALTY_ITEM_LEN,
+  MAX_SUPPORT_BODY,
+  MAX_SUPPORT_SUBJECT,
+  MAX_TOPUP_NOTE,
+} from "@/lib/validation/schemas";
 
 /**
  * Phase 141 / A-7 wave 1 canaries — the central Zod boundary schemas.
@@ -387,5 +411,329 @@ describe("broadcastBodySchema — /api/notifications/broadcast (P1-7)", () => {
     expect(
       broadcastBodySchema.safeParse({ ...valid, userIds: ["123"] }).success,
     ).toBe(false);
+  });
+});
+
+// ── Wave 2A (2026-09-17): the coach/* write boundaries — register ·
+//    claim · clients/invite · landing · support · ads ·
+//    subscriptions/activate · wallet/topup. Same canary style: correct
+//    + wrong + hostile per schema; the routes re-derive their legacy
+//    400 classes verbatim (compat law) and keep their policy helpers. ──
+
+describe("coachRegisterBodySchema — POST /api/coach/register (Wave 2A)", () => {
+  const valid = {
+    full_name: "  Ahmed Hassan  ",
+    email: "  Coach@Example.COM ",
+    password: "strong-pass-8",
+    phone: "+20 100 123 4567",
+  };
+
+  it("accepts a valid body and normalizes email (name/phone stay policy-owned)", () => {
+    const r = coachRegisterBodySchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.email).toBe("coach@example.com");
+      expect(r.data.full_name).toBe("  Ahmed Hassan  "); // route trims
+    }
+  });
+
+  it("accepts the minimal body (no phone) and the honeypot field stays open", () => {
+    expect(
+      coachRegisterBodySchema.safeParse({
+        full_name: "Coach X",
+        email: "c@x.io",
+        password: "12345678",
+        website: "", // empty honeypot → reaches the gate
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects non-string / oversize full_name (120 = the legacy slice point)", () => {
+    expect(coachRegisterBodySchema.safeParse({ ...valid, full_name: 42 }).success).toBe(false);
+    expect(
+      coachRegisterBodySchema.safeParse({ ...valid, full_name: "x".repeat(MAX_COACH_NAME_LEN + 1) })
+        .success,
+    ).toBe(false);
+  });
+
+  it("rejects oversize email and password (254 / 200 ceilings)", () => {
+    expect(
+      coachRegisterBodySchema.safeParse({ ...valid, email: `${"a".repeat(250)}@x.io` }).success,
+    ).toBe(false);
+    expect(
+      coachRegisterBodySchema.safeParse({ ...valid, password: "p".repeat(MAX_PASSWORD_LEN + 1) })
+        .success,
+    ).toBe(false);
+  });
+
+  it("phone stays intentionally open — cleanPhone is the sole policy", () => {
+    expect(
+      coachRegisterBodySchema.safeParse({ ...valid, phone: { evil: true } }).success,
+    ).toBe(true);
+  });
+
+  it("hostile: smuggled keys are STRIPPED (role/website objects never reach metadata)", () => {
+    const r = coachRegisterBodySchema.safeParse({
+      ...valid,
+      role: "admin",
+      signup_source: "hacked",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("role");
+      expect(r.data).not.toHaveProperty("signup_source");
+    }
+  });
+});
+
+describe("coachClaimBodySchema — POST /api/coach/claim (Wave 2A)", () => {
+  it("accepts a valid slug and strips smuggled keys", () => {
+    const r = coachClaimBodySchema.safeParse({ slug: "coach-abc123", coach_id: "x" });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).not.toHaveProperty("coach_id");
+  });
+  it("rejects non-string / oversize slugs (route SLUG_RE re-derives invalid_slug)", () => {
+    expect(coachClaimBodySchema.safeParse({ slug: 123 }).success).toBe(false);
+    expect(
+      coachClaimBodySchema.safeParse({ slug: "x".repeat(MAX_SLUG_RAW_LEN + 1) }).success,
+    ).toBe(false);
+    expect(coachClaimBodySchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("coachInviteBodySchema — POST /api/coach/clients/invite (Wave 2A)", () => {
+  const valid = { email: "New.Client@Example.com", full_name: "New Client" };
+
+  it("accepts a valid invite and lowercases the email", () => {
+    const r = coachInviteBodySchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.email).toBe("new.client@example.com");
+  });
+  it("email is SHAPE-only here — format garbage passes the gate and dies at the route's EMAIL_RE", () => {
+    // Layer law: deliverability/format policy lives in the route.
+    expect(coachInviteBodySchema.safeParse({ email: "not-an-email" }).success).toBe(true);
+    // Shape-hostile emails fail the gate itself.
+    expect(coachInviteBodySchema.safeParse({ email: `${"a".repeat(250)}@x.io` }).success).toBe(
+      false,
+    );
+    expect(coachInviteBodySchema.safeParse({ email: 42 }).success).toBe(false);
+    expect(coachInviteBodySchema.safeParse({}).success).toBe(false);
+  });
+  it("rejects a >120 full_name (the legacy silent slice point) and smuggled coach_id", () => {
+    expect(
+      coachInviteBodySchema.safeParse({ ...valid, full_name: "x".repeat(MAX_COACH_NAME_LEN + 1) })
+        .success,
+    ).toBe(false);
+    const r = coachInviteBodySchema.safeParse({ ...valid, coach_id: "attacker-id" });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).not.toHaveProperty("coach_id");
+  });
+});
+
+describe("coachLandingBodySchema — PUT /api/coach/landing (Wave 2A)", () => {
+  const valid = {
+    slug: "coach-abc123",
+    headline: "مدرب معتمد",
+    bio: "خبرة 10 سنوات",
+    specialties: ["تنشيط", "تغذية"],
+    is_published: false,
+    photo_url: "/storage/v1/object/public/coach-public/x.jpg",
+    results_photos: [{ url: "https://x.io/a.jpg", caption: "قبل وبعد" }],
+    certificates: [{ url: "https://x.io/c.jpg", title: "ISSA" }],
+    whatsapp_phone: "01012345678",
+  };
+
+  it("accepts a fully valid body", () => {
+    expect(coachLandingBodySchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("ceilings equal the editor maxLengths: headline 140 · bio 4000", () => {
+    expect(
+      coachLandingBodySchema.safeParse({ ...valid, headline: "x".repeat(MAX_HEADLINE_LEN) })
+        .success,
+    ).toBe(true);
+    expect(
+      coachLandingBodySchema.safeParse({ ...valid, headline: "x".repeat(MAX_HEADLINE_LEN + 1) })
+        .success,
+    ).toBe(false);
+    expect(
+      coachLandingBodySchema.safeParse({ ...valid, bio: "x".repeat(MAX_BIO_LEN + 1) }).success,
+    ).toBe(false);
+  });
+
+  it("specialties: array items ≤80, count ≤100; the string variant ≤800", () => {
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        specialties: ["x".repeat(MAX_SPECIALTY_ITEM_LEN)],
+      }).success,
+    ).toBe(true);
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        specialties: ["x".repeat(MAX_SPECIALTY_ITEM_LEN + 1)],
+      }).success,
+    ).toBe(false);
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        specialties: Array.from({ length: MAX_SPECIALTY_ITEMS + 1 }, () => "x"),
+      }).success,
+    ).toBe(false);
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        specialties_en: "x".repeat(MAX_SPECIALTIES_TOTAL + 1),
+      }).success,
+    ).toBe(false);
+  });
+
+  it("is_published must be a real boolean (the editor sends one)", () => {
+    expect(
+      coachLandingBodySchema.safeParse({ ...valid, is_published: "true" }).success,
+    ).toBe(false);
+  });
+
+  it("media arrays: COUNT bounded only — hostile items stay policy-dropped, shapes open", () => {
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        results_photos: Array.from({ length: MAX_RESULTS_PHOTOS + 1 }, () => "junk"),
+      }).success,
+    ).toBe(false);
+    expect(
+      coachLandingBodySchema.safeParse({
+        ...valid,
+        certificates: ["junk", { url: { deep: true } }],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("hostile: review_status/reviewed_at/coach_id are STRIPPED — moderation stays server-side", () => {
+    const r = coachLandingBodySchema.safeParse({
+      ...valid,
+      review_status: "approved",
+      reviewed_at: "2026-01-01",
+      coach_id: "someone-else",
+      slug: "someone-elses-slug-too-long-but-bounded",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("review_status");
+      expect(r.data).not.toHaveProperty("reviewed_at");
+      expect(r.data).not.toHaveProperty("coach_id");
+    }
+  });
+});
+
+describe("coachSupportBodySchema — POST /api/coach/support (Wave 2A)", () => {
+  const valid = { subject: "مشكلة في المحفظة", body: "التفاصيل هنا" };
+
+  it("accepts + trims a valid thread", () => {
+    const r = coachSupportBodySchema.safeParse({
+      subject: `  ${valid.subject}  `,
+      body: valid.body,
+    });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.subject).toBe(valid.subject);
+  });
+  it("rejects whitespace-only subject/body (route re-derives bad_request)", () => {
+    expect(coachSupportBodySchema.safeParse({ subject: "   ", body: "x" }).success).toBe(false);
+    expect(coachSupportBodySchema.safeParse({ subject: "x" }).success).toBe(false);
+  });
+  it("ceilings: subject 140 · body 4000 (the legacy slice points)", () => {
+    expect(
+      coachSupportBodySchema.safeParse({ ...valid, subject: "x".repeat(MAX_SUPPORT_SUBJECT + 1) })
+        .success,
+    ).toBe(false);
+    expect(
+      coachSupportBodySchema.safeParse({ ...valid, body: "x".repeat(MAX_SUPPORT_BODY + 1) })
+        .success,
+    ).toBe(false);
+  });
+});
+
+describe("coachAdPackageBodySchema — POST /api/coach/ads (Wave 2A)", () => {
+  it("accepts a string package_id; the allowlist lookup stays the policy", () => {
+    expect(coachAdPackageBodySchema.safeParse({ package_id: "ad_7d" }).success).toBe(true);
+  });
+  it("rejects non-string / missing package_id (route re-derives bad_package)", () => {
+    expect(coachAdPackageBodySchema.safeParse({ package_id: { id: "ad_7d" } }).success).toBe(false);
+    expect(coachAdPackageBodySchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("coachActivationBodySchema — POST /api/coach/subscriptions/activate (Wave 2A)", () => {
+  const valid = {
+    client_id: "123e4567-e89b-12d3-a456-426614174000",
+    tier: "coaching",
+    months: 3,
+  };
+
+  it("accepts numeric months + nullish amount/method/note (the UI contract)", () => {
+    const r = coachActivationBodySchema.safeParse({
+      ...valid,
+      amount: null,
+      method: "instapay",
+      note: null,
+    });
+    expect(r.success).toBe(true);
+  });
+  it("preserves the legacy Number() coercion: string months/amount still pass", () => {
+    expect(
+      coachActivationBodySchema.safeParse({ ...valid, months: "3", amount: "150.50" }).success,
+    ).toBe(true);
+  });
+  it("rejects boolean/object months and an oversize note (500 = the slice point)", () => {
+    expect(coachActivationBodySchema.safeParse({ ...valid, months: true }).success).toBe(false);
+    expect(coachActivationBodySchema.safeParse({ ...valid, months: [3] }).success).toBe(false);
+    expect(
+      coachActivationBodySchema.safeParse({
+        ...valid,
+        note: "x".repeat(MAX_ACTIVATION_NOTE + 1),
+      }).success,
+    ).toBe(false);
+  });
+  it("hostile: wallet/ledger keys are STRIPPED", () => {
+    const r = coachActivationBodySchema.safeParse({
+      ...valid,
+      p_ref_id: "forged",
+      subscription_id: "forged",
+      coach_id: "someone-else",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("p_ref_id");
+      expect(r.data).not.toHaveProperty("subscription_id");
+      expect(r.data).not.toHaveProperty("coach_id");
+    }
+  });
+});
+
+describe("coachTopupBodySchema — POST /api/coach/wallet/topup (Wave 2A)", () => {
+  const valid = {
+    amount: 250,
+    method: "vodafone_cash",
+    note: "شحن المحفظة",
+    receipt_path: "receipts/123e4567-e89b-12d3-a456-426614174000/1700000000-slip.jpg",
+  };
+
+  it("accepts a valid top-up request", () => {
+    expect(coachTopupBodySchema.safeParse(valid).success).toBe(true);
+  });
+  it("rejects a missing receipt_path / method (route re-derives the legacy classes)", () => {
+    const { receipt_path: _drop, ...withoutReceipt } = valid;
+    expect(coachTopupBodySchema.safeParse(withoutReceipt).success).toBe(false);
+    const { method: _drop2, ...withoutMethod } = valid;
+    expect(coachTopupBodySchema.safeParse(withoutMethod).success).toBe(false);
+  });
+  it("note ceiling 300 (the legacy slice point) — oversize now 400", () => {
+    expect(
+      coachTopupBodySchema.safeParse({ ...valid, note: "x".repeat(MAX_TOPUP_NOTE + 1) }).success,
+    ).toBe(false);
+  });
+  it("string amounts still pass (legacy Number coercion), objects fail", () => {
+    expect(coachTopupBodySchema.safeParse({ ...valid, amount: "250" }).success).toBe(true);
+    expect(coachTopupBodySchema.safeParse({ ...valid, amount: { usd: 250 } }).success).toBe(false);
   });
 });

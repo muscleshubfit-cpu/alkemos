@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { coachSupportBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH → SITE SUPPORT CHANNEL (0037, owner-approved: «دعم للمدربين
@@ -15,10 +16,14 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * RLS lets the coach read/insert his own rows; everything else runs
  * service-side through this route (admin replies come from
  * /api/admin/coach-support).
+ *
+ * Wave 2A (2026-09-17): the POST body passes the central zod gate
+ * (trim + ≤140/≤4000 ceilings + unknown-key stripping) — the legacy
+ * bad_request class (empty subject/body) is re-derived verbatim on
+ * gate failure; the oversize values that were previously truncated
+ * silently now 400 (the documented P1-7 tightening pattern). The
+ * ceilings live in the central schema (MAX_SUPPORT_SUBJECT/BODY).
  */
-
-const MAX_SUBJECT = 140;
-const MAX_BODY = 4000;
 
 export async function GET(request: NextRequest) {
   let user: AuthUser;
@@ -81,8 +86,25 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const subject = String(body.subject ?? "").trim().slice(0, MAX_SUBJECT);
-  const text = String(body.body ?? "").trim().slice(0, MAX_BODY);
+
+  // Wave 2A zod gate — legacy bad_request re-derived verbatim on failure.
+  const parsed = coachSupportBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!String(raw.subject ?? "").trim() || !String(raw.body ?? "").trim()) {
+      return NextResponse.json(
+        { error: "bad_request", message: "اكتب موضوع رسالتك ونصها الأول" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const subject = parsed.data.subject;
+  const text = parsed.data.body;
 
   if (!subject || !text) {
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { coachClaimBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH ATTRIBUTION — claim (0033, owner answers 2026-08-29: coaches
@@ -17,6 +18,10 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *
  * Any logged-in user may call it for himself — the target coach and the
  * "still with the admin" guard are validated server-side.
+ *
+ * Wave 2A (2026-09-17): zod boundary gate (type + ≤60 raw bound +
+ * unknown-key stripping). The gate failure re-derives the legacy
+ * invalid_slug response verbatim; SLUG_RE stays the slug policy.
  */
 
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
@@ -30,7 +35,25 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const slug = String(body.slug ?? "").trim().toLowerCase();
+
+  // Wave 2A zod gate — legacy invalid_slug re-derived verbatim on failure.
+  const parsed = coachClaimBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const legacySlug = String(raw.slug ?? "").trim().toLowerCase();
+    if (!SLUG_RE.test(legacySlug)) {
+      return NextResponse.json(
+        { error: "invalid_slug", message: "رابط المدرب غير صالح" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const slug = parsed.data.slug.trim().toLowerCase();
   if (!SLUG_RE.test(slug)) {
     return NextResponse.json(
       { error: "invalid_slug", message: "رابط المدرب غير صالح" },

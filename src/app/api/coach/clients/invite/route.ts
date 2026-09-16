@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCoach } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { coachInviteBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH INVITES HIS OWN CLIENT (owner answer 1 — «الطريقتين»):
@@ -19,6 +20,12 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *   owner's model coaches have no claim on existing clients — only the
  *   admin can reassign them (admin answer 2). That keeps the affiliate
  *   / site-client pool untouchable by coaches.
+ *
+ * Wave 2A (2026-09-17): zod boundary gate — email trim/lowercase/≤254
+ * + full_name ≤120 (the legacy slice point) + unknown-key stripping.
+ * The legacy invalid_email class is re-derived verbatim on gate
+ * failure; a >120 full_name (previously truncated silently) is the
+ * only new 400.
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,8 +45,25 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const fullName = String(body.full_name ?? "").trim().slice(0, 120) || null;
+
+  // Wave 2A zod gate — legacy invalid_email re-derived verbatim on failure.
+  const parsed = coachInviteBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!EMAIL_RE.test(String(raw.email ?? "").trim().toLowerCase())) {
+      return NextResponse.json(
+        { error: "invalid_email", message: "اكتب بريدًا إلكترونيًا صحيحًا" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const email = parsed.data.email;
+  const fullName = (parsed.data.full_name ?? "").trim().slice(0, 120) || null;
 
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json(
