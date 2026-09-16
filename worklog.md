@@ -21,6 +21,14 @@ Stage Summary:
 - ت-1 وت-3 مطبقتان ومتحقَّق منهما حيًا: بطاقات OG تُخدم من حافة CF يومًا كاملًا بصفر دوال/Satori/Supabase/نقل عند إعادة الجلب، ورندرات أصل HTML تقسم ~÷4 على كل PoP — أكبر رافعين متاحين لـ Fluid CPU (3س36د/4س) وTransformations (4K/5K) دون لمس كود المستخدمين.
 - لم يبدأ WAVE 2 / المرحلة 216 (تعليق صريح من المالك حتى إتمام التحقق — اكتمل الآن).
 
+Post-push evidence (production carried b810101c — verified 2026-09-16T15:36Z):
+- **النشر:** build-info حمل `b810101c` بعد ~دقيقة واحدة من الدفع (15:36Z).
+- **ت-1 على النشر الجديد:** بطاقة og-home-ar = 200 PNG · `cf-cache-status: HIT` (حافة CF) + `x-vercel-cache: HIT` (حافة Vercel) — الطبقتان تعملان معًا كما صُمم في §8.
+- **ت-3 على النشر الجديد:** الرئيسية = 200 · `cf-cache-status: HIT` · إعادة كتابة المتصفح نفسها `private, max-age=300, must-revalidate`.
+- **الآثار الجانبية صفر:** `/api/admin/leads` = 401/DYNAMIC · العضويات والمدونة = 200.
+- **GitHub Actions على b810101:** الجودة (tsc/eslint/vitest) نجحت · توازن المستندات نجح · **تنقية النشرات انطلقت تلقائيًا مع الدفع ونجحت** (قانون ع-2 يعمل على كل push).
+- **نافذة الرصد المتبقية (اختيارية):** مراقبة `age > 3600` مع `cf-cache-status: HIT` متاحة بعد ~16:08Z (الدليل الحاكم لت-3 = استجابة Rulesets API: `edge_ttl override_origin 14400` — القاعدة هي المصدر وفق قانون P1-5).
+
 ---
 Task ID: VERCEL-USAGE-2-2026-09-16
 Agent: Super Z (main)
