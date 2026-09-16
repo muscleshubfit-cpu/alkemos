@@ -185,7 +185,8 @@ src/
 │   ├── blog-server.ts           # جلب بيانات المدونة (server-side)
 │   ├── blog.ts                  # جلب بيانات المدونة (client-side)
 │   ├── blog-images.ts           # جلب صور المدونة
-│   ├── evo-chat-context.tsx     # حالة محادثة EVO
+│   ├── evo-chat-context.tsx     # حالة محادثة EVO (تُحرَّك مع الودجت المؤجل — Phase 216)
+│   ├── evo-chat-events.ts     # مُوزّع حدث فتح ودجت EVO (بلا اعتماديات — Critical path خفيف، Phase 216)
 │   ├── evo-search.ts            # بحث المنصة لـ EVO
 │   ├── plan-generator.ts        # توليد خطط تغذية/تمرين بـ AI (+ regenerateMeal/FoodItem/WorkoutDay, substituteExercise)
 │   ├── external-plan-text.ts    # أنواع خطط غير الأعضاء المهيكلة + تصييرها نصًا
@@ -313,7 +314,7 @@ the membership_tier field.
 
 ```
 EvoFloatingWidget / ChatView (UI)
-  → EvoChatProvider (state — localStorage + chat_messages sync للعرض فقط)
+  → EvoChatProvider (state — localStorage + chat_messages sync للعرض فقط — تركب مع الودجت بعد load، Phase 216)
   → /api/ai/chat (server route)
     → Tier gate — auth.membership_tier من الجلسة الموثقة (active + غير منتهية)
     → دفتر استخدام server-side غير قابل للعبث: evo_chat_usage (migration 0022)

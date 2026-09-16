@@ -216,10 +216,13 @@ if readme and "STATE.md" not in readme:
 # Phase 215 / P1-4 (owner-approved remediation plan, audit المؤكد 6 + 3):
 # the worklog newest-on-top law (AGENTS.md §3.8) was broken twice with
 # zero gates noticing. Enforce the ACTIVE region's structure. The tail
-# below the window is frozen history (pre-convention stragglers, newest
-# dated 2026-09-15) — anything newer down there is a misplaced append.
+# below the window is frozen history (pre-convention stragglers) —
+# anything newer down there is a misplaced append. PHASE 216: the
+# window slid (new top entries pushed the 2026-09-16 VERCEL-USAGE/WAVE-1
+# entries below it) — the baseline is bumped in the SAME commit, per
+# the gate's own forward-only design.
 WORKLOG_WINDOW = 12
-WORKLOG_TAIL_BASELINE = "2026-09-15"   # newest pre-convention tail entry
+WORKLOG_TAIL_BASELINE = "2026-09-16"   # newest pre-convention tail entry
 
 worklog = read("worklog.md")
 wl_tasks: list[str] = []
