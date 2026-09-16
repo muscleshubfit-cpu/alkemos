@@ -8,7 +8,7 @@
 import { chromium } from "playwright";
 
 const port = process.argv[2] || "3100";
-const BASE = `http://localhost:${port}`;
+const BASE = port === "prod" ? "https://alkemos.com" : `http://localhost:${port}`;
 
 const browser = await chromium.launch();
 const results = [];
@@ -55,8 +55,8 @@ for (const path of ["/", "/ar"]) {
     latency: 300,
     offline: false,
   });
-  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
-  await page.goto(BASE + path, { waitUntil: "load" });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: process.env.CPU_RATE ? Number(process.env.CPU_RATE) : 4 });
+  await page.goto(BASE + path + "?cls=216b", { waitUntil: "load" });
   // let late shifts (fonts/lazy content) settle
   await page.waitForTimeout(2500);
 
