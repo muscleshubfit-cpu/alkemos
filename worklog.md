@@ -22,8 +22,9 @@ Stage Summary:
 - 5/8 P1 items closed and live; 1/8 (P1-5) fully verified + awaiting the owner decision (أ/ب); 2/8 (P1-6/P1-7) stopped at the §7 gate exactly as the owner instructed. WAVE 2 (216) and WAVE 3 (217) untouched.
 - Production verified live at 7674a7c6 via /api/build-info (2026-09-16T06:22 UTC) — every Phase-215 commit deployed.
 - The knowledge system gained its first TRUTH gate (order/header-date/archive-freeze) and the §12.5.2 documentation-audit cadence resumed after ~130 phases — the audit's root-cause finding (المؤكد 3) is now structurally guarded.
-- Commit SHA: d8f5e552 (P1-8) · abfd8357 (P1-1+P1-2) · 8aec3368 (P1-3) · 7674a7c6 (P1-4) + this closing commit (its SHA + post-push live evidence recorded by the follow-up evidence commit — the Phase-214 pattern)
-- Push status: pushed
+- Commit SHA: d8f5e552 (P1-8) · abfd8357 (P1-1+P1-2) · 8aec3368 (P1-3) · 7674a7c6 (P1-4) · b3486563 (closure)
+- Push status: pushed (SYNCED على origin/main)
+- Post-push live evidence (production b3486563, 2026-09-16T06:29 UTC): /api/build-info حمل الكوميت · /for-coaches و/ar/for-coaches = 200 · الصورة عبر next/image مُحسَّنة وقت البناء (/_next/static/immutable/media/coach-portrait.… 42KB jpeg عبر المُحسِّن = 200) — Next 16 يعالج مراجع URL النصية للمجلد public بنفس مسار التحسين وقت البناء، فالتغيير محايد بصريًا تمامًا · CI على GitHub أخضر على كل دفعة (Quality gate + stale-refs + docs-parity بفحوص H/I/J الجديدة تعمل على الإنتاج)
 
 ---
 
