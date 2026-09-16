@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-16 (Phase 215 — §6/§9.11 migration-application law unified with AGENTS.md §3.3/§6: auto-apply via the Supabase–GitHub integration is the default path; the manual path is the documented exception set)
+> **Last updated:** 2026-09-16 (Phase 215 — P1-5(ب): Cloudflare documented as the official production HTML cache layer (§10) · P1-6: EVO_CRON_SECRET verified timing-safe, §3.3 rewritten · supersede note: §6/§9.11 migration-law unification of the earlier Phase-215 commit remains in force)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -137,15 +137,25 @@ Any of the following:
   by `src/lib/supabase/admin.ts`. Must NEVER be imported by a client
   component, NEVER prefixed `NEXT_PUBLIC_`, NEVER logged.
 
-### 3.3 CRON_SECRET
+### 3.3 CRON_SECRET / EVO_CRON_SECRET
 
-- Used by the GitHub Actions blog pipelines
+- `CRON_SECRET` is used by the GitHub Actions blog pipelines
   (`.github/workflows/blog-post-en.yml` + `.github/workflows/blog-post-ar.yml`,
   language-split since 2026-08-27) and the Vercel cron job (progress
   reminder) to authenticate calls to `/api/cron/*` routes.
 - Stored as a GitHub Secret (for Actions) and as a Vercel env var.
-- The `/api/cron/*` routes check
-  `request.headers.get("Authorization") === "Bearer ${CRON_SECRET}"`.
+- The `/api/cron/*` routes verify the bearer token through
+  `verifyCronAuth()` (`src/lib/cron-auth.ts`) — a CONSTANT-TIME
+  comparison (`crypto.timingSafeEqual`, audit M6 2026-09-07). The
+  former plain `Authorization === "Bearer …"` string compare is
+  FORBIDDEN (it leaks prefix-match timing).
+- `EVO_CRON_SECRET` is the EVO followup dispatcher's SEPARATE secret
+  (`/api/evo/followup/dispatch`, header `x-cron-secret`). Since P1-6
+  (deep-audit 2026-09-16, owner-approved §7) it is verified with the
+  SAME timing-safe atom `timingSafeSecretEqual()` from
+  `src/lib/cron-auth.ts`. It may hold the same value as `CRON_SECRET`
+  or a different one (owner's operational choice — it rotates
+  independently either way).
 - If leaked: rotate in both GitHub Secrets and Vercel, then redeploy.
 
 ---
@@ -378,6 +388,40 @@ Cache headers (set in `vercel.json` + `next.config.ts`):
 - `/_next/image*` → `public, max-age=86400` (24 hours)
 - Root static files (`sitemap.xml`, `robots.txt`, `manifest.json`,
   `sw.js`, favicons, etc.) → `public, max-age=86400, must-revalidate`
+
+### Cloudflare — the OFFICIAL production HTML cache layer (P1-5, owner decision 2026-09-16 «اعتمد الخيار (ب)»)
+
+`alkemos.com` resolves through Cloudflare BEFORE Vercel, and the zone
+runs ONE cache rule that owns the production HTML caching behavior
+(the deep-audit P1-5 forensic verified the zone Browser-Cache-TTL is
+`Respect Existing Headers` — the RULE, not the zone setting, is the
+source):
+
+- **Rule name:** «alkemos cache rules» (created with SEO-GEO-4
+  2026-09-08; last updated by Phase 189 per SEO-GEO-MASTER-PLAN
+  §12.46-د, 2026-09-13).
+- **Expression:** the SEO-GEO-4 private-path exclusion list
+  (api/admin/auth/checkout/dashboard/questionnaires/progress/plans/
+  profile/support/referral/preview/coach) + paths without a dot —
+  i.e. public HTML pages only; dotted files (sitemaps, robots, assets)
+  and private surfaces are OUTSIDE the rule.
+- **Behavior:** `cache=true` · Edge TTL override 3600s · Browser TTL
+  override 300s.
+- **Verified production effect (2026-09-16):** public HTML serves to
+  browsers as `private, max-age=300, must-revalidate` (the rule's
+  browser-TTL rewrite) with `cf-cache-status: HIT` while the edge
+  entry is fresh (age up to 3600s); on edge expiry CF re-fetches
+  through to the Vercel function (`x-vercel-cache: MISS`) and
+  re-caches. Sitemaps keep their route-set headers and are NOT
+  edge-cached by CF (`cf-cache-status: DYNAMIC`, dots excluded) while
+  Vercel caches them (`x-vercel-cache: HIT`).
+- **Layering law:** the `next.config.ts` SEO-GEO-4 headers rule stays
+  the ORIGIN-side policy (what Vercel emits; what every non-CF path —
+  preview URLs, direct Vercel hits — receives). Any future change to
+  production HTML caching is a CLOUDFLARE dashboard change first,
+  with this section + `docs/TECH_REFERENCE.md` §5 updated in the same
+  phase (§3.8) — a code-only cache change that contradicts this rule
+  is a documentation defect.
 
 ---
 

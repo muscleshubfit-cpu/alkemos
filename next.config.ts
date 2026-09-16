@@ -211,20 +211,23 @@ const nextConfig: NextConfig = {
       },
       {
         // SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)» — audit
-        // finding #5): PUBLIC HTML pages ship the framework's dynamic
-        // default `private, no-cache, no-store, max-age=0, must-revalidate`
-        // (the root layout reads headers()/cookies() → every page renders
-        // dynamically). LIVE-VERIFIED FACT (local `next start`): the route
-        // response's Cache-Control OVERRIDES both middleware- and page-set
-        // values, but next.config headers() wins — so THIS is the place the
-        // public cache policy is enforced:
-        //   - Browsers: max-age=0 + must-revalidate → revalidate every
-        //     visit (identical freshness to the old no-store behavior).
-        //   - CDN edge (Vercel / Cloudflare): s-maxage=3600 keeps the HTML
-        //     1h and stale-while-revalidate=86400 serves stale while
-        //     revalidating in background → faster TTFB, cheaper crawling,
-        //     fewer function invocations.
-        // Edge caching also requires NO Set-Cookie — the middleware now
+        // finding #5): the ORIGIN-side public-HTML cache policy. Phase 215
+        // P1-5 verification (2026-09-16, owner decision «اعتمد الخيار (ب)»):
+        // in PRODUCTION this header is NOT what browsers ultimately see —
+        // Cloudflare sits in front and the zone cache rule «alkemos cache
+        // rules» (created SEO-GEO-4, updated Phase 189 per §12.46-د:
+        // cache=true · edge_ttl override 3600 · browser_ttl override 300,
+        // expression = the private-path exclusion list below + no-dot
+        // paths) is the OFFICIAL cache layer: it rewrites the browser
+        // Cache-Control to `max-age=300` and serves HTML from the edge
+        // for 3600s (documented in SECURITY.md §10 + TECH_REFERENCE §5).
+        // This rule still governs what the ORIGIN (Vercel) emits and every
+        // non-CF access path (preview URLs, direct Vercel hits) — the
+        // documented intent:
+        //   - Browsers (origin-direct): max-age=0 + must-revalidate →
+        //     revalidate every visit (identical freshness to no-store).
+        //   - CDN edge: s-maxage=3600 + stale-while-revalidate=86400.
+        // Edge cacheability also requires NO Set-Cookie — the middleware
         // writes `mhe:locale` only when it changes (SEO-GEO-4), so the
         // vast majority of public responses are cacheable.
         // PRIVATE surfaces are EXCLUDED via the lookahead (api, admin,

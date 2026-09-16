@@ -38,7 +38,17 @@ function isArabicPath(pathname: string): boolean {
  *      here in middleware — middleware is the WRONG layer for it.
  *   2. next.config.ts headers() DOES win over the framework default.
  * The public Cache-Control therefore lives in next.config.ts headers()
- * (single source of truth — see the SEO-GEO-4 rule there).
+ * (the ORIGIN policy — see the SEO-GEO-4 rule there).
+ *
+ * PHASE 215 / P1-5 (2026-09-16, owner decision «اعتمد الخيار (ب)»):
+ * Cloudflare is the OFFICIAL production HTML cache layer. The zone cache
+ * rule «alkemos cache rules» (cache=true · edge_ttl override 3600 ·
+ * browser_ttl override 300 — expression = the SEO-GEO-4 private-path
+ * exclusion list + no-dot paths) rewrites what browsers finally see
+ * (`private, max-age=300, must-revalidate` on live HTML) and serves
+ * HTML from the edge for 3600s. The next.config rule remains the
+ * origin-side policy (Vercel output + non-CF paths). Full layer
+ * documentation: SECURITY.md §10 + TECH_REFERENCE §5.
  *
  * What THIS file still owns: the `mhe:locale` cookie is now written ONLY
  * when the value actually changes. The old unconditional write put
