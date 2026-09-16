@@ -3,6 +3,30 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: PHASE-215-AUDIT-REMEDIATION-W1-2026-09-16
+Agent: Super Z (main)
+
+Task: Phase 215 — WAVE 1 of the Deep-Audit remediation plan (owner order 2026-09-16 «نفّذ Phase 215 بالكامل حسب الخطة والتقرير المرفقين… عالج جميع بنود P1 في Phase 215 فقط، مع الالتزام بـ IMPLEMENT → VALIDATE → DOCUMENT → COMMIT → PUSH… أي بند 🔐 يحتاج قرارًا مني: توقّف قبله واذكر القرار المطلوب بوضوح»): every non-security P1 item executed through the full cycle; P1-5 verified externally then STOPPED at the owner decision; P1-6/P1-7 (🔐 per §7) NOT implemented — approval requests presented in the §12.9 final report. Phases 216/217 NOT started (owner's explicit boundary).
+
+Work Log:
+- P1-8 (المؤكد 12): `src/app/for-coaches/page.tsx` relative public/ image imports (4×) → URL-string refs + intrinsic width/height (the site-wide pattern) — the §3.5 «tsc 0» gate is now ABSOLUTE: 0 errors from a clean install with next-env.d.ts removed. Commit d8f5e552.
+- P1-1 (المؤكد 4): SECURITY.md §6 + §9.11 unified with AGENTS.md §3.3/§6 — auto-apply via the Supabase–GitHub integration is the documented DEFAULT; the manual path is the scoped exception set (auth.users 0040/0050/0055/0066 + legacy RUN_ON_SUPABASE_*/VERIFY_* with the raw-link + consolidated-file protocol).
+- P1-2 (المؤكد 5): BRAND NAME LAW restored from git history (`git show a3e2bfc4~1:AGENTS.md`): canonical «Musclehubeg» + variants «MuscleHubFit»/«MuscleHubEG»/«MuscleHub Egypt»/«MuscleHub» now forbidden in the law text; lowercase functional identifiers (org muscleshubfit-cpu · musclehubeg-backups · config.toml project_id · owner email) explicitly protected. Commit abfd8357 (P1-1 + P1-2).
+- P1-3 (المؤكد 6): one-shot LEGAL worklog reorder — the 206-211 block (7 entries incl. SEO-GEO-15 live-verify) moved from the file bottom to its chronological position between 212 and 205 (reversed to newest-on-top) + 213 raised above 212; 180 entries preserved byte-for-byte (sorted-line multiset differs only by 205's long-missing `---` separator + EOF newline normalization). Local one-shot script OUTSIDE the repo (disclosed — the Phase-213 lesson). Commit 8aec3368.
+- P1-4 (المؤكد 3 + 22 + 25): §12.5.2 cadence formally RESUMED — DOC-AUDIT-2026-09-16 entry (first since 2026-08-25) + docs_audit.py v2 TRUTH checks: H worklog newest-on-top (top-12 window + newest-at-top + tail frozen ≤2026-09-15) · I governed-docs Last-updated vs git (forward-only from the gate birthday 2026-09-16) · J frozen-verbatim archive integrity (PROGRESS/QA_CHECKLIST, zero commits since 2026-09-16). Sensitivity PROVEN per the plan's acceptance: on pre-fix abfd8357 the gate fails with exactly the two audit breaks (H/window-order + H/tail-freeze) and passes after. CI_GATES.md row + docs-parity-gate.yml comment updated in the same commit. Commit 7674a7c6.
+- P1-5 (المؤكد 2) — external verification COMPLETED (read-only Cloudflare API + live curl), execution STOPPED at the owner decision: zone Browser-Cache-TTL = **0 (Respect Existing Headers — NOT the source)** · zero active legacy Page Rules · exactly ONE Cache Rule «alkemos cache rules (SEO-GEO-4 2026-09-08)» (ruleset d9f2c38e782043369d0815caef91cb60, last_updated 2026-09-13 = Phase 189, v2): `cache=true` + `edge_ttl override_origin 3600` + `browser_ttl override_origin 300` (added Phase 189 per SEO-GEO-MASTER-PLAN §12.46-د), expression = the SEO-GEO-4 private-path exclusion list + no-dot paths. Live 2026-09-16 evidence: `/` and `/for-coaches` = `private, max-age=300, must-revalidate` + `x-vercel-cache: MISS` + `cf-cache-status: EXPIRED` (edge entry expired → Vercel function) ; `/sitemap-pages.xml` = its route-set header (`src/lib/sitemap-xml.ts:23`) + Vercel HIT + cf DYNAMIC. The premise of option (أ) (Browser-Cache-TTL=5min as the source) is DISPROVEN; option (ب) matches the verified reality — DECISION PENDING with the owner.
+- P1-6 (المؤكد 10) 🔐 + P1-7 (المؤكد 11) 🔐: NOT implemented — §7 requires explicit owner approval BEFORE implementation (auth-comparison + API-boundary changes). Precise proposals presented in the final report; zero code touched.
+- Gates at every push (per item): tsc 0 (absolute from P1-8 on) · eslint 0/0 · vitest 1216/1216 (78 files) · next build success (2,057 pages, BUILD_ID DPXAZMQ-w-p2ZoXl6zQ9D) · docs_audit (v2 with H/I/J) · docs_parity · check-stale-refs · migration_audit — all green locally; CI green on every push.
+
+Stage Summary:
+- 5/8 P1 items closed and live; 1/8 (P1-5) fully verified + awaiting the owner decision (أ/ب); 2/8 (P1-6/P1-7) stopped at the §7 gate exactly as the owner instructed. WAVE 2 (216) and WAVE 3 (217) untouched.
+- Production verified live at 7674a7c6 via /api/build-info (2026-09-16T06:22 UTC) — every Phase-215 commit deployed.
+- The knowledge system gained its first TRUTH gate (order/header-date/archive-freeze) and the §12.5.2 documentation-audit cadence resumed after ~130 phases — the audit's root-cause finding (المؤكد 3) is now structurally guarded.
+- Commit SHA: d8f5e552 (P1-8) · abfd8357 (P1-1+P1-2) · 8aec3368 (P1-3) · 7674a7c6 (P1-4) + this closing commit (its SHA + post-push live evidence recorded by the follow-up evidence commit — the Phase-214 pattern)
+- Push status: pushed
+
+---
+
 Task ID: PHASE-214-DEEP-AUDIT-2026-09-16
 Agent: Super Z (main — independent audit session)
 Task: Phase 214 — independent comprehensive Deep Audit of the whole project (code + production + docs), owner order 2026-09-16 — READ-ONLY: zero source changes; full findings report + prioritized remediation plan committed as documentation.
