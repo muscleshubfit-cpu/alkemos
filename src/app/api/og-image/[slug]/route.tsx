@@ -43,9 +43,11 @@ import { fetchBlogForOG } from "@/lib/blog-server";
  *      precisely so crawler responses stay cookie-free and cacheable).
  *      A repeat WhatsApp/Telegram/X fetch within the hour = edge hit:
  *      zero function invocations, zero Satori CPU, zero Supabase query,
- *      zero Fast Origin Transfer. Cloudflare rule ت-1 (1-day edge TTL,
- *      owner dashboard decision) remains the bigger complementary
- *      lever — the header here is the code-side half of it.
+ *      zero Fast Origin Transfer. Cloudflare rule ت-1 (1-day edge TTL)
+ *      is APPLIED since VERCEL-USAGE-3 (owner order 2026-09-16): the
+ *      CF edge now serves these PNGs cf-cache-status MISS→HIT for a
+ *      full day — this s-maxage header remains the Vercel-edge half
+ *      of the same two-layer defense.
  */
 
 export const runtime = "edge";

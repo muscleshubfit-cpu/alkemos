@@ -3635,3 +3635,37 @@ Single commit revert restores the GitHub raw builder (remotePatterns entry alive
 - **23/23 checks** (script outside the repo, Cloudflare cache-buster on every HTML fetch): the four AR surfaces serve og:image=og-home-ar + twitter images · EN/AR exercise pages + homepage samples serve /images/exercises/*.webp with ZERO raw.githubusercontent references · asset served 200 · image/webp · RIFF/WEBP magic · Cache-Control: public, max-age=31536000, immutable · sitemap exercises+pages lastmod = 2026-09-16 (exercises sitemap carries all 1,736 URLs) · regressions clean (og-home-en on the EN surfaces, og-home-ar inherited on AR lists, family cards on detail pages).
 - **Deep random sample 30/30:** 30 random URLs from the live exercises sitemap (seed 207) — every page serves local webp references and every referenced asset (60 checks) resolves 200.
 - Note: the first deep-sample run reported 6/30 "no images" — root cause was a regex bug in the verification script itself (letter `s` wrongly excluded from the character class), NOT a site defect; script fixed, re-run = 30/30. Documented for honesty of record.
+
+---
+
+Task ID: PHASE-208-SEO-GEO-17-ITEM11-2026-09-16
+Agent: Super Z (main)
+Task: Phase 208 — SEO-GEO-17: item 11 of the §12.53 plan — full Arabic mirror for /affiliate at /ar/affiliate (owner order 2026-09-16 «نفّذ البند 11: أنشئ مرآة عربية كاملة لـ /affiliate على /ar/affiliate لأن Alkemos يستهدف شركاء عربًا وغير عرب. قبل التنفيذ راجع الصفحة الإنجليزية الحالية ومرآتها العربية إن وجدت… لا تغيّر صفحة EN أو أي وظائف أخرى»)
+
+**Scope:** the AR mirror only — EN page, functions, prices, and data untouched (owner's explicit limit). Full detail: §12.56.
+
+### What shipped
+- **Route `/ar/affiliate`:** `page.tsx` re-exports the shared bilingual EN page (the /ar/for-coaches pattern — useI18n is URL-first, so Arabic renders automatically under /ar/*; the AR copy already existed inside the component in guarded MSA). `layout.tsx` adds natural-MSA metadata: brandless title «برنامج الأفلييت — حوّل تأثيرك إلى دخل» (36 chars + template suffix = 46 ≤ 70), 168-char description carrying the same facts (20% commission · $10 minimum payout), 10 AR keywords mirroring the EN set.
+- **hreflang:** self-canonical + full reciprocal en/ar/x-default pair. The EN layout already declared ar → /ar/affiliate since the H2 fix (2026-09-07) — the URL was the dangling half (404). The pair is now real with ZERO EN file edits.
+- **og:image:** og-home-ar (1200×630) pinned explicitly (replace-not-inherit law from batch 1-b) + twitter summary_large_image + og:locale ar_EG + og:url.
+- **Sitemap:** the EN /affiliate entry gained its alternates (was a bare loc) + a new AR entry — both with the full pair.
+- **Internal linking (every point that targeted EN only):** footer «برنامج الأفلييت», mobile-header drawer «خدمات أخرى», the blog-article affiliate CTA (BlogMembershipCard §3), and the LanguageToggle (mirror pair added + doc comment updated — /affiliate removed from the "no mirror" list).
+- **Guards:** og-image-coverage +1 surface (40) · ar-mirrors +6 tests (sitemap pair with reciprocal hreflang · full metadata contract for the AR layout · EN half-pair completion · re-export no-fork · toggle pair). Suite 1208 → 1215.
+- **lastmod:** pages family stays 2026-09-16 (same ship-day as phase 207 — truthful, no bump needed).
+
+### Gates (all green before push)
+tsc 0 · eslint 0/0 · vitest **1215/1215** · build 0 (**2,057 pages — +1 = /ar/affiliate**) · docs_audit (phase=208, 100 lines) · docs_parity · check-stale-refs · migration_audit ✓
+
+### Rollback
+Single revert: delete ar/affiliate/ + restore 4 internal links + 2 sitemap lines + the two guard updates — zero data migrations, zero EN changes.
+
+### Documented discovery (out of batch scope — proposal for owner decision)
+The EN /affiliate page itself has NO og:image at all (its openGraph block has no images, so nothing is inherited from the root — same defect class as §12.53 item 4, which was fixed for 9 EN surfaces in 206 but /affiliate was not on that audit list). Expected fix: one og-home-en card line in the EN layout. NOT executed — the owner's explicit limit for this batch was «don't change the EN page».
+
+### Live verification on production (515a16f — deployed & verified 2026-09-16)
+**24/24 checks green** (script outside the repo, Cloudflare cache-buster on every fetch; build-info carried 515a16f after 63s):
+- `/ar/affiliate` = 200 · html lang=ar · dir=rtl · AR hero + 20% commission facts rendered.
+- Title = «برنامج الأفلييت — حوّل تأثيرك إلى دخل — Alkemos» · canonical self · og:image/og:locale/og:url/twitter card all correct (og-home-ar 200).
+- **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
+- Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
+- Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.

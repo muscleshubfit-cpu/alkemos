@@ -257,24 +257,28 @@ RUN_ON_SUPABASE_0030_MULTI_COACH.sql = نسخة مرجعية مطابقة باي
              ▲ طبقة الحافة الرسمية
 ```
 
-- الطلب يمر عبر Cloudflare قبل Vercel، وقاعدة كاش واحدة في المنطقة (zone) تملك سلوك كاش HTML في الإنتاج.
+- الطلب يمر عبر Cloudflare قبل Vercel، وقاعدتا كاش في المنطقة (zone) تملكان سلوك كاش الإنتاج: قاعدة HTML العام (SEO-GEO-4) وقاعدة بطاقات OG (ت-1).
 - إعداد المنطقة Browser-Cache-TTL = **Respect Existing Headers** (تحقق خارجي 2026-09-16) — أي أن **القاعدة** وليست إعداد المنطقة هي المصدر.
 
-### 5.2 القاعدة «alkemos cache rules»
+### 5.2 الـ ruleset وقاعدتاه «alkemos cache rules (SEO-GEO-4 2026-09-08)»
 
-| العنصر | القيمة |
-|---|---|
-| اسم القاعدة | `alkemos cache rules` (أنشئت مع SEO-GEO-4 بتاريخ 2026-09-08) |
-| آخر تحديث | المرحلة 189 (2026-09-13، وفق SEO-GEO-MASTER-PLAN §12.46-د) |
-| التعبير | قائمة استثناءات المسارات الخاصة بـ SEO-GEO-4 (api/admin/auth/checkout/dashboard/questionnaires/progress/plans/profile/support/referral/preview/coach) + المسارات الخالية من النقاط — أي صفحات HTML العامة فقط |
-| السلوك | `cache=true` · Edge TTL override **3600 ث** · Browser TTL override **300 ث** |
+> **VERCEL-USAGE-3 (2026-09-16، أمر المالك «نفّذ ت-1 وت-3»):** صارت المنطقة تحمل **قاعدتين** في نفس الـ ruleset (phase `http_request_cache_settings`):
 
-- المسارات المنقوطة (sitemaps، robots، الأصول) والأسطح الخاصة **خارج** القاعدة.
+| العنصر | القاعدة 1: HTML العام | القاعدة 2: بطاقات OG (ت-1) |
+|---|---|---|
+| الوصف الحرفي | `alkemos-public-html-cache (+browser_ttl Phase 189 — deep-audit P2-1); edge TTL 3600->14400s (T-3 VERCEL-USAGE-3 2026-09-16)` | `alkemos og-image cache (T-1 VERCEL-USAGE-3 2026-09-16)` |
+| آخر تحديث | VERCEL-USAGE-3 (2026-09-16) — كانت آخر تحديث بالمرحلة 189 | منشأة في VERCEL-USAGE-3 (2026-09-16) |
+| التعبير | قائمة استثناءات المسارات الخاصة بـ SEO-GEO-4 (api/admin/auth/checkout/dashboard/questionnaires/progress/plans/profile/support/referral/preview/coach) + المسارات الخالية من النقاط — أي صفحات HTML العامة فقط | `starts_with(http.request.uri.path, "/api/og-image/")` |
+| السلوك | `cache=true` · Edge TTL override **14400 ث (4 ساعات — ت-3، كان 3600)** · Browser TTL override **300 ث** | `cache=true` · Edge TTL override **86400 ث (يوم كامل)** · Browser TTL **respect_origin** (المسار يرسل أصلًا `public, max-age=86400`) |
+
+- المسارات المنقوطة (sitemaps، robots، الأصول) والأسطح الخاصة **خارج** القاعدة 1، وكل ما ليس `og-image` خارج القاعدة 2 (القاعدتان غير متداخلتين: القاعدة 1 تستثني `/api*` صراحة).
 - تحقق `src/lib/sitemap-xml.ts:23` يضع ترويسات خرائط الموقع بنفسه (Vercel يخزنها مؤقتًا؛ CF يمررها `DYNAMIC`).
 
-### 5.3 الأثر المقاس حيًّا (أدلة 2026-09-16)
+### 5.3 الأثر المقاس حيًّا (أدلة 2026-09-16 — قبل/بعد VERCEL-USAGE-3)
 
-- صفحات HTML العامة: تصل للمتصفح بترويسة `private, max-age=300, must-revalidate` (إعادة كتابة Browser TTL بواسطة القاعدة) مع `cf-cache-status: HIT` ما دام مدخل الحافة طازجًا (حتى 3600 ث)؛ عند انتهاء صلاحية مدخل الحافة يعيد CF الجلب عبر دالة Vercel (`x-vercel-cache: MISS`) ثم يعيد التخزين.
+- صفحات HTML العامة: تصل للمتصفح بترويسة `private, max-age=300, must-revalidate` (إعادة كتابة Browser TTL بواسطة القاعدة) مع `cf-cache-status: HIT` ما دام مدخل الحافة طازجًا (حتى **14400 ث** منذ ت-3 — كان 3600)؛ عند انتهاء صلاحية مدخل الحافة يعيد CF الجلب عبر دالة Vercel (`x-vercel-cache: MISS`) ثم يعيد التخزين.
+- بطاقات `/api/og-image/*`: كانت `cf-cache-status: DYNAMIC` قبل ت-1 → بعدها `MISS` عند أول جلب ثم `HIT` على كل إعادة طلب (بطاقة ثابتة وبطاقات مقالات، AR/EN، ومدخل cache-buster جديد) — مدخل حافة يوم كامل لكل slug×lang بلا Set-Cookie وصفر دوال/صفر Supabase/صفر Satori عند إعادة الجلب.
+- المستثنيات بقيت كما هي (تحقق حي بعد التطبيق): `/auth` = DYNAMIC · `sitemap.xml` = DYNAMIC · `/api/build-info` = DYNAMIC.
 - قاعدة `next.config.ts` (SEO-GEO-4) تبقى **سياسة المصدر** (Origin): ما يُخرِجه Vercel وما يستلمه كل مسار لا يمر بـ CF (روابط المعاينة، الوصول المباشر لـ Vercel).
 
 ### 5.4 القانون التبعي

@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-16 (Phase 215 — P1-5(ب): Cloudflare documented as the official production HTML cache layer (§10) · P1-6: EVO_CRON_SECRET verified timing-safe, §3.3 rewritten · supersede note: §6/§9.11 migration-law unification of the earlier Phase-215 commit remains in force)
+> **Last updated:** 2026-09-16 (VERCEL-USAGE-3 — §10 Cloudflare updated to TWO zone cache rules: OG-image rule (T-1, 1-day edge TTL) + HTML rule edge TTL 3600→14400s (T-3), owner order «نفّذ ت-1 وت-3» · Phase 215 — P1-5(ب): Cloudflare documented as the official production HTML cache layer · P1-6: EVO_CRON_SECRET verified timing-safe, §3.3 rewritten)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -392,29 +392,39 @@ Cache headers (set in `vercel.json` + `next.config.ts`):
 ### Cloudflare — the OFFICIAL production HTML cache layer (P1-5, owner decision 2026-09-16 «اعتمد الخيار (ب)»)
 
 `alkemos.com` resolves through Cloudflare BEFORE Vercel, and the zone
-runs ONE cache rule that owns the production HTML caching behavior
-(the deep-audit P1-5 forensic verified the zone Browser-Cache-TTL is
-`Respect Existing Headers` — the RULE, not the zone setting, is the
+runs TWO cache rules that own the production caching behavior (the
+deep-audit P1-5 forensic verified the zone Browser-Cache-TTL is
+`Respect Existing Headers` — the RULES, not the zone setting, are the
 source):
 
-- **Rule name:** «alkemos cache rules» (created with SEO-GEO-4
-  2026-09-08; last updated by Phase 189 per SEO-GEO-MASTER-PLAN
-  §12.46-د, 2026-09-13).
-- **Expression:** the SEO-GEO-4 private-path exclusion list
-  (api/admin/auth/checkout/dashboard/questionnaires/progress/plans/
-  profile/support/referral/preview/coach) + paths without a dot —
-  i.e. public HTML pages only; dotted files (sitemaps, robots, assets)
-  and private surfaces are OUTSIDE the rule.
-- **Behavior:** `cache=true` · Edge TTL override 3600s · Browser TTL
-  override 300s.
-- **Verified production effect (2026-09-16):** public HTML serves to
-  browsers as `private, max-age=300, must-revalidate` (the rule's
-  browser-TTL rewrite) with `cf-cache-status: HIT` while the edge
-  entry is fresh (age up to 3600s); on edge expiry CF re-fetches
-  through to the Vercel function (`x-vercel-cache: MISS`) and
-  re-caches. Sitemaps keep their route-set headers and are NOT
-  edge-cached by CF (`cf-cache-status: DYNAMIC`, dots excluded) while
-  Vercel caches them (`x-vercel-cache: HIT`).
+- **Ruleset:** «alkemos cache rules (SEO-GEO-4 2026-09-08)» — one
+  ruleset, TWO rules since VERCEL-USAGE-3 (2026-09-16, owner order
+  «نفّذ ت-1 وت-3»).
+- **Rule 1 — public HTML cache** («alkemos-public-html-cache», created
+  with SEO-GEO-4 2026-09-08; browser TTL added by Phase 189; edge TTL
+  raised to 14400s by VERCEL-USAGE-3 T-3): **Expression:** the SEO-GEO-4
+  private-path exclusion list (api/admin/auth/checkout/dashboard/
+  questionnaires/progress/plans/profile/support/referral/preview/
+  coach) + paths without a dot — i.e. public HTML pages only; dotted
+  files (sitemaps, robots, assets) and private surfaces are OUTSIDE
+  the rule. **Behavior:** `cache=true` · Edge TTL override **14400s**
+  (4h) · Browser TTL override 300s.
+- **Rule 2 — OG image cache** («alkemos og-image cache», created by
+  VERCEL-USAGE-3 T-1 2026-09-16): **Expression:**
+  `starts_with(http.request.uri.path, "/api/og-image/")`. **Behavior:**
+  `cache=true` · Edge TTL override **86400s** (1 day) · Browser TTL
+  `respect_origin` (the route already sends `public, max-age=86400`).
+  The two rules never overlap (rule 1 explicitly excludes `/api*`).
+- **Verified production effect (2026-09-16, after T-1/T-3):** public
+  HTML serves to browsers as `private, max-age=300, must-revalidate`
+  (the rule's browser-TTL rewrite) with `cf-cache-status: HIT` while
+  the edge entry is fresh (age up to 14400s); on edge expiry CF
+  re-fetches through to the Vercel function (`x-vercel-cache: MISS`)
+  and re-caches. OG cards serve `MISS` on first fetch then `HIT` for
+  a full day, cookie-free (was `DYNAMIC` before T-1). Sitemaps keep
+  their route-set headers and are NOT edge-cached by CF
+  (`cf-cache-status: DYNAMIC`, dots excluded) while Vercel caches
+  them (`x-vercel-cache: HIT`).
 - **Layering law:** the `next.config.ts` SEO-GEO-4 headers rule stays
   the ORIGIN-side policy (what Vercel emits; what every non-CF path —
   preview URLs, direct Vercel hits — receives). Any future change to

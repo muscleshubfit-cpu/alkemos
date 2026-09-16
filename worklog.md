@@ -3,6 +3,25 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: VERCEL-USAGE-3-2026-09-16
+Agent: Super Z (main)
+
+Task: تنفيذ ت-1 وت-3 بأمر المالك المباشر («نفّذ ت-1 وت-3 الآن فقط وفق الخطة الموثقة. طبّق إعدادات Cloudflare المطلوبة، ثم تحقق من الإنتاج وفعالية الكاش وعدم وجود أي أثر جانبي… ثم commit + push. لا تبدأ WAVE 2 / Phase 216 قبل إتمام التحقق») — بعد أن زوّد المالك بتوكن Cloudflare API في الجلسة (استُخدم عبر بيئة الجلسة فقط — صفر أثر في المستودع).
+
+Work Log:
+- **ت-1 (قاعدة كاش CF لبطاقات OG):** عبر Rulesets API على الـ ruleset الحاكم «alkemos cache rules (SEO-GEO-4 2026-09-08)» (phase `http_request_cache_settings`): أُضيفت قاعدة «alkemos og-image cache (T-1 VERCEL-USAGE-3 2026-09-16)» بتعبير `starts_with(http.request.uri.path, "/api/og-image/")` — `cache=true` · Edge TTL override **86400ث (يوم)** · Browser TTL **respect_origin** (المسار يرسل أصلًا `public, max-age=86400`).
+- **ت-3 (رفع Edge TTL للـ HTML):** في القاعدة نفسها الموجودة «alkemos-public-html-cache» رُفع Edge TTL من 3600 إلى **14400ث (4 ساعات)** (تحديث وصف القاعدة يوثق التغيير) — Browser TTL بقيت 300ث كما رسّختها المرحلة 189.
+- **لا تداخل بين القاعدتين:** القاعدة 1 تستثني `/api*` صراحة منذ SEO-GEO-4 — بطاقة OG يطابقها حصريًا القاعدة 2، وHTML العام حصريًا القاعدة 1. طبقة Vercel (ع-4: s-maxage=3600) بقيت عمدًا — طبقتا دفاع (ساعة عند Vercel + يوم عند CF).
+- **التحقق الحي بعد التطبيق (alkemos.com، 2026-09-16T15:21–15:25Z):** بطاقة ثابتة og-home-ar وبطاقة مقال = `cf-cache-status: HIT` على حافة CF **لأول مرة** (الفحص التشخيصي قبل التطبيق: كل الجلبات DYNAMIC) · cache-buster جديد = MISS ثم يُكاش (إثبات كاش فعلي لكل URL) · `x-vercel-cache: HIT` أيضًا (ع-4 تعمل) · صفر Set-Cookie · HTML (رئيسية/مدونة/عضويات) = HIT بإعادة كتابة المتصفح نفسها `private, max-age=300` · الدليل الحاكم لت-3 = استجابة Rulesets API نفسها (`edge_ttl override_origin 14400`).
+- **صفر آثار جانبية:** `/api/admin/leads` بلا توثيق = 401/DYNAMIC/`max-age=0` · `/auth` و`/api/build-info` = DYNAMIC/no-store · `sitemap.xml` = DYNAMIC (Vercel HIT) · صور التمارين 200/immutable/HIT · robots 200 · `/memberships` 200/HIT · build-info = `5ee4cca` = رأس main (لا انحراف نشر).
+- **التوثيق في نفس الفريم (قانون §5.4):** TECH_REFERENCE §5 (قاعدتان بجدول مقارنة) + SECURITY §10 (قاعدتا المنطقة + الأثر الحي بعد ت-1/ت-3) + VERCEL-USAGE-AUDIT-2026-09-16.md §8 (إطار VERCEL-USAGE-3 كاملًا: التنفيذ + الأدلة الحية + الأثر) + تحديث حالتي ت-1/ت-3 في §3/§4 + تعليق route.tsx للبطاقات (صفر تغيير سلوك) + STATE.md (ترويسة + مدخل الفريم — 100 سطر محفوظة بإسقاط سطر متقادم «المرحلة الرسمية الآن: 213»).
+- **ملاحظة أمنية للمالك:** التوكن نُشر نصًا في المحادثة — يُنصح بتدويره بعد الاستخدام (نمط المؤكد 1/المرحلة 215 — أُعيد التذكير في §8.4 من وثيقة التدقيق).
+
+Stage Summary:
+- ت-1 وت-3 مطبقتان ومتحقَّق منهما حيًا: بطاقات OG تُخدم من حافة CF يومًا كاملًا بصفر دوال/Satori/Supabase/نقل عند إعادة الجلب، ورندرات أصل HTML تقسم ~÷4 على كل PoP — أكبر رافعين متاحين لـ Fluid CPU (3س36د/4س) وTransformations (4K/5K) دون لمس كود المستخدمين.
+- لم يبدأ WAVE 2 / المرحلة 216 (تعليق صريح من المالك حتى إتمام التحقق — اكتمل الآن).
+
+---
 Task ID: VERCEL-USAGE-2-2026-09-16
 Agent: Super Z (main)
 
@@ -29,7 +48,6 @@ Post-push evidence (production carried 8e052f85 — verified 2026-09-16T14:37Z):
 - **كاش حافة Vercel لبطاقات og يعمل أول مرة:** `x-vercel-cache: MISS` عند التوليد ثم `HIT (age: 2)` على إعادة الطلب نفسه — الدالة لم تُعد للتشغيل (cf-cache-status: DYNAMIC كما هو متوقع لمسارات api — CF لا يكاشها؛ ت-1 ترفعها لاحقًا إلى يوم كامل) · **صفر Set-Cookie** على طلب زاحف بلا كوكيز (كان الـ middleware يختمه قبل الاستثناء) · بطاقة EN 200 أيضًا.
 - **SpeedInsights زالت من الجذر:** صفر مراجع في HTML المولّد + الحزمة غير موجودة في البناء إطلاقًا (package.json/bun.lock) — الأحداث ستتوقف عن التراكم فورًا؛ **Analytics باقية وتعمل** (3.4K أحداث في تقرير المالك تثبت تدفقها؛ سكربتها يُدخل من جهة العميل فلا يظهر في curl — سلوك الحزمة المعروف).
 - **نشر 8e052f85 اكتمل وتم الترويج رغم تجاوز التخزين لحظة الدفع** (التنقية فرّغت المساحة قبل اكتمال البناء كما هو مصمم) — الرئيسية 200 · GA موجود.
-
 
 ---
 Task ID: VERCEL-USAGE-1-2026-09-16
@@ -329,40 +347,6 @@ Single revert of the two files (EN layout + guard) — zero migrations, zero AR-
 
 ### Live verification on production (512b193 — 14/14 green)
 build-info carried the commit ~2 min after push · `/affiliate` = 200 with `og:image=https://alkemos.com/images/og/og-home-en.png` (1200×630 + alt) · `og:locale=en_US` · `twitter:image` + `twitter:card=summary_large_image` · asset og-home-en.png = 200 · title/canonical/hreflang pair identical to the pre-batch state (EN half untouched besides the card) · **regression checks:** `/ar/affiliate` intact (200 + og-home-ar + ar_EG) and `/memberships` intact (card present) · mastery note: one false-negative in the first script round — Next.js renders the attribute `hrefLang` (camel-case) while the script grepped `hreflang`; fixed and re-run → 14/14.
-
----
-
-Task ID: PHASE-208-SEO-GEO-17-ITEM11-2026-09-16
-Agent: Super Z (main)
-Task: Phase 208 — SEO-GEO-17: item 11 of the §12.53 plan — full Arabic mirror for /affiliate at /ar/affiliate (owner order 2026-09-16 «نفّذ البند 11: أنشئ مرآة عربية كاملة لـ /affiliate على /ar/affiliate لأن Alkemos يستهدف شركاء عربًا وغير عرب. قبل التنفيذ راجع الصفحة الإنجليزية الحالية ومرآتها العربية إن وجدت… لا تغيّر صفحة EN أو أي وظائف أخرى»)
-
-**Scope:** the AR mirror only — EN page, functions, prices, and data untouched (owner's explicit limit). Full detail: §12.56.
-
-### What shipped
-- **Route `/ar/affiliate`:** `page.tsx` re-exports the shared bilingual EN page (the /ar/for-coaches pattern — useI18n is URL-first, so Arabic renders automatically under /ar/*; the AR copy already existed inside the component in guarded MSA). `layout.tsx` adds natural-MSA metadata: brandless title «برنامج الأفلييت — حوّل تأثيرك إلى دخل» (36 chars + template suffix = 46 ≤ 70), 168-char description carrying the same facts (20% commission · $10 minimum payout), 10 AR keywords mirroring the EN set.
-- **hreflang:** self-canonical + full reciprocal en/ar/x-default pair. The EN layout already declared ar → /ar/affiliate since the H2 fix (2026-09-07) — the URL was the dangling half (404). The pair is now real with ZERO EN file edits.
-- **og:image:** og-home-ar (1200×630) pinned explicitly (replace-not-inherit law from batch 1-b) + twitter summary_large_image + og:locale ar_EG + og:url.
-- **Sitemap:** the EN /affiliate entry gained its alternates (was a bare loc) + a new AR entry — both with the full pair.
-- **Internal linking (every point that targeted EN only):** footer «برنامج الأفلييت», mobile-header drawer «خدمات أخرى», the blog-article affiliate CTA (BlogMembershipCard §3), and the LanguageToggle (mirror pair added + doc comment updated — /affiliate removed from the "no mirror" list).
-- **Guards:** og-image-coverage +1 surface (40) · ar-mirrors +6 tests (sitemap pair with reciprocal hreflang · full metadata contract for the AR layout · EN half-pair completion · re-export no-fork · toggle pair). Suite 1208 → 1215.
-- **lastmod:** pages family stays 2026-09-16 (same ship-day as phase 207 — truthful, no bump needed).
-
-### Gates (all green before push)
-tsc 0 · eslint 0/0 · vitest **1215/1215** · build 0 (**2,057 pages — +1 = /ar/affiliate**) · docs_audit (phase=208, 100 lines) · docs_parity · check-stale-refs · migration_audit ✓
-
-### Rollback
-Single revert: delete ar/affiliate/ + restore 4 internal links + 2 sitemap lines + the two guard updates — zero data migrations, zero EN changes.
-
-### Documented discovery (out of batch scope — proposal for owner decision)
-The EN /affiliate page itself has NO og:image at all (its openGraph block has no images, so nothing is inherited from the root — same defect class as §12.53 item 4, which was fixed for 9 EN surfaces in 206 but /affiliate was not on that audit list). Expected fix: one og-home-en card line in the EN layout. NOT executed — the owner's explicit limit for this batch was «don't change the EN page».
-
-### Live verification on production (515a16f — deployed & verified 2026-09-16)
-**24/24 checks green** (script outside the repo, Cloudflare cache-buster on every fetch; build-info carried 515a16f after 63s):
-- `/ar/affiliate` = 200 · html lang=ar · dir=rtl · AR hero + 20% commission facts rendered.
-- Title = «برنامج الأفلييت — حوّل تأثيرك إلى دخل — Alkemos» · canonical self · og:image/og:locale/og:url/twitter card all correct (og-home-ar 200).
-- **Reciprocal hreflang both sides:** AR page en/ar/x-default ↔ EN page (EN metadata byte-identical to pre-batch — the EN file was never touched).
-- Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
-- Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
 
 Task ID: SEO-GEO-15-BATCH1-LIVE-VERIFY
 Agent: Main (Z User)
