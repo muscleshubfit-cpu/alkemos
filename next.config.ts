@@ -30,7 +30,11 @@ const nextConfig: NextConfig = {
     // and serve the SOURCE URL directly — no /_next/image hop, no quota.
     // The load is already carried by the origin CDNs (Pexels/Pixabay/
     // Unsplash URLs ship compressed+resized via their own query params;
-    // Supabase Storage serves originals). remotePatterns/formats/minimumCacheTTL
+    // Supabase Storage serves originals). VERCEL-USAGE-2 (2026-09-16):
+    // `sharp` was removed from the DIRECT dependencies (zero importers —
+    // next@16 ships it itself via optionalDependencies when its optimizer
+    // needs it). REVERTING optimization later = flip this flag AND
+    // `bun add sharp` again. remotePatterns/formats/minimumCacheTTL
     // are kept untouched — dead under this flag but re-activating paid
     // optimization later is a ONE-LINE revert.
     unoptimized: true,

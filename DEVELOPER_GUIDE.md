@@ -513,15 +513,12 @@ State tracked in blog_generation_queue table (one row per language).
 | `react-hook-form` | ^7.60.0 | Forms |
 | `zod` | ^4.0.2 | Schema validation |
 | `react-markdown` | ^10.1.0 | Blog markdown rendering |
-| `@vercel/og` | ^1.0.1 | Dynamic OG images |
 | `@vercel/analytics` | ^2.0.1 | Pageview analytics |
-| `@vercel/speed-insights` | ^2.0.0 | Core Web Vitals |
 | `sonner` | ^2.0.6 | Toast notifications |
 | `zustand` | ^5.0.6 | State management |
 | `@tanstack/react-query` | ^5.82.0 | Async data fetching |
 | `@tanstack/react-table` | ^8.21.3 | Data tables |
 | `date-fns` | ^4.1.0 | Date utilities |
-| `sharp` | ^0.35.3 | Image compression |
 | `embla-carousel-react` | ^8.6.0 | Testimonials carousel |
 | `vaul` | ^1.1.2 | Drawer component |
 | `cmdk` | ^1.1.1 | Command palette |

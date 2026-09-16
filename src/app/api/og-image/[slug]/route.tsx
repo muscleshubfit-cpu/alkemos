@@ -34,6 +34,18 @@ import { fetchBlogForOG } from "@/lib/blog-server";
  *   3. Brand mark fixed "M" → "A" (leftover from the old brand).
  *   4. Cache-Control: public 1day + SWR so social crawlers and CDNs
  *      cache cards; keyed by slug+lang (both languages cached apart).
+ *
+ * VERCEL-USAGE-2 (2026-09-16, owner order «المشكلة كبيرة» after the usage
+ * report: Image Transformations 4K/5K · Fluid Active CPU 3h36m/4h):
+ *   5. `s-maxage=3600` added — Vercel's edge network now caches each
+ *      generated PNG for 1h. Requirements honored: GET-only, status 200,
+ *      no Set-Cookie (this route is excluded from the middleware below
+ *      precisely so crawler responses stay cookie-free and cacheable).
+ *      A repeat WhatsApp/Telegram/X fetch within the hour = edge hit:
+ *      zero function invocations, zero Satori CPU, zero Supabase query,
+ *      zero Fast Origin Transfer. Cloudflare rule ت-1 (1-day edge TTL,
+ *      owner dashboard decision) remains the bigger complementary
+ *      lever — the header here is the code-side half of it.
  */
 
 export const runtime = "edge";
@@ -199,7 +211,10 @@ export async function GET(
       height: 630,
       ...(fonts ? { fonts } : {}),
       headers: {
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        // VERCEL-USAGE-2: s-maxage=3600 lets Vercel's edge cache the PNG —
+        // crawler re-fetches within the hour stop re-running Satori.
+        "Cache-Control":
+          "public, max-age=86400, s-maxage=3600, stale-while-revalidate=604800",
       },
     },
   );

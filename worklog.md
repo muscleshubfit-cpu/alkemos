@@ -3,6 +3,28 @@
 > 🗄️ **الأرشفة (Phase 82):** المهام الأقدم (قبل آخر 10 مهام) نُقلت إلى `archive/WORKLOG_ARCHIVE.md` (ملحق 2026-09-02) — السجل كامل ومحفوظ، وهذا الملف يستمر append-only من آخر 10 مهام.
 
 ---
+Task ID: VERCEL-USAGE-2-2026-09-16
+Agent: Super Z (main)
+
+Task: ردّ الطوارئ على تقرير استخدام Vercel من المالك («التقرير التالى من vercal ، المشكلة كبيرة» — تنبيهات Exceeded free resources). فريم مستقل يكمل VERCEL-USAGE-1 (نفس اليوم، لا يغيّر ترقيم المراحل).
+
+Work Log:
+- **التقرير المُبلَّغ (لوحة المالك):** Deployment Storage **17.13/10GB** + Functions Storage **14.07/10GB** (تجاوز مزدوج) · Speed Insights 9.7K/10K · Fluid Active CPU 3h36m/4h · Image Transformations 4K/5K · Fast Origin Transfer 4.01/10GB · Invocations 358K/1M · Edge Requests 263K/1M · Cache Writes 21K/100K · Web Analytics 3.4K/50K.
+- **التشخيص الجذري (أدلة لا تخمين):** سجل تشغيل التنظيف 05:25 UTC اليوم (GitHub API): 80 جاهزًا · حُذف 31 · **بقي 49** — سياسة المرحلة 145 (نافذة 48س) نجحت كما صُممت لكنها **رياضيًا لا تتسع**: ~28 نشرًا/يوم × ~350MB ≈ 17GB. الـ workflow كان يعمل يوميًا بنجاح — العلة في النافذة لا في التنفيذ.
+- **ع-1 تضييق السياسة:** `vercel-cleanup.mjs` — نافذة 48→**6 ساعات** · previews 2→**1** (الحساب: ~7 حديثة + production + preview ≈ ~9 × ~350MB ≈ ~3.2GB — هامش ~3× تحت السقف).
+- **ع-2 محرّكات التنظيف:** `vercel-cleanup.yml` — تشغيل **مع كل push إلى main** (الاحتجاز يبقى ملتصقًا بأرضية النافذة) + جدولة مزدوجة 01:00+13:00 UTC (تغطي نشرات لوحة التحكم المباشرة؛ 13:00 بعيدة عن كل الفتحات الموثقة) + مدخلات workflow_dispatch جديدة (keep_hours/keep_previews/dry_run).
+- **ع-3 إزالة Speed Insights كاملة:** `<SpeedInsights />` من layout.tsx + الاعتمادية من package.json/bun.lock + مدخلا CSP (`vitals.vercel-insights.com` في script-src وconnect-src بـ vercel.json) — كانت 9.7K/10K محترقة ومصدر القياس المعتمد GA؛ **Analytics باقية** (3.4K/50K فقط). الإرجاع = سطر واحد موثق في layout.tsx.
+- **ع-4 إصلاح og-image (CPU + Transformations + Invocations معًا):** المسار كان يختم `Set-Cookie: mhe:locale` على كل طلب زاحف بلا كوكيز (المiddleware يعمل عليه) — وهذا **يعطّل أي كاش CDN** ويحرّق قفزة `getUser()` لكل زاحف. الحل: استثناء `/api/og-image/*` من matcher الـ middleware + `s-maxage=3600` في Cache-Control الاستجابة → حافة Vercel تكاش الـ PNG ساعة كاملة. صفر مساس بأي URL مفهرس (الاختبارات تثبّت `/api/og-image/...` — تحقُّق rg قبل التنفيذ).
+- **ع-5 نظافة اعتماديات:** إزالة `sharp` المباشرة (rg: صفر مستوردين — `next@16.3.2` يجلبها ذاتيًا عبر optionalDependencies — بلا ادعاء توفير تخزين) + حذف صف `@vercel/og` المتقادم من جدول DEVELOPER_GUIDE (غير مثبتة منذ المرحلة 151 — next/og داخل next) + ملاحظة الإرجاع في next.config.ts.
+- **التوثيق:** docs/VERCEL-USAGE-AUDIT-2026-09-16.md §7 جديد (الأرقام المبلّغة + الجذر + ع-1..ع-5 + §7.4 قرارات المالك المتبقية: ت-1 أصبحت أكثر إلحاحًا + ت-2 المتبقي Analytics فقط + ت-3 لتخفيف Fluid CPU) · تحديث ت-2 التاريخية · STATE.md (سطر التحديث + مدخل الفريم + تحديث المعلّقات — lines=100 محفوظة) · SEO-GEO-MASTER-PLAN جدول المراقبة · DEVELOPER_GUIDE جدول الاعتماديات.
+- **البوابات:** tsc 0 · eslint 0/0 · vitest 1241/1241 · build 2,056 صفحة · docs_audit/parity/stale-refs/migration_audit (التفصيل أسفل).
+
+Stage Summary:
+- التجاوز المزدوج حُلّ من جذره: النافذة الجديدة 6س + التشغيل مع كل push تخفض الاحتجاز من 49 نشرًا (~17GB) إلى ~9 (~3.2GB) — **يُنتظر هبوط العداد خلال ساعة من أول تشغيل بالسياسة الجديدة** (أول تشغيل طُلِب فور الدفع بـ workflow_dispatch).
+- Speed Insights توقفت عن الاحتراق نهائيًا (97% كانت محترقة)؛ og-image أصبح قابلًا للكاش على حافة Vercel لأول مرة (كان Set-Cookie يعطّله).
+- المتبقي على المالك (§7.4): ت-1 قاعدة CF (يوم كامل بدل ساعة — الأعلى أثرًا الآن) · ت-3 اختياري للـ CPU · Redeploy يدوي فقط لو حُجب نشر هذا الكوميت لحظة البناء (يُستبعد — التنظيف يكتمل قبل اكتمال أي بناء).
+
+---
 Task ID: VERCEL-USAGE-1-2026-09-16
 Agent: Super Z (main)
 
@@ -335,52 +357,6 @@ The EN /affiliate page itself has NO og:image at all (its openGraph block has no
 - Sitemap: EN entry now carries the ar alternate + AR entry carries the en alternate · pages lastmod = 2026-09-16.
 - Internal linking: AR surfaces link `/ar/affiliate`, EN surfaces link `/affiliate`.
 
----
-
-Task ID: PHASE-207-SEO-GEO-16-BATCH-1B-2-2026-09-16
-Agent: Super Z (main)
-Task: Phase 207 — SEO-GEO-16: batch 1-b (og:image for the three AR mirrors) + batch 2 (item 2 of §12.53 — self-hosting ALL exercise images in public/, owner order 2026-09-16 «نفّذ دفعة ١-ب، نفّذ دفعة 2 الخاصة باستضافة صور التمارين ذاتيًا… استخدم public/ مع تحسين الصور للصيغة والحجم والأداء دون تغيير جودة المحتوى أو وظائف الموقع»)
-
-**Scope:** presentation/metadata/assets only — zero routes/functions/prices/data changes; `images.unoptimized` untouched (one-variable-per-batch law).
-
-### Batch 1-b — og:image for the AR mirrors (live-verification catch of phase 206)
-- The three AR mirrors that declared their own openGraph block WITHOUT images (replacing /ar/layout.tsx so og-home-ar was never inherited) are now wired: `/ar/evo` + `/ar/coaching` (layouts), `/ar/diet-plan` (hub), `/ar/diet-plan/{level}/{system}` (24 cells — twitter block added too). Exact EN pattern; og-home-ar 1200×630.
-- Guard: `og-image-coverage.test.ts` WIRED_SURFACES +4 (35→39 tests).
-
-### Batch 2 — item 2: exercise images self-hosted
-- **Inventory:** all 868 exercises × 2 = 1,736 unique image paths, ALL standard `<Folder>/[0|1].jpg` (automated check: zero deviant paths), all flowing through the single builder `getExerciseImageUrl` (grep: no other src reference to the host).
-- **Migration:** 1,736/1,736 downloaded from raw.githubusercontent.com (JPEG magic-byte verification + retries) → re-encoded **JPEG → WebP q85 · method 6 · original dimensions (NO resize)** — PSNR-based decision (≥37.6dB vs source at q85: imperceptible; and 750–850px source matches the real display boxes 560px CSS × DPR2) — 93.6MB → 78.8MB (−15.8%). Content quality and site functionality unchanged (owner law).
-- **Storage:** `public/images/exercises/<Folder>/[0|1].webp` — dataset folder names preserved EXACTLY (§12.53-هـ stable-names law); only the builder maps the extension (.jpg → .webp, one line).
-- **Caching:** `Cache-Control: public, max-age=31536000, immutable` on `/images/exercises/:path*` — added in BOTH `next.config.ts` (headers()) and `vercel.json` (mirrors the brand-family convention). Immutable is justified: frozen MIT dataset + stable names; any future re-encode ships under new filenames.
-- **Attribution:** yuhonas/free-exercise-db (MIT) documented in `public/images/README.md` (new exercises/ section: source, optimization params, naming law, cache law, guard).
-- **Sweep result:** the URL builder was the only pass-through point — generated HTML now has ZERO raw.githubusercontent references (local smoke-verified EN + AR exercise pages + homepage samples + programs client). The remotePatterns entry for the host is intentionally kept as the documented one-line rollback path (commented).
-- **New guard** `src/lib/__tests__/exercise-images-selfhost.test.ts` (5 tests): mapping pinned (.jpg→.webp) + passthrough laws + **every imageKey of all 868 exercises resolves to an existing non-empty .webp on disk** (1,736 existsSync checks) + retired host absent from CODE (comments stripped first — history narration is allowed by repo law).
-- **Updated guards:** `ai-workout-exercise-match.test.ts` (two toContain assertions + the ENRICH regex) and `homepage-adoption.test.ts` (homepage exercise samples: https:// → /images/exercises/ + .webp).
-- **next.config/vercel.json:** exercises cache rule (see above); remotePatterns comment for raw.githubusercontent.com updated (dead config kept as documented rollback).
-
-### Companion documentation (same-frame law)
-- `sitemap-lastmod.ts`: pages + exercises families → **2026-09-16** (real served-HTML change per the module's UPDATE PROTOCOL). **exercises decoupled from CONTENT_LAST_REVIEWED** (which remains the E-E-A-T anchor in seo.ts, still 2026-09-09): an HTML change is not a content review — each semantic now has its own source. Guard `sitemap-lastmod.test.ts` updated in the same frame (foods alone derives from CONTENT_LAST_REVIEWED).
-- `STATE.md`: phase 207 entry + QA line (188/189 compressed to stay within the 100-line docs_audit cap).
-- `README.md` + `DEVELOPER_GUIDE.md`: self-hosting noted in the lib tree.
-- `docs/SEO-GEO-MASTER-PLAN.md`: §12.55 (this phase) + §12.53 table item 2 → completed + §12.54 remaining-list updated.
-
-### Gates (all green before push)
-tsc 0 · eslint 0/0 · vitest **1208/1208** (1199 + 9 new) · build 0 (2,056 pages) · docs_audit (phase=207) · docs_parity · check-stale-refs · check-ui-wiring · migration_audit ✓
-
-### Local smoke (next start)
-Exercise page EN/AR renders /images/exercises/*.webp · asset served 200 · image/webp · Cache-Control: public, max-age=31536000, immutable · /ar/evo + /ar/coaching + /ar/diet-plan hub + cell carry og-home-ar · homepage samples on local paths · ZERO raw.githubusercontent in any fetched HTML.
-
-### Rollback
-Single commit revert restores the GitHub raw builder (remotePatterns entry alive); on-disk WebP assets are inert without it.
-
-**Production commit:** 3da58f8 (pushed to origin/main e6e67bc..3da58f8; Vercel deployed; build-info live = 3da58f8).
-
-### Live verification on production (3da58f8)
-- **23/23 checks** (script outside the repo, Cloudflare cache-buster on every HTML fetch): the four AR surfaces serve og:image=og-home-ar + twitter images · EN/AR exercise pages + homepage samples serve /images/exercises/*.webp with ZERO raw.githubusercontent references · asset served 200 · image/webp · RIFF/WEBP magic · Cache-Control: public, max-age=31536000, immutable · sitemap exercises+pages lastmod = 2026-09-16 (exercises sitemap carries all 1,736 URLs) · regressions clean (og-home-en on the EN surfaces, og-home-ar inherited on AR lists, family cards on detail pages).
-- **Deep random sample 30/30:** 30 random URLs from the live exercises sitemap (seed 207) — every page serves local webp references and every referenced asset (60 checks) resolves 200.
-- Note: the first deep-sample run reported 6/30 "no images" — root cause was a regex bug in the verification script itself (letter `s` wrongly excluded from the character class), NOT a site defect; script fixed, re-run = 30/30. Documented for honesty of record.
-
----
 Task ID: SEO-GEO-15-BATCH1-LIVE-VERIFY
 Agent: Main (Z User)
 Task: التحقق الحي من دفعة ١ (المرحلة 206) على الإنتاج بعد نشر 5713713

@@ -1,36 +1,58 @@
-# Vercel stale-deployment purge — daily (Phase 145, owner directive 2026-09-08).
+# Vercel stale-deployment purge — push-triggered + 2× daily
+# (Phase 145, owner directive 2026-09-08 · tightened VERCEL-USAGE-2
+# 2026-09-16, owner order «المشكلة كبيرة»).
 #
-# WHY: the Hobby plan's "Function Storage" (10 GB) counts the retained
-# function bundles of every kept deployment. This repo deploys on EVERY push
-# to main, and in the SEO-GEO sprint the retention hit 100% in under a week
-# (VERCEL-FS-CLEANUP-2026-09-08 — 123 retained deployments, new deploys
-# blocked until purged). The manual purge is now automated.
+# WHY: the Hobby plan's "Function Storage" + "Deployment Storage" (10 GB
+# each) count the retained bundles/artifacts of every kept deployment.
+# This repo deploys on EVERY push to main, and the 2026-09-16 usage
+# report showed BOTH quotas EXCEEDED (17.13 + 14.07 GB) with 49 retained
+# deployments — the Phase-145 48h window mathematically cannot fit this
+# deploy rate in 10 GB (~28 deploys/day × ~350 MB × 2 days ≈ 17 GB).
 #
 # WHAT: runs scripts/vercel-cleanup/vercel-cleanup.mjs — keeps the CURRENT
-# production deployment (alkemos.com aliases) + the last KEEP_HOURS (48h
-# default) + the newest KEEP_PREVIEWS (2) previews, DELETEs the rest.
+# production deployment (alkemos.com aliases) + the last KEEP_HOURS (6h
+# default) + the newest KEEP_PREVIEWS (1) preview, DELETEs the rest.
 # Superseded deployments are reproducible from git at any time.
 #
-# SCHEDULE: 01:00 UTC daily — clear of the blog slots (22:00 EN / 05:00 AR),
-# the 23:00 dispatch-pipelines backstop, the 05:30 db-backup and the Sunday
-# 07:00 progress reminder.
+# TRIGGERS (VERCEL-USAGE-2):
+#   1. Every push to main — retention stays pinned at the 6h window floor
+#      instead of drifting up between scheduled runs.
+#   2. Twice daily (01:00 + 13:00 UTC) — backstop that also purges after
+#      NON-push deploy sources (Vercel dashboard "Redeploy", blog pipeline
+#      direct deployments). 13:00 is clear of the blog slots (22:00 EN /
+#      05:00 AR), the 23:00 dispatch-pipelines backstop, the 05:30
+#      db-backup and the Sunday 07:00 progress reminder.
 #
 # SCHEDULE HEALTH LAW (AGENTS.md §8): GitHub can silently de-register
-# scheduled workflows repo-wide. If blog/backup runs stop AND this workflow
-# shows no recent runs, start with schedule forensics (GET
+# scheduled workflows repo-wide. The push trigger now self-heals most
+# deregistration, but if blog/backup runs stop AND this workflow shows
+# no recent runs, start with schedule forensics (GET
 # /actions/runs?event=schedule) + a touching commit to re-register —
 # "vercel stopped cleaning" is diagnosed the same way.
 #
 # SETUP (one-time, owner): repository secret VERCEL_TOKEN (Settings ▸
 # Secrets and variables ▸ Actions). A project-scoped Vercel token is enough.
 # Until the secret exists the preflight step fails fast with the exact fix.
-name: Vercel cleanup (daily stale-deployment purge)
+name: Vercel cleanup (stale-deployment purge)
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "0 1 * * *"
+    - cron: "0 13 * * *"
   workflow_dispatch:
     inputs:
+      keep_hours:
+        description: "Freshness window (hours) to always keep — default 6"
+        type: string
+        required: false
+        default: ""
+      keep_previews:
+        description: "Newest preview deployments to always keep — default 1"
+        type: string
+        required: false
+        default: ""
       dry_run:
         description: "DRY RUN — list keep/purge plan, delete nothing"
         type: boolean
@@ -68,10 +90,14 @@ jobs:
           fi
           echo "✓ VERCEL_TOKEN present"
 
-      - name: Purge stale deployments (keep production + fresh window + newest previews)
+      - name: Purge stale deployments (keep production + fresh window + newest preview)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_NAME: alkemos
+          # github.event.inputs.* are ALWAYS strings (''/value) — empty on
+          # push/schedule events → the script's 6h/1 defaults apply.
+          KEEP_HOURS: ${{ github.event.inputs.keep_hours }}
+          KEEP_PREVIEWS: ${{ github.event.inputs.keep_previews }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
         run: node scripts/vercel-cleanup/vercel-cleanup.mjs
 
@@ -79,6 +105,6 @@ jobs:
         if: always()
         run: |
           echo "=== Vercel cleanup summary ==="
-          echo "GREEN run = purge completed (or nothing needed purging) — Function Storage stays within quota."
+          echo "GREEN run = purge completed (or nothing needed purging) — Deployment/Functions Storage stays within quota."
           echo "RED run   = a Vercel API call failed — scroll to the ✗ lines for the exact deployment UID + HTTP status."
           echo "DRY RUN   = plan-only run selected via workflow_dispatch (nothing was deleted)."

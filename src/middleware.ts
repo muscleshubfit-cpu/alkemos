@@ -172,7 +172,16 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
  matcher: [
- // Run on all routes except static assets and Next internals.
- "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|js|css)$).*)",
+ // Run on all routes except static assets, Next internals, and the
+ // OG image generator. VERCEL-USAGE-2 (2026-09-16): /api/og-image/*
+ // serves PNGs to social crawlers — the middleware added zero value
+ // there (locale header + Supabase session refresh are meaningless for
+ // an image response) but DID stamp `Set-Cookie: mhe:locale` on every
+ // cookieless crawler request, which makes a response uncacheable at
+ // any CDN edge — so the s-maxage added to that route could never
+ // fire. Excluded here, crawler responses are cookie-free and
+ // edge-cacheable, and each bot fetch no longer pays the wasted
+ // `getUser()` network hop either (audit item #5).
+ "/((?!_next/static|_next/image|api/og-image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|js|css)$).*)",
  ],
 };

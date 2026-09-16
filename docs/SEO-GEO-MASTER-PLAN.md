@@ -47,7 +47,7 @@
 | حجم الفهرسة في Bing | ~80,100 صفحة (يشمل 8,750 صفحة طعام من USDA غير المُعلَنة في الخريطة) | `site:alkemos.com` على Bing |
 | الأمان والخصوصية | HSTS, CSP, GDPR Cookie Banner, Permissions-Policy, X-Frame-Options | فحص response headers |
 | PWA | قابل للتثبيت + Service Worker + manifest.json | `public/manifest.json`, `public/sw.js` |
-| مراقبة الأداء | Vercel Analytics + Speed Insights مُفعّلان | `<Analytics />` + `<SpeedInsights />` |
+| مراقبة الأداء | Vercel Analytics مُفعّل (Speed Insights أُزيل في VERCEL-USAGE-2 — 9.7K/10K من حصته الشهرية كانت محترقة) | `<Analytics />` |
 | Skipping navigation | `sr-only-focusable` skip link | فحص HTML |
 | robots.txt الأساسي | موحّد بذكاء (Phase 140 audit fix) + يسمح لكل البوتات بفهرسة المحتوى العام | فحص حي |
 | روابط داخلية في صفحات الأطعمة | `getRelatedFoods` يولّد روابط ذكية | `src/lib/foods.ts` |

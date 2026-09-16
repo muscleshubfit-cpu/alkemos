@@ -2,7 +2,6 @@ import Script from "next/script";
 import { cookies, headers } from "next/headers";
 import { Inter, Playfair_Display, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nProvider } from "@/lib/i18n";
@@ -470,11 +469,15 @@ export default async function RootLayout({
         )}
 
         {/* Vercel Analytics — pageview + custom event tracking.
-            No-op in dev or when not deployed on Vercel. */}
+            No-op in dev or when not deployed on Vercel. Kept in
+            VERCEL-USAGE-2 (2026-09-16): only 3.4K/50K events used.
+            Speed Insights was REMOVED in the same frame — its beacon
+            had burned 9.7K of the 10K free monthly events (Vercel
+            usage report), and the site's analytics source of record is
+            Google Analytics (cookie-policy documented). One-line
+            revert: reinstall @vercel/speed-insights + re-mount
+            <SpeedInsights /> + restore its CSP entries. */}
         <Analytics />
-
-        {/* Vercel Speed Insights — Core Web Vitals + LCP/CLS/INP tracking. */}
-        <SpeedInsights />
 
         {/* Google AdSense — only loaded when NEXT_PUBLIC_ADSENSE_CLIENT env
             var is set. Avoids loading AdSense on local dev or when the

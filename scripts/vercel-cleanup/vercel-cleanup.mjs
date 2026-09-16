@@ -1,19 +1,30 @@
 #!/usr/bin/env node
 /**
- * Vercel stale-deployment cleanup — Phase 145 (owner directive 2026-09-08).
+ * Vercel stale-deployment cleanup — Phase 145 (owner directive 2026-09-08)
+ * · tightened VERCEL-USAGE-2 (2026-09-16, owner order «المشكلة كبيرة»).
  *
- * WHY: the Hobby (free) plan includes 10 GB of "Function Storage" — the
- * retained serverless-function bundles of every kept deployment. This repo
- * deploys on EVERY push to main (~17 deploys/day during active phases) and
- * burned through the whole quota in under a week (VERCEL-FS-CLEANUP-2026-09-08:
- * 123 retained deployments in 5 days → 100% → new deployments blocked).
- * Vercel auto-purges only far older deployments, so the accumulation wins.
+ * WHY: the Hobby (free) plan includes 10 GB of "Function Storage" and
+ * 10 GB of "Deployment Storage" — the retained bundles/artifacts of every
+ * kept deployment. This repo deploys on EVERY push to main (~28 deploys/
+ * day during active phases; 2026-09-16 usage report: Deployment Storage
+ * 17.13/10 GB + Functions Storage 14.07/10 GB = BOTH EXCEEDED at 49
+ * retained deployments ≈ ~350 MB each). The 48h window of Phase 145
+ * mathematically CANNOT fit this deploy rate in 10 GB — 48h × ~28/day
+ * × ~350 MB ≈ ~17 GB. Vercel auto-purges only far older deployments,
+ * so the accumulation always wins unless the window shrinks.
  *
- * WHAT: keeps the CURRENT production deployment (the one holding the domain
- * aliases) + everything newer than KEEP_HOURS + the newest KEEP_PREVIEWS
- * preview deployments, and DELETEs every other READY deployment via the
- * Vercel REST API. Superseded deployments are always reproducible from git
- * (`vercel` rebuilds any commit), so purging them loses nothing.
+ * WHAT: keeps the CURRENT production deployment (the one holding the
+ * domain aliases) + everything newer than KEEP_HOURS + the newest
+ * KEEP_PREVIEWS preview deployments, and DELETEs every other READY
+ * deployment via the Vercel REST API. Superseded deployments are always
+ * reproducible from git (`vercel` rebuilds any commit), so purging them
+ * loses nothing.
+ *
+ * VERCEL-USAGE-2 MATH (defaults below): 6h window × ~28 deploys/day ≈ 7
+ * fresh + production + 1 preview ≈ ~9 retained ≈ ~3.2 GB — fits the
+ * 10 GB quota with ~3× headroom for deploy bursts. The workflow also
+ * runs on every push to main now, so retention stays pinned at the
+ * window floor instead of drifting up between daily runs.
  *
  * RUNTIME: Node 22 global fetch — ZERO dependencies (db-backup.mjs pattern).
  * Auth: VERCEL_TOKEN from GitHub Actions secrets (never in code — §3.2).
@@ -25,8 +36,8 @@
  * Env:
  *   VERCEL_TOKEN         (required) Vercel API token — project scope suffices
  *   VERCEL_PROJECT_NAME  (optional, default "alkemos")
- *   KEEP_HOURS           (optional, default "48")  freshness window to always keep
- *   KEEP_PREVIEWS        (optional, default "2")   newest previews to always keep
+ *   KEEP_HOURS           (optional, default "6")   freshness window to always keep
+ *   KEEP_PREVIEWS        (optional, default "1")   newest previews to always keep
  *   DRY_RUN              (optional, "1"/"true" — list only, delete nothing)
  */
 
@@ -34,8 +45,8 @@ const API = "https://api.vercel.com";
 
 const TOKEN = process.env.VERCEL_TOKEN || "";
 const PROJECT_NAME = process.env.VERCEL_PROJECT_NAME || "alkemos";
-const KEEP_HOURS = Number(process.env.KEEP_HOURS || "48");
-const KEEP_PREVIEWS = Number(process.env.KEEP_PREVIEWS || "2");
+const KEEP_HOURS = Number(process.env.KEEP_HOURS || "6");
+const KEEP_PREVIEWS = Number(process.env.KEEP_PREVIEWS || "1");
 const DRY_RUN = /^(1|true|yes)$/i.test(process.env.DRY_RUN || "");
 
 let stepSummary = "";
