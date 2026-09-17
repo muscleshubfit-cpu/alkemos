@@ -30,7 +30,7 @@ import {
   buildPromoCopy,
   PROMO_TEMPLATES,
 } from "@/lib/affiliate-content";
-import { COMMISSION_RATE, getOrCreateReferralCode } from "@/lib/referral";
+import { COMMISSION_RATE } from "@/lib/affiliate-constants";
 import { CopyButton } from "@/components/ui/copy-button";
 import { AffiliateToolkit } from "@/components/views/AffiliateToolkit";
 import { toast } from "sonner";
@@ -54,6 +54,12 @@ export function AffiliateProgramView() {
     let cancelled = false;
     (async () => {
       try {
+        // PHASE 224 (narrow 182): the referral module statically chains to
+        // the Supabase layer — imported HERE, at this logged-in-only call
+        // site, so /affiliate (+ /ar/affiliate) ships zero Supabase JS for
+        // anonymous visitors. COMMISSION_RATE above now comes from the
+        // dependency-free affiliate-constants module (its true source).
+        const { getOrCreateReferralCode } = await import("@/lib/referral");
         const code = await getOrCreateReferralCode(profile.id, profile.full_name);
         if (!cancelled) setReferralCode(code);
       } catch {

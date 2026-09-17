@@ -18,7 +18,12 @@
  *     HTML attributes or script.
  */
 
-import { COMMISSION_RATE, COOKIE_DURATION_DAYS } from "@/lib/referral";
+// PHASE 224 (narrow 182): constants re-sourced from the dependency-free
+// affiliate-constants module. The old import (`from "@/lib/referral"`)
+// dragged the whole browser Supabase layer into every consumer of these
+// content templates — including the public /affiliate tree, which ships
+// zero Supabase JS for anonymous visitors since this change.
+import { COMMISSION_RATE, COOKIE_DURATION_DAYS } from "@/lib/affiliate-constants";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Canonical URL resolution

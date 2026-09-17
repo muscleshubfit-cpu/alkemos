@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useNav } from "@/hooks/use-nav";
 import { useAuth } from "@/hooks/use-auth";
-import { createTicket } from "@/lib/data";
 import { toast } from "sonner";
 
 export function ContactView() {
@@ -32,6 +31,11 @@ export function ContactView() {
     setSending(true);
     try {
       if (profile) {
+        // PHASE 224 (narrow 182): the @/lib/data barrel statically chains to
+        // the Supabase layer — imported HERE, at the user-triggered call site,
+        // so /contact (+ /ar/contact) ships zero Supabase JS for anonymous
+        // visitors (the NotificationBell precedent from 182 itself).
+        const { createTicket } = await import("@/lib/data");
         await createTicket(profile.id, `[تواصل] ${subject}`, `${message}\n\n— ${name} (${email})`);
         toast.success(isAr ? "تم إرسال رسالتك! سنرد عليك قريباً." : "Message sent! We'll reply soon.");
       } else {

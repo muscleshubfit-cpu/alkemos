@@ -29,9 +29,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
-import {
-  getOrCreateReferralCode,
-} from "@/lib/referral";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   BANNER_FORMATS,
@@ -68,6 +65,11 @@ export function AffiliateToolkit() {
     (async () => {
       if (!profile?.id) return;
       try {
+        // PHASE 224 (narrow 182): the referral module statically chains to
+        // the Supabase layer — imported HERE, at this logged-in-only call
+        // site, so the public /affiliate tree ships zero Supabase JS for
+        // anonymous visitors (the NotificationBell precedent from 182).
+        const { getOrCreateReferralCode } = await import("@/lib/referral");
         const code = await getOrCreateReferralCode(profile.id, profile.full_name);
         if (!cancelled) {
           setReferralCode(code);
