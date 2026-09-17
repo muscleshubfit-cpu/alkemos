@@ -35,6 +35,7 @@ import {
 import {
   PAYPAL_TOPUP_MIN_USD,
 } from "@/lib/coach-limits";
+import { paypalCreateOrderBodySchema } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
 
@@ -67,6 +68,50 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "Invalid JSON body" },
+      { status: 400 },
+    );
+  }
+
+  // Wave 3 zod gate — shape only (§7 owner-approved: price resolution,
+  // wallet math and every amount/range check below stay the route policy;
+  // every legacy 400 class is re-derived verbatim on gate failure).
+  const parsed = paypalCreateOrderBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    // Re-derive the legacy flow on the RAW body: purpose dispatch first
+    // (route policy), then the branch's own checks in legacy order.
+    if (raw.purpose === "wallet_topup") {
+      const legacyEgp =
+        raw.amountUsd === undefined && raw.amountEgp !== undefined;
+      const usd = Number(raw.amountUsd ?? raw.amountEgp) / (legacyEgp ? 50 : 1);
+      if (!Number.isFinite(usd) || usd <= 0 || usd > 1_000_000) {
+        return NextResponse.json(
+          { error: "bad_amount", message: "اكتب مبلغ شحن صحيح" },
+          { status: 400 },
+        );
+      }
+    } else {
+      const rawTier = raw.planTier;
+      if (!rawTier || typeof rawTier !== "string") {
+        return NextResponse.json(
+          { error: "Missing or invalid planTier" },
+          { status: 400 },
+        );
+      }
+      const rawMonths = raw.durationMonths;
+      if (
+        !rawMonths ||
+        typeof rawMonths !== "number" ||
+        (rawMonths !== 1 && rawMonths !== 12)
+      ) {
+        return NextResponse.json(
+          { error: "Invalid durationMonths — must be 1 or 12" },
+          { status: 400 },
+        );
+      }
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
       { status: 400 },
     );
   }

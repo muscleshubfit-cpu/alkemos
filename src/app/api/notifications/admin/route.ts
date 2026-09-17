@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  adminNotificationBodySchema,
+  ADMIN_NOTIF_TYPES,
+} from "@/lib/validation/schemas";
 
 /**
  * POST /api/notifications/admin
@@ -70,7 +74,39 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { type, title, body: notifBody, link, clientId } = body;
+
+  // Wave 3 zod gate — shape only; the three legacy 400 classes below
+  // are re-derived verbatim in legacy order on gate failure (compat
+  // law) — the type enum IS the legacy ALLOWED_TYPES allowlist.
+  const parsed = adminNotificationBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawType = raw.type;
+    const rawTitle = raw.title;
+    if (!rawType || !rawTitle) {
+      return NextResponse.json(
+        { error: "Missing type or title" },
+        { status: 400 },
+      );
+    }
+    if (
+      typeof rawType !== "string" ||
+      !(ADMIN_NOTIF_TYPES as readonly string[]).includes(rawType)
+    ) {
+      return NextResponse.json(
+        {
+          error: `Invalid notification type. Allowed: ${ADMIN_NOTIF_TYPES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const { type, title, body: notifBody, link, clientId } = parsed.data;
 
   if (!type || !title) {
     return NextResponse.json(

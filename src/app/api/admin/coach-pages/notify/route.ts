@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminCoachNotifyBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN — MANUAL «COMPLETE YOUR PAGE» REMINDER (Phase 51).
@@ -26,7 +27,26 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "").trim();
+
+  // Wave 3 zod gate — shape only; the legacy «coach_id مطلوب» 400 is
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = adminCoachNotifyBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "").trim();
+    if (!rawCoachId) {
+      return NextResponse.json(
+        { error: "bad_request", message: "coach_id مطلوب" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
   if (!coachId) {
     return NextResponse.json(
       { error: "bad_request", message: "coach_id مطلوب" },

@@ -63,6 +63,38 @@ import {
   savedToolDeleteIdSchema,
   supportTicketBodySchema,
 } from "@/lib/validation/schemas";
+import {
+  ADMIN_NOTIF_TYPES,
+  affiliateCommissionBodySchema,
+  adminAccountDeleteBodySchema,
+  adminAccountFlagBodySchema,
+  adminAssignPairBodySchema,
+  adminBlogCleanupBodySchema,
+  adminCoachFeeBodySchema,
+  adminCoachKindBodySchema,
+  adminCoachNotifyBodySchema,
+  adminCoachPageReviewBodySchema,
+  adminCoachSupportReplyBodySchema,
+  adminLeadPatchBodySchema,
+  adminNotificationBodySchema,
+  adminRefundDecisionBodySchema,
+  adminSiteUnassignBodySchema,
+  adminStaffDemoteBodySchema,
+  adminStaffInviteBodySchema,
+  adminTopupReviewBodySchema,
+  adminWalletAdjustBodySchema,
+  cronBlogP0QuerySchema,
+  cronBlogQueueQuerySchema,
+  externalPlanActionBodySchema,
+  externalPlanCreateBodySchema,
+  externalPlanPatchBodySchema,
+  MAX_CRON_JOB_ID,
+  MAX_CRON_TOPIC,
+  paypalCaptureOrderBodySchema,
+  paypalCreateOrderBodySchema,
+  paypalWebhookEventSchema,
+  uuidQueryIdSchema,
+} from "@/lib/validation/schemas";
 import { EVO_HISTORY_CAP_PAID } from "@/lib/evo-coach";
 
 /**
@@ -1208,5 +1240,605 @@ describe("emptyEnvelopeBodySchema — POST subscription/cancel · refund/request
     expect(emptyEnvelopeBodySchema.safeParse(5).success).toBe(false);
     expect(emptyEnvelopeBodySchema.safeParse(null).success).toBe(false);
     expect(emptyEnvelopeBodySchema.safeParse(undefined).success).toBe(false);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Wave 3 (phase 222) canaries — paypal · admin · cron · affiliate.
+ * Same law as every prior wave: zod = shape/type/size + trim +
+ * unknown-key stripping; every LEGACY failure class keeps its exact
+ * route response (re-derived route-side); only NEW violations get
+ * fresh 400s. Auth-first ordering is a ROUTE concern (pinned by the
+ * live smoke in the phase worklog, not by these unit canaries).
+ * ═══════════════════════════════════════════════════════════════════ */
+
+describe("paypalCreateOrderBodySchema — POST /api/paypal/create-order (Wave 3, §7)", () => {
+  it("accepts the real subscription payload", () => {
+    const r = paypalCreateOrderBodySchema.safeParse({
+      planTier: "premium",
+      durationMonths: 12,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts the real wallet-topup payload (numeric string amount = legacy Number() coercion)", () => {
+    const r = paypalCreateOrderBodySchema.safeParse({
+      purpose: "wallet_topup",
+      amountUsd: "50",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts the legacy EGP payload (pre-0038 compat)", () => {
+    const r = paypalCreateOrderBodySchema.safeParse({
+      purpose: "wallet_topup",
+      amountEgp: 1500,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects string durationMonths (route re-derives «Invalid durationMonths — must be 1 or 12» verbatim)", () => {
+    expect(
+      paypalCreateOrderBodySchema.safeParse({ planTier: "premium", durationMonths: "12" }).success,
+    ).toBe(false);
+  });
+
+  it("rejects non-string planTier (route re-derives «Missing or invalid planTier» verbatim)", () => {
+    expect(paypalCreateOrderBodySchema.safeParse({ planTier: 5, durationMonths: 1 }).success).toBe(
+      false,
+    );
+  });
+
+  it("layering: purpose stays OPEN (the === dispatch is route policy — non-strings take the subscription branch exactly as legacy)", () => {
+    const r = paypalCreateOrderBodySchema.safeParse({ purpose: 123, planTier: "premium", durationMonths: 1 });
+    expect(r.success).toBe(true);
+  });
+
+  it("hostile: smuggled object/array amounts now 400 (legacy Number([5]) coerced to 5 — the sanctioned smuggled-shape class)", () => {
+    expect(
+      paypalCreateOrderBodySchema.safeParse({ purpose: "wallet_topup", amountUsd: [5] }).success,
+    ).toBe(false);
+    expect(
+      paypalCreateOrderBodySchema.safeParse({ purpose: "wallet_topup", amountUsd: { v: 5 } }).success,
+    ).toBe(false);
+  });
+});
+
+describe("paypalCaptureOrderBodySchema — POST /api/paypal/capture-order (Wave 3, §7)", () => {
+  it("accepts a real PayPal order id", () => {
+    const r = paypalCaptureOrderBodySchema.safeParse({ orderId: "5O190127TN364715T" });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects missing/empty/non-string orderId (route re-derives «Missing or invalid orderId» verbatim)", () => {
+    expect(paypalCaptureOrderBodySchema.safeParse({}).success).toBe(false);
+    expect(paypalCaptureOrderBodySchema.safeParse({ orderId: "" }).success).toBe(false);
+    expect(paypalCaptureOrderBodySchema.safeParse({ orderId: 123 }).success).toBe(false);
+  });
+
+  it("rejects oversized orderId (fresh fail-fast class — legacy flowed it into the PayPal API roundtrip)", () => {
+    expect(paypalCaptureOrderBodySchema.safeParse({ orderId: "x".repeat(101) }).success).toBe(false);
+  });
+
+  it("hostile: smuggled keys are STRIPPED", () => {
+    const r = paypalCaptureOrderBodySchema.safeParse({
+      orderId: "5O190127TN364715T",
+      user_id: "someone-else",
+      amount: 0.01,
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("user_id");
+      expect(r.data).not.toHaveProperty("amount");
+    }
+  });
+});
+
+describe("paypalWebhookEventSchema — POST /api/paypal/webhook (Wave 3, §7)", () => {
+  it("accepts a real PAYMENT.CAPTURE.REFUNDED event shape", () => {
+    const r = paypalWebhookEventSchema.safeParse({
+      event_type: "PAYMENT.CAPTURE.REFUNDED",
+      resource_type: "capture",
+      resource: {
+        id: "8RU543269A218761Y",
+        custom_id: '{"user_id":"abc","plan_tier":"premium"}',
+        supplementary_data: { related_ids: { order_id: "5O190127TN364715T" } },
+      },
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts a minimal event (all fields optional — legacy defaults)", () => {
+    expect(paypalWebhookEventSchema.safeParse({}).success).toBe(true);
+  });
+
+  it("rejects non-object events (legacy: reads defaulted → 200 log — the sanctioned hostile-shape class)", () => {
+    expect(paypalWebhookEventSchema.safeParse("string").success).toBe(false);
+    expect(paypalWebhookEventSchema.safeParse([1, 2]).success).toBe(false);
+    expect(paypalWebhookEventSchema.safeParse(5).success).toBe(false);
+  });
+
+  it("rejects wrong-typed inner fields (legacy: truthy object slipped into the log switch)", () => {
+    expect(paypalWebhookEventSchema.safeParse({ event_type: 123 }).success).toBe(false);
+    expect(paypalWebhookEventSchema.safeParse({ resource: "not-an-object" }).success).toBe(false);
+    expect(
+      paypalWebhookEventSchema.safeParse({
+        resource: { supplementary_data: { related_ids: { order_id: 9 } } },
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("adminAccountFlagBodySchema — PATCH /api/admin/accounts (Wave 3)", () => {
+  it("accepts the real toggle payload", () => {
+    const r = adminAccountFlagBodySchema.safeParse({
+      user_id: "123e4567-e89b-12d3-a456-426614174000",
+      is_test_account: true,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects missing/non-boolean flag (route re-derives «user_id و is_test_account مطلوبان» verbatim)", () => {
+    expect(adminAccountFlagBodySchema.safeParse({ user_id: "abc" }).success).toBe(false);
+    expect(adminAccountFlagBodySchema.safeParse({ user_id: "abc", is_test_account: "yes" }).success).toBe(false);
+  });
+
+  it("rejects non-string user_id (legacy String() coercion matched no row → ok:true no-op — now fail-fast)", () => {
+    expect(adminAccountFlagBodySchema.safeParse({ user_id: 123, is_test_account: true }).success).toBe(false);
+  });
+});
+
+describe("adminAccountDeleteBodySchema — DELETE /api/admin/accounts (Wave 3)", () => {
+  it("accepts the legacy single-id shape AND the mobile batch shape", () => {
+    expect(adminAccountDeleteBodySchema.safeParse({ user_id: "abc" }).success).toBe(true);
+    expect(adminAccountDeleteBodySchema.safeParse({ user_ids: ["a", "b", "c"] }).success).toBe(true);
+  });
+
+  it("item shapes stay OPEN (the route's map(String)→filter(Boolean) normalization is legacy policy)", () => {
+    expect(adminAccountDeleteBodySchema.safeParse({ user_ids: [123, null, "x"] }).success).toBe(true);
+  });
+
+  it("bounds the batch at a hostile ceiling above the route's own 100-row cap (legacy 400 stays operative)", () => {
+    expect(adminAccountDeleteBodySchema.safeParse({ user_ids: Array(201).fill("x") }).success).toBe(false);
+    expect(adminAccountDeleteBodySchema.safeParse({ user_ids: Array(100).fill("x") }).success).toBe(true);
+  });
+});
+
+describe("adminAssignPairBodySchema — PATCH assignments · POST site-assignments (Wave 3)", () => {
+  it("accepts the real pair payload", () => {
+    const r = adminAssignPairBodySchema.safeParse({
+      client_id: "123e4567-e89b-12d3-a456-426614174000",
+      coach_id: "223e4567-e89b-12d3-a456-426614174001",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects missing ids (routes re-derive the Arabic required-messages verbatim)", () => {
+    expect(adminAssignPairBodySchema.safeParse({ client_id: "x" }).success).toBe(false);
+    expect(adminAssignPairBodySchema.safeParse({}).success).toBe(false);
+    expect(adminAssignPairBodySchema.safeParse({ client_id: "x", coach_id: 5 }).success).toBe(false);
+  });
+});
+
+describe("adminBlogCleanupBodySchema — POST /api/admin/blog/cleanup (Wave 3)", () => {
+  it("accepts {} (default dry_run=true) and { dry_run: false }", () => {
+    expect(adminBlogCleanupBodySchema.safeParse({}).success).toBe(true);
+    expect(adminBlogCleanupBodySchema.safeParse({ dry_run: false }).success).toBe(true);
+  });
+
+  it("rejects non-boolean dry_run (legacy silently meant true) and hostile non-object JSON", () => {
+    expect(adminBlogCleanupBodySchema.safeParse({ dry_run: "false" }).success).toBe(false);
+    expect(adminBlogCleanupBodySchema.safeParse([1]).success).toBe(false);
+    expect(adminBlogCleanupBodySchema.safeParse("x").success).toBe(false);
+  });
+});
+
+describe("adminCoachFeeBodySchema — PATCH /api/admin/coach-fees (Wave 3)", () => {
+  it("accepts number and numeric-string fees (legacy Number() coercion)", () => {
+    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: 6 }).success).toBe(true);
+    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: "6" }).success).toBe(true);
+  });
+
+  it("rejects missing/garbage fees (route re-derives «coach_id وسعر صحيح…» verbatim)", () => {
+    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc" }).success).toBe(false);
+    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: {} }).success).toBe(false);
+  });
+});
+
+describe("adminCoachKindBodySchema · adminCoachNotifyBodySchema (Wave 3)", () => {
+  it("kind enum IS the legacy check — wrong kinds reject (verbatim re-derivation)", () => {
+    expect(adminCoachKindBodySchema.safeParse({ coach_id: "a", coach_kind: "site" }).success).toBe(true);
+    expect(adminCoachKindBodySchema.safeParse({ coach_id: "a", coach_kind: "b2b" }).success).toBe(true);
+    expect(adminCoachKindBodySchema.safeParse({ coach_id: "a", coach_kind: "other" }).success).toBe(false);
+    expect(adminCoachKindBodySchema.safeParse({ coach_id: "a", coach_kind: 5 }).success).toBe(false);
+  });
+
+  it("notify trims and requires a coach_id (legacy «coach_id مطلوب» re-derived)", () => {
+    const r = adminCoachNotifyBodySchema.safeParse({ coach_id: "  abc  " });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.coach_id).toBe("abc");
+    expect(adminCoachNotifyBodySchema.safeParse({ coach_id: "   " }).success).toBe(false);
+    expect(adminCoachNotifyBodySchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("adminCoachPageReviewBodySchema — PATCH /api/admin/coach-pages (Wave 3)", () => {
+  it("accepts approve (no note) and reject (with note)", () => {
+    expect(adminCoachPageReviewBodySchema.safeParse({ coach_id: "a", action: "approve" }).success).toBe(true);
+    expect(
+      adminCoachPageReviewBodySchema.safeParse({ coach_id: "a", action: "reject", note: "  المحتوى قصير جدًا " }).success,
+    ).toBe(true);
+  });
+
+  it("rejects wrong action (route re-derives the Arabic required-message verbatim)", () => {
+    expect(adminCoachPageReviewBodySchema.safeParse({ coach_id: "a", action: "delete" }).success).toBe(false);
+  });
+
+  it("note ceiling = the route's slice(0,500) point (silent-truncate → 400, P1-7)", () => {
+    expect(
+      adminCoachPageReviewBodySchema.safeParse({ coach_id: "a", action: "reject", note: "x".repeat(501) }).success,
+    ).toBe(false);
+    expect(
+      adminCoachPageReviewBodySchema.safeParse({ coach_id: "a", action: "reject", note: "x".repeat(500) }).success,
+    ).toBe(true);
+  });
+});
+
+describe("adminCoachSupportReplyBodySchema — POST /api/admin/coach-support (Wave 3)", () => {
+  it("accepts the real reply payload", () => {
+    const r = adminCoachSupportReplyBodySchema.safeParse({
+      parent_id: "123e4567-e89b-12d3-a456-426614174000",
+      body: "  تم حل المشكلة  ",
+      close: true,
+    });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.body).toBe("تم حل المشكلة");
+  });
+
+  it("rejects empty/oversize body (route re-derives «اكتب ردك الأول»; ceiling = slice(0,4000))", () => {
+    expect(
+      adminCoachSupportReplyBodySchema.safeParse({ parent_id: "x", body: "  " }).success,
+    ).toBe(false);
+    expect(
+      adminCoachSupportReplyBodySchema.safeParse({ parent_id: "x", body: "y".repeat(4001) }).success,
+    ).toBe(false);
+  });
+
+  it("parent_id is a bounded STRING not z.uuid (UUID_RE stays route policy)", () => {
+    expect(adminCoachSupportReplyBodySchema.safeParse({ parent_id: "not-a-uuid", body: "text" }).success).toBe(true);
+  });
+
+  it("close is type-pinned (legacy Boolean() coercion of truthy garbage now 400s)", () => {
+    expect(adminCoachSupportReplyBodySchema.safeParse({ parent_id: "x", body: "t", close: "yes" }).success).toBe(false);
+  });
+});
+
+describe("externalPlanActionBodySchema — POST /api/admin/external-plans actions (Wave 3)", () => {
+  it("accepts the real regenerate_meal payload (numeric-string index = numOr coercion)", () => {
+    const r = externalPlanActionBodySchema.safeParse({
+      action: "regenerate_meal",
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      meal_index: "2",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts item_index and version_index (all four index fields covered)", () => {
+    expect(
+      externalPlanActionBodySchema.safeParse({ action: "regenerate_item", id: "x", meal_index: 1, item_index: 2 }).success,
+    ).toBe(true);
+    expect(externalPlanActionBodySchema.safeParse({ action: "restore_version", id: "x", version_index: 0 }).success).toBe(true);
+  });
+
+  it("rejects object indexes (legacy numOr → NaN → default −1 → per-action 400s re-derived)", () => {
+    expect(
+      externalPlanActionBodySchema.safeParse({ action: "regenerate_meal", id: "x", meal_index: {} }).success,
+    ).toBe(false);
+  });
+
+  it("rejects non-string action (dispatch stays raw; hostile shape now 400)", () => {
+    expect(externalPlanActionBodySchema.safeParse({ action: 123, id: "x" }).success).toBe(false);
+  });
+});
+
+describe("externalPlanCreateBodySchema — POST /api/admin/external-plans create (Wave 3)", () => {
+  it("accepts the real AI meal brief", () => {
+    const r = externalPlanCreateBodySchema.safeParse({
+      person_name: "محمد",
+      plan_type: "meal",
+      ai: true,
+      meal: { meals_count: 4, calories: 2200, diet_type: "متوازن", person_data: { weight: 80 } },
+      details: "بدون مكسرات",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts the legacy manual payload", () => {
+    const r = externalPlanCreateBodySchema.safeParse({
+      person_name: "محمد",
+      plan_type: "workout",
+      title: "خطة تمرين منزلية",
+      text: "x".repeat(50),
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("layering: ai and status stay OPEN dispatch fields (=== true / === 'draft' route policy)", () => {
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "محمد", plan_type: "meal", ai: "yes", status: 5 }).success).toBe(true);
+  });
+
+  it("layering: meal/workout stay OPEN (route's typeof-object defaulting)", () => {
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "محم", plan_type: "meal", meal: "not-an-object" }).success).toBe(true);
+  });
+
+  it("rejects short/oversize person_name (route re-derives «اسم الشخص مطلوب…» verbatim)", () => {
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "م", plan_type: "meal" }).success).toBe(false);
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "x".repeat(201), plan_type: "meal" }).success).toBe(false);
+  });
+
+  it("rejects wrong plan_type (route re-derives «نوع الخطة لازم يكون workout أو meal» verbatim)", () => {
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "محمد", plan_type: "diet" }).success).toBe(false);
+  });
+
+  it("text ceiling = the route's MAX_TEXT slice point (silent-truncate → 400)", () => {
+    expect(externalPlanCreateBodySchema.safeParse({ person_name: "محمد", plan_type: "meal", text: "x".repeat(100_001) }).success).toBe(false);
+  });
+});
+
+describe("externalPlanPatchBodySchema — PATCH /api/admin/external-plans (Wave 3)", () => {
+  it("accepts a single-field patch", () => {
+    expect(externalPlanPatchBodySchema.safeParse({ id: "abc", title: "عنوان جديد" }).success).toBe(true);
+  });
+
+  it("rejects missing id (route re-derives «id مطلوب» verbatim)", () => {
+    expect(externalPlanPatchBodySchema.safeParse({ title: "x" }).success).toBe(false);
+  });
+
+  it("rejects wrong-typed optional fields (routes re-derive each Arabic message verbatim)", () => {
+    expect(externalPlanPatchBodySchema.safeParse({ id: "a", person_name: "م" }).success).toBe(false);
+    expect(externalPlanPatchBodySchema.safeParse({ id: "a", plan_type: "diet" }).success).toBe(false);
+    expect(externalPlanPatchBodySchema.safeParse({ id: "a", title: "ab" }).success).toBe(false);
+    expect(externalPlanPatchBodySchema.safeParse({ id: "a", status: "archived" }).success).toBe(false);
+  });
+
+  it("person_contact has NO min (legacy: empty string → null)", () => {
+    expect(externalPlanPatchBodySchema.safeParse({ id: "a", person_contact: "" }).success).toBe(true);
+  });
+});
+
+describe("uuidQueryIdSchema — DELETE external-plans · DELETE leads (Wave 3)", () => {
+  const uuid = "123e4567-e89b-12d3-a456-426614174000";
+
+  it("accepts a real row uuid (case-insensitive like the legacy UUID_RE /i)", () => {
+    expect(uuidQueryIdSchema.safeParse(uuid).success).toBe(true);
+    expect(uuidQueryIdSchema.safeParse(uuid.toUpperCase()).success).toBe(true);
+  });
+
+  it("rejects garbage ids (legacy silent no-op 200 — the sanctioned 2B fail-fast class)", () => {
+    expect(uuidQueryIdSchema.safeParse("garbage").success).toBe(false);
+    expect(uuidQueryIdSchema.safeParse("").success).toBe(false);
+  });
+});
+
+describe("adminLeadPatchBodySchema — PATCH /api/admin/leads (Wave 3)", () => {
+  it("accepts the real flag flip", () => {
+    expect(adminLeadPatchBodySchema.safeParse({ id: "abc", contacted: true }).success).toBe(true);
+  });
+
+  it("rejects missing id (route re-derives «id is required» verbatim)", () => {
+    expect(adminLeadPatchBodySchema.safeParse({ contacted: true }).success).toBe(false);
+  });
+
+  it("flags are type-pinned booleans (legacy typeof silently ignored non-booleans)", () => {
+    expect(adminLeadPatchBodySchema.safeParse({ id: "a", contacted: "yes" }).success).toBe(false);
+  });
+});
+
+describe("adminRefundDecisionBodySchema — POST /api/admin/refunds (Wave 3, §7)", () => {
+  it("accepts approve/reject with an optional note", () => {
+    expect(adminRefundDecisionBodySchema.safeParse({ id: "abc", action: "approve" }).success).toBe(true);
+    expect(adminRefundDecisionBodySchema.safeParse({ id: "abc", action: "reject", note: "سبب" }).success).toBe(true);
+  });
+
+  it("rejects wrong action (route re-derives «id + action (approve|reject) required» verbatim)", () => {
+    expect(adminRefundDecisionBodySchema.safeParse({ id: "abc", action: "refund" }).success).toBe(false);
+    expect(adminRefundDecisionBodySchema.safeParse({ action: "approve" }).success).toBe(false);
+  });
+
+  it("note gets a generous ceiling (legacy had none — hostile multi-MB now 400)", () => {
+    expect(adminRefundDecisionBodySchema.safeParse({ id: "a", action: "reject", note: "x".repeat(2001) }).success).toBe(false);
+  });
+});
+
+describe("adminSiteUnassignBodySchema — DELETE /api/admin/site-assignments (Wave 3)", () => {
+  const uuid = "123e4567-e89b-12d3-a456-426614174000";
+
+  it("accepts either-or keys (the two real caller shapes)", () => {
+    expect(adminSiteUnassignBodySchema.safeParse({ client_id: uuid }).success).toBe(true);
+    expect(adminSiteUnassignBodySchema.safeParse({ id: uuid }).success).toBe(true);
+  });
+
+  it("rejects both-absent (route re-derives «client_id أو id مطلوب» verbatim)", () => {
+    // The either-or law is ROUTE policy (the 2B tickets precedent: both
+    // keys optional at the gate, the path check stays in the route) — {}
+    // passes the gate and the route's post-gate either-or check fires the
+    // legacy 400. Garbage-typed keys DO fail the gate.
+    expect(adminSiteUnassignBodySchema.safeParse({}).success).toBe(true);
+    expect(adminSiteUnassignBodySchema.safeParse({ client_id: 5 }).success).toBe(false);
+  });
+
+  it("rejects garbage ids (legacy silent no-op 200 — the 2B fail-fast class)", () => {
+    expect(adminSiteUnassignBodySchema.safeParse({ client_id: "garbage" }).success).toBe(false);
+  });
+});
+
+describe("adminStaffInviteBodySchema · adminStaffDemoteBodySchema (Wave 3)", () => {
+  it("invite accepts the real payload and normalizes the email shape", () => {
+    const r = adminStaffInviteBodySchema.safeParse({ email: "  Coach@Example.COM ", full_name: "أحمد" });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.email).toBe("coach@example.com");
+  });
+
+  it("invite: email SHAPE only — a poorly-formatted email PASSES the gate and the route's EMAIL_RE kills it (the 2A register precedent)", () => {
+    expect(adminStaffInviteBodySchema.safeParse({ email: "not-an-email" }).success).toBe(true);
+    expect(adminStaffInviteBodySchema.safeParse({ email: "ab" }).success).toBe(false);
+    expect(adminStaffInviteBodySchema.safeParse({ email: 5 }).success).toBe(false);
+    expect(adminStaffInviteBodySchema.safeParse({ email: "x".repeat(255) }).success).toBe(false);
+  });
+
+  it("full_name ceiling = the route's slice(0,120) point", () => {
+    expect(adminStaffInviteBodySchema.safeParse({ email: "a@b.co", full_name: "x".repeat(121) }).success).toBe(false);
+  });
+
+  it("demote: the literal IS the legacy check — every failure re-derives the Arabic message", () => {
+    expect(adminStaffDemoteBodySchema.safeParse({ user_id: "abc", action: "demote" }).success).toBe(true);
+    expect(adminStaffDemoteBodySchema.safeParse({ user_id: "abc", action: "promote" }).success).toBe(false);
+    expect(adminStaffDemoteBodySchema.safeParse({ action: "demote" }).success).toBe(false);
+  });
+});
+
+describe("adminWalletAdjustBodySchema — POST /api/admin/wallets/adjust (Wave 3, §7)", () => {
+  it("accepts the real adjustment (negative correction + Arabic note)", () => {
+    const r = adminWalletAdjustBodySchema.safeParse({
+      coach_id: "123e4567-e89b-12d3-a456-426614174000",
+      amount: -5,
+      note: "تصحيح رصيد بالخطأ",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("coach_id is a bounded STRING not z.uuid (UUID_RE «مدرب غير صحيح» stays route policy)", () => {
+    expect(adminWalletAdjustBodySchema.safeParse({ coach_id: "not-a-uuid", amount: 5, note: "x" }).success).toBe(true);
+  });
+
+  it("rejects empty/oversize note (route re-derives bad_note verbatim; ceiling = slice(0,300))", () => {
+    expect(adminWalletAdjustBodySchema.safeParse({ coach_id: "a", amount: 5, note: "   " }).success).toBe(false);
+    expect(adminWalletAdjustBodySchema.safeParse({ coach_id: "a", amount: 5, note: "x".repeat(301) }).success).toBe(false);
+  });
+
+  it("amount keeps the number|string union (legacy Number() coercion preserved)", () => {
+    expect(adminWalletAdjustBodySchema.safeParse({ coach_id: "a", amount: "-5", note: "x" }).success).toBe(true);
+    expect(adminWalletAdjustBodySchema.safeParse({ coach_id: "a", amount: {}, note: "x" }).success).toBe(false);
+  });
+});
+
+describe("adminTopupReviewBodySchema — PATCH /api/admin/wallets/topups (Wave 3, §7)", () => {
+  it("accepts approve with an optional admin_note", () => {
+    expect(adminTopupReviewBodySchema.safeParse({ id: "123e4567-e89b-12d3-a456-426614174000", action: "approve", admin_note: "تم" }).success).toBe(true);
+  });
+
+  it("rejects wrong action (route re-derives bad_action «الإجراء غير معروف» verbatim)", () => {
+    expect(adminTopupReviewBodySchema.safeParse({ id: "x", action: "delete" }).success).toBe(false);
+  });
+
+  it("id is a bounded STRING (UUID_RE «طلب غير صحيح» stays route policy)", () => {
+    expect(adminTopupReviewBodySchema.safeParse({ id: "not-a-uuid", action: "approve" }).success).toBe(true);
+  });
+});
+
+describe("adminNotificationBodySchema — POST /api/notifications/admin (Wave 3)", () => {
+  it("accepts the real new_ticket bell payload", () => {
+    const r = adminNotificationBodySchema.safeParse({
+      type: "new_ticket",
+      title: "تذكرة دعم جديدة",
+      body: "عميل فتح تذكرة",
+      link: "/admin/support",
+      clientId: "123e4567-e89b-12d3-a456-426614174000",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("the enum IS the legacy ALLOWED_TYPES allowlist (five values pinned)", () => {
+    expect([...ADMIN_NOTIF_TYPES].length).toBe(5);
+    expect(adminNotificationBodySchema.safeParse({ type: "arbitrary_injection", title: "x" }).success).toBe(false);
+  });
+
+  it("rejects missing title (route re-derives «Missing type or title» verbatim)", () => {
+    expect(adminNotificationBodySchema.safeParse({ type: "new_ticket" }).success).toBe(false);
+  });
+
+  it("body/link ceilings = the route's own slices (1000/200)", () => {
+    expect(adminNotificationBodySchema.safeParse({ type: "new_ticket", title: "x", body: "y".repeat(1001) }).success).toBe(false);
+    expect(adminNotificationBodySchema.safeParse({ type: "new_ticket", title: "x", link: "y".repeat(201) }).success).toBe(false);
+  });
+});
+
+describe("cronBlogP0QuerySchema — GET /api/cron/blog/p0-research (Wave 3)", () => {
+  it("accepts the real automatic run (lang only)", () => {
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "en" }).success).toBe(true);
+  });
+
+  it("accepts a coach-triggered run (topic + job_id)", () => {
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "ar", topic: "بروتين ما بعد التمرين", job_id: "job-123" }).success).toBe(true);
+  });
+
+  it("short topics still PASS the gate (the ≥10-char honoring law stays route policy)", () => {
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "en", topic: "short" }).success).toBe(true);
+  });
+
+  it("rejects garbage lang (route re-derives «Missing/invalid ?lang= parameter…» verbatim)", () => {
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "fr" }).success).toBe(false);
+    expect(cronBlogP0QuerySchema.safeParse({}).success).toBe(false);
+  });
+
+  it("topic/job_id ceilings = the route's own slice points (silent-truncate → 400, P1-7)", () => {
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "en", topic: "x".repeat(MAX_CRON_TOPIC + 1) }).success).toBe(false);
+    expect(cronBlogP0QuerySchema.safeParse({ lang: "en", job_id: "x".repeat(MAX_CRON_JOB_ID + 1) }).success).toBe(false);
+  });
+});
+
+describe("cronBlogQueueQuerySchema — the five blog pipeline GET routes p1..p5 (Wave 3)", () => {
+  it("accepts a real queueId and trims it", () => {
+    const r = cronBlogQueueQuerySchema.safeParse({ queueId: "  123e4567-e89b-12d3-a456-426614174000 " });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.queueId).toBe("123e4567-e89b-12d3-a456-426614174000");
+  });
+
+  it("rejects missing/empty (route re-derives «Missing queueId query parameter» verbatim)", () => {
+    expect(cronBlogQueueQuerySchema.safeParse({}).success).toBe(false);
+    expect(cronBlogQueueQuerySchema.safeParse({ queueId: "   " }).success).toBe(false);
+    expect(cronBlogQueueQuerySchema.safeParse({ queueId: null }).success).toBe(false);
+  });
+
+  it("rejects oversized garbage (fail-fast BEFORE the doomed DB roundtrip)", () => {
+    expect(cronBlogQueueQuerySchema.safeParse({ queueId: "x".repeat(101) }).success).toBe(false);
+  });
+});
+
+describe("affiliateCommissionBodySchema — POST /api/affiliate/commission (Wave 3, §7)", () => {
+  it("accepts the real manual-approval commission payload", () => {
+    const r = affiliateCommissionBodySchema.safeParse({
+      userId: "123e4567-e89b-12d3-a456-426614174000",
+      amount: 14.99,
+      reference: "req-991",
+      productId: "premium",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects missing/garbage fields (route re-derives the legacy bad_request 400 verbatim)", () => {
+    expect(affiliateCommissionBodySchema.safeParse({ userId: "x", amount: 5 }).success).toBe(false);
+    expect(affiliateCommissionBodySchema.safeParse({ reference: "x", amount: 5 }).success).toBe(false);
+    expect(affiliateCommissionBodySchema.safeParse({ userId: "x", reference: "y" }).success).toBe(false);
+  });
+
+  it("amount keeps the number|string union (legacy Number() coercion)", () => {
+    expect(affiliateCommissionBodySchema.safeParse({ userId: "x", amount: "14.99", reference: "y" }).success).toBe(true);
+    expect(affiliateCommissionBodySchema.safeParse({ userId: "x", amount: [5], reference: "y" }).success).toBe(false);
+  });
+
+  it("hostile: smuggled keys are STRIPPED (engine inputs can never be inflated)", () => {
+    const r = affiliateCommissionBodySchema.safeParse({
+      userId: "x",
+      amount: 5,
+      reference: "y",
+      rate: 0.9,
+      affiliate_user_id: "attacker",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("rate");
+      expect(r.data).not.toHaveProperty("affiliate_user_id");
+    }
   });
 });

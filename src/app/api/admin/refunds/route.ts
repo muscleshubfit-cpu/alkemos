@@ -5,6 +5,7 @@ import {
   reverseCommissionByReferenceServer,
   reverseCommissionServer,
 } from "@/lib/affiliate-engine-server";
+import { adminRefundDecisionBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN REFUNDS — decide the member's 7-day money-back requests
@@ -91,7 +92,28 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
-  const { id, action, note } = body;
+
+  // Wave 3 zod gate — shape only (§7 owner-approved: the clawback,
+  // subscription-end and notification logic below stays route policy);
+  // the legacy «id + action» 400 is re-derived verbatim on gate failure.
+  const parsed = adminRefundDecisionBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawId = raw.id;
+    const rawAction = raw.action;
+    if (!rawId || (rawAction !== "approve" && rawAction !== "reject")) {
+      return NextResponse.json(
+        { error: "bad_request", message: "id + action (approve|reject) required" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const { id, action, note } = parsed.data;
   if (!id || (action !== "approve" && action !== "reject")) {
     return NextResponse.json(
       { error: "bad_request", message: "id + action (approve|reject) required" },

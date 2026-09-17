@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  adminStaffInviteBodySchema,
+  adminStaffDemoteBodySchema,
+} from "@/lib/validation/schemas";
 
 /**
  * TEAM MANAGEMENT — admin adds / removes COACHES on the site
@@ -102,8 +106,29 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const fullName = String(body.full_name ?? "").trim().slice(0, 120) || null;
+
+  // Wave 3 zod gate — shape only (email SHAPE; the route's EMAIL_RE
+  // stays policy — the 2A register precedent); the legacy invalid_email
+  // 400 is re-derived verbatim on gate failure. full_name ceiling =
+  // the route's slice(0,120) point.
+  const parsed = adminStaffInviteBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawEmail = String(raw.email ?? "").trim().toLowerCase();
+    if (!EMAIL_RE.test(rawEmail)) {
+      return NextResponse.json(
+        { error: "invalid_email", message: "اكتب بريدًا إلكترونيًا صحيحًا" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const email = parsed.data.email;
+  const fullName = (parsed.data.full_name ?? "").trim().slice(0, 120) || null;
 
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json(
@@ -235,10 +260,29 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const userId = String(body.user_id ?? "");
-  const action = String(body.action ?? "");
 
-  if (!userId || action !== "demote") {
+  // Wave 3 zod gate — the literal IS the legacy check: every gate failure
+  // re-derives the legacy 400 verbatim (compat law).
+  const parsed = adminStaffDemoteBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawUserId = String(raw.user_id ?? "");
+    const rawAction = String(raw.action ?? "");
+    if (!rawUserId || rawAction !== "demote") {
+      return NextResponse.json(
+        { error: "bad_request", message: "user_id و action='demote' مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const userId = parsed.data.user_id;
+
+  if (!userId) {
     return NextResponse.json(
       { error: "bad_request", message: "user_id و action='demote' مطلوبان" },
       { status: 400 },

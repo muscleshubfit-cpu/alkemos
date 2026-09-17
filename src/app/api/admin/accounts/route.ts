@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  adminAccountFlagBodySchema,
+  adminAccountDeleteBodySchema,
+} from "@/lib/validation/schemas";
 
 /**
  * ADMIN — ACCOUNTS MANAGER (0045).
@@ -63,8 +67,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const userId = String(body.user_id ?? "");
-  const isTest = body.is_test_account;
+
+  // Wave 3 zod gate — shape only; the legacy 400 class below is
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = adminAccountFlagBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawUserId = String(raw.user_id ?? "");
+    const rawIsTest = raw.is_test_account;
+    if (!rawUserId || typeof rawIsTest !== "boolean") {
+      return NextResponse.json(
+        { error: "bad_request", message: "user_id و is_test_account مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const userId = parsed.data.user_id;
+  const isTest = parsed.data.is_test_account;
 
   if (!userId || typeof isTest !== "boolean") {
     return NextResponse.json(
@@ -98,6 +122,33 @@ export async function DELETE(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
+
+  // Wave 3 zod gate — shape only; the legacy normalization + the two
+  // legacy 400 classes (missing ids / >100 cap) are re-derived verbatim
+  // on gate failure (compat law).
+  const parsed = adminAccountDeleteBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawIds: string[] = Array.isArray(raw.user_ids)
+      ? (raw.user_ids as unknown[]).map((v) => String(v ?? "")).filter(Boolean)
+      : [String(raw.user_id ?? "")].filter(Boolean);
+    if (rawIds.length === 0) {
+      return NextResponse.json(
+        { error: "bad_request", message: "user_id مطلوب" },
+        { status: 400 },
+      );
+    }
+    if (rawIds.length > 100) {
+      return NextResponse.json(
+        { error: "bad_request", message: "الحد الأقصى 100 حساب في المرة الواحدة" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   // Normalize input — single { user_id } or batch { user_ids: [...] }.
   const rawIds: string[] = Array.isArray(body.user_ids)

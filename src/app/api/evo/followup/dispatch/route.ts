@@ -8,6 +8,7 @@ import {
   EVO_FOLLOWUP_INTERVAL_DAYS,
 } from "@/lib/evo-followup";
 import { computeWeightDelta } from "@/lib/evo-coach";
+import { emptyEnvelopeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/evo/followup/dispatch — EVO-3 (W2, D4) weekly check-in sender.
@@ -75,6 +76,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Service role is not configured" },
       { status: 500 },
+    );
+  }
+
+  // Wave 3 zod gate — the sanctioned 221 empty-envelope class: this
+  // dispatcher consumes NO request fields (env + headers only), so the
+  // gate pins the ENVELOPE only — null/unparseable maps to {} pre-gate
+  // and any object passes with unknown keys stripped; a hostile
+  // NON-object body (legacy silent ignore) now 400s before the flow.
+  // Auth-first preserved: the kill-switch 404 → cron-secret/admin 401 →
+  // config 500 all fire BEFORE this gate.
+  const rawBody = await request.json().catch(() => null);
+  const parsedBody = emptyEnvelopeBodySchema.safeParse(rawBody ?? {});
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
     );
   }
 

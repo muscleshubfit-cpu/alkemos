@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/types";
+import { adminLeadPatchBodySchema, uuidQueryIdSchema } from "@/lib/validation/schemas";
 
 // tool_slug is a DB enum — this union is its mirror (types.ts tool_leads.Row).
 type ToolSlug = Database["public"]["Tables"]["tool_leads"]["Row"]["tool_slug"];
@@ -74,7 +75,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { id, contacted, converted } = body;
+
+  // Wave 3 zod gate — shape only; the two legacy 400 classes below are
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = adminLeadPatchBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (!raw.id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+    const rawUpdate: Record<string, boolean> = {};
+    if (typeof raw.contacted === "boolean") rawUpdate.contacted = raw.contacted;
+    if (typeof raw.converted === "boolean") rawUpdate.converted = raw.converted;
+    if (Object.keys(rawUpdate).length === 0) {
+      return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const { id, contacted, converted } = parsed.data;
 
   if (!id) {
     return NextResponse.json({ error: "id is required" }, { status: 400 });
@@ -126,14 +148,24 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
-  if (!id) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
+  // Wave 3 zod gate — the 2B DELETE-id fail-fast class: missing re-derives
+  // the legacy «id is required» 400 verbatim; garbage that legacy silently
+  // no-op'd 200 now 400s BEFORE the doomed DB roundtrip.
+  const parsedId = uuidQueryIdSchema.safeParse(id ?? "");
+  if (!parsedId.success) {
+    if (!id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: parsedId.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
   }
 
   const { error } = await supabaseAdmin
     .from("tool_leads")
     .delete()
-    .eq("id", id);
+    .eq("id", parsedId.data);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

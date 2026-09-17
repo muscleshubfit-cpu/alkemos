@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/types";
+import { adminBlogCleanupBodySchema } from "@/lib/validation/schemas";
 
 // Only the text columns this route patches — keeps `.update()` fully typed.
 type BlogTextPatch = Partial<
@@ -140,6 +141,19 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
+
+  // Wave 3 zod gate — shape only (dry_run is the sole consumed field;
+  // legacy had NO 400 class: non-boolean dry_run silently meant true and
+  // hostile non-object JSON was a {}-default no-op — both now 400, the
+  // sanctioned empty-envelope hostile-shape class).
+  const parsed = adminBlogCleanupBodySchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
   const dryRun = body.dry_run !== false;
 
   // Fetch all published posts

@@ -29,6 +29,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPayPalAccessToken, isPaypalConfigured } from "@/lib/paypal";
 import { reverseCommissionByReferenceServer } from "@/lib/affiliate-engine-server";
+import { paypalWebhookEventSchema } from "@/lib/validation/schemas";
 
 export const runtime = "nodejs";
 
@@ -143,6 +144,23 @@ export async function POST(request: NextRequest) {
     event = JSON.parse(body) as PayPalWebhookEvent;
   } catch {
     console.error("[paypal/webhook] Failed to parse webhook body");
+    return NextResponse.json(
+      { error: "Invalid JSON" },
+      { status: 400 },
+    );
+  }
+
+  // Wave 3 zod gate — structural view only. §7 owner-approved: the
+  // SIGNATURE (verified above, on the RAW body) is the real boundary;
+  // this gate pins only the four fields the route reads. A hostile
+  // non-object or wrong-typed event (legacy: reads defaulted → "UNKNOWN"
+  // → 200 log) now 400s with the route's own Invalid-JSON vocabulary —
+  // the sanctioned empty-envelope hostile-shape class (221).
+  const parsedEvent = paypalWebhookEventSchema.safeParse(event);
+  if (!parsedEvent.success) {
+    console.error(
+      "[paypal/webhook] Rejected structurally-invalid event (post-signature)",
+    );
     return NextResponse.json(
       { error: "Invalid JSON" },
       { status: 400 },

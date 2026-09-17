@@ -348,6 +348,16 @@ These are in addition to the general operating rules in `AGENTS.md`:
    exfiltration, vendor trust).
 7. **Always validate user input.** Use zod schemas at the boundary
    of every API route that accepts a body or query params.
+   (Enforced since the Phase-141/216/219/220/221/222 waves —
+   `src/lib/validation/schemas.ts` now gates all four route families:
+   public + coach + user + payment/admin/cron/affiliate; the
+   payment/admin/cron/affiliate wave landed 2026-09-17 under the
+   owner's explicit §7 approval «اعتبر مسارات الدفع ضمن نطاق التنفيذ
+   مع بوابات الأمان المطلوبة» — shape-only tightening, all
+   money/signature/RLS logic untouched; every legacy 400 class is
+   re-derived verbatim on gate failure; auth-first ordering preserved
+   everywhere — the gate never fires before requireAdmin/requireUser/
+   verifyCronAuth/the PayPal signature check.)
 8. **Always use `requireUser` / `requireCoach`** in API routes that
    touch user data. The auth helpers are in `src/lib/auth-server.ts`.
    In demo mode they return `null` — the route must decide whether

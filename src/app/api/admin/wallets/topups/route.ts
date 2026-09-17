@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminTopupReviewBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN — REVIEW A WALLET TOP-UP REQUEST (0035).
@@ -25,9 +26,39 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const id = String(body.id ?? "").trim();
-  const action = String(body.action ?? "").trim();
-  const adminNote = String(body.admin_note ?? "").trim().slice(0, 300) || null;
+
+  // Wave 3 zod gate — shape only (§7 owner-approved: the wallet credit /
+  // status-flip / notification logic below stays route policy); the
+  // legacy bad_request/bad_action 400s are re-derived verbatim in legacy
+  // order on gate failure (compat law).
+  const parsed = adminTopupReviewBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawId = String(raw.id ?? "").trim();
+    const rawAction = String(raw.action ?? "").trim();
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId)
+    ) {
+      return NextResponse.json(
+        { error: "bad_request", message: "طلب غير صحيح" },
+        { status: 400 },
+      );
+    }
+    if (rawAction !== "approve" && rawAction !== "reject") {
+      return NextResponse.json(
+        { error: "bad_action", message: "الإجراء غير معروف" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const id = parsed.data.id;
+  const action = parsed.data.action;
+  const adminNote = (parsed.data.admin_note ?? "").trim().slice(0, 300) || null;
 
   if (
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)

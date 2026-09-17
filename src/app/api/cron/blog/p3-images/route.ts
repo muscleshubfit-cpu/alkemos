@@ -5,6 +5,7 @@ import {
   type SourcedImage,
 } from "@/lib/blog-images";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { cronBlogQueueQuerySchema } from "@/lib/validation/schemas";
 import { sanitizeImageQuery } from "@/lib/image-safety";
 import { type ImagePlanItem } from "@/lib/blog-pipeline";
 import {
@@ -98,6 +99,23 @@ export async function GET(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured)
     return NextResponse.json({ error: "Supabase admin not configured." }, { status: 500 });
+
+  // Wave 3 zod gate — the queueId envelope (auth-first preserved: the
+  // CRON_SECRET 401 above stays the real boundary). Missing/empty
+  // re-derives the legacy «Missing queueId query parameter» 400
+  // verbatim; oversized garbage 400s BEFORE the doomed DB roundtrip.
+  const parsedQueueQuery = cronBlogQueueQuerySchema.safeParse({
+    queueId: new URL(request.url).searchParams.get("queueId"),
+  });
+  if (!parsedQueueQuery.success) {
+    const rawQueueId = getQueueIdParam(request);
+    if (!rawQueueId)
+      return NextResponse.json({ error: "Missing queueId query parameter" }, { status: 400 });
+    return NextResponse.json(
+      { error: parsedQueueQuery.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   const queueId = getQueueIdParam(request);
   if (!queueId)

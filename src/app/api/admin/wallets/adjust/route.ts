@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminWalletAdjustBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN — MANUAL WALLET ADJUSTMENT (0035).
@@ -21,9 +22,44 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "").trim();
-  const amount = Number(body.amount);
-  const note = String(body.note ?? "").trim().slice(0, 300);
+
+  // Wave 3 zod gate — shape only (§7 owner-approved: coach_adjust_wallet
+  // math + the staff-role guard below stay route policy); the legacy
+  // bad_request/bad_amount/bad_note 400s are re-derived verbatim in
+  // legacy order on gate failure (compat law).
+  const parsed = adminWalletAdjustBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "").trim();
+    const rawAmount = Number(raw.amount);
+    const rawNote = String(raw.note ?? "").trim().slice(0, 300);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawCoachId)) {
+      return NextResponse.json(
+        { error: "bad_request", message: "مدرب غير صحيح" },
+        { status: 400 },
+      );
+    }
+    if (!Number.isFinite(rawAmount) || rawAmount === 0 || Math.abs(rawAmount) > 1_000_000) {
+      return NextResponse.json(
+        { error: "bad_amount", message: "المبلغ لازم رقم غير صفر" },
+        { status: 400 },
+      );
+    }
+    if (!rawNote) {
+      return NextResponse.json(
+        { error: "bad_note", message: "اكتب سبب التعديل — الحساب لازم يفضل مفهوم" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
+  const amount = Number(parsed.data.amount);
+  const note = parsed.data.note.slice(0, 300);
 
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(coachId)) {
     return NextResponse.json(

@@ -12,6 +12,7 @@ import {
 } from "@/lib/blog-pairing";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { randomUUID } from "crypto";
+import { cronBlogP0QuerySchema } from "@/lib/validation/schemas";
 
 export const maxDuration = 60;
 
@@ -150,6 +151,31 @@ export async function GET(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured || !supabaseAdmin)
     return NextResponse.json({ error: "Supabase admin not configured." }, { status: 500 });
+
+  // Wave 3 zod gate — the QUERY envelope (auth-first preserved: the
+  // CRON_SECRET 401 above stays the real boundary). lang is REQUIRED
+  // (the legacy «Missing/invalid ?lang=» 400 re-derived verbatim);
+  // topic/job_id ceilings = the route's own slice(0,300)/slice(0,64)
+  // points — previously silently truncated, now 400 (the P1-7 class).
+  const url = new URL(request.url);
+  const parsedQuery = cronBlogP0QuerySchema.safeParse({
+    lang: url.searchParams.get("lang"),
+    topic: url.searchParams.get("topic") ?? undefined,
+    job_id: url.searchParams.get("job_id") ?? undefined,
+  });
+  if (!parsedQuery.success) {
+    const rawLang = url.searchParams.get("lang");
+    if (rawLang !== "en" && rawLang !== "ar") {
+      return NextResponse.json(
+        { error: "Missing/invalid ?lang= parameter — must be 'en' or 'ar'." },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsedQuery.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   // The language IS this run's identity — refuse to guess it. A wrong
   // guess would silently publish articles in the wrong language at the

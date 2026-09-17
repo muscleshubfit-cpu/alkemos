@@ -41,6 +41,7 @@ import {
 import { canonicalModelTier } from "@/lib/plans";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { processSubscriptionInitialPaymentServer } from "@/lib/affiliate-engine-server";
+import { paypalCaptureOrderBodySchema } from "@/lib/validation/schemas";
 
 // PHASE 66: the commission engine moved to src/lib/affiliate-engine-server.ts
 // (rate defined there — 0.20, shared with src/lib/referral.ts).
@@ -378,6 +379,25 @@ export async function POST(request: NextRequest) {
   }
 
   const { orderId } = body;
+
+  // Wave 3 zod gate — shape only. §7 owner-approved: the IDOR check,
+  // custom_id verification and amount verification below stay the route
+  // policy; the gate re-derives the legacy «Missing or invalid orderId»
+  // 400 verbatim, only oversize gets the fresh fail-fast 400.
+  const parsed = paypalCaptureOrderBodySchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    const rawOrderId = (body ?? {}).orderId;
+    if (!rawOrderId || typeof rawOrderId !== "string") {
+      return NextResponse.json(
+        { error: "Missing or invalid orderId" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   if (!orderId || typeof orderId !== "string") {
     return NextResponse.json(

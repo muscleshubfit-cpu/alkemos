@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminCoachPageReviewBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN — COACH PAGES REVIEW (0046).
@@ -184,9 +185,37 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "");
-  const action = String(body.action ?? "");
-  const note = String(body.note ?? "").trim().slice(0, 500);
+
+  // Wave 3 zod gate — shape only; the legacy review 400 classes below
+  // are re-derived verbatim on gate failure (compat law). note ceiling =
+  // the route's own slice(0,500) point (silent-truncate → 400, P1-7).
+  const parsed = adminCoachPageReviewBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "");
+    const rawAction = String(raw.action ?? "");
+    const rawNote = String(raw.note ?? "").trim().slice(0, 500);
+    if (!rawCoachId || (rawAction !== "approve" && rawAction !== "reject")) {
+      return NextResponse.json(
+        { error: "bad_request", message: "coach_id و action (approve|reject) مطلوبان" },
+        { status: 400 },
+      );
+    }
+    if (rawAction === "reject" && rawNote.length < 3) {
+      return NextResponse.json(
+        { error: "note_required", message: "اكتب سبب الرفض (٣ أحرف على الأقل) — المدرب هيشوفه في محرر صفحته" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
+  const action = parsed.data.action;
+  const note = (parsed.data.note ?? "").trim().slice(0, 500);
 
   if (!coachId || (action !== "approve" && action !== "reject")) {
     return NextResponse.json(

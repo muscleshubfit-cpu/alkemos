@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  adminAssignPairBodySchema,
+  adminSiteUnassignBodySchema,
+} from "@/lib/validation/schemas";
 
 /**
  * ADMIN — SITE-COACH ASSIGNMENTS (Phase 103, 0067).
@@ -99,8 +103,28 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "");
-  const clientId = String(body.client_id ?? "");
+
+  // Wave 3 zod gate — shape only; the legacy 400 classes below are
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = adminAssignPairBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "");
+    const rawClientId = String(raw.client_id ?? "");
+    if (!rawCoachId || !rawClientId) {
+      return NextResponse.json(
+        { error: "bad_request", message: "coach_id و client_id مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
+  const clientId = parsed.data.client_id;
 
   if (!coachId || !clientId) {
     return NextResponse.json(
@@ -165,8 +189,29 @@ export async function DELETE(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const clientId = String(body.client_id ?? "");
-  const rowId = String(body.id ?? "");
+
+  // Wave 3 zod gate — the 2B DELETE-id class: both keys uuid-pinned
+  // (garbage that legacy silently no-op'd 200 now 400s); the either-or
+  // «client_id أو id مطلوب» 400 is re-derived verbatim when both absent.
+  const parsed = adminSiteUnassignBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawClientId = String(raw.client_id ?? "");
+    const rawRowId = String(raw.id ?? "");
+    if (!rawClientId && !rawRowId) {
+      return NextResponse.json(
+        { error: "bad_request", message: "client_id أو id مطلوب" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const clientId = parsed.data.client_id ?? "";
+  const rowId = parsed.data.id ?? "";
 
   if (!clientId && !rowId) {
     return NextResponse.json(

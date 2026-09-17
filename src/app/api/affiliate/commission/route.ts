@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { processSubscriptionInitialPaymentServer } from "@/lib/affiliate-engine-server";
+import { affiliateCommissionBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/affiliate/commission — Phase 66 (owner-approved).
@@ -29,10 +30,29 @@ export async function POST(request: NextRequest) {
   if (auth instanceof Response) return auth;
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const userId = String(body.userId ?? "").trim();
-  const amount = Number(body.amount);
-  const reference = String(body.reference ?? "").trim();
-  const productId = String(body.productId ?? "").trim();
+
+  // Wave 3 zod gate — shape only (§7 owner-approved: the engine's
+  // coach-clients gate + idempotency stay untouched route policy); the
+  // legacy bad_request 400 is re-derived verbatim on gate failure.
+  const parsed = affiliateCommissionBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawUserId = String(raw.userId ?? "").trim();
+    const rawAmount = Number(raw.amount);
+    const rawReference = String(raw.reference ?? "").trim();
+    if (!rawUserId || !rawReference || !Number.isFinite(rawAmount) || rawAmount <= 0) {
+      return NextResponse.json({ error: "bad_request" }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const userId = parsed.data.userId;
+  const amount = Number(parsed.data.amount);
+  const reference = parsed.data.reference;
+  const productId = parsed.data.productId ?? "";
 
   if (!userId || !reference || !Number.isFinite(amount) || amount <= 0) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });

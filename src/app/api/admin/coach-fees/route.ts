@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminCoachFeeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * COACH FEES — fixed per-client price, admin-editable
@@ -79,8 +80,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "");
-  const fee = Number(body.fee_per_client);
+
+  // Wave 3 zod gate — shape only; the legacy fee/coach 400 classes below
+  // are re-derived verbatim on gate failure (compat law).
+  const parsed = adminCoachFeeBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "");
+    const rawFee = Number(raw.fee_per_client);
+    if (!rawCoachId || !Number.isFinite(rawFee) || rawFee < 0 || rawFee > 1_000_000) {
+      return NextResponse.json(
+        { error: "bad_request", message: "coach_id وسعر صحيح (0 أو أكثر) مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
+  const fee = Number(parsed.data.fee_per_client);
 
   if (!coachId || !Number.isFinite(fee) || fee < 0 || fee > 1_000_000) {
     return NextResponse.json(

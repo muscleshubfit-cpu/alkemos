@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminCoachSupportReplyBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN side of the COACH → SITE SUPPORT CHANNEL (0037).
@@ -14,6 +15,8 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  */
 
 const MAX_BODY = 4000;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function requireAdmin(request: NextRequest) {
   const auth = await requireUser(request);
@@ -98,11 +101,31 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const parentId = String(body.parent_id ?? "").trim();
-  const text = String(body.body ?? "").trim().slice(0, MAX_BODY);
-  const close = Boolean(body.close);
 
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  // Wave 3 zod gate — shape only; the legacy compound 400 below
+  // («UUID_RE fails OR empty text») is re-derived verbatim on gate
+  // failure (compat law); body ceiling = the route's slice(0,4000).
+  const parsed = adminCoachSupportReplyBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawParentId = String(raw.parent_id ?? "").trim();
+    const rawText = String(raw.body ?? "").trim().slice(0, MAX_BODY);
+    if (!UUID_RE.test(rawParentId) || !rawText) {
+      return NextResponse.json(
+        { error: "bad_request", message: "اكتب ردك الأول" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const parentId = parsed.data.parent_id;
+  const text = parsed.data.body.slice(0, MAX_BODY);
+  const close = parsed.data.close ?? false;
+
   if (!UUID_RE.test(parentId) || !text) {
     return NextResponse.json(
       { error: "bad_request", message: "اكتب ردك الأول" },

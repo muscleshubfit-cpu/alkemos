@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminAssignPairBodySchema } from "@/lib/validation/schemas";
 
 /**
  * MULTI-COACH PHASE 2B — admin reassignment of clients to coaches
@@ -62,8 +63,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const clientId = String(body.client_id ?? "");
-  const coachId = String(body.coach_id ?? "");
+
+  // Wave 3 zod gate — shape only; the legacy 400 classes below are
+  // re-derived verbatim on gate failure (compat law).
+  const parsed = adminAssignPairBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawClientId = String(raw.client_id ?? "");
+    const rawCoachId = String(raw.coach_id ?? "");
+    if (!rawClientId || !rawCoachId) {
+      return NextResponse.json(
+        { error: "bad_request", message: "client_id و coach_id مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const clientId = parsed.data.client_id;
+  const coachId = parsed.data.coach_id;
 
   if (!clientId || !coachId) {
     return NextResponse.json(

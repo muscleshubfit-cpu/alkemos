@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { adminCoachKindBodySchema } from "@/lib/validation/schemas";
 
 /**
  * ADMIN — COACH KIND TOGGLE (Phase 103, 0067).
@@ -28,8 +29,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const coachId = String(body.coach_id ?? "");
-  const kind = String(body.coach_kind ?? "");
+
+  // Wave 3 zod gate — shape only; the enum IS the legacy check, so every
+  // gate failure re-derives the legacy 400 verbatim (compat law).
+  const parsed = adminCoachKindBodySchema.safeParse(body);
+  if (!parsed.success) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    const rawCoachId = String(raw.coach_id ?? "");
+    const rawKind = String(raw.coach_kind ?? "");
+    if (!rawCoachId || (rawKind !== "site" && rawKind !== "b2b")) {
+      return NextResponse.json(
+        { error: "bad_request", message: "coach_id و coach_kind ('site' أو 'b2b') مطلوبان" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const coachId = parsed.data.coach_id;
+  const kind = parsed.data.coach_kind;
 
   if (!coachId || (kind !== "site" && kind !== "b2b")) {
     return NextResponse.json(

@@ -17,6 +17,12 @@ import {
   type ExternalWorkoutPlan,
 } from "@/lib/external-plan-text";
 import { loadEvoNutritionKnowledge } from "@/lib/evo-nutrition-knowledge.server";
+import {
+  externalPlanActionBodySchema,
+  externalPlanCreateBodySchema,
+  externalPlanPatchBodySchema,
+  uuidQueryIdSchema,
+} from "@/lib/validation/schemas";
 
 /**
  * ADMIN EXTERNAL PLANS — Phase 71 (owner request 2026-09-01):
@@ -674,14 +680,57 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const rawBody = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 
   /* ── Regeneration actions (owner Phase 78 «اعادة توليد») — dispatched
      before create validation: these operate on an EXISTING plan row. ── */
-  const action = String(body.action ?? "").trim();
+  const action = String(rawBody.action ?? "").trim();
   if (action) {
-    return await handleRegenerationAction(action, body);
+    // Wave 3 zod gate — action envelope shape only (the member-edit
+    // `mode` precedent: the dispatch itself stays on the raw body).
+    // Legacy 400 classes re-derived verbatim: «id مطلوب» (the handler's
+    // first check) and «action غير معروف» (the handler's static
+    // fallthrough for unknown names); the DB-dependent classes (row
+    // 404, per-action structural messages) stay POST-gate — the same
+    // static-only re-derivation law as the 2A activate route.
+    const parsedAction = externalPlanActionBodySchema.safeParse(rawBody);
+    if (!parsedAction.success) {
+      const rawId = String(rawBody.id ?? "").trim();
+      if (!rawId) return bad("id مطلوب");
+      const rawAction = String(rawBody.action ?? "").trim();
+      const KNOWN_ACTIONS = [
+        "restore_version",
+        "regenerate_plan",
+        "regenerate_meal",
+        "regenerate_item",
+        "regenerate_day",
+        "regenerate_exercise",
+      ];
+      if (!(KNOWN_ACTIONS as string[]).includes(rawAction)) {
+        return bad("action غير معروف");
+      }
+      return bad(parsedAction.error.issues[0]?.message ?? "Invalid request");
+    }
+    return await handleRegenerationAction(action, { ...parsedAction.data });
   }
+
+  // Wave 3 zod gate — create envelope shape only. ai/status stay OPEN
+  // dispatch fields; meal/workout stay open (route's typeof-object
+  // defaulting); the two legacy create 400s below are re-derived
+  // verbatim in legacy order on gate failure (compat law).
+  const parsed = externalPlanCreateBodySchema.safeParse(rawBody);
+  if (!parsed.success) {
+    const rawName = String(rawBody.person_name ?? "").trim();
+    const rawPlanType = String(rawBody.plan_type ?? "").trim();
+    if (rawName.length < 2 || rawName.length > MAX_SHORT) {
+      return bad("اسم الشخص مطلوب (من حرفين لحد 200 حرف)");
+    }
+    if (rawPlanType !== "workout" && rawPlanType !== "meal") {
+      return bad("نوع الخطة لازم يكون workout أو meal");
+    }
+    return bad(parsed.error.issues[0]?.message ?? "Invalid request");
+  }
+  const body: Record<string, unknown> = { ...parsed.data };
 
   const personName = String(body.person_name ?? "").trim();
   const personContact = String(body.person_contact ?? "").trim().slice(0, MAX_SHORT) || null;
@@ -792,7 +841,41 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
 
-  const body = await request.json().catch(() => ({}));
+  const rawPatchBody = await request.json().catch(() => ({}));
+
+  // Wave 3 zod gate — shape only; every optional field's legacy 400
+  // below is re-derived verbatim in the route's own check order on gate
+  // failure (compat law). Ceilings = the route's slice points (the
+  // silent-truncate → 400 P1-7 class).
+  const parsed = externalPlanPatchBodySchema.safeParse(rawPatchBody);
+  if (!parsed.success) {
+    const raw = (rawPatchBody ?? {}) as Record<string, unknown>;
+    const rawId = String(raw.id ?? "").trim();
+    if (!rawId) return bad("id مطلوب");
+    if (raw.person_name !== undefined) {
+      const v = String(raw.person_name).trim();
+      if (v.length < 2 || v.length > MAX_SHORT) return bad("اسم الشخص غير صالح");
+    }
+    if (raw.plan_type !== undefined) {
+      const v = String(raw.plan_type).trim();
+      if (v !== "workout" && v !== "meal") return bad("نوع الخطة غير صالح");
+    }
+    if (raw.title !== undefined) {
+      const v = String(raw.title).trim();
+      if (v.length < 3 || v.length > MAX_SHORT) return bad("عنوان الخطة غير صالح");
+    }
+    if (raw.text !== undefined) {
+      const v = String(raw.text).slice(0, MAX_TEXT).trim();
+      if (v.length < 10) return bad("تفاصيل الخطة قصيرة جدًا");
+    }
+    if (raw.status !== undefined) {
+      const v = String(raw.status).trim();
+      if (v !== "draft" && v !== "final") return bad("الحالة غير صالحة");
+    }
+    return bad(parsed.error.issues[0]?.message ?? "Invalid request");
+  }
+  const body: Record<string, unknown> = { ...parsed.data };
+
   const id = String(body.id ?? "").trim();
   if (!id) return bad("id مطلوب");
 
@@ -874,12 +957,20 @@ export async function DELETE(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
-  if (!id) return bad("id مطلوب");
+
+  // Wave 3 zod gate — the 2B DELETE-id fail-fast class: missing re-derives
+  // the legacy «id مطلوب» 400 verbatim; garbage that legacy silently
+  // no-op'd 200 now 400s BEFORE the doomed DB roundtrip.
+  const parsedId = uuidQueryIdSchema.safeParse(id ?? "");
+  if (!parsedId.success) {
+    if (!id) return bad("id مطلوب");
+    return bad(parsedId.error.issues[0]?.message ?? "Invalid request");
+  }
 
   const { error } = await supabaseAdmin
     .from("external_plans")
     .delete()
-    .eq("id", id);
+    .eq("id", parsedId.data);
 
   if (error) {
     console.error("[api/admin/external-plans] DELETE failed:", error.message);

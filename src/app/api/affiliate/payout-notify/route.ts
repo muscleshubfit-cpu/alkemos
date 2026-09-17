@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { emptyEnvelopeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/affiliate/payout-notify — Phase 75 (owner request:
@@ -29,6 +30,21 @@ export async function POST(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
+  }
+
+  // Wave 3 zod gate — the sanctioned 221 empty-envelope class: this
+  // route consumes NO request fields (everything derives from auth.id +
+  // the DB), so the gate pins the ENVELOPE only — null/unparseable maps
+  // to {} pre-gate and any object passes with unknown keys stripped
+  // (identical to legacy ignore semantics); a hostile NON-object body
+  // (legacy silent ignore → 200 flow) now 400s before the flow.
+  const rawBody = await request.json().catch(() => null);
+  const parsedBody = emptyEnvelopeBodySchema.safeParse(rawBody ?? {});
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
   }
 
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
