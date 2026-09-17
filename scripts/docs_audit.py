@@ -221,8 +221,12 @@ if readme and "STATE.md" not in readme:
 # window slid (new top entries pushed the 2026-09-16 VERCEL-USAGE/WAVE-1
 # entries below it) — the baseline is bumped in the SAME commit, per
 # the gate's own forward-only design.
+# PHASE 226 (2026-09-18): window slid again — the 2026-09-17 Zod/218/217
+# entries fell below the top-12 (three 2026-09-18 entries now lead the
+# active region). Baseline bumped 2026-09-16 → 2026-09-17 in the SAME
+# commit, per the gate's forward-only design (Phase 216 precedent).
 WORKLOG_WINDOW = 12
-WORKLOG_TAIL_BASELINE = "2026-09-16"   # newest pre-convention tail entry
+WORKLOG_TAIL_BASELINE = "2026-09-17"   # newest pre-convention tail entry
 
 worklog = read("worklog.md")
 wl_tasks: list[str] = []
