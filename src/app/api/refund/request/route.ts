@@ -8,6 +8,7 @@ import {
   countFeatureUsageSince,
   activationDate,
 } from "@/lib/refund";
+import { emptyEnvelopeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/refund/request — 7-day money-back request (Phase 76, owner
@@ -25,6 +26,18 @@ import {
  *
  * GET returns the member's latest request + a live eligibility verdict
  * so the profile card can explain exactly why a refund is (not) possible.
+ *
+ * Wave 2B completion (2026-09-17): the POST route consumes NO request
+ * fields (every input is server-derived), so the central zod gate pins
+ * the ENVELOPE only (emptyEnvelopeBodySchema): real callers (profile
+ * page) send no body — null/unparseable maps to {} pre-gate and any
+ * object passes with unknown keys stripped, identical to legacy ignore
+ * semantics. A hostile non-object JSON body (array/scalar) was a silent
+ * no-op 200 in legacy and now 400s before the money-adjacent flow (the
+ * saved-tool DELETE-id fail-fast class). The GET has no body — no gate
+ * (the planner-plan/quota precedent). §7 money logic (eligibility,
+ * window, usage ledgers, inserts) untouched — auth-first ordering
+ * preserved (the gate never fires before requireUser).
  *
  * Idempotent: a pending request returns ok:true with alreadyRequested.
  */
@@ -80,6 +93,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
+
+  // Wave 2B completion zod envelope gate — the route reads no fields; a
+  // hostile non-object JSON body (legacy silent no-op 200) now 400s
+  // before the money-adjacent flow. Real callers send no body at all.
+  const rawBody: unknown = await request.json().catch(() => null);
+  const parsedBody = emptyEnvelopeBodySchema.safeParse(rawBody ?? {});
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });

@@ -58,6 +58,8 @@ import {
   MAX_TICKET_SUBJECT,
   memberSaveEvoBodySchema,
   memberSwapBodySchema,
+  planNormalizeBodySchema,
+  emptyEnvelopeBodySchema,
   savedToolDeleteIdSchema,
   supportTicketBodySchema,
 } from "@/lib/validation/schemas";
@@ -1094,5 +1096,117 @@ describe("savedToolDeleteIdSchema — DELETE /api/tools/saved-* (Wave 2B)", () =
     expect(savedToolDeleteIdSchema.safeParse("garbage").success).toBe(false);
     expect(savedToolDeleteIdSchema.safeParse("").success).toBe(false);
     expect(savedToolDeleteIdSchema.safeParse(`${uuid} `).success).toBe(false);
+  });
+});
+
+describe("planNormalizeBodySchema — POST /api/plans/normalize (Wave 2B completion)", () => {
+  it("accepts the real widget payload ({text, planType, clientId})", () => {
+    const r = planNormalizeBodySchema.safeParse({
+      text: "خطة اليوم الأول: فطور شوفان",
+      planType: "nutrition",
+      clientId: "123e4567-e89b-12d3-a456-426614174000",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts without clientId (optional — admin path)", () => {
+    const r = planNormalizeBodySchema.safeParse({
+      text: "day 1: push day",
+      planType: "workout",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.clientId).toBeUndefined();
+  });
+
+  it("trims text and clientId (route uses parsed.data)", () => {
+    const r = planNormalizeBodySchema.safeParse({
+      text: "  workout plan  ",
+      planType: "workout",
+      clientId: " 123e4567-e89b-12d3-a456-426614174000 ",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.text).toBe("workout plan");
+      expect(r.data.clientId).toBe("123e4567-e89b-12d3-a456-426614174000");
+    }
+  });
+
+  it("rejects missing/whitespace-only text (route re-derives «Missing required field: text»)", () => {
+    expect(planNormalizeBodySchema.safeParse({ planType: "nutrition" }).success).toBe(false);
+    expect(
+      planNormalizeBodySchema.safeParse({ text: "   ", planType: "nutrition" }).success,
+    ).toBe(false);
+    expect(planNormalizeBodySchema.safeParse({}).success).toBe(false);
+  });
+
+  it("rejects bad planType (route re-derives «planType must be 'nutrition' or 'workout'»)", () => {
+    expect(
+      planNormalizeBodySchema.safeParse({ text: "خطة", planType: "meal" }).success,
+    ).toBe(false);
+    expect(
+      planNormalizeBodySchema.safeParse({ text: "خطة", planType: 5 }).success,
+    ).toBe(false);
+    expect(planNormalizeBodySchema.safeParse({ text: "خطة" }).success).toBe(false);
+  });
+
+  it("rejects non-string text (the new wrong-type class — legacy crashed 500 on .trim())", () => {
+    expect(
+      planNormalizeBodySchema.safeParse({ text: 123, planType: "nutrition" }).success,
+    ).toBe(false);
+    expect(
+      planNormalizeBodySchema.safeParse({ text: ["a"], planType: "nutrition" }).success,
+    ).toBe(false);
+  });
+
+  it("layering: text has NO zod ceiling (route has no slice point — lib clamp-and-process stays policy)", () => {
+    const big = "x".repeat(50_000);
+    const r = planNormalizeBodySchema.safeParse({ text: big, planType: "workout" });
+    expect(r.success).toBe(true);
+  });
+
+  it("layering: clientId is a bounded STRING, not z.uuid (UUID_RE + Arabic 400/403/402 ladder stays route policy)", () => {
+    const r = planNormalizeBodySchema.safeParse({
+      text: "خطة",
+      planType: "nutrition",
+      clientId: "not-a-uuid",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("hostile: smuggled keys are STRIPPED", () => {
+    const r = planNormalizeBodySchema.safeParse({
+      text: "خطة",
+      planType: "workout",
+      coach_role: "admin",
+      requested_by: "someone-else",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("coach_role");
+      expect(r.data).not.toHaveProperty("requested_by");
+    }
+  });
+});
+
+describe("emptyEnvelopeBodySchema — POST subscription/cancel · refund/request (Wave 2B completion)", () => {
+  it("accepts {} and any object with unknown keys stripped (real callers send no body — route maps null→{})", () => {
+    const empty = emptyEnvelopeBodySchema.safeParse({});
+    expect(empty.success).toBe(true);
+
+    const junk = emptyEnvelopeBodySchema.safeParse({
+      subscription_id: "row-1",
+      userId: "someone-else",
+      force: true,
+    });
+    expect(junk.success).toBe(true);
+    if (junk.success) expect(junk.data).toEqual({});
+  });
+
+  it("rejects hostile non-object JSON bodies (legacy silent no-op 200 — now 400, the DELETE-id class)", () => {
+    expect(emptyEnvelopeBodySchema.safeParse([1, 2, 3]).success).toBe(false);
+    expect(emptyEnvelopeBodySchema.safeParse("string").success).toBe(false);
+    expect(emptyEnvelopeBodySchema.safeParse(5).success).toBe(false);
+    expect(emptyEnvelopeBodySchema.safeParse(null).success).toBe(false);
+    expect(emptyEnvelopeBodySchema.safeParse(undefined).success).toBe(false);
   });
 });

@@ -395,9 +395,11 @@ export type CoachTopupBody = z.infer<typeof coachTopupBodySchema>;
 //    LEGACY failure class is re-derived verbatim on gate failure by the
 //    route; only NEW violations (wrong types, oversize, smuggled shapes)
 //    get fresh 400s. Ceilings equal the routes' own slice points, so real
-//    users never hit them. NOT opened: plans/normalize ·
-//    subscription/cancel · refund/request (omitted by the owner order)
-//    and Wave 3 (payment/admin/cron). ──
+//    users never hit them. Completion (owner correction, same day): the
+//    220 record wrongly attributed an exclusion of plans/normalize ·
+//    subscription/cancel · refund/request to the owner order — the owner
+//    excluded NOTHING from 2B; those three items joined below (221). Wave
+//    3 (payment/admin/cron) stays not opened. ──
 
 // ── POST /api/plans/member-edit (member plan writes — save-evo + swap) ──
 
@@ -529,3 +531,52 @@ export type EvoChatBody = z.infer<typeof evoChatBodySchema>;
  *  sanctioned fail-fast class; ownership stays the route's
  *  .eq("user_id", auth.id) policy). */
 export const savedToolDeleteIdSchema = z.uuid();
+
+// ── Wave 2B COMPLETION (2026-09-17, phase 221): the three plan items the
+//    220 record wrongly marked as excluded. Owner correction: NOTHING was
+//    excluded from 2B — the full original 2B list is plans/member-edit ·
+//    plans/normalize · support/tickets · ai/* · subscription/cancel ·
+//    refund/request · tools/saved-* DELETE, and all of it is now gated.
+//    Same laws as 220 — no new methodology. ──
+
+// ── POST /api/plans/normalize (coach-pasted plan → structured JSON) ──
+
+/** normalize payload. The legacy 400 classes live in the route and are
+ *  re-derived VERBATIM on gate failure, in legacy precedence order
+ *  (text first, then planType): «Missing required field: text» ·
+ *  «planType must be 'nutrition' or 'workout'».
+ *
+ *  text has NO zod ceiling deliberately — the route has no slice point of
+ *  its own (the chat-message precedent: plan-generator clamp-and-process
+ *  rawText.slice(0,8000) is lib policy, and a rejecting ceiling would 400
+ *  real paste-heavy coaches the route used to serve). clientId stays a
+ *  bounded STRING, not z.uuid(): the UUID_RE test and its Arabic
+ *  «افتح صفحة العميل...» 400 + the ownership 403 + the activation 402
+ *  ladder are route policy — a uuid pin would convert that legacy ladder
+ *  into zod 400s (the memberSwap planId precedent). */
+export const planNormalizeBodySchema = z.object({
+  text: z.string().trim().min(1),
+  planType: z.enum(["nutrition", "workout"]),
+  clientId: z.string().trim().max(100).optional(),
+});
+
+export type PlanNormalizeBody = z.infer<typeof planNormalizeBodySchema>;
+
+// ── POST /api/subscription/cancel · POST /api/refund/request ──
+
+/** Empty envelope for the two money-adjacent POST routes that consume NO
+ *  request fields — every input is server-derived (session → eligibility
+ *  lookups → service-role insert), so there is nothing to type, bound or
+ *  trim. The gate pins the ENVELOPE only: real callers (profile page)
+ *  send no body at all (the route maps a null/unparseable body to {}
+ *  pre-gate) and any object passes with unknown keys stripped — identical
+ *  to legacy ignore semantics. A hostile NON-object JSON body (array or
+ *  scalar) was a silent no-op 200 in legacy and now 400s before the
+ *  flow — the sanctioned saved-tool DELETE-id fail-fast class. The refund
+ *  GET has no body — no gate (the planner-plan/quota precedent). The
+ *  §7 money logic (eligibility, window, usage ledgers, inserts) is
+ *  untouched — shape-only tightening, zero behavior delta for any body
+ *  that was ever consumed (none was). */
+export const emptyEnvelopeBodySchema = z.object({});
+
+export type EmptyEnvelopeBody = z.infer<typeof emptyEnvelopeBodySchema>;

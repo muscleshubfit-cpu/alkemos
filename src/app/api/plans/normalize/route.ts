@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeCoachPlanText } from "@/lib/plan-generator";
 import { requireCoach, authRequired } from "@/lib/auth-server";
+import { planNormalizeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * Normalize a coach-pasted plan (free text, markdown, or loosely-structured
@@ -21,6 +22,17 @@ import { requireCoach, authRequired } from "@/lib/auth-server";
  *
  * The endpoint tries OpenRouter's best free models in order. If all fail,
  * it falls back to wrapping the raw text in a minimal structure.
+ *
+ * Wave 2B completion (2026-09-17): the POST body passes the central zod
+ * gate (planNormalizeBodySchema — text type-pinned + trimmed, planType
+ * pinned to the enum, clientId a bounded string, unknown keys stripped).
+ * Gate failure re-derives the legacy 400 classes VERBATIM in legacy
+ * precedence order (text first, then planType); only genuinely new
+ * violations (wrong types) get the fresh zod 400. text has NO zod
+ * ceiling — the route has no slice point (plan-generator's
+ * rawText.slice(0,8000) clamp-and-process is lib policy, the chat-message
+ * precedent); the UUID_RE + ownership 403 + activation 402 ladder stays
+ * route policy below.
  */
 export const maxDuration = 60; // Vercel Hobby cap (2026-08-27) — was 180 which exceeds Hobby
 
@@ -36,26 +48,32 @@ export async function POST(request: NextRequest) {
  coachRole = auth.role;
  }
 
- const body = await request.json();
- const { text, planType, clientId } = body as {
- text: string;
- planType: "nutrition" | "workout";
- clientId?: string;
- };
-
- if (!text || !text.trim()) {
+ // Wave 2B completion zod gate — on failure the legacy 400 classes are
+ // re-derived verbatim from the RAW body in legacy precedence order
+ // (text first, then planType); what remains is the genuinely new
+ // wrong-type class, which gets the fresh zod 400.
+ const rawBody: unknown = await request.json().catch(() => null);
+ const parsed = planNormalizeBodySchema.safeParse(rawBody);
+ if (!parsed.success) {
+ const raw = (rawBody ?? {}) as { text?: unknown; planType?: unknown };
+ if (!raw.text || (typeof raw.text === "string" && !raw.text.trim())) {
  return NextResponse.json(
  { error: "Missing required field: text" },
  { status: 400 },
  );
  }
-
- if (planType !== "nutrition" && planType !== "workout") {
+ if (raw.planType !== "nutrition" && raw.planType !== "workout") {
  return NextResponse.json(
  { error: "planType must be 'nutrition' or 'workout'" },
  { status: 400 },
  );
  }
+ return NextResponse.json(
+ { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+ { status: 400 },
+ );
+ }
+ const { text, planType, clientId } = parsed.data;
 
  // ── OWNER DECREE (2026-08-30): no paid activation → no plan service.
  // Normalize burns OpenRouter credits, so a COACH (never admin) must

@@ -4,6 +4,32 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: ZOD-WAVE2B-COMPLETION-221-2026-09-17
+Agent: Super Z (main)
+
+Task: أمر المالك 2026-09-17 («صحّح نطاق Wave 2B في التوثيق والحالة: لم أستبعد أي بند من Wave 2B. راجع خطة Zod الأصلية وقارنها بما نُفّذ فعليًا، وحدد أي بنود من Wave 2B لم تُنفذ، ثم نفّذها جميعًا قبل اعتبار Wave 2B مكتملة. لا تفتح Wave 3. حافظ على نفس منهجية وبوابات Wave 2A/2B، وأكمل التوثيق والـcommit والـpush والتحقق من المزامنة») — إكمال Wave 2B وتصحيح السجل
+
+Work Log:
+- بروتوكول §3.6: STATE.md قُرئ (221-pre على 50cb379f) · مزامنة origin/main SYNCED · مدخلا 219/220 بworklog
+- **حسم المقارنة من المصدرين الموثقين:** مدخل 2A بworklog (سطر «المتبقي الموثق بأمر ملكي يسميه») + سطر حالة الخطة بSTATE — الخطة الأصلية تسمي Wave 2B بسبعة بنود: plans/member-edit ✓(220) · plans/normalize ✗ · support/tickets ✓(220) · ai/* ✓(220: jobs+chat بوابات، feedback/meal-demo/workout-demo تحقق مركزي نقي قائم مؤكد بالفحص الموضعي parseEvoFeedbackInput حاضر بالمسار، planner-plan/quota GET-only، queue-health DELETE بلا جسم) · subscription/cancel ✗ · refund/request ✗ · tools/saved-* DELETE ✓(220) — **الناقص ثلاثة بنود** و220 كان قد نسب استبعادها خطأً لأمر المالك
+- جرد الحقيقة للمسارات الثلاثة: normalize (POST بجسم {text, planType, clientId?} — requireCoach أولًا، فئتا 400 إرثيتان بأسبقية text ثم planType، clientId يعاد فحصه UUID_RE برسالة عربية ثم ملكية 403 ثم تفعيل 402) · subscription/cancel وrefund/request POST (**لا يقرأان الجسم إطلاقًا** — كل المدخلات مشتقة خادميًا: جلسة→أهلية→إدراج service-role؛ المستدعى الحقيقي profile/page.tsx يرسل POST بلا جسم إطلاقًا — تحقق حرفي بالمصدر) — وGET refund بلا جسم
+- schemas.ts (+مخططان بقانون الطبقات نفسه): **planNormalizeBodySchema** — text z.string().trim().min(1) **بلا سقف مقصودًا** (لا نقطة قص في المسار؛ rawText.slice(0,8000) قص-ثم-معالجة داخل plan-generator سياسة مكتبة — سابقة رسالة الشات في 220: سقفٌ رافض يضرب لصق المدربين الطويل) · planType z.enum(['nutrition','workout']) · clientId z.string().trim().max(100).optional() **نص لا z.uuid** كي لا تتحول سلّم الإرث (UUID_RE/«افتح صفحة العميل...»/403 ملكية/402 تفعيل) لـ400 zod — سابقة planId بمخطط swap — **emptyEnvelopeBodySchema** z.object({}) لمساري الدفع: المغلّف فقط، أي object يمر بمجردة المفاتيح مطابقًا لدلالة التجاهل الإرثية، والجسم غير-المعياري (مصفوفة/سكالار) كان no-op 200 صامتًا صار 400 (نمط DELETE-id المعتمد في 220 حرفيًا) — تعليق مصحح بترويسة قسم 2B: «220 wrongly attributed an exclusion... owner excluded NOTHING»
+- المسارات: normalize — البوابة بعد requireCoach، وعند فشلها **إعادة اشتقاق الإرثي حرفيًا بأسبقيته من الجسم الخام** («Missing required field: text» ثم «planType must be 'nutrition' or 'workout'») والباقي فقط (نص غير نصي كان ينهار 500 بTypeError داخل try/catch — فئة خاطئ-النوع المعتمدة) يأخذ رسالة zod 400؛ cancel + refund POST — البوابة بعد requireUser مباشرة وق قبل فحص التكوين (ترتيب saved-results في 220) مع تخطيط null→{} قبل البوابة (POST بلا جسم = الوضع الحقيقي كله) — توثيق ترويسة كامل بكل مسار
+- **§7: منطق المال لم يُمس** — الأهلية/نافذة 7 أيام/دفاتر الاستخدام/إدراج refund_requests/cancel_requested_at/جرس الأدمن كلها كما هي؛ البوابة شكل مغلّف فوق حقلٍ غير مستهلك أصلًا (صفر تغيير سلوكي لأي طلب كان يُستهلك — لا شيء كان يُستهلك)
+- الاختبارات: +11 بvalidation-schemas.test.ts (105 بالمجموع؛ 1349 كليًا) — normalize: الودجت الحقيقي/بلا clientId/تقليم text+clientId/نصايح «Missing»/planType الشاذ/non-string text/بلا سقف (50K يمر)/clientId ليس uuid يمر بالبوابة/تجريد مفتاحين مهرّبين — المغلف: {} وأي object بمجردة/رفض مصفوفة-سكالار-null-undefined
+- البوابات: tsc 0 · eslint 0/0 · vitest 1349/1349 (81 ملفًا) · next build 0 (2,056 صفحة) · docs_audit (phase=221) · docs_parity/check-stale-refs/migration_audit ✓
+- دخان محلي حي (next start + curl ببيئة وهمية حُذفت بعده): **401×6** — normalize (جسم سليم/جسم [1,2]) · cancel (بلا جسم/[1]) · refund POST (بلا جسم/'str') — المصادقة أولًا كلها والبوابة لا تنطلق قبلها أبدًا
+- التوثيق: STATE.md — ترويسة 221 + مدخل (٠٠) 221 بتصحيح صريح لنسبة 220 الخاطئة + سطر حالة الخطة «الموجة 2B كاملة ✓ (220+221 — سبعة بنود بلا استبعاد) — المتبقي الموجة 3 فقط» + صف QA (221) — مع دمج 207+206 المحفوظتين وفق نمط 209+208 المعتمد لإبقاء الملف عند سطره الأقصى 100 · مدخل worklog هذا
+
+Stage Summary:
+- **Wave 2B مكتملة فعليًا الآن: 7/7 بنود الخطة الأصلية خلف الحدود** — تغطية zod الكلية 21 مسارًا بثلاثة ملفات مسارات إضافية (member-edit·tickets·jobs·chat·saved-*×2 من 220 + normalize·cancel·refund من 221)
+- تصحيح السجل موثق في الموضعين (STATE مدخل 221 صريح + تعليق schemas.ts): استبعاد البنود الثلاثة لم يكن بأمر ملكي — أُدرجت الآن بلا أي منهجية جديدة
+- عقود الأخطاء الإرثية محفوظة حرفيًا بكل الفئات («Missing required field: text» · «planType must be…» · رسائل normalize العربية الثلاث عبر بقاء UUID_RE سياسة مسار) — الفئات الجديدة الوحيدة: نص غير نصي (كان 500 انهيارًا) وجسم مغلّف غير معياري (كان 200 صامت) — النمطان المعتمدان P1-7/DELETE-id
+- المتبقي من خطة Zod: **الموجة 3 فقط** (paypal · admin · cron · affiliate) — بلا أمر فتح ملكي
+- Commit SHA: كوميت هذا الفريم يحمل هذا المدخل نفسه.
+- Push status: pushed (origin/main)
+
+---
 Task ID: ZOD-WAVE2B-220-2026-09-17
 Agent: Super Z (main)
 

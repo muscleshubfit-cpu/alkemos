@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { emptyEnvelopeBodySchema } from "@/lib/validation/schemas";
 
 /**
  * POST /api/subscription/cancel — Phase 68 (owner-approved).
@@ -20,10 +21,32 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *
  * Writes are service-role: 0041 keeps direct subscriptions UPDATE
  * admin-only, and the client may only SELECT his own rows.
+ *
+ * Wave 2B completion (2026-09-17): the route consumes NO request fields
+ * (every input is server-derived), so the central zod gate pins the
+ * ENVELOPE only (emptyEnvelopeBodySchema): real callers (profile page)
+ * send no body — null/unparseable maps to {} pre-gate and any object
+ * passes with unknown keys stripped, identical to legacy ignore
+ * semantics. A hostile non-object JSON body (array/scalar) was a silent
+ * no-op 200 in legacy and now 400s before the money-adjacent flow (the
+ * saved-tool DELETE-id fail-fast class). §7 logic untouched — auth-first
+ * ordering preserved (the gate never fires before requireUser).
  */
 export async function POST(request: NextRequest) {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
+
+  // Wave 2B completion zod envelope gate — the route reads no fields; a
+  // hostile non-object JSON body (legacy silent no-op 200) now 400s
+  // before the money-adjacent flow. Real callers send no body at all.
+  const rawBody: unknown = await request.json().catch(() => null);
+  const parsedBody = emptyEnvelopeBodySchema.safeParse(rawBody ?? {});
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: parsedBody.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
 
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
