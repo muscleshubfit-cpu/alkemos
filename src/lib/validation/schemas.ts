@@ -3,7 +3,8 @@ import { z } from "zod";
 /**
  * CENTRAL REQUEST VALIDATION — Zod schemas (Phase 141 / audit A-7,
  * wave 1, 2026-09-07 · P1-7 bounded inserts 2026-09-16 · Wave 2A
- * coach/* boundaries 2026-09-17).
+ * coach/* boundaries 2026-09-17 · Wave 2B user-side boundaries
+ * 2026-09-17).
  *
  * SECURITY.md §9.7 has mandated "zod schemas at the boundary of every
  * API route" since forever — but the repo had ZERO zod usage; routes
@@ -383,3 +384,148 @@ export const coachTopupBodySchema = z.object({
 });
 
 export type CoachTopupBody = z.infer<typeof coachTopupBodySchema>;
+
+// ── Wave 2B (2026-09-17): the user-side write boundaries — the «مسارات
+//    المستخدم» half of the original 3-wave plan (owner order «نفّذ Wave 2B
+//    من خطة Zod الأصلية فقط: plans/member-edit · support/tickets · ai/ ·
+//    tools/saved- DELETE»). Same laws as waves 1 + 2A: zod = shape/type/
+//    size + trim + unknown-key stripping; domain policy (mode dispatch,
+//    UUID_RE, ownership lookups, quotas, tier windows, kind→type mapping,
+//    history drop/slice, guest-id hashing) stays in the routes. Every
+//    LEGACY failure class is re-derived verbatim on gate failure by the
+//    route; only NEW violations (wrong types, oversize, smuggled shapes)
+//    get fresh 400s. Ceilings equal the routes' own slice points, so real
+//    users never hit them. NOT opened: plans/normalize ·
+//    subscription/cancel · refund/request (omitted by the owner order)
+//    and Wave 3 (payment/admin/cron). ──
+
+// ── POST /api/plans/member-edit (member plan writes — save-evo + swap) ──
+
+/** save-evo title — the route's trim-then-slice(0,120) point; the EVO
+ *  widget sends planRequest.slice(0,80), so real saves never reach it. */
+export const MAX_MEMBER_PLAN_TITLE = 120;
+/** save-evo text — the route's slice(0,20000) point (EVO plan messages
+ *  are model outputs, an order of magnitude below it). */
+export const MAX_MEMBER_PLAN_TEXT = 20_000;
+
+/** save-evo payload (the mode dispatch itself stays route policy — the
+ *  legacy trim-then-compare on `mode` decides the branch BEFORE the
+ *  gate). kind keeps the legacy trim semantics via .trim() — the
+ *  nutrition/meal→nutrition mapping stays in the route. */
+export const memberSaveEvoBodySchema = z.object({
+  kind: z
+    .string()
+    .trim()
+    .refine(
+      (k): k is "nutrition" | "meal" | "workout" =>
+        ["nutrition", "meal", "workout"].includes(k),
+      { message: "kind must be one of: nutrition, meal, workout" },
+    ),
+  title: z.string().trim().min(3).max(MAX_MEMBER_PLAN_TITLE),
+  text: z
+    .string()
+    .max(MAX_MEMBER_PLAN_TEXT)
+    .refine((t) => t.trim().length >= 20, {
+      message: "text must be at least 20 characters",
+    }),
+});
+
+export type MemberSaveEvoBody = z.infer<typeof memberSaveEvoBodySchema>;
+
+/** swap payload. planId stays a bounded STRING (not z.uuid()): the
+ *  route's ownership lookup and its 404 not_found class are the policy —
+ *  a uuid pin would convert legacy 404s into 400s beyond the sanctioned
+ *  classes. content is a plain object: arrays (which legacy `typeof`
+ *  let slip into the plans row, corrupting the shape) now 400 — the
+ *  sanctioned smuggled-shape tightening. */
+export const memberSwapBodySchema = z.object({
+  planId: z.string().trim().min(1).max(100),
+  content: z.record(z.string(), z.unknown()),
+});
+
+export type MemberSwapBody = z.infer<typeof memberSwapBodySchema>;
+
+// ── POST /api/support/tickets (member ticket creation + staff replies) ──
+
+/** Member subject — the route's own 3..200 check (both bounds legacy
+ *  400s, re-derived verbatim). */
+export const MAX_TICKET_SUBJECT = 200;
+/** Reply/message body — the route's MAX_BODY slice(0,4000) point;
+ *  oversize was silently truncated at insert, now 400. */
+export const MAX_TICKET_BODY = 4000;
+/** Ticket status allowlist (the route re-derives «حالة غير معروفة»). */
+export const TICKET_STATUSES = ["open", "pending", "closed"] as const;
+
+/** The one POST body serves TWO paths split by route policy on the raw
+ *  `ticketId` (absent + subject → member creation; present → staff
+ *  reply), so every field is optional at the gate and the path checks
+ *  stay in the route. ticketId is deliberately a bounded string —
+ *  UUID_RE stays the route policy (the Wave 2A layering). */
+export const supportTicketBodySchema = z.object({
+  ticketId: z.string().trim().max(100).optional(),
+  subject: z.string().trim().max(MAX_TICKET_SUBJECT).optional(),
+  body: z.string().trim().max(MAX_TICKET_BODY).optional(),
+  status: z
+    .string()
+    .trim()
+    .max(50)
+    .refine((s): s is (typeof TICKET_STATUSES)[number] =>
+      (TICKET_STATUSES as readonly string[]).includes(s), {
+      message: "حالة غير معروفة",
+    })
+    .optional(),
+});
+
+export type SupportTicketBody = z.infer<typeof supportTicketBodySchema>;
+
+// ── POST /api/ai/jobs (enqueue envelope) ──
+
+/** Raw type bound — anything else (including every non-string, which
+ *  legacy coerced through String()) re-derives the legacy «Unknown job
+ *  type» 400 verbatim. The JOB_GATE allowlist (isAiJobType) stays the
+ *  route policy; payload stays unknown — sanitizeJobPayload inside
+ *  enqueueAiJob is the payload policy, and the 40KB envelope cap (413)
+ *  stays the route's own check. */
+export const MAX_JOB_TYPE_LEN = 100;
+
+export const aiJobEnqueueBodySchema = z.object({
+  type: z.string().min(1).max(MAX_JOB_TYPE_LEN),
+  payload: z.unknown().optional(),
+});
+
+export type AiJobEnqueueBody = z.infer<typeof aiJobEnqueueBodySchema>;
+
+// ── POST /api/ai/chat (EVO chat envelope) ──
+
+/** History array count — the route's own wire clamp
+ *  (-slice to EVO_HISTORY_CAP_PAID = 16). A canary test pins the two
+ *  constants equal. ITEM shapes stay open (z.unknown()): the route's
+ *  filter+slice policy (drop non-string content, slice ≤2000 chars,
+ *  map roles) keeps exact legacy semantics — the same law as the
+ *  landing media arrays in Wave 2A (count bounded, items policy-owned). */
+export const MAX_CHAT_HISTORY_ITEMS = 16;
+
+/** EVO chat body. message is type-pinned + trim + non-empty — every
+ *  failure re-derives the legacy «Missing message» 400 verbatim. The
+ *  4000-char wire clamp stays ROUTE policy (the chat input has no
+ *  client maxLength, so a zod ceiling would 400 real paste-heavy users
+ *  — the clamp-and-process semantics are preserved, not tightened).
+ *  guestId stays open (the register-phone precedent): the route's
+ *  typeof-check + trim + slice(0,64) + salted-hash is the policy, and
+ *  an invalid guest id falls back to the IP key, never fails the chat. */
+export const evoChatBodySchema = z.object({
+  message: z.string().trim().min(1),
+  history: z.array(z.unknown()).max(MAX_CHAT_HISTORY_ITEMS).optional(),
+  guestId: z.unknown().optional(),
+});
+
+export type EvoChatBody = z.infer<typeof evoChatBodySchema>;
+
+// ── DELETE /api/tools/saved-results · /api/tools/saved-meal-plans ──
+
+/** The `id` query param of the two DELETE routes. Missing → the legacy
+ *  «Missing id» 400 (re-derived verbatim); present-but-garbage was a
+ *  silent no-op 200 — now 400 before the doomed DB roundtrip (the
+ *  sanctioned fail-fast class; ownership stays the route's
+ *  .eq("user_id", auth.id) policy). */
+export const savedToolDeleteIdSchema = z.uuid();

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireUser, authRequired } from "@/lib/auth-server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { savedToolDeleteIdSchema } from "@/lib/validation/schemas";
 
 /**
  * GET /api/tools/saved-results
@@ -9,6 +10,13 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *
  * DELETE /api/tools/saved-results?id=xxx
  *   Deletes a specific saved result.
+ *
+ * Wave 2B (2026-09-17): the DELETE id passes the central zod gate
+ * (savedToolDeleteIdSchema — uuid). Missing id keeps the legacy
+ * «Missing id» 400 verbatim; a present-but-garbage id — previously a
+ * silent no-op 200 — now 400s before the doomed DB roundtrip (the
+ * sanctioned fail-fast class). Ownership stays the route's
+ * .eq("user_id", auth.id) policy.
  */
 
 export async function GET(request: NextRequest) {
@@ -57,6 +65,14 @@ export async function DELETE(request: NextRequest) {
 
   if (!id) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  }
+  // Wave 2B zod gate — garbage ids 400 before the doomed roundtrip.
+  const parsedId = savedToolDeleteIdSchema.safeParse(id);
+  if (!parsedId.success) {
+    return NextResponse.json(
+      { error: parsedId.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
   }
 
   // Phase 216 (P2-7 — deep-audit confirmed-17): config gate before the

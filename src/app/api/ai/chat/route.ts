@@ -56,6 +56,7 @@ import {
   lookupEvoCacheAnswer,
   storeEvoCacheAnswer,
 } from "@/lib/evo-cache-server";
+import { evoChatBodySchema } from "@/lib/validation/schemas";
 import {
   buildSystemPrompt,
   type EvoClientContext,
@@ -119,6 +120,11 @@ const MAX_MESSAGE_LENGTH = 4_000;
  * per-request window is tier-resolved after auth — 16 messages for paid
  * subscribers (owner-approved cost trade-off, master plan W2) and the
  * unchanged 10 for everyone else (M-security clamps stay intact).
+ * Wave 2B: the wire-clamp COUNT moved to the central zod gate
+ * (MAX_CHAT_HISTORY_ITEMS — a canary pins it equal to
+ * EVO_HISTORY_CAP_PAID); oversized history arrays now 400 instead of
+ * being silently clamped. The per-item 2000-char slice stays THIS
+ * route's policy (see the map below).
  */
 const MAX_HISTORY_ITEMS = EVO_HISTORY_CAP_PAID;
 const MAX_HISTORY_ITEM_LENGTH = 2_000;
@@ -159,16 +165,39 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const rawMessage = typeof body?.message === "string" ? body.message : "";
+
+    // Wave 2B zod envelope gate — message is type-pinned + trim +
+    // non-empty, history is count-bounded (MAX_CHAT_HISTORY_ITEMS = the
+    // route's own wire clamp), guestId stays open (route policy). Every
+    // gate failure re-derives the legacy «Missing message» 400 verbatim
+    // (a non-string/whitespace message died on the exact same check in
+    // legacy); what remains is a NEW violation (e.g. a >16-item history
+    // array) and gets the fresh zod-message 400.
+    const parsedChat = evoChatBodySchema.safeParse(body);
+    if (!parsedChat.success) {
+      const rawMsg = typeof body?.message === "string" ? body.message : "";
+      if (!rawMsg.trim()) {
+        return NextResponse.json({ error: "Missing message" }, { status: 400 });
+      }
+      return NextResponse.json(
+        { error: parsedChat.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 },
+      );
+    }
+
+    const rawMessage = parsedChat.data.message;
     // Phase 183 — guest identity for the unified plan pool: anonymous
     // callers send the browser's localStorage guest id (minted by
     // plan-persistence.ts); it is hashed server-side into the SAME
     // ai_plan_usage key the planner pages use. Absent/invalid → falls
-    // back to the IP-hash anon key below.
+    // back to the IP-hash anon key below. The field stays OPEN at the
+    // gate — trim/slice(0,64)/hash is this route's policy.
     const rawGuestId =
-      typeof body?.guestId === "string" ? body.guestId.trim().slice(0, 64) : "";
-    const rawHistory: unknown[] = Array.isArray(body?.history)
-      ? body.history.slice(-MAX_HISTORY_ITEMS)
+      typeof parsedChat.data.guestId === "string"
+        ? parsedChat.data.guestId.trim().slice(0, 64)
+        : "";
+    const rawHistory: unknown[] = Array.isArray(parsedChat.data.history)
+      ? parsedChat.data.history.slice(-MAX_HISTORY_ITEMS) // defense-in-depth — the gate already caps at this exact count
       : [];
     const message = rawMessage.trim().slice(0, MAX_MESSAGE_LENGTH);
 

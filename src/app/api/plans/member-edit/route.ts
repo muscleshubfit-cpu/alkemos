@@ -3,6 +3,10 @@ import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { countThisMonthPlanUsage, type EvoPlanKind } from "@/lib/tier-limits";
 import { diffFoodNames, mergeSwapPayload } from "@/lib/evo-nutrition-learning";
+import {
+  memberSaveEvoBodySchema,
+  memberSwapBodySchema,
+} from "@/lib/validation/schemas";
 import type { Json } from "@/lib/supabase/types";
 
 /**
@@ -24,10 +28,21 @@ import type { Json } from "@/lib/supabase/types";
  *      body: { mode: "swap", planId, content }
  *    Ownership: the plan row MUST belong to the caller (service-role
  *    check — never trusts the body beyond that).
+ *
+ * Wave 2B (2026-09-17): both payloads pass the central zod gate
+ * (memberSaveEvoBodySchema / memberSwapBodySchema — type/trim/ceiling
+ * + unknown-key stripping at 120/20000, the routes' own slice points).
+ * The legacy bad_request class (incomplete plan / swap data) is
+ * re-derived verbatim on gate failure; the values that were previously
+ * truncated silently (title >120, text >20000) and the smuggled shapes
+ * (non-object swap content) now 400 — the documented P1-7 tightening.
+ * The mode dispatch, the nutrition/meal→nutrition mapping and the
+ * ownership/lookup policy stay in this route.
  */
-const MAX_TITLE = 120;
-const MAX_TEXT = 20_000;
 const EVO_SAVE_MONTHLY_CAP = 30;
+// MAX_TITLE/MAX_TEXT moved to the central schema (Wave 2B —
+// MAX_MEMBER_PLAN_TITLE / MAX_MEMBER_PLAN_TEXT): the zod ceilings ARE
+// the legacy slice points, so the silent slices are gone.
 
 /**
  * EVO-4 (W4 E3) — record the food-identity diff of one member swap into
@@ -108,22 +123,36 @@ export async function POST(request: NextRequest) {
 
   // ── save-evo ─────────────────────────────────────────────────────────
   if (mode === "save-evo") {
-    const kindRaw = String(body.kind ?? "").trim();
-    const kind: EvoPlanKind | null =
-      kindRaw === "nutrition" || kindRaw === "meal"
-        ? "nutrition"
-        : kindRaw === "workout"
-          ? "workout"
-          : null;
-    const title = String(body.title ?? "").trim().slice(0, MAX_TITLE);
-    const text = String(body.text ?? "").slice(0, MAX_TEXT);
-
-    if (!kind || title.length < 3 || text.trim().length < 20) {
+    // Wave 2B zod gate — the legacy bad_request class is re-derived
+    // verbatim on gate failure (kind invalid / title <3 / text trimmed
+    // <20); the oversize values that legacy silently sliced (title
+    // >120, text >20000) get the fresh zod-message 400 (P1-7).
+    const parsed = memberSaveEvoBodySchema.safeParse(body);
+    if (!parsed.success) {
+      const raw = (body ?? {}) as Record<string, unknown>;
+      const rawKind = String(raw.kind ?? "").trim();
+      const rawTitle = String(raw.title ?? "").trim();
+      const rawText = String(raw.text ?? "");
+      if (
+        !(rawKind === "nutrition" || rawKind === "meal" || rawKind === "workout") ||
+        rawTitle.length < 3 ||
+        rawText.trim().length < 20
+      ) {
+        return NextResponse.json(
+          { error: "bad_request", message: "بيانات الخطة غير مكتملة" },
+          { status: 400 },
+        );
+      }
       return NextResponse.json(
-        { error: "bad_request", message: "بيانات الخطة غير مكتملة" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
         { status: 400 },
       );
     }
+    // The route's own kind mapping stays (nutrition/meal → nutrition).
+    const kind: EvoPlanKind =
+      parsed.data.kind === "workout" ? "workout" : "nutrition";
+    const title = parsed.data.title;
+    const text = parsed.data.text;
 
     // Anti-spam cap: EVO-sourced plans per kind per month.
     // Phase 71 — staff bypass (owner decree: admin unlimited everywhere).
@@ -167,14 +196,30 @@ export async function POST(request: NextRequest) {
 
   // ── swap ─────────────────────────────────────────────────────────────
   if (mode === "swap") {
-    const planId = String(body.planId ?? "").trim();
-    const content = body.content;
-    if (!planId || !content || typeof content !== "object") {
+    // Wave 2B zod gate — the legacy bad_request class is re-derived
+    // verbatim on gate failure (missing planId/content); a non-object
+    // content (the smuggled shape legacy `typeof` stored) gets the
+    // fresh zod-message 400.
+    const parsed = memberSwapBodySchema.safeParse(body);
+    if (!parsed.success) {
+      const raw = (body ?? {}) as Record<string, unknown>;
+      const rawPlanId = String(raw.planId ?? "").trim();
+      const rawContent = raw.content;
+      if (!rawPlanId || !rawContent || typeof rawContent !== "object") {
+        return NextResponse.json(
+          { error: "bad_request", message: "بيانات الاستبدال غير مكتملة" },
+          { status: 400 },
+        );
+      }
       return NextResponse.json(
-        { error: "bad_request", message: "بيانات الاستبدال غير مكتملة" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
         { status: 400 },
       );
     }
+    const planId = parsed.data.planId;
+    // The gate guarantees a JSON object (it came from request.json());
+    // the cast restores the plans-column Json signature — runtime identical.
+    const content = parsed.data.content as Json;
 
     // Ownership gate — service-role read, the member may only persist
     // swaps to HIS OWN plan rows

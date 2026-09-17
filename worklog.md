@@ -4,6 +4,33 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: ZOD-WAVE2B-220-2026-09-17
+Agent: Super Z (main)
+
+Task: أمر المالك 2026-09-17 («نفّذ Wave 2B من خطة Zod الأصلية فقط: مسارات المستخدم المحددة في الخطة (plans/member-edit، support/tickets، ai/، tools/saved- DELETE). اتبع نفس المنهجية والبروتوكول المعتمد في Wave 2A...») — بوابة الحدود المركزية لمسارات المستخدم
+
+Work Log:
+- بروتوكول §3.6: STATE.md قُرئ (219 على b9597c7b) · استنساخ نظيف (الجلسة الجديدة — بيئة عمل سابقة زالت) · مزامنة origin/main SYNCED · AGENTS.md كاملًا · مدخل Wave 2A + قائمة المتبقي الموثقة (الخطة الأصلية تسمي Wave 2B: plans/member-edit · plans/normalize · support/tickets · ai/* · subscription/cancel · refund/request · tools/saved-* DELETE)
+- **حسم النطاق بأمر المالك الحرفي:** 4 مجموعات فقط (member-edit · support/tickets · ai/ · tools/saved- DELETE) — plans/normalize وsubscription/cancel وrefund/request استُبعدت صراحة بالأمر (والأخيرتان تمسان منطق الدفع — §7) وWave 3 مغلق
+- جرد الحقيقة: 75 مسارًا · 13 تستورد schemas (موجة 1 + P1-7 + 2A) — المسارات المستهدفة الخمسة ذات الأجسام: member-edit (POST بمساري save-evo/swap) · support/tickets (POST بمساري عضو/طاقم) · ai/jobs (POST enqueue) · ai/chat (POST عمومي) · saved-results/saved-meal-plans (DELETE بمعرّف query) — GET-فقط (planner-plan · quota) وجسم-فقط-داخلي (queue-health DELETE بلا جسم) بلا بوابة مطلوبة
+- **اكتشاف توثيقي (صفر مساس):** ai/feedback وmeal-plan-demo وworkout-demo تحتها تحقق مركزي نقي قائم بقدرات كاملة (parseEvoFeedbackInput بevo-feedback.ts · validateDemoRequest بai-meal-planner.ts · validateWorkoutRequest بai-workout-planner.ts — نوع/قائمة/سقوف لكل حقل) يؤدي وظيفة بوابة الحدود أصلًا والودجت يعيد استخدامها قبل الإرسال — إضافة مخططات zod موازية = ازدواج تحقق يحظرته خطة التدقيق نفسها؛ وُثّق ولم يُمس
+- schemas.ts +150 سطرًا: 5 مخططات + savedToolDeleteIdSchema (z.uuid بنمط Zod 4) + ثوابت موثقة (MAX_MEMBER_PLAN_TITLE 120 · MAX_MEMBER_PLAN_TEXT 20000 · MAX_TICKET_SUBJECT 200 · MAX_TICKET_BODY 4000 · TICKET_STATUSES · MAX_JOB_TYPE_LEN 100 · MAX_CHAT_HISTORY_ITEMS 16) — قانون الطبقات: zod=نوع/سقف/تقليم/تجريد، والسياسة باقية بالمسارات (توجيه mode على القيم الخام · UUID_RE · ملكية الخطط والاستبدال · الحصص ونوافذ التير · hash الضيف المملح)
+- قانون التوافق حرفيًا: كل فئة إرثية معاد اشتقاقها عند فشل البوابة بإعادة التحقق الخام (member-edit: bad_request بالرسالتين العربيتين · tickets: bad_request ×3 «اكتب موضوعًا...» / «لا يوجد رد أو تغيير حالة» / «حالة غير معروفة» بترتيب الفحص الإرثي · chat: Missing message · jobs: Unknown job type · saved-*: Missing id) — الفئات الجديدة فقط (أنواع خاطئة · سقوف فائقة · أشكال مهرّبة) ترجع رسالة zod 400
+- قرارات توافقية موثقة بالمخططات: kind بtrim قبل القائمة (« workout » الإرثي يمر) وstatus كذلك · planId يبقى نصًا محدودًا لا z.uuid كي لا تتحول 404 الإرثية لـ400 · type بلا trim (String() الإرثي كان يُمررها للقائمة) · guestId مفتوح (نمط phone) · عناصر history مفتوحة (نمط مصفوفات الوسائط في 2A: العدد فقط ≤16 = نقطة القص نفسها) · رسالة الشات بلا سقف zod (clamp-and-process سياسة موثقة — الإدخال بلا maxLength فسقفٌ هنا يضرب مستخدمين حقيقيين باللصق الطويل) · محتوى swap = z.record (المصفوفات التي كان typeof الإرثي يخزنها فتُفسد شكل الصف صارت 400 — فئة الأشكال المهرّبة المعتمدة)
+- البوابات في المسارات الخمسة مع المصادقة أولًا: بوابة tickets أُدرجت داخل كل مسار بعد requireUser/requireStaff (لا 400 قبل 401 — نفس ترتيب 2A) · member-edit/jobs بعد requireUser · معرف DELETE بعد requireUser — المسارات تستخدم parsed.data بعد البوابة (التقليم والتجريد فعّالان)
+- الاختبارات: +34 في validation-schemas.test.ts (94 بالمجموع) — صحيح/خاطئ/عدوائي لكل مخطط + تجريد المفاتيح المهرّبة (client_id/status/is_current/approved_at · client_id/priority · requested_by · tier/userId) + canary سقف history (MAX_CHAT_HISTORY_ITEMS = EVO_HISTORY_CAP_PAID من evo-coach) + توثيق اختباري لفصل الطبقات (planId يبقى نصًا · subject بلا حد أدنى بالبوابة · عناصر history تمر كما هي · payload مفتوح)
+- البوابات: tsc 0 · eslint 0/0 · vitest 1338/1338 (81 ملفًا) · next build 0 (2,056 صفحة) — docs_audit/docs_parity بعد التوثيق (تحت)
+- دخان محلي حي (خادم next start + curl ببيئة وهمية حُذفت بعد الدخان — غير مرفوعة أصلًا): المصادقة أولًا — 401 نظيفة ×6 (member-edit · tickets member · tickets staff · jobs · saved-results DELETE · saved-meal-plans DELETE) · chat (الحمولة العامة الوحيدة بالموجة): فارغ/أبيض/غير-نصي → Missing message 400 حرفيًا (إعادة الاشتقاق) · history بـ17 عنصرًا → رسالة zod 400 (الفئة الجديدة) · المسار السعيد بجسم الودجت (10 عناصر) → 200 برد احتياطي محلي عبر البوابة كاملة — صفر كتابة DB
+
+Stage Summary:
+- Wave 2B مغلقة كاملة: حدود كتابة المستخدمين الأربع بأمر المالك خلف البوابة المركزية — تغطية zod الكلية الآن 18/75 مسارًا (العامة + P1-7 + المدربين + المستخدمين)
+- العقد المحفوظ: صفر تغيير في رسائل/أحوال الأخطاء الإرثية لأي حملة كانت تمر — التشديد الحصري على ما كان يُخزَّن مقصوصًا أو يُمرَّر صامتة أو يُحذف بلا أثر (نمط P1-7 المعتمد)
+- feedback وdemos التوليد الثلاثة بلا بوابة zod عمدًا — تحققها المركزي النقي أداءً لوظيفتها وموثق ذلك هنا؛ أي توحيد مستقبلي لهم داخل zod يحتاج أمرًا ملكيًا صريحًا (ازدواج محظور)
+- المتبقي من الخطة الأصلية: Wave 3 (paypal · admin · cron · affiliate) بلا أمر فتح — وبنود Wave 2B المستبعدة بأمر المالك (plans/normalize · subscription/cancel · refund/request) بلا أمر كذلك
+- Commit SHA: كوميت هذا الفريم يحمل هذا المدخل نفسه.
+- Push status: pushed (origin/main) — أُكمل بجلسة المتابعة بعد وصول PAT المالك (جلسة التنفيذ توقفت عند الدفع فقط: بيئتها بلا اعتماديات git — «could not read Username» — فتوقفت بلا إعادة صامتة ودوّنت الحالة بأمانة)؛ جلسة المتابعة أعادت تشغيل البوابات كاملة خضراء على الشجرة النهائية قبل الدفع (tsc 0 · eslint 0/0 · vitest 1338/1338 · build 0 · docs_audit/docs_parity/check-stale-refs/migration_audit ✓) ثم دفعت وتحققت من المزامنة — بلا أي مساس بمحتوى الكوميت أو بواباته الخمس
+
+---
 Task ID: ZOD-WAVE2A-219-2026-09-17
 Agent: Super Z (main)
 

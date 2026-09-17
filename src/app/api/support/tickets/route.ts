@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  supportTicketBodySchema,
+  TICKET_STATUSES,
+} from "@/lib/validation/schemas";
 
 /**
  * STAFF side of CLIENT support tickets (Phase 55 fix).
@@ -25,6 +29,16 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *
  * A reply sets the ticket to "pending" (client's cue that staff answered,
  * same rule as the M19 client-side fix) and notifies the client's bell.
+ *
+ * Wave 2B (2026-09-17): the POST body passes the central zod gate
+ * (supportTicketBodySchema — trim + subject ≤200 · body ≤4000 ceilings
+ * + status allowlist + unknown-key stripping). The three legacy
+ * bad_request classes (member «اكتب موضوعًا ونصًا للرسالة» · staff
+ * «لا يوجد رد أو تغيير حالة» · «حالة غير معروفة») are re-derived
+ * verbatim on gate failure; the oversize body that was previously
+ * truncated silently at insert now 400s (the P1-7 tightening). The
+ * raw-ticketId path dispatch, UUID_RE and the assignment scoping stay
+ * route policy.
  */
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -159,9 +173,12 @@ export async function POST(request: NextRequest) {
   // { subject, body } without ticketId = a member opening a NEW ticket.
   // Runs SERVER-SIDE so the priority decision is not client-forged:
   // an ACTIVE coaching subscription → priority='high', else 'normal'.
-  const subject = String(rawBody.subject ?? "").trim();
-  if (!rawBody.ticketId && subject) {
-    return memberCreateTicket(request, subject, String(rawBody.body ?? "").trim());
+  // The dispatch reads the RAW values (exact legacy semantics — a
+  // whitespace ticketId goes to the staff path and dies on UUID_RE,
+  // never silently becomes a member ticket); auth stays FIRST.
+  const rawSubject = String(rawBody.subject ?? "").trim();
+  if (!rawBody.ticketId && rawSubject) {
+    return memberCreateTicket(request, rawSubject, rawBody);
   }
 
   const auth = await requireStaff(request);
@@ -171,10 +188,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
 
-  const body = rawBody;
-  const ticketId = String(body.ticketId ?? "").trim();
-  const text = String(body.body ?? "").trim().slice(0, MAX_BODY);
-  const status = String(body.status ?? "").trim();
+  // Wave 2B zod gate (staff path — post-auth, the Wave 2A order): the
+  // legacy bad_request classes are re-derived verbatim on gate failure
+  // («لا يوجد رد أو تغيير حالة» · «حالة غير معروفة»); what remains is a
+  // NEW violation (oversize/non-string — the insert-slice class) and
+  // gets the fresh zod-message 400.
+  const parsedTicket = supportTicketBodySchema.safeParse(rawBody);
+  if (!parsedTicket.success) {
+    const rawTicketId = String(rawBody.ticketId ?? "").trim();
+    const rawText = String(rawBody.body ?? "").trim();
+    const rawStatus = String(rawBody.status ?? "").trim();
+    if (!UUID_RE.test(rawTicketId) || (!rawText && !rawStatus)) {
+      return NextResponse.json(
+        { error: "bad_request", message: "لا يوجد رد أو تغيير حالة" },
+        { status: 400 },
+      );
+    }
+    if (rawStatus && !(TICKET_STATUSES as readonly string[]).includes(rawStatus)) {
+      return NextResponse.json(
+        { error: "bad_request", message: "حالة غير معروفة" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsedTicket.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const ticketId = parsedTicket.data.ticketId ?? "";
+  const text = String(parsedTicket.data.body ?? "").slice(0, MAX_BODY);
+  const status = parsedTicket.data.status ?? "";
   const wantsReply = text.length > 0;
   const wantsStatus = status.length > 0;
 
@@ -260,11 +304,17 @@ export async function POST(request: NextRequest) {
  * get priority='high'; everyone else 'normal'. Mirrors the legacy
  * client-side insert (ticket + first message + staff bell) with the
  * service role.
+ *
+ * Wave 2B: the zod gate runs AFTER requireUser (auth-first, the Wave 2A
+ * order). The legacy member bad_request class («اكتب موضوعًا ونصًا
+ * للرسالة» — subject <3 / >200 / empty body) is re-derived verbatim on
+ * gate failure; an oversize body (>4000 — previously truncated silently
+ * at insert) gets the fresh zod-message 400.
  */
 async function memberCreateTicket(
   request: NextRequest,
   subject: string,
-  text: string,
+  rawBody: Record<string, unknown>,
 ): Promise<Response> {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
@@ -272,6 +322,23 @@ async function memberCreateTicket(
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
+
+  const parsedTicket = supportTicketBodySchema.safeParse(rawBody);
+  if (!parsedTicket.success) {
+    const rawText = String(rawBody.body ?? "").trim();
+    if (subject.length < 3 || subject.length > 200 || rawText.length === 0) {
+      return NextResponse.json(
+        { error: "bad_request", message: "اكتب موضوعًا ونصًا للرسالة" },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: parsedTicket.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 },
+    );
+  }
+
+  const text = parsedTicket.data.body ?? "";
 
   if (subject.length < 3 || subject.length > 200 || text.length === 0) {
     return NextResponse.json(

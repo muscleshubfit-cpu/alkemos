@@ -11,6 +11,7 @@ import {
 } from "@/lib/ai-jobs";
 import { dispatchAiJobsRunner } from "@/lib/ai-runner-dispatch";
 import { dispatchBlogPipeline, usableCoachTopic } from "@/lib/blog-pipeline-dispatch";
+import { aiJobEnqueueBodySchema } from "@/lib/validation/schemas";
 
 /**
  * AI Jobs API — enqueue + poll.
@@ -38,6 +39,14 @@ import { dispatchBlogPipeline, usableCoachTopic } from "@/lib/blog-pipeline-disp
  *
  * SECURITY: every row carries requested_by = verified session id; RLS lets
  * users SELECT only their own rows; there are NO browser write policies.
+ *
+ * Wave 2B (2026-09-17): the POST body passes the central zod envelope
+ * gate (aiJobEnqueueBodySchema — type is a bounded string, payload stays
+ * unknown, unknown keys stripped). Every gate failure re-derives the
+ * legacy «Unknown job type» 400 verbatim (legacy coerced non-string
+ * types through String() and they died on the same check anyway). The
+ * isAiJobType allowlist, the 40KB envelope cap (413) and the
+ * sanitizeJobPayload policy inside enqueueAiJob stay this route's.
  */
 export const maxDuration = 30;
 
@@ -56,8 +65,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => null);
-    const type = String(body?.type || "");
-    const payload = body?.payload;
+
+    // Wave 2B zod envelope gate — the legacy «Unknown job type» 400 is
+    // re-derived verbatim on every gate failure (non-object bodies and
+    // non-string types all died on the same check in legacy).
+    const parsedJob = aiJobEnqueueBodySchema.safeParse(body);
+    if (!parsedJob.success) {
+      return NextResponse.json({ error: "Unknown job type" }, { status: 400 });
+    }
+    const type = parsedJob.data.type;
+    // The gate keeps payload shape-open (z.unknown — scalar payloads
+    // behaved identically in legacy through the `any` body); this cast
+    // only restores the enqueue signature, it changes no runtime step:
+    // the REAL payload policy is sanitizeJobPayload inside enqueueAiJob.
+    const payload = parsedJob.data.payload as Record<string, unknown> | undefined;
 
     if (!isAiJobType(type)) {
       return NextResponse.json({ error: "Unknown job type" }, { status: 400 });

@@ -47,6 +47,21 @@ import {
   MAX_SUPPORT_SUBJECT,
   MAX_TOPUP_NOTE,
 } from "@/lib/validation/schemas";
+import {
+  aiJobEnqueueBodySchema,
+  evoChatBodySchema,
+  MAX_CHAT_HISTORY_ITEMS,
+  MAX_JOB_TYPE_LEN,
+  MAX_MEMBER_PLAN_TEXT,
+  MAX_MEMBER_PLAN_TITLE,
+  MAX_TICKET_BODY,
+  MAX_TICKET_SUBJECT,
+  memberSaveEvoBodySchema,
+  memberSwapBodySchema,
+  savedToolDeleteIdSchema,
+  supportTicketBodySchema,
+} from "@/lib/validation/schemas";
+import { EVO_HISTORY_CAP_PAID } from "@/lib/evo-coach";
 
 /**
  * Phase 141 / A-7 wave 1 canaries — the central Zod boundary schemas.
@@ -735,5 +750,349 @@ describe("coachTopupBodySchema — POST /api/coach/wallet/topup (Wave 2A)", () =
   it("string amounts still pass (legacy Number coercion), objects fail", () => {
     expect(coachTopupBodySchema.safeParse({ ...valid, amount: "250" }).success).toBe(true);
     expect(coachTopupBodySchema.safeParse({ ...valid, amount: { usd: 250 } }).success).toBe(false);
+  });
+});
+
+// ── Wave 2B (2026-09-17): the user-side write boundaries —
+//    plans/member-edit (save-evo + swap) · support/tickets · ai/jobs
+//    envelope · ai/chat envelope · tools/saved-* DELETE id. Same canary
+//    style: correct + wrong + hostile per schema; the routes re-derive
+//    their legacy 400 classes verbatim (compat law) and keep their
+//    policy (mode dispatch, UUID_RE, ownership, quotas, history
+//    drop/slice, guest-id hashing). ──
+
+describe("memberSaveEvoBodySchema — POST /api/plans/member-edit save-evo (Wave 2B)", () => {
+  const valid = {
+    kind: "meal",
+    title: "خطة من EVO",
+    text: "فطور: شوفان بالحليب وبعض الفواكه، ثم تمارين خفيفة مساءً.",
+  };
+
+  it("accepts a valid save (the widget sends kind 'meal' + title ≤80)", () => {
+    const r = memberSaveEvoBodySchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.title).toBe("خطة من EVO");
+  });
+
+  it("kind keeps the legacy trim semantics: ' workout ' passes trimmed", () => {
+    const r = memberSaveEvoBodySchema.safeParse({ ...valid, kind: " workout " });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.kind).toBe("workout");
+  });
+
+  it("kind stays the raw allowlist — the meal→nutrition mapping is the route's", () => {
+    // Layer law: the gate pins the three raws; which plan row type they
+    // map to is decided in the route.
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, kind: "nutrition" }).success,
+    ).toBe(true);
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, kind: "dessert" }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a whitespace/short title (route re-derives bad_request)", () => {
+    expect(memberSaveEvoBodySchema.safeParse({ ...valid, title: "   " }).success).toBe(false);
+    expect(memberSaveEvoBodySchema.safeParse({ ...valid, title: "ab" }).success).toBe(false);
+  });
+
+  it("title ceiling 120 = the legacy slice point — oversize now 400", () => {
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, title: "x".repeat(MAX_MEMBER_PLAN_TITLE) })
+        .success,
+    ).toBe(true);
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, title: "x".repeat(MAX_MEMBER_PLAN_TITLE + 1) })
+        .success,
+    ).toBe(false);
+  });
+
+  it("text needs ≥20 trimmed chars and rejects >20000 (the legacy slice point)", () => {
+    expect(memberSaveEvoBodySchema.safeParse({ ...valid, text: "قصير" }).success).toBe(false);
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, text: `${"ك".repeat(19)} ` }).success,
+    ).toBe(false); // 19 non-space chars + a trailing space → trimmed < 20
+    expect(
+      memberSaveEvoBodySchema.safeParse({ ...valid, text: "ك".repeat(MAX_MEMBER_PLAN_TEXT + 1) })
+        .success,
+    ).toBe(false);
+  });
+
+  it("hostile: the plans columns a client must never set are STRIPPED", () => {
+    const r = memberSaveEvoBodySchema.safeParse({
+      ...valid,
+      client_id: "someone-else",
+      status: "approved",
+      is_current: true,
+      approved_at: "2026-01-01",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("client_id");
+      expect(r.data).not.toHaveProperty("status");
+      expect(r.data).not.toHaveProperty("is_current");
+      expect(r.data).not.toHaveProperty("approved_at");
+    }
+  });
+});
+
+describe("memberSwapBodySchema — POST /api/plans/member-edit swap (Wave 2B)", () => {
+  const uuid = "123e4567-e89b-12d3-a456-426614174000";
+  const valid = { planId: uuid, content: { text: "updated", source: "evo" } };
+
+  it("accepts a valid swap payload", () => {
+    expect(memberSwapBodySchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("rejects a missing/empty planId (route re-derives bad_request)", () => {
+    expect(memberSwapBodySchema.safeParse({ ...valid, planId: "" }).success).toBe(false);
+    expect(memberSwapBodySchema.safeParse({ content: { a: 1 } }).success).toBe(false);
+  });
+
+  it("planId stays a bounded STRING — garbage ids stay the route's 404 class", () => {
+    // Layer law: a uuid pin would convert the legacy not_found 404 into
+    // a 400 beyond the sanctioned classes; the ownership lookup is the
+    // policy, the gate only bounds the shape.
+    expect(
+      memberSwapBodySchema.safeParse({ ...valid, planId: "not-even-a-uuid" }).success,
+    ).toBe(true);
+    expect(
+      memberSwapBodySchema.safeParse({ ...valid, planId: "x".repeat(101) }).success,
+    ).toBe(false);
+  });
+
+  it("rejects non-object content — arrays no longer slip into the plans row", () => {
+    expect(memberSwapBodySchema.safeParse({ ...valid, content: ["a", "b"] }).success).toBe(false);
+    expect(memberSwapBodySchema.safeParse({ ...valid, content: "text" }).success).toBe(false);
+    expect(memberSwapBodySchema.safeParse({ ...valid, content: null }).success).toBe(false);
+  });
+
+  it("hostile: client_id/status are STRIPPED — the row owner is the session", () => {
+    const r = memberSwapBodySchema.safeParse({
+      ...valid,
+      client_id: "someone-else",
+      status: "draft",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("client_id");
+      expect(r.data).not.toHaveProperty("status");
+    }
+  });
+});
+
+describe("supportTicketBodySchema — POST /api/support/tickets (Wave 2B)", () => {
+  const uuid = "123e4567-e89b-12d3-a456-426614174000";
+
+  it("accepts a member creation body (subject + body, no ticketId) and trims", () => {
+    const r = supportTicketBodySchema.safeParse({
+      subject: "  مشكلة في الدفع  ",
+      body: "التفاصيل كاملة هنا",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.subject).toBe("مشكلة في الدفع");
+      expect(r.data.ticketId).toBeUndefined();
+    }
+  });
+
+  it("accepts staff reply/status bodies", () => {
+    expect(
+      supportTicketBodySchema.safeParse({ ticketId: uuid, body: "رد الفريق" }).success,
+    ).toBe(true);
+    expect(
+      supportTicketBodySchema.safeParse({ ticketId: uuid, status: "closed" }).success,
+    ).toBe(true);
+  });
+
+  it("empty body passes the gate — the two-path dispatch is route policy", () => {
+    // All fields optional: {} reaches the route and dies on auth /
+    // «لا يوجد رد أو تغيير حالة» exactly as legacy.
+    expect(supportTicketBodySchema.safeParse({}).success).toBe(true);
+  });
+
+  it("subject ceiling 200 = the legacy member 400 class; the 3-char minimum stays the route's", () => {
+    // Layer law: subject is optional (staff replies send none), so the
+    // gate pins only the ceiling; a <3 subject passes the gate and the
+    // route's member-path check re-derives «اكتب موضوعًا...» verbatim.
+    expect(
+      supportTicketBodySchema.safeParse({ subject: "x".repeat(MAX_TICKET_SUBJECT) }).success,
+    ).toBe(true);
+    expect(
+      supportTicketBodySchema.safeParse({ subject: "x".repeat(MAX_TICKET_SUBJECT + 1) }).success,
+    ).toBe(false);
+    expect(supportTicketBodySchema.safeParse({ subject: "ab" }).success).toBe(true);
+  });
+
+  it("body ceiling 4000 = the legacy insert slice — oversize now 400", () => {
+    expect(
+      supportTicketBodySchema.safeParse({ subject: "abc", body: "x".repeat(MAX_TICKET_BODY) })
+        .success,
+    ).toBe(true);
+    expect(
+      supportTicketBodySchema.safeParse({ subject: "abc", body: "x".repeat(MAX_TICKET_BODY + 1) })
+        .success,
+    ).toBe(false);
+  });
+
+  it("status: the three verbs pass (trimmed), anything else fails", () => {
+    expect(supportTicketBodySchema.safeParse({ status: " open " }).success).toBe(true);
+    expect(supportTicketBodySchema.safeParse({ status: "pending" }).success).toBe(true);
+    expect(supportTicketBodySchema.safeParse({ status: "junk" }).success).toBe(false);
+    expect(supportTicketBodySchema.safeParse({ status: 42 }).success).toBe(false);
+  });
+
+  it("hostile: client_id/priority are STRIPPED — priority is server-decided", () => {
+    const r = supportTicketBodySchema.safeParse({
+      subject: "abc",
+      body: "x",
+      client_id: "someone-else",
+      priority: "high",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("client_id");
+      expect(r.data).not.toHaveProperty("priority");
+    }
+  });
+});
+
+describe("aiJobEnqueueBodySchema — POST /api/ai/jobs (Wave 2B)", () => {
+  it("accepts the UI envelope with an object payload", () => {
+    expect(
+      aiJobEnqueueBodySchema.safeParse({
+        type: "plan_nutrition",
+        payload: { clientId: "123e4567-e89b-12d3-a456-426614174000", notes: "كيتو" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts an absent payload (legacy body?.payload === undefined)", () => {
+    const r = aiJobEnqueueBodySchema.safeParse({ type: "article_generate" });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.payload).toBeUndefined();
+  });
+
+  it("rejects missing/empty/non-string/oversize type (route re-derives Unknown job type)", () => {
+    expect(aiJobEnqueueBodySchema.safeParse({}).success).toBe(false);
+    expect(aiJobEnqueueBodySchema.safeParse({ type: "" }).success).toBe(false);
+    expect(aiJobEnqueueBodySchema.safeParse({ type: 42 }).success).toBe(false);
+    expect(
+      aiJobEnqueueBodySchema.safeParse({ type: "x".repeat(MAX_JOB_TYPE_LEN + 1) }).success,
+    ).toBe(false);
+  });
+
+  it("type is NOT trimmed — an unlisted spaced type dies on the route allowlist", () => {
+    // Exact legacy String() semantics: ' plan_nutrition ' passed the
+    // legacy envelope and died on isAiJobType; the gate preserves that.
+    const r = aiJobEnqueueBodySchema.safeParse({ type: " plan_nutrition " });
+    expect(r.success).toBe(true);
+  });
+
+  it("payload stays shape-open — sanitizeJobPayload inside enqueue is the policy", () => {
+    expect(aiJobEnqueueBodySchema.safeParse({ type: "t", payload: 42 }).success).toBe(true);
+    expect(aiJobEnqueueBodySchema.safeParse({ type: "t", payload: "x" }).success).toBe(true);
+  });
+
+  it("hostile: requested_by is STRIPPED — the queue owner is the session", () => {
+    const r = aiJobEnqueueBodySchema.safeParse({
+      type: "plan_nutrition",
+      payload: {},
+      requested_by: "someone-else",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).not.toHaveProperty("requested_by");
+  });
+});
+
+describe("evoChatBodySchema — POST /api/ai/chat (Wave 2B)", () => {
+  it("accepts the widget envelope and trims the message", () => {
+    const r = evoChatBodySchema.safeParse({
+      message: "  ما هي أفضل تمارين الصدر؟  ",
+      history: [
+        { id: "m1", role: "user", content: "سؤال سابق" },
+        { id: "m2", role: "assistant", content: "جواب سابق" },
+      ],
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.message).toBe("ما هي أفضل تمارين الصدر؟");
+      // history items ride as z.unknown() passthrough — the gate adds
+      // no per-item shape (the route's filter+slice is the item policy)
+      expect(r.data.history?.length).toBe(2);
+    }
+  });
+
+  it("rejects missing/whitespace/non-string message (route re-derives Missing message)", () => {
+    expect(evoChatBodySchema.safeParse({}).success).toBe(false);
+    expect(evoChatBodySchema.safeParse({ message: "   " }).success).toBe(false);
+    expect(evoChatBodySchema.safeParse({ message: 42 }).success).toBe(false);
+  });
+
+  it("message has NO zod length ceiling — the 4000 wire clamp stays route policy", () => {
+    // The chat input has no client maxLength: a zod ceiling here would
+    // 400 real paste-heavy users instead of the documented
+    // clamp-and-process semantics.
+    expect(evoChatBodySchema.safeParse({ message: "ك".repeat(10_000) }).success).toBe(true);
+  });
+
+  it("history count ceiling = the route wire clamp (16 = EVO_HISTORY_CAP_PAID)", () => {
+    expect(MAX_CHAT_HISTORY_ITEMS).toBe(EVO_HISTORY_CAP_PAID);
+    const items = Array.from({ length: MAX_CHAT_HISTORY_ITEMS }, () => ({
+      role: "user",
+      content: "x",
+    }));
+    expect(evoChatBodySchema.safeParse({ message: "مرحبا", history: items }).success).toBe(true);
+    expect(
+      evoChatBodySchema.safeParse({ message: "مرحبا", history: [...items, { role: "user" }] })
+        .success,
+    ).toBe(false);
+  });
+
+  it("history ITEMS stay open — the route's filter+slice is the drop policy", () => {
+    // Same law as the Wave 2A media arrays: count bounded, items
+    // policy-owned (junk items are filtered out by the route, not 400'd).
+    expect(
+      evoChatBodySchema.safeParse({
+        message: "مرحبا",
+        history: ["junk", 42, { content: 123 }],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("guestId stays open (the register-phone precedent) — hashing is route policy", () => {
+    expect(
+      evoChatBodySchema.safeParse({ message: "مرحبا", guestId: { evil: true } }).success,
+    ).toBe(true);
+    expect(
+      evoChatBodySchema.safeParse({ message: "مرحبا", guestId: "ك".repeat(500) }).success,
+    ).toBe(true);
+  });
+
+  it("hostile: tier/session keys are STRIPPED", () => {
+    const r = evoChatBodySchema.safeParse({
+      message: "مرحبا",
+      tier: "coaching",
+      userId: "someone-else",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data).not.toHaveProperty("tier");
+      expect(r.data).not.toHaveProperty("userId");
+    }
+  });
+});
+
+describe("savedToolDeleteIdSchema — DELETE /api/tools/saved-* (Wave 2B)", () => {
+  const uuid = "123e4567-e89b-12d3-a456-426614174000";
+
+  it("accepts a real row uuid", () => {
+    expect(savedToolDeleteIdSchema.safeParse(uuid).success).toBe(true);
+  });
+
+  it("rejects garbage/empty ids (previously a silent no-op 200 — now 400)", () => {
+    expect(savedToolDeleteIdSchema.safeParse("garbage").success).toBe(false);
+    expect(savedToolDeleteIdSchema.safeParse("").success).toBe(false);
+    expect(savedToolDeleteIdSchema.safeParse(`${uuid} `).success).toBe(false);
   });
 });
