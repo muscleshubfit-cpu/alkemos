@@ -5109,10 +5109,10 @@ Stage Summary:
 Agent: Super Z (جلسة المالك المباشرة — «مطلوب تنفيذ حل لمشكلة تجاوز الاستخدام الحالية»)
 
 Work Log:
-- فحص API حي: المشروع يحتفظ بـ6 نشرات فقط (5 production 09-18 + preview 09-09) رغم عداد 19.34GB → تشخيص lag عداد Vercel (24-48س) + تسرب نافذة 6 ساعات أمام دفعة 5 نشرات/3.7س + تخطّي GitHub cron تشغيل 01:00 UTC يوم 09-19.
+- فحص API حي: المشروع يحتفظ بـ6 نشرات فقط (5 production 09-18 + preview 09-09) رغم عداد 19.34GB → تشخيص lag عداد Vercel (24-48س) + تسرب نافذة 6 ساعات أمام دفعة 5 نشرات/3.7س + انحراف GitHub cron اليومي 4+ ساعات (هبوط 05:21/16:55 بدل 01:00/13:00).
 - ف-1: حذف فوري عبر Vercel REST API لـ5 نشرات stale — احتفاظ بالنشر الحالي الحامل للدومين dpl_GFLaUU (aliasAssigned=true). الحالة الفعلية = نشر واحد (~0.35GB+0.29GB).
 - ف-2: KEEP_HOURS default 6→3 في scripts/vercel-cleanup/vercel-cleanup.mjs (+تحديث رياضيات التوثيق بالترويسة).
-- ف-3: جدولة vercel-cleanup.yml من 2× يوميًا إلى كل ساعة (:07 UTC) — إلغاء نمط فشل cron اليومي.
+- ف-3: جدولة vercel-cleanup.yml من 2× يوميًا إلى كل ساعة (:07 UTC) — إلغاء نمط انحراف cron اليومي (4+ ساعات).
 - ف-4 (T-3b): PATCH على قاعدة alkemos-public-html-cache في CF Rulesets API — Edge TTL 14400→43200ث (12 ساعة) حماية لسقف Fluid Active CPU (كان 4h10s/4h متجاوزًا)؛ Browser TTL بقيت 300ث.
 - ف-5: توثيق §5.4: TECH_REFERENCE §5 + SECURITY §10 + docs/VERCEL-USAGE-AUDIT-2026-09-16.md §9 (القسم الكامل بالأرقام والمقايضات وما تبقى على المالك).
 - تحقق §3.5 المخفض: node --check على السكربت + yaml.safe_load على الـworkflow — صفر تغييرات TS في الفريم.
