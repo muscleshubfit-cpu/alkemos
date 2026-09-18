@@ -520,6 +520,7 @@ export default function CoachingPage() {
               {isAr ? "شارك صفحة الكوتشينج" : "Share coaching page"}
             </p>
             <ShareButtons
+              path="/coaching"
               title={isAr ? "كوتشينج أونلاين | Alkemos" : "Online Coaching | Alkemos"}
               text={isAr ? "مدربون وأخصائيو تغذية + EVO AI. خطط مخصصة ومتابعة شخصية." : "Coaches & nutrition specialists + EVO AI. Personalized plans and personal follow-up."}
             />

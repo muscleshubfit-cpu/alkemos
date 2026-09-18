@@ -368,6 +368,7 @@ export default function FoodDetailClient({
             {isAr ? "شارك هذا الصنف الغذائي" : "Share this food"}
           </p>
           <ShareButtons
+            path={`/foods/${food.slug}`}
             title={isAr ? `${food.nameAr} | Alkemos` : `${food.nameEn} | Alkemos`}
             text={isAr ? `${food.per100g.calories} سعرة و ${food.per100g.protein} جم بروتين لكل 100 جم` : `${food.per100g.calories} cal and ${food.per100g.protein}g protein per 100g`}
           />

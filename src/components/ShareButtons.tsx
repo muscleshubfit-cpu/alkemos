@@ -3,14 +3,22 @@
 import { useState, useEffect } from "react";
 import { Share2, Copy, Check, Facebook, Twitter, Linkedin, Send } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { canonicalShareUrl } from "@/lib/share-url";
 
 type Props = {
   /** The title to pre-fill in the shared message */
   title: string;
   /** Optional text/description to include in the shared message */
   text?: string;
-  /** Optional custom URL (defaults to current page) */
-  url?: string;
+  /**
+   * REQUIRED canonical path of the page in its EN form ("/evo",
+   * "/tools/bmi-calculator", "/foods/chicken-breast", ...). The absolute
+   * canonical share URL is built from it — locale-aware (/ar prefix for
+   * the AR mirrors), query/hash-free, and complete from the FIRST server
+   * render. Required (not optional) so the TypeScript gate itself forbids
+   * any future usage that would fall back to runtime URL sniffing.
+   */
+  path: string;
   /** Compact mode (just icon, no label) */
   compact?: boolean;
 };
@@ -21,34 +29,54 @@ type Props = {
  * Renders buttons for: WhatsApp, Facebook, X (Twitter), LinkedIn, Telegram,
  * and Copy Link. Uses the native share intents (no JS SDK needed).
  *
- * H1 FIX (DEEP-UX-AUDIT-2026-09-18): window.location.href used to be read
- * DURING render (`typeof window !== "undefined" ? ... : ""`) — the server
- * rendered hrefs with an EMPTY url while the client computed the full one,
- * failing hydration (#418 attribute mismatch) on every public page that
- * SSR-renders share buttons, AND (because React does not patch up mismatched
- * attributes) leaving the EMPTY server hrefs in the live DOM — the share
- * buttons shared text with no link at all. The URL is now resolved strictly
- * AFTER mount (useEffect): server and first client render are identical
- * (hydration succeeds), then the hrefs receive the real location — share
- * functionality is repaired with it.
+ * SHARE URL LAW (P0, DEEP-AUDIT-SHARE-2026-09-18 — owner order «نفّذ الآن
+ * P0 بالكامل من تقرير Deep Audit لنظام Social Sharing»): the share URL is
+ * the CANONICAL absolute URL built from the required `path` prop via
+ * canonicalShareUrl() (src/lib/share-url.ts) — deterministic from the
+ * first server render. History of the two bugs this replaces:
+ *
+ * 1. ORIGINAL (pre-227): window.location.href was read DURING render —
+ *    the server rendered hrefs with an EMPTY url while the client
+ *    computed the full one, failing hydration (#418 attribute mismatch)
+ *    AND (because React does not patch up mismatched attributes) leaving
+ *    the EMPTY server hrefs in the live DOM — share buttons shared text
+ *    with no link at all (WhatsApp sent text without the URL; the
+ *    Facebook/LinkedIn popups opened and instantly failed — the reported
+ *    "flash then disappears").
+ * 2. INTERIM (227): mountedUrl via useEffect — hydration-safe, but the
+ *    URL only existed AFTER mount (a pre-hydration click still hit an
+ *    empty href) and window.location.href leaked query/hash params
+ *    (utm_*, cb) into shared URLs.
+ *
+ * NOW: `path` in, canonical URL out — no window.location anywhere, no
+ * empty href structurally possible (SSR or client), no tracker leakage.
+ *
+ * WEB SHARE LAW (same phase): the native-share button renders ONLY when
+ * the Web Share API actually exists (client-only knowledge, resolved
+ * after mount so SSR and the first client render stay identical — no
+ * hydration mismatch). Where it is absent (desktop browsers without the
+ * API), the always-visible Copy-link button is the explicit fallback.
  */
-export function ShareButtons({ title, text, url, compact = false }: Props) {
+export function ShareButtons({ title, text, path, compact = false }: Props) {
   const { lang } = useI18n();
   const isAr = lang === "ar";
   const [copied, setCopied] = useState(false);
 
-  // H1 fix: resolve the current-page URL only after mount — never during
-  // render (see the component docblock). Deterministic `url` prop stays as-is.
-  const [mountedUrl, setMountedUrl] = useState("");
-  useEffect(() => {
-    if (!url) setMountedUrl(window.location.href);
-  }, [url]);
-
-  const shareUrl = url || mountedUrl;
+  // SHARE URL LAW: deterministic canonical URL — same value on the
+  // server and every client render (see the docblock).
+  const shareUrl = canonicalShareUrl(path, lang);
   const shareText = text ? `${title}\n\n${text}` : title;
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedText = encodeURIComponent(shareText);
   const encodedTitle = encodeURIComponent(title);
+
+  // Web Share API support is client-only knowledge — resolved strictly
+  // AFTER mount: server and first client render both omit the button,
+  // then supporting devices (mobile) gain it (no hydration mismatch).
+  const [nativeShareSupported, setNativeShareSupported] = useState(false);
+  useEffect(() => {
+    setNativeShareSupported(typeof navigator !== "undefined" && "share" in navigator);
+  }, []);
 
   const shareLinks = [
     {
@@ -101,7 +129,8 @@ export function ShareButtons({ title, text, url, compact = false }: Props) {
     }
   };
 
-  // Try native share sheet on mobile
+  // Native share sheet (mobile) — the button only renders when this API
+  // exists (see WEB SHARE LAW in the docblock).
   const nativeShare = async () => {
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
@@ -126,15 +155,18 @@ export function ShareButtons({ title, text, url, compact = false }: Props) {
         </span>
       )}
 
-      {/* Native share button (mobile) */}
-      <button
-        onClick={nativeShare}
-        className="grid h-9 w-9 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-[var(--text)] transition-opacity hover:opacity-75"
-        title={isAr ? "مشاركة" : "Share"}
-        aria-label={isAr ? "مشاركة" : "Share"}
-      >
-        <Share2 className="h-4 w-4" />
-      </button>
+      {/* Native share button (only when the Web Share API exists —
+          otherwise the Copy-link button below is the fallback) */}
+      {nativeShareSupported && (
+        <button
+          onClick={nativeShare}
+          className="grid h-9 w-9 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-[var(--text)] transition-opacity hover:opacity-75"
+          title={isAr ? "مشاركة" : "Share"}
+          aria-label={isAr ? "مشاركة" : "Share"}
+        >
+          <Share2 className="h-4 w-4" />
+        </button>
+      )}
 
       {/* Social share buttons */}
       {shareLinks.map((link) => {
@@ -155,7 +187,7 @@ export function ShareButtons({ title, text, url, compact = false }: Props) {
         );
       })}
 
-      {/* Copy link button */}
+      {/* Copy link button — the always-available fallback */}
       <button
         onClick={copyLink}
         className="grid h-9 w-9 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-[var(--text)] transition-opacity hover:opacity-75"

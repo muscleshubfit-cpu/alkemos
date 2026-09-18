@@ -138,6 +138,7 @@ export default function MacroCalculatorPage() {
             {/* Share buttons */}
             <div className="rounded-2xl bg-[var(--tint)] p-4">
               <ShareButtons
+                path="/tools/macro-calculator"
                 title={
                   isAr
                     ? `ماكروزي: بروتين ${result.protein_g} جم · كربوهيدرات ${result.carbs_g} جم · دهون ${result.fat_g} جم | Alkemos`

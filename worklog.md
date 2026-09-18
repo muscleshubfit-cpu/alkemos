@@ -4,6 +4,26 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: SHARE-P0-230-2026-09-18
+Agent: Super Z (main)
+Task: تنفيذ P0 بالكامل من تقرير Deep Audit لنظام Social Sharing (أمر المالك 2026-09-18 «نفّذ الآن P0 بالكامل…»): روابط مشاركة canonical حتمية من أول SSR عبر مصدر موحّد، منع الـhref الفارغ بنيويًا، منع تسريب query/hash، Web Share شرطي بالدعم مع fallback نسخ — 13 قيدًا صريحًا (بلا مساس SocialShare/CoachShareButtons/metadata/OG/CF-cache/business logic/API/DB).
+
+Work Log:
+- المصدر الوحيد الجديد src/lib/share-url.ts — canonicalShareUrl(path, lang): URL مطلق كامل من أول رندر · بادئة /ar للمرايا (idempotent — لا تكرار أبدًا) · strip هيكلي لquery/hash (utm_*/cb لا تصل لمشاركة أبدًا) · تطبيع الشرطات · collapse الجذر للأصل المجرد (لا URL فارغ بنيويًا).
+- ShareButtons.tsx: prop `path` إلزامي (بوابة TypeScript نفسها تمنع أي استخدام مستقبلي بلا رابط حتمي) · إسقاط mountedUrl/useEffect/window.location كليًا (الاعتماد على location كان يترك hrefs فارغة قبل hydration — وقبل إصلاح 227 كان يتركها دائمة في DOM الحي بسبب عدم ترقيع React لسمات الاختلاف) · زر Web Share يُعرض فقط عند توفر navigator.share (يُحل بعد mount بstate أولية false — رندر أول متطابق سيرفرًا وعميلًا: صفر خطر hydration mismatch) وزر النسخ دائمًا ظاهر كfallback صريح (السابقة: زر أصلي ميت صامت على دسكتوب بلا API) · المنصات الخمس وpayload الرسائل والنصوص والأصناف بلا تغيير حرفيًا.
+- الـ12 استخدامًا تمرر path: /evo · /coaching · /memberships · /meal-planner · /tools/{bmi,body-fat,calorie,macro,water-tracker} (ثابتة) · /exercises/{slug} · /foods/{food.slug} · /programs/{program.slug} (من الـslug — المرايا AR تعيد تصدير نفس المكونات ثنائية اللغة فالمسار الواحد يغطي اللغتين عبر useI18n URL-first).
+- الحارس share-url.test.tsx ×18: وحدات canonicalShareUrl ×8 (EN/AR · idempotent · strip utm/cb/# · تطبيع شرطات · collapse الجذر) · SSR renderToStaticMarkup ×7 (EN: واتساب/FB/X/LI/TG تحمل الرابط الكامل من أول render + صفر href فارغ بأنماط u=& وurl=" و?url=& + صفر تسريب مع path محمّل ب?cb&utm# + AR: مسار /ar كامل بلا EN + نسخ fallback موجود + زر Web Share غائب عن SSR) · mount test (navigator.share محاكى → الزر يظهر بعد التركيب) · حراس مصدر ×3 (كل الـ12 سطحًا يمرر path الصحيح حرفيًا · لا window.location ولا mountedUrl في كود ShareButtons بعد تجريد التعليقات · حرس نطاق: واتساب المدونة وسطر for-coaches كما هما — لم يُمسا).
+- البوابات: tsc 0 · eslint 0/0 · vitest 1495/1495 (88 ملفًا — +18) · build 0 · check-stale-refs ✓ · check-ui-wiring ✓ (66 هدفًا كلها تحل) · docs_parity ✓ · migration_audit ✓ (صفر انحراف) · docs_audit (phase=230) ✓ (STATE عند 100 سطر بالضبط — ضُغط سطر 224 التاريخي في سطر 223→215) · ملاحظة بيئية: فحصا I/J فشلا على النسخة الضحلة قبل التعميق (نفس موثق 229) ونجحا بعد unshallow.
+- README.md: مدخل Phase 230 بقسم For Users (قانون Feature README §3.8 — تعديل مهم لميزة قائمة) · STATE.md → المرحلة 230 (ترويسة + سلسلة + مدخل + صف QA).
+- الالتزام الصريح بالقيد 9/10: SocialShare (BlogComponents.tsx) وCoachShareButtons.tsx صفر بايت تغيير (محرسًا باختبار).
+
+Stage Summary:
+- قانون SHARE URL LAW ساري: لا href فارغ بنيويًا في SSR ولا قبل hydration على أي من الـ12 سطحًا (EN+AR)، ولا تسريب متتبعات إلى أي مشاركة، والرابط دائمًا canonical على alkemos.com.
+- النطاق مُحترم حرفيًا: صفر مساس بالمدونة/for-coaches/الميتاداتا/بطاقات OG/كاش CF/منطق الأعمال/API/DB.
+- كل بنود الاختبار الإلزامية للأمر مغطاة باختبارات (SSR نظيف، واتساب بالرابط من أول render، المنصات الخمس، لا تسريب، EN+AR، Web Share شرطي، copy fallback، الـ12 موضعًا، حرس منع عودة SSR empty URL).
+- Commit SHA: كوميت هذه المرحلة نفسه يحمل هذا المدخل (SHA النهائي يُعلن بعد الدفع)
+- Push status: pushed (بعد هذا المدخل مباشرة — التحقق الحي يليه في مدخل SHARE-P0-230-LIVE-VERIF)
+---
 Task ID: AUDIT-DECISIONS-229-2026-09-18
 Agent: Super Z (main)
 Task: تنفيذ قرار المالك m7/أ (حذف fee_per_client من معادلة تكلفة تفعيل المدرب — تسعير ثابت فقط) + إغلاق بنود §5 المتاحة (إلغاء تجربة PayPal بقرار المالك · تحقق برمجي + قائمة فحص المالك للأربع الباقية) — أمر المالك 2026-09-18: «أولًا m7 موافق على (أ)، باقي البنود الخمسة ألغِ تجربة PayPal، باقي البنود موافق ابدأ التنفيذ ثم وثّق وادفع».

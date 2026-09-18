@@ -655,6 +655,7 @@ export default function EvoPage() {
             {isAr ? "شارك صفحة EVO" : "Share EVO page"}
           </p>
           <ShareButtons
+            path="/evo"
             title={isAr ? "EVO — مدرب ذكاء اصطناعي | Alkemos" : "EVO — AI Coach | Alkemos"}
             text={isAr ? "محرك أداء ذكي ليس مجرد روبوت محادثة — متاح للجميع" : "An intelligent performance engine, not just a chatbot — available to everyone"}
           />

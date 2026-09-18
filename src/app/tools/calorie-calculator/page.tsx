@@ -346,6 +346,7 @@ export default function CalorieCalculatorPage() {
             {/* Share buttons */}
             <div className="rounded-2xl bg-[var(--tint)] p-4">
               <ShareButtons
+                path="/tools/calorie-calculator"
                 title={
                   isAr
                     ? `نتائجي من حاسبة السعرات: ${result.target} سعرة/يوم | Alkemos`

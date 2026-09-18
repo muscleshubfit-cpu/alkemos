@@ -220,6 +220,7 @@ export default function BodyFatCalculatorPage() {
             {/* Share buttons */}
             <div className="rounded-2xl bg-[var(--tint)] p-4">
               <ShareButtons
+                path="/tools/body-fat-calculator"
                 title={
                   isAr
                     ? `نسبة دهوني: ${result.bf}% (${result.category}) | Alkemos`

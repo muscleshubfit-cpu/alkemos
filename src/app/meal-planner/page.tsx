@@ -466,6 +466,7 @@ export default function MealPlannerPage() {
         {/* Share */}
         <div className="marble-card mt-6 p-4">
           <ShareButtons
+            path="/meal-planner"
             title={
               isAr
                 ? `مخطط وجباتي | ${grandTotal.calories} سعرة | Alkemos`

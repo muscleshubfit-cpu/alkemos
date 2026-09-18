@@ -158,7 +158,7 @@ export default function ProgramDetailClient({
 
             {/* Share buttons */}
             <div className="mt-6">
-              <ShareButtons title={shareTitle} text={shareText} />
+              <ShareButtons path={`/programs/${program.slug}`} title={shareTitle} text={shareText} />
             </div>
           </div>
         </div>

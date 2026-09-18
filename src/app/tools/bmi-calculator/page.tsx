@@ -270,6 +270,7 @@ export default function BMICalculatorPage() {
             {/* Share buttons */}
             <div className="rounded-2xl bg-[var(--tint)] p-4">
               <ShareButtons
+                path="/tools/bmi-calculator"
                 title={
                   isAr
                     ? `نتائجي من حاسبة BMI: ${result.bmi} (${result.category}) | Alkemos`

@@ -520,6 +520,7 @@ export default function WaterTrackerPage() {
         {/* Share */}
         <div className="mt-6 rounded-2xl bg-[var(--tint)] p-4">
           <ShareButtons
+            path="/tools/water-tracker"
             title={
               isAr
                 ? `سجلت ${consumedToday} مل ماء اليوم (${progressPct}% من هدفي) | Alkemos`
