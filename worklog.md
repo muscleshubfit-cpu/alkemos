@@ -4,6 +4,31 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: SHARE-UNIFY-231-LIVE-VERIF-2026-09-18
+Agent: Super Z (main)
+Task: Phase 231 — LIVE post-push verification of the Social Sharing unification + OG fixes (commit 9bf2101 deployed ~60s, build-info reports 9bf2101)
+
+Work Log:
+- build-info: production commit = 9bf2101 (origin/main HEAD) — SYNCED verified via git fetch + rev-parse equality
+- CF cache note (documented, out of scope by order): plain HTML fetches served stale edge copies (cf-cache-status HIT, age up to ~8927s — pre-231 HTML with the old empty hrefs/og-home cards); every check below used a fresh cache key (?cb=…), which origin-serves the new build — the stale copies expire by their own TTL with zero config change
+- SSR HTML (fresh keys, 8 surfaces): /evo — 5/5 platform hrefs carry https://alkemos.com/evo · /ar/evo — 5/5 carry /ar/evo · /for-coaches + /ar/for-coaches — 3/3 (FB/X/TG) carry the canonical URL with ZERO wa.me/whatsapp in the DOM · zero empty hrefs · zero cb/utm leakage on any surface · og:url correct on /evo /ar/evo /for-coaches /ar/for-coaches /blog /ar/blog /ar (/) — the /ar og:url fix (https://alkemos.com/ar) is LIVE
+- Blog index EN+AR: independent metadata live — og:title «Fitness & Nutrition Blog | Alkemos» / «المدونة الرياضية — Alkemos», own og:url /blog + /ar/blog, og-blog-en/ar cards (no longer the homepage card); article metadata untouched
+- OG images live: og-evo-en/ar + og-for-coaches-en/ar + og-blog-en/ar — all HTTP 200, content-type image/png, exactly 1200×630
+- Tracker leakage: /evo opened with ?cb=29859&utm_source=x → all 5 share hrefs clean (0 leakage)
+- Real WhatsApp click (desktop /evo): navigation landed on api.whatsapp.com/send with the FULL payload — «…available to everyone https://alkemos.com/evo» inside the text (the canonical URL rides in the share)
+- Real blog article share (EN): /blog/choose-smartwatch-fitness-tracking opened WITH ?cb=… → WhatsApp button click → window.open payload «How to Choose a Smartwatch…\n\n…\n\nRead the full article on Alkemos: https://alkemos.com/blog/choose-smartwatch-fitness-tracking» — canonical article URL + zero cb/utm leakage
+- Real AR blog article share: /ar/blog/best-omega-3-supplement-athletes → WhatsApp click → «…اقرأ المقال كاملاً على Alkemos: https://alkemos.com/ar/blog/best-omega-3-supplement-athletes» — AR canonical URL, zero leakage
+- for-coaches live DOM: exactly Facebook/X/Telegram + Copy — WhatsApp absent (the decree holds on production); all targets carry the canonical URL
+- Browser checks (agent-browser): desktop 1366×900 + iPhone 14 (390×844) on /evo, /ar/evo, /for-coaches, /ar/for-coaches, /blog, /ar/blog + two articles — ZERO page errors, ZERO console errors, ZERO hydration warnings, no horizontal overflow on mobile; Web Share button ABSENT on the no-API desktop with the Copy fallback present and FUNCTIONAL (click → copied Check state live); the Web Share conditional's positive branch (navigator.share present) is pinned by the mount test in share-url.test.tsx
+- All checks recorded by scripts (local): scripts/live-verify-231.sh output + agent-browser transcripts (this session)
+
+Stage Summary:
+- Phase 231 verified LIVE end-to-end: unified engine ships identical hrefs from SSR, all platform decisions hold in production (for-coaches WhatsApp-free, blog Telegram-free, ShareButtons 5 platforms), OG metadata/cards correct on every fixed surface, no hydration/console errors desktop+mobile
+- Remaining known risk (documented, out of scope): CF edge cache may keep serving pre-231 HTML per its own TTL until expiry — fresh keys and post-expiry fetches serve the new build
+- Commit SHA: كوميت التوثيق هذا يلي كوميت الإصلاح 9bf2101
+- Push status: pushed
+
+---
 Task ID: SHARE-UNIFY-231-2026-09-18
 Agent: Super Z (main)
 Task: Phase 231 — unify the three public share implementations over one engine + close the OG metadata gaps from the Deep Audit (owner order 2026-09-18 «نفّذ الآن جميع إصلاحات Social Sharing المتبقية من تقرير Deep Audit، كمرحلة واحدة بعد إغلاق Phase 230»)
