@@ -10,7 +10,7 @@
 > GitHub Actions status check. No project file was modified, moved, renamed, or deleted.
 > **Scope:** the documentation/agent-context SYSTEM only (STATE/AGENTS/worklog/archive/docs/CI gates/commit
 > conventions). Product-code audits live elsewhere (Phase 214 report; DEEP-UX-AUDIT-REPORT-2026-09-18).
-> **Companion plan:** [`docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md`](DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md) — status: **APPROVED + EXECUTING** (owner order 2026-09-19 «Execute the documented … Migration Plan … Begin with STEP 0»; Phases 0–5 landed as repo Phases 232–237 — Phase 5 executed as option (b) rotation per owner order 2026-09-19 «Continue with Phase 5 using option (b)»; Phase 6 = owner-only actions).
+> **Companion plan:** [`docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md`](DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md) — status: **EXECUTED** (Phases 0–5 landed as repo Phases 232–237 — Phase 5 executed as option (b) rotation per owner order 2026-09-19 «Continue with Phase 5 using option (b)»; closure = repo Phase 238; Phase 6 owner actions attempted by the ordered agent → HTTP 403 (token scope) — §12.9 walkthrough in worklog entry DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19; F-03 closes on application).
 
 ---
 

@@ -6,6 +6,29 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 6 (owner actions — executed to the limit the session credentials allow) + plan STEP 9 closure (owner order 2026-09-19 «complete the remaining approved Phase 6 owner-only tasks, with the same validation, documentation, commit, push, and verification discipline. Do not redesign or expand the approved plan»)
+
+Work Log:
+- Phase 6 attempted with the session PAT (repo permission level shows admin, but the fine-grained token carries Contents write only) — the platform refused both write classes:
+  (1) PUT /branches/main/protection (require quality+parity+guard+Supabase Preview · admins not bypassed-blocked · force-push off) → HTTP 403 «Resource not accessible by personal access token»
+  (2) PUT /vulnerability-alerts + PUT /automated-security-fixes (Dependabot) → HTTP 403 ×2
+  (3) PAT rotation — owner-side security action by nature: the token is the owner's credential and rotating it mid-session would cut this session's own push path
+- Check names verified live on 3fdc7a09 BEFORE the attempt: quality · parity · guard · Supabase Preview — all four green on the pushed SHA (the exact contexts the rule must require)
+- Closure (STEP 9): both audit-doc banners → EXECUTED with the phase ledger (232–237 + this closure commit); plan §12 DoD checklist final state (6/7 checked; branch protection = the one open owner action); plan §14 Phase-6 box records the 403s; registry rows final; STATE → 238 with the GitHub-security item promoted from «optional» to ordered-pending
+- OWNER WALKTHROUGH (§12.9 — ~2 minutes, two settings pages + one token page):
+  A. Branch protection: github.com/muscleshubfit-cpu/alkemos → Settings → Branches → «Add branch ruleset» (or classic «Add rule» for main) → Rules → Require status checks to pass → tick exactly: quality · parity · guard · Supabase Preview → «Do not allow bypassing the above rules» = OFF (keeps your direct-push hotfix path) → Create/Save. Success: the ruleset shows on the Branches page and a failing gate blocks non-admin merges. Rollback: delete the ruleset on the same page.
+  B. Dependabot: Settings → Code security & analysis → enable «Dependabot alerts» + «Dependabot security updates». Success: both toggles green. (Optional later, needs its own order per §12.5: a dependabot.yml for version-update PRs — a new file.)
+  C. Rotate the chat-shared PAT: github.com/settings/tokens → Fine-grained tokens → regenerate/delete the alkemos token. Success: the old token returns 401.
+- Validation this frame: docs_audit ✓ 0 violations · docs_parity/migration_audit/stale-refs/ui-wiring ✓ · governed-docs cross-refs clean (Phase-1 state re-verified) · push + Actions + sync check recorded below
+
+Stage Summary:
+- Migration Phases 0–5 executed and verified (repo Phases 232–237: 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9 · 3fdc7a09); Phase 6 attempted to the credential limit — the three owner actions are one 2-minute UI walk away (guide above)
+- F-01..F-14 closed as far as an agent can execute; F-03 (a gate that is not required is a suggestion) closes the moment walkthrough A is applied — the only remaining migration item
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P5-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 5 — worklog rotation + evidence law (owner order 2026-09-19 «Continue with Phase 5 using option (b) — rotate the historical worklog entries into the archive as specified in the migration plan»; plan §8)

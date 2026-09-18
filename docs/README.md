@@ -46,8 +46,8 @@
 | `docs/DEEP-UX-AUDIT-REPORT-2026-09-18.md` | Point-in-time UX audit | **EXECUTED/CLOSED** (items closed by Phases 225–229) | 2026-09-18 |
 | `docs/UI-AUDIT-HOMEPAGE.md` | Point-in-time UI audit | **EXECUTED** (STATE entry 198) | 2026-09-14 |
 | `docs/UI-IMPLEMENTATION-PLAN.md` | Point-in-time UI plan | **EXECUTED** | 2026-09-14 |
-| `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md` | Docs/context architecture audit (F-01..F-14, RC-1..RC-7) | **EXECUTED** (findings closed by Phases 232–237 = plan Phases 0–5 — F-05/F-14 closed by the Phase-237 rotation; Phase-6 = owner actions) | 2026-09-19 |
-| `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md` | The migration plan this registry was born from | **EXECUTING** (Phases 0–5 landed: 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9 · this commit — Phase 5 = option (b) rotation; Phase 6 = owner actions) | 2026-09-19 |
+| `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md` | Docs/context architecture audit (F-01..F-14, RC-1..RC-7) | **EXECUTED** (findings closed by Phases 232–237 = plan Phases 0–5; F-03 closes with the owner's branch-protection UI step; closure = Phase 238) | 2026-09-19 |
+| `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md` | The migration plan this registry was born from | **EXECUTED** (Phases 0–5 landed: 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9 · 3fdc7a09; closure = Phase 238; Phase 6 = owner UI actions — walkthrough in the P6-CLOSURE worklog entry) | 2026-09-19 |
 
 Other registries (outside `docs/`): `supabase/migrations/INDEX.md` — binding migration ledger (LIVE, guarded by `docs_parity.py`) · `.env.example` — environment reference (LIVE).
 

@@ -1,6 +1,6 @@
-# Documentation & Context Architecture — Migration Plan (APPROVED + EXECUTING)
+# Documentation & Context Architecture — Migration Plan (EXECUTED 2026-09-19 — see §14)
 
-> **Status: APPROVED 2026-09-19 (owner order «Execute the documented Documentation & Agent-Context Architecture Migration Plan … Begin with STEP 0») and EXECUTING — Phases 0–4 landed as repo Phases 232–236 (commits 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9, all four gate workflows green on each); Phase 5 landed as repo Phase 237 (this commit) with option (b) rotation per owner order 2026-09-19 «Continue with Phase 5 using option (b) — rotate the historical worklog entries into the archive as specified in the migration plan». Phase 6 = owner-only actions (§9), then closure (§11 STEP 9).**
+> **Status: EXECUTED 2026-09-19 — Phases 0–5 landed as repo Phases 232–237 (commits 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9 · 3fdc7a09, all four gate workflows green on each; Phase 5 = option (b) rotation per owner order 2026-09-19 «Continue with Phase 5 using option (b)»). Closure = repo Phase 238 (this commit) per §11 STEP 9. Phase 6 owner actions: attempted with the session PAT under the owner's completion order → HTTP 403 (the fine-grained token carries Contents write only — no Administration/Dependabot write); the §12.9 owner walkthrough (branch protection + Dependabot + PAT rotation) ships inside worklog entry DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19. F-03 closes the moment branch protection is applied.**
 > **Provenance:** companion to [`docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`](DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md)
 > (read it first — every phase below cites its findings as F-xx). Created by the same owner order of 2026-09-19
 > («Do not implement the plan yet» — this document plans, it does not act).
@@ -211,15 +211,15 @@ STEP 9  CLOSURE: final report per AGENTS.md §12.9 (what/verification/SHAs/push 
 Each STEP's commit: repo identity (§10), conventional prefix, subject ≤72 chars, body ≤500 chars.
 Between phases, one breath of verification — never batch phases into one commit.
 
-## 12. Definition of done (whole migration)
+## 12. Definition of done (whole migration) — final state 2026-09-19 (Phase 238)
 
-- [ ] `docs_audit.py` 0 violations on main, CI green on the final SHA (all three gate workflows).
-- [ ] STATE.md ≤100 lines **and** ≤32 KB, byte cap enforced hard.
-- [ ] worklog.md: single format in the live region, derived invariant active, deprecated header note gone.
-- [ ] Zero unresolved relative references in the six governed docs (audit Appendix-A commands return clean).
-- [ ] `docs/README.md` registry exists, statuses current, AGENTS §12.5/§12.5.2 point to it.
-- [ ] Branch protection active on main (owner-confirmed).
-- [ ] Both audit docs carry EXECUTED banners + closure SHA; next agent's session (STEP 0–1) finds everything.
+- [x] `docs_audit.py` 0 violations on main, CI green on the final SHA (all four gate workflows green on 3fdc7a09).
+- [x] STATE.md ≤100 lines **and** ≤32 KB, byte cap enforced hard (70 lines / 22,727 bytes at Phase 237; A-check hard).
+- [x] worklog.md: single format in the live region (74/74 entries full §12.5.1 skeleton — K hard), derived invariant active, deprecated header note gone (Phase-237 rotation).
+- [x] Zero unresolved relative references in the six governed docs (closed at Phase 233, re-verified at Phase 238).
+- [x] `docs/README.md` registry exists, statuses current, AGENTS §12.5/§12.5.2 point to it (Phase 236).
+- [ ] Branch protection active on main (owner-confirmed) — **PENDING OWNER UI ACTION**: agent attempt 2026-09-19 returned HTTP 403 (fine-grained PAT lacks Administration write); walkthrough A in worklog entry DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19.
+- [x] Both audit docs carry EXECUTED banners + closure SHA (Phase 238); next agent's session (STEP 0–1) finds everything.
 
 ## 13. Risks & mitigations
 
@@ -237,5 +237,5 @@ Between phases, one breath of verification — never batch phases into one commi
 |---|---|
 | Plan version | 1.0 (2026-09-19) — authored against `8321e718` |
 | Owner approval | ☑ approved as-is — execution order 2026-09-19: «Execute the documented Documentation & Agent-Context Architecture Migration Plan. … Execute phases sequentially, one phase per commit … Begin with STEP 0» |
-| Approved phases | ☑ 0 ☑ 1 ☑ 2 ☑ 3 ☑ 4 ☑ 5 (**☑ b** — owner order 2026-09-19 «Continue with Phase 5 using option (b) — rotate the historical worklog entries into the archive as specified in the migration plan») ☐ 6 (owner-only) |
+| Approved phases | ☑ 0 ☑ 1 ☑ 2 ☑ 3 ☑ 4 ☑ 5 (☑ b — owner order 2026-09-19 «Continue with Phase 5 using option (b) — rotate the historical worklog entries into the archive as specified in the migration plan») ◐ 6 (owner-only — agent attempt 2026-09-19 under the owner's completion order returned HTTP 403: the fine-grained PAT lacks Administration/Dependabot write; §12.9 walkthrough delivered in worklog entry DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19; branch protection + Dependabot + PAT rotation = owner UI actions pending) |
 | Approval citation (repo culture) | echoed in the executing commit messages (Phases 232–237) and the six DOCS-CONTEXT-MIGRATION-P0..P5 worklog entries |
