@@ -5103,3 +5103,21 @@ Work Log:
 Stage Summary:
 - الحكم الحاكم: الأساس التقني SEO/GEO سليم ومتحقق حيًا على نطاق واسع؛ كل الحلول السابقة قائمة؛ الثغرات الجديدة في طبقة العرض/الأصول: (P0 خارج SEO) مفتاح OpenRouter المسرب حي — تدوير فوري بيد المالك · (P1) صور التمارين hot-linked من GitHub raw · مخططات EVO/Coaching JSON-LD بالعربية على صفحات EN · og:image غائب عن أسطح القوائم EN · (P2) عنوان الرئيسية 94 حرفًا · عمق مقالات ~1.0–1.3K كلمة · lastmod قديم + تعارض iad1/fra1 · FAQPage/HowTo متقاعدة ما زالت ترسل · (P3) Wikidata/تقييمات Trustpilot/مرآة /affiliate AR/لاحقة /blog EN/hreflang-footer/مراجعة USDA بعد 90 يومًا
 - المخرج الوحيد: docs/SEO-GEO-MASTER-PLAN.md §12.53 (خطة كاملة بترتيب تنفيذ وتبعيات ومخاطر وحالات) — Audit + توثيق فقط كما أمر المالك
+
+---
+## Task ID: VERCEL-USAGE-4 (2026-09-19)
+Agent: Super Z (جلسة المالك المباشرة — «مطلوب تنفيذ حل لمشكلة تجاوز الاستخدام الحالية»)
+
+Work Log:
+- فحص API حي: المشروع يحتفظ بـ6 نشرات فقط (5 production 09-18 + preview 09-09) رغم عداد 19.34GB → تشخيص lag عداد Vercel (24-48س) + تسرب نافذة 6 ساعات أمام دفعة 5 نشرات/3.7س + تخطّي GitHub cron تشغيل 01:00 UTC يوم 09-19.
+- ف-1: حذف فوري عبر Vercel REST API لـ5 نشرات stale — احتفاظ بالنشر الحالي الحامل للدومين dpl_GFLaUU (aliasAssigned=true). الحالة الفعلية = نشر واحد (~0.35GB+0.29GB).
+- ف-2: KEEP_HOURS default 6→3 في scripts/vercel-cleanup/vercel-cleanup.mjs (+تحديث رياضيات التوثيق بالترويسة).
+- ف-3: جدولة vercel-cleanup.yml من 2× يوميًا إلى كل ساعة (:07 UTC) — إلغاء نمط فشل cron اليومي.
+- ف-4 (T-3b): PATCH على قاعدة alkemos-public-html-cache في CF Rulesets API — Edge TTL 14400→43200ث (12 ساعة) حماية لسقف Fluid Active CPU (كان 4h10s/4h متجاوزًا)؛ Browser TTL بقيت 300ث.
+- ف-5: توثيق §5.4: TECH_REFERENCE §5 + SECURITY §10 + docs/VERCEL-USAGE-AUDIT-2026-09-16.md §9 (القسم الكامل بالأرقام والمقايضات وما تبقى على المالك).
+- تحقق §3.5 المخفض: node --check على السكربت + yaml.safe_load على الـworkflow — صفر تغييرات TS في الفريم.
+
+Stage Summary:
+- الحالة الفعلية للتخزين: نشر واحد ≈ 0.64GB مجمعة — تحت السقفين بهامش >10×؛ العدادات المبلغ ستسقط تلقائيًا خلال 24-48 ساعة.
+- Fluid CPU: رندرات SSR ÷3 (Edge TTL 12 ساعة) — المقايضة: صفحات مخاكشة تتأخر حتى 12 ساعة على PoP دافئ، URLs الجديدة فورية، صفر أثر على اكتشاف الزواحف.
+- ما تبقى بيد المالك: مراقبة العداد 48 ساعة · قرار حذف مشروع alkemos-repo الفارغ · تدوير الأسرار المنشورة بالمحادثة.

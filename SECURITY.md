@@ -413,16 +413,22 @@ source):
 
 - **Ruleset:** «alkemos cache rules (SEO-GEO-4 2026-09-08)» — one
   ruleset, TWO rules since VERCEL-USAGE-3 (2026-09-16, owner order
-  «نفّذ ت-1 وت-3»).
+  «نفّذ ت-1 وت-3»); rule 1 edge TTL raised 14400s → 43200s by
+  VERCEL-USAGE-4 T-3b (2026-09-19, owner order «مطلوب تنفيذ حل
+  لمشكلة تجاوز الاستخدام الحالية» — Fluid CPU overage guard).
 - **Rule 1 — public HTML cache** («alkemos-public-html-cache», created
   with SEO-GEO-4 2026-09-08; browser TTL added by Phase 189; edge TTL
-  raised to 14400s by VERCEL-USAGE-3 T-3): **Expression:** the SEO-GEO-4
+  raised to 14400s by VERCEL-USAGE-3 T-3, then to 43200s by
+  VERCEL-USAGE-4 T-3b): **Expression:** the SEO-GEO-4
   private-path exclusion list (api/admin/auth/checkout/dashboard/
   questionnaires/progress/plans/profile/support/referral/preview/
   coach) + paths without a dot — i.e. public HTML pages only; dotted
   files (sitemaps, robots, assets) and private surfaces are OUTSIDE
-  the rule. **Behavior:** `cache=true` · Edge TTL override **14400s**
-  (4h) · Browser TTL override 300s.
+  the rule. **Behavior:** `cache=true` · Edge TTL override **43200s**
+  (12h) · Browser TTL override 300s. Trade-off (documented): edits to
+  an already-cached page can take up to 12h to appear on a warm PoP —
+  NEW URLs are never pre-cached, so crawler discovery via
+  sitemap/RSS is unaffected.
 - **Rule 2 — OG image cache** («alkemos og-image cache», created by
   VERCEL-USAGE-3 T-1 2026-09-16): **Expression:**
   `starts_with(http.request.uri.path, "/api/og-image/")`. **Behavior:**
@@ -432,7 +438,8 @@ source):
 - **Verified production effect (2026-09-16, after T-1/T-3):** public
   HTML serves to browsers as `private, max-age=300, must-revalidate`
   (the rule's browser-TTL rewrite) with `cf-cache-status: HIT` while
-  the edge entry is fresh (age up to 14400s); on edge expiry CF
+  the edge entry is fresh (age up to 43200s since T-3b); on edge
+  expiry CF
   re-fetches through to the Vercel function (`x-vercel-cache: MISS`)
   and re-caches. OG cards serve `MISS` on first fetch then `HIT` for
   a full day, cookie-free (was `DYNAMIC` before T-1). Sitemaps keep

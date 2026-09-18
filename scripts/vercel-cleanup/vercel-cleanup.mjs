@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
  * Vercel stale-deployment cleanup — Phase 145 (owner directive 2026-09-08)
- * · tightened VERCEL-USAGE-2 (2026-09-16, owner order «المشكلة كبيرة»).
+ * · tightened VERCEL-USAGE-2 (2026-09-16, owner order «المشكلة كبيرة»)
+ * · tightened VERCEL-USAGE-4 (2026-09-19, owner order «مطلوب تنفيذ حل
+ *   لمشكلة تجاوز الاستخدام الحالية»: retention window 6h -> 3h — see
+ *   docs/VERCEL-USAGE-AUDIT-2026-09-16.md §9).
  *
  * WHY: the Hobby (free) plan includes 10 GB of "Function Storage" and
  * 10 GB of "Deployment Storage" — the retained bundles/artifacts of every
@@ -20,11 +23,13 @@
  * reproducible from git (`vercel` rebuilds any commit), so purging them
  * loses nothing.
  *
- * VERCEL-USAGE-2 MATH (defaults below): 6h window × ~28 deploys/day ≈ 7
- * fresh + production + 1 preview ≈ ~9 retained ≈ ~3.2 GB — fits the
- * 10 GB quota with ~3× headroom for deploy bursts. The workflow also
- * runs on every push to main now, so retention stays pinned at the
- * window floor instead of drifting up between daily runs.
+ * VERCEL-USAGE-2/4 MATH (defaults below): 3h window × ~28 deploys/day
+ * ≈ 3-4 fresh + production + 1 preview ≈ ~6 retained ≈ ~2 GB at the
+ * observed ~350 MB/deployment (deployment artifacts ~350 MB + function
+ * bundles ~290 MB). Fits both 10 GB quotas with ~5× headroom for deploy
+ * bursts (peak observed: 5 production deploys in 3.7h, 2026-09-18).
+ * The workflow runs on every push to main AND hourly now, so retention
+ * stays pinned at the window floor instead of drifting up between runs.
  *
  * RUNTIME: Node 22 global fetch — ZERO dependencies (db-backup.mjs pattern).
  * Auth: VERCEL_TOKEN from GitHub Actions secrets (never in code — §3.2).
@@ -36,7 +41,7 @@
  * Env:
  *   VERCEL_TOKEN         (required) Vercel API token — project scope suffices
  *   VERCEL_PROJECT_NAME  (optional, default "alkemos")
- *   KEEP_HOURS           (optional, default "6")   freshness window to always keep
+ *   KEEP_HOURS           (optional, default "3")   freshness window to always keep
  *   KEEP_PREVIEWS        (optional, default "1")   newest previews to always keep
  *   DRY_RUN              (optional, "1"/"true" — list only, delete nothing)
  */
@@ -45,7 +50,7 @@ const API = "https://api.vercel.com";
 
 const TOKEN = process.env.VERCEL_TOKEN || "";
 const PROJECT_NAME = process.env.VERCEL_PROJECT_NAME || "alkemos";
-const KEEP_HOURS = Number(process.env.KEEP_HOURS || "6");
+const KEEP_HOURS = Number(process.env.KEEP_HOURS || "3");
 const KEEP_PREVIEWS = Number(process.env.KEEP_PREVIEWS || "1");
 const DRY_RUN = /^(1|true|yes)$/i.test(process.env.DRY_RUN || "");
 
@@ -130,7 +135,7 @@ function fmtAge(ms) {
 async function main() {
   if (!TOKEN) fail("VERCEL_TOKEN is empty — add it as a GitHub repository secret (Settings ▸ Secrets and variables ▸ Actions)");
   log(`=== Vercel cleanup — project "${PROJECT_NAME}"${DRY_RUN ? " — DRY RUN (deletes nothing)" : ""} ===`);
-  log(`keep: production (current) + last ${KEEP_HOURS}h + ${KEEP_PREVIEWS} newest previews`);
+  log(`keep: production (current) + last ${KEEP_HOURS}h + ${KEEP_PREVIEWS} newest previews (VERCEL-USAGE-4: 3h window)`);
 
   const projectId = await resolveProjectId();
   const deps = (await listReadyDeployments(projectId)).sort((a, b) => b.createdAt - a.createdAt);

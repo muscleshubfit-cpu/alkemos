@@ -1,6 +1,8 @@
-# Vercel stale-deployment purge — push-triggered + 2× daily
+# Vercel stale-deployment purge — push-triggered + hourly backstop
 # (Phase 145, owner directive 2026-09-08 · tightened VERCEL-USAGE-2
-# 2026-09-16, owner order «المشكلة كبيرة»).
+# 2026-09-16, owner order «المشكلة كبيرة» · tightened VERCEL-USAGE-4
+# 2026-09-19, owner order «مطلوب تنفيذ حل لمشكلة تجاوز الاستخدام
+# الحالية»: 2× daily schedule → hourly + KEEP_HOURS 6 → 3).
 #
 # WHY: the Hobby plan's "Function Storage" + "Deployment Storage" (10 GB
 # each) count the retained bundles/artifacts of every kept deployment.
@@ -10,18 +12,22 @@
 # deploy rate in 10 GB (~28 deploys/day × ~350 MB × 2 days ≈ 17 GB).
 #
 # WHAT: runs scripts/vercel-cleanup/vercel-cleanup.mjs — keeps the CURRENT
-# production deployment (alkemos.com aliases) + the last KEEP_HOURS (6h
+# production deployment (alkemos.com aliases) + the last KEEP_HOURS (3h
 # default) + the newest KEEP_PREVIEWS (1) preview, DELETEs the rest.
 # Superseded deployments are reproducible from git at any time.
 #
-# TRIGGERS (VERCEL-USAGE-2):
-#   1. Every push to main — retention stays pinned at the 6h window floor
+# TRIGGERS (VERCEL-USAGE-4):
+#   1. Every push to main — retention stays pinned at the 3h window floor
 #      instead of drifting up between scheduled runs.
-#   2. Twice daily (01:00 + 13:00 UTC) — backstop that also purges after
-#      NON-push deploy sources (Vercel dashboard "Redeploy", blog pipeline
-#      direct deployments). 13:00 is clear of the blog slots (22:00 EN /
-#      05:00 AR), the 23:00 dispatch-pipelines backstop, the 05:30
-#      db-backup and the Sunday 07:00 progress reminder.
+#   2. HOURLY (:07 UTC, offset clear of top-of-hour GitHub congestion) —
+#      backstop that also purges after NON-push deploy sources (Vercel
+#      dashboard "Redeploy", blog pipeline direct deployments) and
+#      self-heals the GitHub cron-skip failure mode observed 2026-09-19
+#      (the 01:00 UTC daily run was silently skipped by GitHub while 5
+#      production deploys accumulated past the window). Hourly runs cost
+#      seconds and a handful of Vercel API calls; the workflow is a no-op
+#      when nothing is stale. Supersedes the VERCEL-USAGE-2 2× daily
+#      schedule (01:00 + 13:00 UTC).
 #
 # SCHEDULE HEALTH LAW (AGENTS.md §8): GitHub can silently de-register
 # scheduled workflows repo-wide. The push trigger now self-heals most
@@ -39,12 +45,11 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 1 * * *"
-    - cron: "0 13 * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       keep_hours:
-        description: "Freshness window (hours) to always keep — default 6"
+        description: "Freshness window (hours) to always keep — default 3"
         type: string
         required: false
         default: ""
