@@ -4,6 +4,24 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P3-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 3 — STATE.md de-duplication: history moves out of the status file (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §6)
+
+Work Log:
+- Coverage verification BEFORE any deletion (the plan §13 mitigation): all 26 (٠٠) rows below the top-5 verified covered — live worklog Task IDs for phases 185-205 (PRESENTATION-SAVE-LADDER-185, PHASE-186..PHASE-205, …), 208-229 (C1-*, AUDIT-*, ZOD-*, SHARE-*, …), VERCEL-USAGE-2/3 (worklog:660/687); archived Task IDs for 206/207 (archive/WORKLOG_ARCHIVE.md:3596/3641, confirmed against the audit's §3.2 inventory). Zero uncovered → zero content moved; deletion-only after verified coverage.
+- Deleted from STATE.md: the 26 covered (٠٠) rows (229 down to 185+G6/183/181/180/178+184), the 8 older QA rows (gate facts live in each phase's worklog entry), and the 46-level nested phase chain.
+- Flattened the phase chain per plan §6.2: «235 (فوق 234) + full-chain pointer to worklog headers / archive» (the chain data exists per-phase in worklog Task IDs).
+- STATE.md rebuilt: 100 lines / 82,427 bytes → 68 lines / 21,651 bytes — under the Phase-3 target (≤48,000) and already under the Phase-5 hard cap (32,000). All six required sections preserved; phase parses 235; the A-check byte warning disappears from the gate report.
+- QA section now carries the current phase row only (per plan §6.4); older rows' facts verified present in their phases' worklog entries before deletion.
+
+Stage Summary:
+- F-07 closed and the mechanical half of F-04 closed: STATE is a status file again — 68 lines / ~22KB ≈ a genuine 30-second read; every deleted fact remains greppable in worklog/archive; five-phase random spot-check below.
+- Freed 32 lines of budget for future phases (the cap is a maximum, not a quota).
+- Next per plan §11: Phase 4 (docs lifecycle registry — docs/README.md, sanctioned by the plan's approval).
+- Commit SHA: this commit carries this entry (final SHA in the session report §12.9 after push)
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P2-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 2 — gate hardening in scripts/docs_audit.py only (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §5)
