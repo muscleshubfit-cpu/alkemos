@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq + NVIDIA NIM (AI) · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-17 (Phase 217 — WAVE 3 of the deep-audit plan: P3-2 removed the variable tools count from this intro per the single-source number law, added the three missing `.env.example` vars and NVIDIA NIM to the stack line, and documented the EVO weekly follow-up feature below; for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-18 (Phase 227 — the deep-UX-audit fix wave documented in For Users below: share-button/hydration repair, display-layer error i18n, mobile footer touch targets, EVO composer width, questionnaire enum labels, Free-plan swaps explanation, signup password meter; for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
