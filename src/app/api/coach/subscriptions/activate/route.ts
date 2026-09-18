@@ -17,9 +17,11 @@ import { processCoachClientActivationServer } from "@/lib/affiliate-engine-serve
  * OWNER MODEL: the coach collects the money from HIS client OUTSIDE the
  * site (cash / Vodafone Cash / InstaPay / bank transfer) and then
  * activates the subscription from the client's page. BUT the coach also
- * pays THE SITE a monthly fixed fee per client (coach_fees × months)
- * from his WALLET: since 0035 a coach can only activate when his wallet
- * balance covers fee_per_client × months — the fee is debited
+ * pays THE SITE the FIXED package price per client ($6 / 1 month,
+ * $16 / 3 months, any other duration $6 × months — m7 owner decision
+ * «أ» 2026-09-18: fee_per_client is out of the equation) from his
+ * WALLET: since 0035 a coach can only activate when his wallet
+ * balance covers the full cost — the cost is debited
  * atomically (coach_adjust_wallet) BEFORE extending, and refunded if
  * the activation itself fails. ADMINS are exempt (no wallet check).
  * The site still never touches the coach↔client money — it RECORDS it
@@ -212,30 +214,21 @@ export async function POST(request: NextRequest) {
   // ── 0035 WALLET GATE — no paid slot, no activation (coaches only). ──
   // OWNER PRICING (2026-08-30): «اسعار المدربين لكل عميل ٣٠٠ الشهر /
   // ٨٠٠ ٣ شهور» + GLOBAL USD decree («٣٠٠ جنيه تصبح ٦ دولار») — package
-  // prices for 1 and 3 months ALWAYS win in USD ($6 / $16); other
-  // durations stay linear on the coach's monthly base (his admin-set
-  // fee_per_client, else the $6 monthly rate).
+  // prices for 1 and 3 months ALWAYS win in USD ($6 / $16); any other
+  // duration is linear on the fixed $6 monthly rate. FIXED PRICING ONLY
+  // (2026-09-18 — audit m7 owner decision «أ»): coach_fees.fee_per_client
+  // is no longer read here — the debit is a pure function of duration.
   const paymentId = crypto.randomUUID();
   let walletCost = 0;
   if (auth.role === "coach") {
-    const [feeRes, walletRes] = await Promise.all([
-      supabaseAdmin
-        .from("coach_fees")
-        .select("fee_per_client")
-        .eq("coach_id", auth.id)
-        .maybeSingle(),
-      supabaseAdmin
-        .from("coach_wallets")
-        .select("balance")
-        .eq("coach_id", auth.id)
-        .maybeSingle(),
-    ]);
-    const fee = Number(feeRes.data?.fee_per_client ?? 0) || 0;
-    walletCost = coachActivationCostUsd(months, fee);
+    const walletRes = await supabaseAdmin
+      .from("coach_wallets")
+      .select("balance")
+      .eq("coach_id", auth.id)
+      .maybeSingle();
+    walletCost = coachActivationCostUsd(months);
     if (walletCost > 0) {
-      const missingTable = [feeRes.error, walletRes.error]
-        .find(Boolean)
-        ?.message.includes("coach_wallet");
+      const missingTable = walletRes.error?.message.includes("coach_wallet");
       if (missingTable) {
         return NextResponse.json(
           {

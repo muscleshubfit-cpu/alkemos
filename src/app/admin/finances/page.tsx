@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { listSubscriptionRequests } from "@/lib/data";
 import { MEMBERSHIPS } from "@/lib/memberships";
+import { COACH_CLIENT_PACKAGES } from "@/lib/coach-limits";
 import { getTier, type TierId } from "@/lib/plans";
 import {
   PageHeader,
@@ -49,7 +50,8 @@ import {
  *      = gross revenue, refunds, NET.
  *
  *   B) COACH MONEY (B2B) — coaches pay THE SITE: wallet top-ups
- *      (prepaid credit), per-client monthly fees, and the offline
+ *      (prepaid credit), the fixed per-client activation prices
+ *      (m7 «أ» — site-wide list in coach-limits.ts), and the offline
  *      activation ledger (coach_payments). Balances = prepaid credit
  *      coaches hold, NOT site revenue.
  *
@@ -75,8 +77,6 @@ type WalletRow = {
   email: string | null;
   balance: number;
   currency: string;
-  fee_per_client: number;
-  fee_currency: string;
   client_count: number;
 };
 
@@ -226,8 +226,8 @@ export default function AdminFinancesPage() {
         title={isAr ? "المالية" : "Finances"}
         sub={
           isAr
-            ? "فصل واضح بين أموال الموقع (اشتراكات العملاء B2C) وأموال المدربين (محافظ ورسوم B2B) — كل حسبة من مصادرها الموجودة فعلاً، بدون أي كتابة."
-            : "A clear split between SITE money (client subscriptions, B2C) and COACH money (wallets & fees, B2B) — aggregated from the existing sources, read-only."
+            ? "فصل واضح بين أموال الموقع (اشتراكات العملاء B2C) وأموال المدربين (محافظ وتسعير تفعيل ثابت B2B) — كل حسبة من مصادرها الموجودة فعلاً، بدون أي كتابة."
+            : "A clear split between SITE money (client subscriptions, B2C) and COACH money (wallets & fixed activation pricing, B2B) — aggregated from the existing sources, read-only."
         }
       />
 
@@ -391,7 +391,7 @@ export default function AdminFinancesPage() {
                   <TableHead className="text-start">{isAr ? "المدرب" : "Coach"}</TableHead>
                   <TableHead className="text-start">{isAr ? "الرصيد" : "Balance"}</TableHead>
                   <TableHead className="text-start">{isAr ? "العميلين الحاليين" : "Clients"}</TableHead>
-                  <TableHead className="text-start">{isAr ? "الرسوم الشهرية/عميل" : "Fee/client"}</TableHead>
+                  <TableHead className="text-start">{isAr ? "سعر التفعيل/عميل (ثابت)" : "Activation price/client (fixed)"}</TableHead>
                   <TableHead className="text-start">{isAr ? "فاتورة الشهر المتوقعة" : "Expected monthly bill"}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -410,11 +410,11 @@ export default function AdminFinancesPage() {
                     </TableCell>
                     <TableCell>{fmtNum(w.client_count, isAr)}</TableCell>
                     <TableCell className="text-sm text-[#6e6e73]">
-                      {fmtMoney(Number(w.fee_per_client))}{" "}
-                      <span className="text-xs">{w.fee_currency}</span>
+                      {fmtMoney(COACH_CLIENT_PACKAGES[0].priceUsd)}{" "}
+                      <span className="text-xs">USD</span>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {fmtMoney(Number(w.fee_per_client) * Number(w.client_count))}
+                      {fmtMoney(COACH_CLIENT_PACKAGES[0].priceUsd * Number(w.client_count))}
                     </TableCell>
                   </TableRow>
                 ))}

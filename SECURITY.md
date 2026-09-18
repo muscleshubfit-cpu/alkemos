@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-17 (Phase 217 — P3-3 deep-audit fixes: data-residency region corrected sin1→fra1 (matches vercel.json), the retired step2-generate citation replaced with the live 300s pipeline routes, the coach-register + send-email rate-limit docs now describe the Upstash-shared limiter accurately · Phase 216 — VERCEL-USAGE-3 §10 two cache rules · P1-5(ب) Cloudflare official HTML cache layer · P1-6 EVO_CRON_SECRET timing-safe §3.3)
+> **Last updated:** 2026-09-18 (Phase 229 — audit m7 owner decision «أ»: fixed package pricing ONLY — fee_per_client retired from the activation cost equation, /api/admin/coach-fees + its admin setter removed, money surfaces unified on coach-limits.ts · Phase 217 — P3-3 deep-audit fixes: data-residency region corrected sin1→fra1 (matches vercel.json), the retired step2-generate citation replaced with the live 300s pipeline routes, the coach-register + send-email rate-limit docs now describe the Upstash-shared limiter accurately · Phase 216 — VERCEL-USAGE-3 §10 two cache rules · P1-5(ب) Cloudflare official HTML cache layer · P1-6 EVO_CRON_SECRET timing-safe §3.3)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -562,10 +562,18 @@ source):
 - **Coach support messages:** RLS = coach reads/inserts his own rows;
   admin replies are service-role only (admin API is AdminGate-guarded
   by role='admin' server-side).
-- **Pricing authority:** `coachActivationCostEgp()` (coach-limits.ts)
-  is the single debit calculator; `coach_fees.fee_per_client` can no
-  longer undercut the owner's 300/800 package prices for 1/3-month
-  activations (it remains the linear base only for legacy durations).
+- **Pricing authority (m7 owner decision «أ», 2026-09-18):**
+  `coachActivationCostUsd(months)` (coach-limits.ts) is the single
+  debit calculator and takes ONLY the duration — fixed package pricing
+  ($6 / 1 month · $16 / 3 months · $6 × months for any other duration).
+  `coach_fees.fee_per_client` is RETIRED from the equation: the
+  per-coach fee API (/api/admin/coach-fees) and its admin setter UI
+  were removed in the same phase, and the coach_fees table stays as
+  inert legacy data (read by nothing on the billing path). The audit
+  root — a self-signed coach with no fee row falling on the `?? 0`
+  fallback — is closed by design: every activatable duration now costs
+  more than zero, identical for every coach (canaries in
+  coach-activation-cost.test.ts).
 - **Wallet top-up receipt ownership (P3-11, Phase 217 — owner §7
   approval «أوافق على التنفيذ كاملاً», deep-audit confirmed 18/19):**
   `POST /api/coach/wallet/topup` accepts ONLY the requesting coach's

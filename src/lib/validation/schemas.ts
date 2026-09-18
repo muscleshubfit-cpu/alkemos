@@ -768,18 +768,6 @@ export const adminBlogCleanupBodySchema = z.object({
 
 export type AdminBlogCleanupBody = z.infer<typeof adminBlogCleanupBodySchema>;
 
-// ── PATCH /api/admin/coach-fees ──
-
-/** fee range 0..1M stays ROUTE policy («coach_id وسعر صحيح…»
- *  re-derived); the number|string union preserves legacy Number()
- *  coercion for numeric strings. */
-export const adminCoachFeeBodySchema = z.object({
-  coach_id: z.string().min(1).max(MAX_ADMIN_ID_LEN),
-  fee_per_client: z.union([z.number(), z.string().max(MAX_AMOUNT_RAW_LEN)]),
-});
-
-export type AdminCoachFeeBody = z.infer<typeof adminCoachFeeBodySchema>;
-
 // ── PATCH /api/admin/coach-kind ──
 
 /** The enum IS the legacy check — every gate failure re-derives «coach_id

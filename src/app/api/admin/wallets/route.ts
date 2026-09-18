@@ -7,8 +7,10 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * GET /api/admin/wallets
  *
  * Powers /admin/wallets: every B2B coach's wallet balance next to his
- * per-client monthly fee and live client count, plus the PENDING top-up
- * queue (receipt path included — the admin opens the receipt and then
+ * live client count (activation pricing is the site-wide fixed list in
+ * src/lib/coach-limits.ts — m7 owner decision «أ» 2026-09-18: no
+ * per-coach fee exists anymore), plus the PENDING top-up queue
+ * (receipt path included — the admin opens the receipt and then
  * approves/rejects via PATCH /api/admin/wallets/topups).
  *
  * Manual balance corrections go through POST /api/admin/wallets/adjust.
@@ -21,7 +23,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
 
-  const [staffRes, walletsRes, feesRes, countsRes, topupsRes] = await Promise.all([
+  const [staffRes, walletsRes, countsRes, topupsRes] = await Promise.all([
     supabaseAdmin
       .from("profiles")
       .select("id, full_name, email, role")
@@ -31,9 +33,6 @@ export async function GET(_request: NextRequest) {
       // this page; his own account never appears as a billable coach).
       .eq("role", "coach"),
     supabaseAdmin.from("coach_wallets").select("coach_id, balance, currency"),
-    supabaseAdmin
-      .from("coach_fees")
-      .select("coach_id, fee_per_client, currency"),
     supabaseAdmin
       .from("coach_assignments")
       .select("coach_id"),
@@ -61,7 +60,6 @@ export async function GET(_request: NextRequest) {
   const walletMap = new Map(
     (walletsRes.data ?? []).map((w) => [w.coach_id, w]),
   );
-  const feeMap = new Map((feesRes.data ?? []).map((f) => [f.coach_id, f]));
   const countMap = new Map<string, number>();
   for (const row of countsRes.data ?? []) {
     const cid = row.coach_id;
@@ -75,8 +73,6 @@ export async function GET(_request: NextRequest) {
     role: p.role,
     balance: Number(walletMap.get(p.id)?.balance ?? 0),
     currency: walletMap.get(p.id)?.currency ?? "USD",
-    fee_per_client: Number(feeMap.get(p.id)?.fee_per_client ?? 0),
-    fee_currency: feeMap.get(p.id)?.currency ?? "USD",
     client_count: countMap.get(p.id) ?? 0,
   }));
 

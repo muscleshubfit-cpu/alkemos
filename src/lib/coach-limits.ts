@@ -5,11 +5,18 @@
  *  - The coach brings his OWN clients and collects their payment OUTSIDE
  *    the site (cash / Vodafone Cash / InstaPay / bank transfer), then
  *    activates the subscription himself from the client's page.
- *  - BUT the coach pays THE SITE a monthly fixed fee per client
- *    (coach_fees.fee_per_client × months) from his WALLET (0035): he
- *    tops up via InstaPay / Vodafone Cash / PayPal, uploads the receipt,
- *    the admin reviews it and manually credits the wallet. Activation
- *    DEBITS the wallet — no balance, no activation (admins exempt).
+ *  - BUT the coach pays THE SITE the FIXED per-client activation price
+ *    from his WALLET (0035): he tops up via InstaPay / Vodafone Cash /
+ *    PayPal, uploads the receipt, the admin reviews it and manually
+ *    credits the wallet. Activation DEBITS the wallet — no balance, no
+ *    activation (admins exempt).
+ *    [2026-09-18 — audit m7 owner decision «أ» (DEEP-UX-AUDIT-2026-09-18):
+ *    coach_fees.fee_per_client is RETIRED from the cost equation — the
+ *    price is the site-wide package list below ONLY ($6 / 1 month,
+ *    $16 / 3 months, any other duration $6 × months). The per-coach fee
+ *    API (/api/admin/coach-fees) + its admin setter were removed in the
+ *    same phase; the coach_fees TABLE stays as inert legacy data, read
+ *    by nothing on the billing path.]
  *  - Coach AI plan generation draws from the CLIENT'S ONE unified
  *    monthly pool (owner decree 2026-09-13 «البوول الموحد», Phase
  *    183): ONE success-only budget per identity for nutrition +
@@ -40,7 +47,11 @@
 /* The per-client fee the coach pays THE SITE is PACKAGE-based, in USD */
 /* (rate 50 EGP = $1): 1 client-month = $6, 3 client-months = $16.     */
 /* Single source of truth for BOTH the server debit math               */
-/* (/api/coach/subscriptions/activate) and the coach-facing UI.        */
+/* (/api/coach/subscriptions/activate) and every money surface:        */
+/* coach wallet · admin wallets · finances · assignments.              */
+/* [2026-09-18 — m7 owner decision «أ»]: PACKAGE PRICING ONLY — the     */
+/* admin-set per-coach fee is out of the equation entirely (see        */
+/* coachActivationCostUsd below).                                       */
 /* ------------------------------------------------------------------ */
 
 export const COACH_CLIENT_PACKAGES: ReadonlyArray<{
@@ -52,20 +63,18 @@ export const COACH_CLIENT_PACKAGES: ReadonlyArray<{
 ];
 
 /**
- * Activation cost for a given duration (USD). Package prices ALWAYS win
- * for 1 and 3 months (owner decree — coach_fees.fee_per_client can no
- * longer undercut them). Any other duration (e.g. legacy 12-month
- * activations) stays linear on the coach's monthly base: his admin-set
- * fee_per_client if one exists, otherwise the $6 monthly rate.
+ * Activation cost for a given duration (USD) — FIXED PACKAGE PRICING
+ * ONLY (owner decree 2026-09-18, audit m7 decision «أ»): fee_per_client
+ * is OUT of the equation, so the cost is a pure function of duration —
+ * the SAME number for every coach on the server debit and on every
+ * display surface. Package prices ALWAYS win for 1 and 3 months
+ * ($6 / $16); ANY other duration (e.g. legacy 12-month activations) is
+ * linear on the fixed $6 monthly rate.
  */
-export function coachActivationCostUsd(
-  months: number,
-  feePerClient = 0,
-): number {
+export function coachActivationCostUsd(months: number): number {
   const pkg = COACH_CLIENT_PACKAGES.find((p) => p.months === months);
   if (pkg) return pkg.priceUsd;
-  const monthly = feePerClient > 0 ? feePerClient : COACH_CLIENT_PACKAGES[0].priceUsd;
-  return Math.round(monthly * months * 100) / 100;
+  return Math.round(COACH_CLIENT_PACKAGES[0].priceUsd * months * 100) / 100;
 }
 
 /* ------------------------------------------------------------------ */

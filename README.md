@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq + NVIDIA NIM (AI) · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-18 (Phase 227 — the deep-UX-audit fix wave documented in For Users below: share-button/hydration repair, display-layer error i18n, mobile footer touch targets, EVO composer width, questionnaire enum labels, Free-plan swaps explanation, signup password meter; for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-18 (Phase 229 — audit m7 owner decision «أ»: coach billing is now FIXED package pricing only — the per-coach fee setting was retired (API + admin UI) and every money surface reads the single source in coach-limits.ts; for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
@@ -366,7 +366,7 @@ alkemos/
 - **Client Dashboard:** filter tabs (active, expiring, no questionnaire, by tier…)
 - **Client Management:** per-client tabs (overview, subscription, plans, AI plans, questionnaires, progress)
 - **AI Plans:** generation draws from the CLIENT's own balance (ownership-checked); meal/item/day/exercise AI regeneration + manual edits are unlimited
-- **Wallet System:** monthly per-client fee paid to the site, receipt-reviewed top-ups (InstaPay/Vodafone Cash/PayPal link), activation gate (402 insufficient_wallet)
+- **Wallet System:** fixed per-client activation pricing paid to the site (one site-wide package list — single source `src/lib/coach-limits.ts`; the per-coach fee setting was retired 2026-09-18), receipt-reviewed top-ups (InstaPay/Vodafone Cash/PayPal), activation gate (402 insufficient_wallet)
 - **Public Coach Page:** claimable slug + landing editor + ads + certificates
 - **Affiliate Program:** 20% commission on referred subscription payments ($3.00 per Premium, $6.00 per Pro, $8.00 per Coaching), 7-day payout hold, reversal on refunds
 
@@ -386,7 +386,7 @@ alkemos/
 - **AI Plans for Non-Members:** full generation + per-element regeneration (whole plan, one meal, one food item, one day, one exercise) + version history (cap 5) with reversible restore
 - **Payments + 7-Day Refunds:** manual payment review, refund console with no-features-used enforcement, automatic affiliate commission reversal
 - **Blog CMS:** AI pipeline with automated + manual modes
-- **Coach System Center:** fees, pages review, support, wallets, assignments, staff accounts
+- **Coach System Center:** billing (fixed package pricing — single source coach-limits.ts), pages review, support, wallets, assignments, staff accounts
 
 > **Note:** The tier priority in code is `pro` (3) > `premium` (2) >
 > `free` (0). `coaching` is treated separately — it grants Premium-tier

@@ -6,16 +6,19 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  * COACH WALLET READOUT (0035).
  * GET /api/coach/wallet
  *
- * OWNER MODEL: the coach pays THE SITE a monthly fixed fee per client
- * (coach_fees.fee_per_client × months) from his wallet. He tops the
- * wallet up via InstaPay / Vodafone Cash / PayPal, uploads the receipt
- * and the ADMIN reviews + manually credits it (POST /api/coach/wallet/
- * topup creates the pending request; approval happens admin-side).
+ * OWNER MODEL: the coach pays THE SITE the fixed per-client activation
+ * price ($6 / 1 month, $16 / 3 months — m7 owner decision «أ» 2026-09-18:
+ * fee_per_client is retired from billing; prices live ONLY in
+ * src/lib/coach-limits.ts) from his wallet. He tops the wallet up via
+ * InstaPay / Vodafone Cash / PayPal, uploads the receipt and the ADMIN
+ * reviews + manually credits it (POST /api/coach/wallet/topup creates
+ * the pending request; approval happens admin-side).
  *
- * Returns the caller's own wallet: balance, his per-client monthly fee,
- * his top-up requests and his wallet ledger (both RLS-scoped to self,
- * but read here through the service role so the response shape is
- * stable even before RLS grants exist on old projects).
+ * Returns the caller's own wallet: balance, his top-up requests and his
+ * wallet ledger (both RLS-scoped to self, but read here through the
+ * service role so the response shape is stable even before RLS grants
+ * exist on old projects). The activation prices themselves are NOT in
+ * this payload — the UI imports them from coach-limits (single source).
  */
 
 export async function GET(_request: NextRequest) {
@@ -33,15 +36,10 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
   }
 
-  const [walletRes, feeRes, topupsRes, txnsRes] = await Promise.all([
+  const [walletRes, topupsRes, txnsRes] = await Promise.all([
     supabaseAdmin
       .from("coach_wallets")
       .select("balance, currency, updated_at")
-      .eq("coach_id", auth.id)
-      .maybeSingle(),
-    supabaseAdmin
-      .from("coach_fees")
-      .select("fee_per_client, currency")
       .eq("coach_id", auth.id)
       .maybeSingle(),
     supabaseAdmin
@@ -74,8 +72,6 @@ export async function GET(_request: NextRequest) {
   return NextResponse.json({
     balance: walletRes.data ? Number(walletRes.data.balance) : 0,
     currency: walletRes.data?.currency ?? "USD",
-    fee_per_client: feeRes.data ? Number(feeRes.data.fee_per_client) : 0,
-    fee_currency: feeRes.data?.currency ?? "USD",
     topups: topupsRes.data ?? [],
     transactions: txnsRes.data ?? [],
   });

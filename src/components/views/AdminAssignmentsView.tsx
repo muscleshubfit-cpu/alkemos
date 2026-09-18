@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { getCoachClientListOptimized } from "@/lib/data";
-import { coachPaymentMethodLabel } from "@/lib/coach-limits";
+import { COACH_CLIENT_PACKAGES, coachPaymentMethodLabel } from "@/lib/coach-limits";
 import { toast } from "sonner";
 
 /**
@@ -44,6 +44,13 @@ type CoachClientListRow = {
   assigned_coach_name: string | null;
 };
 
+/** Fixed activation pricing for the read-only billing table (m7 owner
+ *  decision «أ» 2026-09-18) — read from the single source the server
+ *  debits (coach-limits.ts); there is NO per-coach fee anymore. */
+const FIXED_MONTHLY_USD = COACH_CLIENT_PACKAGES[0].priceUsd;
+const FIXED_QUARTER_USD =
+  COACH_CLIENT_PACKAGES.find((p) => p.months === 3)?.priceUsd ?? FIXED_MONTHLY_USD * 3;
+
 export function AdminAssignmentsView() {
   const { lang } = useI18n();
   const isAr = lang === "ar";
@@ -56,18 +63,11 @@ export function AdminAssignmentsView() {
   const [rpcFailed, setRpcFailed] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // COACH FEES (owner answer 3 — «سعر ثابت على كل عميل قابل للتعديل»):
-  // per-coach flat fee, editable inline; total = live client count × fee.
-  type FeeRow = {
-    id: string;
-    full_name: string | null;
-    email: string | null;
-    fee_per_client: number;
-    currency: string;
-  };
-  const [fees, setFees] = useState<FeeRow[]>([]);
-  const [feeDrafts, setFeeDrafts] = useState<Record<string, string>>({});
-  const [savingFeeId, setSavingFeeId] = useState<string | null>(null);
+  // COACH BILLING (m7 owner decision «أ» 2026-09-18): the per-coach fee
+  // editor is RETIRED — pricing is the site-wide fixed list in
+  // coach-limits.ts (COACH_CLIENT_PACKAGES), the same single source the
+  // server debits. The billing section below renders staff + client
+  // counts + the FIXED price read-only.
 
   // 0034 — PAYMENTS LEDGER: every subscription a coach activated after
   // collecting payment OUTSIDE the site (cash / Vodafone Cash / InstaPay).
@@ -105,15 +105,6 @@ export function AdminAssignmentsView() {
           setCounts(json.counts ?? {});
         }
 
-        // Coach fees (independent of the RPC — loads even if 0030D RPC is missing)
-        const feesRes = await fetch("/api/admin/coach-fees");
-        if (feesRes.ok) {
-          const feesJson = await feesRes.json();
-          const rows = (feesJson.coaches ?? []) as FeeRow[];
-          setFees(rows);
-          setFeeDrafts(Object.fromEntries(rows.map((c) => [c.id, String(c.fee_per_client)])));
-        }
-
         // Offline-payment ledger (0034). On failure it stays null → section hidden.
         const paysRes = await fetch("/api/admin/coach-payments?limit=50");
         if (paysRes.ok) {
@@ -149,45 +140,6 @@ export function AdminAssignmentsView() {
       const json = await res.json();
       setStaff(json.staff ?? []);
       setCounts(json.counts ?? {});
-    }
-  }
-
-  async function refreshFees() {
-    const res = await fetch("/api/admin/coach-fees");
-    if (res.ok) {
-      const json = await res.json();
-      setFees(json.coaches ?? []);
-      setFeeDrafts(
-        Object.fromEntries(
-          ((json.coaches ?? []) as FeeRow[]).map((c) => [c.id, String(c.fee_per_client)]),
-        ),
-      );
-    }
-  }
-
-  async function saveFee(coachId: string) {
-    const raw = feeDrafts[coachId] ?? "0";
-    const fee = Number(raw);
-    if (!Number.isFinite(fee) || fee < 0) {
-      toast.error(isAr ? "اكتب سعرًا صحيحًا (0 أو أكثر)" : "Enter a valid price (0 or more)");
-      return;
-    }
-    setSavingFeeId(coachId);
-    try {
-      const res = await fetch("/api/admin/coach-fees", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ coach_id: coachId, fee_per_client: fee }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok) {
-        toast.success(isAr ? "تم حفظ السعر" : "Fee saved");
-        await refreshFees();
-      } else {
-        toast.error(json.message || json.error || (isAr ? "فشل الحفظ" : "Save failed"));
-      }
-    } finally {
-      setSavingFeeId(null);
     }
   }
 
@@ -453,16 +405,19 @@ export function AdminAssignmentsView() {
         </div>
       </section>
 
-      {/* Coach fees — fixed per-client price (owner answer 3) */}
-      {fees.length > 0 && (
+      {/* Coach billing — FIXED site-wide per-client pricing (m7 owner
+          decision «أ» 2026-09-18): the per-coach fee editor is retired;
+          the price comes from COACH_CLIENT_PACKAGES (coach-limits.ts) —
+          the same single source the server debits at activation. */}
+      {staff.filter((s) => s.role === "coach").length > 0 && (
         <section className="rounded-3xl bg-[#f5f5f7] p-6 md:p-8">
           <h2 className="text-lg font-semibold tracking-tight">
-            {isAr ? "اشتراك المدربين — سعر ثابت لكل عميل" : "Coach billing — fixed fee per client"}
+            {isAr ? "اشتراك المدربين — تسعير ثابت لكل عميل" : "Coach billing — fixed per-client pricing"}
           </h2>
           <p className="mt-1 text-sm font-normal text-[#6e6e73]">
             {isAr
-              ? "سعر ثابت يدفعه المدرب عن كل عميل من عملائه، قابل للتعديل في أي وقت. الإجمالي بيتحدث تلقائيًا مع عدد عملائه الحالي."
-              : "A flat fee each coach pays per client, editable anytime. The monthly total updates automatically with his current client count."}
+              ? `سعر موحد على مستوى الموقع يدفعه كل مدرب عن كل عميل: ${FIXED_MONTHLY_USD}$ شهريًا — وباقة ٣ شهور ${FIXED_QUARTER_USD}$ (المصدر الوحيد coach-limits.ts — نفس ما يخصمه الخادم عند التفعيل). الإجمالي بيتحدث تلقائيًا مع عدد عملائه الحالي.`
+              : `One site-wide price every coach pays per client: ${FIXED_MONTHLY_USD}$/month — and a ${FIXED_QUARTER_USD}$ 3-month package (single source: coach-limits.ts — exactly what the server debits at activation). The monthly total updates automatically with each coach's current client count.`}
           </p>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[640px] text-start">
@@ -470,56 +425,34 @@ export function AdminAssignmentsView() {
                 <tr className="border-b border-[#d2d2d7] text-xs font-normal uppercase tracking-wide text-[#6e6e73]">
                   <th className="p-3 text-start">{isAr ? "المدرب" : "Coach"}</th>
                   <th className="p-3 text-start">{isAr ? "عملاؤه" : "His clients"}</th>
-                  <th className="p-3 text-start">{isAr ? "السعر لكل عميل" : "Fee per client"}</th>
-                  <th className="p-3 text-start">{isAr ? "الإجمالي" : "Total"}</th>
-                  <th className="p-3 text-start"></th>
+                  <th className="p-3 text-start">{isAr ? "السعر لكل عميل/شهر" : "Price per client/mo"}</th>
+                  <th className="p-3 text-start">{isAr ? "الإجمالي الشهري" : "Monthly total"}</th>
                 </tr>
               </thead>
               <tbody>
-                {fees.map((f) => {
-                  const n = clientCountByCoach[f.id] ?? 0;
-                  const draft = Number(feeDrafts[f.id] ?? "0");
-                  const total = (Number.isFinite(draft) ? draft : 0) * n;
-                  return (
-                    <tr key={f.id} className="border-b border-[#d2d2d7]/60 hover:bg-white/50">
-                      <td className="p-3">
-                        <div className="font-medium">{f.full_name || "—"}</div>
-                        <div className="text-xs font-normal text-[#6e6e73]" dir="ltr">
-                          {f.email || f.id}
-                        </div>
-                      </td>
-                      <td className="p-3 font-medium">{n}</td>
-                      <td className="p-3">
-                        <input
-                          type="number"
-                          min="0"
-                          step="1"
-                          dir="ltr"
-                          value={feeDrafts[f.id] ?? "0"}
-                          onChange={(e) =>
-                            setFeeDrafts((prev) => ({ ...prev, [f.id]: e.target.value }))
-                          }
-                          className="w-28 rounded-xl border border-[#d2d2d7] bg-white px-3 py-2 text-sm outline-none focus:border-[#0071e3]"
-                        />
-                        <span className="ms-2 text-xs text-[#6e6e73]">{f.currency}</span>
-                      </td>
-                      <td className="p-3 font-semibold">
-                        {total.toLocaleString()} {f.currency}
-                      </td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => saveFee(f.id)}
-                          disabled={savingFeeId === f.id}
-                          className="rounded-xl bg-[#1d1d1f] px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                        >
-                          {savingFeeId === f.id
-                            ? (isAr ? "جارٍ الحفظ…" : "Saving…")
-                            : (isAr ? "حفظ" : "Save")}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {staff
+                  .filter((s) => s.role === "coach")
+                  .map((f) => {
+                    const n = clientCountByCoach[f.id] ?? 0;
+                    const total = FIXED_MONTHLY_USD * n;
+                    return (
+                      <tr key={f.id} className="border-b border-[#d2d2d7]/60 hover:bg-white/50">
+                        <td className="p-3">
+                          <div className="font-medium">{f.full_name || "—"}</div>
+                          <div className="text-xs font-normal text-[#6e6e73]" dir="ltr">
+                            {f.email || f.id}
+                          </div>
+                        </td>
+                        <td className="p-3 font-medium">{n}</td>
+                        <td className="p-3 font-medium" dir="ltr">
+                          {FIXED_MONTHLY_USD} USD
+                        </td>
+                        <td className="p-3 font-semibold" dir="ltr">
+                          {total.toLocaleString()} USD
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>

@@ -70,7 +70,6 @@ import {
   adminAccountFlagBodySchema,
   adminAssignPairBodySchema,
   adminBlogCleanupBodySchema,
-  adminCoachFeeBodySchema,
   adminCoachKindBodySchema,
   adminCoachNotifyBodySchema,
   adminCoachPageReviewBodySchema,
@@ -1430,18 +1429,6 @@ describe("adminBlogCleanupBodySchema — POST /api/admin/blog/cleanup (Wave 3)",
     expect(adminBlogCleanupBodySchema.safeParse({ dry_run: "false" }).success).toBe(false);
     expect(adminBlogCleanupBodySchema.safeParse([1]).success).toBe(false);
     expect(adminBlogCleanupBodySchema.safeParse("x").success).toBe(false);
-  });
-});
-
-describe("adminCoachFeeBodySchema — PATCH /api/admin/coach-fees (Wave 3)", () => {
-  it("accepts number and numeric-string fees (legacy Number() coercion)", () => {
-    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: 6 }).success).toBe(true);
-    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: "6" }).success).toBe(true);
-  });
-
-  it("rejects missing/garbage fees (route re-derives «coach_id وسعر صحيح…» verbatim)", () => {
-    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc" }).success).toBe(false);
-    expect(adminCoachFeeBodySchema.safeParse({ coach_id: "abc", fee_per_client: {} }).success).toBe(false);
   });
 });
 

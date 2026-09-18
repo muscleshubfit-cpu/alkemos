@@ -18,7 +18,9 @@ import { uploadReceipt, getReceiptSignedUrl } from "@/lib/data";
 /**
  * COACH WALLET (0035) — /coach/wallet
  *
- * OWNER MODEL: the coach pays THE SITE a monthly fixed fee per client.
+ * OWNER MODEL: the coach pays THE SITE the fixed per-client activation
+ * price ($6 / 1 month, $16 / 3 months — m7 owner decision «أ» 2026-09-18;
+ * single source coach-limits.ts, same constants the server debits).
  * GLOBAL USD (owner decree 2026-08-30): the wallet ledger is USD and
  * PayPal charges 1:1 — the coach types a USD amount and pays exactly it.
  * This view = balance + top-up rails:
@@ -36,8 +38,6 @@ import type { CoachTopupRequest, CoachWalletTransaction } from "@/lib/supabase/t
 type WalletData = {
   balance: number;
   currency: string;
-  fee_per_client: number;
-  fee_currency: string;
   topups: CoachTopupRequest[];
   transactions: CoachWalletTransaction[];
 };
@@ -322,8 +322,8 @@ export function CoachWalletView() {
         </h1>
         <p className="mt-2 text-base font-normal text-[#6e6e73] md:text-lg">
           {isAr
-            ? "اشحن محفظتك عشان تفعّل اشتراكات عملائك — التفعيل بيخصم رسوم العميل الشهرية من الرصيد."
-            : "Top up your wallet to activate client subscriptions — the monthly per-client fee is debited from the balance."}
+            ? "اشحن محفظتك عشان تفعّل اشتراكات عملائك — التفعيل بيخصم سعر الباقة الثابت من الرصيد."
+            : "Top up your wallet to activate client subscriptions — the fixed activation price is debited from the balance."}
         </p>
       </div>
 
@@ -346,16 +346,18 @@ export function CoachWalletView() {
               </span>
             </div>
             <p className="mt-3 text-sm font-normal text-white/60">
-              {/* Effective monthly rate: the coach's admin-set fee if one
-                  exists, otherwise the $6 package rate (same fallback
-                  coachActivationCostUsd uses for non-package durations —
-                  the display must NEVER say 0$ while activation debits 6$). */}
+              {/* FIXED PRICING (m7 owner decision «أ» 2026-09-18): the same
+                  single source the server debits (coachActivationCostUsd /
+                  COACH_CLIENT_PACKAGES) — no per-coach fee exists anymore,
+                  so the display can NEVER disagree with the debit. */}
               {((): string => {
-                const set = Number(data?.fee_per_client ?? 0);
-                const eff = set > 0 ? set : COACH_CLIENT_PACKAGES[0].priceUsd;
+                const monthly = COACH_CLIENT_PACKAGES[0].priceUsd;
+                const quarter =
+                  COACH_CLIENT_PACKAGES.find((p) => p.months === 3)?.priceUsd ??
+                  monthly * 3;
                 return isAr
-                  ? `رسوم العميل الشهرية: ${fmt(eff)}$ — باقة ٣ شهور = ${fmt(16)}$ (سعر ثابت)، وأي مدة أخرى = ${fmt(eff)}$ × الشهور.`
-                  : `Per-client monthly fee: ${fmt(eff)}$ — 3-month package = ${fmt(16)}$ (fixed price), any other duration = ${fmt(eff)}$ × months.`;
+                  ? `سعر تفعيل العميل: ${fmt(monthly)}$/شهر — باقة ٣ شهور = ${fmt(quarter)}$ (سعر ثابت)، وأي مدة أخرى = ${fmt(monthly)}$ × الشهور.`
+                  : `Per-client activation: ${fmt(monthly)}$/month — 3-month package = ${fmt(quarter)}$ (fixed price), any other duration = ${fmt(monthly)}$ × months.`;
               })()}
             </p>
           </div>

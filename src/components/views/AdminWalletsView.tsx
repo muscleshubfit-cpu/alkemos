@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
 import { getReceiptSignedUrl } from "@/lib/data";
-import { coachTopupMethodLabel } from "@/lib/coach-limits";
+import { COACH_CLIENT_PACKAGES, coachTopupMethodLabel } from "@/lib/coach-limits";
 import type { CoachTopupRequest } from "@/lib/supabase/types";
 
 /**
@@ -16,8 +16,11 @@ import type { CoachTopupRequest } from "@/lib/supabase/types";
  *  1. PENDING QUEUE — every top-up request with its receipt (open the
  *     signed URL, verify the transfer, approve = credit the wallet
  *     through coach_adjust_wallet, or reject with a reason).
- *  2. BALANCES — per-coach wallet balance next to his per-client
- *     monthly fee and live client count, with the manual ±adjust form.
+ *  2. BALANCES — per-coach wallet balance next to his live client
+ *     count and the site-wide FIXED activation price (m7 owner
+ *     decision «أ» 2026-09-18: the per-coach fee is gone; the price
+ *     comes from COACH_CLIENT_PACKAGES — same source the server
+ *     debits), with the manual ±adjust form.
  */
 
 type WalletRow = {
@@ -27,8 +30,6 @@ type WalletRow = {
   role: string;
   balance: number;
   currency: string;
-  fee_per_client: number;
-  fee_currency: string;
   client_count: number;
 };
 
@@ -240,7 +241,7 @@ export function AdminWalletsView() {
                   <tr>
                     <th className="p-3 text-start">{isAr ? "المدرب" : "Coach"}</th>
                     <th className="p-3 text-start">{isAr ? "الرصيد" : "Balance"}</th>
-                    <th className="p-3 text-start">{isAr ? "رسوم العميل/شهر" : "Fee/client·mo"}</th>
+                    <th className="p-3 text-start">{isAr ? "سعر التفعيل/عميل·شهر (ثابت)" : "Activation/client·mo (fixed)"}</th>
                     <th className="p-3 text-start">{isAr ? "العملاء" : "Clients"}</th>
                   </tr>
                 </thead>
@@ -260,7 +261,7 @@ export function AdminWalletsView() {
                         {fmt(w.balance)} {w.currency}
                       </td>
                       <td className="p-3" dir="ltr">
-                        {fmt(w.fee_per_client)} {w.fee_currency}
+                        {fmt(COACH_CLIENT_PACKAGES[0].priceUsd)} USD
                       </td>
                       <td className="p-3">{w.client_count}</td>
                     </tr>

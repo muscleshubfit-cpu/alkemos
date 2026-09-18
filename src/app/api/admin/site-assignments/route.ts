@@ -14,9 +14,10 @@ import {
  *
  * Deliberately SEPARATE from /api/admin/assignments (the B2B money
  * relation): coach_assignments feeds wallet billing
- * (fee_per_client × assigned clients) and affiliate attribution — mixing
- * B2C members into it would bill site coaches for members who already
- * paid the SITE. This table (site_coach_assignments) carries no money.
+ * (the fixed package price × assigned clients) and affiliate attribution —
+ * mixing B2C members into it would bill site coaches for members who
+ * already paid the SITE. This table (site_coach_assignments) carries no
+ * money.
  *
  * One member ↔ one site coach (unique client_id) — re-assigning a member
  * moves him (upsert on client_id), mirroring the 1↔1 shape of the B2B

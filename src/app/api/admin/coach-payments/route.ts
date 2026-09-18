@@ -8,7 +8,8 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
  *
  * Every row = one subscription a coach (or the admin) activated after
  * collecting payment OUTSIDE the site. The admin audits who collected
- * what from whom; totals per coach mirror the coach_fees bill.
+ * what from whom; totals per coach mirror the fixed package bill
+ * (coach-limits.ts — m7 owner decision «أ» 2026-09-18).
  * Read-only here — rows are written only by the activate route.
  */
 
