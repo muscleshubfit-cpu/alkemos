@@ -58,6 +58,39 @@ describe("tools count guard (Phase 195)", () => {
   });
 });
 
+// m4 FIX (DEEP-UX-AUDIT-2026-09-18, owner decision 2026-09-18 «عدد الأدوات
+// الصحيح + مخططات الذكاء الاصطناعي ومخطط الوجبات»): the profile's Tools
+// stat must DERIVE from tools-shared (the single source that also feeds the
+// homepage «8+» chip) — it was a hardcoded "6" while the hub serves 8
+// (Phase 195). Same source-canary style as the Phase 217 block below.
+describe("m4: the profile Tools stat derives from the single source", () => {
+  const PROFILE = "src/app/profile/page.tsx";
+
+  it("the profile imports TOOLS_COUNT from tools-shared", () => {
+    const src = readFileSync(PROFILE, "utf8");
+    expect(src, "profile: tools-shared import missing").toContain(
+      "tools-shared",
+    );
+    expect(src, "profile: TOOLS_COUNT import missing").toContain(
+      "TOOLS_COUNT",
+    );
+  });
+
+  it("no hardcoded tools stat survives outside comments", () => {
+    const stripComments = (s: string) =>
+      s
+        .replace(/\/\*[\s\S]*?\*\//g, " ")
+        .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+    const src = stripComments(readFileSync(PROFILE, "utf8"));
+    expect(src, "profile: hardcoded Tools stat returned").not.toMatch(
+      /"Tools"[^}]*value:\s*"6"/,
+    );
+    expect(src, "profile: hardcoded Arabic Tools stat returned").not.toMatch(
+      /"أدوات"[^}]*value:\s*"6"/,
+    );
+  });
+});
+
 // PHASE 217 (deep-audit P3-10 م4+م5, owner approval «أوافق على التنفيذ
 // كاملاً»): user-visible library counts must DERIVE from the shared count
 // constants — a hardcoded "868+"/"8,830+" copy ages silently when the

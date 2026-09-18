@@ -18,7 +18,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMembershipTier } from "@/hooks/use-membership-tier";
 import { getLimits } from "@/lib/memberships";
 import { ensureGuestId } from "@/lib/plan-persistence";
-import { EVO_OPEN_CHAT_EVENT } from "@/lib/evo-chat-events";
+import {
+  EVO_OPEN_CHAT_EVENT,
+  EVO_RESET_CHAT_EVENT,
+  EVO_CHAT_STORAGE_KEY,
+} from "@/lib/evo-chat-events";
 
 /**
  * EvoChatContext — manages EVO chat state across all pages.
@@ -75,7 +79,11 @@ export type ChatState = {
   dailyCountDate: string;
 };
 
-const STORAGE_KEY = "mhe:evo-chat";
+// m3 FIX (DEEP-UX-AUDIT-2026-09-18): the storage key moved to the tiny
+// zero-import events module (evo-chat-events.ts) so the sign-out funnel
+// (src/lib/data/auth.ts) can wipe the mirror WITHOUT dragging this whole
+// React context into the auth bundle (same bundle law as the open event).
+const STORAGE_KEY = EVO_CHAT_STORAGE_KEY;
 // D1: the effective limit now comes from the resolved tier
 // (getLimits(tier).evoChatDailyLimit — 10 for free/anon, null = unlimited).
 const MAX_MESSAGES = 20;
@@ -313,6 +321,29 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
     const onOpenEvent = () => setState((prev) => ({ ...prev, isOpen: true }));
     window.addEventListener(EVO_OPEN_CHAT_EVENT, onOpenEvent);
     return () => window.removeEventListener(EVO_OPEN_CHAT_EVENT, onOpenEvent);
+  }, []);
+
+  // ── m3 FIX (DEEP-UX-AUDIT-2026-09-18): sign-out wipes the chat ──────
+  // The signOut() funnel dispatches EVO_RESET_CHAT_EVENT after removing
+  // the localStorage mirror. Resetting the IN-MEMORY state here is what
+  // makes the wipe stick: without it, the mounted provider kept the
+  // previous user's messages in state and its next save effect would
+  // re-persist them to localStorage (re-leaking on the shared device).
+  // The drawer closes too — a signed-out visitor must not land inside
+  // the previous user's open conversation. dailyCount resets with the
+  // messages it guarded; hydration stays true (a save of the EMPTY
+  // state is exactly what we want now).
+  useEffect(() => {
+    const onResetEvent = () =>
+      setState({
+        messages: [],
+        isOpen: false,
+        isTyping: false,
+        dailyCount: 0,
+        dailyCountDate: getTodayString(),
+      });
+    window.addEventListener(EVO_RESET_CHAT_EVENT, onResetEvent);
+    return () => window.removeEventListener(EVO_RESET_CHAT_EVENT, onResetEvent);
   }, []);
 
   // OWNER DIRECTIVE #4 (2026-08-27): the "clear chat" feature was REMOVED.

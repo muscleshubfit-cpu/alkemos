@@ -34,6 +34,11 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  // M2 FIX (DEEP-UX-AUDIT-2026-09-18, owner decision — no email
+  // confirmation): signup with an ALREADY-REGISTERED email now shows an
+  // honest «account exists — sign in» screen instead of the misleading
+  // «check your email» dead-end (no email is ever sent).
+  const [accountExists, setAccountExists] = useState(false);
 
   // COACH ATTRIBUTION (0033): the signup CTA on a coach's landing page
   // links here as /auth?mode=signup&coach={slug}. Persist the slug in a
@@ -89,7 +94,7 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           );
           return;
         }
-        const { error, needsConfirmation: needsConf } = await signUp(
+        const { error, needsConfirmation: needsConf, duplicateEmail: dupEmail } = await signUp(
           email,
           password,
           fullName,
@@ -100,6 +105,13 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           // M1 fix: GoTrue's raw English strings were shown verbatim
           // inside the Arabic UI — localize at the display layer.
           toast.error(localizeAuthError(error, isAr));
+        } else if (dupEmail) {
+          // M2 fix (owner decision 2026-09-18 — m9: signup stays instant,
+          // no email confirmation): GoTrue's duplicate-email answer
+          // (empty identities, no session). The email already has an
+          // account — route to the honest «account exists — sign in»
+          // screen, NOT the «check your email» dead-end.
+          setAccountExists(true);
         } else if (needsConf) {
           // M6 fix: email confirmation required — don't redirect to dashboard.
           // Show a "check your email" screen instead.
@@ -167,6 +179,42 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
             className="btn-chrome mt-6 px-6 py-2.5 text-sm"
           >
             {isAr ? "العودة لتسجيل الدخول" : "Back to login"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // M2 fix (owner decision 2026-09-18 — m9 resolved: NO email confirmation,
+  // registration stays instant): signup with an already-registered email.
+  // The honest answer is «this account exists — sign in»: no email was
+  // sent, nothing to wait for (the old flow showed «check your email»
+  // for an email that would never arrive — the audit's M2 dead-end).
+  if (accountExists) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg)] px-4 text-center text-[var(--text)]">
+        <div className="mx-auto max-w-md">
+          <div className="mb-6 grid h-16 w-16 mx-auto place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)]">
+            <svg className="h-8 w-8 text-[var(--muted-2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {isAr ? "هذا البريد مسجل بالفعل" : "Account already exists"}
+          </h1>
+          <p className="mt-3 text-sm font-normal text-[var(--muted-foreground)]">
+            {isAr
+              ? `البريد ${email} لديه حساب على Alkemos — التسجيل لدينا فوري وبلا تأكيد بريد، فلا توجد رسالة بانتظارك. سجّل دخولك بكلمة مرورك للوصول إلى حسابك مباشرة.`
+              : `The email ${email} already has an Alkemos account — signup here is instant with no email confirmation, so there is no message to wait for. Sign in with your password to get straight back in.`}
+          </p>
+          <button
+            onClick={() => {
+              setAccountExists(false);
+              navigate("auth", { mode: "login" });
+            }}
+            className="btn-chrome mt-6 px-6 py-2.5 text-sm"
+          >
+            {isAr ? "الانتقال لتسجيل الدخول" : "Go to login"}
           </button>
         </div>
       </div>

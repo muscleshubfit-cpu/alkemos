@@ -16,6 +16,13 @@ import type { Database } from "@/lib/supabase/types";
 import { MEMBERSHIPS, getLimits, type MembershipTier } from "@/lib/memberships";
 import { EXERCISES_COUNT } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
+// m4 FIX (DEEP-UX-AUDIT-2026-09-18, owner decision «عدد الأدوات الصحيح»):
+// the profile's Tools stat was a hardcoded "6" while the hub actually
+// serves 8 tools — the 5 calculators/trackers PLUS the meal planner and
+// the two AI planners (Phase 195 owner directive «الرقم الحقيقي للأدوات
+// هو 8»). Same single-source pattern as EXERCISES_COUNT / FOODS_COUNT:
+// derive from tools-shared.ts so every surface agrees with the hub.
+import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { WORKOUT_PROGRAMS } from "@/lib/workout-programs";
 import {
   User,
@@ -285,7 +292,7 @@ export default function ProfilePage() {
   const stats = [
     { icon: Dumbbell, label: isAr ? "تمارين" : "Exercises", value: `${EXERCISES_COUNT}+`, color: "#0071e3" },
     { icon: Apple, label: isAr ? "أكلات" : "Foods", value: `${FOODS_COUNT.toLocaleString()}+`, color: "#34c759" },
-    { icon: Calculator, label: isAr ? "أدوات" : "Tools", value: "6", color: "#ff9500" },
+    { icon: Calculator, label: isAr ? "أدوات" : "Tools", value: `${TOOLS_COUNT}`, color: "#ff9500" },
     { icon: FileText, label: isAr ? "برامج" : "Programs", value: `${WORKOUT_PROGRAMS.length}`, color: "#8b5cf6" },
   ];
 

@@ -25,6 +25,10 @@ import {
  getCoachSlugCookie,
  clearCoachSlugCookie,
 } from "../coach-cookie";
+// M2 FIX (DEEP-UX-AUDIT-2026-09-18): GoTrue's duplicate-email signal.
+import { isDuplicateEmailSignup } from "../auth-signup-signals";
+// m3 FIX (DEEP-UX-AUDIT-2026-09-18): sign-out wipes the EVO chat surface.
+import { resetEvoChatOnSignOut } from "../evo-chat-events";
 
 /* -------------------------------------------------------------------------- */
 /* Public API */
@@ -36,7 +40,7 @@ export async function signUpEmail(
  fullName: string,
  phone: string,
  coachSlug?: string | null,
-): Promise<{ error: string | null; profile: Profile | null; needsConfirmation?: boolean }> {
+): Promise<{ error: string | null; profile: Profile | null; needsConfirmation?: boolean; duplicateEmail?: boolean }> {
  if (isSupabaseConfigured && supabase) {
  // COACH ATTRIBUTION (0033): a slug from /auth?coach={slug} (or the
  // 30-day cookie set by the landing page CTA) travels in the signup
@@ -66,6 +70,19 @@ export async function signUpEmail(
  });
  if (error) return { error: error.message, profile: null };
  if (data.user) {
+ // M2 FIX (owner decision 2026-09-18 — resolves audit m9: signup
+ // stays INSTANT, no email confirmation): GoTrue answers a signup
+ // for an ALREADY-REGISTERED email with HTTP 200 + a FAKE user whose
+ // `identities` array is EMPTY (anti-enumeration) and no session
+ // (verified live 2026-09-18). The instant-retry below fails (the
+ // just-typed password belongs to no account) and the flow used to
+ // fall into the misleading «افحص بريدك» dead-end while no email is
+ // ever sent. Route the duplicate to an honest «account exists —
+ // sign in» screen instead — and fire NO new_client notification for
+ // a user who was never created (the fake id is not a real account).
+ if (isDuplicateEmailSignup(data.user)) {
+ return { error: null, profile: null, duplicateEmail: true };
+ }
  // M6 fix: detect email confirmation requirement.
  // When Supabase requires email confirmation, data.session is null
  // but data.user is set. Returning a profile here would cause the
@@ -199,6 +216,14 @@ export async function signOut() {
  if (isSupabaseConfigured && supabase) {
  await supabase.auth.signOut();
  }
+ // m3 FIX (DEEP-UX-AUDIT-2026-09-18, owner blanket authorization:
+ // privacy-safe default): wipe the EVO chat surface at the sign-out
+ // boundary — the localStorage mirror used to survive logout, so the
+ // NEXT user of a shared device read the previous user's conversation.
+ // The helper removes the persisted mirror AND dispatches the reset
+ // event so a mounted provider also drops its in-memory state (else
+ // its next save would re-persist the old messages).
+ resetEvoChatOnSignOut();
  write<Session>(LS_SESSION, null);
 }
 
