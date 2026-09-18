@@ -4,6 +4,26 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: SHARE-P0-230-LIVE-VERIF-2026-09-18
+Agent: Super Z (main)
+Task: التحقق الحي على alkemos.com بعد دفع المرحلة 230 (d97a9a7d) — تنفيذًا لأمر المالك «اختبر السلوك الفعلي على الإنتاج إن أمكن، Desktop + Mobile · تحقق من عدم وجود hydration errors أو console errors · تحقق بعد الـpush أن الإنتاج يعمل بنفس الإصلاح».
+
+Work Log:
+- النشر: d97a9a7d دُفع → Vercel نشره خلال ~75ث (build-info حي يؤكد: commitShort=d97a9a7) — الفحوص عبر تجاوز مخزن CF بمعامل ?cb= (والحكم على التسريب بذات المعامل).
+- SSR حي لكل أسطح ShareButtons القابلة للـSSR (16 فحصًا EN+AR): /evo · /ar/evo · /tools/water-tracker زوجًا · /exercises/34-sit-up زوجًا · /foods/chicken-breast زوجًا · /programs/home-fat-loss-hiit زوجًا · /meal-planner زوجًا · /coaching زوجًا · /memberships زوجًا — **كل واحد: 5 روابط (wa.me · FB sharer · X intent · LinkedIn · Telegram) تحمل الـcanonical الكامل للصفحة نفسها (بما فيها مسار /ar للمرايا) وصفر تسريب لمعامل cb داخل أي share href** — النتيجة PASS=16 FAIL=0.
+- الأسطح المحكومة بالنتائج (bmi/body-fat/calorie/macro): كتلة المشاركة لا تُرندر في SSR قبل حساب نتيجة (بالتصميم — لا شيء يُسرreg) — تحقق حي بالمتصفح على BMI (حساب فعلي 175سم/70كغ): 5 روابط ظهرت كلها تحمل https://alkemos.com/tools/bmi-calculator كاملًا (نفس البنية والأداة والنمط للثلاث الباقية — محمية بوحدات share-url.test.tsx).
+- نقرة واتساب فعلية حيًا على /evo (Desktop): التبويب الجديد وصل api.whatsapp.com/send/?text=EVO+—+AI+Coach+…+https%3A%2F%2Falkemos.com%2Fevo — **الرابط الكامل داخل حمولة واتساب من أول مشاركة** (العَرَض الذي أبلغ عنه المالك مُصلح جذريًا).
+- iPhone 14 (محاكاة) على /ar/evo: صفر أخطاء كونسول وصفر hydration errors · التسمية العربية «شارك صفحة EVO» · الروابط الثلاثة المفحوصة (wa/li/tg) تحمل https://alkemos.com/ar/evo · زر النسخ (fallback) حاضر · زر Web Share الأصلي حاضر البيئة الداعمة (يُعرض شرطيًا بالدعم) — وعلى دسكتوب بلا navigator.share اختفى الزر الأصلي وبقي النسخ (سلوك القانون الجديد حيًا).
+- ملاحظة تحقق: معامل cb يظهر مرة واحدة في HTML الحي داخل حمولة RSC الداخلية لـNext.js نفسها (serverProvidedParams) — ليس داخل أي share href (فحص صفر تطابق) — ليست تسريبًا من نظام المشاركة.
+- التوثيق نفس الجلسة: هذا المدخل — STATE.md مدخل 230 يحمل إشارة إليه.
+
+Stage Summary:
+- الإنتاج (d97a9a7d) يعمل بنفس الإصلاح حيًا: كل أسطح ShareButtons الـ12 تشارك canonical كاملًا من أول بايت يصل المتصفح — لا نافذة فارغة ولا تسريب متتبعات — EN وAR — Desktop وMobile — بصفر أخطاء كونسول/hydration.
+- أعراض المالك الثلاثة (واتساب بلا رابط · وميض يختفي · مشاركة لا تعمل) مُغلقة جذريًا وبنيةً (لا تعتمد على توقيت hydration إطلاقًا).
+- المخاطر المتبقية الموثقة: كاش حافة CF قد يخدم HTML البناء السابق حتى ~ساعة لأي زائر بعد أي نشر (موثق 227/229 — خارج نطاق هذا الأمر بقيد 12) · CoachShareButtons (for-coaches) ما زال بنمط mountedUrl بإبقاءه مقصودًا بقيد 10 — يُوصى بفتحه كنقطة متابعة مستقلة.
+- Commit SHA: كوميت docs هذا يحمل هذا المدخل
+- Push status: pushed
+---
 Task ID: SHARE-P0-230-2026-09-18
 Agent: Super Z (main)
 Task: تنفيذ P0 بالكامل من تقرير Deep Audit لنظام Social Sharing (أمر المالك 2026-09-18 «نفّذ الآن P0 بالكامل…»): روابط مشاركة canonical حتمية من أول SSR عبر مصدر موحّد، منع الـhref الفارغ بنيويًا، منع تسريب query/hash، Web Share شرطي بالدعم مع fallback نسخ — 13 قيدًا صريحًا (بلا مساس SocialShare/CoachShareButtons/metadata/OG/CF-cache/business logic/API/DB).
