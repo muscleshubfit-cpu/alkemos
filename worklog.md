@@ -4,6 +4,62 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P0-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 0 — regularization & unblock (owner order 2026-09-19 «Execute the documented Documentation & Agent-Context Architecture Migration Plan … Begin with STEP 0»)
+
+Work Log:
+- Session opened per AGENTS.md §3.6: HEAD == origin/main == f661f075 (fetch verified); STATE.md + top-3 worklog entries + last 5 commit subjects read.
+- Plan STEP 1 re-verification: all audit findings still reproduce at f661f075 — docs_audit → exactly 1 violation [H/worklog-tail-freeze] (F-01); docs_parity PASS; VERCEL-USAGE-4 still at worklog bottom with the malformed `## Task ID:` header (F-02); Actions API: parity gate failure on f661f075, quality/stale-refs green.
+- Plan Phase 0 step 1 (F-02): VERCEL-USAGE-4 moved from worklog.md bottom (5108-5123) to the top as a standard §12.5.1 entry `Task ID: VERCEL-USAGE-4-2026-09-19` — every bullet verbatim; header normalized + the missing `Task:`/commit lines added per the binding template.
+- Plan Phase 0 step 2 (F-01/F-14): WORKLOG_TAIL_BASELINE bumped 2026-09-17 → 2026-09-18 in scripts/docs_audit.py:229 in this same commit (Phase 216/226 documented precedent — the third bump; migration Phase 2 replaces the hand-bumped constant with a window-derived invariant).
+- Plan Phase 0 step 3: the audit commit's §12.5.1 entry (`DOCS-CONTEXT-AUDIT-2026-09-19`, commit f661f075) added directly below this one — it shipped without one only because the audit order prohibited touching existing files.
+- Plan Phase 0 step 4 (§3.6 duty): STATE.md → Phase 232 (header narrative, chain, (٠٠) 232 entry, open-items pointer to the audit pair, QA row) — 100 lines held via three sanctioned merges ((٠٠) 187+186 · (٠٠) 202+201+200+199 · QA rows 230+229; content joined verbatim, nothing dropped).
+- Ordering reconciliation (documented per §12.10): the plan's Phase-0 validation wording anticipated two new entries; §10's no-exception rule adds THIS entry, which as the newest action takes the top per newest-on-top; the audit entry is second (plan wording holds); VERCEL-USAGE-4 lands third — chronologically first of the three 2026-09-19 entries.
+- Validation battery (docs-only frame, zero app-code/TS change — reduced §3.5 per VERCEL-USAGE-4/Phase-223 precedent): py_compile scripts/docs_audit.py ✓ · docs_audit → 0 violations (gate green on main for the first time since 8321e718) · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓.
+
+Stage Summary:
+- Phase 0 complete in one revertible commit: main's knowledge gate unblocked (F-01 closed), the misplaced newest entry normalized and parser-visible (F-02 closed), the audit commit's protocol gap closed, STATE current at Phase 232.
+- Next per plan §11: Phase 1 (stale-reference hygiene, 6 governed docs) as its own commit — no phases batched.
+- Commit SHA: this commit carries this entry (final SHA reported in the session report §12.9 after push)
+- Push status: pushed immediately after this entry
+---
+Task ID: DOCS-CONTEXT-AUDIT-2026-09-19
+Agent: Super Z (owner session)
+Task: Deep read-only architectural audit of the documentation & agent-context system + documenting the audit and the migration plan in the repository (owner order 2026-09-19 «Perform a deep architectural audit … Do not implement the plan yet»)
+
+Work Log:
+- Read-only audit at baseline 8321e718: full 34-file .md inventory (lines/bytes/commits), worklog chronology map (208 parsed entries, 3 format generations, archive boundary anomaly), cross-reference scan, gate re-runs (docs_audit → 1 violation H/worklog-tail-freeze; docs_parity PASS; Actions API: parity gate failure on 8321e718/b1fc74ae).
+- Findings F-01..F-14 with file:line evidence + root causes RC-1..RC-7 — P0: gate red on main, bottom-appended parser-invisible entry, advisory-only gates; P1: STATE 79KB/100-line density gaming, worklog 1MB three-generation, triple narrative storage; P2: audit-doc accretion without lifecycle index, stale refs, uncommitted LIVE-VERIF evidence.
+- Committed exactly two NEW docs (no existing file touched, per the order): docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md (findings + root causes + reproducible Appendix-A commands) + docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md (status PROPOSED — 7 phases, one commit each, every phase independently revertible).
+- This entry could not ship inside f661f075 (the order's no-existing-file-edit constraint) — regularized one frame later by DOCS-CONTEXT-MIGRATION-P0 per the plan's Phase 0 step 3.
+- CI on f661f075 verified via Actions API: quality gate ✓ · stale-refs ✓ · parity ✗ = the pre-existing F-01 violation (zero new violations; its fix requires editing existing files, forbidden by the audit order). PAT scrubbed from the remote URL after push; owner reminded to rotate the chat-shared secret.
+
+Stage Summary:
+- The audit pair is in-repo at docs/ as the single task specification; execution order arrived 2026-09-19 («Execute the documented … Migration Plan»).
+- Commit SHA: f661f075 (docs: agent-context architecture audit + migration plan (2026-09-19))
+- Push status: pushed
+---
+Task ID: VERCEL-USAGE-4-2026-09-19
+Agent: Super Z (جلسة المالك المباشرة — «مطلوب تنفيذ حل لمشكلة تجاوز الاستخدام الحالية»)
+Task: تنفيذ حل لمشكلة تجاوز الاستخدام الحالية على Vercel (storage overage + Fluid Active CPU) — أمر المالك المباشر 2026-09-19
+
+Work Log:
+- فحص API حي: المشروع يحتفظ بـ6 نشرات فقط (5 production 09-18 + preview 09-09) رغم عداد 19.34GB → تشخيص lag عداد Vercel (24-48س) + تسرب نافذة 6 ساعات أمام دفعة 5 نشرات/3.7س + انحراف GitHub cron اليومي 4+ ساعات (هبوط 05:21/16:55 بدل 01:00/13:00).
+- ف-1: حذف فوري عبر Vercel REST API لـ5 نشرات stale — احتفاظ بالنشر الحالي الحامل للدومين dpl_GFLaUU (aliasAssigned=true). الحالة الفعلية = نشر واحد (~0.35GB+0.29GB).
+- ف-2: KEEP_HOURS default 6→3 في scripts/vercel-cleanup/vercel-cleanup.mjs (+تحديث رياضيات التوثيق بالترويسة).
+- ف-3: جدولة vercel-cleanup.yml من 2× يوميًا إلى كل ساعة (:07 UTC) — إلغاء نمط انحراف cron اليومي (4+ ساعات).
+- ف-4 (T-3b): PATCH على قاعدة alkemos-public-html-cache في CF Rulesets API — Edge TTL 14400→43200ث (12 ساعة) حماية لسقف Fluid Active CPU (كان 4h10s/4h متجاوزًا)؛ Browser TTL بقيت 300ث.
+- ف-5: توثيق §5.4: TECH_REFERENCE §5 + SECURITY §10 + docs/VERCEL-USAGE-AUDIT-2026-09-16.md §9 (القسم الكامل بالأرقام والمقايضات وما تبقى على المالك).
+- تحقق §3.5 المخفض: node --check على السكربت + yaml.safe_load على الـworkflow — صفر تغييرات TS في الفريم.
+
+Stage Summary:
+- الحالة الفعلية للتخزين: نشر واحد ≈ 0.64GB مجمعة — تحت السقفين بهامش >10×؛ العدادات المبلغ ستسقط تلقائيًا خلال 24-48 ساعة.
+- Fluid CPU: رندرات SSR ÷3 (Edge TTL 12 ساعة) — المقايضة: صفحات مخاكشة تتأخر حتى 12 ساعة على PoP دافئ، URLs الجديدة فورية، صفر أثر على اكتشاف الزواحف.
+- ما تبقى بيد المالك: مراقبة العداد 48 ساعة · قرار حذف مشروع alkemos-repo الفارغ · تدوير الأسرار المنشورة بالمحادثة.
+- Commit SHA: e061302b → 8321e718 (فريم المهمة الكامل؛ هذا المدخل كان ملحقًا بقاع worklog بتنسيق غير قياسي — أُعيد وضعه وتوحيده في مدخل DOCS-CONTEXT-MIGRATION-P0-2026-09-19)
+- Push status: pushed
+---
 Task ID: SHARE-UNIFY-231-LIVE-VERIF-2026-09-18
 Agent: Super Z (main)
 Task: Phase 231 — LIVE post-push verification of the Social Sharing unification + OG fixes (commit 9bf2101 deployed ~60s, build-info reports 9bf2101)
@@ -5103,21 +5159,3 @@ Work Log:
 Stage Summary:
 - الحكم الحاكم: الأساس التقني SEO/GEO سليم ومتحقق حيًا على نطاق واسع؛ كل الحلول السابقة قائمة؛ الثغرات الجديدة في طبقة العرض/الأصول: (P0 خارج SEO) مفتاح OpenRouter المسرب حي — تدوير فوري بيد المالك · (P1) صور التمارين hot-linked من GitHub raw · مخططات EVO/Coaching JSON-LD بالعربية على صفحات EN · og:image غائب عن أسطح القوائم EN · (P2) عنوان الرئيسية 94 حرفًا · عمق مقالات ~1.0–1.3K كلمة · lastmod قديم + تعارض iad1/fra1 · FAQPage/HowTo متقاعدة ما زالت ترسل · (P3) Wikidata/تقييمات Trustpilot/مرآة /affiliate AR/لاحقة /blog EN/hreflang-footer/مراجعة USDA بعد 90 يومًا
 - المخرج الوحيد: docs/SEO-GEO-MASTER-PLAN.md §12.53 (خطة كاملة بترتيب تنفيذ وتبعيات ومخاطر وحالات) — Audit + توثيق فقط كما أمر المالك
-
----
-## Task ID: VERCEL-USAGE-4 (2026-09-19)
-Agent: Super Z (جلسة المالك المباشرة — «مطلوب تنفيذ حل لمشكلة تجاوز الاستخدام الحالية»)
-
-Work Log:
-- فحص API حي: المشروع يحتفظ بـ6 نشرات فقط (5 production 09-18 + preview 09-09) رغم عداد 19.34GB → تشخيص lag عداد Vercel (24-48س) + تسرب نافذة 6 ساعات أمام دفعة 5 نشرات/3.7س + انحراف GitHub cron اليومي 4+ ساعات (هبوط 05:21/16:55 بدل 01:00/13:00).
-- ف-1: حذف فوري عبر Vercel REST API لـ5 نشرات stale — احتفاظ بالنشر الحالي الحامل للدومين dpl_GFLaUU (aliasAssigned=true). الحالة الفعلية = نشر واحد (~0.35GB+0.29GB).
-- ف-2: KEEP_HOURS default 6→3 في scripts/vercel-cleanup/vercel-cleanup.mjs (+تحديث رياضيات التوثيق بالترويسة).
-- ف-3: جدولة vercel-cleanup.yml من 2× يوميًا إلى كل ساعة (:07 UTC) — إلغاء نمط انحراف cron اليومي (4+ ساعات).
-- ف-4 (T-3b): PATCH على قاعدة alkemos-public-html-cache في CF Rulesets API — Edge TTL 14400→43200ث (12 ساعة) حماية لسقف Fluid Active CPU (كان 4h10s/4h متجاوزًا)؛ Browser TTL بقيت 300ث.
-- ف-5: توثيق §5.4: TECH_REFERENCE §5 + SECURITY §10 + docs/VERCEL-USAGE-AUDIT-2026-09-16.md §9 (القسم الكامل بالأرقام والمقايضات وما تبقى على المالك).
-- تحقق §3.5 المخفض: node --check على السكربت + yaml.safe_load على الـworkflow — صفر تغييرات TS في الفريم.
-
-Stage Summary:
-- الحالة الفعلية للتخزين: نشر واحد ≈ 0.64GB مجمعة — تحت السقفين بهامش >10×؛ العدادات المبلغ ستسقط تلقائيًا خلال 24-48 ساعة.
-- Fluid CPU: رندرات SSR ÷3 (Edge TTL 12 ساعة) — المقايضة: صفحات مخاكشة تتأخر حتى 12 ساعة على PoP دافئ، URLs الجديدة فورية، صفر أثر على اكتشاف الزواحف.
-- ما تبقى بيد المالك: مراقبة العداد 48 ساعة · قرار حذف مشروع alkemos-repo الفارغ · تدوير الأسرار المنشورة بالمحادثة.

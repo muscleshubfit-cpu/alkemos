@@ -35,7 +35,8 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      same-date parseable phase numbers non-increasing — LIVE-VERIF
      entries are phase-exempt, they verify multiple phases), the FIRST
      entry must carry the newest date in the file, and nothing below
-     the window may be newer than the frozen-tail baseline 2026-09-15.
+     the window may be newer than the frozen-tail baseline
+     (WORKLOG_TAIL_BASELINE).
   I. (Phase 215 / P1-4 — finding المؤكد 22) governed docs
      (AGENTS/README/DEVELOPER_GUIDE/SECURITY/DESIGN) must carry a
      parseable «Last updated/آخر تحديث» date, and any doc touched by
@@ -225,8 +226,15 @@ if readme and "STATE.md" not in readme:
 # entries fell below the top-12 (three 2026-09-18 entries now lead the
 # active region). Baseline bumped 2026-09-16 → 2026-09-17 in the SAME
 # commit, per the gate's forward-only design (Phase 216 precedent).
+# PHASE 232 (2026-09-19, migration Phase 0): window slid a third time — three
+# 2026-09-19 entries (DOCS-CONTEXT-MIGRATION-P0 / DOCS-CONTEXT-AUDIT /
+# normalized VERCEL-USAGE-4) now lead the active region, pushing the 2026-09-18
+# C1-226 entries below the top-12. Baseline bumped 2026-09-17 → 2026-09-18 in
+# the SAME commit (Phase 216/226 precedent). FINAL manual bump by design: the
+# migration plan's Phase 2 replaces this hand-bumped constant with an invariant
+# derived from the window itself (max tail date ≤ min window date).
 WORKLOG_WINDOW = 12
-WORKLOG_TAIL_BASELINE = "2026-09-17"   # newest pre-convention tail entry
+WORKLOG_TAIL_BASELINE = "2026-09-18"   # newest pre-convention tail entry
 
 worklog = read("worklog.md")
 wl_tasks: list[str] = []
