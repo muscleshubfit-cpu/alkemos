@@ -4,6 +4,24 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P4-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 4 — docs lifecycle registry (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §7)
+
+Work Log:
+- Created docs/README.md — the registry (plan-sanctioned new file): file / role / status (LIVE · FROZEN · ARCHIVE · HISTORICAL · EXECUTED) / last-updated, seeded from the audit's §3.1–§3.3 inventories + this migration's own rows (both audit docs marked EXECUTED/EXECUTING with their landing SHAs) + the agent-session reading budget (STATE ~22KB → AGENTS §1-§4+§12 → top-3 worklog entries → on-demand via the source map). Includes docs/DEEP-AUDIT-PLAN-2026-09-16.md — a file the 2026-09-19 audit's §3.3 table missed (now registered as EXECUTED, waves 215-217).
+- AGENTS.md §12.5 consolidated note repointed: doc lifecycle statuses live in docs/README.md (the frozen docs/_AUDIT.md operative-procedure reference retired — audit F-09's law-side half).
+- AGENTS.md §12.5.2 cadence repointed: the monthly audit = re-verify registry rows + re-run the audit report's Appendix-A one-liners (previously «per docs/_AUDIT.md» — a 2026-08-25 snapshot its own header called «not a statement of current status»; the Phase-214 audit had flagged the dead cadence, the pointer itself was never fixed until now).
+- README.md «📋 Additional Documentation» now leads with the docs/README.md index link.
+- Both governed-doc headers bumped in this same commit (I-check); the §12.5.2 decision point resolved by the plan's documented default (repoint, not deprecate — owner may formally deprecate the cadence anytime; single revert restores the old text).
+
+Stage Summary:
+- F-09 + F-12's index half closed: every documentation file now has exactly one lifecycle row; the next audit (or §12.5.2 run) starts from the table instead of re-deriving the pile; the agent reading budget is written down instead of folklore.
+- Registry-rows-vs-filesystem check ran in validation: every row's file exists.
+- Next per plan §11: Phase 5 — worklog rotation + evidence law — OWNER DECISION POINT (a normalization-only vs b rotation-recommended) — execution stops there until the owner picks.
+- Commit SHA: this commit carries this entry (final SHA in the session report §12.9 after push)
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P3-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 3 — STATE.md de-duplication: history moves out of the status file (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §6)

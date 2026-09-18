@@ -1,7 +1,7 @@
 # AGENTS.md — Alkemos AI Agent Operating System
 
 > **Status:** Active — required reading for every AI agent (and human contributor) before any commit, PR, or production change.
-> **Last updated:** 2026-09-19 (Phase 233 — migration Phase 1: the EVO-6 law's `docs/EVO-PARTNER-API.md` citation is now marked «(file deleted with the surface)» so link-checkers and agents read history, not a live pointer; no law content changed).
+> **Last updated:** 2026-09-19 (Phase 236 — migration Phase 4: §12.5's consolidated note and §12.5.2's cadence now point at the `docs/README.md` lifecycle registry instead of the frozen 2026-08-25 `docs/_AUDIT.md` snapshot — F-09 closed; earlier today Phase 233 marked the EVO-6 deleted-file citation as history).
 > **Owner:** muscleshubfit@gmail.com (project owner + human supervisor).
 > **Deep technical detail** (Supabase · full RLS · migration law · special-rules tables · storage · Shadcn inventory · SQL snippets) lives in [`docs/TECH_REFERENCE.md`](docs/TECH_REFERENCE.md); the CI-gates narrative lives in [`docs/CI_GATES.md`](docs/CI_GATES.md). This file stays the LAW file.
 
@@ -221,7 +221,7 @@ Do not redo completed steps; preserve the current task's state; with queued task
 
 Document every completed task while executing it, using the existing files (`STATE.md`, `worklog.md`, `AGENTS.md`, `DEVELOPER_GUIDE.md`, `SECURITY.md`, `README.md` — status history frozen in `archive/` since Phase 115) — no new documentation system if the existing one suffices; one comprehensive review pass is allowed at the end of a large body of work.
 
-> **Consolidated (2026-08-24):** executed via `docs/_AUDIT.md`. Do not create new documentation files — except `STATE.md` (Phase 107, owner-approved knowledge operating system; §3.6/§3.8) and `CONTRIBUTING.md` (Phase 115, owner-directed contribution policy).
+> **Consolidated (2026-08-24; repointed 2026-09-19 — Phase 236, migration Phase 4):** doc lifecycle statuses live in `docs/README.md` (the registry). Do not create new documentation files — except `STATE.md` (Phase 107, owner-approved knowledge operating system; §3.6/§3.8), `CONTRIBUTING.md` (Phase 115, owner-directed contribution policy), and `docs/README.md` (Phase 236, migration-plan-sanctioned registry).
 
 #### 12.5.1 `worklog.md` Entry Template (Binding)
 
@@ -248,7 +248,7 @@ Rules: the `---` separator before each entry is mandatory (append-only log); `Ta
 
 #### 12.5.2 Periodic Documentation Audit (Cadence)
 
-A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours) — per `docs/_AUDIT.md`: doc counts vs actual `find`/`wc -l`, no references to missing files, no duplicate commands across §3.5/§4/QA, no deprecated sections still cited, true Last-updated dates, live route status codes matching docs. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
+A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
 
 ### 12.6 Duplicate Tasks
 

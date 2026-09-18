@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq + NVIDIA NIM (AI) · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-19 (Phase 233 — migration Phase 1: the worklog entry under Additional Documentation now describes the append-only reality (pre-Phase-209 history in archive/WORKLOG_ARCHIVE.md); for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-19 (Phase 236 — migration Phase 4: Additional Documentation now leads with the `docs/README.md` documentation index (lifecycle registry); earlier today Phase 233 fixed the worklog entry description; for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
@@ -584,6 +584,7 @@ See [`LICENSE`](./LICENSE) for the full proprietary terms.
 
 ## 📋 Additional Documentation
 
+- [`docs/README.md`](./docs/README.md) — **Documentation index & lifecycle registry** (what is LIVE / FROZEN / HISTORICAL + the per-session reading budget)
 - [`STATE.md`](./STATE.md) — **الحالة الرسمية الحالية** (أول ملف يُقرأ في أي جلسة — AGENTS.md §3.6)
 - [`AGENTS.md`](./AGENTS.md) — AI agent operating rules (required reading)
 - [`SECURITY.md`](./SECURITY.md) — Security policy
