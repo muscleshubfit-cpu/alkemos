@@ -27,20 +27,21 @@ export const metadata: Metadata = {
     // §12.53 item 4 (2026-09-15): the EN list surfaces shared NO social
     // card — this layout declared openGraph without images, and a child
     // openGraph block REPLACES the root one in Next.js metadata merging,
-    // so nothing was inherited. The AR mirror inherits og-home-ar from
-    // /ar/layout.tsx; this now pins the same-family home card for EN.
+    // so nothing was inherited. Phase 231 (owner order C3): the card is
+    // now the DEDICATED EVO card (og-evo-en, 1200×630, same generator
+    // design) — it previously reused the homepage card (og-home-en).
     images: [
       {
-        url: "/images/og/og-home-en.png",
+        url: "/images/og/og-evo-en.png",
         width: 1200,
         height: 630,
-        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+        alt: "EVO — AI Fitness Coach | Alkemos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-en.png"],
+    images: ["/images/og/og-evo-en.png"],
   },
   alternates: {
     canonical: "https://alkemos.com/evo",

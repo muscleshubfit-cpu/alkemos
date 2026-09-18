@@ -49,11 +49,14 @@ export const metadata: Metadata = {
     siteName: "Alkemos",
     locale: "ar_EG",
     type: "website",
+    // Phase 231 (owner order C5): the vertical coach-portrait photo is
+    // replaced as the share card by the DEDICATED AR horizontal
+    // 1200×630 branded card (same generator as every other family card).
     images: [
       {
-        url: `${SITE_URL}/images/coach-portrait.jpg`,
-        width: 1122,
-        height: 1402,
+        url: "/images/og/og-for-coaches-ar.png",
+        width: 1200,
+        height: 630,
         alt: "انضم كمدرب في Alkemos",
       },
     ],
@@ -63,7 +66,7 @@ export const metadata: Metadata = {
     title: "انضم كمدرب في Alkemos — عملاؤك بأسعارك وأموالك بين يديك",
     description:
       "إدارة عملاء، خطط AI، أسعارك تختارها أنت وتحصّلها بنفسك — بدون نسبة. سجّل مجانًا.",
-    images: [`${SITE_URL}/images/coach-portrait.jpg`],
+    images: ["/images/og/og-for-coaches-ar.png"],
   },
 };
 

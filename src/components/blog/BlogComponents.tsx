@@ -8,6 +8,9 @@ import { useState, useEffect } from "react";
 // "٠٨٬٨٣٠+" Arabic-Indic digits in one sentence.
 import { EXERCISES_COUNT } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
+import { canonicalShareUrl } from "@/lib/share-url";
+import { buildShareLinks } from "@/lib/share-links";
+import { useShareActions } from "@/components/share/useShareActions";
 
 const EX_LIB = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOOD_LIB = `${FOODS_COUNT.toLocaleString("en-US")}+`;
@@ -150,55 +153,67 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  );
 }
 
-export function SocialShare({ url, ogUrl, title, description, image, lang }: { url: string; ogUrl?: string; title: string; description?: string; image?: string; lang: "en" | "ar" }) {
+/**
+ * SocialShare — the blog article share bar (Facebook, LinkedIn, X,
+ * WhatsApp + Web Share + Copy).
+ *
+ * PHASE 231 UNIFICATION (owner order «نفّذ الآن جميع إصلاحات Social
+ * Sharing المتبقية…»): the platform hrefs are built by the shared engine
+ * buildShareLinks() (src/lib/share-links.ts) — no hand-rolled payloads —
+ * and copy/Web-Share behavior comes from the shared useShareActions hook.
+ * SHARE URL LAW (B1 of the same order): the URL is the deterministic
+ * canonical article URL from the Phase-230 single source
+ * canonicalShareUrl("/blog/<slug>", lang) — identical output to the old
+ * inline `${baseUrl}${isAr ? "/ar/blog" : "/blog"}/${slug}` construction,
+ * which is retired as a parallel implementation. The dead `ogUrl`/`image`
+ * props (never referenced by any share target) are deleted with their
+ * call-site args (§3.8 dead-code rule).
+ *
+ * PRESERVED VERBATIM (the surface's required behavior): platform set and
+ * order (no Telegram — unchanged), the language-aware share text
+ * (title + ≤150-char summary + «اقرأ المقال كاملاً على Alkemos:» / "Read
+ * the full article on Alkemos:"), Facebook quoting the FULL share text,
+ * window.open with the 600×400 popup, icons, classes and labels.
+ *
+ * Web Share: support now resolves AFTER mount via useShareActions (the
+ * render-time navigator probe was a latent hydration mismatch — SSR
+ * omitted the button while supporting clients rendered it at first
+ * paint). Same end state on mobile, one tick later, zero mismatch.
+ */
+export function SocialShare({ path, title, description, lang }: { path: string; title: string; description?: string; lang: "en" | "ar" }) {
  const isAr = lang === "ar";
- const [copied, setCopied] = useState(false);
- const encodedUrl = encodeURIComponent(url);
- const encodedTitle = encodeURIComponent(title);
- const encodedDesc = description ? encodeURIComponent(description) : "";
+
+ // Phase-230 single source: canonical, locale-aware, query/hash-free.
+ const shareUrl = canonicalShareUrl(path, lang);
 
  // Language-aware share text — always include a summary
  const shortDesc = description ? description.slice(0, 150) + (description.length > 150 ? "..." : "") : (title ? title : "");
  const shareText = isAr
    ? `${title}\n\n${shortDesc}\n\nاقرأ المقال كاملاً على Alkemos:`
    : `${title}\n\n${shortDesc}\n\nRead the full article on Alkemos:`;
- const encodedShareText = encodeURIComponent(shareText);
 
- const share = (platform: string) => {
-   const links: Record<string, string> = {
-     // Facebook: just needs the URL — it scrapes OG tags for title/image/description
-     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedShareText}`,
-     // LinkedIn: uses OG tags from the URL
-     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-     // X (Twitter): include title + description + URL in the tweet text
-     twitter: `https://twitter.com/intent/tweet?text=${encodedShareText}&url=${encodedUrl}`,
-     // WhatsApp: include title + description + URL
-     whatsapp: `https://wa.me/?text=${encodedShareText}%20${encodedUrl}`,
-   };
-   window.open(links[platform], "_blank", "noopener,noreferrer,width=600,height=400");
- };
+ const { copied, copy, nativeShareSupported, nativeShare } = useShareActions({
+   url: shareUrl,
+   title,
+   text: shareText,
+ });
 
- const copyLink = () => {
-   navigator.clipboard.writeText(url);
-   setCopied(true);
-   setTimeout(() => setCopied(false), 2000);
- };
+ const shareLinks = buildShareLinks({
+   url: shareUrl,
+   shareText,
+   // Facebook quotes the FULL share text on this surface (the historical
+   // payload — it scrapes OG tags for the rest).
+   fbQuote: shareText,
+   platforms: ["facebook", "linkedin", "x", "whatsapp"],
+ });
+ const hrefByPlatform = Object.fromEntries(
+   shareLinks.map((l) => [l.platform, l.href]),
+ ) as Record<(typeof shareLinks)[number]["platform"], string>;
 
- // Native share API (mobile) — includes title, text, image if supported
- const nativeShare = async () => {
-   if (navigator.share) {
-     try {
-       await navigator.share({
-         title: title,
-         text: shareText,
-         url: url,
-       });
-       return;
-     } catch {
-       // user cancelled — fall through to copy
-     }
-   }
-   copyLink();
+ // window.open with the 600×400 popup — this surface's historical open
+ // behavior (ShareButtons/CoachShareButtons use target=_blank anchors).
+ const share = (platform: "facebook" | "linkedin" | "x" | "whatsapp") => {
+   window.open(hrefByPlatform[platform], "_blank", "noopener,noreferrer,width=600,height=400");
  };
 
  return (
@@ -210,18 +225,18 @@ export function SocialShare({ url, ogUrl, title, description, image, lang }: { u
      <button onClick={() => share("linkedin")} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="LinkedIn">
        <Linkedin className="h-4 w-4" />
      </button>
-     <button onClick={() => share("twitter")} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="X">
+     <button onClick={() => share("x")} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="X">
        <Twitter className="h-4 w-4" />
      </button>
      <button onClick={() => share("whatsapp")} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="WhatsApp">
        <MessageCircle className="h-4 w-4" />
      </button>
-     {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+     {nativeShareSupported && (
        <button onClick={nativeShare} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label={isAr ? "مشاركة" : "Share"}>
          <Share2 className="h-4 w-4" />
        </button>
      )}
-     <button onClick={copyLink} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="Copy link">
+     <button onClick={copy} className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:border-primary/40 hover:text-primary" aria-label="Copy link">
        {copied ? <CheckIcon className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
      </button>
    </div>

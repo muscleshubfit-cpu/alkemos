@@ -227,10 +227,52 @@ describe("SHARE URL LAW source guards — regression net over every surface", ()
     expect(src).toContain("canonicalShareUrl(path, lang)");
   });
 
-  it("the untouched surfaces stay untouched (scope law): blog SocialShare keeps its own deterministic URL, CoachShareButtons unchanged", () => {
-    const blog = readFileSync(resolve(repoRoot, "src/components/blog/BlogComponents.tsx"), "utf8");
-    expect(blog).toContain("https://wa.me/?text=${encodedShareText}%20${encodedUrl}");
+  it("the whole family is unified over the shared engine (Phase 231 law): blog SocialShare + CoachShareButtons consume buildShareLinks/canonicalShareUrl, and NO share component hand-builds intents or reads window.location", () => {
+    const components = [
+      "src/components/ShareButtons.tsx",
+      "src/components/blog/BlogComponents.tsx",
+      "src/components/CoachShareButtons.tsx",
+    ];
+    for (const file of components) {
+      const raw = readFileSync(resolve(repoRoot, file), "utf8");
+      const src = codeOnly(raw);
+      expect(src, `${file} must import the Phase-230 single source`).toContain(
+        "canonicalShareUrl",
+      );
+      expect(src, `${file} must build hrefs via the shared engine`).toContain(
+        "buildShareLinks",
+      );
+      // The unified behavior hook (copy fallback + post-mount Web Share)
+      expect(src, `${file} must use the shared useShareActions hook`).toContain(
+        "useShareActions",
+      );
+      // No hand-rolled share intents may survive in any component — the
+      // payload formats live ONLY in src/lib/share-links.ts.
+      expect(src, `${file} hand-builds a wa.me intent`).not.toContain("wa.me/");
+      expect(src, `${file} hand-builds a Facebook sharer`).not.toContain("sharer.php");
+      expect(src, `${file} hand-builds a tweet intent`).not.toContain("intent/tweet");
+      expect(src, `${file} hand-builds a t.me intent`).not.toContain("t.me/share");
+      expect(src, `${file} hand-builds a LinkedIn sharer`).not.toContain("share-offsite");
+      // window.location / mountedUrl are retired from EVERY share surface
+      expect(src, `${file} reads window.location`).not.toContain("window.location");
+      expect(src, `${file} still has a mountedUrl fallback`).not.toContain("mountedUrl");
+    }
+  });
+
+  it("the platform decisions survive the unification (WhatsApp decree + blog Telegram absence)", () => {
+    // OWNER DECREE «معادا زر واتساب لن نضيفها»: for-coaches never offers
+    // WhatsApp — the platform config in CoachShareButtons stays
+    // facebook/x/telegram.
     const coach = readFileSync(resolve(repoRoot, "src/components/CoachShareButtons.tsx"), "utf8");
-    expect(coach).toContain('url || mountedUrl || "https://alkemos.com/for-coaches"');
+    expect(coach).toContain('["facebook", "x", "telegram"]');
+    expect(coach.toLowerCase()).not.toContain('"whatsapp"');
+    // The blog share bar keeps its historical set (no Telegram) and the
+    // article URL comes from the single source via the /blog/<slug> path.
+    const blog = readFileSync(resolve(repoRoot, "src/components/blog/BlogComponents.tsx"), "utf8");
+    expect(blog).toContain('["facebook", "linkedin", "x", "whatsapp"]');
+    // ShareButtons keeps the full five-platform set.
+    const buttons = readFileSync(resolve(repoRoot, "src/components/ShareButtons.tsx"), "utf8");
+    expect(buttons).toContain('"whatsapp"');
+    expect(buttons).toContain('"telegram"');
   });
 });

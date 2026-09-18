@@ -21,6 +21,36 @@ export const metadata: Metadata = {
   title: "Fitness & Nutrition Blog | Alkemos",
   description:
     "Science-based workout, nutrition, and supplement articles from the Alkemos team — English editions.",
+  // Phase 231 (owner order C2): the blog index previously had NO
+  // openGraph/twitter block — it inherited the ROOT homepage card
+  // (og-home-en + og:url = https://alkemos.com), so social shares and
+  // crawlers saw the blog as the homepage. Independent metadata: every
+  // field (title/description/url/image) now describes the BLOG INDEX
+  // itself. Article metadata is untouched (each article owns its own).
+  openGraph: {
+    title: "Fitness & Nutrition Blog | Alkemos",
+    description:
+      "Science-based workout, nutrition, and supplement articles from the Alkemos team — English editions.",
+    siteName: "Alkemos",
+    locale: "en_US",
+    type: "website",
+    url: `${SITE_URL}/blog`,
+    images: [
+      {
+        url: "/images/og/og-blog-en.png",
+        width: 1200,
+        height: 630,
+        alt: "The Alkemos Blog — Fitness & Nutrition Articles",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fitness & Nutrition Blog | Alkemos",
+    description:
+      "Science-based workout, nutrition, and supplement articles from the Alkemos team — English editions.",
+    images: ["/images/og/og-blog-en.png"],
+  },
   alternates: {
     canonical: "/blog",
     languages: {

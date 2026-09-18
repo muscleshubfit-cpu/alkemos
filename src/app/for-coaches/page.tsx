@@ -400,6 +400,7 @@ export default function ForCoachesPage() {
           </p>
           <div className="mt-6">
             <CoachShareButtons
+              path="/for-coaches"
               message={shareMsg}
               labels={{
                 facebook: isAr ? "فيسبوك" : "Facebook",

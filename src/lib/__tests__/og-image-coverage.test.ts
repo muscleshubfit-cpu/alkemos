@@ -59,6 +59,13 @@ const CARDS = [
   "og-collections-en", "og-collections-ar",
   "og-tools-en", "og-tools-ar",
   "og-blog-category-en", "og-blog-category-ar",
+  // Phase 231 (owner order C): dedicated cards for the three surfaces
+  // that still shared a family card — EVO (was og-home), the for-coaches
+  // landing pair (was the vertical 1122×1402 coach-portrait.jpg) and the
+  // blog index pair (was the homepage card via inheritance).
+  "og-evo-en", "og-evo-ar",
+  "og-for-coaches-en", "og-for-coaches-ar",
+  "og-blog-en", "og-blog-ar",
 ] as const;
 
 /** surface source → the family card it must reference */
@@ -94,13 +101,13 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/programs/layout.tsx", "og-home-en"],
   ["src/app/coaching/layout.tsx", "og-home-en"],
   ["src/app/memberships/layout.tsx", "og-home-en"],
-  ["src/app/evo/layout.tsx", "og-home-en"],
+  ["src/app/evo/layout.tsx", "og-evo-en"],
   ["src/app/diet-plan/page.tsx", "og-home-en"],
   ["src/app/diet-plan/[level]/[system]/page.tsx", "og-home-en"],
   ["src/app/equipment/[type]/page.tsx", "og-home-en"],
   // AR list surfaces (batch 1-b — the same replace-not-inherit gap on
   // the AR side, caught by batch-1 live verification)
-  ["src/app/ar/evo/layout.tsx", "og-home-ar"],
+  ["src/app/ar/evo/layout.tsx", "og-evo-ar"],
   ["src/app/ar/coaching/layout.tsx", "og-home-ar"],
   ["src/app/ar/diet-plan/page.tsx", "og-home-ar"],
   ["src/app/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
@@ -141,6 +148,14 @@ const WIRED_SURFACES: Array<[string, string]> = [
   // replace-not-inherit class as every surface above).
   ["src/app/coaches/[slug]/page.tsx", "og-home-en"],
   ["src/app/ar/coaches/[slug]/page.tsx", "og-home-ar"],
+  // Phase 231 (owner order C): the for-coaches pair drops the vertical
+  // coach-portrait.jpg (1122×1402) for the dedicated horizontal
+  // 1200×630 card; the blog index pair stops inheriting the homepage
+  // card and pins its own dedicated card.
+  ["src/app/for-coaches/layout.tsx", "og-for-coaches-en"],
+  ["src/app/ar/for-coaches/layout.tsx", "og-for-coaches-ar"],
+  ["src/app/blog/page.tsx", "og-blog-en"],
+  ["src/app/ar/blog/page.tsx", "og-blog-ar"],
 ];
 
 function repoRootPath(rel: string): string {
@@ -148,7 +163,7 @@ function repoRootPath(rel: string): string {
 }
 
 describe("og:image coverage (Phase 187 — P0-2)", () => {
-  it("all 14 branded family cards exist on disk", () => {
+  it("all branded family cards exist on disk", () => {
     for (const card of CARDS) {
       const p = resolve(OG_DIR, `${card}.png`);
       expect(existsSync(p), `${card}.png missing (run scripts/generate-og-cards.py)`).toBe(true);

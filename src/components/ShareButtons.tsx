@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Share2, Copy, Check, Facebook, Twitter, Linkedin, Send } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Send, Share2, Copy, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { canonicalShareUrl } from "@/lib/share-url";
+import { buildShareLinks, type SharePlatform } from "@/lib/share-links";
+import { useShareActions } from "@/components/share/useShareActions";
 
 type Props = {
   /** The title to pre-fill in the shared message */
@@ -22,6 +23,26 @@ type Props = {
   /** Compact mode (just icon, no label) */
   compact?: boolean;
 };
+
+/** Platforms this surface offers, in display order (the config that used
+ *  to be a copied implementation — see src/lib/share-links.ts). */
+const PLATFORMS: readonly SharePlatform[] = [
+  "whatsapp",
+  "facebook",
+  "x",
+  "linkedin",
+  "telegram",
+];
+
+/** Platform → lucide icon for this surface's circle UI (Send doubles for
+ *  WhatsApp here — the historical glyph choice of this component). */
+const PLATFORM_ICONS = {
+  whatsapp: Send,
+  facebook: Facebook,
+  x: Twitter,
+  linkedin: Linkedin,
+  telegram: Send,
+} as const;
 
 /**
  * ShareButtons — social share buttons for any page.
@@ -51,100 +72,36 @@ type Props = {
  * NOW: `path` in, canonical URL out — no window.location anywhere, no
  * empty href structurally possible (SSR or client), no tracker leakage.
  *
- * WEB SHARE LAW (same phase): the native-share button renders ONLY when
- * the Web Share API actually exists (client-only knowledge, resolved
- * after mount so SSR and the first client render stay identical — no
- * hydration mismatch). Where it is absent (desktop browsers without the
- * API), the always-visible Copy-link button is the explicit fallback.
+ * PHASE 231 UNIFICATION (owner order «نفّذ الآن جميع إصلاحات Social
+ * Sharing المتبقية…»): the platform hrefs are built by the shared engine
+ * buildShareLinks() (src/lib/share-links.ts) and copy/Web-Share behavior
+ * comes from the shared useShareActions hook — this component keeps only
+ * its presentation (circle buttons, brand colors, compact mode). Props,
+ * platforms, message payloads, labels and UI are unchanged.
  */
 export function ShareButtons({ title, text, path, compact = false }: Props) {
   const { lang } = useI18n();
   const isAr = lang === "ar";
-  const [copied, setCopied] = useState(false);
 
   // SHARE URL LAW: deterministic canonical URL — same value on the
   // server and every client render (see the docblock).
   const shareUrl = canonicalShareUrl(path, lang);
   const shareText = text ? `${title}\n\n${text}` : title;
-  const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedText = encodeURIComponent(shareText);
-  const encodedTitle = encodeURIComponent(title);
 
-  // Web Share API support is client-only knowledge — resolved strictly
-  // AFTER mount: server and first client render both omit the button,
-  // then supporting devices (mobile) gain it (no hydration mismatch).
-  const [nativeShareSupported, setNativeShareSupported] = useState(false);
-  useEffect(() => {
-    setNativeShareSupported(typeof navigator !== "undefined" && "share" in navigator);
-  }, []);
+  const { copied, copy, nativeShareSupported, nativeShare } = useShareActions({
+    url: shareUrl,
+    title,
+    text: shareText,
+  });
 
-  const shareLinks = [
-    {
-      name: "WhatsApp",
-      icon: Send,
-      color: "#34c759",
-      href: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
-    },
-    {
-      name: "Facebook",
-      icon: Facebook,
-      color: "#1877f2",
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`,
-    },
-    {
-      name: "X",
-      icon: Twitter,
-      color: "#000000",
-      href: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
-    },
-    {
-      name: "LinkedIn",
-      icon: Linkedin,
-      color: "#0a66c2",
-      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-    },
-    {
-      name: "Telegram",
-      icon: Send,
-      color: "#0088cc",
-      href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
-    },
-  ];
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback for older browsers
-      const textarea = document.createElement("textarea");
-      textarea.value = shareUrl;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  // Native share sheet (mobile) — the button only renders when this API
-  // exists (see WEB SHARE LAW in the docblock).
-  const nativeShare = async () => {
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({
-          title,
-          text: shareText,
-          url: shareUrl,
-        });
-        return;
-      } catch {
-        // User cancelled — fall through to nothing
-      }
-    }
-  };
+  const shareLinks = buildShareLinks({
+    url: shareUrl,
+    shareText,
+    // Facebook quote prefill stays the TITLE on this surface (the
+    // historical payload — blog/for-coaches quote the full message).
+    fbQuote: title,
+    platforms: PLATFORMS,
+  });
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -170,10 +127,10 @@ export function ShareButtons({ title, text, path, compact = false }: Props) {
 
       {/* Social share buttons */}
       {shareLinks.map((link) => {
-        const Icon = link.icon;
+        const Icon = PLATFORM_ICONS[link.platform];
         return (
           <a
-            key={link.name}
+            key={link.platform}
             href={link.href}
             target="_blank"
             rel="noopener noreferrer"
@@ -189,7 +146,7 @@ export function ShareButtons({ title, text, path, compact = false }: Props) {
 
       {/* Copy link button — the always-available fallback */}
       <button
-        onClick={copyLink}
+        onClick={copy}
         className="grid h-9 w-9 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-[var(--text)] transition-opacity hover:opacity-75"
         title={isAr ? "نسخ الرابط" : "Copy link"}
         aria-label={isAr ? "نسخ الرابط" : "Copy link"}

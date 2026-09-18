@@ -41,6 +41,32 @@ export const metadata: Metadata = {
       "x-default": `${SITE_URL}/`,
     },
   },
+  // Phase 231 (owner order «نفّذ الآن جميع إصلاحات Social Sharing
+  // المتبقية…» — C1): /ar previously had NO og:url — the openGraph block
+  // was inherited from src/app/ar/layout.tsx, which declares no `url`, so
+  // shares/crawlers saw an og:url-less Arabic homepage. The block lives
+  // HERE (the homepage only) — a `url` in the /ar LAYOUT would leak onto
+  // every /ar/* child without its own openGraph (the exact leak class the
+  // 2026-08-30 alternates fix removed; a child openGraph block REPLACES
+  // the parent's wholesale, so the layout's fields are re-declared here
+  // verbatim for THIS page).
+  openGraph: {
+    title: "Alkemos | منصة اللياقة والتغذية الذكية المتكاملة",
+    description:
+      "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم بوعي — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم. ابدأ رحلتك الآن مع منصة اللياقة والتغذية الذكية المتكاملة.",
+    siteName: "Alkemos",
+    locale: "ar_EG",
+    type: "website",
+    url: `${SITE_URL}/ar`,
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة Alkemos الرياضية الشاملة",
+      },
+    ],
+  },
 };
 
 export default function Page() {

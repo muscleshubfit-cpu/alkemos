@@ -47,11 +47,16 @@ export const metadata: Metadata = {
     siteName: "Alkemos",
     locale: "en_US",
     type: "website",
+    // Phase 231 (owner order C5): the vertical coach-portrait photo
+    // (1122×1402) is replaced as the share card by the DEDICATED
+    // horizontal 1200×630 branded card (same generator as every other
+    // family card) — a summary_large_image card wants a wide asset.
+    // The portrait remains the page's on-page hero image (unchanged).
     images: [
       {
-        url: `${SITE}/images/coach-portrait.jpg`,
-        width: 1122,
-        height: 1402,
+        url: "/images/og/og-for-coaches-en.png",
+        width: 1200,
+        height: 630,
         alt: "Coach on Alkemos",
       },
     ],
@@ -61,7 +66,7 @@ export const metadata: Metadata = {
     title: "Coach on Alkemos — your clients, your prices, your money",
     description:
       "Client management, AI plans, your pricing with zero commission. Register free.",
-    images: [`${SITE}/images/coach-portrait.jpg`],
+    images: ["/images/og/og-for-coaches-en.png"],
   },
 };
 

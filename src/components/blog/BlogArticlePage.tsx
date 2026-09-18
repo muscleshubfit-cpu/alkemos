@@ -13,6 +13,7 @@ import { stripFaqSectionFromBody, stripTitleHeadingFromBody } from "@/lib/blog-m
 // the AI provider chain that blog-pipeline.ts imports.
 import { clampMetaTitle } from "@/lib/blog-meta-title";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
+import { canonicalShareUrl } from "@/lib/share-url";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
 
@@ -133,7 +134,12 @@ export function BlogArticlePage({
   const toc = parseTableOfContents(bodyContent);
   const htmlContent = renderMarkdown(bodyContent);
   const baseUrl = "https://alkemos.com";
-  const articleUrl = `${baseUrl}${isAr ? "/ar/blog" : "/blog"}/${post.slug}`;
+  // SHARE URL LAW (Phase 230 single source — Phase 231 unification): the
+  // article share URL is the deterministic canonical URL built by
+  // canonicalShareUrl("/blog/<slug>", lang) — identical output to the
+  // retired inline construction, from the SAME source every other surface
+  // uses (locale-aware, query/hash-free).
+  const articleUrl = canonicalShareUrl(`/blog/${post.slug}`, lang);
   const linkedUrl = linked ? `${baseUrl}${linked.language === "ar" ? "/ar/blog" : "/blog"}/${linked.slug}` : null;
 
   // PHASE 189: same clamp as the page <title> — legacy stored meta_titles
@@ -142,7 +148,6 @@ export function BlogArticlePage({
   // unchanged (Law 2), so the 64 clean rows are a no-op.
   const shareTitle = clampMetaTitle(post.meta_title || post.title || "", lang);
   const shareDescription = post.meta_description || post.excerpt || "";
-  const shareImage = post.featured_image || "https://alkemos.com/logo.png";
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--text)]" dir={isAr ? "rtl" : "ltr"}>
@@ -306,7 +311,7 @@ export function BlogArticlePage({
             )}
 
             {/* Social share */}
-            <SocialShare url={articleUrl} ogUrl={`${baseUrl}/api/og-image/${post.slug}?lang=${isAr ? "ar" : "en"}`} title={shareTitle} description={shareDescription} image={shareImage} lang={lang} />
+            <SocialShare path={`/blog/${post.slug}`} title={shareTitle} description={shareDescription} lang={lang} />
 
             {/* Language alternate link */}
             {linkedUrl && linked && (

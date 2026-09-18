@@ -175,6 +175,23 @@ SPECS = [
      "Evidence-based training, nutrition & supplement guides — in English & Arabic."),
     ("og-blog-category-ar", "ar", "مقالات اللياقة والتغذية",
      "أدلة التدريب والتغذية والمكملات مبنية على الدليل — بالعربية والإنجليزية."),
+    # Phase 231 (owner order «نفّذ الآن جميع إصلاحات Social Sharing
+    # المتبقية…» — C): dedicated cards for the three surfaces that still
+    # shared a family card — EVO (was og-home), the for-coaches landing
+    # pair (was the vertical 1122×1402 coach-portrait.jpg) and the blog
+    # index pair (was the homepage card via inheritance).
+    ("og-evo-en", "en", "EVO — AI Fitness Coach",
+     "Personalized nutrition & workout plans built from your data — smart swaps and 24/7 consulting, free for everyone."),
+    ("og-evo-ar", "ar", "مدرب اللياقة الذكي EVO",
+     "خطط تغذية وتمارين مخصصة مبنية من بياناتك — وبدائل ذكية واستشارات على مدار الساعة، مجاني للجميع."),
+    ("og-for-coaches-en", "en", "Coach on Alkemos",
+     "Your clients, your prices, your money — zero commission, a fixed monthly activation fee only."),
+    ("og-for-coaches-ar", "ar", "انضم كمدرب في Alkemos",
+     "عملاؤك بأسعارك وأموالك بين يديك — بدون أي نسبة، برسم تفعيل شهري ثابت فقط."),
+    ("og-blog-en", "en", "The Alkemos Blog",
+     "Science-based workout, nutrition & supplement articles from the Alkemos team — in English & Arabic."),
+    ("og-blog-ar", "ar", "مدونة Alkemos",
+     "مقالات رياضية وتغذية علمية من فريق Alkemos — بالعربية والإنجليزية."),
 ]
 
 
