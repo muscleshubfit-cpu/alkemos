@@ -74,7 +74,12 @@ export function SiteFooter() {
                 human counterpart of Organization.sameAs (src/lib/social.ts).
                 Plain links with NO nofollow: these are OWNED profiles and the
                 crawlable link IS the entity-association signal. */}
-            <div className="mt-4 flex items-center gap-4">
+            {/* m1 fix (DEEP-UX-AUDIT-2026-09-18): social anchors are now
+                32×32 flex targets (svg stays 16px) and footer text links
+                are block rows with py-1 — every tappable target ≥24px
+                (WCAG 2.5.8 AA) on the mobile footer without changing the
+                visual design language. */}
+            <div className="mt-4 flex items-center gap-2">
               {SOCIAL_PROFILES.map((p) => (
                 <a
                   key={p.name}
@@ -83,7 +88,7 @@ export function SiteFooter() {
                   rel="noopener noreferrer"
                   aria-label={isAr ? p.labelAr : p.labelEn}
                   title={isAr ? p.labelAr : p.labelEn}
-                  className="text-[var(--muted-foreground)] transition-colors hover:text-[var(--text)]"
+                  className="inline-flex h-8 w-8 items-center justify-center text-[var(--muted-foreground)] transition-colors hover:text-[var(--text)]"
                 >
                   <SocialIcon name={p.name} />
                 </a>
@@ -97,12 +102,12 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
-              <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
-              <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
+              <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
+              <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="block py-1 hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
+              <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="block py-1 hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
               {/* Access-point fix (2026-09-14 audit): locale-aware programs
                   link. */}
-              <li><a href={isAr ? "/ar/programs" : "/programs"} className="hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
+              <li><a href={isAr ? "/ar/programs" : "/programs"} className="block py-1 hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
             </ul>
           </div>
 
@@ -111,11 +116,11 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/foods" : "/foods"} className="hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
+              <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
               {/* §12.27: locale-aware mirrors + the diet-plan matrix entry. */}
-              <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
-              <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
-              <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
+              <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+              <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="block py-1 hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
+              <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="block py-1 hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
             </ul>
           </div>
 
@@ -125,13 +130,13 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
-              <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
-              <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
+              <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
+              <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
+              <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="block py-1 hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
             </ul>
           </div>
 
@@ -142,13 +147,13 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
-              <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
-              <li><a href={isAr ? "/ar/evo" : "/evo"} className="hover:underline">EVO AI Coach</a></li>
+              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
+              <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
+              <li><a href={isAr ? "/ar/evo" : "/evo"} className="block py-1 hover:underline">EVO AI Coach</a></li>
               {/* §12.53 item 11 (2026-09-16): locale-aware affiliate link —
                   the AR mirror exists now. */}
-              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
-              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
+              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
+              <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="block py-1 hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
             </ul>
           </div>
 
@@ -159,13 +164,13 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المنصة" : "Company"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/blog" : "/blog"} className="hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
-              <li><a href={isAr ? "/ar/compare" : "/compare"} className="hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
-              <li><a href={isAr ? "/ar/about" : "/about"} className="hover:underline">{isAr ? "من نحن" : "About"}</a></li>
-              <li><a href={isAr ? "/ar/contact" : "/contact"} className="hover:underline">{isAr ? "تواصل معنا" : "Contact"}</a></li>
-              <li><a href={isAr ? "/ar/faq" : "/faq"} className="hover:underline">{isAr ? "أسئلة شائعة" : "FAQ"}</a></li>
-              <li><a href={isAr ? "/ar/privacy" : "/privacy"} className="hover:underline">{isAr ? "الخصوصية" : "Privacy"}</a></li>
-              <li><a href={isAr ? "/ar/terms" : "/terms"} className="hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
+              <li><a href={isAr ? "/ar/blog" : "/blog"} className="block py-1 hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
+              <li><a href={isAr ? "/ar/compare" : "/compare"} className="block py-1 hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
+              <li><a href={isAr ? "/ar/about" : "/about"} className="block py-1 hover:underline">{isAr ? "من نحن" : "About"}</a></li>
+              <li><a href={isAr ? "/ar/contact" : "/contact"} className="block py-1 hover:underline">{isAr ? "تواصل معنا" : "Contact"}</a></li>
+              <li><a href={isAr ? "/ar/faq" : "/faq"} className="block py-1 hover:underline">{isAr ? "أسئلة شائعة" : "FAQ"}</a></li>
+              <li><a href={isAr ? "/ar/privacy" : "/privacy"} className="block py-1 hover:underline">{isAr ? "الخصوصية" : "Privacy"}</a></li>
+              <li><a href={isAr ? "/ar/terms" : "/terms"} className="block py-1 hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
             </ul>
           </div>
         </div>

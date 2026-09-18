@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Facebook, Twitter, Send, Link2, Check } from "lucide-react";
 
 type Props = {
@@ -27,15 +27,27 @@ type Props = {
  * OWNER DECREE (2026-08-30): «معادا زر واتساب لن نضيفها» — the WhatsApp
  * share target is REMOVED. Remaining targets: Facebook, X, Telegram +
  * copy-link (lucide icons — no WhatsApp glyph exists in lucide anyway).
+ *
+ * H1 FIX (DEEP-UX-AUDIT-2026-09-18, same class as ShareButtons.tsx):
+ * window.location.href used to be read DURING render — the server fell
+ * back to the hard-coded EN /for-coaches URL while the client computed
+ * the real one, failing hydration on /ar/for-coaches (attribute mismatch)
+ * and leaving the EN URL in the live DOM (React does not patch up
+ * mismatched attributes) — the AR page shared an EN link. The location is
+ * now resolved strictly AFTER mount (useEffect) with the EN URL kept as
+ * the pre-mount placeholder, so server and first client render match.
  */
 export function CoachShareButtons({ message, url, labels }: Props) {
   const [copied, setCopied] = useState(false);
 
-  const shareUrl =
-    url ||
-    (typeof window !== "undefined"
-      ? window.location.href
-      : "https://alkemos.com/for-coaches");
+  // H1 fix: resolve the current-page URL only after mount — never during
+  // render (see the component docblock). Deterministic `url` prop stays as-is.
+  const [mountedUrl, setMountedUrl] = useState("");
+  useEffect(() => {
+    if (!url) setMountedUrl(window.location.href);
+  }, [url]);
+
+  const shareUrl = url || mountedUrl || "https://alkemos.com/for-coaches";
   const enc = encodeURIComponent;
 
   const links = [

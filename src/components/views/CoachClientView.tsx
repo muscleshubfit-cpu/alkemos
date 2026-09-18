@@ -58,6 +58,8 @@ import { resolveExerciseImage, getExerciseImage, getExerciseImages, getFallbackS
 import { useExerciseLookup } from "@/lib/exercise-lookup";
 import { HealthMetricsDashboard } from "@/components/HealthMetricsDashboard";
 import { toast } from "sonner";
+import { localizeApiError } from "@/lib/error-i18n";
+import { formatQuestionnaireValue } from "@/lib/questionnaire-display";
 import { runAiJob, enqueueAiJobClient, getAiJob } from "@/lib/ai-jobs-client";
 import {
  addPendingPlanJob,
@@ -487,7 +489,10 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  }),
  });
  const json = await res.json().catch(() => null);
- if (!res.ok) throw new Error(json?.message || json?.error || t("common.error"));
+ // M1 fix (audit case أ): the 402 insufficient_wallet message (and every
+ // other error of this route) used to surface in Arabic inside the English
+ // UI — localize at the display layer from the stable error code.
+ if (!res.ok) throw new Error(localizeApiError(json, { isAr, months }) || t("common.error"));
  setPayAmount("");
  setPayNote("");
  toast.success(
@@ -1592,7 +1597,7 @@ function QuestionnaireCard({
  };
  const displayValue = k === "gender" ? (v === "male" ? "ذكر" : v === "female" ? "أنثى" : String(v))
  : k === "activity" ? (activityLabels[String(v)] || String(v))
- : String(v) || "—";
+ : formatQuestionnaireValue(k, v, true);
  return (
  <div key={k} className="flex justify-between gap-3 border-b border-border/60 pb-1.5">
  <span className="text-muted-foreground">{labelMap[k] || k}</span>

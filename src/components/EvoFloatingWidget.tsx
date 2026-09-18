@@ -446,7 +446,7 @@ export function EvoFloatingWidget() {
 
           {/* Drawer */}
           <aside
-            className="fixed bottom-0 top-0 z-50 flex w-full max-w-[380px] flex-col bg-[var(--bg)] shadow-2xl"
+            className="fixed bottom-0 top-0 z-50 flex w-full sm:max-w-[380px] flex-col bg-[var(--bg)] shadow-2xl"
             style={{
               [isAr ? "left" : "right"]: 0,
               animation: isAr
@@ -799,7 +799,18 @@ export function EvoFloatingWidget() {
 
             {/* Input area — D2: the countdown shows only for limited tiers
                 (dailyLimit !== null); paid tiers chat without counters. */}
-            <div className="border-t border-[var(--edge)] bg-[var(--bg)] p-3">
+            {/* m2 fix (DEEP-UX-AUDIT-2026-09-18): the composer row was the
+                narrowest input in the product on the most-used screen —
+                on a 390px phone the drawer cap (380) + p-3 + two gap-2
+                slots + the 40px mic + 40px send left only ~252px for the
+                field (~218px of typing space). Three width recoveries,
+                none of them touching the 40px touch targets (m1 spirit):
+                (1) full-bleed drawer on phones — `sm:max-w-[380px]` keeps
+                the desktop/tablet cap at 380px exactly; (2) composer
+                padding p-3→p-2; (3) row gap gap-2→gap-1.5 and input side
+                padding px-4→px-3. Net on 390px: field ≈288px and typing
+                space ≈262px (+20%). */}
+            <div className="border-t border-[var(--edge)] bg-[var(--bg)] p-2">
               {!isSubscriber && dailyLimit !== null && (
                 <div className="mb-2 text-center text-[10px] font-normal text-[#6e6e73]">
                   {isAr
@@ -807,7 +818,7 @@ export function EvoFloatingWidget() {
                     : `${dailyLimit - dailyCount} messages left today`}
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
                 <input
                   ref={inputRef}
                   dir="auto"
@@ -823,7 +834,7 @@ export function EvoFloatingWidget() {
                         : "Type your question..."
                   }
                   disabled={isTyping || (dailyLimitReached && !isSubscriber)}
-                  className="flex-1 rounded-full border border-[var(--edge)] bg-[var(--tint)] px-4 py-2.5 text-sm font-normal outline-none focus:border-[var(--ai)] disabled:opacity-50"
+                  className="flex-1 rounded-full border border-[var(--edge)] bg-[var(--tint)] px-3 py-2.5 text-sm font-normal outline-none focus:border-[var(--ai)] disabled:opacity-50"
                 />
                 <VoiceMicButton
                   lang={voiceLang}

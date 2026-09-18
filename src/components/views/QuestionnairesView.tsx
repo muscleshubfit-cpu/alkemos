@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { Salad, Dumbbell, Lock, Send, ImagePlus, X, Loader2, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { formatQuestionnaireValue } from "@/lib/questionnaire-display";
 import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -619,7 +620,7 @@ export function QuestionnairesView() {
                       <span className="font-medium text-end" dir="auto">
                         {f.type === "gender"
                           ? t(`q.n.gender.${nutritionForm[f.key]}`)
-                          : String(nutritionForm[f.key])}
+                          : formatQuestionnaireValue(f.key, nutritionForm[f.key], isAr)}
                       </span>
                     </div>
                   ))}
@@ -665,7 +666,7 @@ export function QuestionnairesView() {
                       <span className="font-medium text-end" dir="auto">
                         {f.type === "select" && f.optionPrefix
                           ? t(`${f.optionPrefix}${fitnessForm[f.key]}`)
-                          : String(fitnessForm[f.key])}
+                          : formatQuestionnaireValue(f.key, fitnessForm[f.key], isAr)}
                       </span>
                     </div>
                   ))}

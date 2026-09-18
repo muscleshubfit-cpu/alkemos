@@ -13,6 +13,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { passwordBreachCount } from "@/lib/password-breach";
 import { safeNext } from "@/lib/safe-redirect";
 import { setCoachSlugCookie, clearCoachSlugCookie, getCoachSlugCookie } from "@/lib/coach-cookie";
+import { localizeAuthError } from "@/lib/error-i18n";
+import { passwordStrength, strengthLabel } from "@/lib/password-strength";
 import { toast } from "sonner";
 
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
@@ -95,7 +97,9 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           coachSlug,
         );
         if (error) {
-          toast.error(error);
+          // M1 fix: GoTrue's raw English strings were shown verbatim
+          // inside the Arabic UI — localize at the display layer.
+          toast.error(localizeAuthError(error, isAr));
         } else if (needsConf) {
           // M6 fix: email confirmation required — don't redirect to dashboard.
           // Show a "check your email" screen instead.
@@ -110,7 +114,9 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
       } else {
         const { error, profile } = await signIn(email, password);
         if (error) {
-          toast.error(error);
+          // M1 fix (audit case ب): "Invalid login credentials" used to
+          // surface raw-English inside the Arabic UI at the login moment.
+          toast.error(localizeAuthError(error, isAr));
         } else {
           toast.success(t("auth.welcomeBack"));
           goAfterLogin(profile?.role !== "client");
@@ -298,7 +304,46 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="rounded-xl border-[var(--edge)] bg-[var(--card)] px-4 py-3 text-base"
+                  aria-describedby={isSignup ? "password-strength" : undefined}
                 />
+                {/* m8 fix (DEEP-UX-AUDIT-2026-09-18): live guidance under the
+                    SIGNUP password field — the form used to accept weak
+                    passwords silently (native minLength=8 only, no feedback
+                    until submit). DISPLAY-ONLY: the enforced gates stay
+                    minlength=8 + the Phase-134 HIBP breach check; the meter
+                    never rejects anything, it just shows the state. */}
+                {isSignup && (
+                  <div id="password-strength" aria-live="polite" className="space-y-1.5">
+                    {(() => {
+                      const level = passwordStrength(password);
+                      const bars = level === 0 ? 0 : level;
+                      const color = level === 0 ? "var(--muted-2)" : level === 1 ? "#ff3b30" : level === 2 ? "#ff9500" : "#34c759";
+                      return (
+                        <>
+                          <div className="flex items-center gap-2" dir="ltr">
+                            <div className="flex h-1 flex-1 gap-1">
+                              {[1, 2, 3].map((seg) => (
+                                <span
+                                  key={seg}
+                                  className="h-full flex-1 rounded-full transition-colors"
+                                  style={{ backgroundColor: seg <= bars ? color : "var(--edge)" }}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs font-normal" style={{ color: level === 0 ? "var(--muted-2)" : color }}>
+                              {strengthLabel(level, isAr)}
+                            </span>
+                          </div>
+                          <p className="text-xs font-normal text-[var(--muted-2)]">
+                            {isAr
+                              ? "٨ أحرف على الأقل — والأفضل مزج أحرف كبيرة وصغيرة وأرقام."
+                              : "At least 8 characters — mixing upper & lower case letters and numbers is better."}
+                          </p>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               <button

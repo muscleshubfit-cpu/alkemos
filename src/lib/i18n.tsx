@@ -258,6 +258,8 @@ const en: Dict = {
  "plans.swaps.mealLimitReached": "You've reached the weekly meal swap limit.",
  "plans.swaps.exerciseLimitReached": "You've reached the weekly exercise swap limit.",
  "plans.swaps.mealSwapped": "Meal swapped!",
+ "plans.swaps.notIncluded": "Weekly meal & exercise swaps are a Premium feature — your current plan doesn't include them yet.",
+ "plans.swaps.upgradeCta": "See memberships",
 
  "support.title": "Support",
  "support.subtitle": "Open a ticket and your coach will get back to you.",
@@ -649,6 +651,8 @@ const ar: Dict = {
  "plans.swaps.exerciseLimitReached": "لقد وصلت للحد الأقصى من تبديلات التمارين هذا الأسبوع.",
  "plans.swaps.mealSwapped": "تم استبدال الوجبة!",
  "plans.swaps.exerciseSwapped": "تم استبدال التمرين!",
+ "plans.swaps.notIncluded": "تبديل الوجبات والتمارين أسبوعيًا ميزة في باقة بريميوم — باقتك الحالية لا تشملها بعد.",
+ "plans.swaps.upgradeCta": "استعرض العضويات",
 
  // EVO CHAT SURFACE LAW (2026-08-27): chat.* keys retired with the
  // /chat page — the floating widget is the only chat surface.

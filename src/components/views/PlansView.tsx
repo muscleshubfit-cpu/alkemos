@@ -78,7 +78,8 @@ function asPlanContent(v: Json | null | undefined): PlanContent | null {
 type SwapUsage = Awaited<ReturnType<typeof getSwapUsage>>;
 
 export function PlansView() {
- const { t } = useI18n();
+ const { t, lang } = useI18n();
+ const isAr = lang === "ar";
  const { profile } = useAuth();
  // BUNDLE LAW (2026-09-05): the 1.6MB exercises array was imported at
  // module scope — now lazy-loaded mini records (session-cached).
@@ -535,10 +536,28 @@ export function PlansView() {
  </div>
 
  {/* Weekly swap quota (Monday reset — mirrors checkAndRecordSwap) */}
+ {/* m6 fix (DEEP-UX-AUDIT-2026-09-18): the Free plan (evoSwapLimit 0) used
+     to render a bare «0/0 remaining» — it read as a BROKEN widget, not as
+     a plan boundary (support-question bait). limit===0 now gets an honest
+     explanation + the memberships upgrade path instead of the number. */}
  <div className="rounded-2xl bg-[#f5f5f7] px-5 py-4 text-sm font-normal text-[#6e6e73]">
+ {swapUsage.meal.limit === 0 ? (
+ <div className="flex flex-wrap items-center gap-2">
+ <span>{t("plans.swaps.notIncluded")}</span>
+ <a
+ href={isAr ? "/ar/memberships" : "/memberships"}
+ className="font-medium text-[#0071e3] hover:underline"
+ >
+ {t("plans.swaps.upgradeCta")}
+ </a>
+ </div>
+ ) : (
+ <>
  <span>{t("plans.swaps.mealDaily")} <strong className={swapUsage.meal.remaining > 0 ? "text-[#1d1d1f]" : "text-[#ff3b30]"}>{swapUsage.meal.remaining}</strong>/{swapUsage.meal.limit} {t("plans.swaps.remaining")}</span>
  <span className="mx-3 text-[#d2d2d7]">|</span>
  <span>{t("plans.swaps.exerciseDaily")} <strong className={swapUsage.exercise.remaining > 0 ? "text-[#1d1d1f]" : "text-[#ff3b30]"}>{swapUsage.exercise.remaining}</strong>/{swapUsage.exercise.limit} {t("plans.swaps.remaining")}</span>
+ </>
+ )}
  </div>
 
  <Tabs defaultValue="workout">

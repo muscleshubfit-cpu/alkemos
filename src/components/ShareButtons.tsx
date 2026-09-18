@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Share2, Copy, Check, Facebook, Twitter, Linkedin, Send } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -20,14 +20,31 @@ type Props = {
  *
  * Renders buttons for: WhatsApp, Facebook, X (Twitter), LinkedIn, Telegram,
  * and Copy Link. Uses the native share intents (no JS SDK needed).
+ *
+ * H1 FIX (DEEP-UX-AUDIT-2026-09-18): window.location.href used to be read
+ * DURING render (`typeof window !== "undefined" ? ... : ""`) — the server
+ * rendered hrefs with an EMPTY url while the client computed the full one,
+ * failing hydration (#418 attribute mismatch) on every public page that
+ * SSR-renders share buttons, AND (because React does not patch up mismatched
+ * attributes) leaving the EMPTY server hrefs in the live DOM — the share
+ * buttons shared text with no link at all. The URL is now resolved strictly
+ * AFTER mount (useEffect): server and first client render are identical
+ * (hydration succeeds), then the hrefs receive the real location — share
+ * functionality is repaired with it.
  */
 export function ShareButtons({ title, text, url, compact = false }: Props) {
   const { lang } = useI18n();
   const isAr = lang === "ar";
   const [copied, setCopied] = useState(false);
 
-  // Get the URL (current page if not provided)
-  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  // H1 fix: resolve the current-page URL only after mount — never during
+  // render (see the component docblock). Deterministic `url` prop stays as-is.
+  const [mountedUrl, setMountedUrl] = useState("");
+  useEffect(() => {
+    if (!url) setMountedUrl(window.location.href);
+  }, [url]);
+
+  const shareUrl = url || mountedUrl;
   const shareText = text ? `${title}\n\n${text}` : title;
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedText = encodeURIComponent(shareText);
