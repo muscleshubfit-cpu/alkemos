@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: PUBLIC-INTERFACE-239-2026-09-19
+Agent: Super Z (owner session)
+Task: Public-interface rewrite after the docs restructuring (owner order 2026-09-19 «ابدأ الآن بإعادة كتابة الواجهة العامة لمستودع Alkemos بعد اكتمال إعادة هيكلة التوثيق» — README + repo metadata describe current Alkemos only; docs-only frame, zero business-logic/API/DB change)
+
+Work Log:
+- README.md rewritten end-to-end (598 → ~250 lines). Retired from the front door: the brand-rename section, historical migration narratives, per-phase feature bullets, incident stories, and internal-surface links (worklog/AGENTS — still reachable one click away via the docs/README.md index). Kept by law: the STATE.md link (docs_audit G) and the number-free law (tools listed by name, no count — P3-2 single-source rule). New shape: what Alkemos is → offering (content & tools / EVO / memberships / coaches B2B / site-coaches + admin) → architecture (stack, layout, bilingual, data, AI, content pipeline, SEO/GEO, CI gates) → developer quick start → docs index → license
+- Every number re-verified from its single source BEFORE use: 868 exercises (exercises-shared.ts EXERCISES_COUNT) · 8,830 foods (foods-shared.ts FOODS_COUNT) · 7 programs (workout-programs.ts) · tier prices 14.99/119 · 29.99/239 · 39.99/359 + quotas 2/4/8/8 generations, 10 EVO msgs/day, 3/6 swaps, 3/50/200 saved (memberships.ts) · 20% + $10 payout + 7-day hold (affiliate-constants.ts + engine-server) · REFUND_WINDOW_DAYS=7 (refund.ts) · fra1 region (vercel.json) · blog slots 22:00/05:00 UTC (blog-post-en/ar.yml)
+- Two stale PUBLIC claims found & fixed en route: (1) GitHub repo description said «6 free tools» — contradicted the hub array (TOOLS_COUNT=8) and the README number law; description rewritten without a tools count (2) README claimed Vercel region Singapore (sin1) while vercel.json says fra1 (Frankfurt) — fixed
+- Parity (§3.8): docs/README.md registry row for README.md bumped to Ph 239 · docs/CI_GATES.md §Backups pointer realigned to the new «Data layer» section · STATE → 239 (+ QA row + investor-materials deferral line) · this entry
+- GitHub metadata via API (same frame): description rewritten (bilingual AR/EN smart fitness & nutrition platform… no counts that rot, no «elite»), homepage + topics kept (all accurate)
+- Validation this frame: docs_audit ✓ 0 violations · docs_parity ✓ · migration_audit ✓ zero new drift · stale-refs ✓ · quality battery (tsc/eslint/vitest) runs in the push workflow; CI verified green on the pushed SHA after push
+
+Stage Summary:
+- The front door now explains CURRENT Alkemos to a first-time developer/investor in one scroll; historical knowledge untouched in its internal homes (worklog/archive/docs registry)
+- Investor Deck / Investor Pages explicitly NOT started — deferred independent stage by owner order (recorded in STATE المفتوح الآن)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P6-CLOSURE-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 6 (owner actions — executed to the limit the session credentials allow) + plan STEP 9 closure (owner order 2026-09-19 «complete the remaining approved Phase 6 owner-only tasks, with the same validation, documentation, commit, push, and verification discipline. Do not redesign or expand the approved plan»)

@@ -17,7 +17,7 @@
 | `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-19 (Ph 237) | §3.6/§3.8 |
 | `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-19 (Ph 237) | §1–§12.10 |
 | `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-19 (Ph 237 rotation) | §12.5.1 |
-| `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 237) | §3.8 |
+| `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 239 — public-interface rewrite: current-Alkemos-only, number-law + STATE-link preserved) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-19 (Ph 233) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-18 | §7 |
 | `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-19 (Ph 233) | — |
