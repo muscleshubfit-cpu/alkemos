@@ -4,6 +4,22 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-STATUS-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration stop-point documentation — both audit-doc banners now reflect the executed reality (Phases 0-4 landed); execution halted at the plan §8 owner decision point.
+
+Work Log:
+- Phases 0-4 of docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md executed as repo Phases 232-236, one commit each, all four gate workflows green on every pushed SHA (2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9).
+- The two banners («PROPOSED — NOT EXECUTED») had become false documentation after execution; updated to APPROVED + EXECUTING with the stop point named (§3.8: wrong-but-confident docs are worse than missing docs).
+- Plan §14 approval record filled with the owner execution-order citation; Phase 5 marked «awaiting owner choice»; Phase 6 marked owner-only.
+- STOP REASON (plan §11 STEP 7 + owner execution order «stop if the plan reaches an explicit Owner Decision»): Phase 5 requires the owner to pick (a) format-normalization-only vs (b) rotation-recommended (§8) BEFORE any further work; its decision-independent sub-items (§8 items 1-4) ship inside the same Phase-5 commit by design and were therefore NOT pre-executed.
+
+Stage Summary:
+- Repository state is self-describing for the next session: STATE's open-items pointer names the Phase-5 decision; docs/README.md registry rows carry EXECUTED/EXECUTING statuses with SHAs; the banners agree.
+- Awaiting from the owner: (1) Phase-5 choice a/b; (2) Phase-6 owner-only actions (branch protection, Dependabot, PAT rotation — §9).
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P4-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 4 — docs lifecycle registry (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §7)

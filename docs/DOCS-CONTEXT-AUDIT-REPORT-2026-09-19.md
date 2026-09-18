@@ -10,7 +10,7 @@
 > GitHub Actions status check. No project file was modified, moved, renamed, or deleted.
 > **Scope:** the documentation/agent-context SYSTEM only (STATE/AGENTS/worklog/archive/docs/CI gates/commit
 > conventions). Product-code audits live elsewhere (Phase 214 report; DEEP-UX-AUDIT-REPORT-2026-09-18).
-> **Companion plan:** [`docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md`](DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md) — status: **PROPOSED, awaiting owner approval. Not executed.**
+> **Companion plan:** [`docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md`](DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md) — status: **APPROVED + EXECUTING** (owner order 2026-09-19 «Execute the documented … Migration Plan … Begin with STEP 0»; Phases 0–4 landed as repo Phases 232–236; execution stopped at the plan §8 owner decision point — Phase 5 option a/b; Phase 6 = owner-only actions).
 
 ---
 

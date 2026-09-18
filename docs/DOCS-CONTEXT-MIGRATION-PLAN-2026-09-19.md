@@ -1,6 +1,6 @@
 # Documentation & Context Architecture — Migration Plan (PROPOSED)
 
-> **Status: PROPOSED — awaiting owner approval. NOT EXECUTED.**
+> **Status: APPROVED 2026-09-19 (owner order «Execute the documented Documentation & Agent-Context Architecture Migration Plan … Begin with STEP 0») and EXECUTING — Phases 0–4 landed as repo Phases 232–236 (commits 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9, all four gate workflows green on each); STOPPED at the §8 owner decision point: Phase 5 option (a) normalization-only vs (b) rotation-recommended. Phase 6 = owner-only actions (§9).**
 > **Provenance:** companion to [`docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`](DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md)
 > (read it first — every phase below cites its findings as F-xx). Created by the same owner order of 2026-09-19
 > («Do not implement the plan yet» — this document plans, it does not act).
@@ -236,6 +236,6 @@ Between phases, one breath of verification — never batch phases into one commi
 | Field | Value |
 |---|---|
 | Plan version | 1.0 (2026-09-19) — authored against `8321e718` |
-| Owner approval | ☐ approved as-is ☐ approved with changes: ______ ☐ rejected |
-| Approved phases | ☐ 0 ☐ 1 ☐ 2 ☐ 3 ☐ 4 ☐ 5(a/☐ b) ☐ 6 |
-| Approval citation (repo culture) | owner order quote + date, to be echoed in the executing commit messages |
+| Owner approval | ☑ approved as-is — execution order 2026-09-19: «Execute the documented Documentation & Agent-Context Architecture Migration Plan. … Execute phases sequentially, one phase per commit … Begin with STEP 0» |
+| Approved phases | ☑ 0 ☑ 1 ☑ 2 ☑ 3 ☑ 4 ☐ 5 (☐ a / ☐ b — **awaiting owner choice; execution stopped here**) ☐ 6 (owner-only) |
+| Approval citation (repo culture) | echoed in the executing commit messages (Phases 232–236) and the five DOCS-CONTEXT-MIGRATION-P0..P4 worklog entries |
