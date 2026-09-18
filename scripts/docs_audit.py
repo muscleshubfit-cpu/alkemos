@@ -35,8 +35,15 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      same-date parseable phase numbers non-increasing — LIVE-VERIF
      entries are phase-exempt, they verify multiple phases), the FIRST
      entry must carry the newest date in the file, and nothing below
-     the window may be newer than the frozen-tail baseline
-     (WORKLOG_TAIL_BASELINE).
+     the window may be newer than the oldest dated entry INSIDE it
+     (Phase 234: derived tail invariant — the hand-bumped baseline
+     constant is retired; a window slide can never trip this, a
+     bottom-append always will).
+  K. (Phase 234 — migration Phase 2) worklog entry schema: a «## Task ID:»
+     line is a malformed header → hard fail (the F-02 escape class).
+     Entries missing the §12.5.1 skeleton (Agent/Task/Work Log/Stage
+     Summary) are reported as WARNINGS until the migration Phase-5
+     normalization flips them to hard failures.
   I. (Phase 215 / P1-4 — finding المؤكد 22) governed docs
      (AGENTS/README/DEVELOPER_GUIDE/SECURITY/DESIGN) must carry a
      parseable «Last updated/آخر تحديث» date, and any doc touched by
@@ -84,6 +91,11 @@ def read(rel: str) -> str:
 
 # ------------------------------------------------------------------ A
 state = read("STATE.md")
+state_bytes = len(state.encode("utf-8")) if state else 0
+if state and state_bytes > 48_000:
+    print(f"⚠ A/state-size (warning): STATE.md is {state_bytes:,} bytes "
+          f"(> 48,000) — the migration Phase-3 de-dup target is ≤ 48,000; "
+          f"the hard cap (32,000) arrives with migration Phase 5")
 if state:
     lines = state.splitlines()
     if len(lines) > 100:
@@ -216,33 +228,33 @@ if readme and "STATE.md" not in readme:
 # ------------------------------------------------------------------ H
 # Phase 215 / P1-4 (owner-approved remediation plan, audit المؤكد 6 + 3):
 # the worklog newest-on-top law (AGENTS.md §3.8) was broken twice with
-# zero gates noticing. Enforce the ACTIVE region's structure. The tail
-# below the window is frozen history (pre-convention stragglers) —
-# anything newer down there is a misplaced append. PHASE 216: the
-# window slid (new top entries pushed the 2026-09-16 VERCEL-USAGE/WAVE-1
-# entries below it) — the baseline is bumped in the SAME commit, per
-# the gate's own forward-only design.
-# PHASE 226 (2026-09-18): window slid again — the 2026-09-17 Zod/218/217
-# entries fell below the top-12 (three 2026-09-18 entries now lead the
-# active region). Baseline bumped 2026-09-16 → 2026-09-17 in the SAME
-# commit, per the gate's forward-only design (Phase 216 precedent).
-# PHASE 232 (2026-09-19, migration Phase 0): window slid a third time — three
-# 2026-09-19 entries (DOCS-CONTEXT-MIGRATION-P0 / DOCS-CONTEXT-AUDIT /
-# normalized VERCEL-USAGE-4) now lead the active region, pushing the 2026-09-18
-# C1-226 entries below the top-12. Baseline bumped 2026-09-17 → 2026-09-18 in
-# the SAME commit (Phase 216/226 precedent). FINAL manual bump by design: the
-# migration plan's Phase 2 replaces this hand-bumped constant with an invariant
-# derived from the window itself (max tail date ≤ min window date).
+# zero gates noticing. Enforce the ACTIVE region's structure.
+# PHASES 216/226/232: the tail was guarded by a hand-bumped baseline
+# constant bumped in-commit three times — RC-3/F-14: it missed a bump
+# roughly once per 10 phases and went red on 8321e718 (F-01).
+# PHASE 234 (2026-09-19, migration Phase 2): the constant is RETIRED —
+# the boundary is now DERIVED from the window itself: no entry below
+# the top-12 window may be newer than the oldest dated entry inside
+# it. A legitimate window slide can never trip it; a bottom-append
+# (the VERCEL-USAGE-4 class) always will.
 WORKLOG_WINDOW = 12
-WORKLOG_TAIL_BASELINE = "2026-09-18"   # newest pre-convention tail entry
 
 worklog = read("worklog.md")
 wl_tasks: list[str] = []
+wl_entries: list[list[str]] = []
 if worklog:
+    _cur: list[str] | None = None
     for ln in worklog.splitlines():
         m = re.match(r"^Task ID:\s+(.*?)\s*$", ln)
         if m:
             wl_tasks.append(m.group(1))
+            if _cur is not None:
+                wl_entries.append(_cur)
+            _cur = [ln]
+        elif _cur is not None:
+            _cur.append(ln)
+    if _cur is not None:
+        wl_entries.append(_cur)
 
 if worklog and len(wl_tasks) < 3:
     fail("H/worklog-parse", f"worklog.md carries only {len(wl_tasks)} "
@@ -328,14 +340,37 @@ if worklog and wl_tasks:
             run_ph.append(ph)
             run_task = wl_tasks[k]
             run_date_last = d
-        # H3 — tail freeze
+        # H3 — tail freeze (Phase 234: DERIVED from the window — no constant)
         tail_dates = [d for d in inherited[w:] if d]
-        if tail_dates and max(tail_dates) > WORKLOG_TAIL_BASELINE:
+        window_dates = [d for d in inherited[:w] if d]
+        if tail_dates and window_dates and max(tail_dates) > min(window_dates):
             fail("H/worklog-tail-freeze",
                  f"worklog.md entries below the top {w} include dates up "
-                 f"to {max(tail_dates)} — newer than the frozen-tail "
-                 f"baseline {WORKLOG_TAIL_BASELINE}: new entries belong "
-                 f"ON TOP, not appended to the history region")
+                 f"to {max(tail_dates)} — NEWER than the oldest dated "
+                 f"entry inside the window ({min(window_dates)}): new "
+                 f"entries belong ON TOP, not appended to the history "
+                 f"region")
+
+# ------------------------------------------------------------------ K
+# Phase 234 / migration Phase 2: close the two escape classes the
+# 2026-09-19 architecture audit caught (report F-02 + F-05's format
+# drift). Hard: malformed «## Task ID:» headers the ^Task ID: parser
+# never sees. Warn (until the Phase-5 normalization flips it): entries
+# missing the §12.5.1 binding skeleton.
+K_SKELETON = ("Agent:", "Task:", "Work Log:", "Stage Summary:")
+for ln_no, ln in enumerate(worklog.splitlines(), 1) if worklog else []:
+    if re.match(r"^##\s+Task ID:", ln):
+        fail("K/malformed-header",
+             f"worklog.md:{ln_no} is a malformed entry header («## Task "
+             f"ID:» — the parser reads «Task ID:» at line start only): "
+             f"normalize it to the §12.5.1 template")
+schema_warnings: list[str] = []
+for entry_lines in wl_entries:
+    tid = re.match(r"^Task ID:\s+(.*?)\s*$", entry_lines[0]).group(1)
+    missing = [f for f in K_SKELETON
+               if not any(l.startswith(f) for l in entry_lines)]
+    if missing:
+        schema_warnings.append(f"«{tid}» missing {', '.join(missing)}")
 
 # ------------------------------------------------------------------ I
 # Phase 215 / P1-4 (audit المؤكد 22): governed docs must not claim a
@@ -397,10 +432,19 @@ if touched:
 # ------------------------------------------------------------------ report
 print("=" * 64)
 print(f"knowledge gate : STATE phase={state_phase} · STATE lines="
-      f"{len(state.splitlines()) if state else '∅'} · merged law: "
-      f"root PROGRESS/QA absent, frozen copies in archive/ · worklog "
-      f"entries={len(wl_tasks)} · truth checks H/I/J (Phase 215)")
+      f"{len(state.splitlines()) if state else '∅'} · bytes={state_bytes:,} · "
+      f"merged law: root PROGRESS/QA absent, frozen copies in archive/ · "
+      f"worklog entries={len(wl_tasks)} · truth checks H/I/J (Phase 215) · "
+      f"K schema (Phase 234)")
 print("=" * 64)
+if schema_warnings:
+    print(f"⚠ K/entry-schema (warning — {len(schema_warnings)} entries lack "
+          f"the full §12.5.1 skeleton; hard-fail arrives with the migration "
+          f"Phase-5 normalization):")
+    for w_line in schema_warnings[:5]:
+        print(f"  ⚠ {w_line}")
+    if len(schema_warnings) > 5:
+        print(f"  ⚠ … and {len(schema_warnings) - 5} more")
 
 if failures:
     print(f"\n{len(failures)} knowledge-system violation(s):")

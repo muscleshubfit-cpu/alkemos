@@ -4,6 +4,25 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P2-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 2 — gate hardening in scripts/docs_audit.py only (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §5)
+
+Work Log:
+- Derived tail invariant (replaces the hand-bumped constant, closes F-14's mechanism): WORKLOG_TAIL_BASELINE DELETED (was "2026-09-18" after three manual bumps 216/226/232) — H3 now requires no entry below the top-12 window to be newer than the OLDEST DATED ENTRY INSIDE the window. A legitimate window slide can never trip it; a bottom-append (VERCEL-USAGE-4 class) always will. Verified live: current repo passes (max tail 2026-09-18 == min window 2026-09-18).
+- K-check: (a) any `## Task ID:` line = malformed header → HARD fail with ::error:: (the F-02 escape class; zero legit occurrences since Phase 0 normalized the last one); (b) entries missing the §12.5.1 skeleton (Agent/Task/Work Log/Stage Summary) → WARNING listing them — 16 pre-Phase-215 entries today (PHASE-205..213 intermediate format + legacy SEO-GEO/bare-number entries); flips to hard-fail with the migration Phase-5 normalization per the plan §13 risk mitigation (warn-first rollout).
+- A-check extension: STATE.md byte size now printed in the report line (bytes=81,751 today) + ⚠ warning above 48,000 bytes (the Phase-3 de-dup target); the hard cap (32,000) arrives with migration Phase 5.
+- Docstring (H/K descriptions) + the workflow comment block updated (baseline history 216/226/232 documented as retired).
+- docs/CI_GATES.md same-commit: knowledge-gate row updated (stale «≤2026-09-15» wording replaced by the derived invariant + the K row) + a Phase-2 hardening provenance line citing the plan.
+- Scratch-copy negative tests (a full cp -a clone, never the repo): defect 1 bottom-append dated 2026-09-20 → H3 derived FIRES; defect 2 `## Task ID:` header → K/malformed FIRES; defect 3 STATE inflated to 110 lines → A FIRES; defect 4 skeleton-less entry → K warning (17 = 16+1) NOT a failure; scratch exit=1 with exactly 3 failures. Real-repo run: exit=0 (warnings only). docs_parity/migration_audit/stale-refs/ui-wiring unaffected and green.
+
+Stage Summary:
+- The two escape classes this system actually hit (F-01's missed bump, F-02's invisible header) are now structurally impossible: the boundary is derived, not remembered; the malformed header is red on sight.
+- Phase-2 warn-first design proven both ways in one run: the scratch fails on the three defect classes while the real repo stays green with 16+1 skeleton warnings.
+- Next per plan §11: Phase 3 (STATE.md de-duplication — history moves to worklog; ≤48 KB target).
+- Commit SHA: this commit carries this entry (final SHA in the session report §12.9 after push)
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P1-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 1 — stale-reference hygiene in the governed docs (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §4)
