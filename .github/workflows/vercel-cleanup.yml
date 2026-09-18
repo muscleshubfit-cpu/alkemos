@@ -22,9 +22,10 @@
 #   2. HOURLY (:07 UTC, offset clear of top-of-hour GitHub congestion) —
 #      backstop that also purges after NON-push deploy sources (Vercel
 #      dashboard "Redeploy", blog pipeline direct deployments) and
-#      self-heals the GitHub cron-skip failure mode observed 2026-09-19
-#      (the 01:00 UTC daily run was silently skipped by GitHub while 5
-#      production deploys accumulated past the window). Hourly runs cost
+#      self-heals the GitHub cron-skew failure mode observed 2026-09-18
+#      (scheduled runs landed 05:21/16:55 UTC vs the documented
+#      01:00/13:00 — 4h+ drift while a 5-production-deploy burst piled
+#      up inside the 6h window). Hourly runs cost
 #      seconds and a handful of Vercel API calls; the workflow is a no-op
 #      when nothing is stale. Supersedes the VERCEL-USAGE-2 2× daily
 #      schedule (01:00 + 13:00 UTC).
