@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq + NVIDIA NIM (AI) · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-18 (Phase 229 — audit m7 owner decision «أ»: coach billing is now FIXED package pricing only — the per-coach fee setting was retired (API + admin UI) and every money surface reads the single source in coach-limits.ts; for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-19 (Phase 233 — migration Phase 1: the worklog entry under Additional Documentation now describes the append-only reality (pre-Phase-209 history in archive/WORKLOG_ARCHIVE.md); for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
@@ -593,4 +593,4 @@ See [`LICENSE`](./LICENSE) for the full proprietary terms.
 - [`supabase/migrations/INDEX.md`](./supabase/migrations/INDEX.md) — Binding migration registry + naming laws
 - [`docs/`](./docs/) — SEO frameworks (CWV thresholds, E-E-A-T, schema reference) + historical audits
 - [`.env.example`](./.env.example) — Environment variables reference
-- [`worklog.md`](./worklog.md) — Per-agent change log (older entries archived in `archive/`)
+- [`worklog.md`](./worklog.md) — Per-agent change log — full append-only history; pre-Phase-209 entries also preserved in [`archive/WORKLOG_ARCHIVE.md`](./archive/WORKLOG_ARCHIVE.md)

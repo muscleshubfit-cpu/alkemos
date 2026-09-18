@@ -4,6 +4,27 @@
 > **Deprecated (2026-09-17 — P3-8, deep-audit confirmed 25, Phase 217):** سياسة «آخر 10 مهام فقط» أعلاه لم تعد تصف الواقع منذ فترة طويلة — الملف يحمل التاريخ الكامل (المدخلات الجديدة فوق القديمة append-only) والبوابة H في `scripts/docs_audit.py` تحرس الترتيب زمنيًا بدلًا من العد. القالب الملزم لأي مدخل جديد = AGENTS.md §12.5.1 (ساري فعليًا منذ المرحلة 215). أما `scripts/phase213_state_update.py` المذكور في مدخل المرحلة 213 أدناه فكان **سكربتًا محليًا على جهاز الوكيل لم يُرفع للمستودع قط** — توثيقٌ هنا كي لا يُطلب لاحقًا (الحالة النهائية التي كتبها مضمونة ببوابات STATE.md، والملف نفسه غير قابل للاسترجاع).
 
 ---
+Task ID: DOCS-CONTEXT-MIGRATION-P1-2026-09-19
+Agent: Super Z (owner session)
+Task: Migration Phase 1 — stale-reference hygiene in the governed docs (owner order 2026-09-19 «Execute the documented … Migration Plan»; plan §4)
+
+Work Log:
+- Pre-checks re-run: all six Phase-1 targets verified present verbatim (DEVELOPER_GUIDE.md:8 + :757 bare `PROGRESS.md`; DESIGN.md:163-164 live-tense build scripts; README.md:596 deprecated worklog description; AGENTS.md:144 unmarked deleted doc; CHANGELOG.md 0 bytes) — findings reproduce.
+- DEVELOPER_GUIDE.md:8 — «See also PROGRESS.md § "Reconciled Status"» → current statistics live in STATE.md; Phase-115-frozen history at archive/PROGRESS.md. Header bumped same-commit (I-check).
+- DEVELOPER_GUIDE.md:757 — «انظر PROGRESS.md Phase 5» → archive/PROGRESS_ARCHIVE.md (المرحلة 5) — content location VERIFIED first: Phase 5 record found at archive/PROGRESS_ARCHIVE.md:254 (not in the frozen archive/PROGRESS.md).
+- DESIGN.md:163-164 — reworded to past tense. Verified BEFORE writing: build_assets_v127.py / build_assets_v3.py / fix_hero_logo2.py exist in NO git commit (git log --all = empty for each) and no current asset-build path exists — the plan's suggested «git history a3e2bfc4^» pointer is invalid (a3e2bfc4's tree predates/removes nothing — the scripts were never tracked). Truthful wording applied instead: local-only scripts, never committed, documented as history (the repo's established pattern for local-only tools).
+- README.md:596 — worklog description now matches reality: «full append-only history; pre-Phase-209 entries also preserved in archive/WORKLOG_ARCHIVE.md».
+- AGENTS.md:144 — `docs/EVO-PARTNER-API.md` now carries «(file deleted with the surface)» — link-checkers read history, not a live pointer. Header bumped same-commit.
+- CHANGELOG.md — plan's owner-decision item resolved on evidence: the audit claimed «no decision recorded» but worklog.md:3050 documents the Phase-111 owner order «اتركه فارغاً الآن، سنملؤه لاحقاً» (leave empty, we will fill it later). DELETION would contradict that recorded order; the plan's documented alternative (fill with a pointer) contradicts nothing and satisfies «Do not leave it empty». Filled with a 3-line pointer to STATE.md + worklog.md + the archive, citing the Phase-111 provenance. Single revert available if the owner prefers deletion.
+- Validation battery (docs-only frame): docs_audit → 0 violations (I-check verifies all four bumped headers ≥ commit date) · docs_parity ✓ · migration_audit --ci ✓ · stale-refs ✓ · ui-wiring ✓ · Appendix-A re-runs: bare `PROGRESS.md` refs in DEVELOPER_GUIDE = 0 (only the STATE/archive pointers remain); DESIGN script mentions now explicitly historical.
+
+Stage Summary:
+- F-10 fully closed: every reference in the governed docs now resolves or is explicitly marked historical; CHANGELOG.md has a purpose and provenance note.
+- Two evidence-driven deviations from the plan's suggested wording, both verified-before-writing per the plan's own instruction and documented above: (1) DESIGN's git-history pointer (invalid — scripts never in git); (2) CHANGELOG fill-not-delete (Phase-111 order honored).
+- Next per plan §11: Phase 2 (docs_audit.py hardening — derived tail invariant + K entry-schema check + A byte report) with scratch-copy negative tests.
+- Commit SHA: this commit carries this entry (final SHA in the session report §12.9 after push)
+- Push status: pushed immediately after this entry
+---
 Task ID: DOCS-CONTEXT-MIGRATION-P0-2026-09-19
 Agent: Super Z (owner session)
 Task: Migration Phase 0 — regularization & unblock (owner order 2026-09-19 «Execute the documented Documentation & Agent-Context Architecture Migration Plan … Begin with STEP 0»)

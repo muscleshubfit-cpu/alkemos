@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-17 (Phase 217 — P3-1 header-truth fix: this doc's header claimed Phase 127 / 2026-09-06 while the last substantive change was Phase 198 Batch 3 (2026-09-14, homepage UI-audit polish — git b5164e9e); the claim now matches reality. No design-system content changed in this phase.)
+> **Last updated:** 2026-09-19 (Phase 233 — migration Phase 1: the brand-asset provenance note reworded to past tense — the referenced build scripts were local-only and never committed (verified: absent from all git history; no current build path exists). No design-system content changed.)
 > **Status:** Active — binding reference for all UI/UX decisions
 > **Audience:** AI agents, developers, designers
 
@@ -159,9 +159,12 @@ Cards `var(--radius-chrome)` = 14px (marble-card) · pills/buttons `9999px`
 
 ## 6. Brand Asset System (`public/images/brand/`)
 
-All artwork comes from the owner's generated sets (v3 upload, archived at
-`download/alkemos-brand/v3/`; rebuilt by `scripts/build_assets_v3.py` and
-Phase 127's `scripts/build_assets_v127.py` + `fix_hero_logo2.py`):
+All artwork comes from the owner's generated sets (v3 upload — the source
+directory lives outside the repo; the committed assets under
+`public/images/brand/` were rebuilt at Phase 127 by local-only scripts that
+were never committed to this repo: `build_assets_v3.py` +
+`build_assets_v127.py` + `fix_hero_logo2.py` — documented as history so
+they are not requested later):
 
 | Asset | Purpose |
 |---|---|

@@ -1,12 +1,12 @@
 # Developer Guide — Alkemos
 
-> **آخر تحديث:** 2026-09-17 (المرحلة 217 / P3-7 — جدول §8 اكتمل بالمسارات السبعة الحية الناقصة: ai/feedback · ai/meal-plan-demo · ai/planner-plan · ai/workout-plan-demo · csp-report · evo/followup/dispatch · exercise-mini، وأصلح وصف lead المنقّح للأدوات · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
+> **آخر تحديث:** 2026-09-19 (المرحلة 233 / خطة الترحيل Phase 1 — إصلاح مرجعَي PROGRESS.md الميتين: السطر 8 → STATE.md + archive/PROGRESS.md، والسطر 757 → archive/PROGRESS_ARCHIVE.md للمرحلة 5 · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
 > **الجمهور المستهدف:** مطورين جدد ينضمون للمشروع، أو المطور الحالي كمرجع
 > **المرجع التقني العميق:** [`docs/TECH_REFERENCE.md`](./docs/TECH_REFERENCE.md) — بنية Supabase وقانون الميجريشنز وجداول القواعد الخاصة · شرح RLS التفصيلي (predicates · نمط الأدوار v2 · عوالم المال) · قائمة Shadcn كاملة بأسمائها · كل أكواد SQL المعقدة منظمة. الملف ده بيفضل مختصص: الإعداد والتدفقات والمراجع السريعة فقط.
 > **Note (Phase 7):** Several stale claims in this file were reconciled
 > against the actual source code. Look for `> **Phase 7 correction:**`
-> notes inline. See also `PROGRESS.md` § "Reconciled Status" for the
-> reconciled repository statistics.
+> notes inline. Current repository statistics live in `STATE.md`; the
+> Phase-115-frozen status history is preserved at `archive/PROGRESS.md`.
 
 ---
 
@@ -754,7 +754,7 @@ navigate("coach-client", { clientId: "xxx" }); // → /coach/xxx
 
 ملفات SQL التى أُنشِئَت لإصلاحات Phase 5 تم توقيعها كـ migration files
 تحت `supabase/migrations/` أو تم تطبيقها مباشرة على Supabase SQL Editor.
-انظر `PROGRESS.md` Phase 5 للتفاصيل.
+انظر `archive/PROGRESS_ARCHIVE.md` (المرحلة 5) للتفاصيل.
 
 ### تحديث Supabase Schema Cache
 
