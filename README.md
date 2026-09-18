@@ -4,7 +4,7 @@
 > **Repository:** [github.com/muscleshubfit-cpu/alkemos](https://github.com/muscleshubfit-cpu/alkemos)
 > **Stack:** Next.js 16 · React 19 · Supabase · OpenRouter + Groq + NVIDIA NIM (AI) · Tailwind CSS 4
 > **CI Gates:** every push is audited — schema-drift · registry-parity · knowledge-system · anti-regression
-> **Last updated:** 2026-09-19 (Phase 236 — migration Phase 4: Additional Documentation now leads with the `docs/README.md` documentation index (lifecycle registry); earlier today Phase 233 fixed the worklog entry description; for current live status always refer to [`STATE.md`](./STATE.md))
+> **Last updated:** 2026-09-19 (Phase 237 — migration Phase 5: worklog entry description updated for the rotation — the live file is now the active window + rolling buffer, full history in `archive/WORKLOG_ARCHIVE.md`; earlier today Phase 236 added the `docs/README.md` index; for current live status always refer to [`STATE.md`](./STATE.md))
 
 ## 🏷️ Brand Rename — Musclehubeg → Alkemos (Phase 121)
 
@@ -594,4 +594,4 @@ See [`LICENSE`](./LICENSE) for the full proprietary terms.
 - [`supabase/migrations/INDEX.md`](./supabase/migrations/INDEX.md) — Binding migration registry + naming laws
 - [`docs/`](./docs/) — SEO frameworks (CWV thresholds, E-E-A-T, schema reference) + historical audits
 - [`.env.example`](./.env.example) — Environment variables reference
-- [`worklog.md`](./worklog.md) — Per-agent change log — full append-only history; pre-Phase-209 entries also preserved in [`archive/WORKLOG_ARCHIVE.md`](./archive/WORKLOG_ARCHIVE.md)
+- [`worklog.md`](./worklog.md) — Per-agent change log — active window (top-12 entries + rolling date buffer) live; the full append-only history continues in [`archive/WORKLOG_ARCHIVE.md`](./archive/WORKLOG_ARCHIVE.md) (pre-2026-09-10 tail rotated there verbatim — Phase 237)

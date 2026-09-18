@@ -8,7 +8,8 @@ no single entry point, the law file itself carrying a duplicated §3.6)
 and this gate enforces the cure as code, on every push/PR.
 
 Checks (any failure = exit 1, ::error:: annotations in --ci):
-  A. STATE.md exists, ≤ 100 lines, contains the required sections
+  A. STATE.md exists, ≤ 100 lines, ≤ 32,000 bytes (hard cap — Phase 237,
+     migration Phase 5), contains the required sections
      (المرحلة الحالية · المفتوح الآن · بانتظار موافقة المالك ·
       ممنوعات نشطة · خريطة مصادر الحقيقة · ملخص جودة المرحلة).
   B. STATE.md «آخر كوميت متحقق منه» is a real commit that is an
@@ -39,11 +40,12 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      (Phase 234: derived tail invariant — the hand-bumped baseline
      constant is retired; a window slide can never trip this, a
      bottom-append always will).
-  K. (Phase 234 — migration Phase 2) worklog entry schema: a «## Task ID:»
-     line is a malformed header → hard fail (the F-02 escape class).
-     Entries missing the §12.5.1 skeleton (Agent/Task/Work Log/Stage
-     Summary) are reported as WARNINGS until the migration Phase-5
-     normalization flips them to hard failures.
+  K. (Phase 234 — migration Phase 2; hard since Phase 237 / migration
+     Phase 5) worklog entry schema: a «## Task ID:» line is a malformed
+     header → hard fail (the F-02 escape class). Entries missing the
+     §12.5.1 skeleton (Agent/Task/Work Log/Stage Summary) → hard fail —
+     the live region was normalized + rotated at Phase 237 (warnings
+     retired; the legacy gap entries live in archive/, unchecked by design).
   I. (Phase 215 / P1-4 — finding المؤكد 22) governed docs
      (AGENTS/README/DEVELOPER_GUIDE/SECURITY/DESIGN) must carry a
      parseable «Last updated/آخر تحديث» date, and any doc touched by
@@ -92,10 +94,14 @@ def read(rel: str) -> str:
 # ------------------------------------------------------------------ A
 state = read("STATE.md")
 state_bytes = len(state.encode("utf-8")) if state else 0
-if state and state_bytes > 48_000:
-    print(f"⚠ A/state-size (warning): STATE.md is {state_bytes:,} bytes "
-          f"(> 48,000) — the migration Phase-3 de-dup target is ≤ 48,000; "
-          f"the hard cap (32,000) arrives with migration Phase 5")
+if state and state_bytes > 32_000:
+    # Phase 237 (migration Phase 5, plan §8.3): the Phase-2 warning retired —
+    # the byte cap is HARD now. Budgets bytes, not lines (audit RC-2: the
+    # 100-line cap was gamed at 789 chars/line — F-04).
+    fail("A/state-size",
+         f"STATE.md is {state_bytes:,} bytes — the hard cap is 32,000 "
+         f"(Phase 237 / migration Phase 5): the status file must stay a "
+         f"30-second read; de-duplicate history into worklog/archive")
 if state:
     lines = state.splitlines()
     if len(lines) > 100:
@@ -364,13 +370,18 @@ for ln_no, ln in enumerate(worklog.splitlines(), 1) if worklog else []:
              f"worklog.md:{ln_no} is a malformed entry header («## Task "
              f"ID:» — the parser reads «Task ID:» at line start only): "
              f"normalize it to the §12.5.1 template")
-schema_warnings: list[str] = []
+# Phase 237 (migration Phase 5, plan §8): the skeleton check flips from
+# warning to HARD fail — the live region is normalized (rotation (b));
+# legacy gap entries are preserved in archive/ (outside this gate's scope).
 for entry_lines in wl_entries:
     tid = re.match(r"^Task ID:\s+(.*?)\s*$", entry_lines[0]).group(1)
     missing = [f for f in K_SKELETON
                if not any(l.startswith(f) for l in entry_lines)]
     if missing:
-        schema_warnings.append(f"«{tid}» missing {', '.join(missing)}")
+        fail("K/entry-schema",
+             f"worklog entry «{tid}» lacks the §12.5.1 skeleton "
+             f"({', '.join(missing)}) — the template is binding for live "
+             f"entries (Phase 237 hardening; AGENTS.md §12.5.1)")
 
 # ------------------------------------------------------------------ I
 # Phase 215 / P1-4 (audit المؤكد 22): governed docs must not claim a
@@ -432,19 +443,11 @@ if touched:
 # ------------------------------------------------------------------ report
 print("=" * 64)
 print(f"knowledge gate : STATE phase={state_phase} · STATE lines="
-      f"{len(state.splitlines()) if state else '∅'} · bytes={state_bytes:,} · "
-      f"merged law: root PROGRESS/QA absent, frozen copies in archive/ · "
-      f"worklog entries={len(wl_tasks)} · truth checks H/I/J (Phase 215) · "
-      f"K schema (Phase 234)")
+      f"{len(state.splitlines()) if state else '∅'} · bytes={state_bytes:,} "
+      f"(hard cap 32,000) · merged law: root PROGRESS/QA absent, frozen "
+      f"copies in archive/ · worklog entries={len(wl_tasks)} · truth checks "
+      f"H/I/J (Phase 215) · K schema hard (Phase 237)")
 print("=" * 64)
-if schema_warnings:
-    print(f"⚠ K/entry-schema (warning — {len(schema_warnings)} entries lack "
-          f"the full §12.5.1 skeleton; hard-fail arrives with the migration "
-          f"Phase-5 normalization):")
-    for w_line in schema_warnings[:5]:
-        print(f"  ⚠ {w_line}")
-    if len(schema_warnings) > 5:
-        print(f"  ⚠ … and {len(schema_warnings) - 5} more")
 
 if failures:
     print(f"\n{len(failures)} knowledge-system violation(s):")
@@ -456,5 +459,6 @@ if failures:
 
 print("\n✓ knowledge operating system consistent (STATE · merged single-"
       "source law · number-free docs · AGENTS structure · frozen archive "
-      "· discoverability · worklog order · header truth · archive freeze)")
+      "· discoverability · worklog order · header truth · archive freeze "
+      "· byte cap + entry schema hard)")
 sys.exit(0)

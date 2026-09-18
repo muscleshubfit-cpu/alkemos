@@ -1,7 +1,7 @@
 # AGENTS.md — Alkemos AI Agent Operating System
 
 > **Status:** Active — required reading for every AI agent (and human contributor) before any commit, PR, or production change.
-> **Last updated:** 2026-09-19 (Phase 236 — migration Phase 4: §12.5's consolidated note and §12.5.2's cadence now point at the `docs/README.md` lifecycle registry instead of the frozen 2026-08-25 `docs/_AUDIT.md` snapshot — F-09 closed; earlier today Phase 233 marked the EVO-6 deleted-file citation as history).
+> **Last updated:** 2026-09-19 (Phase 237 — migration Phase 5: §12.5.1 gains the entry-size budget + evidence rule, §10 gains the commit-message budget; earlier today Phases 233–236 landed the migration's stale-ref/de-dup/registry waves).
 > **Owner:** muscleshubfit@gmail.com (project owner + human supervisor).
 > **Deep technical detail** (Supabase · full RLS · migration law · special-rules tables · storage · Shadcn inventory · SQL snippets) lives in [`docs/TECH_REFERENCE.md`](docs/TECH_REFERENCE.md); the CI-gates narrative lives in [`docs/CI_GATES.md`](docs/CI_GATES.md). This file stays the LAW file.
 
@@ -181,6 +181,7 @@ Explicit human approval BEFORE implementation (not just after) for: auth (`auth-
 - Branch off `main` for non-trivial changes; the owner may merge feature branches or commit directly to `main` for small fixes.
 - Commit author email: `muscleshubfit@gmail.com` — agents use the same identity.
 - Prefixes: `feat:` new feature · `fix:` bug fix · `docs:` documentation only · `refactor:` no behavior change · `security:` security-sensitive (pre-approved per §7) · `chore:` tooling, deps, build config.
+- **Commit-message budget (Phase 237 — migration Phase 5; applies from Phase 237 forward, history untouched):** subject ≤ 72 chars; body ≤ 500 chars; the body POINTS at the task's `worklog.md` entry (Task ID) instead of restating it — one narrative per change, three surfaces that agree (audit F-06: worklog + STATE + commit message must not triple-store the same prose).
 - Push to `origin` only after the local verification step (§3.5) passes — if `tsc --noEmit` fails, do not push.
 
 ---
@@ -245,6 +246,8 @@ Stage Summary:
 ```
 
 Rules: the `---` separator before each entry is mandatory (append-only log); `Task ID` MUST be unique across the file (search before adding); `Work Log` is bulleted, factual, chronological; `Stage Summary` includes the commit SHA and push status (matches §12.9).
+
+**Entry budget + evidence (Phase 237 — migration Phase 5):** each entry ≤ 60 lines (LIVE-VERIF entries ≤ 40); detail belongs in committed scripts or `docs/README.md` registry rows, not prose. An entry that cites a verification script or any evidence artifact must point at a **committed** path (`scripts/live-verify/<task>.sh` or similar) or state explicitly «local-only, not preserved» — a log referencing evidence that exists nowhere is a false log (audit F-11). Live region = top-12 entry window + rolling date buffer; everything older rotates **verbatim** to `archive/WORKLOG_ARCHIVE.md` (Phase-237 rotation; boundary guarded by the derived tail invariant in `scripts/docs_audit.py`).
 
 #### 12.5.2 Periodic Documentation Audit (Cadence)
 

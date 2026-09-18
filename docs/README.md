@@ -14,17 +14,17 @@
 
 | File | Role | Status | Last updated | Law-ref |
 |---|---|---|---|---|
-| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-19 (Ph 235) | §3.6/§3.8 |
-| `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-19 (Ph 236) | §1–§12.10 |
-| `worklog.md` | Append-only task history, newest on top | LIVE | 2026-09-19 | §12.5.1 |
-| `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 236) | §3.8 |
+| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-19 (Ph 237) | §3.6/§3.8 |
+| `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-19 (Ph 237) | §1–§12.10 |
+| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-19 (Ph 237 rotation) | §12.5.1 |
+| `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 237) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-19 (Ph 233) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-18 | §7 |
 | `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-19 (Ph 233) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-08-21 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |
-| `archive/PROGRESS_ARCHIVE.md` · `archive/WORKLOG_ARCHIVE.md` · `archive/QA_CHECKLIST_ARCHIVE.md` | Append-only history overflow | ARCHIVE — append-only (worklog tail may rotate here in migration Phase 5) | — | §3.8 |
+| `archive/PROGRESS_ARCHIVE.md` · `archive/WORKLOG_ARCHIVE.md` · `archive/QA_CHECKLIST_ARCHIVE.md` | Append-only history overflow | ARCHIVE — append-only (received the pre-2026-09-10 worklog tail — Phase-237 rotation, verbatim) | — | §3.8 |
 
 ## Registry — docs/ suite
 
@@ -32,7 +32,7 @@
 |---|---|---|---|
 | `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-19 (Ph 236) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-18 |
-| `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-19 (Ph 234 hardening) |
+| `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-19 (Ph 234 + 237 hardening) |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan + §12 execution log (log is append-only) | LIVE | 2026-09-16 |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE | 2026-08-25 |
 | `docs/SEO-SCHEMA-REFERENCE.md` | SEO schema reference | LIVE | 2026-09-15 |
@@ -46,8 +46,8 @@
 | `docs/DEEP-UX-AUDIT-REPORT-2026-09-18.md` | Point-in-time UX audit | **EXECUTED/CLOSED** (items closed by Phases 225–229) | 2026-09-18 |
 | `docs/UI-AUDIT-HOMEPAGE.md` | Point-in-time UI audit | **EXECUTED** (STATE entry 198) | 2026-09-14 |
 | `docs/UI-IMPLEMENTATION-PLAN.md` | Point-in-time UI plan | **EXECUTED** | 2026-09-14 |
-| `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md` | Docs/context architecture audit (F-01..F-14, RC-1..RC-7) | **EXECUTED** (findings closed by Phases 232–236 = plan Phases 0–4; Phase-5 items pending owner a/b; Phase-6 = owner actions) | 2026-09-19 |
-| `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md` | The migration plan this registry was born from | **EXECUTING** (Phases 0–4 landed: 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · this commit; Phase 5 = owner decision a/b; Phase 6 = owner actions) | 2026-09-19 |
+| `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md` | Docs/context architecture audit (F-01..F-14, RC-1..RC-7) | **EXECUTED** (findings closed by Phases 232–237 = plan Phases 0–5 — F-05/F-14 closed by the Phase-237 rotation; Phase-6 = owner actions) | 2026-09-19 |
+| `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md` | The migration plan this registry was born from | **EXECUTING** (Phases 0–5 landed: 2d9c4e32 · c0fee8a6 · 73ad3065 · ebda6c54 · 2651cfa9 · this commit — Phase 5 = option (b) rotation; Phase 6 = owner actions) | 2026-09-19 |
 
 Other registries (outside `docs/`): `supabase/migrations/INDEX.md` — binding migration ledger (LIVE, guarded by `docs_parity.py`) · `.env.example` — environment reference (LIVE).
 
