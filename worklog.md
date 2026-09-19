@@ -24,8 +24,8 @@ Work Log:
 Stage Summary:
 - Band 1,456 cumulative (481+975): every /ar/foods mirror of the batch flipped to index,follow automatically via the existing arabiclessName regex (2,912 EN+AR indexable); EVO/search Arabic reach 6.4%→17.4%; JSON-LD Arabic for the batch
 - All plan guards extended to the cumulative band; curated-80/slug-identity/nameEn frozen by hash; sitemap policy still HELD and guarded
-- Commit SHA: <SHA_PENDING>
-- Push status: <PUSH_PENDING>
+- Commit SHA: 7f06086651b8ecd53d63fd2745a188031b86cf05 (main; 04a41ed8→7f060866, owner-bypass direct push, verified SYNCED)
+- Push status: PUSHED — remote CI on 7f060866 all green: quality ✓ · parity ✓ · guard ✓ · cleanup ✓ · Supabase Preview ✓ (polled via API to completion)
 
 ---
 Task ID: FOOD-ARABIZATION-PILOT-1-2026-09-19
