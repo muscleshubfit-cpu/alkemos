@@ -43,6 +43,7 @@
  *   VERCEL_PROJECT_NAME  (optional, default "alkemos")
  *   KEEP_HOURS           (optional, default "3")   freshness window to always keep
  *   KEEP_PREVIEWS        (optional, default "1")   newest previews to always keep
+ *   DEAD_HOURS           (optional, default "6")   CANCELED/ERROR purge age (VERCEL-USAGE-5)
  *   DRY_RUN              (optional, "1"/"true" — list only, delete nothing)
  */
 
@@ -52,6 +53,9 @@ const TOKEN = process.env.VERCEL_TOKEN || "";
 const PROJECT_NAME = process.env.VERCEL_PROJECT_NAME || "alkemos";
 const KEEP_HOURS = Number(process.env.KEEP_HOURS || "3");
 const KEEP_PREVIEWS = Number(process.env.KEEP_PREVIEWS || "1");
+// VERCEL-USAGE-5: CANCELED/ERROR deployments older than this are purged
+// (the native Deployment Expiration would retain them for 30 days).
+const DEAD_HOURS = Number(process.env.DEAD_HOURS || "6");
 const DRY_RUN = /^(1|true|yes)$/i.test(process.env.DRY_RUN || "");
 
 let stepSummary = "";
@@ -127,6 +131,32 @@ async function listReadyDeployments(projectId) {
   fail("deployment listing exceeded the pagination guard (50 pages × 100) — aborting to stay safe");
 }
 
+// VERCEL-USAGE-5 (2026-09-19): the project's native Deployment Expiration
+// (verified via GET /v9/projects) retains ERRORED deployments for
+// expirationDaysErrored=30 DAYS — and this script only ever listed
+// state=READY, so any failed build would sit in the quota for a month.
+// CANCELED/ERROR deployments are never serving traffic (the live aliased
+// deployment is always READY), so purging them cannot take the site down.
+// In-flight states (QUEUED/BUILDING/INITIALIZING) are intentionally left
+// alone — transient, and deleting mid-build confuses the Git integration.
+async function listNonReadyDeployments(projectId) {
+  const all = [];
+  for (const state of ["CANCELED", "ERROR"]) {
+    let until = null;
+    for (let page = 0; page < 10; page++) {
+      const params = { limit: "100", projectId, state };
+      if (until) params.until = String(until);
+      const { status, body } = await api("/v6/deployments", { params });
+      if (status !== 200) fail(`GET /v6/deployments (state=${state}) → HTTP ${status}`);
+      const batch = body.deployments || [];
+      all.push(...batch);
+      if (batch.length < 100) break;
+      until = batch[batch.length - 1].createdAt - 1;
+    }
+  }
+  return all;
+}
+
 function fmtAge(ms) {
   const h = Math.round((Date.now() - ms) / 3600000);
   return h < 24 ? `${h}h` : `${Math.round(h / 24)}d`;
@@ -190,6 +220,25 @@ async function main() {
       console.error(`  ✗ FAILED ${d.uid} → HTTP ${status} ${JSON.stringify(body).slice(0, 120)}`);
     }
     await sleep(300); // gentle pacing — this is a shared API quota
+  }
+
+  // VERCEL-USAGE-5: purge dead builds (CANCELED/ERROR) the native 30-day
+  // expiration would otherwise retain for a month. Runs AFTER the READY
+  // purge above, so a failure here never skips the core cleanup.
+  const dead = (await listNonReadyDeployments(projectId)).filter(
+    (d) => Date.now() - d.createdAt > DEAD_HOURS * 3600 * 1000
+  );
+  log(`dead builds (CANCELED/ERROR) older than ${DEAD_HOURS}h: ${dead.length}`);
+  for (const d of dead) {
+    const { status, body } = await api(`/v13/deployments/${d.uid}`, { method: "DELETE" });
+    if (status === 200 || status === 204) {
+      deleted++;
+      log(`  ✓ deleted dead ${d.uid} (${fmtAge(d.createdAt)} old)`);
+    } else {
+      failed++;
+      console.error(`  ✗ FAILED dead ${d.uid} → HTTP ${status} ${JSON.stringify(body).slice(0, 120)}`);
+    }
+    await sleep(300);
   }
 
   log(`=== done: deleted=${deleted} failed=${failed} kept=${keep.size} total=${deps.length} ===`);
