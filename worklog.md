@@ -26,8 +26,8 @@ Stage Summary:
 - Band 2,409 cumulative (481+975+953): every /ar/foods mirror of the batch flipped to index,follow automatically via the existing arabiclessName regex (Arabic indexable pages now 2,489); EVO/search Arabic reach 17.4%→28.2%; JSON-LD Arabic for the batch
 - All plan guards extended to the cumulative band; curated-80/slug-identity/nameEn frozen by hash; sitemap policy still HELD and guarded; the semantic cut-dedupe keeps the meat grid thin-content-free (one page per cut×prep×part)
 - Remaining English tail outside the band: 6,341 rows (mostly brands/pork/babyfood/US-native rows outside legitimate arabization scope by design)
-- Commit SHA: (recorded post-push below)
-- Push status: pending — direct push to main follows in this same session, remote CI verification recorded per the Phase-240/241 precedent
+- Commit SHA: b782d51dd60b0a2c44df4f224d253505c88e16c4 (main; dd5d72ff→b782d51d, owner-bypass direct push, verified SYNCED)
+- Push status: PUSHED — remote CI on b782d51d all green: quality ✓ · parity ✓ · guard ✓ · cleanup ✓ · Supabase Preview ✓ (polled via API to completion)
 
 ---
 Task ID: FOOD-ARABIZATION-EXPANSION-2-2026-09-19
