@@ -4,6 +4,7 @@
   "buildCommand": "next build",
   "devCommand": "next dev -p 3000",
   "installCommand": "bun install",
+  "ignoreCommand": "git diff --quiet \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}\" HEAD -- . ':!docs' ':!archive' ':!/AGENTS.md' ':!/CHANGELOG.md' ':!/CONTRIBUTING.md' ':!/DESIGN.md' ':!/DEVELOPER_GUIDE.md' ':!/LICENSE' ':!/README.md' ':!/SECURITY.md' ':!/STATE.md' ':!/worklog.md'",
   "regions": ["fra1"],
   "crons": [
     {
