@@ -1,3 +1,8 @@
+// VERCEL ignore-step test C (2026-09-20): batched code+docs probe — this push
+// carries this code commit UNDER a docs-only top commit; expect READY (proves
+// VERCEL_GIT_PREVIOUS_SHA spans multi-commit pushes; a naive HEAD^ rule would
+// CANCEL and lose the code deploy). Safe to remove anytime.
+
 /**
  * THE ONE SLUG MODULE (2026-08-28j — ONE-SLUG-LAW).
  *
