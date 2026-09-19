@@ -23,8 +23,8 @@ Work Log:
 Stage Summary:
 - 481 USDA foods now carry real MSA Arabic nameAr (was verbatim English); band indexability flipped automatically via the existing arabiclessName regex (962 EN+AR pages now indexable); EVO Arabic grounding reach 0.9%→6.4%; meal-planner/coach Arabic surfaces show Arabic names
 - All seven plan guards live in CI; curated-80/slugs/nameEn frozen by hash; sitemap policy HELD and guarded against unreviewed wiring
-- Commit SHA: recorded in the follow-up docs commit (Phase-191 worklog-final-SHA precedent)
-- Push status: direct-push to main (owner-bypass path) — remote + CI verified in-session
+- Commit SHA: b1ba9d706e5f6af11ba3356d4c80f5a8b6e46c09 (main; 9d18dd11→b1ba9d70, owner-bypass direct push, verified SYNCED)
+- Push status: PUSHED — remote CI on b1ba9d70 all green: quality ✓ · parity ✓ · guard ✓ · cleanup ✓ · Supabase Preview ✓ (polled via API to completion; this docs frame records the final SHA per the Phase-191 precedent)
 
 ---
 Task ID: GIT-WORKFLOW-AUDIT-DIRECT-PUSH-2026-09-19
