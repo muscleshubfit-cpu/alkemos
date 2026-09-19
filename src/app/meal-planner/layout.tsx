@@ -10,7 +10,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * tool pages). No hreflang: no /ar mirror exists for this page.
  */
 export const metadata: Metadata = {
-  title: "Meal Planner | Alkemos — Build & Download Custom Meal Plans",
+  title: "Meal Planner | Alkemos — Build Custom Meal Plans Free",
   description:
     "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free, no signup. Export unlocks on paid tiers.",
   keywords: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Meal Planner | Alkemos",
     description:
-      "Build a personalized meal plan from the full food database and download it for free.",
+      "Build a personalized meal plan from 8,830+ foods with calories and macros — free, no signup.",
     type: "website",
     url: "https://alkemos.com/meal-planner",
     // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin

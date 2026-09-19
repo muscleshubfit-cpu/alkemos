@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "daily water goal",
     "hydration tracker",
     "how much water should I drink",
-    "hydration reminder",
+    "daily water intake",
   ],
   alternates: {
     canonical: "/tools/water-tracker",

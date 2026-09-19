@@ -1,6 +1,6 @@
 # Alkemos Content Strategy — Source of Truth (Non-Blog Pages)
 
-**Version:** 1.0 · **Date:** 2026-09-20 · **Owner scope:** every public non-blog page, Arabic and English.
+**Version:** 1.1 (final content quality gate) · **Date:** 2026-09-19 (UTC) · **Owner scope:** every public non-blog page, Arabic and English.
 **Law of this document:** when any page copy, metadata string, schema text, or card label disagrees
 with this document, this document wins — unless it disagrees with the code, in which case the code
 wins and this document is updated first.
@@ -34,30 +34,46 @@ Arabic is a **standalone market**, not a translation of English.
 
 ---
 
-## 2. Search intent research (2026-09-20)
+## 2. Search intent research (captured 2026-09-19)
 
-### Arabic market (SERP-verified)
+**Method & sources.** Competitor and SERP observations below come from 13 live
+web-search result sets captured on 2026-09-19 and stored as raw JSON in
+`docs/research/2026-09-19-serp/` in this repo (files:
+`ar-calorie-serp`, `ar-macro-serp`, `ar-programs-serp`, `ar-diet-serp`,
+`ar-coach-serp`, `ar-coachprice-serp`, `ar-platform-serp`,
+`arabic-fitness-apps-serp`, `en-aicoach-serp`, `en-aimeal-serp`,
+`en-coaching-serp`, `en-exdb-serp`, `en-mfp-alt-serp`). Rows marked
+**(desk)** were not SERP-captured — they are editorial assessments and must
+not be quoted as SERP findings.
 
-| Query cluster | Intent | SERP reality (who we beat / join) | Alkemos angle |
+**No ranking claims.** These snapshots describe what appeared in results on
+the capture date. They say nothing about where Alkemos ranks (new pages, no
+rank history) and no superiority over any competitor is claimed or implied.
+Competitor names are listed as observed result participants, not as
+benchmarks we assert to beat.
+
+### Arabic market (SERP snapshots + desk notes)
+
+| Query cluster | Intent | What the results showed (source file) | Alkemos angle |
 |---|---|---|---|
-| حاسبة السعرات الحرارية | Calculate my daily calories | Health ministries (moh.gov.sa, mohap.gov.ae), hospitals, portals — basic calculators, no macros split, no method named | Name the method (Mifflin-St Jeor), give macros + BMR/TDEE too, Arabic reference content, results savable |
-| حاسبة الماكروز / ماكروز | Split calories into P/C/F | saudi-fit, nutridaybyday, arabketo — single-page tools | Same tool quality + macro presets + meal-planner handoff |
-| حاسبة كتلة الجسم / BMI | Check weight category | Medical portals | WHO bands + honest limitations content (already strong) |
-| جدول تمارين للمبتدئين | Ready weekly schedule | saudi-fit (5-day splits), daily.sa (Full Body/UL/PPL + FAQ), scribd PDFs | Real programs with full weekly tables + linked exercise pages |
-| نظام غذائي للتخسيس / جدول وجبات | Ready meal table with calories | dietworldsa, altibbi, scribd PDFs, 1200-kcal apps | 24 gram-level plans (6 levels × 4 systems) from a familiar Arab kitchen |
-| مدرب شخصي أونلاين | Human follow-up, price check | Individual coach sites (KSA/Gulf), global market $100–300/mo | Coaching at $39.99/mo — honest price anchor vs the global market |
-| منصة رياضية أونلاين | Integrated training + nutrition | Weak SERP (apps, generic portals) — **opportunity** | "المنصة المتكاملة" play: tools + libraries + AI + coaching in one place |
+| حاسبة السعرات الحرارية | Calculate my daily calories | Health ministries (moh.gov.sa, mohap.gov.ae), hospitals, portals — basic calculators, no macros split, no method named (`ar-calorie-serp`) | Name the method (Mifflin-St Jeor), give macros + BMR/TDEE too, Arabic reference content, results savable |
+| حاسبة الماكروز / ماكروز | Split calories into P/C/F | saudi-fit, nutridaybyday, arabketo, arabianbodybuilding — single-page tools (`ar-macro-serp`) | Same tool quality + macro presets + meal-planner handoff |
+| حاسبة كتلة الجسم / BMI | Check weight category | **(desk)** medical/health portals dominate this family generally; not captured in this pass | WHO bands + honest limitations content (already strong) |
+| جدول تمارين للمبتدئين | Ready weekly schedule | saudi-fit (5-day splits), daily.sa, scribd PDFs (`ar-programs-serp`) | Real programs with full weekly tables + linked exercise pages |
+| نظام غذائي للتخسيس / جدول وجبات | Ready meal table with calories | dietworldsa, altibbi, clinic pages, Play Store diet apps (`ar-diet-serp`) | 24 gram-level plans (6 levels × 4 systems) from a familiar Arab kitchen |
+| مدرب شخصي أونلاين | Human follow-up, price check | Individual coach sites (`ar-coach-serp`) + 2026 global pricing guides — coachway.io, gainsfromgeebs.com, warriorbabe.com (`ar-coachprice-serp`; those guides discuss 1-on-1 rates, exact ranges not re-verified here) | Coaching at a fixed, published price ($39.99/mo) with real limits shown up front |
+| منصة رياضية أونلاين | Integrated training + nutrition | Play Store apps, generic portals (hadafpro, for9a) — no strong integrated-platform result (`ar-platform-serp`) | "المنصة المتكاملة" play: tools + libraries + AI + coaching in one place |
 
 ### English / global market
 
-| Query cluster | Intent | SERP reality | Alkemos angle |
+| Query cluster | Intent | What the results showed (source file) | Alkemos angle |
 |---|---|---|---|
-| calorie calculator / TDEE calculator | Compute numbers | Mature tools (many) | Method transparency + no-signup + save/export |
-| AI meal planner free no signup | Generate a plan now | strongrfastr, dishgen, easy-peasy, prospre — "free, no signup" is the entry ticket | Lead with "2 free generations/month, no signup, grams-level, Arab-kitchen foods" |
-| exercise database / library | Browse exercises with instructions | muscleandstrength (1500+), kilo (1400+), legend-tracker (1600+), ACE | We are smaller — compete on bilingual depth, linked programs, integrated planner, clean UX |
-| AI fitness coach | Chat-based advice | BodBot, Budy, generic chatbots | EVO = reads your data + platform-grounded answers with links |
-| MyFitnessPal alternatives | Leave MFP | Fitia, Cronometer, PlateLens, FoodNoms | Free basics not paywalled, Arabic, AI plans, no barcode (be honest) |
-| online coaching platform (B2B) | Software for coaches | Trainerize, TrueCoach, Everfit | /for-coaches: 0% commission, your prices, your clients |
+| calorie calculator / TDEE calculator | Compute numbers | **(desk)** mature, long-established tool space; not captured in this pass | Method transparency, no-signup use, free JSON export |
+| AI meal planner free no signup | Generate a plan now | strongrfastr, dishgen, easy-peasy, template.net, clove.kitchen, calfix — "free, no signup" is the entry ticket (`en-aimeal-serp`) | Lead with "2 free generations/month, no signup, grams-level, Arab-kitchen foods" |
+| exercise database / library | Browse exercises with instructions | muscleandstrength (1500+), kilo (1400+), legend-tracker (1600+), ACE (`en-exdb-serp`) | We are smaller on count — compete on bilingual depth, linked programs, integrated planner, clean UX |
+| AI fitness coach | Chat-based advice | BodBot, budy.fit, generic chatbots; press coverage of ChatGPT trainers (`en-aicoach-serp`) | EVO = reads your data + platform-grounded answers with links |
+| MyFitnessPal alternatives | Leave MFP | Fitia, PlateLens, FoodNoms, eatthismuch, mealthinker, nutriscan (`en-mfp-alt-serp`) | Free basics not paywalled, Arabic, AI plans, no barcode (be honest) |
+| online coaching platform (B2B) | Software for coaches | Trainerize, promealplan comparison guide, coachcatalyst (`en-coaching-serp`) | /for-coaches: 0% commission, your prices, your clients |
 
 ### Intent→page mapping (page-to-keyword map)
 
@@ -90,7 +106,7 @@ Arabic is a **standalone market**, not a translation of English.
 **Anti-cannibalization rules:** one page = one primary keyword. Calculators never target
 "protein calculator" (belongs to macro). The tools hub targets the cluster word, individual tool
 pages own their tool name. `/diet-plan` owns "خطط غذائية جاهزة"; `/ai-meal-planner` owns
-"AI/tوليد"; `/meal-planner` owns manual building. `/coaching` owns "كوتشينج أونلاين";
+"AI meal planner / توليد خطة بالذكاء الاصطناعي"; `/meal-planner` owns manual building. `/coaching` owns "كوتشينج أونلاين";
 `/for-coaches` owns B2B coach intent; `/evo` owns AI-coach intent.
 
 ---

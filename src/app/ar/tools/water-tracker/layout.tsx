@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "متتبع شرب الماء",
     "كم لتر ماء اشرب يوميا",
     "احتياج الجسم من الماء",
-    "تذكير شرب الماء",
+    "سجل شرب الماء",
   ],
   alternates: {
     canonical: "https://alkemos.com/ar/tools/water-tracker",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "متتبع شرب الماء — هدفك اليومي وسجل أكوابك",
+    title: "متتبع شرب الماء",
     description: "هدف ماء ذكي من وزنك + تسجيل الأكواب + سجل يومي — مجانًا.",
     type: "website",
     locale: "ar_EG",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "متتبع شرب الماء — هدفك اليومي وسجل أكوابك",
+    title: "متتبع شرب الماء",
     description: "هدف ماء ذكي من وزنك + تسجيل الأكواب + سجل يومي — مجانًا.",
   },
 };
