@@ -11,12 +11,13 @@ import { SEO_FOOD_BAND_SET } from "@/lib/seo-food-band";
  * `tags.length > 0` are advertised in the sitemap (both languages).
  * The USDA long tail stays live and indexable via internal links.
  *
- * FOOD-ARABIZATION Phase 1 (2026-09-19) — band-aware update: the pilot
- * translated a bounded SEO_FOOD_BAND (481 USDA slugs) to real Arabic.
- * The Phase-141 data fact "the whole tail is English" is now scoped:
- * the tail OUTSIDE the band is still English-only; inside the band it
- * is Arabic. The sitemap POLICY ITSELF is deliberately UNCHANGED in
- * this phase (owner directive 2026-09-19: no final sitemap/indexing
+ * FOOD-ARABIZATION Phase 1+2 (2026-09-19) — band-aware update: the pilot
+ * translated a bounded SEO_FOOD_BAND (481 USDA slugs) to real Arabic, and
+ * the owner-ordered Phase-2 expansion batch added +975 more (cumulative
+ * 1,456). The Phase-141 data fact "the whole tail is English" is now
+ * scoped: the tail OUTSIDE the band is still English-only; inside the band
+ * it is Arabic. The sitemap POLICY ITSELF is deliberately UNCHANGED in
+ * these phases (owner directive 2026-09-19: no final sitemap/indexing
  * policy change before pilot quality verification) — pinned below.
  */
 
@@ -37,18 +38,20 @@ describe("foods sitemap policy (A-5)", () => {
   it("USDA long tail OUTSIDE the SEO band carries ENGLISH nameAr — documents WHY it stays out of the sitemap", () => {
     const tail = FOODS.filter((f) => (f.tags?.length ?? 0) === 0);
     // The Phase-141 audit verified ALL 8,750 tail rows ship English
-    // nameAr. FOOD-ARABIZATION Phase 1 translated a bounded band of it;
-    // everything else keeps English nameAr (translatable only in a
-    // future owner-ordered batch). If this fails outside the band, a
-    // translation landed unguarded — revisit the sitemap policy then.
+    // nameAr. FOOD-ARABIZATION Phase 1 (481) + Phase 2 (+975) translated
+    // a bounded band of it; everything else keeps English nameAr
+    // (translatable only in a future owner-ordered batch). If this fails
+    // outside the band, a translation landed unguarded — revisit the
+    // sitemap policy then.
     const outside = tail.filter((f) => !SEO_FOOD_BAND_SET.has(f.slug));
     const withArabic = outside.filter((f) => hasArabic(f.nameAr)).length;
     expect(withArabic).toBe(0);
-    expect(outside.length).toBeGreaterThan(8000);
+    expect(outside.length).toBeGreaterThan(7000);
     // The band itself is now genuinely Arabic (rankable AR mirrors) —
-    // the pilot's whole point (full law: foods-ar-purity.test.ts).
+    // the batches' whole point (full law: foods-ar-purity.test.ts).
+    // 481 pilot + 975 Phase-2 batch ≥ the pilot+one-batch law floor.
     const band = tail.filter((f) => SEO_FOOD_BAND_SET.has(f.slug));
-    expect(band.length).toBeGreaterThanOrEqual(300);
+    expect(band.length).toBeGreaterThanOrEqual(981);
     expect(band.every((f) => hasArabic(f.nameAr))).toBe(true);
   });
 

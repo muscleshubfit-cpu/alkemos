@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: FOOD-ARABIZATION-EXPANSION-2-2026-09-19
+Agent: Super Z (owner session)
+Task: Execute the food-arabization plan Phase 2 expansion (owner order 2026-09-19 «ابدأ تنفيذ التوسع للمرحلة الثانية» — plan §8: one 500-1,000 batch, same laws as the pilot: nameAr-only MSA, no slug/nameEn/numeric/category edits, no auto-tags, NO sitemap/indexing policy change, 80 curated + 8,830 slugs frozen) — implement, test, document, direct-push to main, verify remote+CI
+
+Work Log:
+- Selection: parsed the remaining 8,269 English-tail rows, family census, rule-based selection with explicit caps + a 105-slug PROTECTED set of Egyptian/Arabic essentials (medjool, quince, grape leaves, roselle, tamarind, purslane, taro, cardamom, saffron, fenugreek, grouper, whiting, rice pudding, coconut milk…) + balanced priority trim → 975 slugs (within the ordered 500-1,000)
+- Selection discipline: ZERO pork & derivatives (lard/bacon/salami…), ZERO brands (fast-food/cereal/soup dynasties + Uncle Ben's & Zespri caught mid-execution and excluded), ZERO babyfood/infant-formula/alcohol/US-native-tribal, obscure North-American freshwater species skipped; category spread: veg 315 · protein 193 · carb 142 · fruit 121 · snack 74 · dairy 38 · nuts 36 · fat 28 · drink 28
+- Translation: 975 MSA names authored in-session (avg 23.2 chars, culinary terms مجهول/كركديه/بربيين/كولقاس/هامور/موسى/ناجل), validated fail-closed BEFORE injection: non-empty · Arabic · ZERO Latin · differs from nameEn · 2-80 chars · no CJK · unique · every slug in selection · zero collision with pilot/curated names (one self-collision class fixed during re-runs)
+- Injection: idempotent slug-anchored replacement (975/975; one dropped-in-revision row reverted byte-exact to English before final run) — post-parse: 8,830/80/8,750 intact · curated-80 hash IDENTICAL · 8,830-slug order hash IDENTICAL (0b2c0ac2…) · every non-target field byte-identical · foods.ts +8.1KB
+- Band: seo-food-band.ts rebuilt from the pristine Phase-1 git-HEAD set ∪ new batch → cumulative 1,456 slugs in FOODS order (481 pilot + 975)
+- Guards updated (existing quality gate, no new workflows): foods-ar-purity — cumulative band law 981-1,481, nameEn freeze re-pinned f657cab4… (vitest-computed), pilot canaries kept, +16 Phase-2 canaries (بلح مجهول/سفرجل/ورق عنب/كركديه/هيل/زعفران/حلبة/هامور/ميرلان/يقطين/رجلة/أرز باللبن/سلق/حليب جوز الهند/كانولا/تمر هندي) · foods-sitemap-policy — tail-outside-band-English fact (7,294 rows, 0 Arabic, threshold >7,000), band floor ≥981, PILOT-HOLD canary untouched · food-search-lang — unchanged, green
+- Deliberately NOT done per owner constraints: sitemap-foods.xml untouched (tags>0 only, 160 URLs — wiring stays a separate owner-gated frame) · tags stay [] · EVO untouched · defaultServingAr stays "100g" · ?lang contract untouched
+- Docs: docs/FOOD-ARABIZATION-PHASE-2-REPORT-2026-09-19.md (execution report) + registry row + plan status line updated + STATE (Phase 241) + this entry
+- Verification (§3.5 full): tsc 0 · eslint 0 · vitest 91 files / 1530 tests GREEN (+1) · next build ✓ 2055/2055 · docs_audit 0 violations · docs_parity ✓ · migration_audit zero new drift · stale-refs ✓
+
+Stage Summary:
+- Band 1,456 cumulative (481+975): every /ar/foods mirror of the batch flipped to index,follow automatically via the existing arabiclessName regex (2,912 EN+AR indexable); EVO/search Arabic reach 6.4%→17.4%; JSON-LD Arabic for the batch
+- All plan guards extended to the cumulative band; curated-80/slug-identity/nameEn frozen by hash; sitemap policy still HELD and guarded
+- Commit SHA: <SHA_PENDING>
+- Push status: <PUSH_PENDING>
+
+---
 Task ID: FOOD-ARABIZATION-PILOT-1-2026-09-19
 Agent: Super Z (owner session)
 Task: Execute the approved food-arabization plan Phase 1 pilot (owner order 2026-09-19: 300-500 USDA foods, nameAr-only MSA quality, no slug/nameEn/numeric edits, no auto-tags, plan validation gates, fix Arabic search only per plan, NO final sitemap/indexing policy change before pilot-quality verification, 80 curated untouched) — implement, test, document, direct-push to main, verify remote+CI

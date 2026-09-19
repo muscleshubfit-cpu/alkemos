@@ -4,7 +4,7 @@ import { FOODS, getFoodBySlug } from "@/lib/foods";
 import { SEO_FOOD_BAND, SEO_FOOD_BAND_SET } from "@/lib/seo-food-band";
 
 /**
- * FOOD-ARABIZATION Phase 1 (2026-09-19) — ARABIZED-BAND LAW.
+ * FOOD-ARABIZATION Phase 1+2 (2026-09-19) — ARABIZED-BAND LAW.
  *
  * The arabization plan (docs/FOOD-DATA-ARABIZATION-PLAN-2026-09-19.md §6)
  * scopes the Arabic-purity law to the BAND, not the whole library (the
@@ -19,6 +19,12 @@ import { SEO_FOOD_BAND, SEO_FOOD_BAND_SET } from "@/lib/seo-food-band";
  *   4. FREEZE canaries — the translation line may never touch: the 80
  *      curated rows, the 8,830 slug identities, or the band's nameEn.
  *
+ * Phase 1 (pilot, owner order 2026-09-19): 481 slugs. Phase 2 (owner
+ * expansion order, same day): +975 slugs (seafood sweep · produce ·
+ * full spice rack · dairy/bakery/dessert staples · zero pork/brands/
+ * babyfood) — cumulative 1,456 = pilot + one 500-1,000 monthly batch
+ * (plan §8 Phase 2 law; the size range below encodes exactly that).
+ *
  * Outside the band: exempt (foods-sitemap-policy.test.ts pins the fact
  * that the rest of the tail is still English-only).
  */
@@ -31,8 +37,8 @@ const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex
 
 const bandFoods = FOODS.filter((f) => SEO_FOOD_BAND_SET.has(f.slug));
 
-describe("foods-ar-purity (FOOD-ARABIZATION Phase 1 — the 481-slug pilot band)", () => {
-  it("band integrity: every manifest slug exists, is a USDA-tail row (tags empty), band size 300-500", () => {
+describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2 — the 1,456-slug band)", () => {
+  it("band integrity: every manifest slug exists, is a USDA-tail row (tags empty), band size = pilot + one Phase-2 batch (981-1481)", () => {
     expect(bandFoods.length).toBe(SEO_FOOD_BAND.length);
     for (const slug of SEO_FOOD_BAND) {
       const f = getFoodBySlug(slug);
@@ -42,8 +48,9 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1 — the 481-slug pilot band)
         `${slug}: band rows must keep tags EMPTY (no auto-curation)`,
       ).toBe(0);
     }
-    expect(SEO_FOOD_BAND.length).toBeGreaterThanOrEqual(300);
-    expect(SEO_FOOD_BAND.length).toBeLessThanOrEqual(500);
+    // Phase 1 (481) + Phase 2 batch law (500-1,000 per plan §8).
+    expect(SEO_FOOD_BAND.length).toBeGreaterThanOrEqual(981);
+    expect(SEO_FOOD_BAND.length).toBeLessThanOrEqual(1481);
   });
 
   it("band law: nameAr is non-empty, Arabic, ZERO Latin, differs from nameEn", () => {
@@ -111,11 +118,12 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1 — the 481-slug pilot band)
     );
   });
 
-  it("FREEZE — the band's English twins (nameEn immutable for the pilot)", () => {
+  it("FREEZE — the band's English twins (nameEn immutable across batches)", () => {
     const payload = bandFoods.map((f) => `${f.slug}|${f.nameEn}`).join("\n");
-    // Pinned 2026-09-19 (post-injection, nameEn unchanged from USDA source).
+    // Pinned 2026-09-19 after the Phase-2 expansion (481 pilot + 975 new
+    // rows; every nameEn still the verbatim USDA English name).
     expect(sha256(payload)).toBe(
-      "8befa1e76fd5370ed6cdca9cd394b406400b6cba550961ef2208769b930c4551",
+      "f657cab437903b5b75c22c5e50590fe187bccb819aa88644a0594380413e4433",
     );
   });
 
@@ -131,6 +139,25 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1 — the 481-slug pilot band)
     expect(getFoodBySlug("rice-white-medium-grain-raw-enriched")?.nameAr).toBe(
       "أرز أبيض متوسط الحبة — نيء",
     );
+  });
+
+  it("Phase-2 canaries — owner-ordered expansion batch (seafood · spices · Egyptian staples)", () => {
+    expect(getFoodBySlug("dates-medjool")?.nameAr).toBe("بلح مجهول");
+    expect(getFoodBySlug("quinces-raw")?.nameAr).toBe("سفرجل — نيء");
+    expect(getFoodBySlug("grape-leaves-raw")?.nameAr).toBe("ورق عنب — نيء");
+    expect(getFoodBySlug("roselle-raw")?.nameAr).toBe("كركديه — طازج");
+    expect(getFoodBySlug("tamarinds-raw")?.nameAr).toBe("تمر هندي — نيء");
+    expect(getFoodBySlug("spices-saffron")?.nameAr).toBe("زعفران");
+    expect(getFoodBySlug("spices-cardamom")?.nameAr).toBe("هيل");
+    expect(getFoodBySlug("spices-fenugreek-seed")?.nameAr).toBe("حلبة — حبوب");
+    expect(getFoodBySlug("fish-grouper-mixed-species-raw")?.nameAr).toBe("سمك هامور — نيء");
+    expect(getFoodBySlug("fish-whiting-mixed-species-raw")?.nameAr).toBe("سمك ميرلان (بحري) — نيء");
+    expect(getFoodBySlug("pumpkin-raw")?.nameAr).toBe("يقطين — نيء");
+    expect(getFoodBySlug("purslane-raw")?.nameAr).toBe("رجلة (بربيين) — نيئة");
+    expect(getFoodBySlug("puddings-rice-ready-to-eat")?.nameAr).toBe("أرز باللبن — جاهز");
+    expect(getFoodBySlug("chard-swiss-raw")?.nameAr).toBe("سلق — نيء");
+    expect(getFoodBySlug("nuts-coconut-milk-canned-liquid-expressed-from-grated-meat-a")?.nameAr).toBe("حليب جوز الهند — معلب");
+    expect(getFoodBySlug("oil-canola")?.nameAr).toBe("زيت الكانولا");
   });
 
   it("EN twins untouched — nameEn remains the USDA English name for the band", () => {
