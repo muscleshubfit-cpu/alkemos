@@ -19,8 +19,9 @@ Work Log:
 - اختبار C الحاسم (دفعة كوميتين معًا: كود ثم docs في القمة): متوقع READY — إثبات حي أن VERCEL_GIT_PREVIOUS_SHA يغطي الدفعات المتعددة (القاعدة الساذجة HEAD^ كانت ستضيّع نشرات كود — حالات الفجوة الخمس في تقرير التحقق)
 
 Stage Summary:
-- يُستكمل بعد اكتمال A/B/C — السجل الكامل والنتائج الحية: docs/VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20.md (القسم 3)
-- شرط الإيقاف المعتمد: إن أعطى C نتيجة CANCELED ← revert فوري لكوميت vercel.json والعودة للتحقق
+- **الاختبارات الأربعة خضراء حيًّا في الإنتاج:** التفعيل 3d8a6ad ← READY/PROMOTED (dpl_838w16Px، ~47ث) · اختبار A docs-only e125dd9 ← **CANCELED** (dpl_2BDGNu9v، ~16ث) · اختبار B كود 642a706 ← READY/PROMOTED (dpl_DB2qWbG8، ~62ث — الأساس كان 3d8a6ad آخر ناجح وليس الملغى) · اختبار C الحاسم (دفعة كود+docs) 5acdd4d ← READY/PROMOTED (dpl_8Tx1g2UL، ~47ث) — القاعدة الساذجة كانت ستضيّع نشر src/lib/slug.ts
+- **صفر نشرات مفقودة · شرط الإيقاف لم يُستثر** — الميزة فعّالة نهائيًا؛ التوفير المتوقع ~44% من الدفعات (docs-only تلغى تلقائيًا)
+- السجل الكامل: docs/VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20.md (القسمان 3 و5)
 
 ---
 Task ID: FOOD-ARABIZATION-BATCH-3-2026-09-19
