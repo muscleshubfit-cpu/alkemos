@@ -307,9 +307,9 @@ export const EQUIPMENT_HUBS: EquipmentHub[] = [
     h1En: "Resistance Band Exercises",
     h1Ar: "تمارين المطاط",
     introEn:
-      "The resistance band exercise library — band rows, band presses, band curls, band pull-aparts, and band squats. Resistance bands are the most portable training tool available: they fit in a backpack, cost less than $20, and provide full-body resistance training for travel or home. This index covers every band movement with target muscles.",
+      "The resistance band exercise library — band rows, band presses, band curls, band pull-aparts, and band squats. Resistance bands are the most portable training tool available: they fit in a backpack, usually cost less than $20, and provide full-body resistance training for travel or home. This index covers every band movement with target muscles.",
     introAr:
-      "مكتبة تمارين المطاط — تجديف مطاط، ضغط مطاط، كيرل مطاط، بول أبارت مطاط، وسكوات مطاط. المطاط هو أكثر أدوات التدريب قابلية للحمل: يُناسب حقيبة الظهر، يكلّف أقل من $20، ويوفّر تدريب مقاومة لكامل الجسم للسفر أو المنزل. هذا الفهرس يغطّي كل حركات المطاط مع العضلات المستهدفة.",
+      "مكتبة تمارين المطاط — تجديف مطاط، ضغط مطاط، كيرل مطاط، بول أبارت مطاط، وسكوات مطاط. المطاط هو أكثر أدوات التدريب قابلية للحمل: يُناسب حقيبة الظهر، غالبًا يكلّف أقل من $20، ويوفّر تدريب مقاومة لكامل الجسم للسفر أو المنزل. هذا الفهرس يغطّي كل حركات المطاط مع العضلات المستهدفة.",
     descriptionEn:
       "Complete resistance band exercise library: band rows, presses, curls, pull-aparts, and squats for travel and home workouts.",
     descriptionAr:
@@ -443,17 +443,17 @@ export const FOOD_COLLECTIONS: FoodCollection[] = [
     slug: "vegetarian-protein-sources",
     tag: "vegetarian",
     titleEn: "Vegetarian Protein Sources — Eggs, Dairy & Plant Protein | Alkemos",
-    titleAr: "مصادر البروتين النباتي (للنسخة اللبنية) — بيض، ألبان، وبروتين نباتي | Alkemos",
+    titleAr: "مصادر البروتين للنباتيين — بيض وألبان وبروتين نباتي",
     h1En: "Vegetarian Protein Sources",
-    h1Ar: "مصادر البروتين النباتي (اللابنكي)",
+    h1Ar: "مصادر البروتين للنباتيين (مع البيض والألبان)",
     introEn:
       "Every vegetarian food in the Alkemos library — eggs, dairy (Greek yogurt, cottage cheese, milk), plus all the plant-based protein sources like lentils, tofu, and quinoa. Vegetarian eating is more flexible than vegan because it allows eggs and dairy, which makes hitting protein targets significantly easier. This collection covers every vegetarian option with full macros per 100g.",
     introAr:
-      "كل أطعمة النباتيين (اللابنكيين) في مكتبة Alkemos — البيض، الألبان (الزبادي اليوناني، الجبن القريش، الحليب)، بالإضافة إلى كل مصادر البروتين النباتي مثل العدس، التوفو، والكينوا. الأكل النباتي اللابنكي أكثر مرونة من النباتي الصافي لأنه يسمح بالبيض والألبان، مما يجعل تحقيق أهداف البروتين أسهل بكثير. هذه المجموعة تغطّي كل الخيارات النباتية اللابنية مع الماكروز الكاملة لكل 100 جرام.",
+      "كل أطعمة النباتيين في مكتبة Alkemos — البيض والألبان (الزبادي اليوناني، والجبن القريش، والحليب)، إضافة إلى كل مصادر البروتين النباتي مثل العدس والتوفو والكينوا. النظام النباتي الذي يشمل البيض والألبان أكثر مرونة من النظام النباتي الصافي، ما يجعل الوصول إلى هدف البروتين أسهل بكثير. تغطي هذه المجموعة كل الخيارات النباتية مع الماكروز كاملة لكل 100 جرام.",
     descriptionEn:
       "Complete list of vegetarian protein sources with macros per 100g. Eggs, dairy, lentils, tofu, quinoa, and more.",
     descriptionAr:
-      "قائمة كاملة لمصادر البروتين النباتي اللابنكي مع الماكروز لكل 100 جرام. بيض، ألبان، عدس، توفو، كينوا، والمزيد.",
+      "قائمة كاملة لمصادر البروتين للنباتيين مع الماكروز لكل 100 جرام — بيض وألبان وعدس وتوفو وكينوا والمزيد.",
   },
   {
     slug: "foods-for-cutting",

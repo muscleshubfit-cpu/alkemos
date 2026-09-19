@@ -58,7 +58,7 @@ export async function generateMetadata({
       title: collection.titleAr,
       description: collection.descriptionAr,
       siteName: "Alkemos",
-      locale: "ar_AR",
+      locale: "ar_EG",
       // PHASE 187 (deep-audit P0-2): og:image for the AR collection
       // surface — static branded family card (design mirrors
       // /api/og-image).
@@ -141,7 +141,7 @@ export default async function ArabicFoodCollectionPage({
       <section aria-label="قائمة الأطعمة" className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="text-xl md:text-2xl font-semibold">كل {collection.h1Ar}</h2>
-          <span className="text-sm text-muted-foreground">{foods.length} طعام</span>
+          <span className="text-sm text-muted-foreground">{foods.length} صنف غذائي</span>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {foods.map((food) => {
@@ -155,7 +155,7 @@ export default async function ArabicFoodCollectionPage({
                 >
                   <div className="font-semibold text-foreground">{food.nameAr}</div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {catLabel.emoji} {catLabel.ar} · الحصة الافتراضية: {food.defaultServingAr} ({food.defaultGrams}ج)
+                    {catLabel.emoji} {catLabel.ar} · الحصة الافتراضية: {food.defaultServingAr} ({food.defaultGrams} جم)
                   </div>
                   <div className="mt-2 grid grid-cols-4 gap-1 text-xs">
                     <div className="text-center">
@@ -177,7 +177,7 @@ export default async function ArabicFoodCollectionPage({
                   </div>
                   {perServing && (
                     <div className="mt-2 text-xs text-muted-foreground border-t pt-2">
-                      لكل حصة: {perServing.calories} سعر · {perServing.protein}ج بروتين
+                      لكل حصة: {perServing.calories} سعرة · {perServing.protein} جم بروتين
                     </div>
                   )}
                 </Link>

@@ -11,7 +11,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * mirror exists for this page.
  */
 export const metadata: Metadata = {
-  title: "Water Tracker | Alkemos — Daily Hydration Goal & Reminder",
+  title: "Water Tracker | Alkemos — Daily Hydration Goal & Log",
   description:
     "Track your daily water intake for free: get a smart hydration goal based on your body weight (35 ml × kg), log every cup, keep your history, and build the habit of staying hydrated.",
   keywords: [

@@ -20,19 +20,17 @@ export const metadata: Metadata = {
     default: "Alkemos | منصة اللياقة والتغذية الذكية المتكاملة",
     template: "%s — Alkemos",
   },
-  // Phase 117 (owner directive 2026-09-04): meta description shortened to
-  // 150-160 chars ending with the owner's verbatim CTA. Phase 194 (Copy
-  // Refinement Pass): the description LEADS with the one-platform
-  // positioning «تدرّب بذكاء، وتغذَّ بدقة، وتقدّم بوعي» — the CTA stays
-  // («ابدأ رحلتك الرياضية الآن مع منصة التدريب الرقمية المتكاملة» — توحّد سطر الفئة على «منصة اللياقة والتغذية الذكية المتكاملة» في 193 §12.50-أ-7) — the
-  // previous ~190-char version had no call to action. The three copies in
+  // Content-strategy v1 (2026-09-20): canonical AR positioning line
+  // «تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك» — mirrors the hero
+  // H1 — followed by the concrete proof numbers instead of repeating the
+  // category label (the title already carries it). The three copies in
   // this file stay identical (this file's established pattern).
   description:
-    "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم بوعي — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم. ابدأ رحلتك الآن مع منصة اللياقة والتغذية الذكية المتكاملة.",
+    "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي: 868+ تمرينًا، و8,830+ صنفًا غذائيًا، و8 أدوات مجانية، ومدرّب ذكاء اصطناعي.",
   openGraph: {
     title: "Alkemos | منصة اللياقة والتغذية الذكية المتكاملة",
     description:
-      "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم بوعي — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم. ابدأ رحلتك الآن مع منصة اللياقة والتغذية الذكية المتكاملة.",
+      "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي: 868+ تمرينًا، و8,830+ صنفًا غذائيًا، و8 أدوات مجانية، ومدرّب ذكاء اصطناعي.",
     siteName: "Alkemos",
     locale: "ar_EG",
     type: "website",
@@ -46,7 +44,7 @@ export const metadata: Metadata = {
         url: "/images/og/og-home-ar.png",
         width: 1200,
         height: 630,
-        alt: "منصة Alkemos الرياضية الشاملة",
+        alt: "Alkemos — منصة اللياقة والتغذية الذكية المتكاملة",
       },
     ],
   },
@@ -54,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Alkemos | منصة اللياقة والتغذية الذكية المتكاملة",
     description:
-      "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم بوعي — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي ومتابعة التقدم. ابدأ رحلتك الآن مع منصة اللياقة والتغذية الذكية المتكاملة.",
+      "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك — منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي: 868+ تمرينًا، و8,830+ صنفًا غذائيًا، و8 أدوات مجانية، ومدرّب ذكاء اصطناعي.",
     images: ["/images/og/og-home-ar.png"],
   },
   // NOTE: NO `alternates` here (homepage AR mirror follow-up, 2026-08-30).

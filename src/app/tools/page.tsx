@@ -42,8 +42,8 @@ export default function ToolsPage() {
                 cluster (calculators + water tracker + planners), not
                 calculators only — "tools" matches the H1 and tools-shared. */}
             {isAr
-              ? "أدوات لياقة وتغذية مجانية لمساعدتك في رحلتك."
-              : "Free fitness and nutrition tools for your journey."}
+              ? "أدوات لياقة وتغذية مجانية — بدون تسجيل."
+              : "Free fitness and nutrition tools — no signup required."}
           </p>
         </div>
 

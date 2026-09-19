@@ -5,7 +5,7 @@ import { getCoachingServiceSchema, jsonLd } from "@/lib/seo";
  * M30 fix: English-first metadata for /coaching.
  */
 export const metadata: Metadata = {
-  title: "Online Coaching | Alkemos — Professional Coaches & Nutrition Specialists",
+  title: "Online Coaching with Real Coaches | Alkemos",
   description:
     "Online coaching with professional coaches and nutrition specialists. Personalized meal plans, adaptive workout programs, personal follow-up, and EVO AI assistant available 24/7. Start your journey today.",
   keywords: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "nutrition specialist",
   ],
   openGraph: {
-    title: "Online Coaching | Alkemos — Professional Coaches & Nutrition Specialists",
+    title: "Online Coaching with Real Coaches | Alkemos",
     description:
       "Personalized meal plans, adaptive workouts, personal follow-up, and EVO AI available 24/7.",
     type: "website",

@@ -173,7 +173,7 @@ export default async function DietPlanCellPage({ params }: Params) {
                         {item.food}
                       </span>
                       <span className="whitespace-nowrap text-[var(--muted-foreground)]">
-                        {item.grams} غ · {item.kcal} سعرة
+                        {item.grams} جم · {item.kcal} سعرة
                       </span>
                     </li>
                   ))}
@@ -182,8 +182,8 @@ export default async function DietPlanCellPage({ params }: Params) {
             ))}
           </div>
           <p className="mt-3 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
-            إجمالي اليوم: {day.kcal} سعرة · بروتين {day.protein} غ ·
-            كربوهيدرات {day.carbs} غ · دهون {day.fat} غ. الأوزان مطبوخة أو
+            إجمالي اليوم: {day.kcal} سعرة · بروتين {day.protein} جم ·
+            كربوهيدرات {day.carbs} جم · دهون {day.fat} غ. الأوزان مطبوخة أو
             جاهزة للأكل، والقيم مقربة لأقرب سعرة — فالفارق الطبيعي لهضم طعام
             حقيقي أوسع من هذه الخانات العشرية.
           </p>
@@ -276,7 +276,7 @@ export default async function DietPlanCellPage({ params }: Params) {
           <div className="mt-3 space-y-4">
             <div>
               <h3 className="text-base font-semibold tracking-tight text-[var(--text)]">
-                هل ألتزم بهذه الجرامات حرفياً؟
+                هل ألتزم بهذه الغرامات حرفيًا؟
               </h3>
               <p className="mt-1.5 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
                 لا — الخطة سقالة لا قيد. الالتزام الحرفي بالغرام كل يوم بلا

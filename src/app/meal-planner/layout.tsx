@@ -12,7 +12,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Meal Planner | Alkemos — Build & Download Custom Meal Plans",
   description:
-    "Create a personalized meal plan in minutes: search the Alkemos food database, set your portions and calories, save plans as bookmarks, and download or export the final plan for free.",
+    "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free, no signup. Export unlocks on paid tiers.",
   keywords: [
     "meal planner",
     "custom meal plan",

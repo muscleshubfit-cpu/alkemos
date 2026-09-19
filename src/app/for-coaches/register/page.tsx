@@ -92,7 +92,7 @@ export default function CoachRegisterPage() {
     } catch {
       setError(
         isAr
-          ? "فيه مشكلة في الاتصال — اتأكد من النت وجرب تاني"
+          ? "حدثت مشكلة في الاتصال — تحقق من اتصالك بالإنترنت وحاول مرة أخرى"
           : "Connection problem — check your internet and try again",
       );
       setLoading(false);
@@ -116,7 +116,7 @@ export default function CoachRegisterPage() {
           </h1>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[#6e6e73]">
             {isAr
-              ? "دقيقة واحدة وحسابك جاهز: ضيف عملاءك، حدّد أسعارك بنفسك، واقبض منهم مباشرة."
+              ? "دقيقة واحدة وحسابك جاهز: أضف عملاءك، وحدّد أسعارك بنفسك، وتلقَّ مستحقاتك منهم مباشرة."
               : "One minute and you're in: add your clients, set your own prices, and get paid directly."}
           </p>
         </div>

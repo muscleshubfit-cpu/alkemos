@@ -69,7 +69,7 @@ export function SiteFooter() {
               className="h-10 w-auto object-contain"
             />
             <p className="mt-3 text-xs font-normal">{isAr ? "اصنع قوّتك الأسطورية." : "Forge Your Legendary Strength."}</p>
-            <p className="mt-3 text-[10px] font-normal text-[var(--muted-foreground)]">{isAr ? "© 2026 جميع الحقوق محفوظة" : "© 2026 All rights reserved"}</p>
+            <p className="mt-3 text-[10px] font-normal text-[var(--muted-foreground)]">{isAr ? `© ${new Date().getFullYear()} جميع الحقوق محفوظة` : `© ${new Date().getFullYear()} All rights reserved`}</p>
             {/* Phase SEO-GEO-4.6 (2026-09-09): owned-profile icon row — the
                 human counterpart of Organization.sameAs (src/lib/social.ts).
                 Plain links with NO nofollow: these are OWNED profiles and the
@@ -130,11 +130,11 @@ export function SiteFooter() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة BMI" : "BMI Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الدهون" : "Body Fat Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator"}</a></li>
+              <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع الماء" : "Water Tracker"}</a></li>
+              <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع شرب الماء" : "Water Tracker"}</a></li>
               <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
               <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="block py-1 hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
             </ul>

@@ -589,18 +589,24 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     const faqJsonld = readFileSync("src/lib/faq-content.ts", "utf8");
     expect(faqJsonld).toContain("اشتراك كوتشينج بشري منفصل يمكنك الانضمام إليه");
     expect(faqJsonld).toContain("coaching subscription you can join");
-    const faqVisible = readFileSync(
+    // Content-strategy v1 (2026-09-20): the FAQ visible copy is DERIVED
+    // from faq-content.ts (single source with the JSON-LD) — the visible
+    // pins therefore target the same module, plus the derivation itself.
+    const faqVisible = readFileSync("src/lib/faq-content.ts", "utf8");
+    expect(faqVisible).toContain('q: "هل يوجد مدرب بشري؟"');
+    expect(faqVisible).toContain('q: "ما هو EVO؟"');
+    const staticView = readFileSync(
       "src/components/views/StaticPageView.tsx",
       "utf8",
     );
-    expect(faqVisible).toContain('heading: "هل يوجد مدرب بشري؟"');
-    expect(faqVisible).toContain('heading: "ما هو EVO؟"');
-    const aboutVisible = faqVisible;
-    // PHASE 217 (P3-10/م4): the about counts now derive from FOODS_COUNT
-    // — the pin follows the derived template (still proves the AR about
-    // copy carries the food-library size claim).
-    expect(aboutVisible).toContain("والأطعمة (${FOOD_LIB})");
-    expect(aboutVisible).toContain("4 توليدات خطط شهريًا");
+    expect(staticView).toContain("FAQS_AR, FAQS_EN");
+    const aboutVisible = staticView;
+    // PHASE 217 (P3-10/م4) + content-strategy v1: the about counts derive
+    // from FOODS_COUNT — the pin follows the derived template (still proves
+    // the AR about copy carries the food-library size claim), in the
+    // rewritten About wording.
+    expect(aboutVisible).toContain("وقاعدة أطعمة تضم ${FOOD_LIB} صنفًا غذائيًا");
+    expect(aboutVisible).toContain("وبرو $29.99 شهريًا أو $239 سنويًا");
     const arCoaches = readFileSync("src/app/ar/coaches/[slug]/page.tsx", "utf8");
     expect(arCoaches).toContain("اشترك في متابعة خاصة");
   });
@@ -668,10 +674,10 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     const hubDepthCollections = readFileSync("src/lib/hub-depth-collections.ts", "utf8");
     expect(hubDepthCollections).toContain("أسطورة النادي الرياضي");
     expect(hubDepthCollections).toContain("تُجوّع تدريبك");
-    expect(hubDepthCollections).toContain("كما يفعل أي شخص آخر");
+    expect(hubDepthCollections).toContain("كما يفعل أي متدرب آخر");
     const arFoods = readFileSync("src/app/ar/foods/page.tsx", "utf8");
-    expect(arFoods).toContain('title: "قاعدة بيانات الأطعمة"');
-    expect(arFoods).toContain("8,830+ صنف غذائي");
+    expect(arFoods).toContain('title: "مكتبة الأطعمة — السعرات والماكروز لكل 100 جرام"');
+    expect(arFoods).toContain("8,830+ صنفًا غذائيًا");
     const widget = readFileSync("src/components/EvoFloatingWidget.tsx", "utf8");
     expect(widget).toContain("أي موضوع يخص اللياقة");
     const plans = readFileSync("src/components/views/PlansView.tsx", "utf8");
@@ -722,7 +728,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     const foodDetail2 = readFileSync("src/app/foods/[slug]/FoodDetailClient.tsx", "utf8");
     expect(foodDetail2).toContain('? "الأطعمة"');
     const arForCoaches = readFileSync("src/app/ar/for-coaches/layout.tsx", "utf8");
-    expect(arForCoaches).toContain("عمل مدرب اونلاين");
+    expect(arForCoaches).toContain("العمل كمدرب أونلاين");
     expect(arForCoaches).toContain("مدرب نادي رياضي");
   });
 });

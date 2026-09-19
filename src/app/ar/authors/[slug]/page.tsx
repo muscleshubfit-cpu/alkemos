@@ -52,7 +52,7 @@ export async function generateMetadata({
       title: `${author.nameAr} — ${author.jobTitleAr}`,
       description: author.bioAr.slice(0, 160),
       siteName: "Alkemos",
-      locale: "ar_AR",
+      locale: "ar_EG",
       images: author.avatarUrl ? [{ url: author.avatarUrl, width: 400, height: 400 }] : [],
     },
     twitter: {

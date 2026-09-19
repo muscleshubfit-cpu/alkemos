@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     // P3-10/م6 (Phase 217): the EN description now lists ALL four tiers —
     // it dropped Coaching while the AR twin lists it. Monthly prices only
     // (mirrors the AR twin; still inside the 158-char EN budget).
-    "Choose your Alkemos plan: Free, Premium ($14.99/mo), Pro ($29.99/mo), or Coaching ($39.99/mo) — unlimited EVO AI, planners, and higher limits.",
+    "Compare Alkemos plans: Free forever, Premium $14.99/mo (unlimited EVO chat), Pro $29.99/mo (8 AI plans, no ads), Coaching $39.99/mo (human coach). Full limits published.",
   keywords: [
     "membership",
     "premium",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alkemos Memberships — Premium & Pro Plans",
     description:
-      "Unlock unlimited EVO AI, meal planner, workout generation, and more.",
+      "Every price and usage limit in plain view: plan generations, swaps, saves, and what each tier adds.",
     type: "website",
     // §12.53 item 4 (2026-09-15): og:image + og:url + og:locale were all
     // absent — a child openGraph block REPLACES the root one (Next.js
@@ -76,7 +76,7 @@ export default function MembershipsLayout({
       {
         "@type": "Offer",
         name: "Free",
-        description: "Limited access to the platform basics.",
+        description: "The full product, free forever: libraries, 8 tools, EVO chat (10 messages/day), and 2 AI plan generations per month.",
         price: "0",
         priceCurrency: "USD",
         url: "https://alkemos.com/memberships",
@@ -85,7 +85,7 @@ export default function MembershipsLayout({
         "@type": "Offer",
         name: "Premium",
         description:
-          "Unlimited EVO AI coach + monthly meal & workout plans. $14.99/month or $119/year.",
+          "Manage your plans: unlimited EVO chat, 4 AI plan generations/month, 3 swaps/week, export and sync. $14.99/month or $119/year.",
         price: "14.99",
         priceCurrency: "USD",
         url: "https://alkemos.com/memberships",
@@ -103,7 +103,7 @@ export default function MembershipsLayout({
         "@type": "Offer",
         name: "Coaching",
         description:
-          "Human 1-on-1 coaching with a nutrition specialist. $39.99/month or $359/year.",
+          "Human coaching: plans from a real coach, weekly check-ins, manual swaps, priority support + all Pro benefits. $39.99/month or $359/year.",
         price: "39.99",
         priceCurrency: "USD",
         url: "https://alkemos.com/coaching",

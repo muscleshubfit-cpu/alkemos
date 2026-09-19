@@ -36,13 +36,21 @@ export function ContactView() {
         // so /contact (+ /ar/contact) ships zero Supabase JS for anonymous
         // visitors (the NotificationBell precedent from 182 itself).
         const { createTicket } = await import("@/lib/data");
-        await createTicket(profile.id, `[تواصل] ${subject}`, `${message}\n\n— ${name} (${email})`);
+        await createTicket(profile.id, `[${isAr ? "تواصل" : "Contact"}] ${subject}`, `${message}\n\n— ${name} (${email})`);
         toast.success(isAr ? "تم إرسال رسالتك! سنرد عليك قريباً." : "Message sent! We'll reply soon.");
       } else {
         const contactMessages = JSON.parse(localStorage.getItem("mhe:contact_messages") || "[]");
         contactMessages.push({ name, email, subject, message, created_at: new Date().toISOString() });
         localStorage.setItem("mhe:contact_messages", JSON.stringify(contactMessages));
-        toast.success(isAr ? "تم إرسال رسالتك! سنرد عليك قريباً." : "Message sent! We'll reply soon.");
+        // Honesty law (content-strategy §5): a logged-out message is only
+        // saved locally — never promise a reply we cannot deliver. Route
+        // the visitor to email for a guaranteed answer.
+        toast.success(
+          isAr
+            ? "حُفظت رسالتك على هذا الجهاز. لضمان وصولها إلينا وردّنا عليك، أرسلها إلى contact@alkemos.com أو سجّل الدخول وافتح تذكرة دعم."
+            : "Your message was saved on this device. For a guaranteed reply, email contact@alkemos.com or log in and open a support ticket.",
+          { duration: 9000 },
+        );
       }
       setSubject("");
       setMessage("");
@@ -66,8 +74,8 @@ export function ContactView() {
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
             {isAr
-              ? "لديك سؤال أو استفسار؟ أرسل إلينا رسالة وسنرد عليك في أقرب وقت."
-              : "Have a question? Send us a message and we'll get back to you."}
+              ? "لديك سؤال أو استفسار؟ أرسل إلينا رسالة عبر الدخول إلى حسابك، أو راسلنا على البريد — وعادةً نرد خلال 24 ساعة."
+              : "Have a question? Log in and send us a message — we usually reply within 24 hours."}
           </p>
         </div>
 

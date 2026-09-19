@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
-  title: "Macro Calculator | Alkemos — Calculate Protein, Carbs & Fat",
+  title: "Macro Calculator | Alkemos — Protein, Carbs & Fat in Grams",
   description:
-    "Calculate your daily macro needs (protein, carbohydrates, fat) based on your calories and goals. Free and accurate macro calculator.",
+    "Calculate your daily macros (protein, carbs, fat) from your calorie target: five preset splits from balanced to keto, with grams per day. Free, no signup.",
   keywords: [
     "macro calculator",
     "macros calculator",

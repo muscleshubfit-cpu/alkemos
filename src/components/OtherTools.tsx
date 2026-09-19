@@ -12,16 +12,16 @@ import { EngravedIcon } from "@/components/ThemeImg";
 // the tools, then the content libraries (exercises / foods / the
 // ready-made diet-plans library under the owner's name).
 const ALL_TOOLS = [
-  { slug: "calorie-calculator", nameAr: "حاسبة السعرات", nameEn: "Calorie Calculator", icon: "calories" },
-  { slug: "bmi-calculator", nameAr: "حاسبة BMI", nameEn: "BMI Calculator", icon: "bmi" },
+  { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", icon: "calories" },
+  { slug: "bmi-calculator", nameAr: "حاسبة مؤشر كتلة الجسم", nameEn: "BMI Calculator", icon: "bmi" },
   { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", icon: "macros" },
-  { slug: "body-fat-calculator", nameAr: "حاسبة الدهون", nameEn: "Body Fat %", icon: "bodyfat" },
+  { slug: "body-fat-calculator", nameAr: "حاسبة نسبة الدهون", nameEn: "Body Fat Calculator", icon: "bodyfat" },
   // meal-planner + water-tracker are top-level routes (/meal-planner, /tools/water-tracker),
   // so we mark them with an absolute path prefix.
   { slug: "/meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", icon: "mealplanner" },
   // §12.28: the AI meal-planner trial joins the bottom-of-page tool nav.
   { slug: "/ai-meal-planner", nameAr: "مخطط الوجبات بالذكاء الاصطناعي", nameEn: "AI Meal Planner", icon: "evo" },
-  { slug: "water-tracker", nameAr: "متتبع الماء", nameEn: "Water Tracker", icon: "hydration" },
+  { slug: "water-tracker", nameAr: "متتبع شرب الماء", nameEn: "Water Tracker", icon: "hydration" },
   // §12.32: the AI workout-planner trial joins the bottom-of-page tool nav.
   { slug: "/ai-workout-planner", nameAr: "مخطط التمارين بالذكاء الاصطناعي", nameEn: "AI Workout Planner", icon: "dumbbell" },
 ];

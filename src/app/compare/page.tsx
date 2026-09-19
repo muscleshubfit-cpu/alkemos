@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 /**
  * /compare — Comparison index page (EN).
  *
- * SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)»): the six
+ * SEO-GEO-4 (2026-09-08, owner directive «ابدأ (ج) ثم (أ)»): the three
  * comparison DETAIL pages were live and in sitemap-comparisons.xml, but
  * the index route 404'd (live-verified) — wasted internal linking and a
  * broken discovery path for high-intent visitors. This hub lists every

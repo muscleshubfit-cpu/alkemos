@@ -7,9 +7,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * one "— Alkemos".
  */
 export const metadata: Metadata = {
-  title: "حاسبة الماكروز — وزّع بروتينك وكربوهيدراتك ودهونك | Alkemos",
+  title: "حاسبة الماكروز — وزّع بروتينك وكربوهيدراتك ودهونك",
   description:
-    "احسب احتياجك اليومي من الماكروز (بروتين وكربوهيدرات ودهون) مجانًا بناءً على سعراتك وهدفك — تضخيم أو تنشيف أو ثبات، بخيارات نسب مختلفة ونتائج فورية.",
+    "احسب احتياجك اليومي من الماكروز (بروتين وكربوهيدرات ودهون) من سعراتك المستهدفة: خمسة توزيعات جاهزة من المتوازن إلى الكيتو بالغرامات يوميًا — مجانًا وبدون تسجيل.",
   keywords: [
     "حاسبة الماكروز",
     "حاسبة البروتين والكربوهيدرات والدهون",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "حاسبة الماكروز | Alkemos",
+    title: "حاسبة الماكروز",
     description: "وزّع سعراتك على بروتين وكربوهيدرات ودهون حسب هدفك — مجانًا وفورًا.",
     type: "website",
     locale: "ar_EG",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "حاسبة الماكروز | Alkemos",
+    title: "حاسبة الماكروز",
     description: "وزّع سعراتك على بروتين وكربوهيدرات ودهون حسب هدفك — مجانًا وفورًا.",
   },
 };

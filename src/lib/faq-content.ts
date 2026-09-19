@@ -9,10 +9,10 @@
  */
 
 export const FAQS_EN = [
-  { q: "What is Alkemos?", a: "A human optimization platform combining the EVO AI engine with a massive exercise and food database for personalized plans and smart tracking." },
+  { q: "What is Alkemos?", a: "A bilingual fitness and nutrition platform: the EVO AI engine plus a large exercise library and food database for personalized plans and smart tracking." },
   { q: "What is EVO?", a: "EVO is the AI performance engine. It reads your data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Available to everyone — visitors and members alike — with tier-based limits." },
   { q: "Is there a human coach?", a: "EVO is an AI coach. If you want human supervision, there's a separate human coaching subscription you can join via the coaching page." },
-  { q: "How many AI plans do I get per month?", a: "One unified monthly pool covers nutrition and workout plans together: the Free tier (visitors included, no signup) gets 2 successful generations per month, Premium 4, Pro 8, and Coaching 8. Failed generations never count, and the pool resets on the 1st of each month." },
+  { q: "How many AI plans per month?", a: "One unified monthly pool covers nutrition and workout plans together: the Free tier (visitors included, no signup) gets 2 successful generations per month, Premium 4, Pro 8, and Coaching 8. Failed generations never count, and the pool resets on the 1st of each month." },
   { q: "What are swaps and how many do I get?", a: "Swaps replace individual meals or exercises within your plan — they never regenerate the whole plan. Free: none. Premium: 3 meal/exercise swaps per week. Pro: 6 per week. Coaching: 6 per week. Swaps reset every Monday." },
   { q: "Payment methods?", a: "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt which the team reviews within 24 hours." },
   { q: "Is my data safe?", a: "Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
@@ -22,7 +22,7 @@ export const FAQS_EN = [
 ];
 
 export const FAQS_AR = [
-  { q: "ما هي منصة Alkemos؟", a: "منصة متكاملة لللياقة والتغذية تجمع بين محرك الذكاء الاصطناعي EVO وقاعدة بيانات ضخمة للتمارين والأطعمة لتقديم خطط مخصصة وتتبع ذكي لكل مستخدم." },
+  { q: "ما هي منصة Alkemos؟", a: "منصة لياقة وتغذية متكاملة تعمل بالعربية والإنجليزية: محرك الذكاء الاصطناعي EVO مع مكتبة تمارين وقاعدة أطعمة لتقديم خطط مخصصة وتتبع ذكي." },
   { q: "ما هو EVO؟", a: "EVO هو محرك الأداء الذكي في المنصة. يقرأ بياناتك وهدفك، ويبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام." },
   { q: "هل يوجد مدرب بشري؟", a: "EVO هو مدرب ذكاء اصطناعي. إذا كنت ترغب في متابعة بشرية مباشرة، يتوفر اشتراك كوتشينج بشري منفصل يمكنك الانضمام إليه عبر صفحة الكوتشينج." },
   { q: "كم خطة بالذكاء الاصطناعي أحصل عليها شهرياً؟", a: "رصيد شهري موحد واحد يجمع خطط التغذية والتمارين معاً: الباقة المجانية (والزوار دون تسجيل) توليدان ناجحان شهرياً، وبريميوم 4، وبرو 8، وكوتشينج 8. التوليد الفاشل لا يُحتسب إطلاقاً، ويتجدد الرصيد في أول كل شهر." },

@@ -150,7 +150,7 @@ export default function ProfilePage() {
       toast.success(body?.message || (isAr ? "تم إرسال طلب الاسترداد" : "Refund request sent"));
     } catch (e) {
       toast.error(
-        e instanceof Error && e.message ? e.message : isAr ? "حصل خطأ — جرب تاني" : "Something went wrong",
+        e instanceof Error && e.message ? e.message : isAr ? "حدث خطأ — حاول مرة أخرى" : "Something went wrong",
       );
     } finally {
       setRefundBusy(false);
@@ -181,7 +181,7 @@ export default function ProfilePage() {
       toast.error(
         e instanceof Error && e.message
           ? e.message
-          : isAr ? "حصل خطأ — جرب تاني" : "Something went wrong",
+          : isAr ? "حدث خطأ — حاول مرة أخرى" : "Something went wrong",
       );
     } finally {
       setCancelBusy(false);
@@ -722,7 +722,7 @@ function EvoFollowupSection({
       );
     } catch {
       toast.error(
-        isAr ? "حصل خطأ — جرب تاني" : "Something went wrong",
+        isAr ? "حدث خطأ — حاول مرة أخرى" : "Something went wrong",
       );
     } finally {
       setBusy(false);

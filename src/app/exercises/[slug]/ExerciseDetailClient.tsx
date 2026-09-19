@@ -238,7 +238,7 @@ export default function ExerciseDetailClient({
         {/* Share buttons */}
         <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl bg-[#f5f5f7] p-4">
           <p className="text-sm font-medium text-[#1d1d1f]">
-            {isAr ? "شارك التمرين ده" : "Share this exercise"}
+            {isAr ? "شارك هذا التمرين" : "Share this exercise"}
           </p>
           <ShareButtons
             path={`/exercises/${slug}`}

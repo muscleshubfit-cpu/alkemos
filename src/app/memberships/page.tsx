@@ -97,7 +97,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                 {isPro && (
                   <span className="seal-chip absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0B0B0D]" style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}>
                     <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
-                    {isAr ? "الأكثر شعبية" : "Most Popular"}
+                    {isAr ? "موصى بها" : "Recommended"}
                   </span>
                 )}
 
@@ -185,7 +185,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                         href={ctaHref(tier.id, 1)}
                         className="btn-chrome block w-full px-6 py-3.5 text-center text-sm"
                       >
-                        {isAr ? `اشترك الآن - $${tier.priceMonthly!.toFixed(2)}/شهر` : `Subscribe Now - $${tier.priceMonthly!.toFixed(2)}/mo`}
+                        {isAr ? `اشترك الآن — $${tier.priceMonthly!.toFixed(2)}/شهر` : `Subscribe now — $${tier.priceMonthly!.toFixed(2)}/mo`}
                       </a>
                       {/* Yearly CTA — secondary */}
                       {hasYearly && (
@@ -195,7 +195,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                             isPro ? "btn-outline border-[#3A3F45] text-[#F5F5F7]" : "btn-outline"
                           }`}
                         >
-                          <span>{isAr ? `سنوي - $${tier.priceYearly!.toFixed(2)}` : `Yearly - $${tier.priceYearly!.toFixed(2)}`}</span>
+                          <span>{isAr ? `سنوي — $${tier.priceYearly!.toFixed(2)}` : `Yearly — $${tier.priceYearly!.toFixed(2)}`}</span>
                           <span className="seal-chip">-33%</span>
                         </a>
                       )}
@@ -252,8 +252,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                 </div>
                 <p className="mt-3 text-sm font-normal text-[#9BA0A6]">
                   {isAr
-                    ? "كوتشينج بشري مع مدربين وأخصائيين تغذية محترفين. خطط مخصصة + متابعة شخصية."
-                    : "Human coaching with professional coaches and nutrition specialists. Personalized plans + personal follow-up."}
+                    ? "كوتشينج بشري مع مدربين محترفين وأخصائيي تغذية: خطط مخصّصة، متابعة أسبوعية، وتبديلات يجريها المدرب بنفسه."
+                    : "Human coaching with professional coaches and nutrition specialists: personalized plans, weekly check-ins, and swaps made by your coach."}
                 </p>
                 <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {(isAr ? coaching.features : coaching.featuresEn).map((f, j) => (
@@ -302,7 +302,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                       {row.free === "✓" ? (
                         <EngravedIcon name="checkseal" alt="" size={20} className="mx-auto h-5 w-5" />
                       ) : row.free === "—" ? (
-                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label="No">×</span>
+                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label={isAr ? "غير متاح" : "No"}>×</span>
                       ) : (
                         <span className="text-xs font-normal text-[var(--muted-foreground)]">{translateCell(row.free, isAr)}</span>
                       )}
@@ -311,7 +311,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                       {row.premium === "✓" ? (
                         <EngravedIcon name="checkseal" alt="" size={20} className="mx-auto h-5 w-5" />
                       ) : row.premium === "—" ? (
-                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label="No">×</span>
+                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label={isAr ? "غير متاح" : "No"}>×</span>
                       ) : (
                         <span className="text-xs font-medium text-[var(--muted-2)]">{translateCell(row.premium, isAr)}</span>
                       )}
@@ -320,7 +320,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                       {row.pro === "✓" ? (
                         <EngravedIcon name="checkseal" alt="" size={20} className="mx-auto h-5 w-5" />
                       ) : row.pro === "—" ? (
-                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label="No">×</span>
+                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label={isAr ? "غير متاح" : "No"}>×</span>
                       ) : (
                         <span className="text-xs font-medium">{translateCell(row.pro, isAr)}</span>
                       )}
@@ -329,7 +329,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                       {row.coaching === "✓" ? (
                         <EngravedIcon name="checkseal" alt="" size={20} className="mx-auto h-5 w-5 opacity-70" />
                       ) : row.coaching === "—" ? (
-                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label="No">×</span>
+                        <span className="text-[var(--muted-foreground)] opacity-50" aria-label={isAr ? "غير متاح" : "No"}>×</span>
                       ) : (
                         <span className="text-xs font-medium text-[var(--muted-2)]">{translateCell(row.coaching, isAr)}</span>
                       )}
@@ -373,7 +373,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
         {/* FAQ */}
         <section className="mt-16">
           <h2 className="text-center text-2xl font-semibold tracking-tight md:text-3xl">
-            {isAr ? "أسئلة شائعة" : "Questions?"}
+            {isAr ? "أسئلة شائعة" : "Common questions"}
           </h2>
           <div className="mx-auto mt-8 max-w-2xl space-y-4">
             {[
@@ -398,8 +398,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               {
                 q: isAr ? "هل توجد تجربة مجانية؟" : "Is there a free trial?",
                 a: isAr
-                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر). بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ولا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
-                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor). No account keeps your plan on this device; a free account saves it permanently in your account & syncs it across your devices. There is no temporary trial subscription — the Free tier is free forever.",
+                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر، ويُحفظ ما تولّده بحساب مجاني). لا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
+                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor; a free account saves them permanently). There is no temporary trial subscription — the Free tier is free forever.",
               },
               {
                 q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?",

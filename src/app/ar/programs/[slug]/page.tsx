@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProgramBySlug, WORKOUT_PROGRAMS } from "@/lib/workout-programs";
+import { getProgramBySlug, WORKOUT_PROGRAMS, LEVEL_LABELS, LOCATION_LABELS } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
 import { getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 import ProgramDetailClient from "@/app/programs/[slug]/ProgramDetailClient";
@@ -33,7 +33,7 @@ export async function generateMetadata({
   // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
   const title = stripTrailingBrandForArTemplate(`${program.nameAr} — برنامج تدريب | Alkemos`);
   const ogTitle = `${program.nameAr} — برنامج تدريب | Alkemos`;
-  const description = `${program.nameAr}: ${program.descriptionAr}`;
+  const description = `${program.nameAr}: ${program.descriptionAr} جدول أسبوعي من ${program.days.length} أيام، مستوى ${LEVEL_LABELS[program.level].ar}، في ${LOCATION_LABELS[program.location].ar}.`;
   const url = `${SITE_URL}/ar/programs/${program.slug}`;
 
   return {

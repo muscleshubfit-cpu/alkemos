@@ -83,7 +83,7 @@ export const COMPARISONS: Comparison[] = [
     introEn:
       "A head-to-head comparison between Alkemos and MyFitnessPal — two platforms that overlap on food tracking but differ sharply on coaching, exercise instruction, AI features, and pricing model. MyFitnessPal is the established calorie tracker with 280M+ users; Alkemos is a newer platform that combines food tracking with a full exercise library, workout programs, free tools, and an AI coach. This page breaks down where each wins.",
     introAr:
-      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكن تختلفان حادّة في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 280 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، أدوات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
+      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكنهما تختلفان اختلافًا جوهريًا في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 280 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، أدوات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
     descriptionEn:
       "Alkemos vs MyFitnessPal 2026 comparison: food tracking, exercise library, AI coach, pricing, languages, and which platform fits your goals.",
     descriptionAr:
@@ -101,7 +101,7 @@ export const COMPARISONS: Comparison[] = [
         alkemosValue: "8,830+ foods (USDA-backed + curated)",
         alkemosValueAr: "8,830+ صنف غذائي (بمعايير USDA ومنسّقة بدقة)",
         competitorValue: "Millions (user-contributed, varying accuracy)",
-        competitorValueAr: "ملايين المدخلات (مساهمات مستخدمين بدقة متفاوتة)",
+        competitorValueAr: "ملايين الأصناف (مدخلات من المستخدمين بدقة متفاوتة)",
         outcome: "loss",
       },
       {
@@ -173,8 +173,8 @@ export const COMPARISONS: Comparison[] = [
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
-        alkemosValue: "Available ($39.99/mo) with vetted coaches",
-        alkemosValueAr: "متوفر ($39.99 شهريًا) مع مدربين موثّقين",
+        alkemosValue: "Available — $39.99/mo with a human coach",
+        alkemosValueAr: "متوفر — 39.99$ شهريًا مع مدرب بشري",
         competitorValue: "Not available",
         competitorValueAr: "غير متوفر",
         outcome: "win",
@@ -223,8 +223,8 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "أين يتفوّق MyFitnessPal",
         paragraphs: [
-          "MyFitnessPal يملك أكبر قاعدة أطعمة على الإنترنت — ملايين المدخلات المُساهمة من المستخدمين، بما في ذلك وجبات المطاعم، الأطعمة المُعلّبة، والعلامات الإقليمية. إذا كان هدفك الأساسي تتبّع السعرات وتتناول الكثير من الأطعمة المُعلّبة، ماسح الباركود في MyFitnessPal (ميزة مدفوعة) وقاعدة الـ14 مليون طعام لا تُضاهى. قاعدة الـ8,830+ صنفًا غذائيًا في Alkemos مُختارة ومستندة لـ USDA للدقّة، لكنها لا تستطيع المنافسة في العدد الصرف.",
-          "MyFitnessPal أيضًا لديه سبع سنوات سبق في تجربة المستخدم للجوال. التطبيق مصقول، يتزامن مع كل ساعة ذكية (Apple Watch، Garmin، Fitbit)، وله ميزات اجتماعية لا يملكها Alkemos (تغذية الأصدقاء، التحدّيات). إذا كنت تريد متتبّعًا خالصًا يتكامل مع نظام لياقتك الحالي، MyFitnessPal يبقى الخيار الأكثر أمانًا.",
+          "MyFitnessPal يملك أكبر قاعدة أطعمة على الإنترنت — ملايين المدخلات المُساهمة من المستخدمين، بما في ذلك وجبات المطاعم، الأطعمة المُعلّبة، والعلامات الإقليمية. إذا كان هدفك الأساسي تتبّع السعرات وتتناول الكثير من الأطعمة المُعلّبة، ماسح الباركود في MyFitnessPal (ميزة مدفوعة) وقاعدة الـ14 مليون طعام لا تُضاهى. قاعدة الـ8,830+ صنفًا غذائيًا في Alkemos مُختارة ومستندة لـ USDA للدقّة، لكنها لا تنافس في حجم القاعدة الخام.",
+          "لدى MyFitnessPal أيضًا نحو عشرين عامًا من السبق في تجربة الاستخدام على الجوال. التطبيق مصقول، يتزامن مع كل ساعة ذكية (Apple Watch، Garmin، Fitbit)، وله ميزات اجتماعية لا يملكها Alkemos (تغذية الأصدقاء، التحدّيات). إذا كنت تريد متتبّعًا خالصًا يتكامل مع نظام لياقتك الحالي، MyFitnessPal يبقى الخيار الأكثر أمانًا.",
         ],
       },
       {
@@ -232,7 +232,7 @@ export const COMPARISONS: Comparison[] = [
         paragraphs: [
           "Alkemos يتفوّق بوضوح في اتساع المنصة. MyFitnessPal متتبّع سعرات — Alkemos منصة لياقة كاملة. مكتبة الـ868+ تمرينًا مع شرح خطوة بخطوة، برامج التدريب الجاهزة لكل هدف وتجهيز، ثماني أدوات مجانية (أربع حاسبات: سعرات، BMI، ماكروز، نسبة دهون — إضافة إلى متتبع الماء ومخطط الوجبات ومولدا خطط الذكاء الاصطناعي)، ومدرب الذكاء الاصطناعي EVO مجتمعةً تغطّي ما كلّفك 3–4 اشتراكات منفصلة في نموذج MyFitnessPal.",
           "مدرب EVO الذكي هو الفارق الأكبر. النسخة المدفوعة من MyFitnessPal تُقدّم «رؤى» — رسوم بيانية واتجاهات أساسية. EVO في Alkemos يقرأ بياناتك الصحية، يبني لك خطة تغذية وتمارين مخصصة، يقترح تبديلات للوجبات والتمارين حسب تفضيلاتك، ويُجيب على أسئلة اللياقة 24/7. هذا أقرب لامتلاك مدرب بشري من امتلاك متتبّع.",
-          "الناطقون بالعربية ليس لديهم خيار حقيقي: MyFitnessPal إنجليزي فقط. Alkemos ثنائي اللغة بالكامل مع دعم RTL أصلي، بما في ذلك أسماء التمارين بالعربية، أسماء الأطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. لأكثر من 400 مليون ناطق بالعربية غير مخدومين من تطبيقات اللياقة الغربية، هذه وحدها هي العامل الحاسم.",
+          "الناطقون بالعربية ليس لديهم خيار حقيقي: MyFitnessPal إنجليزي فقط. Alkemos ثنائي اللغة بالكامل مع دعم RTL أصلي، بما في ذلك أسماء التمارين بالعربية، أسماء الأطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. ولأكثر من 400 مليون ناطق بالعربية لا تخدمهم تطبيقات اللياقة الغربية، فهذه وحدها كفيلة بحسم القرار.",
         ],
       },
       {
@@ -355,8 +355,8 @@ export const COMPARISONS: Comparison[] = [
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
-        alkemosValue: "Available — $39.99/mo with vetted coaches",
-        alkemosValueAr: "متوفر — $39.99 شهريًا مع مدربين موثّقين",
+        alkemosValue: "Available — $39.99/mo with a human coach",
+        alkemosValueAr: "متوفر — 39.99$ شهريًا مع مدرب بشري",
         competitorValue: "AI coaching only — no human coaches",
         competitorValueAr: "تدريب ذكي فقط — لا مدربين بشريين",
         outcome: "win",
@@ -414,7 +414,7 @@ export const COMPARISONS: Comparison[] = [
       {
         heading: "أين يتفوّق Freeletics",
         paragraphs: [
-          "Freeletics هو المعيار الذهبي لتمارين HIPT بوزن الجسم. إذا كان لديك صفر معدات، 20 دقيقة يوميًا، وتريد التعرّق بقوة، مدرب Freeletics الذكي يولّد تمارين صعبة فعلًا وإيقاعها جيد. التدريب الصوتي (ميزة مدفوعة) يُنادي على التمارين وعدد التكرارات لتُبقي هاتفك على الأرض — لمسة UX صغيرة تهمّ كثيرًا خلال سلسلة بيربي.",
+          "Freeletics هو المعيار الذهبي لتمارين HIIT بوزن الجسم. إذا كان لديك صفر معدات، 20 دقيقة يوميًا، وتريد التعرّق بقوة، مدرب Freeletics الذكي يولّد تمارين صعبة فعلًا وإيقاعها جيد. التدريب الصوتي (ميزة مدفوعة) يُنادي على التمارين وعدد التكرارات لتُبقي هاتفك على الأرض — لمسة UX صغيرة تهمّ كثيرًا خلال سلسلة بيربي.",
           "Freeletics أيضًا لديه مجتمع عالمي كبير ونشط مع تحدّيات أسبوعية ولوحات صدارة. للمستخدمين الذين يحفّزهم المساءلة الاجتماعية، هذه ميزة حقيقية وليست نقطة تسويق. Alkemos لا يملك بعد سطح مجتمع مكافئ.",
         ],
       },
@@ -518,8 +518,8 @@ export const COMPARISONS: Comparison[] = [
       {
         labelEn: "Human coaching",
         labelAr: "التدريب البشري",
-        alkemosValue: "Available ($39.99/mo) with vetted coaches",
-        alkemosValueAr: "متوفر ($39.99 شهريًا) مع مدربين موثّقين",
+        alkemosValue: "Available — $39.99/mo with a human coach",
+        alkemosValueAr: "متوفر — 39.99$ شهريًا مع مدرب بشري",
         competitorValue: "Not available",
         competitorValueAr: "غير متوفر",
         outcome: "win",
@@ -589,7 +589,7 @@ export const COMPARISONS: Comparison[] = [
         heading: "أين يتفوّق ExRx.net",
         paragraphs: [
           "ExRx.net لا يُضاهى كمرجع لعلم الحركة. كل صفحة تمرين توثّق مفاصل العظام، تأثيرات العضلات الأساسية والثانوية، والبيوميكانيك خلف الحركة. لأخصائيي العلاج الطبيعي، طلاب علم الحركة، ومدربي القوة الذين يحتاجون فهم لماذا التمرين يعمل (وليس فقط كيف يؤدّى)، ExRx.net هو المعيار الذهبي وسيبقى كذلك للمستقبل المنظور.",
-          "ExRx.net أيضًا مجاني ومدعوم بالإعلانات. إذا كنت تحتاج فقط مرجعًا تبحث فيه عن التمارين أحيانًا، عدم الدفع يتفوّق على أي اشتراك Alkemos. عدد التمارين 2,200+ أيضًا يفوز بالحجم الصرف — Alkemos لا يستطيع مضاهاته اليوم.",
+          "ExRx.net أيضًا مجاني ومدعوم بالإعلانات. إذا كنت تحتاج فقط مرجعًا تبحث فيه عن التمارين أحيانًا، عدم الدفع يتفوّق على أي اشتراك Alkemos. كما يفوز عدد التمارين 2,200+ بحجم القاعدة الخام — Alkemos لا يضاهيه اليوم.",
         ],
       },
       {

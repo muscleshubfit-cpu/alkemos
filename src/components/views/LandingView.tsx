@@ -299,7 +299,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   // answer it better than prose. The FAQPage JSON-LD derives from the
   // same array (single source, Phase 117 law preserved).
   const faqs = [
-    { q: isAr ? "هل أحتاج حسابًا أو اشتراكًا لاستخدام الأدوات؟" : "Do I need an account or subscription to use the tools?", a: isAr ? `لا — جميع الأدوات (${TOOLS_COUNT}) مجانية بالكامل وتعمل دون تسجيل: الحاسبات، ومخطط الوجبات، ومولدا خطط الذكاء الاصطناعي.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free to use without an account.` },
+    { q: isAr ? "هل أحتاج حسابًا أو اشتراكًا لاستخدام الأدوات؟" : "Do I need an account or subscription to use the tools?", a: isAr ? `لا — جميع أدوات المنصة (${TOOLS_COUNT} أدوات: الحاسبات، ومخطط الوجبات، ومولّدا الخطط بالذكاء الاصطناعي) مجانية بالكامل وتعمل دون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free to use without an account.` },
     { q: isAr ? "هل يمكنني تجربة توليد الخطط بالذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — كل زائر يملك رصيدًا شهريًا موحدًا يجمع خطط التغذية والتمارين معًا (توليدان ناجحان شهريًا) دون تسجيل، ويُحتسب التوليد الناجح فقط؛ أما المحاولات الفاشلة فلا تستهلك الرصيد."
       : "Yes — every visitor gets one unified monthly pool for nutrition and workout plans combined (2 successful generations) with no signup. Only successful generations count; failed attempts never touch your balance." },
     { q: isAr ? "هل تختفي خطتي إذا لم أنشئ حسابًا؟" : "Will my plan disappear if I don't create an account?", a: isAr ? "لا — خطتك تبقى على هذا الجهاز في التنقل والتحديث، ولا تختفي عند نفاد رصيد الشهر. وبحساب مجاني تُحفظ كل خطة تولّدها في حسابك بشكل دائم وتتزامن عبر أجهزتك."
@@ -367,15 +367,15 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               visitor (free tools, real libraries, EVO) and what the free
               account adds. A simple intro, not a sales pitch. */}
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "تدرّب بذكاء، كُل بوعي، وتقدّم نحو هدفك كل يوم." : "Train smarter. Eat smarter. Progress with numbers on your side."}
+            {isAr ? "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك." : "Train smarter. Eat with precision. Progress with numbers on your side."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {/* P3-10/م4 (Phase 217): the hero counts ride the shared count
                 constants — same law as the muscle chips above; the library
                 grows and the copy follows (Phase 195 owner directive). */}
             {isAr
-              ? `حاسبات سعرات وماكروز مجانية، ${EX_PLUS} تمرين بالشرح والصور، قاعدة أطعمة بأكثر من ${FOODS_COUNT.toLocaleString("en-US")} صنف، وEVO مدربك الذكي 24/7 — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها.`
-              : `Free calorie & macro calculators, ${EX_PLUS} exercises, ${FOODS_PLUS} foods with nutrition facts, and EVO, your 24/7 AI coach. Start free — create an account only to save and sync your plans.`}
+              ? `حاسبات سعرات وماكروز مجانية، ${EX_PLUS} تمرينًا بالشرح والصور، ${FOODS_PLUS} صنف غذائي بالقيم الغذائية، وEVO مدرب ذكاء اصطناعي متاح على مدار الساعة — ابدأ الآن مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها عبر أجهزتك.`
+              : `Free calorie and macro calculators, ${EX_PLUS} exercises with step-by-step instructions, ${FOODS_PLUS} foods with nutrition data, and EVO, an AI coach available around the clock. Start free — create an account only to save and sync your plans.`}
           </p>
 
           {/* Phase 203 account-action CTA pair: guests (most homepage
@@ -413,7 +413,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <div className="hero-seals mt-4 flex flex-wrap items-center justify-center gap-2 md:mt-6 md:gap-3">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${EX_PLUS} تمرين` : `${EX_PLUS} EXERCISES`}
+              {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="hydration" alt="" size={14} className="h-3 w-3" />
@@ -421,11 +421,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </span>
             <span className="seal-chip">
               <EngravedIcon name="calories" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${TOOLS_PLUS} أدوات مجانية` : `${TOOLS_PLUS} FREE TOOLS`}
+              {isAr ? `${TOOLS_COUNT} أدوات مجانية` : `${TOOLS_COUNT} FREE TOOLS`}
             </span>
             <span className="seal-chip">
               <EngravedIcon name="evo" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "EVO مدربك الذكي — متاح 24/7" : "EVO — your AI coach, 24/7"}
+              {isAr ? "EVO — مدرب ذكاء اصطناعي، متاح 24/7" : "EVO — AI coach, available 24/7"}
             </span>
           </div>
         </div>
@@ -562,7 +562,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             {[
               { slug: "calorie-calculator", nameAr: "حاسبة السعرات الحرارية", nameEn: "Calorie Calculator", descAr: "اعرف احتياجك اليومي من السعرات والماكروز بدقة، بدون تسجيل.", descEn: "Find your daily calorie and macro needs — no signup", icon: "calories", href: "/tools/calorie-calculator" },
               { slug: "macro-calculator", nameAr: "حاسبة الماكروز", nameEn: "Macro Calculator", descAr: "وزّع سعرات يومك على بروتين وكربوهيدرات ودهون بسهولة.", descEn: "Split your calories into protein, carbs, and fat", icon: "macros", href: "/tools/macro-calculator" },
-              { slug: "bmi-calculator", nameAr: "حاسبة كتلة الجسم BMI", nameEn: "BMI Calculator", descAr: "اعرف إن كان وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
+              { slug: "bmi-calculator", nameAr: "حاسبة مؤشر كتلة الجسم", nameEn: "BMI Calculator", descAr: "اعرف إن كان وزنك ضمن المعدل الصحي.", descEn: "Check whether your weight is in the healthy range", icon: "bmi", href: "/tools/bmi-calculator" },
               { slug: "meal-planner", nameAr: "مخطط الوجبات", nameEn: "Meal Planner", descAr: `ابنِ وجباتك من ${FOODS_PLUS} صنف غذائي وتابع الماكروز.`, descEn: `Build meals from ${FOODS_PLUS} foods and track macros`, icon: "mealplanner", href: "/meal-planner" },
             ].map((tool, i) => (
               <Reveal key={tool.slug} delay={i * 80}>
@@ -1073,7 +1073,7 @@ function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }
       <div className="mt-3 grid grid-cols-3 gap-1 text-[10px] font-normal">
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
           <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{food.calories}</span>
-          <span style={{ color: PALETTE.textMuted }}>{isAr ? "كالوري" : "kcal"}</span>
+          <span style={{ color: PALETTE.textMuted }}>{isAr ? "سعرة" : "kcal"}</span>
         </div>
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
           <span className="block font-semibold text-[#34c759]">{isAr ? `${food.protein} جم` : `${food.protein}g`}</span>
@@ -1081,7 +1081,7 @@ function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }
         </div>
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
           <span className="block font-semibold text-[#ff9500]">{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</span>
-          <span style={{ color: PALETTE.textMuted }}>{isAr ? "كارب" : "carbs"}</span>
+          <span style={{ color: PALETTE.textMuted }}>{isAr ? "كربوهيدرات" : "carbs"}</span>
         </div>
       </div>
       <p className="chrome-text mt-3 text-xs font-semibold">{isAr ? "اعرض الصنف ›" : "View food ›"}</p>

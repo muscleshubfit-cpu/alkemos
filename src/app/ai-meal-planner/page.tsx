@@ -258,7 +258,7 @@ export default function AiMealPlannerPage() {
                 ))}
               </select>
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {isAr ? "أنظمة الموقع نفسها — مطابقة لحاسبة الماكروز." : "The site's own systems — matching the macro calculator."}
+                {isAr ? "أنظمة مطابقة لمكتبة الخطط الغذائية الجاهزة: متوازن، عالي البروتين، كيتو، نباتي." : "The site's own systems — matching the diet plan library: balanced, high-protein, keto, vegetarian."}
               </p>
             </div>
           </div>

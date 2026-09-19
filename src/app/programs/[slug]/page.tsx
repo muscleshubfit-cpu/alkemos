@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProgramBySlug } from "@/lib/workout-programs";
+import { getProgramBySlug, GOAL_LABELS, LOCATION_LABELS } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 import ProgramDetailClient from "./ProgramDetailClient";
@@ -30,7 +30,9 @@ export async function generateMetadata({
   }
 
   const title = `${program.nameEn} — Workout Program | Alkemos`;
-  const description = `${program.nameEn}: ${program.descriptionEn} ${program.days.length}-day ${program.level} program for ${program.goal}. ${program.location}.`;
+  // Content-strategy v1: raw enum values ("home-equipment", "fat-loss")
+  // leaked into the SERP snippet — map through the canonical label maps.
+  const description = `${program.nameEn}: ${program.descriptionEn} A ${program.days.length}-day weekly schedule for ${GOAL_LABELS[program.goal].en.toLowerCase()}, training at ${LOCATION_LABELS[program.location].en.toLowerCase()}.`;
   const url = `https://alkemos.com/programs/${program.slug}`;
 
   return {

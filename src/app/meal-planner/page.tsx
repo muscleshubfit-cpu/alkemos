@@ -28,6 +28,15 @@ import {
 import { toast } from "sonner";
 import { getLimits, type MembershipTier } from "@/lib/memberships";
 
+// Content-strategy terminology law: bare Latin tier slugs never appear
+// inside Arabic sentences — map to the canonical AR tier names.
+const TIER_NAME_AR: Record<MembershipTier, string> = {
+  free: "مجاني",
+  premium: "بريميوم",
+  pro: "برو",
+  coaching: "كوتشينج",
+};
+
 // ===== Types =====
 
 type Per100g = {
@@ -72,7 +81,7 @@ const computeMacros = (item: MealItem) => {
   };
 };
 
-const MEAL_NAME_PRESETS_AR = ["فطار", "غداء", "عشاء", "سناك", "قبل التمرين", "بعد التمرين"];
+const MEAL_NAME_PRESETS_AR = ["الفطور", "الغداء", "العشاء", "سناك", "قبل التمرين", "بعد التمرين"];
 const MEAL_NAME_PRESETS_EN = ["Breakfast", "Lunch", "Dinner", "Snack", "Pre-workout", "Post-workout"];
 
 // ===== Main Component =====
@@ -154,7 +163,7 @@ export default function MealPlannerPage() {
     if (maxMeals !== null && meals.length >= maxMeals) {
       toast.error(
         isAr
-          ? `حدك الأقصى ${maxMeals} وجبات`
+          ? `الحد الأقصى لحسابك ${maxMeals} وجبات`
           : `Max ${maxMeals} meals for your tier`,
       );
       return;
@@ -270,13 +279,13 @@ export default function MealPlannerPage() {
         if (data.error === "Limit reached") {
           toast.error(
             isAr
-              ? `وصلت حد الحفظ (${data.limit}). ترقّي عضويتك للمزيد.`
+              ? `وصلت حد الحفظ (${data.limit}). طوّر باقتك للمزيد.`
               : `Save limit reached (${data.limit}). Upgrade for more.`,
           );
         } else if (data.error === "Too many meals") {
           toast.error(
             isAr
-              ? `حدك ${data.limit} وجبات كحد أقصى`
+              ? `الحد الأقصى لحسابك ${data.limit} وجبات`
               : `Max ${data.limit} meals for your tier`,
           );
         } else {
@@ -303,7 +312,7 @@ export default function MealPlannerPage() {
     if (!limits.mealPlannerExport) {
       toast.error(
         isAr
-          ? "التصدير متاح لباقتي بريميوم وبرو — طوّر باقتك للمتابعة."
+          ? "التصدير متاح مع باقات بريميوم وبرو وما فوق — طوّر باقتك للمتابعة."
           : "Export is available on Premium and Pro — upgrade to continue.",
       );
       navigate("memberships");
@@ -346,7 +355,7 @@ export default function MealPlannerPage() {
           {/* Tier badge */}
           <div className="seal-chip mt-4 inline-flex items-center gap-2">
             <Utensils className="h-3.5 w-3.5 text-[var(--muted-2)]" />
-            {isAr ? "عضويتك" : "Your plan"}: <span className="font-semibold">{tier}</span>
+            {isAr ? "عضويتك" : "Your plan"}: <span className="font-semibold">{isAr ? TIER_NAME_AR[tier] : tier}</span>
             {" · "}
             {maxMeals === null
               ? isAr ? "وجبات غير محدودة" : "unlimited meals"
@@ -406,7 +415,7 @@ export default function MealPlannerPage() {
             </span>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat label={isAr ? "سعرات" : "Calories"} value={grandTotal.calories} unit={isAr ? "كالوري" : "kcal"} color="#ff9500" big />
+            <Stat label={isAr ? "سعرات" : "Calories"} value={grandTotal.calories} unit={isAr ? "سعرة" : "kcal"} color="#ff9500" big />
             <Stat label={isAr ? "بروتين" : "Protein"} value={grandTotal.protein} unit={isAr ? "جم" : "g"} color="#34c759" big />
             <Stat label={isAr ? "كربوهيدرات" : "Carbs"} value={grandTotal.carbs} unit={isAr ? "جم" : "g"} color="#0071e3" big />
             <Stat label={isAr ? "دهون" : "Fat"} value={grandTotal.fat} unit={isAr ? "جم" : "g"} color="#8b5cf6" big />
@@ -594,7 +603,7 @@ function MealCard({
       {/* Meal totals */}
       {meal.items.length > 0 && (
         <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl border border-[var(--edge)] bg-[var(--card)] p-3">
-          <MiniStat label={isAr ? "سعرات" : "Cal"} value={totals.calories} unit={isAr ? "كالوري" : "kcal"} color="#ff9500" />
+          <MiniStat label={isAr ? "سعرات" : "Cal"} value={totals.calories} unit={isAr ? "سعرة" : "kcal"} color="#ff9500" />
           <MiniStat label={isAr ? "بروتين" : "Pro"} value={totals.protein} unit={isAr ? "جم" : "g"} color="#34c759" />
           <MiniStat label={isAr ? "كربوهيدرات" : "Carb"} value={totals.carbs} unit={isAr ? "جم" : "g"} color="#0071e3" />
           <MiniStat label={isAr ? "دهون" : "Fat"} value={totals.fat} unit={isAr ? "جم" : "g"} color="#8b5cf6" />
@@ -628,7 +637,7 @@ function ItemRow({
             ? isAr ? "محلي" : "Local"
             : isAr ? "منتج" : "Product"}
           {" · "}
-          {isAr ? `${item.per100g.calories} كالوري / 100 جم` : `${item.per100g.calories} kcal / 100g`}
+          {isAr ? `${item.per100g.calories} سعرة / 100 جم` : `${item.per100g.calories} kcal / 100g`}
         </p>
       </div>
       {/* Grams input */}
@@ -646,7 +655,7 @@ function ItemRow({
       {/* Computed macros */}
       <div className="flex items-center gap-1.5 text-xs">
         <span className="rounded-full bg-[#ff9500]/10 px-2 py-0.5 font-medium text-[#ff9500]">
-          {isAr ? `${mac.calories} كالوري` : `${mac.calories} kcal`}
+          {isAr ? `${mac.calories} سعرة` : `${mac.calories} kcal`}
         </span>
         <span className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-2 py-0.5 font-semibold text-[var(--text)]">
           P{mac.protein}
@@ -757,7 +766,7 @@ function FoodSearchInput({
                     ? isAr ? "محلي" : "Local"
                     : isAr ? "منتج" : "Product"}
                   {" · "}
-                  {r.per100g.calories} {isAr ? "كالوري" : "kcal"} · P{r.per100g.protein} C{r.per100g.carbs} F{r.per100g.fat}
+                  {r.per100g.calories} {isAr ? "سعرة" : "kcal"} · P{r.per100g.protein} C{r.per100g.carbs} F{r.per100g.fat}
                 </p>
               </div>
               <Plus className="h-4 w-4 shrink-0 text-[var(--muted-2)]" />

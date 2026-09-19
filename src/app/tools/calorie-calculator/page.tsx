@@ -110,7 +110,7 @@ export default function CalorieCalculatorPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "احسب احتياجك اليومي من السعرات الحرارية والماكروز بناءً على بياناتك."
+              ? "احسب احتياجك اليومي من السعرات الحرارية والماكروز انطلاقًا من وزنك وطولك وعمرك ونشاطك."
               : "Calculate your daily calorie needs and macros based on your stats."}
           </p>
         </div>
@@ -220,7 +220,7 @@ export default function CalorieCalculatorPage() {
                   goal === "maintain" ? "bg-[var(--text)] text-[var(--bg)]" : "bg-[var(--card)] text-[var(--muted-foreground)]"
                 }`}
               >
-                {isAr ? "ثبات" : "Maintain"}
+                {isAr ? "تثبيت الوزن" : "Maintain"}
               </button>
               <button
                 onClick={() => setGoal("gain")}
@@ -314,7 +314,7 @@ export default function CalorieCalculatorPage() {
             <div className="rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6 text-center">
               <p className="text-base font-normal text-[var(--text)]">
                 {isAr
-                  ? "محتاج خطة تغذية مخصصة بالجرام بناءً على أرقامك؟"
+                  ? "تحتاج خطة تغذية مخصصة بالغرامات بناءً على أرقامك؟"
                   : "Need a personalized meal plan based on your numbers?"}
               </p>
               <button

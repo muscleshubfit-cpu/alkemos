@@ -141,30 +141,30 @@ function progressLine(input: FollowupEmailInput): { ar: string; en: string } {
     if (input.weightDeltaKg < 0) {
       const v = fmtKg(Math.abs(input.weightDeltaKg));
       return {
-        ar: `وزنك المسجل آخر قياس ${fmtKg(input.latestWeight)}كغ، ونزلت ${v}كغ منذ بداية الفترة — استمر على نفس المسار.`,
+        ar: `وزنك المسجّل في آخر قياس ${fmtKg(input.latestWeight)} كغ، وقد نقص ${v} كغ منذ بداية الفترة — استمر على المسار نفسه.`,
         en: `Your latest logged weight is ${fmtKg(input.latestWeight)}kg, down ${v}kg since the start of this period — keep the same path.`,
       };
     }
     if (input.weightDeltaKg > 0) {
       const v = fmtKg(input.weightDeltaKg);
       return {
-        ar: `وزنك المسجل آخر قياس ${fmtKg(input.latestWeight)}كغ، وزدت ${v}كغ خلال الفترة — لو ده هدفك فممتاز، ولو لأ نراجع الخطة مع بعض.`,
+        ar: `وزنك المسجّل في آخر قياس ${fmtKg(input.latestWeight)} كغ، وقد زاد ${v} كغ خلال الفترة — إن كان هذا هدفك فأحسنت، وإن لم يكن فلنراجع الخطة معًا.`,
         en: `Your latest logged weight is ${fmtKg(input.latestWeight)}kg, up ${v}kg this period — great if that's the goal; otherwise let's review the plan together.`,
       };
     }
     return {
-      ar: `وزنك ثابت تقريبًا (${fmtKg(input.latestWeight)}كغ) — الثبات خطوة مش الهدف؟ سجل قياسك الأسبوعي ونعدل معًا.`,
+      ar: `وزنك ثابت تقريبًا (${fmtKg(input.latestWeight)} كغ) — تثبيت الوزن مرحلة وليس هدفًا نهائيًا؛ سجّل قياسك الأسبوعي ولنعدّل معًا.`,
       en: `Your weight is roughly stable (${fmtKg(input.latestWeight)}kg) — is maintenance the goal? Log your weekly measurement and we'll adjust together.`,
     };
   }
   if (input.latestWeight !== null) {
     return {
-      ar: `آخر وزن مسجل عندك ${fmtKg(input.latestWeight)}كغ — سجل قياس جديد الأسبوع ده عشان نتابع التغير الحقيقي.`,
+      ar: `آخر وزن مسجّل لديك ${fmtKg(input.latestWeight)} كغ — سجّل قياسًا جديدًا هذا الأسبوع لنتابع التغيّر الحقيقي.`,
       en: `Your last logged weight is ${fmtKg(input.latestWeight)}kg — log a new measurement this week so we can track the real change.`,
     };
   }
   return {
-    ar: `لسه مفيش قياسات وزن مسجلة — سجل أول قياس ليك من صفحة حسابك وهبدأ أتابع معاك التقدم أسبوعيًا.`,
+    ar: `لا توجد قياسات وزن مسجّلة بعد — سجّل قياسك الأول من صفحة حسابك، وسأبدأ معك متابعة التقدم أسبوعيًا.`,
     en: `No weight measurements logged yet — log your first one from your profile page and I'll start tracking your progress weekly.`,
   };
 }
@@ -187,14 +187,14 @@ export function buildFollowupEmail(input: FollowupEmailInput): FollowupEmail {
       .slice(0, 3);
     if (titles.length === 0) {
       return isAr
-        ? "معندكش خطة مفعّلة دلوقتي — اسألني في الشات وأنا أجهزلك خطة تناسب هدفك."
+        ? "لا توجد خطة مفعّلة حاليًا — راسلني في المحادثة وسأبني لك خطة تناسب هدفك."
         : "You have no active plan right now — ask me in the chat and I'll build one that fits your goal.";
     }
     const list = isAr
       ? `خططك المفعّلة: ${titles.join("، ")}.`
       : `Your active plans: ${titles.join(", ")}.`;
     return isAr
-      ? `${list} لو حاسس إنها مش ماشية معاك، احكيلي في الشات ونعدلها.`
+      ? `${list} إن شعرت أنها لم تعد تناسبك، أخبرني في المحادثة ونعدّلها معًا.`
       : `${list} If it doesn't feel right lately, tell me in the chat and we'll adjust it.`;
   })();
 
@@ -203,7 +203,7 @@ export function buildFollowupEmail(input: FollowupEmailInput): FollowupEmail {
     : "Your weekly check-in from EVO — your Alkemos coach";
 
   const optOutAr =
-    "وصلتك الرسالة دي لأنك فعّلت المتابعة الأسبوعية من EVO على Alkemos. لتوقفها عدّل تفضيل المتابعة من صفحة حسابك على الموقع.";
+    "وصلتك هذه الرسالة لأنك فعّلت المتابعة الأسبوعية من EVO على Alkemos. لإيقافها، عدّل تفضيل المتابعة من صفحة حسابك على الموقع.";
   const optOutEn =
     "You received this because you enabled the weekly EVO check-in on Alkemos. To stop it, change the follow-up preference from your profile page on the site.";
 
@@ -230,7 +230,7 @@ export function buildFollowupEmail(input: FollowupEmailInput): FollowupEmail {
       <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#1d1d1f;">${greeting}</p>
       <p style="margin:0 0 24px;color:#6e6e73;line-height:1.9;">
         ${isAr
-          ? "جاي أعمل معاك جولة سريعة على أسبوعك — أرقامك الحقيقية بس، من غير كلام إنشائي."
+          ? "إليك جولة سريعة على أسبوعك — أرقامك الحقيقية فقط، دون كلام إنشائي."
           : "Quick tour of your week — your real numbers only, no filler."}
       </p>
 

@@ -44,7 +44,7 @@ export default function BMICalculatorPage() {
     if (!w || !h || w <= 0 || h <= 0) {
       setError(
         isAr
-          ? "من فضلك أدخل وزنًا و طولًا صحيحين أكبر من صفر."
+          ? "من فضلك أدخل وزنًا وطولًا صحيحين أكبر من صفر."
           : "Please enter a valid weight and height (greater than zero).",
       );
       setResult(null);
@@ -104,7 +104,7 @@ export default function BMICalculatorPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "احسب مؤشر كتلة الجسم (BMI) واعرف إن كان وزنك مثاليًا."
+              ? "احسب مؤشر كتلة الجسم (BMI) واعرف إن كان وزنك ضمن المعدل الصحي."
               : "Calculate your Body Mass Index (BMI) and check if your weight is healthy."}
           </p>
         </div>
@@ -238,8 +238,8 @@ export default function BMICalculatorPage() {
             <div className="rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6 text-center">
               <p className="text-base font-normal text-[var(--text)]">
                 {isAr
-                  ? "محتاج خطة مخصصة للوصول لوزنك المثالي؟"
-                  : "Need a personalized plan to reach your ideal weight?"}
+                  ? "تحتاج خطة مخصصة للوصول إلى وزنك الصحي؟"
+                  : "Need a personalized plan to reach a healthy weight?"}
               </p>
               <button
                 onClick={() => navigate("memberships")}

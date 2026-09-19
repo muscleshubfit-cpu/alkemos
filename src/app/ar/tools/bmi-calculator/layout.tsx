@@ -7,7 +7,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * one "— Alkemos".
  */
 export const metadata: Metadata = {
-  title: "حاسبة كتلة الجسم BMI — اعرف وزنك المثالي | Alkemos",
+  title: "حاسبة كتلة الجسم BMI — اعرف وزنك المثالي",
   description:
     "احسب مؤشر كتلة الجسم (BMI) مجانًا واعرف إن كان وزنك مثاليًا أم زائدًا أم ناقصًا، مع تفسير النتيجة ونطاقات WHO — حاسبة دقيقة وسهلة بالعربية.",
   keywords: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "حاسبة كتلة الجسم BMI | Alkemos",
+    title: "حاسبة كتلة الجسم BMI",
     description: "اعرف إن كان وزنك مثاليًا أم زائدًا — حاسبة BMI مجانية بتفسير النتيجة.",
     type: "website",
     locale: "ar_EG",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "حاسبة كتلة الجسم BMI | Alkemos",
+    title: "حاسبة كتلة الجسم BMI",
     description: "اعرف إن كان وزنك مثاليًا أم زائدًا — حاسبة BMI مجانية بتفسير النتيجة.",
   },
 };

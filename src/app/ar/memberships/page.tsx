@@ -22,7 +22,7 @@ const SITE_URL = "https://alkemos.com";
 export const metadata: Metadata = {
   title: "العضويات والباقات",
   description:
-    "باقات Alkemos: مجاني، Premium ($14.99)، Pro ($29.99)، وكوتشينج ($39.99) — EVO غير محدود، خطط تدريب وتغذية، ومتابعة أسبوعية.",
+    "قارن باقات Alkemos: مجاني للأبد، بريميوم $14.99/شهر (محادثة EVO بلا حدود)، برو $29.99/شهر (8 خطط ذكاء اصطناعي بلا إعلانات)، وكوتشينج $39.99/شهر (مدرب بشري) — كل الحدود منشورة بشفافية.",
   alternates: {
     canonical: "/ar/memberships",
     languages: {

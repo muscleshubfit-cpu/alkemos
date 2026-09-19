@@ -66,7 +66,7 @@ export async function generateMetadata({
       title: hub.titleAr,
       description: hub.descriptionAr,
       siteName: "Alkemos",
-      locale: "ar_AR",
+      locale: "ar_EG",
       // PHASE 187 (deep-audit P0-2): og:image for the AR muscle-hub
       // surface — static branded family card (design mirrors
       // /api/og-image).
@@ -165,10 +165,10 @@ export default async function ArabicMuscleHubPage({
 
       {depth && <HubGuideSection depth={depth} lang="ar" title="دليل التدريب" />}
 
-      <section aria-label={`كل تمارين ${label.ar}`} className="mb-10">
+      <section aria-label={`جميع تمارين ${label.ar}`} className="mb-10">
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="text-xl md:text-2xl font-semibold">
-            كل تمارين {label.ar}
+            جميع تمارين {label.ar}
           </h2>
           <span className="text-sm text-muted-foreground">
             {exercises.length} تمرين

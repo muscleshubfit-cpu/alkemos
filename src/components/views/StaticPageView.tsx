@@ -10,6 +10,7 @@ import { CONSENT_REOPEN_EVENT } from "@/components/CookieConsent";
 // so the copy grows with the libraries instead of aging silently.
 import { EXERCISES_COUNT } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
+import { FAQS_AR, FAQS_EN } from "@/lib/faq-content";
 
 const EX_LIB = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOOD_LIB = `${FOODS_COUNT.toLocaleString("en-US")}+`;
@@ -62,6 +63,19 @@ export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" |
                     ))}
                   </ul>
                 )}
+                {section.links && (
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {section.links.map((l, j) => (
+                      <a
+                        key={j}
+                        href={l.href}
+                        className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
+                      >
+                        {l.label} <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           ))}
@@ -88,7 +102,7 @@ export function StaticPageView({ page }: { page: "about" | "privacy" | "terms" |
           <div className="marble-card mt-20 p-10 text-center">
             <p className="text-base font-normal text-[var(--muted-foreground)]">
               {isAr
-                ? "تحب تغيّر اختيارك لملفات تعريف الارتباط؟"
+                ? "هل تريد تغيير اختيارك لملفات تعريف الارتباط؟"
                 : "Want to change your cookie choice?"}
             </p>
             <button
@@ -118,21 +132,23 @@ function getContent(page: string, isAr: boolean) {
  title: "عن Alkemos",
  updated: `آخر تحديث: ${date}`,
  sections: [
- { heading: "من نحن", paragraphs: [`Alkemos هي منصة اللياقة والتغذية الذكية المتكاملة: محرك الذكاء الاصطناعي EVO يعمل جنبًا إلى جنب مع قاعدة بيانات ضخمة للتمارين (${EX_LIB}) والأطعمة (${FOOD_LIB}) لتقديم تجربة لياقة وتغذية أذكى وأكثر تكاملًا.`, "تأسست Alkemos برؤية بسيطة: المستقبل ليس إنسان ضد AI، بل إنسان + AI. نحن نؤمن بأن أفضل النتائج تأتي من الجمع بين حكمة الإنسان وذكاء الآلة."] },
- { heading: "رؤيتنا", paragraphs: ["أن نكون المنصة الأولى للكوتشينج الرياضي والتغذوي في العالم العربي، ونقدم تجربة عالمية المستوى لكل عضو."] },
- { heading: "المؤسس: أحمد زكي", paragraphs: ["أحمد زكي هو مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين.", `يشرف أحمد شخصيًا على كل محتوى يُنشر على المنصة: من مكتبة الـ${EX_LIB} تمرينًا، إلى قاعدة الـ${FOOD_LIB} صنف غذائي بالقيم الغذائية، إلى كل مقال في المدوّنة — يراجع كل قطعة محتوى للدقّة العلمية قبل النشر. يعكس هذا الالتزام طريقة عمل Alkemos: يجمع المنصة بين قدرات الذكاء الاصطناعي والإشراف البشري والمحتوى الواعي بالأدلة العلمية.`] },
- { heading: "EVO — محرك الأداء الذكي", paragraphs: ["EVO ليس روبوت محادثة عاديًا. بل محرك ذكاء اصطناعي يقرأ بياناتك وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام."] },
- { heading: "العضويات", paragraphs: ["Alkemos تقدم 3 باقات: مجاني (وصول محدود)، بريميوم $14.99/شهر أو $119/سنة (EVO غير محدود + 4 توليدات خطط شهريًا)، برو $29.99/شهر أو $239/سنة (8 توليدات خطط AI شهريًا + بدون إعلانات). وكوتشينج بشري منفصل بـ $39.99/شهر أو $359/سنة للمهتمين بمتابعة فردية."] },
+ { heading: "من نحن", paragraphs: [`Alkemos منصة لياقة وتغذية تعمل بالعربية والإنجليزية: مكتبة تضم ${EX_LIB} تمرينًا بالشرح والصور، وقاعدة أطعمة تضم ${FOOD_LIB} صنفًا غذائيًا بالقيم الغذائية، و8 أدوات مجانية، وبرامج تدريب وخطط غذائية جاهزة، ومدرّب ذكاء اصطناعي اسمه EVO — كل ذلك في مكان واحد.`, "تأسست Alkemos على فكرة بسيطة: المستقبل ليس الإنسان في مواجهة الذكاء الاصطناعي، بل الإنسان مع الذكاء الاصطناعي. أفضل النتائج تأتي حين تلتقي خبرة المدرب مع سرعة الحساب ودقة الأرقام."] },
+ { heading: "ماذا تجد على المنصة؟", paragraphs: ["يمكنك البدء مجانًا وبدون تسجيل: احسب سعراتك وماكروزك، أو تصفّح التمارين والبرامج، أو ولّد خطة تغذية أو تمرين بالذكاء الاصطناعي — والحساب المجاني يحفظ كل ما تولّده ويزامنه عبر أجهزتك."], links: [{ label: "الأدوات المجانية", href: "/ar/tools" }, { label: "مكتبة التمارين", href: "/ar/exercises" }, { label: "مكتبة الأطعمة", href: "/ar/foods" }, { label: "برامج التدريب", href: "/ar/programs" }, { label: "الخطط الغذائية الجاهزة", href: "/ar/diet-plan" }] },
+ { heading: "رؤيتنا", paragraphs: ["طموحنا أن تصبح Alkemos المرجع اليومي لكل من يريد التدرّب والتغذية بأرقام واضحة في العالم العربي — بمنتج بمستوى أفضل المنصات العالمية، ومحتوى يفهم لغتنا ومطبخنا واحتياجاتنا."] },
+ { heading: "المؤسس: أحمد زكي", paragraphs: ["أحمد زكي مؤسس Alkemos، ومدرب لياقة وتغذية بخبرة عملية تتجاوز عشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليقرّب المسافة بين دقة الخطط المحسوبة وإشراف المدرب الحقيقي، ويسدّ الفجوة بين تطبيقات اللياقة العامة والمدرب الشخصي مرتفع التكلفة.", `يشرف أحمد شخصيًا على المحتوى المنشور: من مكتبة الـ${EX_LIB} تمرينًا، إلى قاعدة الـ${FOOD_LIB} صنف غذائي بالقيم الغذائية، إلى مقالات المدونة — يمرّ كل محتوى على مراجعة للدقة قبل النشر. هكذا تعمل المنصة: قدرات الذكاء الاصطناعي، مع إشراف بشري، ومحتوى مبني على الأدلة.`] },
+ { heading: "EVO — مدرّب الذكاء الاصطناعي", paragraphs: ["EVO مدرّب ذكاء اصطناعي يعرف بياناتك: يجيب عن أسئلة التدريب والتغذية من محتوى المنصة نفسها مع روابط له، ويبني خططًا مخصصة، ويقترح بدائل ذكية للوجبات والتمارين. متاح للجميع — الزوار والأعضاء على حد سواء — وفق حدود استخدام واضحة."], links: [{ label: "تعرّف على EVO", href: "/ar/evo" }] },
+ { heading: "العضويات والأسعار", paragraphs: ["تعمل المنصة بنموذج بسيط: الفئة المجانية مجانية للأبد وتشمل المنتج كاملًا بحدود استخدام (محادثة EVO 10 رسائل يوميًا، وتوليدي خطة شهريًا). أما الاشتراك فيوسّع الحدود: بريميوم $14.99 شهريًا أو $119 سنويًا، وبرو $29.99 شهريًا أو $239 سنويًا، وكوتشينج $39.99 شهريًا أو $359 سنويًا يضيف مدربًا بشريًا يتابعك أسبوعيًا. كل الأسعار وحدود الاستخدام منشورة بالكامل على صفحة العضويات."], links: [{ label: "العضويات والأسعار", href: "/ar/memberships" }, { label: "الكوتشينج البشري", href: "/ar/coaching" }] },
  ],
  } : {
  title: "About Alkemos",
  updated: `Last updated: ${date}`,
  sections: [
- { heading: "Who We Are", paragraphs: [`Alkemos is the smart, all-in-one fitness & nutrition platform: the EVO AI engine works alongside a massive library of ${EX_LIB} exercises and ${FOOD_LIB} foods to deliver a smarter, more connected fitness and nutrition experience.`, "Alkemos was founded on a simple vision: the future isn't Human vs AI, it's Human + AI. We believe the best results come from combining human wisdom with machine intelligence."] },
- { heading: "Our Vision", paragraphs: ["To be the leading fitness and nutrition platform in the Arab world, delivering a world-class experience to every member."] },
- { heading: "Founder: Ahmed Zake", paragraphs: ["Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built the platform to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers.", `Ahmed personally oversees every piece of content published on the platform: from the ${EX_LIB}-exercise library, to the ${FOOD_LIB}-food nutrition database, to every article in the blog — he reviews each piece of content for scientific accuracy before publication. This commitment reflects how Alkemos works: the platform combines AI capabilities with human oversight and evidence-aware content.`] },
- { heading: "EVO — The AI Performance Engine", paragraphs: ["EVO is not a regular chatbot. It's an AI engine that reads your data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Available to everyone — visitors and members alike — with tier-based limits."] },
- { heading: "Memberships", paragraphs: ["Alkemos offers 3 tiers: Free (limited access), Premium $14.99/mo or $119/yr (unlimited EVO + 4 monthly plan generations), Pro $29.99/mo or $239/yr (8 AI plan generations/month + no ads). Human coaching is available separately at $39.99/mo or $359/yr for those who want 1-on-1 supervision."] },
+ { heading: "Who We Are", paragraphs: [`Alkemos is a bilingual fitness and nutrition platform: an exercise library of ${EX_LIB} movements with instructions and images, a food database of ${FOOD_LIB} foods with full nutrition data, 8 free tools, ready-made workout programs and diet plans, and EVO, an AI coach that works from your numbers — all in one place.`, "The platform is built on one idea: the future isn't human vs AI — it's human + AI. The best results come from combining a coach's judgment with computation and honest data."] },
+ { heading: "What You'll Find", paragraphs: ["You can start free, with no signup: calculate your calories and macros, browse exercises and programs, or generate a nutrition or workout plan with AI — and a free account saves and syncs everything you generate."], links: [{ label: "Free tools", href: "/tools" }, { label: "Exercise library", href: "/exercises" }, { label: "Food database", href: "/foods" }, { label: "Workout programs", href: "/programs" }, { label: "Diet plan library", href: "/diet-plan" }] },
+ { heading: "Our Vision", paragraphs: ["Our goal is to make Alkemos the daily reference for anyone who wants to train and eat with clear numbers — a world-class product that also speaks Arabic natively, with content built for an Arab kitchen and an Arab reader."] },
+ { heading: "Founder: Ahmed Zake", paragraphs: ["Ahmed Zake is the founder of Alkemos and a fitness and nutrition coach with over ten years of practical experience training clients online and in person. He built the platform to close the gap between generic fitness apps and expensive 1-on-1 coaching — combining computed precision with real accountability.", `Ahmed personally oversees the published content: from the ${EX_LIB}-exercise library, to the ${FOOD_LIB}-food nutrition database, to the blog — every piece goes through his review for accuracy before publication. That is how the platform works: AI capabilities, human oversight, evidence-aware content.`] },
+ { heading: "EVO — The AI Coach", paragraphs: ["EVO is an AI coach that knows your data: it answers training and nutrition questions from the platform's own content with links, builds personalized plans, and suggests meal and exercise swaps. Available to everyone — visitors included — with clear, tier-based limits."], links: [{ label: "Meet EVO", href: "/evo" }] },
+ { heading: "Memberships & Pricing", paragraphs: ["The model is simple: the Free tier is free forever and includes the full product with usage limits (EVO chat 10 messages/day, 2 plan generations per month). Subscriptions widen the limits: Premium at $14.99/mo or $119/yr, Pro at $29.99/mo or $239/yr, and Coaching at $39.99/mo or $359/yr, which adds a human coach with weekly check-ins. Every price and limit is published in full on the memberships page."], links: [{ label: "Memberships & pricing", href: "/memberships" }, { label: "Human coaching", href: "/coaching" }] },
  ],
  };
  }
@@ -195,36 +211,13 @@ function getContent(page: string, isAr: boolean) {
  };
  }
 
- // FAQ
- return isAr ? {
- title: "الأسئلة الشائعة",
- updated: `آخر تحديث: ${date}`,
- sections: [
- { heading: "ما هو Alkemos؟", paragraphs: ["منصة اللياقة والتغذية الذكية المتكاملة: محرك EVO الذكي مع قاعدة بيانات ضخمة (تمارين وأطعمة) لتقديم خطط مخصصة وتتبع ذكي."] },
- { heading: "ما هو EVO؟", paragraphs: ["EVO هو محرك الأداء الذكي. يقرأ بياناتك وهدفك، يبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام."] },
- { heading: "هل يوجد مدرب بشري؟", paragraphs: ["EVO هو مدرب ذكاء اصطناعي. إذا رغبت في متابعة بشرية، يوجد اشتراك كوتشينج بشري منفصل يمكنك الانضمام إليه عبر صفحة الكوتشينج."] },
- { heading: "كم خطة بالذكاء الاصطناعي شهرياً؟", paragraphs: ["رصيد شهري موحد واحد يجمع خطط التغذية والتمارين معاً: المجاني (والزوار دون تسجيل) توليدان ناجحان شهرياً، وبريميوم 4، وبرو 8، وكوتشينج 8. التوليد الفاشل لا يُحتسب، والرصيد يتجدد في أول كل شهر."] },
- { heading: "ما هي التبديلات وكم عددها؟", paragraphs: ["التبديلات تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة. الباقة المجانية: لا توجد. بريميوم: 3 تبديلات للوجبات أو التمارين أسبوعيًا. برو: 6 أسبوعيًا. كوتشينج: 6 أسبوعيًا. تتجدد كل اثنين."] },
- { heading: "ما هي طرق الدفع؟", paragraphs: ["PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ أما الطرق اليدوية فتتطلب رفع إيصال يقوم الفريق بمراجعته خلال 24 ساعة."] },
- { heading: "هل بياناتي آمنة؟", paragraphs: ["نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل."] },
- { heading: "ماذا يمنحني الحساب المجاني؟", paragraphs: ["كل خطة تولّدها تُحفظ في حسابك بدلًا من البقاء على جهاز واحد، وتتزامن عبر أجهزتك، وتديرها من صفحة خططي. كما تحصل على لوحتك الخاصة بمتابعة التقدم والاستبيانات. وإنشاء الحساب مجاني."] },
- { heading: "هل يعمل على الموبايل؟", paragraphs: ["نعم، الموقع متجاوب بالكامل ويمكن تثبيته كتطبيق (PWA) على الموبايل."] },
- { heading: "متى سأرى النتائج؟", paragraphs: ["تختلف النتائج من شخص لآخر حسب الانتظام ونقطة البداية والأهداف. توفر Alkemos أدوات وإرشادًا منظمًا لمساعدتك على تحقيق تقدم قابل للقياس مع الوقت."] },
- ],
- } : {
- title: "Frequently Asked Questions",
- updated: `Last updated: ${date}`,
- sections: [
- { heading: "What is Alkemos?", paragraphs: ["The smart, all-in-one fitness & nutrition platform: the EVO AI engine plus a massive exercise and food database for personalized plans and smart tracking."] },
- { heading: "What is EVO?", paragraphs: ["EVO is the AI performance engine. It reads your data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Available to everyone — visitors and members alike — with tier-based limits."] },
- { heading: "Is there a human coach?", paragraphs: ["EVO is an AI coach. If you want human supervision, there's a separate human coaching subscription you can join via the coaching page."] },
- { heading: "How many AI plans per month?", paragraphs: ["One unified monthly pool covers nutrition and workout plans together: the Free tier (visitors included, no signup) gets 2 successful generations per month, Premium 4, Pro 8, and Coaching 8. Failed generations never count, and the pool resets on the 1st of each month."] },
- { heading: "What are swaps and how many do I get?", paragraphs: ["Swaps replace individual meals or exercises within your plan — they never regenerate the whole plan. Free: none. Premium: 3 meal/exercise swaps per week. Pro: 6 per week. Coaching: 6 per week. Swaps reset every Monday."] },
- { heading: "Payment methods?", paragraphs: ["PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt which the coach reviews within 24 hours."] },
- { heading: "Is my data safe?", paragraphs: ["Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations."] },
- { heading: "What does a free account give me?", paragraphs: ["Every plan you generate is saved to your account instead of staying on one device, synced across your devices, and manageable from your plans page. You also get your dashboard with progress tracking and questionnaires. Creating the account is free."] },
- { heading: "Mobile friendly?", paragraphs: ["Yes, fully responsive and installable as a PWA app on mobile."] },
- { heading: "When will I see results?", paragraphs: ["Results vary by individual, consistency, starting point, and goals. Alkemos provides structured tools and guidance to help you make measurable progress over time."] },
- ],
+ // FAQ — rendered from the SINGLE source (faq-content.ts): the visible
+ // Q&As here and the FAQPage JSON-LD on /faq + /ar/faq derive from the
+ // same arrays, so the two surfaces can never drift again
+ // (docs/content-strategy.md §6.12).
+ return {
+ title: isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions",
+ updated: isAr ? `آخر تحديث: ${date}` : `Last updated: ${date}`,
+ sections: (isAr ? FAQS_AR : FAQS_EN).map((f) => ({ heading: f.q, paragraphs: [f.a] })),
  };
 }

@@ -20,7 +20,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
       "- Always use a rack with safety pins when training alone\n" +
       "- Warm up with the empty bar and climb in jumps that shrink as the weight grows",
     guideAr:
-      "يظل البار الأداة المرجعية للقوة: بار واحد جامد يعني مسارًا واحدًا لكل تكرار، وأصغر زيادات ممكنة بين الجلسات، وأثقل تحميل مركّب يقبلله جسم الإنسان — سكوات ورفعة ودفعة وتجديف. حين يكون الهدف قوة قابلة للقياس ومتدرجة، تقل الأدوات التي تنافسه.\n\n" +
+      "يظل البار الأداة المرجعية للقوة: بار واحد جامد يعني مسارًا واحدًا لكل تكرار، وأصغر زيادات ممكنة بين الجلسات، وأثقل تحميل مركّب يتحمّله جسم الإنسان — سكوات ورفعة ودفعة وتجديف. حين يكون الهدف قوة قابلة للقياس ومتدرجة، تقل الأدوات التي تنافسه.\n\n" +
       "تمتد عائلة البار في المكتبة على الكلاسيكيات: سكوات ورفعة ميتة للجزء السفلي والسلسلة الخلفية، وبنش وضغط كتف للعلوي، وتجديف بار للظهر، ودفع ورك للمؤخرة — مع تنويعات خاصة (سكوات صندوقي، بنش قبضة ضيقة) لمن يحتاجها.\n\n" +
       "أقصى استفادة من البار:\n" +
       "- تعلّم الأربعة الكبار بوزن خفيف أولًا؛ دَين التقنية يتراكم مع الحمل\n" +
@@ -42,7 +42,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
           "Both build muscle equally well when volume and effort match. The barbell's advantage is load: you can go heavier on squats, deadlifts and presses, which favors maximal strength. Dumbbells offer a longer range of motion, independent arms that fix side-to-side gaps, and friendlier angles for cranky joints. The strongest programs use both — barbell as the heavy primary lift, dumbbells for volume and variation.",
         qAr: "البار أم الدمبل — أيهما يبني عضلات أكثر؟",
         aAr:
-          "كلاهما يبني العضلات بالتساوي حين يتساوى الحجم والجهد. ميزة البار هي الحمل: تستطيع الثقل أكثر في السكوات والرفعات والضغط، وهذا يخدم القوة القصوى. الدمبل يمنح مدى أطول وذراعين مستقلتين يصلحان الفوارق وزوايا ألطف للمفاصل الحساسة. أقوى البرامج تجمعهما — بار كرفع أساسي ثقيل ودمبل للحجم والتنويع.",
+          "كلاهما يبني العضلات بالتساوي حين يتساوى الحجم والجهد. ميزة البار هي الحمل: يمكنك رفع أوزان أثقل في السكوات والرفعات والضغط، وهذا يخدم القوة القصوى. الدمبل يمنح مدى أطول وذراعين مستقلتين يصلحان الفوارق وزوايا ألطف للمفاصل الحساسة. أقوى البرامج تجمعهما — بار كرفع أساسي ثقيل ودمبل للحجم والتنويع.",
       },
       {
         qEn: "How do I stay safe training with a barbell alone?",
@@ -50,7 +50,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
           "Three rules cover most of the risk. Train inside a power rack with safety pins set just below your bottom position. Never put collars-free or maximal bench presses outside the rack — bail sideways only as a trained last resort. And leave 1–2 reps in reserve on solo sessions: grinding a failed rep without a spotter is where injuries happen, not during controlled hard work.",
         qAr: "كيف أتدرب بالبار بأمان وحدك؟",
         aAr:
-          "ثلاث قواعد تغطي أغلب الخطر. تدرّب داخل رَفّ قدرة بأعمدة أمان مثبتة أسفل وضعك الأدنى بقليل. لا تجرِ أبدًا بنشًا أقصى خارج الرَفّ — والانقباض الجانبي ملاذ أخير مدرّب عليه فقط. واترك 1–2 تكرار احتياط في الجلسات الفردية: صراع التكرار الفاشل بلا مساعد هو موضع الإصابات لا العمل المكثف المتحكَّم به.",
+          "ثلاث قواعد تغطي أغلب الخطر. تدرّب داخل رَفّ قدرة بأعمدة أمان مثبتة أسفل وضعك الأدنى بقليل. لا تجري أبدًا محاولة أقصى خارج إطار الحماية (الرَفّ) — والخروج الجانبي من تحت البار مهارة متقدمة تُتدرّب عليها فقط. واترك 1–2 تكرار احتياط في الجلسات الفردية: صراع التكرار الفاشل بلا مساعد هو موضع الإصابات لا العمل المكثف المتحكَّم به.",
       },
       {
         qEn: "How fast should I add weight to the bar?",
@@ -227,7 +227,7 @@ export const EQUIPMENT_DEPTH: Record<string, HubDepthContent> = {
       "- Judge effort by proximity to failure, not by the number on the stack\n" +
       "- Cables pair well after free-weight compounds: constant tension finishes tired muscles cleanly",
     guideAr:
-      "آلات الكابل تسحب عبر رجّ حديدي محرك، وهذا يمنحها خاصية لا يضاهيها الوزن الحر: شد ثابت عبر كامل مدى الحركة. أعلى ذبابة دمبل يخفف عنك الجاذبية؛ وأعلى ذبابة كابل ما يزال الرجّ يسحب. هذا الشد الثابت مع زوايا قابلة للضبط من الأرض إلى فوق الرأس يجعل الكابل أداة الدقة في النادي الرياضي.\n\n" +
+      "آلات الكابل تسحب عبر كومة أوزان حديدية متصلة ببكرة، وهذا يمنحها خاصية لا يضاهيها الوزن الحر: شد ثابت عبر كامل مدى الحركة. أعلى ذبابة دمبل يخفف عنك الجاذبية؛ أما أعلى ذبابة كابل فالكابل ما يزال يسحب. هذا الشد الثابت مع زوايا قابلة للضبط من الأرض إلى فوق الرأس يجعل الكابل أداة الدقة في النادي الرياضي.\n\n" +
       "تُظهر عائلة الكابل في المكتبة (81 تمرينًا) الاتساع: السحب الواسع وشبك الوجه للظهر والكتف الخلفي، وضغط الصدر بالكابل لدفع بشد ثابت، وثني الكابل لثني محمّل، والرف الجانبي الجالس للكتف الجانبي، وثني الكاهل للعزل الصارم للذراع.\n\n" +
       "كيف تتدرب بالكابل:\n" +
       "- اضبط ارتفاع البكرة بوعي — إنه يحدد أي جزء من القوس يُحمّل الأصعب\n" +

@@ -569,8 +569,8 @@ export default function EvoPage() {
                 href: isAr ? "/ar/coaching" : "/coaching",
                 titleAr: "كوتشينج مع مدربين بشريين",
                 titleEn: "Human Online Coaching",
-                descAr: "مدربون معتمدون يتابعونك خطوة بخطوة.",
-                descEn: "Certified coaches following you step by step.",
+                descAr: "مدرب بشري يبني خططك ويتابعك أسبوعيًا.",
+                descEn: "A human coach builds your plans and checks in weekly.",
               },
               {
                 href: isAr ? "/ar/tools" : "/tools",

@@ -118,7 +118,7 @@ export default function ProgramDetailClient({
               {isAr ? program.nameAr : program.nameEn}
             </h1>
             <p className="mt-2 text-base font-normal text-[var(--muted-foreground)]" dir="auto">
-              {isAr ? program.descriptionEn : program.descriptionAr}
+              {isAr ? program.descriptionAr : program.descriptionEn}
             </p>
 
             {/* Stats */}
@@ -260,7 +260,7 @@ export default function ProgramDetailClient({
                   <div className="mt-3 flex items-center gap-2 text-[#ff9500]">
                     <Coffee className="h-4 w-4" />
                     <p className="text-sm font-normal">
-                      {isAr ? "خد راحة، الجسم بيحتاجها للتعافي" : "Take a rest — your body needs it to recover"}
+                      {isAr ? "احصل على قسط من الراحة — جسدك يحتاجها للتعافي" : "Take a rest — your body needs it to recover"}
                     </p>
                   </div>
                 )}

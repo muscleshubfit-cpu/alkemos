@@ -79,7 +79,7 @@ export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) 
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.error || (isAr ? "حصل خطأ" : "Something went wrong"));
+        setError(data.error || (isAr ? "حدث خطأ" : "Something went wrong"));
         return;
       }
       setDone(true);
@@ -87,7 +87,7 @@ export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) 
       setError(
         e instanceof Error
           ? e.message
-          : (isAr ? "حصل خطأ" : "Something went wrong"),
+          : (isAr ? "حدث خطأ" : "Something went wrong"),
       );
     } finally {
       setSubmitting(false);
@@ -106,12 +106,12 @@ export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) 
         </p>
         <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)]">
           {isAr
-            ? `تفقد بريدك الإلكتروني خلال دقائق — بعتنا لك نتائجك كاملة مع نصائح ذكية على (${email}).`
+            ? `تفقّد بريدك الإلكتروني خلال دقائق — أرسلنا نتائجك كاملة إلى ${email}.`
             : `Check your inbox in a few minutes — we've sent your full results with smart tips to (${email}).`}
         </p>
         <p className="mt-2 text-xs font-normal text-[var(--muted-foreground)]">
           {isAr
-            ? "مكتبتك الرسائل غير المرغوبة (Spam) لو الرسالة وصلت متأخر."
+            ? "إن لم تصلك الرسالة خلال دقائق، فتحقّق من مجلد البريد غير المرغوب فيه (Spam)."
             : "If it doesn't arrive, check your Spam folder."}
         </p>
       </div>
@@ -132,8 +132,8 @@ export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) 
           </h3>
           <p className="mt-1 text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "أدخل بريدك الإلكتروني لتصلك النتائج كاملة مع نصائح ذكية."
-              : "Enter your email to receive your full results with smart tips."}
+              ? "أدخل بريدك الإلكتروني لتصلك نتائجك كاملة مع شرح مختصر لقراءتها."
+              : "Enter your email to receive your full results with a short guide to reading them."}
           </p>
         </div>
       </div>

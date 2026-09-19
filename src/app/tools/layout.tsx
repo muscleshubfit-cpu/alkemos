@@ -4,9 +4,9 @@ import type { Metadata } from "next";
  * M30 fix: English-first metadata for /tools.
  */
 export const metadata: Metadata = {
-  title: "Free Fitness Tools | Alkemos — Calculators & Trackers",
+  title: "Free Fitness Tools | Alkemos — Calculators, Planner & AI",
   description:
-    "Free fitness and nutrition tools: calorie calculator, BMI calculator, macro calculator, body fat calculator, water tracker, and meal planner.",
+    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators — no signup required.",
   keywords: [
     "free fitness tools",
     "fitness calculators",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Free Fitness Tools | Alkemos",
-    description: "Free fitness and nutrition calculators for your journey.",
+    description: "8 free tools: calculators, meal planner, and AI plan generators — no signup.",
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/tools",

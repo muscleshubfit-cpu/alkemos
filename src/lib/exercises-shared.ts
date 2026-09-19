@@ -86,14 +86,14 @@ export const MUSCLE_LABELS: Record<string, { ar: string; en: string }> = {
   Chest: { ar: "الصدر", en: "Chest" },
   Forearms: { ar: "الساعدان", en: "Forearms" },
   Glutes: { ar: "الألوية", en: "Glutes" },
-  Hamstrings: { ar: "الخلفية", en: "Hamstrings" },
-  Lats: { ar: "اللات", en: "Lats" },
+  Hamstrings: { ar: "أوتار الركبة", en: "Hamstrings" },
+  Lats: { ar: "الظهر العريضة", en: "Lats" },
   "Lower Back": { ar: "أسفل الظهر", en: "Lower Back" },
   "Mid Back": { ar: "منتصف الظهر", en: "Mid Back" },
   Neck: { ar: "الرقبة", en: "Neck" },
   Quads: { ar: "الرباعية", en: "Quads" },
   Shoulders: { ar: "الأكتاف", en: "Shoulders" },
-  Traps: { ar: "الترابيس", en: "Traps" },
+  Traps: { ar: "شبه المنحرفة", en: "Traps" },
   Triceps: { ar: "الترايسبس", en: "Triceps" },
 };
 

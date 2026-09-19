@@ -639,7 +639,7 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
         const errorMessage: ChatMessage = {
           id: `msg-${Date.now()}-error`,
           role: "assistant",
-          content: "عذراً، حصل خطأ في الاتصال. تأكد من الإنترنت وحاول مرة أخرى.",
+          content: "عذرًا، حدث خطأ في الاتصال. تحقّق من اتصالك بالإنترنت وحاول مرة أخرى.",
           timestamp: Date.now(),
         };
         setState((prev) => ({ ...prev, messages: [...prev.messages, errorMessage], isTyping: false }));

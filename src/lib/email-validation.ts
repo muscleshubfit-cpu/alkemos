@@ -81,7 +81,7 @@ export function validateNameStrict(raw: string, isAr: boolean): string | null {
   }
   if (!NAME_ALLOWED_RE.test(name)) {
     return isAr
-      ? "الاسم لازم يكون حروف عربية أو إنجليزية فقط — من غير أرقام أو رموز"
+      ? "يجب أن يتكون الاسم من حروف عربية أو إنجليزية فقط — دون أرقام أو رموز"
       : "Use Arabic or English letters only — no digits or symbols in the name";
   }
   return null;

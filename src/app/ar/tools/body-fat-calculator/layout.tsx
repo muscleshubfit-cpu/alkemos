@@ -7,7 +7,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * one "— Alkemos".
  */
 export const metadata: Metadata = {
-  title: "حاسبة نسبة الدهون في الجسم — طريقة البحرية الأمريكية | Alkemos",
+  title: "حاسبة نسبة الدهون في الجسم — طريقة البحرية الأمريكية",
   description:
     "احسب نسبة الدهون في جسمك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) المعتمدة بناءً على محيط الخصر والرقبة والورك — نتيجة فورية مع تصنيف النسبة وتفسيرها.",
   keywords: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "حاسبة نسبة الدهون في الجسم | Alkemos",
+    title: "حاسبة نسبة الدهون في الجسم",
     description: "احسب نسبة دهونك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) مع تصنيف النتيجة.",
     type: "website",
     locale: "ar_EG",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "حاسبة نسبة الدهون في الجسم | Alkemos",
+    title: "حاسبة نسبة الدهون في الجسم",
     description: "احسب نسبة دهونك مجانًا بطريقة البحرية الأمريكية (U.S. Navy) مع تصنيف النتيجة.",
   },
 };

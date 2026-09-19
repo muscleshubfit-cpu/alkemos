@@ -54,7 +54,7 @@ export default function BodyFatCalculatorPage() {
       if (diff <= 0) {
         setError(
           isAr
-            ? "محيط الخصر لازم يكون أكبر من محيط الرقبة للرجال."
+            ? "يجب أن يكون محيط الخصر أكبر من محيط الرقبة للرجال."
             : "For men, the waist must be larger than the neck.",
         );
         setResult(null);
@@ -66,7 +66,7 @@ export default function BodyFatCalculatorPage() {
       if (!hp || hp <= 0) {
         setError(
           isAr
-            ? "السيدات بحاجة لإدخال محيط الورك أيضًا."
+            ? "تحتاج السيدات إلى إدخال محيط الورك أيضًا."
             : "Women also need a valid hip measurement.",
         );
         setResult(null);
@@ -188,12 +188,12 @@ export default function BodyFatCalculatorPage() {
               </div>
               <div className="rounded-2xl bg-[var(--tint)] p-6 text-center">
                 <p className="text-2xl font-semibold text-[var(--success)]">{result.leanMass} kg</p>
-                <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">{isAr ? "كتلة عضلية" : "Lean mass"}</p>
+                <p className="mt-1 text-xs font-normal text-[var(--muted-foreground)]">{isAr ? "كتلة صافية" : "Lean mass"}</p>
               </div>
             </div>
 
             <div className="rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6 text-center">
-              <p className="text-base font-normal text-[var(--text)]">{isAr ? "محتاج خطة لتقليل الدهون وزيادة العضلات؟" : "Need a plan to reduce fat and build muscle?"}</p>
+              <p className="text-base font-normal text-[var(--text)]">{isAr ? "تحتاج خطة لتقليل الدهون وبناء العضلات؟" : "Need a plan to reduce fat and build muscle?"}</p>
               <button onClick={() => navigate("memberships")} className="mt-4 btn-chrome px-6 py-2.5 text-sm">
                 {isAr ? "احصل على خطة مخصصة ›" : "Get a personalized plan ›"}
               </button>

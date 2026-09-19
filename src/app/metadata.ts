@@ -27,54 +27,23 @@ export const metadata: Metadata = {
   // now LEADS with the one-platform positioning and keeps the library
   // numbers as proof points instead of a bare feature list.
   description:
-    "Train smarter. Eat with precision. Progress with intelligence. Alkemos unifies training, nutrition, and AI planning — 868+ exercises, 8,830+ foods, EVO coach.",
+    "Train smarter. Eat with precision. Progress with numbers on your side. Alkemos unifies training, nutrition, and AI planning — 868+ exercises, 8,830+ foods, 8 free tools, and the EVO AI coach.",
   keywords: [
-    // Platform-level keywords (primary, English)
-    "sports platform",
+    // Platform-level keywords (primary, English) — focused set, one owner
+    // per page; tool names belong to their own routes.
+    "fitness platform",
     "exercise library",
     "workout programs",
-    "fitness calculators",
-    "calorie calculator",
-    "BMI calculator",
-    "macro calculator",
-    "body fat calculator",
     "food database",
-    "nutrition database",
-    "fitness blog",
     "free fitness tools",
-    // Exercise-related
-    "chest exercises",
-    "back exercises",
-    "leg exercises",
-    "shoulder exercises",
-    "bicep exercises",
-    "tricep exercises",
-    "core exercises",
-    "cardio exercises",
-    "gym programs",
-    "home workouts",
-    "bodyweight exercises",
-    // Food-related
-    "food calories",
-    "food macros",
-    "grams calculator",
-    "protein foods",
-    // Coaching (secondary — one feature among many)
-    "online coaching",
-    "nutrition coaching",
-    "personalized meal plans",
-    "custom workout programs",
-    // EVO (AI coach)
-    "EVO AI coach",
     "AI fitness coach",
-    "smart fitness assistant",
-    // Arabic keywords (secondary)
-    "منصة رياضية",
+    "online coaching",
+    // Arabic cluster (the AR market is standalone, not a translation)
+    "منصة لياقة وتغذية",
     "مكتبة تمارين",
-    "برامج تدريب",
-    "حاسبات لياقة",
+    "حاسبة السعرات الحرارية",
+    "مخطط وجبات",
     "كوتشينج أونلاين",
-    "تغذية رياضية",
     // Brand
     "Alkemos",
   ],
@@ -96,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alkemos — The Smart Fitness & Nutrition Platform",
     description:
-      "868+ exercises, workout programs, free fitness calculators, food database, fitness blog, and online coaching. Everything you need for your fitness journey in one place.",
+      "868+ exercises, 8,830+ foods, 8 free tools, ready programs and diets, an AI coach, and optional human coaching — in Arabic and English.",
     type: "website",
     siteName: "Alkemos",
     locale: "en_US",
@@ -118,7 +87,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Alkemos — The Smart Fitness & Nutrition Platform",
     description:
-      "Exercises, workout programs, fitness calculators, food database, fitness blog, and online coaching.",
+      "Training, nutrition, and AI planning in one bilingual platform: 868+ exercises, 8,830+ foods, 8 free tools, and the EVO AI coach.",
     images: ["/images/og/og-home-en.png"],
   },
   robots: {

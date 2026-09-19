@@ -84,8 +84,8 @@ export function jsonLd(obj: unknown): string {
  * against a silent Arabic default leaking back onto EN surfaces).
  */
 const ORG_DESCRIPTIONS: Record<"en" | "ar", string> = {
-  en: "The complete digital training platform: 868+ exercises with photos, 8,830+ foods with nutrition data, ready-made programs, free calculators, and certified coaches with the EVO AI engine.",
-  ar: "منصة التدريب الرقمي المتكاملة: 868+ تمرينًا، 8,830+ صنف غذائي بالقيم الغذائية، برامج جاهزة، حاسبات مجانية، ومدربون معتمدون مع ذكاء اصطناعي EVO.",
+  en: "The complete digital training platform: 868+ exercises with photos, 8,830+ foods with nutrition data, ready-made programs, free tools, and human coaching alongside the EVO AI engine.",
+  ar: "منصة التدريب الرقمي المتكاملة: 868+ تمرينًا، 8,830+ صنفًا غذائيًا بالقيم الغذائية، برامج جاهزة، أدوات مجانية، وكوتشينج بشري مع ذكاء اصطناعي EVO.",
 };
 
 export function getOrganizationSchema(lang: "en" | "ar") {
@@ -165,12 +165,12 @@ const COACHING_SERVICE_TEXT: Record<
   en: {
     name: "Online Coaching — Professional Coaches & Nutrition Specialists",
     description:
-      "Online coaching with professional coaches and nutrition specialists. Personalized meal plans, adaptive workout programs, personal follow-up, and an AI assistant (EVO) available 24/7.",
+      "Online coaching with professional coaches and nutrition specialists: personalized meal and workout plans, weekly check-ins, manual swaps by your coach, and the EVO AI assistant available around the clock.",
   },
   ar: {
-    name: "Coaching Online — مدربين وأخصائيين تغذية",
+    name: "كوتشينج أونلاين — مدربون وأخصائيو تغذية",
     description:
-      "كوتشينج أونلاين مع مدربين وأخصائيين تغذية محترفين. خطط تغذية مخصصة، برامج تمارين متكيفة، متابعة شخصية، ومساعد ذكاء اصطناعي (EVO) متاح 24/7.",
+      "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية وتمارين مخصصة، متابعة أسبوعية، تبديلات يجريها المدرب بنفسه، ومدرّب ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
   },
 };
 
@@ -187,12 +187,16 @@ export function getCoachingServiceSchema(lang: "en" | "ar") {
     },
     areaServed: "Worldwide",
     description: COACHING_SERVICE_TEXT[lang].description,
+    // Content-strategy v1 (2026-09-20): the visible page sells ONE
+    // canonical Coaching membership ($39.99/mo, $359/yr — memberships.ts).
+    // The old $20–$40 / 2-offer range advertised the retired Starter/Elite
+    // products and contradicted the page (a copy-vs-implementation error).
     offers: {
-      "@type": "AggregateOffer",
+      "@type": "Offer",
       priceCurrency: "USD",
-      lowPrice: "20",
-      highPrice: "40",
-      offerCount: "2",
+      price: "39.99",
+      url: `${SITE_URL}/coaching`,
+      availability: "https://schema.org/InStock",
     },
     // Phase SEO-GEO-6.4 (§12.19 P0-5): the hardcoded aggregateRating
     // (4.8 / 500 reviews) was REMOVED — it had no visible review source,

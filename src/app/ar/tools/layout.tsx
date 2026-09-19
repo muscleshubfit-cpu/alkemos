@@ -9,12 +9,21 @@ import type { Metadata } from "next";
  * Same client page as the EN hub (bilingual via useI18n urlLocale=ar).
  */
 export const metadata: Metadata = {
-  title: "الأدوات المجانية — الحاسبات والمتتبعات الرياضية",
+  // Brand-suffix law (content-strategy v1, live-verified 2026-09-20): a
+  // nested layout with a plain-string title RESETS the parent /ar template
+  // for its whole subtree — the five /ar/tools/* children were silently
+  // losing their "— Alkemos" suffix. The hub pins its own absolute title
+  // (brand once) and re-declares the template so every child tool page
+  // appends exactly one "— Alkemos" again.
+  title: {
+    absolute: "الأدوات المجانية — حاسبات ومخططات وأدوات ذكاء اصطناعي — Alkemos",
+    template: "%s — Alkemos",
+  },
   description:
-    "حاسبات لياقة وتغذية مجانية بالعربية: حاسبة السعرات الحرارية، مؤشر كتلة الجسم BMI، الماكروز، نسبة الدهون، متتبع الماء، ومخطط الوجبات الذكي.",
+    "8 أدوات لياقة وتغذية مجانية بالعربية: حاسبات السعرات ومؤشر كتلة الجسم والماكروز ونسبة الدهون، ومتتبع شرب الماء، ومخطط الوجبات، ومخططان بالذكاء الاصطناعي — بدون تسجيل.",
   keywords: [
     "حاسبة السعرات الحرارية",
-    "حاسبة BMI",
+    "حاسبة مؤشر كتلة الجسم",
     "حاسبة الماكروز",
     "حاسبة نسبة الدهون",
     "حاسبة الماء",
@@ -30,7 +39,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "الأدوات المجانية | Alkemos — الحاسبات والمتتبعات الرياضية",
+    title: "الأدوات المجانية | Alkemos",
     description: "حاسبات لياقة وتغذية مجانية بالعربية لمساعدتك في رحلتك.",
     type: "website",
     locale: "ar_EG",

@@ -242,12 +242,12 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     title: isAr ? "الأدوات" : "Tools",
     items: [
       {
-        label: isAr ? "حاسبة BMI" : "BMI Calculator",
+        label: isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator",
         icon: Activity,
         href: isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator",
       },
       {
-        label: isAr ? "حاسبة الدهون" : "Body Fat Calculator",
+        label: isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator",
         icon: Target,
         href: isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator",
       },
@@ -262,7 +262,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         href: isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator",
       },
       {
-        label: isAr ? "متتبع الماء" : "Water Tracker",
+        label: isAr ? "متتبع شرب الماء" : "Water Tracker",
         icon: Droplet,
         href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker",
       },
@@ -500,7 +500,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       items: [
         { labelAr: "مكتبة الأطعمة", labelEn: "Foods", href: isAr ? "/ar/foods" : "/foods" },
         { labelAr: "مخطط الوجبات", labelEn: "Meal Planner", href: isAr ? "/ar/meal-planner" : "/meal-planner" },
-        { labelAr: "الخطط الغذائية الجاهزة", labelEn: "Diet Plans", href: isAr ? "/ar/diet-plan" : "/diet-plan" },
+        { labelAr: "مكتبة الخطط الغذائية الجاهزة", labelEn: "Diet Plans", href: isAr ? "/ar/diet-plan" : "/diet-plan" },
         { labelAr: "مجموعات الأطعمة", labelEn: "Food Collections", href: isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods" },
       ],
     },
@@ -512,9 +512,9 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       items: [
         { labelAr: "حاسبة السعرات", labelEn: "Calorie Calculator", href: isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator" },
         { labelAr: "حاسبة الماكروز", labelEn: "Macro Calculator", href: isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator" },
-        { labelAr: "حاسبة BMI", labelEn: "BMI Calculator", href: isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator" },
-        { labelAr: "حاسبة الدهون", labelEn: "Body Fat Calculator", href: isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator" },
-        { labelAr: "متتبع الماء", labelEn: "Water Tracker", href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker" },
+        { labelAr: "حاسبة مؤشر كتلة الجسم", labelEn: "BMI Calculator", href: isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator" },
+        { labelAr: "حاسبة نسبة الدهون", labelEn: "Body Fat Calculator", href: isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator" },
+        { labelAr: "متتبع شرب الماء", labelEn: "Water Tracker", href: isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker" },
         { labelAr: "كل الأدوات", labelEn: "All Tools", href: isAr ? "/ar/tools" : "/tools" },
       ],
     },

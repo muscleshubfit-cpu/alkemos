@@ -173,9 +173,9 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     nameAr: "حرق دهون — HIIT منزلي",
     nameEn: "Fat Loss — Home HIIT",
     descriptionAr:
-      "برنامج HIIT مكثف 4 أيام/أسبوع لحرق الدهون بسرعة، بجلسات من 20-30 دقيقة فقط. مخصص للمستوى المتوسط ممن لديهم أساس تدريبي.",
+      "برنامج HIIT بأربع حصص أسبوعيًا لهدف حرق الدهون، بجلسات من 20 إلى 30 دقيقة فقط. مخصص للمستوى المتوسط ممن لديهم أساس تدريبي مسبق.",
     descriptionEn:
-      "Intense 4-day/week HIIT program for fast fat loss. Each session only 20-30 minutes. For intermediate level with some base.",
+      "A 4-day/week HIIT program built for fat loss, with 20-30 minute sessions. For intermediate trainees with a training base.",
     location: "home",
     level: "intermediate",
     goal: "fat-loss",
@@ -286,7 +286,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
         titleEn: "Obliques + Stability",
         exercises: [
           { exerciseSlug: "russian-twist", nameAr: "تويست روسي", nameEn: "Russian Twist", sets: 4, reps: "20-30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
-          { exerciseSlug: "plank", nameAr: "بلانك جانبي", nameEn: "Side Plank", sets: 3, reps: "30 ثانية لكل جنب", restAr: "30 ثانية", restEn: "30 sec" },
+          { exerciseSlug: "plank", nameAr: "بلانك", nameEn: "Plank", sets: 3, reps: "30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
           { exerciseSlug: "mountain-climbers", nameAr: "تسلق الجبل", nameEn: "Mountain Climbers", sets: 3, reps: "30 ثانية", restAr: "30 ثانية", restEn: "30 sec" },
         ],
       },
@@ -618,7 +618,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
     days: [
       {
         day: 1,
-        titleAr: "Workout A",
+        titleAr: "تمرين أ",
         titleEn: "Workout A",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
@@ -635,7 +635,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       },
       {
         day: 3,
-        titleAr: "Workout B",
+        titleAr: "تمرين ب",
         titleEn: "Workout B",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },
@@ -652,7 +652,7 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       },
       {
         day: 5,
-        titleAr: "Workout A — تكرار",
+        titleAr: "تمرين أ — تكرار",
         titleEn: "Workout A — Repeat",
         exercises: [
           { exerciseSlug: "barbell-squat", nameAr: "سكوات 5×5", nameEn: "Squat 5×5", sets: 5, reps: "5", restAr: "180 ثانية", restEn: "180 sec" },

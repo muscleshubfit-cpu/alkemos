@@ -179,7 +179,7 @@ export default function FoodDetailClient({
           </h2>
           <p className="mt-1 text-sm font-normal text-[#6e6e73]">
             {isAr
-              ? "غيّر الجرامات وشوف السعرات والماكروز تتحدث تلقائياً."
+              ? "غيّر الكمية بالجرام وشاهد السعرات والماكروز تتحدّث تلقائيًا."
               : "Change the grams and see calories + macros update automatically."}
           </p>
 
@@ -370,7 +370,7 @@ export default function FoodDetailClient({
           <ShareButtons
             path={`/foods/${food.slug}`}
             title={isAr ? `${food.nameAr} | Alkemos` : `${food.nameEn} | Alkemos`}
-            text={isAr ? `${food.per100g.calories} سعرة و ${food.per100g.protein} جم بروتين لكل 100 جم` : `${food.per100g.calories} cal and ${food.per100g.protein}g protein per 100g`}
+            text={isAr ? `${food.per100g.calories} سعرة و${food.per100g.protein} جم بروتين لكل 100 جم` : `${food.per100g.calories} kcal and ${food.per100g.protein}g protein per 100g`}
           />
         </div>
 
@@ -393,7 +393,7 @@ export default function FoodDetailClient({
         {related.length > 0 && (
           <section className="mt-10">
             <h2 className="text-xl font-semibold tracking-tight">
-              {isAr ? "أكلات مشابهة" : "Related foods"}
+              {isAr ? "أطعمة مشابهة" : "Related foods"}
             </h2>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {related.map((rel) => (
@@ -404,7 +404,7 @@ export default function FoodDetailClient({
                 >
                   <p className="text-sm font-semibold">{isAr ? rel.nameAr : rel.nameEn}</p>
                   <p className="mt-0.5 text-xs font-normal text-[#6e6e73]">
-                    {isAr ? `${rel.per100g.calories} كالوري · ${rel.per100g.protein} جم بروتين` : `${rel.per100g.calories} kcal · ${rel.per100g.protein}g protein`}
+                    {isAr ? `${rel.per100g.calories} سعرة · ${rel.per100g.protein} جم بروتين` : `${rel.per100g.calories} kcal · ${rel.per100g.protein}g protein`}
                   </p>
                 </a>
               ))}

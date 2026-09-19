@@ -16,9 +16,9 @@ const SITE_URL = "https://alkemos.com";
 export const metadata: Metadata = {
   // NOTE: the /ar layout template appends «— Alkemos» automatically — a
   // static «| Alkemos» here would double-brand the SERP title.
-  title: "قاعدة بيانات الأطعمة",
+  title: "مكتبة الأطعمة — السعرات والماكروز لكل 100 جرام",
   description:
-    "قاعدة بيانات أطعمة كاملة بالسعرات والماكروز لكل 100 جرام — 8,830+ صنف غذائي. ابحث، صفِّ النتائج، واحسب الكميات بالجرام على Alkemos.",
+    "مكتبة أطعمة تضم 8,830+ صنفًا غذائيًا بالسعرات والماكروز لكل 100 جرام — ابحث، صفِّ النتائج، واحسب الكميات التي تحتاجها بالجرام.",
   alternates: {
     canonical: "/ar/foods",
     languages: {

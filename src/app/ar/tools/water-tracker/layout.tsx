@@ -7,7 +7,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * one "— Alkemos".
  */
 export const metadata: Metadata = {
-  title: "حاسبة الماء اليومي ومتتبع شرب الماء | Alkemos",
+  title: "متتبع شرب الماء — هدفك اليومي وسجل أكوابك",
   description:
     "احسب احتياجك اليومي من الماء مجانًا بناءً على وزنك (35 مل × الكجم)، وسجّل كل كوب، واحفظ سجلك، وابنِ عادة شرب الماء يوميًا — متتبع مجاني بالعربية.",
   keywords: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "حاسبة الماء اليومي ومتتبع شرب الماء | Alkemos",
+    title: "متتبع شرب الماء — هدفك اليومي وسجل أكوابك",
     description: "هدف ماء ذكي من وزنك + تسجيل الأكواب + سجل يومي — مجانًا.",
     type: "website",
     locale: "ar_EG",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "حاسبة الماء اليومي ومتتبع شرب الماء | Alkemos",
+    title: "متتبع شرب الماء — هدفك اليومي وسجل أكوابك",
     description: "هدف ماء ذكي من وزنك + تسجيل الأكواب + سجل يومي — مجانًا.",
   },
 };

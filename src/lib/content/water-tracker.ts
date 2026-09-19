@@ -210,7 +210,7 @@ export const WATER_TRACKER_CONTENT: ToolReference = {
           kind: "p",
           text: {
             en: "The workflow takes three seconds a day: enter your weight once and the goal computes at 35 ml/kg within the safe clamps; then tap the cup button through the day (a standard 250 ml glass per tap) or log a custom amount — a bottle, a kettle, a restaurant glass. The progress ring fills toward your goal, the remaining number tells you exactly what is left, and a seven-day bar history reveals your real weekly rhythm — the pattern matters more than any single day, and a Thursday at 60% is a nudge, not a failure. Reset any day, undo a mis-tap, and adjust the goal manually whenever judgment says the rule is wrong for you.",
-            ar: "يسير العمل في ثلاث ثوانٍ يومياً: أدخل وزنك مرة فيُحسب الهدف بـ35 مل/كجم داخل الحصرين الآمنين؛ ثم اكبس زر الكوب عبر اليوم (كوب قياسي 250 مل للكبسة) أو سجّل مقداراً مخصصاً — قارورة، غلاية، كوب مطعم. يمتلئ حلقة التقدم نحو هدفك، ويخبرك الرقم المتبقي بما تبقى بالضبط، ويكشف تاريخ سبعة أيام إيقاعك الأسبوعي الحقيقي — فالنمط أهم من أي يوم مفرد، والخميس عند 60% نبهةٌ لا فشل. صفّر أي يوم، وتراجع عن كبسة خاطئة، وعدّل الهدف يدوياً كلما قال حكمك إن القاعدة تخطئ في حقك.",
+            ar: "يسير العمل في ثلاث ثوانٍ يومياً: أدخل وزنك مرة فيُحسب الهدف بـ35 مل/كجم داخل الحصرين الآمنين؛ ثم انقر زر الكوب على مدار اليوم (كوب قياسي 250 مل للنقرة الواحدة) أو سجّل مقداراً مخصصاً — قارورة، غلاية، كوب مطعم. يمتلئ حلقة التقدم نحو هدفك، ويخبرك الرقم المتبقي بما تبقى بالضبط، ويكشف تاريخ سبعة أيام إيقاعك الأسبوعي الحقيقي — فالنمط أهم من أي يوم مفرد، والخميس عند 60% نبهةٌ لا فشل. صفّر أي يوم، وتراجع عن نقرة خاطئة، وعدّل الهدف يدوياً كلما قال حكمك إن القاعدة تخطئ في حقك.",
           },
         },
         {

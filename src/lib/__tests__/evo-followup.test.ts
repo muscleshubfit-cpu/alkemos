@@ -72,9 +72,9 @@ describe("buildFollowupEmail — real data only", () => {
       latestWeight: 88.5,
     });
     expect(mail.subject).toContain("EVO");
-    expect(mail.text).toContain("88.5كغ");
-    expect(mail.text).toContain("1.5كغ");
-    expect(mail.text).toContain("استمر");
+    expect(mail.text).toContain("88.5 كغ");
+    expect(mail.text).toContain("نقص 1.5 كغ");
+    expect(mail.text).toContain("استمر على المسار نفسه");
   });
 
   it("AR up-trend is honest, not shaming", () => {
@@ -83,20 +83,20 @@ describe("buildFollowupEmail — real data only", () => {
       weightDeltaKg: 1.2,
       latestWeight: 91.2,
     });
-    expect(mail.text).toContain("زدت 1.2كغ");
-    expect(mail.text).toContain("نراجع");
+    expect(mail.text).toContain("زاد 1.2 كغ");
+    expect(mail.text).toContain("لنراجع الخطة معًا");
   });
 
   it("no measurements → an honest nudge, never an invented number", () => {
     const mail = buildFollowupEmail(base);
-    expect(mail.text).toContain("مفيش قياسات");
+    expect(mail.text).toContain("لا توجد قياسات وزن مسجّلة بعد");
     expect(mail.text).not.toMatch(/\d+(\.\d+)?\s*كغ/);
   });
 
   it("latest-only data asks for a new measurement without a delta claim", () => {
     const mail = buildFollowupEmail({ ...base, latestWeight: 90 });
-    expect(mail.text).toContain("90كغ");
-    expect(mail.text).toContain("سجل قياس جديد");
+    expect(mail.text).toContain("90 كغ");
+    expect(mail.text).toContain("سجّل قياسًا جديدًا");
   });
 
   it("lists active plan titles; empty list nudges instead of lying", () => {
@@ -106,7 +106,7 @@ describe("buildFollowupEmail — real data only", () => {
     });
     expect(withPlans.text).toContain("خطة التضخيم، خطة الصيف");
     const withoutPlans = buildFollowupEmail(base);
-    expect(withoutPlans.text).toContain("معندكش خطة مفعّلة");
+    expect(withoutPlans.text).toContain("لا توجد خطة مفعّلة حاليًا");
   });
 
   it("EN variant renders fully in English", () => {
@@ -132,8 +132,8 @@ describe("buildFollowupEmail — real data only", () => {
   it("send-only (D4): footer discloses the opt-in origin + opt-out path", () => {
     const mail = buildFollowupEmail(base);
     expect(mail.text).toContain("فعّلت المتابعة الأسبوعية");
-    expect(mail.text).toContain("لتوقفها");
-    expect(mail.html).toContain("لتوقفها عدّل تفضيل المتابعة");
+    expect(mail.text).toContain("لإيقافها");
+    expect(mail.html).toContain("لإيقافها، عدّل تفضيل المتابعة");
   });
 
   it("escapes the user's name in HTML (injection-safe email)", () => {

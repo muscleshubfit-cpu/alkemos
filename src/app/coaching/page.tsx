@@ -128,8 +128,8 @@ export default function CoachingPage() {
       icon: Bot,
       titleAr: "EVO — مساعدك الذكي 24/7",
       titleEn: "EVO — Your AI Assistant 24/7",
-      descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، أو التحفيز في أي وقت. ليس مجرد روبوت محادثة — بل محرك أداء ذكي يقرأ بياناتك ويتذكّرها، ويتعلّم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية).",
-      descEn: "Ask EVO any question about nutrition, exercises, or motivation anytime. Not just a chatbot — a smart engine that reads and remembers your data, and learns weekly from real platform plans (anonymized).",
+      descAr: "اسأل EVO أي سؤال عن التغذية أو التمارين أو التحفيز في أي وقت — محرك ذكي يقرأ بياناتك ويتذكّرها، ويتعلّم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية).",
+      descEn: "Ask EVO anything about nutrition, training, or motivation, anytime — a smart engine that reads and remembers your data, and learns weekly from real (anonymized) platform plans.",
       color: "#8b5cf6",
     },
   ];
@@ -163,7 +163,7 @@ export default function CoachingPage() {
             <div className="relative mt-8 aspect-[3/2] w-full overflow-hidden rounded-3xl shadow-2xl">
               <Image
                 src="/images/hero/coaching-1.jpg"
-                alt={isAr ? "منصة Alkemos الذكية" : "Alkemos smart platform"}
+                alt={isAr ? "كوتشينج اللياقة أونلاين مع مدربك على Alkemos" : "Online fitness coaching with your Alkemos coach"}
                 fill
                 className="object-cover"
                 loading="eager"
@@ -179,7 +179,7 @@ export default function CoachingPage() {
                 onClick={scrollToPricing}
                 className="btn-chrome px-7 py-3 text-base font-medium"
               >
-                {isAr ? "ابدأ تحوّلك" : "Start your transformation"}
+                {isAr ? "ابدأ الكوتشينج الآن" : "Start coaching now"}
               </button>
               <a
                 href="#how-it-works"
@@ -196,7 +196,7 @@ export default function CoachingPage() {
           <div className="mx-auto max-w-4xl">
             <Reveal>
               <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "رحلتك في ٤ خطوات." : "Your journey in 4 steps."}
+                {isAr ? "رحلتك في 4 خطوات." : "Your journey in 4 steps."}
               </h2>
             </Reveal>
             <div className="mt-12 space-y-8 md:space-y-12">
@@ -280,8 +280,8 @@ export default function CoachingPage() {
                   reassurance (included in full) without the exclusivity
                   implication — zero entitlement change. */}
               {isAr
-                ? "ليس مجرد روبوت محادثة. محرك أداء ذكي يقرأ بياناتك وهدفك، ويبني لك خططًا مخصّصة، ويقترح تبديلات ذكية للوجبات والتمارين — EVO جزء من كل عضويات Alkemos، وباقة الكوتشينج تشمله بكل ميزاته بلا أي اشتراك إضافي."
-                : "Not just a chatbot. A smart engine that reads your data and goal, builds personalized plans, and suggests smart meal and exercise swaps — EVO is part of every Alkemos membership, and your coaching plan includes it in full with no extra subscription."}
+                ? "محرك أداء ذكي يقرأ بياناتك وهدفك، ويبني لك خططًا مخصّصة، ويقترح تبديلات ذكية للوجبات والتمارين — EVO جزء من كل عضويات Alkemos، وباقة الكوتشينج تشمله بكل ميزاته بلا أي اشتراك إضافي."
+                : "A smart engine that reads your data and goal, builds personalized plans, and suggests smart meal and exercise swaps — EVO is part of every Alkemos membership, and your coaching plan includes it in full with no extra subscription."}
             </p>
             {/* Owner directive 2026-08-30: EVO is a service inside the
                 subscriptions, NOT a CTA. The old twin promo buttons
@@ -346,8 +346,8 @@ export default function CoachingPage() {
                 {
                   title: isAr ? "إشراف بشري على كل خطة" : "Human oversight on every plan",
                   body: isAr
-                    ? "المؤسس أحمد زكي — مدرب لياقة وتغذية معتمد بخبرة تتجاوز عشر سنوات — يشرف على المحتوى والخطط، ويُراجع كل مقال للدقة العلمية قبل النشر."
-                    : "Founder Ahmed Zake — a certified fitness and nutrition coach with over a decade of experience — oversees the platform's content and reviews every article for scientific accuracy before publication.",
+                    ? "المؤسس أحمد زكي — مدرب لياقة وتغذية بخبرة عملية تتجاوز عشر سنوات — يشرف على المحتوى والخطط، ويُراجع كل مقال للدقة العلمية قبل النشر."
+                    : "Founder Ahmed Zake — a fitness and nutrition coach with over ten years of practical experience — oversees the platform's content and reviews every article for accuracy before publication.",
                   href: isAr ? "/ar/about" : "/about",
                   cta: isAr ? "تعرّف على المؤسس ›" : "Meet the founder ›",
                 },
@@ -390,12 +390,12 @@ export default function CoachingPage() {
           <div className="mx-auto max-w-5xl">
             <Reveal>
               <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "استثمر في نفسك." : "Invest in yourself."}
+                {isAr ? "مدرب بشري. باقة واحدة." : "A human coach. One simple plan."}
               </h2>
             </Reveal>
             <Reveal delay={150}>
               <p className="mx-auto mt-4 max-w-xl text-center text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
-                {isAr ? "باقة كوتشينج واحدة بكل الميزات." : "One coaching plan with everything."}
+                {isAr ? "$39.99 شهريًا، وتشمل كل مميزات Pro مع متابعة المدرب." : "$39.99/month, including every Pro feature plus your coach's follow-up."}
               </p>
             </Reveal>
             {/* PHASE 68 (owner-approved): the legacy Starter $20 / Elite $40
@@ -427,7 +427,7 @@ export default function CoachingPage() {
                       isAr ? "EVO: محادثة غير محدودة وذاكرة دائمة" : "EVO: unlimited chat + cross-session memory",
                       isAr ? "متابعة أسبوعية بتذكير تلقائي" : "Weekly check-in reminders",
                       isAr ? "تبديلات يدوية من المدرب" : "Manual swaps by the coach",
-                      isAr ? "تذاكر دعم أولوية" : "Priority support tickets",
+                      isAr ? "دعم أولوية" : "Priority support",
                       isAr ? "تواصل مباشر مع المدرب" : "Direct contact with the coach"].map((f, j) => (
                       <li key={j} className="flex items-start gap-3">
                         <Check className="mt-0.5 h-5 w-5 shrink-0 opacity-60" />
@@ -465,16 +465,16 @@ export default function CoachingPage() {
           <div className="mx-auto max-w-3xl">
             <Reveal>
               <h2 className="text-center text-3xl font-semibold tracking-tight md:text-5xl">
-                {isAr ? "أسئلة شائعة." : "Questions?"}
+                {isAr ? "أسئلة شائعة" : "Coaching questions"}
               </h2>
             </Reveal>
             <Reveal delay={150}>
               <Accordion type="single" collapsible className="mt-12">
                 {[
                   { q: isAr ? "ما هو الكوتشينج في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
-                  { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "محرك الأداء الذكي. ليس روبوت محادثة — يجيب على أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The intelligent performance engine. Not a chatbot — it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
+                  { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "مدرّب الذكاء الاصطناعي في المنصة: يجيب عن أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The platform's AI coach: it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
                   { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، تُبنى كل خطة من استبياناتك على يد مدرب بشري، ويمكنك طلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
-                  { q: isAr ? "هل المدربون حقيقيون؟" : "Are the coaches real?", a: isAr ? "نعم، مدربون حقيقيون يراجعون خططك بأنفسهم." : "Yes, real coaches review your plans personally." },
+                  { q: isAr ? "هل المدرب بشري فعلًا؟" : "Is the coach a real human?", a: isAr ? "نعم — باقة الكوتشينج تشمل مدربًا بشريًا يبني خططك ويتابع تقدمك أسبوعيًا ويقترح التعديلات بنفسه، وتتواصل معه مباشرة عبر المنصة." : "Yes — the Coaching plan includes a human coach who builds your plans, follows your progress weekly, makes the swaps personally, and is reachable directly through the platform." },
                   { q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
                   { q: isAr ? "هل بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل." : "Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
                 ].map((faq, i) => (
@@ -496,7 +496,7 @@ export default function CoachingPage() {
         <section className="bg-[var(--bg)] px-4 py-16 text-center md:py-24">
           <Reveal>
             <h2 className="mx-auto max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-              {isAr ? "جسمك الجديد بانتظارك." : "Your new body is waiting."}
+              {isAr ? "مدربك جاهز عندما تكون جاهزًا." : "Your coach is ready when you are."}
             </h2>
           </Reveal>
           <Reveal delay={200}>
@@ -505,7 +505,7 @@ export default function CoachingPage() {
                 onClick={scrollToPricing}
                 className="btn-chrome px-7 py-3 text-base font-medium"
               >
-                {isAr ? "ابدأ تحوّلك" : "Start my transformation"}
+                {isAr ? "ابدأ الكوتشينج الآن" : "Start coaching now"}
               </button>
               {/* Owner 2026-08-30: removed the old "اعرف عن EVO ›" link —
                   EVO is part of the subscription, not a destination CTA. */}
@@ -522,7 +522,7 @@ export default function CoachingPage() {
             <ShareButtons
               path="/coaching"
               title={isAr ? "كوتشينج أونلاين | Alkemos" : "Online Coaching | Alkemos"}
-              text={isAr ? "مدربون وأخصائيو تغذية + EVO AI. خطط مخصصة ومتابعة شخصية." : "Coaches & nutrition specialists + EVO AI. Personalized plans and personal follow-up."}
+              text={isAr ? "مدرب بشري يبني خططك ويتابعك أسبوعيًا — مع EVO بلا حدود. $39.99/شهر." : "A human coach builds your plans and checks in weekly — with unlimited EVO. $39.99/mo."}
             />
           </div>
         </div>

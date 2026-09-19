@@ -166,7 +166,7 @@ export default function WaterTrackerPage() {
   const applyWeightGoal = () => {
     const w = parseFloat(weight);
     if (!w || w <= 0) {
-      toast.error(isAr ? "اكتب وزنك صح" : "Enter valid weight");
+      toast.error(isAr ? "أدخل وزنًا صحيحًا" : "Enter valid weight");
       return;
     }
     const rec = recommendedByWeight(w);
@@ -218,7 +218,7 @@ export default function WaterTrackerPage() {
         if (data.error === "Limit reached") {
           toast.error(
             isAr
-              ? `وصلت حد الحفظ (${data.limit}). ترقّي عضويتك للمزيد.`
+              ? `وصلت حد الحفظ (${data.limit}). طوّر باقتك للمزيد.`
               : `Save limit reached (${data.limit}). Upgrade for more.`,
           );
         } else {
@@ -275,7 +275,7 @@ export default function WaterTrackerPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "حدد هدفك اليومي وسجّل كوبساتك. السجل بيتخزن محلياً على جهازك."
+              ? "حدّد هدفك اليومي وسجّل أكوابك — يُحفظ سجلك محليًا على جهازك."
               : "Set your daily goal and log your cups. Your log is stored locally on your device."}
           </p>
         </div>
@@ -321,12 +321,12 @@ export default function WaterTrackerPage() {
           {consumedToday >= settings.goalMl ? (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--success)]/10 px-4 py-2 text-sm font-medium text-[var(--success)]">
               <Check className="h-4 w-4" />
-              {isAr ? "وصلت هدفك اليوم! 🎉" : "Goal reached today! 🎉"}
+              {isAr ? "بلغت هدفك اليوم!" : "Goal reached today! 🎉"}
             </div>
           ) : (
             <p className="mt-4 text-sm font-normal text-[var(--muted-foreground)]">
               {isAr
-                ? `فاضل ${remaining} مل`
+                ? `متبقٍ ${remaining} مل`
                 : `${remaining} ml to go`}
             </p>
           )}
@@ -337,7 +337,7 @@ export default function WaterTrackerPage() {
           <button
             onClick={removeCup}
             className="grid h-12 w-12 place-items-center rounded-full border border-[var(--edge)] bg-[var(--bg)] text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
-            title={isAr ? `نقص كوب (${settings.cupMl}مل)` : `Remove cup (${settings.cupMl}ml)`}
+            title={isAr ? `إزالة كوب (${settings.cupMl}مل)` : `Remove cup (${settings.cupMl}ml)`}
           >
             <Minus className="h-5 w-5" />
           </button>
@@ -346,7 +346,7 @@ export default function WaterTrackerPage() {
             className="btn-chrome inline-flex items-center gap-2 px-6 py-3 text-base font-medium"
           >
             <Plus className="h-5 w-5" />
-            {isAr ? `كوب (${settings.cupMl}مل)` : `+ Cup (${settings.cupMl}ml)`}
+            {isAr ? `+ كوب (${settings.cupMl}مل)` : `+ Cup (${settings.cupMl}ml)`}
           </button>
           <button
             onClick={resetToday}

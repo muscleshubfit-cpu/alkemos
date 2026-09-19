@@ -59,7 +59,7 @@ export async function generateMetadata({
       title: hub.titleAr,
       description: hub.descriptionAr,
       siteName: "Alkemos",
-      locale: "ar_AR",
+      locale: "ar_EG",
       // Phase 216 (P2-1 discovery beyond the audit list — the AR twin of
       // a WIRED EN surface, live-verified serving no og:image + a
       // "summary" card): the home card is pinned + the card upgraded to

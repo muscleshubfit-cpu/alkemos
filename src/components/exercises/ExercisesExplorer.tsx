@@ -95,7 +95,7 @@ export function ExercisesExplorer({
               : "Browse professional exercises with full instructions, target muscles, and difficulty levels."}
           </p>
           <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)] opacity-80">
-            {EXERCISES_COUNT.toLocaleString(isAr ? "ar-EG" : "en-US")}{" "}
+            {EXERCISES_COUNT.toLocaleString("en-US")}{" "}
             {isAr ? "تمرين" : "exercises"}
           </p>
         </div>
@@ -157,7 +157,7 @@ export function ExercisesExplorer({
 
         {/* Results count — anchor for scroll-back on page change */}
         <p id="results-top" className="mt-6 scroll-mt-24 text-sm font-normal text-[var(--muted-foreground)]">
-          {filtered.length.toLocaleString(isAr ? "ar-EG" : "en-US")}{" "}
+          {filtered.length.toLocaleString("en-US")}{" "}
           {isAr ? "تمرين" : "exercises"}
         </p>
 

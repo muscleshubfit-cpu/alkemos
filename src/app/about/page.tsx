@@ -9,13 +9,13 @@ import { StaticPageView } from "@/components/views/StaticPageView";
  * declares the real Arabic twin instead of nothing.
  */
 export const metadata: Metadata = {
-  title: "About Alkemos — Our Mission, Story & Team",
+  title: "About Alkemos — The Platform, the Founder, and the Model",
   // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 244 chars — Google
   // truncates meta descriptions around ~155-160. Same identity, one
   // clean sentence inside the 158 EN budget (the Phase-178 description
   // law applied to a static conversion surface).
   description:
-    "Alkemos is an Egyptian fitness platform: 868+ exercises, ready workout programs, free calculators, a food database, the EVO AI coach, and online coaching.",
+    "Alkemos is a bilingual fitness and nutrition platform: an exercise library, a food database, free tools, ready programs and diets, the EVO AI coach, and human coaching.",
   alternates: {
     canonical: "/about",
     languages: {

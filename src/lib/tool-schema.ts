@@ -379,8 +379,8 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     },
     name: { en: "AI Meal Planner", ar: "مخطط الوجبات بالذكاء الاصطناعي" },
     description: {
-      en: "Free AI meal planner trial: generate a complete day plan in grams and calories from your target, diet system, and preferences in seconds — no signup, nothing saved.",
-      ar: "تجربة مجانية لمخطط الوجبات بالذكاء الاصطناعي: ولّد خطة يوم كاملة بالغرامات والسعرات من رقمك ونظامك وملاحظاتك في ثوانٍ — بلا تسجيل وبلا حفظ.",
+      en: "Free AI meal planner trial: generate a complete day plan in grams and calories from your target, diet system, and preferences in seconds — no signup; your plan stays on your device, and a free account saves it permanently.",
+      ar: "تجربة مجانية لمخطط الوجبات بالذكاء الاصطناعي: ولّد خطة يوم كاملة بالغرامات والسعرات من رقمك ونظامك وملاحظاتك في ثوانٍ — بلا تسجيل؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
     },
     features: {
       en: [
@@ -388,14 +388,14 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "The site's four diet systems (balanced, high-protein, keto, vegetarian)",
         "Optional preferences respected in the prompt",
         "Strict shape and calorie-closure validation on every plan",
-        "Free trial for everyone: 5 generations per day, no account",
+        "Free for everyone: 2 plan generations per month per visitor, no account",
       ],
       ar: [
         "توليد يوم كامل بالغرامات بضغطة واحدة",
         "أنظمة الموقع الأربعة (متوازن، عالي البروتين، كيتو، نباتي)",
         "ملاحظات اختيارية تُحترم في التوليد",
         "تحقق صارم من الشكل وإغلاق السعرات لكل خطة",
-        "تجربة مجانية للجميع: 5 توليدات يومياً بلا حساب",
+        "مجاني للجميع: توليدان شهريًا لكل زائر بلا حساب",
       ],
     },
     crumbs: {
@@ -438,8 +438,8 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     },
     name: { en: "AI Workout Planner", ar: "مخطط التمارين بالذكاء الاصطناعي" },
     description: {
-      en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — no signup, nothing saved.",
-      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — بلا تسجيل وبلا حفظ.",
+      en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — no signup; your plan stays on your device, and a free account saves it permanently.",
+      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — بلا تسجيل؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
     },
     features: {
       en: [
@@ -447,14 +447,14 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "Four goals, three levels, three equipment worlds",
         "The split always matches your requested training days exactly",
         "Strict shape validation on every generated plan",
-        "Free trial for everyone: 5 generations per day, no account",
+        "Free for everyone: 2 plan generations per month per visitor, no account",
       ],
       ar: [
         "توليد نظام أسبوعي كامل بضغطة واحدة",
         "أربعة أهداف وثلاثة مستويات وثلاثة عوالم تجهيز",
         "النظام يطابق أيام تدريبك المطلوبة بالضبط دائماً",
         "تحقق صارم من الشكل لكل نظام مولّد",
-        "تجربة مجانية للجميع: 5 توليدات يومياً بلا حساب",
+        "مجاني للجميع: توليدان شهريًا لكل زائر بلا حساب",
       ],
     },
     crumbs: {

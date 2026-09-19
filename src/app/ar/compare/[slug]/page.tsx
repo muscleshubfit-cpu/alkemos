@@ -49,7 +49,7 @@ export async function generateMetadata({
       title: comparison.titleAr,
       description: comparison.descriptionAr,
       siteName: "Alkemos",
-      locale: "ar_AR",
+      locale: "ar_EG",
       images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`, width: 1200, height: 630 }],
     },
     twitter: {

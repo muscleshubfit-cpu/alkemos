@@ -10,9 +10,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * the /ar layout template appends exactly one "— Alkemos".
  */
 export const metadata: Metadata = {
-  title: "حاسبة السعرات الحرارية — احسب احتياجك اليومي والماكروز | Alkemos",
+  title: "حاسبة السعرات الحرارية — احسب احتياجك اليومي والماكروز",
   description:
-    "احسب سعراتك الحرارية اليومية والماكروز (بروتين، كربوهيدرات، دهون) مجانًا بناءً على وزنك وطولك وعمرك ونشاطك، بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) الأدق — نتائج فورية وشرح مبسط.",
+    "احسب احتياجك اليومي من السعرات الحرارية والماكروز (بروتين، كربوهيدرات، دهون) من وزنك وطولك وعمرك ونشاطك بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) — نتائج فورية وشرح مبسط، مجانًا وبدون تسجيل.",
   keywords: [
     "حاسبة السعرات الحرارية",
     "حساب السعرات اليومية",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "حاسبة السعرات الحرارية | Alkemos",
+    title: "حاسبة السعرات الحرارية",
     description: "احسب احتياجك اليومي من السعرات والماكروز مجانًا وبنتائج فورية.",
     type: "website",
     locale: "ar_EG",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/images/og/og-tools-ar.png"],
-    title: "حاسبة السعرات الحرارية | Alkemos",
+    title: "حاسبة السعرات الحرارية",
     description: "احسب احتياجك اليومي من السعرات والماكروز مجانًا وبنتائج فورية.",
   },
 };

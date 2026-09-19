@@ -57,7 +57,7 @@ const EXPLORE_ITEMS: {
     href: "/diet-plan",
     nameAr: "مكتبة الخطط الغذائية الجاهزة",
     nameEn: "Diet Plan Library",
-    descAr: "٢٤ خطة يوم جاهزة بالغرامات والسعرات",
+    descAr: "24 خطة يوم جاهزة بالغرامات والسعرات",
     descEn: "24 ready-made daily plans in grams",
     icon: "fruits",
   },
@@ -103,12 +103,12 @@ export function MembershipPromo({ isAr }: { isAr: boolean }) {
   return (
     <section className="mt-16 overflow-hidden rounded-[var(--radius-chrome)] bg-black px-6 py-10 text-center text-white md:px-12 md:py-14">
       <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-        {isAr ? "جاهز توصل لمستوى أعلى؟" : "Ready to level up?"}
+        {isAr ? "هل أنت مستعد للانتقال إلى مستوى أعلى؟" : "Ready to level up?"}
       </h2>
       <p className="mx-auto mt-3 max-w-xl text-base font-normal text-[#9BA0A6] md:text-lg">
         {isAr
-          ? "اشترك في عضوية Alkemos: خطط تدريب وتغذية مخصصة، متابعة مع مدربين معتمدين، وكل الأدوات البريميوم بدون إعلانات."
-          : "Join a Alkemos membership: personalized training and nutrition plans, certified coach follow-up, and all premium tools ad-free."}
+          ? "اشترك في عضوية Alkemos: خطط تدريب وتغذية مخصصة، ومتابعة مع مدرب بشري، وكل الأدوات المتقدمة بدون إعلانات."
+          : "Get an Alkemos membership: personalized training and nutrition plans, a human coach's follow-up, and all premium tools ad-free."}
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <a
@@ -121,7 +121,7 @@ export function MembershipPromo({ isAr }: { isAr: boolean }) {
           href={isAr ? "/ar/coaching" : "/coaching"}
           className="rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
         >
-          {isAr ? "الكوتشينج المخصص ›" : "Personal coaching ›"}
+          {isAr ? "الكوتشينج مع مدرب بشري ›" : "Coaching with a human coach ›"}
         </a>
       </div>
     </section>

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   // BRANDLESS by law: the /ar/layout template appends exactly one
   // " — Alkemos" to depth-1 titles — including a brand here would render
   // a double-brand title (the same class of bug P0-3 fixed on blog).
-  title: "الكوتشينج أونلاين — مدربون وأخصائيو تغذية معتمدون",
+  title: "الكوتشينج أونلاين — مدرب بشري يبني خططك ويتابعك أسبوعيًا",
   description:
     "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية مخصصة، برامج تمارين متكيفة مع مستواك، متابعة شخصية أسبوعية، ومساعد ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
   keywords: [

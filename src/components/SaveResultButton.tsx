@@ -61,7 +61,7 @@ export function SaveResultButton({ toolSlug, title, resultData }: Props) {
         if (data.error === "Limit reached") {
           toast.error(
             isAr
-              ? `وصلت حد الحفظ (${data.limit}). ترقّي عضويتك للمزيد.`
+              ? `وصلت حد الحفظ (${data.limit}). طوّر باقتك للمزيد.`
               : `Save limit reached (${data.limit}). Upgrade for more.`,
           );
         } else {
