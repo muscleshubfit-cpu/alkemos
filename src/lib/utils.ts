@@ -1,3 +1,5 @@
+// VERCEL ignore-step test B (2026-09-20): trivial code probe — expect a full
+// READY build (src/** is a watched path). Safe to remove anytime.
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
