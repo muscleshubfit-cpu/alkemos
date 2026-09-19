@@ -6,6 +6,47 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: FOOD-LANG-AUDIT-2026-09-19
+Agent: Super Z (owner session)
+Task: Read-only audit of Food Data Language Separation (owner order 2026-09-19: verify the source/schema of the 8,830 food records, pin down exactly what "80 bilingual curated vs 8,750 USDA English-only" means, check whether /ar/foods renders English fields from the same records or has another localization layer, live-check Arabic food URLs with representative examples, test whether the defect also exists in exercises or any other dataset, and full SEO/GEO impact split confirmed-vs-likely — NO file edits, NO fixes) + same-session delivery order (deliver both audit reports into the repo and push to main per the repo mechanism)
+
+Work Log:
+- Data layer: Food schema is bilingual by design (foods-shared.ts); counts re-derived by parsing foods.ts = 80 tagged curated rows (real Arabic names/servings) + 8,750 USDA rows (nameAr = English verbatim, defaultServingAr "100g", zero Arabic characters — pinned by foods-sitemap-policy.test.ts); stale section comment "8,789 foods" vs actual 8,750 logged as documentation drift
+- Policy layer verified from code: sitemap-foods.xml Phase 141 crawl-budget policy (160 advertised URLs, tags>0 criterion) + P2-12 noindex,follow on AR arabicless mirrors only
+- LIVE production checks (2026-09-19): sitemap-foods.xml = exactly 160 <loc> · /ar/foods/chicken-breast = index,follow with fully Arabic title/H1 ✓ · /ar/foods/butter-salted = noindex,follow with ENGLISH H1 "Butter, salted" + mixed-language JSON-LD (Breadcrumb/NutritionInformation) + og:locale ar_EG · /foods/butter-salted = index,follow whose hreflang ar twin is the noindex mirror · /ar/foods?page=5 and page=50 = raw English USDA card names inside the AR RTL list · related-foods links on USDA AR pages flow to curated Arabic pages (greek-yogurt/cottage-cheese/milk)
+- Cross-dataset scope: exercises carried the SAME root cause and were FIXED at the data level (SEO-GEO-7 names + Phase 191 instructions, zero-Latin law tests) · programs/diet-plans/collections/muscle+equipment hubs/comparisons all carry native Arabic fields · foods is the only remaining dataset with the defect
+- Secondary spillovers logged: /api/food-search returns nameEn only (meal planner incl. the AR mirror + coach client show English names), TAG_LABELS vegetarian ar label untranslated ("vegetarian"), llms.txt advertises /ar/foods/[slug] + "8,830+ foods" to AI crawlers (noindex does not bind AI bots)
+- Deliverable (audit): docs/FOOD-DATA-LANGUAGE-AUDIT-REPORT-2026-09-19.md — root cause + scope + SEO/GEO impact (confirmed vs needs-GSC) + live examples + full file-source appendix
+- Delivery frame (owner order «نفّذ الآن فقط — ادفع التقريرين إلى main»): food report placed at docs/FOOD-DATA-LANGUAGE-AUDIT-REPORT-2026-09-19.md as a byte-identical copy (md5-verified) of the session deliverable + registry row in docs/README.md + this worklog entry; the investor master report (docs/investor/INVESTOR-TECHNICAL-MASTER.md, including its same-day PayPal clarification update) rides in the same frame — both reports' contents untouched per owner order
+- ZERO code/config/DB changes — docs-only frame
+
+Stage Summary:
+- Root cause: the USDA import copied English into nameAr for 8,750/8,830 rows; the project mitigated by POLICY (sitemap exclusion + AR noindex mirrors), not by data translation; the exercises fix proves the data-level path works in this repo
+- Confirmed SEO impact: Arabic food index ceiling = 80 pages by design; 8,750 AR mirrors can never rank; mixed-language JSON-LD remains AI-crawlable (GEO exposure); hreflang clusters for the tail mix index/noindex; 442 AR pagination pages carry links to noindex pages (follow=true by design — equity flows to the curated band)
+- Needs GSC/production data: curated-80 impressions vs Arabic demand, EN tail coverage class, mixed-cluster hreflang behavior, crawl-budget share, AI-engine citation behavior, the documented 90-day Phase-141 review checkpoint
+- Gates (docs-only frame, run before commit): py_compile ✓ · docs_audit ✓ 0 violations · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓
+
+---
+Task ID: INVESTOR-TECH-AUDIT-2026-09-19
+Agent: Super Z (owner session)
+Task: Investor Technical Audit (owner order 2026-09-19 «ابدأ الآن Investor Technical Audit لمشروع Alkemos» — استخراج صورة تقنية واستثمارية دقيقة من الكود الفعلي ليكون المصدر الأساسي لبناء Investor Deck عربي/إنجليزي لاحقًا؛ الكود source of truth، صفر تعديل code/config/DB/functionality)
+
+Work Log:
+- Audit executed on a clean clone of commit `6795b5b0` (main HEAD): product architecture, stack, data assets, EVO/AI, SEO/GEO, scalability, maturity, business-technical mapping
+- Live verification runs (same commands as CI): `bun install --frozen-lockfile` ✓ (680 pkgs) · `vitest run` ✓ **89 files / 1,514 tests all passing (76s)** · `tsc --noEmit` ✓ **0 errors**
+- Every metric re-derived from its source (not from docs): 868 exercises (EXERCISES_COUNT + passing count test) · 8,830 foods (FOODS_COUNT; 80 curated bilingual vs USDA English-only tail documented in the sitemap policy) · 7 programs · 24 diet plans · 23 intent clusters · 74 API routes · 118 pages (39 AR) · 102 migrations · 293 RLS CREATE POLICY statements · 16 workflows · prices/quotas/affiliate/activation from memberships.ts / tier-limits.ts / affiliate-constants.ts / coach-limits.ts · fra1 + crons from vercel.json · blog slots from workflows
+- Contradictions logged: (1) «bilingual labels» for the whole 8,830-food DB overstated — only 80 hand-curated are bilingual (2) STATE line «PayPal ملغى (229)» vs full PayPal implementation in code/README — **RESOLVED same day by owner clarification (in-session): the cancelled item was the live UX-test item (بند فحص تجربة مستخدم) from the deep-UX-audit §5 checklist, NOT the PayPal payment integration** — contradiction row #2 closed in the report (3) RLS claim is law-true but base-table policies predate the migration registry (dashboard-applied, documented in TECH_REFERENCE)
+- Post-audit update (owner clarification, same session): report §11 row 2 + §9 B2C row + header note updated — PayPal integration now framed as fully Implemented (2,307 LOC / 6 files: paypal.ts + create/capture/webhook routes + checkout UI), with two deck caveats: no live-transaction test claim (paid-member UX was verified via the wallet-activation path, Phase 228) and production mode remains `PAYPAL_MODE`-driven (default sandbox) to be confirmed from the dashboard
+- Deliverable: `docs/investor/INVESTOR-TECHNICAL-MASTER.md` — 11 sections + Investor Narrative Candidates + Verified Metrics table (each number with its in-repo source) + Public Disclosure Boundaries + examined-files appendix + non-verifiable-from-repo list (traffic/revenue/blog count/EVO live stats need dashboards)
+- Parity (§3.8): docs/README.md registry row added for the new doc (this frame); no other file touched — zero code/config/DB change (owner's audit rules honored)
+- Not committed / not pushed (no push was ordered; the docs-only changes sit in the working tree for owner review)
+
+Stage Summary:
+- Master source of truth for the deferred investor-materials stage is ready at docs/investor/INVESTOR-TECHNICAL-MASTER.md; audit basis = commit 6795b5b0 on 2026-09-19
+- Verified-from-code headline numbers: 1,118 commits / 49 days · 238,226 LOC TS-TSX · 1,514/1,514 tests green (run by the auditor, not assumed) · tsc 0 errors (run by the auditor) · ~2,100 static indexable URLs · zero-marginal-cost AI layer (free models × 3 providers + GHA compute)
+- Open item CLOSED (owner clarification 2026-09-19): «ملغى (229)» = cancelled live UX-test item only — PayPal integration stays fully implemented; the only remaining pre-deck check is confirming `PAYPAL_MODE=live` (+ live credentials) in the production dashboard, already listed in report §8.3
+
+---
 Task ID: PUBLIC-INTERFACE-239-2026-09-19
 Agent: Super Z (owner session)
 Task: Public-interface rewrite after the docs restructuring (owner order 2026-09-19 «ابدأ الآن بإعادة كتابة الواجهة العامة لمستودع Alkemos بعد اكتمال إعادة هيكلة التوثيق» — README + repo metadata describe current Alkemos only; docs-only frame, zero business-logic/API/DB change)
