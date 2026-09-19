@@ -6,6 +6,22 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: GIT-WORKFLOW-AUDIT-DIRECT-PUSH-2026-09-19
+Agent: Super Z (owner session)
+Task: Read-only Git/GitHub workflow audit (owner order 2026-09-19: what blocks direct push to main, the best change to restore it WITHOUT disabling the important checks, why the session token variable does not persist between commands, a safe session-long token method that writes nothing to the repo/files/remote URL, review of the delivery script) + same-session execution order after the owner added «Repository admin» to the main-protection bypass list (verify read-only first, then credential-cache setup, pr_flow v2 upgrade, and a REAL direct push to main as the test)
+
+Work Log:
+- Ruleset 23682875 «main-protection» audited live via API: the pull_request rule (0 approvals + require_extra_approval_for_unattributed_changes=true) with an EMPTY bypass_actors list was the sole direct-push blocker — classic branch protection off; deletion/non_fast_forward/required_status_checks (quality/parity/guard + Supabase Preview) healthy and kept intact
+- Token non-persistence root cause proven in-session: every shell invocation is a fresh isolated process (export survives only within its own command; CWD resets too) — only the filesystem persists; detached background processes DO survive between calls
+- Owner action verified read-only AFTER the bypass change: bypass_actors = [RepositoryRole id 5 «Repository admin», bypass_mode always] · current_user_can_bypass = always for muscleshubfit-cpu · all 4 rules still active for everyone else — confirmed before any execution
+- Session credential infrastructure (zero writes to repo/files/remote URL): git credential.helper «cache --timeout=14400» — memory-only daemon (socket-only disk footprint, auto-expiry + explicit «git credential-cache exit» purge); token seeded once per session via git credential approve; full-tree leak scan = zero matches; v2 delivery flow reads the token exclusively via git credential fill (never argv — ps-safe), adds 60s HTTP timeouts, a wait action polling the 4 required checks, checks-by-SHA, and a clean action (branch deletion)
+- Direct-push test (THIS frame): worklog-only commit pushed directly to main, exercising the owner's bypass grant for the first time — the 4 CI checks still run on push (non-blocking for the bypassing actor); zero code/config/DB changes
+
+Stage Summary:
+- Direct push to main restored for the repository admin while the full PR + 4-required-checks path stays enforced for everyone else; recommended operating policy: docs-only via direct push, any code/config/DB change via PR
+- Future-session token workflow: seed credential-cache once (transient paste only), operate via git credential fill / the v2 flow, purge at session end — the token value is never persisted anywhere
+
+---
 Task ID: FOOD-ARABIZATION-PLAN-2026-09-19
 Agent: Super Z (owner session)
 Task: Read-only planning audit for Arabizing the USDA food tail (owner order 2026-09-19: rely on the two in-repo audit reports + the actual current code/data state; define precisely which fields need Arabization, nameAr-only vs serving/tags/metadata, impact on size/perf/build/sitemap/SEO-GEO, the best strategy with a technical reason, /api/food-search + Arabic UI behavior, tests/CI guards against English-only Arabic fields, the immutables (slug/EN fields/80 curated), and a concrete execution plan — NO file edits, NO translation start)
