@@ -4,7 +4,7 @@ import { FOODS, getFoodBySlug } from "@/lib/foods";
 import { SEO_FOOD_BAND, SEO_FOOD_BAND_SET } from "@/lib/seo-food-band";
 
 /**
- * FOOD-ARABIZATION Phase 1+2 (2026-09-19) — ARABIZED-BAND LAW.
+ * FOOD-ARABIZATION Phase 1+2+3 (2026-09-19) — ARABIZED-BAND LAW.
  *
  * The arabization plan (docs/FOOD-DATA-ARABIZATION-PLAN-2026-09-19.md §6)
  * scopes the Arabic-purity law to the BAND, not the whole library (the
@@ -21,9 +21,14 @@ import { SEO_FOOD_BAND, SEO_FOOD_BAND_SET } from "@/lib/seo-food-band";
  *
  * Phase 1 (pilot, owner order 2026-09-19): 481 slugs. Phase 2 (owner
  * expansion order, same day): +975 slugs (seafood sweep · produce ·
- * full spice rack · dairy/bakery/dessert staples · zero pork/brands/
- * babyfood) — cumulative 1,456 = pilot + one 500-1,000 monthly batch
- * (plan §8 Phase 2 law; the size range below encodes exactly that).
+ * full spice rack · dairy/bakery/dessert staples). Phase 3 (owner
+ * batch-3 order, same day): +953 slugs (meat cuts & organs with semantic
+ * cut-dedupe · poultry part grid · remaining fish/shellfish · rabbit/
+ * deer/water-buffalo · generic soups · bakery/dessert/candy · beverages
+ * incl. protein powders · vegetables/fruits/legumes · flours & cereals ·
+ * nuts/seeds · condiments · snacks — zero pork/brands/babyfood/tribal)
+ * — cumulative 2,409 = pilot + two 500-1,000 batches (plan §8 Phase 2
+ * law; the size range below encodes exactly that).
  *
  * Outside the band: exempt (foods-sitemap-policy.test.ts pins the fact
  * that the rest of the tail is still English-only).
@@ -37,8 +42,8 @@ const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex
 
 const bandFoods = FOODS.filter((f) => SEO_FOOD_BAND_SET.has(f.slug));
 
-describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2 — the 1,456-slug band)", () => {
-  it("band integrity: every manifest slug exists, is a USDA-tail row (tags empty), band size = pilot + one Phase-2 batch (981-1481)", () => {
+describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2+3 — the 2,409-slug band)", () => {
+  it("band integrity: every manifest slug exists, is a USDA-tail row (tags empty), band size = pilot + two 500-1,000 batches (1482-3481)", () => {
     expect(bandFoods.length).toBe(SEO_FOOD_BAND.length);
     for (const slug of SEO_FOOD_BAND) {
       const f = getFoodBySlug(slug);
@@ -48,9 +53,9 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2 — the 1,456-slug band)",
         `${slug}: band rows must keep tags EMPTY (no auto-curation)`,
       ).toBe(0);
     }
-    // Phase 1 (481) + Phase 2 batch law (500-1,000 per plan §8).
-    expect(SEO_FOOD_BAND.length).toBeGreaterThanOrEqual(981);
-    expect(SEO_FOOD_BAND.length).toBeLessThanOrEqual(1481);
+    // Phase 1 (481) + Phase 2 & 3 batch law (500-1,000 each per plan §8).
+    expect(SEO_FOOD_BAND.length).toBeGreaterThanOrEqual(1482);
+    expect(SEO_FOOD_BAND.length).toBeLessThanOrEqual(3481);
   });
 
   it("band law: nameAr is non-empty, Arabic, ZERO Latin, differs from nameEn", () => {
@@ -120,10 +125,10 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2 — the 1,456-slug band)",
 
   it("FREEZE — the band's English twins (nameEn immutable across batches)", () => {
     const payload = bandFoods.map((f) => `${f.slug}|${f.nameEn}`).join("\n");
-    // Pinned 2026-09-19 after the Phase-2 expansion (481 pilot + 975 new
+    // Pinned 2026-09-19 after the Phase-3 expansion (481 pilot + 975 + 953
     // rows; every nameEn still the verbatim USDA English name).
     expect(sha256(payload)).toBe(
-      "f657cab437903b5b75c22c5e50590fe187bccb819aa88644a0594380413e4433",
+      "d0b5b15d5d5c121b427168c3d4d2ef0c7e69eef52bfced094d3664cf9138d9ea",
     );
   });
 
@@ -158,6 +163,27 @@ describe("foods-ar-purity (FOOD-ARABIZATION Phase 1+2 — the 1,456-slug band)",
     expect(getFoodBySlug("chard-swiss-raw")?.nameAr).toBe("سلق — نيء");
     expect(getFoodBySlug("nuts-coconut-milk-canned-liquid-expressed-from-grated-meat-a")?.nameAr).toBe("حليب جوز الهند — معلب");
     expect(getFoodBySlug("oil-canola")?.nameAr).toBe("زيت الكانولا");
+  });
+
+  it("Phase-3 canaries — owner-ordered batch 3 (meat/organs · poultry · shellfish · soup · bakery · nuts)", () => {
+    expect(getFoodBySlug("game-meat-rabbit-domesticated-composite-of-cuts-raw")?.nameAr).toBe("أرنب بلدي — نيء");
+    expect(getFoodBySlug("game-meat-buffalo-water-raw")?.nameAr).toBe("جاموس الماء — نيء");
+    expect(getFoodBySlug("beef-variety-meats-and-by-products-tripe-cooked-simmered")?.nameAr).toBe("كرشة بقري — مطهوة على نار هادئة");
+    expect(getFoodBySlug("beef-new-zealand-imported-variety-meats-and-by-products-tong-7482")?.nameAr).toBe("لسان بقري مستورد — نيء");
+    expect(getFoodBySlug("chicken-broilers-or-fryers-wing-meat-only-cooked-fried")?.nameAr).toBe("جناح دجاج — لحم فقط، مقلي");
+    expect(getFoodBySlug("turkey-retail-parts-breast-meat-only-raw")?.nameAr).toBe("صدر رومي (قطع تجزئة) — لحم فقط، نيء");
+    expect(getFoodBySlug("fish-salmon-pink-canned-drained-solids")?.nameAr).toBe("سلمون وردي معلب — مصفى");
+    expect(getFoodBySlug("mollusks-octopus-common-cooked-moist-heat")?.nameAr).toBe("أخطبوط — مطهو");
+    expect(getFoodBySlug("crustaceans-shrimp-raw-not-previously-frozen")?.nameAr).toBe("جمبري طازج — نيء");
+    expect(getFoodBySlug("soup-cream-of-mushroom-canned-prepared-with-equal-volume-wat")?.nameAr).toBe("شوربة كريمة الفطر — محضرة بالماء");
+    expect(getFoodBySlug("ground-turkey-93-lean-7-fat-patties-broiled")?.nameAr).toBe("برجر رومي مفروم 93/7 — مشوي");
+    expect(getFoodBySlug("bread-naan-whole-wheat-commercially-prepared-refrigerated")?.nameAr).toBe("خبز نان بالقمح الكامل — جاهز مبرد");
+    expect(getFoodBySlug("candies-halavah-plain")?.nameAr).toBe("حلاوة طحينية (هلاوة) — عادية");
+    expect(getFoodBySlug("nuts-pine-nuts-pinyon-dried")?.nameAr).toBe("صنوبر مجفف");
+    expect(getFoodBySlug("beverages-whey-protein-powder-isolate")?.nameAr).toBe("بروتين مصل اللبن المعزول — بودرة");
+    expect(getFoodBySlug("yogurt-greek-strawberry-nonfat")?.nameAr).toBe("زبادي يوناني بالفراولة — خالي الدسم");
+    expect(getFoodBySlug("orange-juice-raw")?.nameAr).toBe("عصير برتقال — طازج معصور");
+    expect(getFoodBySlug("arugula-raw")?.nameAr).toBe("أروغولا (جرجير بري) — نيئة");
   });
 
   it("EN twins untouched — nameEn remains the USDA English name for the band", () => {
