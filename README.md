@@ -26,7 +26,10 @@ development transparency and auditing — the product itself is proprietary**
   Arabic + English, filterable by muscle group, equipment, and level
   (`src/lib/exercises.ts`)
 - **Food database** — 8,830 foods with per-100g macros, bilingual labels and
-  search (`src/lib/foods.ts`)
+  search (`src/lib/foods.ts`); the hand-curated foods plus a bounded USDA pilot
+  band carry real Arabic names (`SEO_FOOD_BAND` in `src/lib/seo-food-band.ts`
+  is the single source for the band; `/api/food-search` takes `?lang=ar|en`
+  for language-matched result names)
 - **Workout programs** — 7 structured, ready-to-follow programs for home,
   home-equipment, and gym, from beginner to advanced
   (`src/lib/workout-programs.ts`)

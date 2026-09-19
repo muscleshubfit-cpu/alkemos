@@ -6,6 +6,27 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: FOOD-ARABIZATION-PILOT-1-2026-09-19
+Agent: Super Z (owner session)
+Task: Execute the approved food-arabization plan Phase 1 pilot (owner order 2026-09-19: 300-500 USDA foods, nameAr-only MSA quality, no slug/nameEn/numeric edits, no auto-tags, plan validation gates, fix Arabic search only per plan, NO final sitemap/indexing policy change before pilot-quality verification, 80 curated untouched) — implement, test, document, direct-push to main, verify remote+CI
+
+Work Log:
+- Band selection: parsed foods.ts (8,830 = 80 curated + 8,750 tail), family census, then hand-curated 481 Egyptian/Arabic-diet family representatives (poultry cuts+giblets, ground beef all ratios, lamb shank/leg/loin/rib, tilapia/mullet/croaker/sardines, fava/lentils/chickpeas/lupins, molokhia/okra/watercress, pita/rice/bulgur/couscous/semolina, feta/cottage(قريش)/mozzarella, dates/pomegranate/guava, tahini/falafel/hummus, cumin/anise) with family dedupe, zero pork, zero brands/USDA-Commodity/babyfood
+- Translation: 481 MSA names authored in-session (avg 18.2 chars; culinary Arabic terms موزة/قريش/طعمية/بحري/دقلة نور), validated fail-closed BEFORE injection: non-empty · Arabic present · ZERO Latin · differs from nameEn · 2-80 chars · no CJK · unique names · every slug exists in tail — one script, exit-1 on any violation
+- Injection: slug-anchored regex replacement (481/481 matched) + stale comment fix 8,789→8,750; post-parse verification: counts 8,830/80/8,750 intact · curated-80 SHA-256 IDENTICAL pre/post (e12bcb26…) · slugs-8830 SHA-256 IDENTICAL (0b2c0ac2…) · zero collateral edits outside the band · foods.ts -9.7KB (Arabic names shorter than verbatim USDA chains)
+- Phase-0 infra: src/lib/seo-food-band.ts new (single-source manifest + Set, server-only, three-decoupled-signals doc) · /api/food-search ?lang=ar|en (default/unknown = nameEn historical contract; matching untouched) · consumers pass lang: meal-planner FoodSearchInput + CoachClientView PlanViewerModal (lang destructured)
+- Guards (plan §6, all in the existing quality gate — no new workflows): foods-ar-purity.test.ts NEW (band purity law + tags-empty + size 300-500 + unique names + 3 freeze hashes + incident canaries) · food-search-lang.test.ts NEW (?lang law, OFF stubbed offline) · foods-sitemap-policy.test.ts UPDATED (tail-outside-band-English fact + P2-12 data line band-aware + NEW PILOT-HOLD canary: route must NOT reference SEO_FOOD_BAND, criterion stays tags-only)
+- Deliberately NOT done per owner constraints: sitemap-foods.xml untouched (160 URLs, tags>0 only — wired-band decision deferred post-quality-verification) · tags stay [] for band rows · EVO untouched (benefits automatically per plan §5) · defaultServingAr stays "100g"
+- Docs: docs/FOOD-ARABIZATION-PILOT-1-REPORT-2026-09-19.md (execution report) + registry rows (report NEW + plan PROPOSED→EXECUTING) + plan status line + README food-database feature line (band + ?lang, number-law safe) + this entry + STATE refresh (Phase 240)
+- Verification (§3.5 full): tsc 0 · eslint 0 · vitest 91 files / 1529 tests GREEN (19 new/updated this frame) · next build ✓ compiled 2055/2055 · docs_audit 0 violations · docs_parity ✓ · migration_audit zero new drift · stale-refs ✓
+
+Stage Summary:
+- 481 USDA foods now carry real MSA Arabic nameAr (was verbatim English); band indexability flipped automatically via the existing arabiclessName regex (962 EN+AR pages now indexable); EVO Arabic grounding reach 0.9%→6.4%; meal-planner/coach Arabic surfaces show Arabic names
+- All seven plan guards live in CI; curated-80/slugs/nameEn frozen by hash; sitemap policy HELD and guarded against unreviewed wiring
+- Commit SHA: recorded in the follow-up docs commit (Phase-191 worklog-final-SHA precedent)
+- Push status: direct-push to main (owner-bypass path) — remote + CI verified in-session
+
+---
 Task ID: GIT-WORKFLOW-AUDIT-DIRECT-PUSH-2026-09-19
 Agent: Super Z (owner session)
 Task: Read-only Git/GitHub workflow audit (owner order 2026-09-19: what blocks direct push to main, the best change to restore it WITHOUT disabling the important checks, why the session token variable does not persist between commands, a safe session-long token method that writes nothing to the repo/files/remote URL, review of the delivery script) + same-session execution order after the owner added «Repository admin» to the main-protection bypass list (verify read-only first, then credential-cache setup, pr_flow v2 upgrade, and a REAL direct push to main as the test)

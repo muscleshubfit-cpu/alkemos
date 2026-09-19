@@ -3,7 +3,7 @@ import { FOODS } from "@/lib/foods";
 import { searchQuerySchema } from "@/lib/validation/schemas";
 
 /**
- * GET /api/food-search?q=chicken+breast
+ * GET /api/food-search?q=chicken+breast[&lang=ar|en]
  *
  * Unified food search combining:
  *   1. Our local food database (FOODS array — hand-curated + USDA import)
@@ -11,6 +11,16 @@ import { searchQuerySchema } from "@/lib/validation/schemas";
  *
  * Returns unified results with consistent format.
  * Open Food Facts results include product images.
+ *
+ * LANG PARAM (FOOD-ARABIZATION Phase 0, 2026-09-19): ?lang=ar returns the
+ * local row's `nameAr` (real MSA Arabic for the curated 80 + the 481-slug
+ * SEO_FOOD_BAND pilot) — anything else, INCLUDING the default (no param),
+ * keeps the historical `nameEn` contract. Matching is UNCHANGED: it
+ * already searches BOTH nameAr and nameEn (lines below), so Arabic queries
+ * now reach the translated band. Pinned by food-search-lang.test.ts.
+ * Consumers: meal-planner FoodSearchInput (lang from useI18n) +
+ * CoachClientView auto-calc. Open Food Facts names are out of scope
+ * (external product names, not our data).
  *
  * BUG HISTORY (Phase 99, 2026-09-02): commit 00d6dfa ("remove source
  * names") find-replaced the REAL domain world.openfoodfacts.org into the
@@ -46,6 +56,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q") || "";
 
+  // FOOD-ARABIZATION Phase 0: explicit, deterministic language switch.
+  // Default (absent/unknown value) = en = the historical contract.
+  const lang = searchParams.get("lang") === "ar" ? "ar" : "en";
+
   if (!query.trim()) {
     return NextResponse.json({ results: [] });
   }
@@ -62,7 +76,8 @@ export async function GET(request: NextRequest) {
 
   const q = qParsed.data.toLowerCase();
 
-  // 1. Search local database
+  // 1. Search local database (matching checks BOTH language fields —
+  // unchanged; only the returned `name` honors ?lang).
   const localResults: SearchResult[] = FOODS.filter(
     (f) =>
       f.nameAr.toLowerCase().includes(q) ||
@@ -70,7 +85,7 @@ export async function GET(request: NextRequest) {
   )
     .slice(0, 10)
     .map((f) => ({
-      name: f.nameEn,
+      name: lang === "ar" ? f.nameAr : f.nameEn,
       source: "local" as const,
       slug: f.slug,
       url: `/foods/${f.slug}`,

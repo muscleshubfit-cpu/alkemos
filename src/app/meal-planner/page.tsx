@@ -695,7 +695,7 @@ function FoodSearchInput({
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/food-search?q=${encodeURIComponent(query.trim())}`,
+          `/api/food-search?q=${encodeURIComponent(query.trim())}&lang=${isAr ? "ar" : "en"}`,
         );
         if (res.ok) {
           const data = await res.json();

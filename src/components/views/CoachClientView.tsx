@@ -1626,7 +1626,7 @@ function QuestionnaireCard({
 
 
 function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose: () => void; onRegenerate?: () => void }) {
- const { t } = useI18n();
+ const { t, lang } = useI18n();
  // BUNDLE LAW (2026-09-05): the 1.6MB exercises array was imported at
  // module scope — now lazy-loaded mini records (session-cached).
  const EXERCISES = useExerciseLookup();
@@ -1904,7 +1904,7 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  // Auto-calc calories when food or amount changes
  if (field === "food" || field === "amount") {
  try {
- const res = await fetch(`/api/food-search?q=${encodeURIComponent(item.food || "")}`);
+ const res = await fetch(`/api/food-search?q=${encodeURIComponent(item.food || "")}&lang=${lang}`);
  if (res.ok) {
  const data = await res.json();
  const match = data.results?.[0];
