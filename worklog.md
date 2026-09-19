@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: FOOD-ARABIZATION-PLAN-2026-09-19
+Agent: Super Z (owner session)
+Task: Read-only planning audit for Arabizing the USDA food tail (owner order 2026-09-19: rely on the two in-repo audit reports + the actual current code/data state; define precisely which fields need Arabization, nameAr-only vs serving/tags/metadata, impact on size/perf/build/sitemap/SEO-GEO, the best strategy with a technical reason, /api/food-search + Arabic UI behavior, tests/CI guards against English-only Arabic fields, the immutables (slug/EN fields/80 curated), and a concrete execution plan — NO file edits, NO translation start)
+
+Work Log:
+- Inputs honored: docs/investor/INVESTOR-TECHNICAL-MASTER.md + docs/FOOD-DATA-LANGUAGE-AUDIT-REPORT-2026-09-19.md + fresh code spot-checks this session
+- Field-by-field verdict: nameAr is the ONLY true defect (8,750 rows / 476,882 EN chars / avg 54.5); defaultServingAr "100g" is language-neutral (optional band-only polish, flagged separately); tags must NOT be auto-assigned (curation signal drives sitemap+facets+related+collections — indexability gets DECOUPLED instead); slug/nameEn/numbers/category immutable
+- Impact computed: foods.ts 3,732,984 B → +~477KB worst-case verbatim (+12.8%), realistic +5-8% with normalized MSA names; ZERO client-bundle impact (server-only law); build unchanged (no generateStaticParams); indexability flips AUTOMATICALLY via the existing arabiclessName regex (zero route changes); sitemap advertisement switches to a bounded band manifest
+- NEW finding beyond the language audit: the EVO layer unlocks for free — evo-search.ts scores nameAr+nameEn (Arabic queries today reach only 80/8,830 rows = 0.9%) and evo-system-prompt.ts:85 injects nameAr into the Arabic prompt (English today for the tail) — Arabization improves EVO grounding with zero AI-layer changes
+- Strategy: HYBRID tiered-band expansion (curated 80 → SEO_FOOD_BAND 300-500 pilot → monthly GSC-gated batches → deep-tail decision by data) — reasons: crawl-budget economics on Hobby tier, USDA near-duplicate variant families need family-aware selection, Phase-191 fail-closed batch pipeline precedent scales by batches, GSC measurability, demand skew
+- Guards specified: foods-ar-purity band test (zero-Latin law scoped to the band), curated-80 freeze, slug-set freeze, nameEn freeze, food-search ?lang test, CJK extension, foods-sitemap-policy test update (band-aware); all ride vitest/quality gate — no new workflows
+- Deliverable: docs/FOOD-DATA-ARABIZATION-PLAN-2026-09-19.md (PROPOSED — execution awaits a new owner order) + registry row; ZERO code/config/DB/data changes in this frame
+
+Stage Summary:
+- The plan is decision-ready: one field to translate, one API param to add, one manifest criterion to switch, seven guards to add, everything else stays untouched; phased execution with GSC gates and per-batch revert
+- Open owner decisions: band sizes per phase, GSC gate thresholds, whether defaultServingAr gets the optional band polish, deep-tail (Phase 3) continue/freeze
+
+---
 Task ID: FOOD-LANG-AUDIT-2026-09-19
 Agent: Super Z (owner session)
 Task: Read-only audit of Food Data Language Separation (owner order 2026-09-19: verify the source/schema of the 8,830 food records, pin down exactly what "80 bilingual curated vs 8,750 USDA English-only" means, check whether /ar/foods renders English fields from the same records or has another localization layer, live-check Arabic food URLs with representative examples, test whether the defect also exists in exercises or any other dataset, and full SEO/GEO impact split confirmed-vs-likely — NO file edits, NO fixes) + same-session delivery order (deliver both audit reports into the repo and push to main per the repo mechanism)
