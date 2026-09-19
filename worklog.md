@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20
+Agent: Super Z (implementation session)
+Task: تفعيل Vercel Ignored Build Step بأمر المالك 2026-09-20 «موافق على التنفيذ ابدأ» وفق خطة التفعيل المعتمدة من تقرير التحقق 2026-09-19 (محاكاة 151 دفعة: 66 SKIP / 85 BUILD / صفر نشرات مفقودة) — إضافة ignoreCommand إلى vercel.json + الاختبارات الحية A/B/C.
+
+Work Log:
+- فحص API قبل التنفيذ: v1/v9/v10/v11/v12 ترفض كتابة ignoreCommand (400 additional property) — vercel.json هو المسار البرمجي الموثّق الوحيد، بالأمر الحرفي المعتمد نفسه (انحراف موثّق عن «Dashboard» في الخطة؛ السبب والدليل: docs/VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20.md §1)
+- autoExposeSystemEnvars: كان مفعّلًا مسبقًا (لقطة API قبل التغيير) — خطوة 2 من الخطة مشبوعة دون أي لمس
+- التفعيل: كوميت 3d8a6ad (vercel.json فقط) ← dpl_838w16Px **READY/PROMOTED** خلال ~47 ثانية — vercel.json صالح والأمر فعّال والبناء اكتمل (متوقع: vercel.json مسار مراقَب)
+- اختبار A (هذا الكوميت — ملف docs/ + سجل docs/README.md + هذا المدخل، كلها داخل مجموعة الاستثناء): متوقع CANCELED خلال دقيقة
+- اختبار B (الكوميت التالي — تعليق تافه في src/lib/utils.ts): متوقع بناء READY كامل
+- اختبار C الحاسم (دفعة كوميتين معًا: كود ثم docs في القمة): متوقع READY — إثبات حي أن VERCEL_GIT_PREVIOUS_SHA يغطي الدفعات المتعددة (القاعدة الساذجة HEAD^ كانت ستضيّع نشرات كود — حالات الفجوة الخمس في تقرير التحقق)
+
+Stage Summary:
+- يُستكمل بعد اكتمال A/B/C — السجل الكامل والنتائج الحية: docs/VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20.md (القسم 3)
+- شرط الإيقاف المعتمد: إن أعطى C نتيجة CANCELED ← revert فوري لكوميت vercel.json والعودة للتحقق
+
+---
 Task ID: FOOD-ARABIZATION-BATCH-3-2026-09-19
 Agent: Super Z (owner session)
 Task: Execute the food-arabization plan batch 3 (owner order 2026-09-19 «ابدأ دفعة ٣» — plan §8: one 500-1,000 batch, same laws as the pilot and phase 2: nameAr-only MSA, no slug/nameEn/numeric/category edits, no auto-tags, NO sitemap/indexing policy change, 80 curated + 8,830 slugs frozen) — implement, test, document, direct-push to main, verify remote+CI
