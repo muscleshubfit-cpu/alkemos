@@ -61,6 +61,7 @@ pnpm-lock.yaml
 #   scripts/generate-og-cards.py → og:image family-card generator (Phase 188 — guarded by og-image-coverage.test.ts; the file was never committed because the /scripts/* blanket swallowed it, so the guard failed in CI from f954e85 until Phase 189 fixed the exception list)
 #   scripts/cls-measure.mjs    → lab CLS measurement with throttling + per-shift attribution (Phase 216 P2-5 — the verification tool for the Arabic-fallback fix)
 #   scripts/js-transfer-measure.mjs → critical-vs-post-load JS transfer measurement (Phase 216 P2-4 — the calibration evidence tool)
+#   scripts/storage-inventory.mjs → daily storage bucket census (storage-inventory.yml, P0-3(b) hardening plan 2026-09-20 — hit the same /scripts/* blanket trap as generate-og-cards.py; exception added same frame)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
@@ -77,6 +78,7 @@ pnpm-lock.yaml
 !/scripts/generate-og-cards.py
 !/scripts/cls-measure.mjs
 !/scripts/js-transfer-measure.mjs
+!/scripts/storage-inventory.mjs
 /skills/
 /tests/
 /examples/
