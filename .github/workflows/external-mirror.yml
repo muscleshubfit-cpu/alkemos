@@ -1,0 +1,78 @@
+# External mirror (weekly both-repos mirror → external private remotes)
+#
+# (P0-1 of docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md — audit
+# blocker B2: one GitHub account holds everything.)
+#
+# STATE: DORMANT BY DESIGN — this workflow mirrors NOTHING until the owner
+# completes the one-time setup in docs/RECOVERY-MIRROR-SETUP.md:
+#   1. Secret   EXTERNAL_MIRROR_TOKEN   (external provider push token)
+#   2. Variable MIRROR_REMOTE_MAIN      (external PRIVATE repo URL — code)
+#   3. Variable MIRROR_REMOTE_BACKUPS   (external PRIVATE repo URL — snapshots+PII)
+# Until then the preflight step fails fast with the exact fix (the
+# vercel-cleanup precedent: a missing-secret workflow must say so loudly,
+# not fail cryptically). The weekly schedule doubles as a visible reminder
+# while setup is pending — disable the schedule trigger until setup is done
+# if the reminder is unwanted.
+#
+# PRIVACY LAW: both external repositories MUST be PRIVATE — the snapshots
+# repository contains user PII. Public mirrors of the backups repo are
+# forbidden.
+#
+# WHAT IT DOES: runs scripts/external-mirror/mirror.sh — full-history,
+# all-refs --mirror clone+push of BOTH muscleshubfit-cpu/alkemos and
+# muscleshubfit-cpu/musclehubeg-backups, then SHA-verifies the mirrored
+# main HEADs (script exits non-zero on any mismatch).
+name: External mirror (weekly both-repos mirror → external private remotes)
+
+on:
+  schedule:
+    - cron: "0 6 * * 0" # Sunday 06:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: external-mirror
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main repo (for the script)
+        uses: actions/checkout@v4
+
+      - name: Preflight — fail fast with the exact setup fix (dormant until configured)
+        env:
+          EXTERNAL_MIRROR_TOKEN: ${{ secrets.EXTERNAL_MIRROR_TOKEN }}
+          MIRROR_REMOTE_MAIN: ${{ vars.MIRROR_REMOTE_MAIN }}
+          MIRROR_REMOTE_BACKUPS: ${{ vars.MIRROR_REMOTE_BACKUPS }}
+        run: |
+          missing=0
+          if [ -z "$EXTERNAL_MIRROR_TOKEN" ]; then
+            echo "::error::Secret EXTERNAL_MIRROR_TOKEN is missing — repo Settings ▸ Secrets and variables ▸ Actions ▸ Secrets ▸ Actions: the external provider push token (repo read+write on the two mirror repos ONLY)."
+            missing=1
+          fi
+          if [ -z "$MIRROR_REMOTE_MAIN" ]; then
+            echo "::error::Variable MIRROR_REMOTE_MAIN is missing — repo Settings ▸ Secrets and variables ▸ Actions ▸ Variables tab: HTTPS URL of the external PRIVATE repo mirroring alkemos."
+            missing=1
+          fi
+          if [ -z "$MIRROR_REMOTE_BACKUPS" ]; then
+            echo "::error::Variable MIRROR_REMOTE_BACKUPS is missing — same Variables tab: HTTPS URL of the external PRIVATE repo mirroring musclehubeg-backups (contains PII — PRIVATE is mandatory)."
+            missing=1
+          fi
+          if [ "$missing" = "1" ]; then
+            echo "Preflight failed — see docs/RECOVERY-MIRROR-SETUP.md for the one-time setup."
+            exit 1
+          fi
+          echo "Preflight ok — mirroring to the configured external remotes."
+
+      - name: Mirror both repositories (full history, SHA-verified)
+        env:
+          MIRROR_TOKEN: ${{ secrets.EXTERNAL_MIRROR_TOKEN }}
+          MIRROR_REMOTE_MAIN: ${{ vars.MIRROR_REMOTE_MAIN }}
+          MIRROR_REMOTE_BACKUPS: ${{ vars.MIRROR_REMOTE_BACKUPS }}
+          MAIN_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+        run: bash scripts/external-mirror/mirror.sh

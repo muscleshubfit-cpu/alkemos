@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: EXTERNAL-MIRROR-PREP-2026-09-20
+Agent: Super Z (owner session)
+Task: الموجة W4 من خطة تقوية الاستعادة — تجهيز P0-1 بالكامل دون إنشاء المرآة (التنفيذ الفعلي بقرار/توكن من المالك).
+
+Work Log:
+- scripts/external-mirror/mirror.sh: مرآة كاملة التاريخ لكل المراجع (--mirror) للمستودعين (العام + الخاص بالنسخ/PII) مع تحقق SHA إلزامي بعد كل دفع (exit 1 عند أي عدم تطابق) + رسائل وسائط إلزامية واضحة — قابل للتشغيل من جهاز المالك أو من الـ workflow
+- .github/workflows/external-mirror.yml: أسبوعي (الأحد 06:00 UTC) + dispatch — **ساكن بتصميمه**: خطوة preflight تفشل بصوت عالٍ برسائل الإعداد الدقيقة الثلاث (سابقة vercel-cleanup) حتى يضيف المالك: Secret ‏EXTERNAL_MIRROR_TOKEN + Variable ‏MIRROR_REMOTE_MAIN/BACKUPS
+- docs/RECOVERY-MIRROR-SETUP.md: دليل المالك لمرة واحدة (اختيار المزود · مستودعا وجهة خاصان إلزاميًا — قانون PII · توكن مدفوع محدود النطاق · الخطوات الثلاث في إعدادات المستودع · التحقق الأول · بديل cron المحلي · التراجع)
+- .gitignore: استثناء `!/scripts/external-mirror/` + سطر التوثيق (تطبيق درس فخ /scripts/* من W2 استباقيًا)
+- تحقق محلي: bash -n ✓ · YAML ✓ · اختبار غياب الوسائط → رسالة الخطأ الصحيحة + exit 1 ✓ · check-ignore نظيف ✓
+
+Stage Summary:
+- P0-1 جاهز للتشغيل بثلاث خطوات إعداد واحدة من المالك (موثقة في دليل الإعداد) — **لم تُنشأ أي مرآة** التزامًا بقيود الخطة
+- تحقق الـ fail-fast الحي: dispatch واحد بعد الدفع — النتيجة توثق أدناه في سجل المتابعة
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: RECOVERY-DRILL-1-2026-09-20
 Agent: Super Z (owner session)
 Task: الموجة W3 من خطة تقوية الاستعادة — تنفيذ P1-6: Recovery Drill #1 غير المدمر + تقريره.
