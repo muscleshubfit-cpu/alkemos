@@ -6,6 +6,22 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-CENSUS-FOLDER-FIX-2026-09-20
+Agent: Super Z (owner session)
+Task: دليل جديد ضد نتيجة W2 (جرد «صفر كائنات») — إصلاح عدّاد جرد Storage وإعادة القياس الرسمي.
+
+Work Log:
+- الدليل: جرد 2026-09-20 15:37Z قال صفر كائنات بينما SQL الحي 24 كائنًا — التشخيص بنداء الـ API نفسه الذي يستخدمه السكربت: المجلدات تعود بالشكل {name, id:null, metadata:null} فشرط النزول typeof id==='string' لا يتحقق أبدًا → العدّ لم ينزل تحت أي مجلد uid → صفر صامت لأي باكت ملفاتها داخل مجلدات (كل الباكتس بهذا النمط — ولهذا أخطأ الجرد الأول كله)
+- الإصلاح: النزول بالبناء `${prefix}${name}/` مع تعليق يوثق شكل الاستجابة الحي المُقاس — حدود الحماية (MAX_DEPTH 6 · MAX_OBJECTS 50K · الصفحات 100) كما هي وقانون الخصوصية (أعداد وأحجام فقط) لم يُمس
+- تحقق E2E محلي ضد الإنتاج (مفتاح service من الذاكرة فقط — لا قيمة مسجلة في أي ملف): 10 باكتات · 24 كائنًا · 4,738,252 بايت · failed=0 — مطابقة تامة لعدّاد SQL لكل باكت على حدة (16/2/6) — والجرد التقط واقع ما بعد الإغلاق: questionnaire-photos ‏public:false وباكت avatars الجديد حاضر
+- أُعيد الجرد الرسمي عبر workflow_dispatch بعد الدفع — نتيجة التحقق توثق أدناه
+
+Stage Summary:
+- جرد W2 اليومي صادق الآن (كان يُرجع صفرًا لأي ملفات داخل مجلدات) — القياس الرسمي الأول الموثق بعد الإصلاح: 24 كائنًا / ‏4.5MB عبر 3 باكتات (coach-public 2.8MB · questionnaire-photos 1.5MB · receipts 244KB)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-AVATAR-SPLIT-B-2026-09-20
 Agent: Super Z (owner session)
 Task: إغلاق البند الأمني العاجل من STATE — الفصل 2/2: قلب questionnaire-photos خاصة + إعادة كتابة الأفاتار الوحيد (ميجريشن 0091).

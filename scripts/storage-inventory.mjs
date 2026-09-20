@@ -95,8 +95,14 @@ async function countBucket(name) {
         if (e && e.metadata && typeof e.metadata.size === "number") {
           state.objectCount += 1;
           state.totalBytes += e.metadata.size;
-        } else if (e && typeof e.id === "string" && e.id) {
-          await walk(e.id, depth + 1);
+        } else if (e && typeof e.name === "string" && e.name) {
+          // FOLDER (2026-09-20 live-fix): the Storage list API returns
+          // folders as { name, id: null, metadata: null } — the previous
+          // `typeof e.id === "string"` test matched NOTHING (id is null),
+          // so the walk never descended and every census silently
+          // reported 0 objects. Recurse by NAME instead: the child
+          // prefix is always `<parent-prefix><name>/`.
+          await walk(`${prefix}${e.name}/`, depth + 1);
         }
         if (state.objectCount >= MAX_OBJECTS) {
           state.truncated = true;
