@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: EMERGENCY-RECOVERY-HARDENING-CLOSURE-2026-09-20
+Agent: Super Z (owner session)
+Task: إغلاق خطة تقوية الاستعادة — توثيق نتيجة تحقق W4 الحية + حالة الموجات النهائية + بنود المالك المفتوحة.
+
+Work Log:
+- تحقق fail-fast الحي للـ workflow الساكن (بعد كوميت bf46c2c0): تشغيل dispatch رقم 35521106368 → فشل متعمد مصمم بـ annotations الدقيقة الثلاثة (EXTERNAL_MIRROR_TOKEN is missing → Settings ▸ Secrets… · MIRROR_REMOTE_MAIN/BACKUPS is missing → Variables tab) + إحالة صريحة لدليل الإعداد — سلوك السكون مثبت كما وعدت الخطة
+- الموجات المنفذة على origin/main: W0 تثبيت التقرير+الخطة (4d46e992) · W1 حزمة التوثيق المرجعي (a95db363) · W2 أتمتة الجرد + إصلاحا الفخين (b6cc8a4f · 9bcd5511 · 833f74b6) · W3 تقرير Drill #1 (cf45541f) · W4 تجهيز الـ Mirror (bf46c2c0)
+- أدلة الإغلاق المقيسة: CI أخضر على كل الكوميتات · 5 نشرات إنتاجية READY (والتوثيقية الخالصة CANCELED عمدًا بـ ignoreCommand) · دخان حي 200 · جرد الـ 9 حاويات يعمل يوميًا
+- STATE.md محدَّث بالحالة النهائية + قائمة بنود المالك السبعة المفتوحة
+
+Stage Summary:
+- كل ما هو قابل للتنفيذ داخل GitHub من خطة التقوية **منفَّذ ومتحقق منه** — لا بند آلي متبقٍ
+- بنود المالك الموثقة (STATE + الخطة §0): إعداد الـ Mirror (3 خطوات) · قرار نسخ ملفات Storage · فحص BACKUP_REPO_TOKEN · قرار Hobby · سحب التوكنات الميتة · فحص علنية questionnaire-photos الأمني · مصير الحاويات الليجاسي
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: EXTERNAL-MIRROR-PREP-2026-09-20
 Agent: Super Z (owner session)
 Task: الموجة W4 من خطة تقوية الاستعادة — تجهيز P0-1 بالكامل دون إنشاء المرآة (التنفيذ الفعلي بقرار/توكن من المالك).
