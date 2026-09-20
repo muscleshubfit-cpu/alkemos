@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: EMERGENCY-RECOVERY-FOUNDATION-2026-09-20
+Agent: Super Z (owner session)
+Task: تثبيت تقرير تدقيق الاستعادة الطارئ + خطة التقوية على origin/main (أمر المالك 2026-09-20) — رفع التقرير كما هو دون أي تغيير في محتواه + خطة تنفيذ مبنية حصريًا على العوائق المُثبتة (B1–B9) بأولويات المالك المحددة.
+
+Work Log:
+- فحص قرائي شامل (صفر كتابة على أي خدمة): GitHub (المستودع/Actions/النسخ اليومية 16/16) · Vercel (المشروع/النشر/الدومينات/أسماء المتغيرات) · Supabase (الحالة/النسخ/Auth/Storage) · Cloudflare (المنطقة/DNS/الكاش) · الموقع الحي — كل الأدلة في ملحق أ من التقرير
+- التقرير: docs/EMERGENCY-RECOVERY-AUDIT-2026-09-20.md (11 قسمًا) — الحكم: الاستعادة من خارج Vercel ممكنة (RTO 30–60 دقيقة) والعوائق B1–B9 موثقة بالخطورة والأدلة
+- الخطة: docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md — بنود P0-1..P2-10 بخريطة ربط 1:1 للعوائق + موجات تنفيذ W0–W4 + حدود صارمة (لا أسرار · لا src/ · لا خدمات خارجية · لا Mirror فعلي)
+- البروتوكول: صفّا سجل docs/README.md + هذا المدخل + سطر حالة واحد في STATE.md (الحد الأدنى الإلزامي لكلٍّ)
+- البوابات المحلية قبل الرفع: docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓
+
+Stage Summary:
+- التقرير مرفوع كما هو (بلا إعادة كتابة) + الخطة المعتمدة جاهزة للتنفيذ بموجات W1–W4 بأمر المالك نفسه
+- المعلّق على المالك (موثق بالخطة §0): تنفيذ الـ Mirror الخارجي (مزود + توكن) · قرار نسخ ملفات Storage الفعلية · فحص صلاحية BACKUP_REPO_TOKEN (واجهة GitHub) · قرار خطة Hobby · سحب التوكنات الميتة
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: VERCEL-IGNORE-STEP-ACTIVATION-2026-09-20
 Agent: Super Z (implementation session)
 Task: تفعيل Vercel Ignored Build Step بأمر المالك 2026-09-20 «موافق على التنفيذ ابدأ» وفق خطة التفعيل المعتمدة من تقرير التحقق 2026-09-19 (محاكاة 151 دفعة: 66 SKIP / 85 BUILD / صفر نشرات مفقودة) — إضافة ignoreCommand إلى vercel.json + الاختبارات الحية A/B/C.
