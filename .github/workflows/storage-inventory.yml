@@ -1,0 +1,83 @@
+# Storage inventory (daily bucket census → private musclehubeg-backups)
+#
+# (P0-3(b) of docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md)
+#
+# WHY: Supabase Storage FILES have no backup at all (audit 2026-09-20, B4) —
+# the daily db-backup snapshots cover table data only. Until the owner
+# decides on a file-backup strategy (plan P0-3(c) — owner decision), this
+# census provides permanent visibility of what is at risk and how fast it
+# grows: per-bucket object counts + total byte sizes.
+#
+# PRIVACY LAW: counts and sizes ONLY — the script (scripts/storage-inventory.mjs)
+# never records object names, paths or user IDs.
+#
+# ISOLATION LAW: shares NOTHING with db-backup.yml — separate script,
+# separate schedule (05:45 UTC, after the 05:30 UTC snapshot), separate
+# output path (storage-inventory/ in the private repo). The census step is
+# continue-on-error and the commit step no-ops when no census was produced:
+# a census failure can never affect the daily snapshot pipeline.
+#
+# SETUP: none — reuses existing repository secrets NEXT_PUBLIC_SUPABASE_URL,
+# SUPABASE_SERVICE_ROLE_KEY (read-only usage) and BACKUP_REPO_TOKEN.
+name: Storage inventory (daily bucket census → private musclehubeg-backups)
+
+on:
+  schedule:
+    - cron: "45 5 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: storage-inventory
+  cancel-in-progress: false
+
+permissions:
+  contents: read # main repo: script only; data goes to the private repo
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main repo (for the script)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Run storage census (metadata-only, best-effort)
+        continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STORAGE_INVENTORY_TRIGGER: ${{ github.event_name }}
+        run: node scripts/storage-inventory.mjs "$RUNNER_TEMP/inv"
+
+      - name: Checkout private backup repo
+        uses: actions/checkout@v4
+        with:
+          repository: muscleshubfit-cpu/musclehubeg-backups
+          token: ${{ secrets.BACKUP_REPO_TOKEN }}
+          path: backup-repo
+
+      - name: Commit today's census (only if produced)
+        run: |
+          DATE=$(date -u +%F)
+          if [ ! -f "$RUNNER_TEMP/inv/storage-inventory.json" ]; then
+            echo "No census produced (see the continue-on-error step above) — nothing to commit."
+            exit 0
+          fi
+          mkdir -p "backup-repo/storage-inventory/$DATE"
+          cp "$RUNNER_TEMP/inv/storage-inventory.json" "backup-repo/storage-inventory/$DATE/"
+          cd backup-repo
+          git config user.name "alkemos-storage-census-bot"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes since the earlier census today — nothing to commit."
+          else
+            OBJECTS=$(python3 -c "import json; m=json.load(open('storage-inventory/$DATE/storage-inventory.json')); print(m['totals']['objects'])")
+            git commit -m "storage-inventory $DATE ($OBJECTS objects)"
+            git push
+            echo "Census pushed: storage-inventory/$DATE"
+          fi

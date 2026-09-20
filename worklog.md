@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-INVENTORY-AUTOMATION-2026-09-20
+Agent: Super Z (owner session)
+Task: الموجة W2 من خطة تقوية الاستعادة — تنفيذ P0-3(ب): جرد ميتاداتا يومي معزول لحاويات Supabase Storage (عدّادات وأحجام فقط — صفر أسماء ملفات).
+
+Work Log:
+- scripts/storage-inventory.mjs (جديد معزول): تعداد Buckets عبر Storage API بترقيم صفحات + تكرار داخل المجلدات (سقف عمق 6 وسقف أمان 50,000 كائن) — يكتب storage-inventory.json بـ {bucket, public, objectCount, totalBytes, truncated, ok, error} + إجماليات — قانون الخصوصية: عدادات وأحجام فقط مكتوبة أبدًا
+- .github/workflows/storage-inventory.yml (جديد معزول): مجدول 05:45 UTC يوميًا (بعد نسخة 05:30) + dispatch — خطوة الجرد continue-on-error وخطوة الـ commit تتخطى نفسها إن لم يُنتج جرد — **عزل كامل عن db-backup.yml/db-backup.mjs (لم يُلمسا إطلاقًا)**
+- الوجهة: musclehubeg-backups ▸ storage-inventory/YYYY-MM-DD/ (بجوار snapshots/ وليس داخلها) — بأسرار موجودة مسبقًا فقط (NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY قراءةً + BACKUP_REPO_TOKEN)
+- تحقق محلي: node --check ✓ · YAML parse ✓ · اختبار مسار الفشل بمتغيرات وهمية → JSON صحيح مع listError وexit 1 (السلوك المصمم) — التحقيق E2E الحي بتشغيل dispatch موثق أدناه
+- ملاحظة نشر: هذا الكوميت يلمس scripts/ + .github/ (مسارات مراقَبة) → نشر إنتاجي كامل متوقع من Vercel (التنظيف الساعي يمتصه كالمعتاد)
+
+Stage Summary:
+- رؤية يومية دائمة لما هو معرّض للفقدان في Storage (B4) حتى قرار المالك في نسخ الملفات الفعلية P0-3(ج)
+- E2E: تشغيل workflow_dispatch بعد الدفع مباشرة — النتيجة موثقة في تعليق المتابعة أدنى (ملف الجرد يظهر في المستودع الخاص)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: RECOVERY-REFERENCE-DOCS-2026-09-20
 Agent: Super Z (owner session)
 Task: الموجة W1 من خطة تقوية الاستعادة (docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md) — تنفيذ P0-2 + P0-4 + P1-5 + P2-7: حزمة التوثيق المرجعي للاستعادة.
