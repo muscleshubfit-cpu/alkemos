@@ -135,7 +135,7 @@ SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
 
 | Bucket | النوع (حي مقيسًا) | تعريفه الموثق | طريقة الوصول الكودية |
 |---|---|---|---|
-| `questionnaire-photos` | ⚠️ **عام (public:true) حيًّا — انحراف أمني عن تعريفه الخاص في 0027 (علَّم للمالك للفحص والقرار)** | `RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql` (5MB، صور) | رفع `/api/upload` + قراءة `/api/file` (الاسم في قائمتي allowlist) |
+| `questionnaire-photos` | **خاص ✓ (أُغلق بميجريشن 0091، 2026-09-20 — كان عامًا انحرافًا عن 0027 منذ ولادة الباكت قبله؛ الفاصل: باكت `avatars` من 0090)** | `RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql` + `20260920173000_0091_qphotos_private.sql` (5MB، صور) | رفع `/api/upload` + قراءة `/api/file` (الاسم في قائمتي allowlist) — الأفاتار القديم الوحيد أعيدت كتابته لصيغة `/api/file` بنفس 0091 |
 | `progress-photos` | خاص (يطابق 0027) | نفس الملف 0027 | نفس النمط |
 | `receipts` | خاص (يطابق 0027) | نفس الملف 0027 (يقبل PDF) | نفس النمط |
 | `coach-public` | عام (يطابق 0037) | `RUN_ON_SUPABASE_0037_COACH_BOOST.sql` | قراءة عامة `/storage/v1/object/public/coach-public/…` |

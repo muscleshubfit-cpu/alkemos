@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-AVATAR-SPLIT-B-2026-09-20
+Agent: Super Z (owner session)
+Task: إغلاق البند الأمني العاجل من STATE — الفصل 2/2: قلب questionnaire-photos خاصة + إعادة كتابة الأفاتار الوحيد (ميجريشن 0091).
+
+Work Log:
+- الشرط الحاكم تحقق قبل الشحن: نشر 6295a99a ‏READY على Vercel (dpl_6Xn8) و0090 مطبق آليًا (schema_migrations + الباكت حية عامة + السياسات الثلاث live بالفحص) — فصفر نافذة كسر بين الكود الجديد والقلب
+- فشل CI وحيد على 6295a99a: docs_audit I/last-updated-truth على SECURITY.md (الترويسة 09-18 والكوميت 09-20 — لا يظهر محليًا قبل الالتزام لأن الفحص يقارن بتاريخ آخر كوميت) ← أُصلح بـ d1cac70f
+- ميجريشن 0091: قلب public=false (أخيرًا يطابق 0027 بعد 23 يومًا) + إعادة كتابة avatar_url الوحيد لصيغة /api/file الدائمة (regexp متحقق حيًا قبل الشحن: صف واحد مطابق وصيغة الناتج سليمة) — الكائن لم يُنقل (unoptimized: true ⇒ المتصفح يجلب بالكوكيز؛ صفر سياق مجهول لصورة عميل)
+- دليل جديد استوجب فحصًا لاحقًا مستقلًا: جرد W2 قال «صفر كائنات» بينما SQL الحي 24 كائنًا — خلل عدّاد مؤكد بالتشخيص (مجلدات uid تعود بـid:null/metadata:null فشرط النزول typeof id==='string' لا يتحقق أبدًا) — إصلاح السكربت بإطار مستقل تالٍ
+- docs: INDEX صف 0091 + الترويسة 0001→0091 · RUNBOOK صف questionnaire-photos مُغلق ✓ · STATE بنود المالك (إغلاق 6 + تصحيح واقعة 24 كائنًا في بند قرار النسخ)
+
+Stage Summary:
+- questionnaire-photos خاصة أخيرًا والأفاتارات في باكتها العام المخصص — البند الأمني العاجل مغلق بالكامل بالقناة القانونية (ميجريشنز تلقائية)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-AVATAR-SPLIT-A-2026-09-20
 Agent: Super Z (owner session)
 Task: البند الأمني العاجل من STATE (فحص علنية questionnaire-photos المعلق على المالك) — الفصل 1/2: باكت avatars المخصص + تحويل مسار الأفاتار إليه.
