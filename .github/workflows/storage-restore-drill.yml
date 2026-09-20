@@ -1,0 +1,123 @@
+# Storage restore drill (non-destructive end-to-end proof)
+#
+# (Owner order 2026-09-20 evening: "التحقق من إمكانية استعادتها" +
+#  "نفّذ Recovery Drill إضافيًا إذا أصبح ذلك ضروريًا لإثبات أن نسخة
+#  Storage يمكن استعادتها، وليس مجرد إنشائها" — Drill #2, the storage
+#  counterpart of docs/RECOVERY-DRILL-REPORT-2026-09-20.md)
+#
+# WHAT IT PROVES: the latest storage-backups/<date>/ in the PRIVATE repo
+# can actually be RESTORED — every file re-uploads through the same
+# Storage API a real recovery uses, and every uploaded object is read
+# back and sha256-compared byte-for-byte. A backup that cannot round-trip
+# is not a backup.
+#
+# WHAT IT NEVER TOUCHES: production buckets. All writes go to ONE
+# disposable bucket named restore-drill-<date> (created private, deleted
+# in the same run — the cleanup step is if:always() and the script's
+# --delete-bucket refuses any name outside ^restore-drill-). The DB, the
+# original buckets and their objects are never written, never deleted.
+#
+# STEPS:
+#   1. dry-run integrity gate on the backup directory (files on disk vs
+#      manifest sha256) — a corrupt backup fails the drill before any
+#      network write;
+#   2. restore every object into restore-drill-<date> (path prefixed by
+#      the original bucket name — no cross-bucket collisions);
+#   3. read-back verification (script-internal): sha256 of every
+#      downloaded object vs the manifest;
+#   4. cleanup (always): delete every drill object + the drill bucket.
+#
+# SCHEDULE: none — a drill is on demand (workflow_dispatch). Running it
+# daily would write production-adjacent state for no recovery value.
+#
+# LOG PRIVACY LAW: job logs print counts only (script law); paths appear
+# only on failure lines. The manifest itself is never printed.
+#
+# INPUTS: backup_date (optional, YYYY-MM-DD) — restore from a specific
+# dated backup instead of the latest.
+name: Storage restore drill (non-destructive proof → temp bucket)
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_date:
+        description: "Backup date dir (YYYY-MM-DD) — default: latest in storage-backups/"
+        required: false
+        default: ""
+
+concurrency:
+  group: storage-restore-drill
+  cancel-in-progress: false
+
+permissions:
+  contents: read # main repo: script only; the backup comes from the private repo
+
+jobs:
+  drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DRILL_BUCKET: restore-drill-${{ github.run_number }}
+    steps:
+      - name: Checkout main repo (for the script)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Checkout private backup repo
+        uses: actions/checkout@v4
+        with:
+          repository: muscleshubfit-cpu/musclehubeg-backups
+          token: ${{ secrets.BACKUP_REPO_TOKEN }}
+          path: backup-repo
+
+      - name: Select backup date (input or latest)
+        id: date
+        run: |
+          if [ -n "${{ github.event.inputs.backup_date }}" ]; then
+            DATE="${{ github.event.inputs.backup_date }}"
+          else
+            DATE=$(ls -1 backup-repo/storage-backups/ | sort | tail -1)
+          fi
+          if [ ! -f "backup-repo/storage-backups/$DATE/manifest.json" ]; then
+            echo "::error::no storage backup found for $DATE — run the Storage backup workflow first"
+            exit 1
+          fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "Drilling against storage-backups/$DATE"
+
+      # Step 1 — integrity gate (zero network writes)
+      - name: Dry-run integrity verification of the backup
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/storage-restore.mjs "backup-repo/storage-backups/${{ steps.date.outputs.date }}"
+
+      # Steps 2+3 — restore into the disposable bucket + read-back verify
+      - name: Restore into drill bucket + read-back sha256 verification
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/storage-restore.mjs "backup-repo/storage-backups/${{ steps.date.outputs.date }}" \
+            --execute --into-bucket "$DRILL_BUCKET" --create-bucket
+
+      # Step 4 — cleanup ALWAYS runs, even after a failed restore
+      - name: Cleanup drill bucket (always)
+        if: always()
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/storage-restore.mjs --delete-bucket "$DRILL_BUCKET" \
+            || echo "::warning::drill cleanup failed for $DRILL_BUCKET — remove it from the Supabase dashboard if it still exists"
+
+      - name: Drill verdict
+        run: |
+          echo "=== Storage restore drill verdict ==="
+          echo "Backup date : ${{ steps.date.outputs.date }}"
+          echo "Drill bucket: $DRILL_BUCKET (created, verified, deleted)"
+          echo "Result      : PASS — every object round-tripped byte-identically (see the restore step log)"
+          echo "This is Drill #2 evidence for docs/RECOVERY-DRILL-2-STORAGE-REPORT-2026-09-20.md"

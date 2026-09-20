@@ -1,0 +1,113 @@
+# Storage file backup (daily → private musclehubeg-backups)
+#
+# (P0-3(c) of docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md —
+#  owner order 2026-09-20 evening: "أنشئ آلية النسخ الاحتياطي الآلية
+#  لجميع ملفات Supabase Storage الفعلية، بما فيها الـ 10 buckets
+#  الحالية، مع التحقق من إمكانية استعادتها")
+#
+# WHY: the 05:30 db-backup snapshots cover table DATA only; the 05:45
+# census counts metadata only. The actual FILES (coach profile images,
+# questionnaire photos, client avatar, payment receipts — 24 objects /
+# 4.5 MB as of 2026-09-20) had NO backup at all (audit B4). This job
+# downloads every object of every bucket and commits them, with a
+# sha256 manifest, to the PRIVATE repo musclehubeg-backups →
+# storage-backups/YYYY-MM-DD/.
+#
+# PII LAW (strictest in the repo): the payload is user-uploaded photos
+# and receipts. They must NEVER go to the public code repo and NEVER to
+# GitHub artifacts (public downloads). ONLY the private backup repo.
+# Job logs print counts only (scripts/storage-backup.mjs log law).
+#
+# ISOLATION LAW: shares NOTHING with db-backup.yml / storage-inventory.yml
+# — separate script, separate schedule (06:00 UTC, after the 05:30
+# snapshot + 05:45 census), separate output path. A failure here can
+# never affect the daily snapshot pipeline, and the fail-loud step
+# guarantees a partial backup is never committed as if complete.
+#
+# RESTORE: scripts/storage-restore.mjs (dry-run default; drill via
+# .github/workflows/storage-restore-drill.yml; real recovery via the
+# runbook docs/SUPABASE-FULL-RECOVERY-RUNBOOK.md §5).
+#
+# GROWTH: git is not an object store — the script hard-caps at 20k
+# objects / 1 GiB and fails LOUDLY beyond, forcing a strategy review.
+name: Storage backup (daily files → private musclehubeg-backups)
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: storage-backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read # main repo: script only; data goes to the private repo
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout main repo (for the script)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download every storage object (files + sha256 manifest)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STORAGE_BACKUP_TRIGGER: ${{ github.event_name }}
+        run: node scripts/storage-backup.mjs "$RUNNER_TEMP/storage-backup"
+
+      # Fail-loud gate (B3 law): a partial backup must never be committed
+      # as if complete — the script already exits 1 on any failure; this
+      # step makes the invariant explicit in the job log.
+      - name: Fail loudly if any object failed
+        run: |
+          FAILED=$(python3 -c "import json; m=json.load(open('$RUNNER_TEMP/storage-backup/manifest.json')); print(m['totals']['failed'] + m['totals']['byteMismatch'])")
+          if [ "$FAILED" != "0" ]; then
+            echo "::error::$FAILED storage object(s) failed or size-mismatched — see the WARN lines above; NOT committing an incomplete backup"
+            exit 1
+          fi
+
+      - name: Checkout private backup repo
+        uses: actions/checkout@v4
+        with:
+          repository: muscleshubfit-cpu/musclehubeg-backups
+          token: ${{ secrets.BACKUP_REPO_TOKEN }}
+          path: backup-repo
+
+      - name: Commit today's file backup
+        run: |
+          DATE=$(date -u +%F)
+          mkdir -p "backup-repo/storage-backups/$DATE"
+          cp -r "$RUNNER_TEMP/storage-backup/." "backup-repo/storage-backups/$DATE/"
+          cd backup-repo
+          git config user.name "alkemos-storage-backup-bot"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes since the earlier backup today — nothing to commit."
+          else
+            OBJECTS=$(python3 -c "import json; m=json.load(open('storage-backups/$DATE/manifest.json')); print(m['totals']['objects'])")
+            BYTES=$(python3 -c "import json; m=json.load(open('storage-backups/$DATE/manifest.json')); print(m['totals']['bytes'])")
+            git commit -m "storage-backup $DATE ($OBJECTS objects, $BYTES bytes)"
+            git push
+            echo "File backup pushed: storage-backups/$DATE"
+          fi
+
+      - name: Backup summary (counts only — log privacy law)
+        run: |
+          python3 - << 'EOF'
+          import json, datetime
+          d = datetime.datetime.utcnow().date()
+          m = json.load(open(f"backup-repo/storage-backups/{d}/manifest.json"))
+          t = m["totals"]
+          print(f"storage backup summary: {t['buckets']} buckets · {t['objects']} objects · {t['bytes']//1024} KB · failed={t['failed']} · byteMismatch={t['byteMismatch']}")
+          for b in m["buckets"]:
+              print(f"  {b['name']}: {b['objectCount']} objects · {b['totalBytes']//1024} KB")
+          EOF

@@ -63,6 +63,8 @@ pnpm-lock.yaml
 #   scripts/js-transfer-measure.mjs → critical-vs-post-load JS transfer measurement (Phase 216 P2-4 — the calibration evidence tool)
 #   scripts/storage-inventory.mjs → daily storage bucket census (storage-inventory.yml, P0-3(b) hardening plan 2026-09-20 — hit the same /scripts/* blanket trap as generate-og-cards.py; exception added same frame)
 #   scripts/external-mirror/ → both-repos external git mirror (external-mirror.yml + docs/RECOVERY-MIRROR-SETUP.md, P0-1 hardening plan 2026-09-20 — dormant until owner setup)
+#   scripts/storage-backup.mjs → daily Supabase Storage FILE backup (storage-backup.yml, P0-3(c) owner order 2026-09-20 — same /scripts/* blanket trap; exception added same frame)
+#   scripts/storage-restore.mjs → storage restore/drill tool (storage-restore-drill.yml + runbook §5, P0-3(c) 2026-09-20)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
@@ -80,6 +82,8 @@ pnpm-lock.yaml
 !/scripts/cls-measure.mjs
 !/scripts/js-transfer-measure.mjs
 !/scripts/storage-inventory.mjs
+!/scripts/storage-backup.mjs
+!/scripts/storage-restore.mjs
 !/scripts/external-mirror/
 /skills/
 /tests/

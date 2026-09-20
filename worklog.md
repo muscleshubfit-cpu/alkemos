@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-FILE-BACKUP-2026-09-20
+Agent: Super Z (owner session)
+Task: أمر المالك (الاستكمال من origin/main): آلية النسخ الاحتياطي الآلية لملفات Supabase Storage الفعلية — P0-3(ج) — بعزل تام عن خط النسخ القائم.
+
+Work Log:
+- scripts/storage-backup.mjs: تنزيل كل كائنات الباكتات العشر (نفس منطق النزول المُصلح بالجرد — مجلدات id:null) + بصمة sha256 لكل ملف + مطابقة الحجم مقابل ميتاداتا الـ API + سقوف صوتية (20K كائن/1GiB) + قانون سجلات: أعداد فقط بالنجاح، والمسارات في أسطر الفشل وحدها (قابلية التنقيح موثقة) + حارس مسارات (رفض ../ والمطلقة)
+- scripts/storage-restore.mjs: أربعة أوضاع مقيّدة — dry-run افتراضيًا (بصمات القرص ضد المانيفست + كشف الباكتات الناقصة) · دريل (--execute --into-bucket restore-drill-* --create-bucket: رفع لباكت مؤقتة بمسار مسبوق باسم الباكت الأصل — لا تصادم عابر للباكتات — ثم قراءة راجعة sha256) · استعادة حقيقية (--confirm-original: ترفض الانطلاق إن نقصت باكت، upsert بنفس المسارات) · تنظيف (--delete-bucket يرفض أي اسم خارج ^restore-drill-)
+- workflow جديدان: storage-backup.yml (يوميًا 06:00 UTC بعد 05:30/05/45 — بوابة فشل صوتي: لا يُرفع نسخ ناقص أبدًا) + storage-restore-drill.yml (تشغيل يدوي فقط: dry-run ثم استعادة لباكت restore-drill-<run> خاصة ثم تحقق راجع ثم حذف if:always()) — عزل تام عن db-backup/census (قانون الخطة) + PII: المستودع الخاص حصرًا، صفر artifacts
+- فخ /scripts/* في .gitignore عولج بنفس الفريم (سابقة W2) — استثناءان للسكربتين الجديدتين
+- تحقق حي محلي ضد الإنتاج (مفتاح service بالذاكرة فقط — لا قيمة في أي ملف): 10 باكتات · 24 كائنًا · 4,738,252 بايت · failed=0 · byteMismatch=0 · 24/24 مطابقة sha256 على القرص · dry-run نظيف (extras=0 بعد إصلاح خلل بادئة عدّ الملفات الزائدة داخل الجلسة قبل الرفع) · حارس الحذف رفض باكت إنتاج بالاسم (exit 2)
+- docs: RUNBOOK §5.1 جديدة (الآلية/السلامة/الاستعادة/الدريل/الحدود المتبقية: نافذة ≤24 ساعة) + خطوة «استعادة ملفات Storage» في فحص ما بعد الاستعادة + تحديث سطر قيود الرأس + الخطة: صفوف P0-3/P2-8/P2-10 في خريطة §0 + تحديث قانون التنفيذ + سجل docs/README (صفّا runbook والخطة)
+- STATE بند «المفتوح الآن» أُعيدت كتابته (إغلاق قرار النسخ + بقايا المالك الموثقة) داخل سقف 32K بايت الصلب
+
+Stage Summary:
+- B4 مغلق آليًا: كل ملفات الستوريج (24 كائنًا/4.5MB عبر 3 باكتات + 7 فارغات) صارت تُنسخ يوميًا ببصمة sha256 لكل ملف إلى المستودع الخاص — أول تشغيل رسمي عبر workflow_dispatch يوثَّق بإطار الدريل التالي
+- البوابات: tsc 0 · eslint 0 · vitest 1531/1531 · build 2055/2055 · docs_audit/parity/migration/stale-refs ✓
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-CENSUS-FOLDER-FIX-2026-09-20
 Agent: Super Z (owner session)
 Task: دليل جديد ضد نتيجة W2 (جرد «صفر كائنات») — إصلاح عدّاد جرد Storage وإعادة القياس الرسمي.
