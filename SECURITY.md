@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-18 (Phase 229 — audit m7 owner decision «أ»: fixed package pricing ONLY — fee_per_client retired from the activation cost equation, /api/admin/coach-fees + its admin setter removed, money surfaces unified on coach-limits.ts · Phase 217 — P3-3 deep-audit fixes: data-residency region corrected sin1→fra1 (matches vercel.json), the retired step2-generate citation replaced with the live 300s pipeline routes, the coach-register + send-email rate-limit docs now describe the Upstash-shared limiter accurately · Phase 216 — VERCEL-USAGE-3 §10 two cache rules · P1-5(ب) Cloudflare official HTML cache layer · P1-6 EVO_CRON_SECRET timing-safe §3.3)
+> **Last updated:** 2026-09-20 (owner-directed urgent security fix — Storage privacy-class split: the three private buckets are /api/file-proxy-only by law, member avatars moved to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
