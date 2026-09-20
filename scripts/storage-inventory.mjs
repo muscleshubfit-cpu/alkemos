@@ -79,7 +79,7 @@ async function countBucket(name) {
       return;
     }
     for (let offset = 0; ; offset += PAGE) {
-      const res = await fetch(`${url}/storage/v1/list/${encodeURIComponent(name)}`, {
+      const res = await fetch(`${url}/storage/v1/object/list/${encodeURIComponent(name)}`, {
         method: "POST",
         headers,
         cache: "no-store",

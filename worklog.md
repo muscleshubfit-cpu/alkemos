@@ -6,6 +6,25 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-INVENTORY-E2E-FIX-2026-09-20
+Agent: Super Z (owner session)
+Task: إصلاح متابعة W2 بعد أول تشغيل حي — فخان مكتشفان + تصحيح توثيق الحاويات بالحقيقة الحية.
+
+Work Log:
+- فخ 1 (كوميت b6cc8a4f): سطر `/scripts/*` في .gitignore ابتلع السكربت — الكوميت حمل الـ workflow فقط والتشغيل فشل بـ MODULE_NOT_FOUND (نفس فخ generate-og-cards.py الموثق Phase 188) → أُضيف استثناء `!/scripts/storage-inventory.mjs` + سطر التوثيق بالترويسة وفق العرف (كوميت 9bcd5511)
+- فخ 2: مسار عدّ الكائنات كان `/storage/v1/list/{bucket}` والصحيح `/storage/v1/object/list/{bucket}` (404 Route not found على كل الحاويات) → أُصلح + إعادة اختبار مسار الفشل محليًا (JSON صحيح + exit 1)
+- **اكتشاف بالجرد الحي:** المشروع يحوي **9 حاويات** لا 4 — خمس ليجاسي غير معرّفة في أي ميجريشن وغير مستخدمة في الكود الحالي (meal-plans · plan-pdfs · qr-codes [عام] · ticket-attachments · workout-plans) + **انحراف أمني علِّم للمالك: questionnaire-photos عامة (public:true) حيًّا رغم تعريفها خاصة في 0027** (صور فيزيائية لأعضاء = PII)
+- docs/SUPABASE-FULL-RECOVERY-RUNBOOK.md §5 أُعيدت كتابته بالحقيقة الحية المقيسة (جدول 9 حاويات + الأعلام) — التزامًا بقانون تكافؤ التوثيق §3.8
+- إعادة تشغيل dispatch ثالث بعد الإصلاح — النتيجة الحية موثقة أدناه في Stage Summary
+
+Stage Summary:
+- سباكة الجرد تعمل E2E (الملف يهبط في المستودع الخاص) — الإصلاحان يجعلان العدّ نفسه يعمل
+- النتيجة الحية بعد الإصلاح (كوميت هذا الفريم): مسجلة أدناه مباشرة بعد التشغيل
+- بند مالك جديد مكتشف: فحص علنية questionnaire-photos (قرار أمني) + مصير الحاويات الليجاسي الخمس
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-INVENTORY-AUTOMATION-2026-09-20
 Agent: Super Z (owner session)
 Task: الموجة W2 من خطة تقوية الاستعادة — تنفيذ P0-3(ب): جرد ميتاداتا يومي معزول لحاويات Supabase Storage (عدّادات وأحجام فقط — صفر أسماء ملفات).
