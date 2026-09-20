@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-RESTORE-DRILL-2026-09-20
+Agent: Super Z (owner session)
+Task: Drill #2 (أمر المالك): إثبات أن نسخة ملفات Storage قابلة للاستعادة فعلًا — لا مجرد إنشائها.
+
+Work Log:
+- أول نسخة رسمية آلية: dispatch لـ storage-backup.yml على b62c1ca4 — run 35528734912 نجح ودفع storage-backups/2026-09-20 للمستودع الخاص (10 باكتات · 24 كائنًا · 4,738,252 بايت · failed=0 · byteMismatch=0) — تحقق مستقل عبر git trees API: 24 blob بمجموع 4,738,252 بايت حرفيًا + sha256 سليمة لكل كائن
+- الدريل: dispatch لـ storage-restore-drill.yml — run 35528872482 نجح: dry-run (24/24 ok · extras=0) ← إنشاء restore-drill-1 خاصة ← رفع 24/24 (uploadFailed=0) ← قراءة راجعة sha256 24/24 مطابقة بايتًا ببايت ← تنظيف if:always() حذف 24 كائنًا والباكت
+- تحقق ما بعد الدريل (SQL قراءة فقط): total_buckets=10 · drill_residue=0 · total_objects=24 (16/2/6) — الإنتاج لم يتغير بشيء
+- README المستودع الخاص حُدّث (نفس اليوم): توثيق storage-backups/ + أداة الاستعادة + تحذير PII الأشد (صور مستخدمين) — آخر سطر قديم كان ينفي وجود ملفات ستوريج
+- docs: تقرير RECOVERY-DRILL-2-STORAGE-REPORT-2026-09-20.md (S1–S8 + أوامر التكرار + الحدود المعروفة: نافذة 24 ساعة) + صف سجله في docs/README + RUNBOOK §5.1 أشار للتنفيذ الموثق + STATE (Drill #2 منفّذ) ضمن سقف البايتات
+
+Stage Summary:
+- B4 مغلق بطرفيه: الإنشاء الآلي اليومي موثق والاستعادة مثبتة عمليًا (24/24 رفعًا و24/24 تحققًا راجعًا حرفيًا) والإنتاج سليم بعد التمرين — نسخة لا تُستعاد ليست نسخة، وهذه تُستعاد
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-FILE-BACKUP-2026-09-20
 Agent: Super Z (owner session)
 Task: أمر المالك (الاستكمال من origin/main): آلية النسخ الاحتياطي الآلية لملفات Supabase Storage الفعلية — P0-3(ج) — بعزل تام عن خط النسخ القائم.
