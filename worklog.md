@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STORAGE-AVATAR-SPLIT-A-2026-09-20
+Agent: Super Z (owner session)
+Task: البند الأمني العاجل من STATE (فحص علنية questionnaire-photos المعلق على المالك) — الفصل 1/2: باكت avatars المخصص + تحويل مسار الأفاتار إليه.
+
+Work Log:
+- تحقيق حي قراءة-فقط (Supabase Management API + HTTP probes بلا أي مفتاح) لسبب العلنية: الباكت وُلد قبل 0027 (كائنان حيّان: 70B اختباري 2026-08-11 + أفاتار عميل 1.5MB 2026-08-18) فإدخال 0027 ‏ON CONFLICT DO NOTHING لم يقارب العلم الحي أبدًا؛ 0071 أبقاها عامة «بالتصميم» لمسار الأفاتار (getPublicUrl) — التعارض الجوهري: صنفا خصوصية في باكت واحد (صور أجسام حساسة بتصميم /api/file الخاص × أفاتارات عامة بالضرورة لظهورها في صفحات عامة للمدربين)
+- الأثر الحي المقيس: كائنان فقط قابلان للجلب علنًا بدون أي مفتاح (HTTP: NoSuchKey على مسار وهمي = الباكت مُخدَّم علنًا) — لا صور استبيان في الستوريج إطلاقًا (إحصاء jsonb: مدخل data: URL واحد فقط)؛ متأثر فعلي واحد: بروفايل واحد avatar_url بصيغة public URL (يُعاد كتابته في 0091)
+- ميجريشن 0090: باكت avatars عام (صور فقط 2MB = سقف بوابة العميل) + سياسات مالك avatars_owner_insert/update/delete بنمط 0071 + ON CONFLICT DO UPDATE (درس انجراف 0027: DO NOTHING أبقى العلنية 23 يومًا)
+- كود: profile/page.tsx يرفع ويخدم الأفاتار من avatars (الاعتماد الوحيد على علنية questionnaire-photos في الكود كله — grep مثبت) — فشل الرفع قبل تطبيق 0090 يسقط أنيقًا لـdata URL fallback الموجود
+- ترتيب الإطلاق الآمن: هذه الدفعة لا تقلب أي علم — 0091 (قلب private + إعادة كتابة الصف الوحيد) تُدفع فقط بعد READY نشر هذه الدفعة (صفر نافذة كسر)؛ dry-run حي للـregexp قبل الشحن: صف واحد مطابق وصيغة الناتج سليمة
+- docs: INDEX صف 0090 · DEVELOPER_GUIDE قائمة الباكتس · TECH_REFERENCE §1.5 بند avatars · SECURITY.md فصل صنوف الخصوصية · RUNBOOK صف avatars (10 حاويات)
+
+Stage Summary:
+- الفصل 1/2: avatars حي بالتطبيق الآلي + مسار الأفاتار الجديد منشور — questionnaire-photos لم تُلمس بعد (تُغلق في 0091 بالفريم التالي)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: EMERGENCY-RECOVERY-HARDENING-CLOSURE-2026-09-20
 Agent: Super Z (owner session)
 Task: إغلاق خطة تقوية الاستعادة — توثيق نتيجة تحقق W4 الحية + حالة الموجات النهائية + بنود المالك المفتوحة.

@@ -203,8 +203,14 @@ Any of the following:
   owner (see `AGENTS.md` §6).
 - Progress photos and questionnaire photos are stored in Supabase
   Storage buckets (`progress-photos`, `questionnaire-photos`,
-  `receipts`). Bucket policies must enforce that only the owner (or
-  coach for their clients) can read these objects.
+  `receipts`) — all PRIVATE: objects are served exclusively through
+  the authenticated `/api/file` proxy (owner-or-coach). Bucket
+  policies must enforce that only the owner (or coach for their
+  clients) can read these objects.
+- Member avatars live in the separate PUBLIC `avatars` bucket
+  (migration 0090, 2026-09-20) — public URLs by design, because coach
+  avatars render on public pages. ONLY avatars may be routed there;
+  physique/questionnaire photos must never be uploaded to it.
 
 ---
 

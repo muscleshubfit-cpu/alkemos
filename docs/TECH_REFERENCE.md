@@ -77,6 +77,7 @@
 - القراءة عبر `GET /api/file?bucket&path` (بروكسي streaming بصلاحية owner-or-coach) — **الباكتس الخاصة تأخذ روابط same-origin دائمة**، وليست signed URLs منتهية.
 - الباكتس تُنشأ بميجريشن `RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql` (idempotent، **بدون سياسات** — service role يتجاوز RLS أصلاً).
 - باكت عام `coach-public` (5MB، jpg/png/webp، مجلد `<uid>/` الخاص بكل مستخدم مفروض بـstorage RLS) — صور الصفحة العامة للمدربين؛ والـAPI تقبل فقط مسارات same-origin من `/storage/v1/object/public/coach-public/` أو روابط https.
+- باكت عام `avatars` (2MB، jpg/png/webp/heic/heif، مجلد `<uid>/` مفروض بسياسات `avatars_owner_insert/update/delete` — ميجريشن 0090): **أفاتارات المستخدمين حصريًا** — رفع متصفحي مباشر من صفحة البروفايل وخدمة عبر public URL (نموذج 0071 الموثق نفسه: أفاتار المدرب يظهر في صفحات عامة فالروابط الموقعة تنتهي و`/api/file` يرد 403 للزائر). **فصل صنوف الخصوصية (0090+0091، 2026-09-20):** الأفاتارات هنا، وصور الأجسام الحساسة في باكت `questionnaire-photos` الخاص — لا يُرفع إلى `avatars` أي شيء غير الأفاتار أبدًا.
 
 ---
 

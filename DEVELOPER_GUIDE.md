@@ -259,7 +259,7 @@ src/
 > تحديث المرآة في نفس الكوميت، والقواعد الخاصة تتوثق في
 > `TECH_REFERENCE.md` §1.4.
 >
-> **Storage buckets:** `questionnaire-photos` · `progress-photos` · `receipts` + باكت العام `coach-public` (التفاصيل: TECH_REFERENCE §1.5).
+> **Storage buckets:** `questionnaire-photos` · `progress-photos` · `receipts` + الباكت العام `avatars` (صور الأفاتار — ميجريشن 0090) + باكت العام `coach-public` (التفاصيل: TECH_REFERENCE §1.5).
 
 ---
 

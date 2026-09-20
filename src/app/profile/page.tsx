@@ -215,9 +215,15 @@ export default function ProfilePage() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${profile.id}/avatar-${Date.now()}.${ext}`;
 
-      // Try Supabase Storage upload
+      // SECURITY SPLIT (2026-09-20, owner-approved urgent fix): avatars go to
+      // the dedicated PUBLIC `avatars` bucket (migration 0090) so the sensitive
+      // `questionnaire-photos` bucket could be flipped fully PRIVATE (migration
+      // 0091). Public URL stays the avatar serving model — coach avatars render
+      // on public pages (coach landing / featured) where signed URLs would
+      // expire and /api/file would 403. Upload failure still falls back to a
+      // data URL below, so a not-yet-migrated environment degrades gracefully.
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("questionnaire-photos")
+        .from("avatars")
         .upload(path, file, { upsert: true });
 
       if (uploadError) {
@@ -231,7 +237,7 @@ export default function ProfilePage() {
         reader.readAsDataURL(file);
       } else {
         const { data: urlData } = supabase.storage
-          .from("questionnaire-photos")
+          .from("avatars")
           .getPublicUrl(path);
         const url = urlData.publicUrl;
         setAvatarUrl(url);
