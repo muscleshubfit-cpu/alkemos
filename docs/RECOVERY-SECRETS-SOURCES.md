@@ -1,0 +1,91 @@
+# RECOVERY-SECRETS-SOURCES.md — مرجع مصادر الأسرار ومتغيرات البيئة للاستعادة
+
+> **الغرض:** المرجع الدائم الوحيد لمعرفة **من أين تُجلب قيمة كل متغير/سر** عند إعادة بناء المشروع (مشروع Vercel جديد أو مشروع Supabase جديد) — دون تخزين أي قيمة إطلاقًا.
+> **القانون الحاكم (من خطة التقوية P0-2):** هذا الملف يحمل **أسماء ومصادر فقط** — أي قيمة سرية هنا = عيب أمني فادح يُصلح فورًا. أي متغير بيئة جديد يُضاف للمشروع مستقبلًا يُوثَّق مصدره هنا في نفس الفريم (قانون تكافؤ التوثيق §3.8).
+> **المصدر:** جرد مقيس حيًّا في `docs/EMERGENCY-RECOVERY-AUDIT-2026-09-20.md` §8 (2026-09-20) + تحقق الاستخدام في الكود. عند أي تعارض مستقبلي: الواقع المقاس هو الحاكم ويُحدَّث هذا الملف.
+
+---
+
+## 1. القواعد الذهبية (اقرأها قبل أي استعادة)
+
+1. **لا توجد قيم هنا ولن توجد** — المصادر فقط. الجلب من اللوحات بيد المالك أو بيد من يملك وصول اللوحات.
+2. **أسرار GitHub Actions للقراءة الآلية فقط:** لا يمكن لأي بشري استرجاع قيمتها بعد ضبطها (سرية باتجاه واحد). فائدتها: (أ) تشغيل الأتمتة القائمة كما هي، (ب) يمكن — بأمر مالك — كتابة workflow مؤقت يقرؤها ويعيد بذرها في مشروع Vercel جديد عبر API دون أن تراها عين بشرية.
+3. **قيم Supabase كلها قابلة لإعادة الجلب من لوحة المشروع نفسه** (Project Settings ▸ API) ما دام المشروع حيًّا — وهي الأولى بين كل الأسرار في الاطمئنان.
+4. **أعلى الأسرار هشاشة عند فقدان Vercel:** قيم PayPal (سر + Webhook ID) وGA وAdSense — لا نسخة لها خارج Vercel (الكتّاب الأول) — لذا خصص لها الجدول §2 صفوفًا بمصادرها الدقيقة.
+
+## 2. جدول متغيرات الإنتاج الحية (المصدر عند الاستعادة)
+
+### 2.1 الفئة أ — لها نسخة في GitHub Actions Secrets (استعادة شبه آلية)
+
+| المتغير | بيئة الاستخدام | المصدر عند الاستعادة | ملاحظة |
+|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | prod+preview+dev + Actions | لوحة Supabase (Settings ▸ API) · ونسخة Actions Secret | نفس القيمة للجميع |
+| `SUPABASE_SERVICE_ROLE_KEY` | prod+preview+dev + Actions | لوحة Supabase (service_role) · ونسخة Actions Secret | سر خادمي كامل الصلاحية — لا يُفك تشفيره إلا حيث يلزم |
+| `BREVO_API_KEY` | prod + Actions | لوحة Brevo (SMTP & API ▸ API Keys) · ونسخة Actions Secret | يخدم البريد التطبيقي REST |
+| `CRON_SECRET` | prod+preview+dev + Actions | سر مشترك ذاتي — يُعاد توليده عند الحاجة مع مزامنة موضعيه (Vercel + Actions) | يحمي `/api/cron/*` |
+| `GROQ_API_KEY` | prod+preview + Actions | لوحة Groq (console.groq.com ▸ API Keys) | الذراع الثانية لسلسلة AI |
+| `NVIDIA_API_KEY` | prod + Actions | لوحة NVIDIA (build.nvidia.com) | الذراع الثالثة |
+| `OPENROUTER_API` (+ الاسم البديل `OPENROUTER_API_KEY`) | prod+preview + Actions | لوحة OpenRouter (openrouter.ai/keys) | الاسمان لنفس القيمة — تدوير مزدوج موثق |
+| `PEXELS_API_KEY` | prod+preview+dev + Actions | لوحة Pexels (pexels.com/api) | المصدر الأول لصور المدونة |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | prod+preview + Actions | لوحة Upstash (console.upstash.com ▸ REST API) | حد المعدل الموزع — اختياري مع سقوط آمن |
+| `VERCEL_TOKEN` | Actions فقط | لوحة Vercel (Settings ▸ Tokens) | يخدم vercel-cleanup وأي أتمتة إعادة بذر |
+
+### 2.2 الفئة ب — تُجلب يدويًا من لوحات المزودين (لا نسخة خارج Vercel)
+
+| المتغير | المصدر عند الاستعادة | أثر غيابه حتى الجلب |
+|---|---|---|
+| `PAYPAL_CLIENT_SECRET` | PayPal Developer ▸ Applications ▸ (Live/Sandbox) ▸ Secret | **تتوقف دورة الدفع/الإيداع** — أعلى أولوية يدوية |
+| `PAYPAL_WEBHOOK_ID` | PayPal Developer ▸ Webhooks (نفس التطبيق) | تعطل التحقق من إشعارات الدفع (Webhook URL نفسه يعمل — مرتبط بالدومين لا بالمشروع) |
+| `PAYPAL_CLIENT_ID` / `NEXT_PUBLIC_PAYPAL_CLIENT_ID` / `PAYPAL_MODE` | نفس لوحة PayPal (Client ID عام بتصميم PayPal) | زر PayPal لا يظهر |
+| `NEXT_PUBLIC_GA_ID` | Google Analytics ▸ Admin ▸ Data Streams | انقطاع القياس |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | Google AdSense ▸ Account ▸ Settings | انقطاع الإعلانات |
+
+### 2.3 الفئة ج — ذاتية/معرفية (قيمة يعرفها المالك أو تُعاد توليدها)
+
+| المتغير | المصدر | ملاحظة |
+|---|---|---|
+| `GITHUB_DISPATCH_TOKEN` | PAT جديد من GitHub (Fine-grained على **هذا المستودع فقط**: Actions Read+Write) | يخدم كرون `dispatch-pipelines` — استبداله عملية دقائق |
+| `EVO_CRON_SECRET` | سر مشترك ذاتي — يولَّد جديدًا ويُضبط في مكانه الوحيد (بيئة Vercel) | مستقل عن `CRON_SECRET` عمدًا (تدوير منفصل — SECURITY §3.3) |
+| `EVO_FOLLOWUP_ENABLED` / `EVO_FOLLOWUP_FROM` | قيم تشغيلية معروفة للمالك (علم + عنوان مُرسل) | مسار المتابعة الأسبوعية opt-in |
+| `EMAIL_FROM` / `EMAIL_REPLY_TO` | عناوين بريد المشروع (المُرسل عبر Brevo) | مضبوطة أصلًا كنص في `.env.example` |
+| `NEXT_PUBLIC_SITE_URL` | `https://alkemos.com` — قيمة ظاهرة غير سرية (type: plain في Vercel) | — |
+
+### 2.4 الفئة د — قيم Supabase (كلها من لوحة المشروع عند الحاجة)
+
+| المتغير | ملاحظة |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | المفتاح العام المعتمد للعميل |
+| `SUPABASE_URL` | اسم بديل (alias) يقبله سكربتات التشغيل (`db-backup`/`db-restore`/`retro-pair-blog`) بدلًا من `NEXT_PUBLIC_SUPABASE_URL` |
+
+## 3. المتغيرات الميتة/الزائدة في بيئة Vercel (مرشحات للتنظيف بقرار المالك)
+
+> نتيجة فحص الاستخدام المقيس 2026-09-20 — وجودها بلا مستهلك كودي. حذفها من Vercel قرار مالك (لا يوجد أي أثر تشغيلي متوقع، والحذر واجب قبل أي حذف: أعِد مسح الاستخدام أولًا).
+
+| المتغير | الدليل على الموت |
+|---|---|
+| `SUPABASE_JWT_SECRET` | صفر مراجع في الكود كله |
+| `SUPABASE_SECRET_KEY` · `SUPABASE_PUBLISHABLE_KEY` · `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | صفر مراجع — صيغ تسمية بديلة قديمة لنفس قيم Supabase |
+| `SUPABASE_ANON_KEY` (الصيغة الخادمية) | صفر مراجع خادمية مستقلة (كل الاستخدام للصيغة `NEXT_PUBLIC_`) |
+| `EVO_PARTNER_API_ENABLED` | ميزة EVO-6 أزيلت — والمرجع الوحيد المتبقي هو **حارس stale-refs الذي يحظر إحياءها** (استخدامها انتهاك للبوابة) |
+
+## 4. جدول صلاحية التوكنات (مقيس 2026-09-20 — من ملحق أ بالتقرير)
+
+| التوكن | الحالة | صلاحياته المقيسة | الاستخدام الآمن |
+|---|---|---|---|
+| GitHub الثاني (`ghp_SVSr…`) | **حي** | repo + workflow | قراءة/كتابة المستودعات + workflows |
+| GitHub fine-grained (`github_pat_…`) | **حي** | admin على المستودعين (alkemos + musclehubeg-backups) | توكن الاسترداد الرئيسي |
+| GitHub الأول (`ghp_4zzo…`) | **ميت** | — | يُسحب من اللوحة (قرار مالك — P2-10) |
+| Vercel الثاني (`vcp_5GKJ…`) | **حي** | OWNER على الفريق | إدارة المشروع |
+| Vercel الأول (`vcp_7Hxo…`) | **ميت** | — | يُسحب من اللوحة (قرار مالك — P2-10) |
+| Supabase (`sbp_…`) | **حي** | Management API | قراءة/إدارة المشروع |
+| Cloudflare الأول (`cfut_…`) | **حي** | قراءة DNS + الإعدادات | فحص/تعديل سجلات المنطقة |
+| Cloudflare الثاني (`cfut_…`) | **حي** | قراءة المناطق (بلا DNS) | فحص عام |
+
+> **ملاحظة انحراف موثقة (B9):** حقل `serverlessFunctionRegion` في API المشروع يعرض `iad1` بينما التشغيل الفعلي الحاكم هو `fra1` من `vercel.json` (شهد حي: `x-vercel-id: …::fra1`). `vercel.json` هو المرجع دائمًا.
+
+## 5. قواعد التدوير والإضافة (تمنع تكرار الفجوة)
+
+1. **متغير جديد = صف جديد هنا + سطر في `.env.example` بنفس الفريم** (إن كان حيًّا كوديًا) — وإلا فهو تغيير ناقص (§3.8).
+2. **التدوير المزدوج:** كل سر مشترك بين Vercel وGitHub Actions (`CRON_SECRET` مثلًا) يُحدَّث في الموضعين بنفس العملية — نسيان أحدهما يعطل مسارًا صامتًا.
+3. **السر الذاتي** (المولَّد لدينا: `CRON_SECRET` · `EVO_CRON_SECRET`) يُدوَّر بتوليد قيمة جديدة ثم تحديث مواضعه المذكورة أعلاه فقط.
+4. **سر مزود خارجي** يُدوَّر من لوحة المزود أولًا ثم يُحدَّث موضعاه (Vercel/Actions) — الترتيب مهم لضمان استمرارية الخدمة.

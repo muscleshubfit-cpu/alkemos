@@ -1,0 +1,161 @@
+# SUPABASE-FULL-RECOVERY-RUNBOOK.md — مسار استعادة قاعدة البيانات عند فقد مشروع Supabase بالكامل
+
+> **الغرض (P1-5 + P0-4 + P0-3 من خطة التقوية):** الخطوات المرتبة لإعادة بناء قاعدة بيانات Alkemos كاملة على مشروع Supabase جديد، من المستودع + آخر نسخة احتياطية — بما فيها إعدادات Auth اللازمة (P0-4) ووضع Storage (P0-3).
+> **متى تستخدم هذا الملف:** فقط عند فقدان/إتلاف مشروع Supabase (ref `wyopqryzfjifyeyvyxfy`) بالكامل. أما سيناريو فقدان **Vercel** فلا يحتاجه إطلاقًا (القاعدة لا تُمس — انظر قائمة الطوارئ في `docs/EMERGENCY-RECOVERY-AUDIT-2026-09-20.md` §11).
+> **المرجع الحاكم للترتيب والتصنيف:** `supabase/migrations/INDEX.md` (سجل الميجريشنز الملزم، محروس ببوابة `docs_parity.py`). عند أي تعارض بين هذا الـ runbook وINDEX.md — **INDEX.md هو الحاكم** ويُصحح هذا الملف فورًا.
+> **قيود معلومة قبل البدء (مقيسة في التقرير §2.3):** كلمات المرور غير قابلة للنسخ تقنيًا (B5) — كل المستخدمين يمرون بـ«نسيت كلمة المرور» بعد الاستعادة الكاملة · **ملفات Storage غير منسوخة** حاليًا (B4) ولا تُستعاد بهذا المسار · الجلسات تُبطل جميعًا.
+
+---
+
+## 1. قبل أن تبدأ (قرارات ومستلزمات)
+
+| # | المتطلب | التفصيل |
+|---|---|---|
+| 1 | قرار مالك صريح | إنشاء مشروع Supabase جديد استهلاك/كلفة (الخطة المجانية = مشروع واحد نشط غالبًا) — قرار خارجي بنيويًا |
+| 2 | مشروع Supabase جديد | نفس المنطقة المفضلة **eu-central-1** (فرانكفورت — تطابق موقع الجمهور والـ edge الأوروبي) |
+| 3 | آخر نسخة احتياطية | من المستودع الخاص `muscleshubfit-cpu/musclehubeg-backups` ▸ `snapshots/<أحدث-تاريخ>/` (تشغيل يومي 05:30 UTC — تحقق أن آخر نسخة عمرها < 25 ساعة قبل البدء) |
+| 4 | مفاتيح المشروع الجديد | من لوحة المشروع الجديد: URL + anon + service_role (انظر `docs/RECOVERY-SECRETS-SOURCES.md` §2.4) |
+| 5 | توكن وصول للمستودع الخاص | لاستنساخ النسخة (صلاحية قراءة على `musclehubeg-backups`) |
+
+## 2. المرحلة 1 — إعادة بناء المخطط (Schema) من الـ migrations
+
+**التصنيف المقيس (مولّد برمجيًا من نظام الملفات 2026-09-20 ومطابق لقانون التسمية في INDEX.md):**
+
+| العائلة | العدد | من يطبقها على مشروع جديد |
+|---|---|---|
+| تلقائية: `0000_*.sql` + `YYYYMMDDHHMMSS_*.sql` | 41 | **تكامل GitHub في Supabase** فور ربط المستودع بفرع `main` |
+| يدوية: `RUN_ON_SUPABASE_ORIGINAL_*.sql` (أصلية 0006–0023) | 18 | SQL Editor يدويًا بالترتيب |
+| يدوية: `RUN_ON_SUPABASE_*.sql` (الباقي) | 41 | SQL Editor يدويًا بالترتيب |
+| تحقق قراءة فقط: `VERIFY_*.sql` | 2 | اختيارية — للفحص لا للتطبيق |
+
+**الخطوات:**
+
+1. اربط تكامل GitHub: Supabase ▸ Project ▸ Integrations ▸ GitHub ▸ اختر `muscleshubfit-cpu/alkemos` ▸ فرع `main`. ستنطلق الميجريشنز التلقائية الـ41 بالترتيب الزمني للاسم.
+2. راقب سجل الميجريشنز حتى اكتمال آخر ملف تلقائي (لا تُنفّذ اليدوية قبل اكتمال التلقائية — منها ميجريشنز تعتمد على هياكل أوجدها التكامل).
+3. نفّذ المسار اليدوي بالترتيب الحرفي التالي من SQL Editor (شغّل ملفًا واحدًا في المرة وانتظر نجاحه):
+
+```
+RUN_ON_SUPABASE_ORIGINAL_0006_tool_leads.sql
+RUN_ON_SUPABASE_ORIGINAL_0007_saved_results.sql
+RUN_ON_SUPABASE_ORIGINAL_0008_meal_plans.sql
+RUN_ON_SUPABASE_ORIGINAL_0009_water_tracker_constraint.sql
+RUN_ON_SUPABASE_ORIGINAL_0010_subscription_requests.sql
+RUN_ON_SUPABASE_ORIGINAL_0011_multi_subscriptions.sql
+RUN_ON_SUPABASE_ORIGINAL_0012_rename_price_egp_to_price_usd.sql
+RUN_ON_SUPABASE_ORIGINAL_0013_blog_posts_author_default_musclehub.sql
+RUN_ON_SUPABASE_ORIGINAL_0014_add_blog_posts_source.sql
+RUN_ON_SUPABASE_ORIGINAL_0015_affiliate_engine.sql        ← راجع ملاحظة 0015 في INDEX.md (لم يُطبق إطلاقًا تاريخيًا — 0057 هو الأساس الحي)
+RUN_ON_SUPABASE_ORIGINAL_0016_add_paypal_to_payment_method.sql
+RUN_ON_SUPABASE_ORIGINAL_0017_security_rls_hardening.sql  ← بديلها المدمج: RUN_ON_SUPABASE_SECURITY_0017_0018.sql
+RUN_ON_SUPABASE_ORIGINAL_0018_extend_subscription.sql     ← (اختر أحد الصيغين وفق خريطة INDEX.md — لا الاثنان معًا)
+RUN_ON_SUPABASE_ORIGINAL_0019_audit_log.sql               ← بديلها المدمج: RUN_ON_SUPABASE_0019_0020.sql
+RUN_ON_SUPABASE_ORIGINAL_0020_coach_client_list_rpc.sql   ← (نفس القاعدة: صيغة واحدة فقط)
+RUN_ON_SUPABASE_ORIGINAL_0021_blog_queue_topic_ar.sql     ← بديلها: RUN_ON_SUPABASE_0021_0022.sql
+RUN_ON_SUPABASE_ORIGINAL_0022_evo_chat_usage.sql
+RUN_ON_SUPABASE_ORIGINAL_0023_pipeline_v2_statuses.sql    ← بديلها: RUN_ON_SUPABASE_0023.sql
+RUN_ON_SUPABASE_0024.sql
+RUN_ON_SUPABASE_0026_LANG_SPLIT.sql
+RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql                  ← ينشئ الـ Buckets الثلاثة الخاصة (انظر §5)
+RUN_ON_SUPABASE_0028_EVO_ANON_USAGE.sql
+RUN_ON_SUPABASE_0029B_ADMIN_ROLE.sql                      ← النسخة الفعالة الموثقة (0029A و 0029_ADMIN_ROLE_ALL_IN_ONE بدائل تاريخية — لا تُنفذ جميعها)
+RUN_ON_SUPABASE_0030A_MULTI_COACH_SCHEMA.sql
+RUN_ON_SUPABASE_0030B_MULTI_COACH_CLIENT_RLS.sql
+RUN_ON_SUPABASE_0030C_MULTI_COACH_ADMIN_RLS_NOTIFS.sql
+RUN_ON_SUPABASE_0030D_MULTI_COACH_RPC_RELOAD.sql          ← (0030_MULTI_COACH.sql النسخة الشاملة الأصلية — بديل للمجموعة A–D: اختر مجموعة واحدة وفق INDEX.md)
+RUN_ON_SUPABASE_0031_COACH_PAGES.sql
+RUN_ON_SUPABASE_0032_COACH_PAGES_I18N.sql
+RUN_ON_SUPABASE_0033_CLIENT_ATTRIBUTION.sql
+RUN_ON_SUPABASE_0034_COACH_ACTIVATION.sql
+RUN_ON_SUPABASE_0035_COACH_WALLET.sql
+RUN_ON_SUPABASE_0036_HARDEN_SIGNUP_ROLE.sql
+RUN_ON_SUPABASE_0037_COACH_BOOST.sql                      ← ينشئ bucket ‏coach-public العام (انظر §5)
+RUN_ON_SUPABASE_0038_GLOBAL_USD.sql
+RUN_ON_SUPABASE_0039_SIGNUP_DIAGNOSTIC.sql
+RUN_ON_SUPABASE_0040_SIGNUP_HOTFIX.sql
+RUN_ON_SUPABASE_0041_COACH_CLIENT_BOUNDARY.sql
+RUN_ON_SUPABASE_0042_EXTEND_SUBSCRIPTION_EVIDENCE_GATE.sql
+RUN_ON_SUPABASE_0043_PAYMENTS_ADMIN_ONLY.sql
+RUN_ON_SUPABASE_0044_SR_POLICY_SWEEP.sql
+RUN_ON_SUPABASE_0045_COACHING_PRODUCT_FIX_TEST_ACCOUNTS.sql
+RUN_ON_SUPABASE_0046_COACH_PAGE_REVIEW.sql
+RUN_ON_SUPABASE_0047_CLIENT_LIST_PAGED.sql
+RUN_ON_SUPABASE_0048_COACH_PAGES_RLS_REVIEW.sql
+RUN_ON_SUPABASE_0049_COACH_CERTIFICATES.sql
+RUN_ON_SUPABASE_0050_TEST_ADMIN_ACCOUNT.sql               ← حساب أدمن تجريبي — يُلغى لاحقًا بـ 0066 (كلاهما موثق في INDEX.md)
+RUN_ON_SUPABASE_0054_REPAIR_MIGRATION_LEDGER.sql
+RUN_ON_SUPABASE_0055_RESTORE_SECURITY_GUARDS.sql
+RUN_ON_SUPABASE_0059_TOOL_LEADS_NAME_TYPE_NEWSLETTER.sql
+RUN_ON_SUPABASE_0066_DELETE_TEST_ADMIN_ACCOUNT.sql
+```
+
+**ملحوظات إلزامية على القائمة:**
+- الملفان `RUN_ON_SUPABASE_PURGE_BLOG_CONTENT.sql` و`RUN_ON_SUPABASE_SECURITY_0017_0018.sql` عمليات تاريخية مشروطة (تنقية محتوى / زوج بديل) — **لا تنفذها على مشروع جديد** إلا بقرار مالك موثق وقراءة صفّيهما في INDEX.md أولًا.
+- ملفات `VERIFY_*.sql` قراءة فقط — استخدمها للفحص بعد الاستعادة لا قبلها.
+- **إعادة تحميل مخطط PostgREST إلزامية بعد آخر ميجريشن يدوي** (TECH_REFERENCE §4.4): من SQL Editor نفّذ `NOTIFY pgrst, 'reload schema';` — وإلا ظلت الواجهة الخدمية ترى الهياكل القديمة.
+- بعد اكتمال المسارين: شغّل محليًا `python3 scripts/migration_audit.py --ci` (تماثل الميجريشنز مع `src/lib/supabase/types.ts`) — أخضر = الهيكل مطابق للمرآة الحية.
+
+## 3. المرحلة 2 — استعادة البيانات من آخر نسخة
+
+```bash
+# 1) استنسخ مستودع النسخ (قراءة فقط) وحدد أحدث لقطة:
+git clone https://github.com/muscleshubfit-cpu/musclehubeg-backups.git /tmp/backups
+ls /tmp/backups/snapshots/            # اختر أحدث تاريخ
+
+# 2) تشغيل تجريبي أولًا (dry-run — لا يكتب شيئًا إطلاقًا):
+SUPABASE_URL=https://<المشروع-الجديد>.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=<مفتاح-المشروع-الجديد> \
+  node scripts/db-restore.mjs /tmp/backups/snapshots/<أحدث-تاريخ>
+
+# 3) عند نجاح الجاف وطابق العدادات المتوقعة (انظر manifest.json داخل اللقطة) — التطبيق الفعلي:
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
+  node scripts/db-restore.mjs /tmp/backups/snapshots/<أحدث-تاريخ> --apply
+```
+
+- السكربت ينفذ UPSERT بجولتين لحل الاعتماديات المرجعية، ولا يحذف صفًا أبدًا (`scripts/db-restore.mjs`).
+- **وجه السكربت للمشروع الجديد فقط** — راجع متغيرَي البيئة مرتين قبل `--apply`.
+- العدّادات المرجعية لآخر لقطة موثقة في تقرير التدقيق §2.2 (مثال 2026-09-20: 53 جدولًا · 1121 صفًا · 28 مستخدم auth).
+
+## 4. المرحلة 3 — إعدادات Auth (من لوحة التحكم — P0-4)
+
+> القيم **الوصفية** المقيسة حيًّا في التقرير §6.3. أعد إدخالها على المشروع الجديد من اللوحة (Authentication ▸ Settings / Providers):
+
+| الإعداد | القيمة المطلوبة | مصدر القيمة |
+|---|---|---|
+| Site URL | `https://alkemos.com` | ثابتة (الدومين الرسمي) |
+| Email provider | مفعل | إعداد افتراضي + التحقق |
+| **Google OAuth** | مفعل + Client ID/Secret | Google Cloud Console (نفس تطبيق الإنتاج — Authorized JavaScript origins ومواقع إعادة التوجيه تُحدَّث لعنوان المشروع) |
+| **SMTP مخصص (Brevo)** | مضبوط (Host/User/Pass/Sender) | حساب Brevo — نفس بيانات مرحلة DNS الموثقة في التقرير §7.1 (سجلات `brevo1/2._domainkey` موجودة أصلًا في Cloudflare ولا تلمس) |
+| Confirm email | `autoconfirm = OFF` | النمط المعتمد: التأكيد التلقائي يجري **بالتريغر الكودي** في ميجريشن 0074 (يُستعاد تلقائيًا مع المسار التلقائي) — لا تفعّل autoconfirm من اللوحة |
+| Signup | مفتوح (`disable_signup = OFF`) | الإعداد الحي |
+| كلمات المرور | غير قابلة للاستعادة (B5) | أعلن للمستخدمين مسار «نسيت كلمة المرور» بعد الاستعادة — 28 مستخدمًا آخر قياس |
+
+## 5. المرحلة 4 — Storage (من P0-3)
+
+**الحاويات (Buckets) الأربعة وتعريفاتها:**
+
+| Bucket | النوع | تعريفه | طريقة الوصول |
+|---|---|---|---|
+| `questionnaire-photos` | خاص | `RUN_ON_SUPABASE_0027_STORAGE_BUCKETS.sql` (idempotent — 5MB، صور فقط) | عبر `POST /api/upload` ثم بروكسي `/api/file` المصادق |
+| `progress-photos` | خاص | نفس الملف 0027 | نفس النمط |
+| `receipts` | خاص | نفس الملف 0027 (يقبل PDF أيضًا) | نفس النمط |
+| `coach-public` | **عام** | `RUN_ON_SUPABASE_0037_COACH_BOOST.sql` | قراءة عامة مباشرة `/storage/v1/object/public/coach-public/…` (شهادات/أصول المدربين) |
+
+- التعريفات كلها idempotent وموجودة في المسار اليدوي أعلاه — **لا خطوة إضافية** لإعادة إنشاء الحاويات الفارغة.
+- **حدود معلومة (B4):** الملفات نفسها غير منسوخة — أي ملفات مرفوعة قبل الفقدان **لا تُستعاد** بهذا المسار (خيار النسخ معلق على قرار المالك — انظر خطة التقوية P0-3(ج)).
+- **جرد الميتاداتا اليومي** (عدّاد + حجم لكل bucket، بلا أسماء ملفات): يعمل بجوار النسخ اليومية في `storage-inventory/` داخل المستودع الخاص — راجعه لمعرفة حجم ما كان موجودًا قبل الفقدان.
+
+## 6. المرحلة 5 — الفحص بعد الاستعادة (بترتيب الأولوية)
+
+1. `NOTIFY pgrst, 'reload schema';` ثم فحص جدولين حرجين من Dashboard ▸ Table Editor: `profiles` و`subscriptions` (وجود الصفوف بعد الاستعادة).
+2. تسجيل دخول تجريبي عبر «نسيت كلمة المرور» (يختبر: auth + SMTP/Brevo + جدول profiles + قوالب البريد).
+3. تشغيل `python3 scripts/migration_audit.py --ci` محليًا (تماثل المخطط).
+4. فحص RLS: من SQL Editor — `SELECT tablename, policyname FROM pg_policies WHERE schemaname='public' ORDER BY tablename;` (مقارنة سريعة العدد مع المرآة في `src/lib/supabase/types.ts` / INDEX.md).
+5. استدعاء `/api/build-info` على بيئة Vercel المربوطة بالمشروع الجديد + اختبار مسار EVO وأداة عامة واحدة.
+6. تحديث متغيرات Supabase في Vercel (URL + anon + service_role) إن تغير ref المشروع — من `docs/RECOVERY-SECRETS-SOURCES.md` §2.4.
+
+## 7. ما لا يفعله هذا الـ runbook
+
+- لا يُنفَّذ آليًا ولا بلا قرار مالك (كلفة/موارد المشروع الجديد).
+- لا يستعيد كلمات المرور (مستحيل تقنيًا) ولا ملفات Storage (غير منسوخة — B4) ولا بيانات Vercel Analytics.
+- لا يلمس Cloudflare/DNS إطلاقًا (خارج سيناريوه — راجع التقرير §7).
+- عند أي تعارض مع `INDEX.md` أو سلوك الكود: الواقع الحاكم يُوثَّق ويُصحح هذا الملف في نفس الفريم (§3.8).

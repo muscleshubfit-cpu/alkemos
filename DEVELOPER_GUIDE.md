@@ -1,6 +1,6 @@
 # Developer Guide — Alkemos
 
-> **آخر تحديث:** 2026-09-19 (المرحلة 233 / خطة الترحيل Phase 1 — إصلاح مرجعَي PROGRESS.md الميتين: السطر 8 → STATE.md + archive/PROGRESS.md، والسطر 757 → archive/PROGRESS_ARCHIVE.md للمرحلة 5 · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
+> **آخر تحديث:** 2026-09-20 (P2-7 من خطة تقوية الاستعادة — إصلاح انحراف B9: مثال المنطقة في §10 sin1→fra1 وفق الحاكم vercel.json · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
 > **الجمهور المستهدف:** مطورين جدد ينضمون للمشروع، أو المطور الحالي كمرجع
 > **المرجع التقني العميق:** [`docs/TECH_REFERENCE.md`](./docs/TECH_REFERENCE.md) — بنية Supabase وقانون الميجريشنز وجداول القواعد الخاصة · شرح RLS التفصيلي (predicates · نمط الأدوار v2 · عوالم المال) · قائمة Shadcn كاملة بأسمائها · كل أكواد SQL المعقدة منظمة. الملف ده بيفضل مختصص: الإعداد والتدفقات والمراجع السريعة فقط.
 > **Note (Phase 7):** Several stale claims in this file were reconciled
@@ -564,7 +564,7 @@ State tracked in blog_generation_queue table (one row per language).
 ```json
 {
   "framework": "nextjs",
-  "regions": ["sin1"],
+  "regions": ["fra1"],
   "installCommand": "bun install",
   "buildCommand": "next build",
   "headers": [

@@ -6,6 +6,25 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: RECOVERY-REFERENCE-DOCS-2026-09-20
+Agent: Super Z (owner session)
+Task: الموجة W1 من خطة تقوية الاستعادة (docs/EMERGENCY-RECOVERY-HARDENING-PLAN-2026-09-20.md) — تنفيذ P0-2 + P0-4 + P1-5 + P2-7: حزمة التوثيق المرجعي للاستعادة.
+
+Work Log:
+- docs/RECOVERY-SECRETS-SOURCES.md (P0-2): مرجع مصادر كل متغير إنتاجي حي (لوحات المزودين/السر الذاتي/قاعدة Supabase) + قاعدة القراءة الآلية لأسرار Actions + جدول المتغيرات الميتة المقيسة (SUPABASE_JWT_SECRET وأخواتها + EVO_PARTNER_API_ENABLED المحظورة بحارس stale-refs) + جدول صلاحية التوكنات + قواعد التدوير — صفر قيم
+- docs/SUPABASE-FULL-RECOVERY-RUNBOOK.md (P1-5 + P0-4 + P0-3أ/ج): مسار الاستعادة الكامل — تصنيف برمجي مولد: 41 تلقائيًا (تكامل) + 59 يدويًا بالترتيب مع أعلام البدائل الموثقة في INDEX.md (0019-0023 المدموجة · 0029B الفعالة · 0030/0030A-D) + db-restore جاف ثم --apply + جدول إعدادات Auth (§6.3 من التقرير) + جرد الـ Buckets الأربعة + تسلسل الفحص + القيود غير القابلة للاستعادة
+- .env.example (P2-7 جزء B9): تفعيل EMAIL_REPLY_TO وEVO_FOLLOWUP_FROM وEVO_CRON_SECRET (الثلاثة مثبتة أصلًا في إنتاج Vercel) + توثيق اسم SUPABASE_URL البديل للسكربتات — بلا أي قيمة سرية
+- DEVELOPER_GUIDE.md (P2-7): إصلاح انحراف B9 — مثال المنطقة sin1→fra1 في §10 وفق الحاكم vercel.json + تحديث الترويسة forward-only
+- البروتوكول: صفّا سجل docs/README.md + هذا المدخل
+- البوابات المحلية قبل الرفع: docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ + مسح أنماط الأسرار نظيف
+
+Stage Summary:
+- حزمة التوثيق المرجعي للاستعادة مكتملة: مصادر الأسرار + runbook استعادة Supabase الكامل — لا يحتاج أي صلاحية خارج GitHub
+- المتبقي من الخطة: W2 (جرد Storage الآلي) · W3 (Drill #1) · W4 (تجهيز الـ Mirror) + بنود المالك الخمسة الموثقة في الخطة §0
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: EMERGENCY-RECOVERY-FOUNDATION-2026-09-20
 Agent: Super Z (owner session)
 Task: تثبيت تقرير تدقيق الاستعادة الطارئ + خطة التقوية على origin/main (أمر المالك 2026-09-20) — رفع التقرير كما هو دون أي تغيير في محتواه + خطة تنفيذ مبنية حصريًا على العوائق المُثبتة (B1–B9) بأولويات المالك المحددة.
