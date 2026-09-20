@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: RECOVERY-DRILL-1-2026-09-20
+Agent: Super Z (owner session)
+Task: الموجة W3 من خطة تقوية الاستعادة — تنفيذ P1-6: Recovery Drill #1 غير المدمر + تقريره.
+
+Work Log:
+- D1–D2: استنساخ المستودع الخاص (قراءة فقط) + إثبات سلامة اللقطة 2026-09-20 برمجيًا: 53 جدولًا (38 غير فارغ + 15 فارغ) · 1121 صفًا = manifest بالضبط
+- D3: db-restore dry-run بمتغيرات وهمية (صفر نداءات شبكية) → exit 0 · مجموع جولة أولى 1121 صفًا مطابق — مع توثيق تضاعف طباعة الجولة الثانية في الجاف
+- D4–D5: migration_audit (صفر انحراف) + docs_audit/parity/stale-refs خضراء
+- D6: بوابة الجودة الكاملة محليًا من HEAD: bun install --frozen-lockfile (680 حزمة · 4.2ث) · tsc صفر · eslint صفر · vitest **1531/1531** (Node) · next build exit 0 — درس موثق: علامة --bun تفشل 5 اختبارات (interop مع zod v4) — المرجع Node كالـ CI
+- D7–D9: CI أخضر على كل كوميتات الجلسة · 4 نشرات إنتاجية READY على Vercel (والتوثيقي الخالص CANCELED عمدًا بـ ignoreCommand) · دخان حي: / و/sitemap.xml و/api/build-info = 200
+- D10: دمج نتيجة جرد Storage الحي في الدليل: 9 حاويات تعد بنجاح — صفر كائنات (خطر B4 نظري حاليًا)
+- docs/RECOVERY-DRILL-REPORT-2026-09-20.md: التقرير الكامل بالأوامر الحرفية للإعادة الشهرية + حدود غير المُثبت + الدروس
+
+Stage Summary:
+- Drill #1 يثبت سلسلة الاستعادة المقيسة كاملة: GitHub يبني وحده · البيانات قابلة للاستعادة · الإنتاج يعمل بكل تغييرات التقوية — خط الأساس موثق للتكرار الشهري
+- غير المُثبت (بقرار خارجي): --apply على مشروع Supabase جديد · إعادة ربط دومينات Vercel جديد · قيم PayPal/GA/AdSense
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: STORAGE-INVENTORY-E2E-FIX-2026-09-20
 Agent: Super Z (owner session)
 Task: إصلاح متابعة W2 بعد أول تشغيل حي — فخان مكتشفان + تصحيح توثيق الحاويات بالحقيقة الحية.
