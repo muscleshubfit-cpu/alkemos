@@ -92,6 +92,17 @@ describe("localizeAuthError — Supabase GoTrue raw strings", () => {
     );
   });
 
+  it("RECOVERY-OTP: gotrue's LIVE verifyOtp failure string (browser-proven 2026-09-22) localizes in AR", () => {
+    // Captured live: submitting a wrong 6-digit code returns exactly
+    // «Token has expired or is invalid» — not the docs-era "Email OTP…" string.
+    const ar = localizeAuthError("Token has expired or is invalid", true);
+    expect(ar).toContain("رمز الاستعادة");
+    expect(ar).not.toBe("Token has expired or is invalid");
+    expect(localizeAuthError("Token has expired or is invalid", false)).toBe(
+      "Token has expired or is invalid",
+    );
+  });
+
   it("RECOVERY-OTP: consumed/expired link localizes with the code-entry alternative", () => {
     const ar = localizeAuthError(
       "Email link is invalid or has already been used",
