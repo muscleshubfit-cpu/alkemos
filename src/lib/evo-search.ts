@@ -2,19 +2,33 @@
  * EVO Search — context-aware search across the platform's local databases.
  *
  * When a user asks EVO a question, this module searches:
- *   1. Exercises (55 exercises)
- *   2. Foods (8830 foods)
+ *   1. Exercises (868 exercises)
+ *   2. Foods (8,830 foods)
  *   3. Workout Programs (7 programs)
  *   4. Tools (4 calculators)
  *
  * Returns relevant links that EVO can include in its response.
  *
- * This is CLIENT-SIDE search (fast, no API call needed).
+ * SERVER-ONLY (VERCEL-USAGE-3, 2026-09-21): this module runs inside
+ * /api/ai/chat (its only importers are the chat route and
+ * evo-system-prompt). It previously imported the FULL data modules
+ * (foods.ts 3.6MB + exercises.ts 1.8MB), which bloated the chat
+ * function's serverless bundle and its V8 parse cost on every instance
+ * start — a measured contributor to the Fluid Active CPU overage
+ * (4h33m/4h) and Functions Storage (14/10GB). It now reads the GENERATED
+ * light search indexes (search-field slices only — see
+ * scripts/generate-search-indexes.ts): ~2.5MB of data instead of ~5.4MB,
+ * with identical search results (the search never touched instructions,
+ * servings, tags, or tips).
+ *
  * Blog search is done separately via Supabase (server-side).
  */
+import "server-only";
 
-import { EXERCISES } from "@/lib/exercises";
-import { FOODS } from "@/lib/foods";
+import {
+  EXERCISES_SEARCH_INDEX,
+} from "@/lib/exercises-search-index";
+import { FOODS_SEARCH_INDEX } from "@/lib/foods-search-index";
 import { WORKOUT_PROGRAMS } from "@/lib/workout-programs";
 
 export type SearchResult = {
@@ -170,7 +184,7 @@ function scoreMatch(query: string, text: string): number {
 function searchExercises(query: string): SearchResult[] {
   const results: SearchResult[] = [];
 
-  for (const ex of EXERCISES) {
+  for (const ex of EXERCISES_SEARCH_INDEX) {
     // Search in name (Arabic + English), primary muscles, equipment
     const searchText = [
       ex.nameAr,
@@ -210,7 +224,7 @@ function searchExercises(query: string): SearchResult[] {
 function searchFoods(query: string): SearchResult[] {
   const results: SearchResult[] = [];
 
-  for (const food of FOODS) {
+  for (const food of FOODS_SEARCH_INDEX) {
     const score = Math.max(
       scoreMatch(query, food.nameAr),
       scoreMatch(query, food.nameEn),
@@ -224,7 +238,7 @@ function searchFoods(query: string): SearchResult[] {
         nameAr: food.nameAr,
         nameEn: food.nameEn,
         url: `/foods/${food.slug}`,
-        description: `${food.per100g.calories} kcal · ${food.per100g.protein}g protein per 100g`,
+        description: `${food.calories} kcal · ${food.protein}g protein per 100g`,
         relevance: score,
       });
     }
@@ -315,7 +329,7 @@ export function searchPlatform(query: string): SearchResult[] {
  * Get nutrition info for a food (for quick answers like "how many calories in X?").
  */
 export function getFoodNutrition(query: string): FoodNutrition | null {
-  for (const food of FOODS) {
+  for (const food of FOODS_SEARCH_INDEX) {
     const score = Math.max(
       scoreMatch(query, food.nameAr),
       scoreMatch(query, food.nameEn),
@@ -327,10 +341,10 @@ export function getFoodNutrition(query: string): FoodNutrition | null {
         nameEn: food.nameEn,
         url: `/foods/${food.slug}`,
         per100g: {
-          calories: food.per100g.calories,
-          protein: food.per100g.protein,
-          carbs: food.per100g.carbs,
-          fat: food.per100g.fat,
+          calories: food.calories,
+          protein: food.protein,
+          carbs: food.carbs,
+          fat: food.fat,
         },
       };
     }

@@ -73,6 +73,24 @@ const nextConfig: NextConfig = {
   },
   // Compression
   compress: true,
+  // VERCEL-USAGE-3 (2026-09-21): function-trace hygiene for the Hobby
+  // Functions Storage budget (14/10GB overage in the Sept cycle). Nothing
+  // in the server trace legitimately needs static site assets or repo
+  // housekeeping — these globs keep accidental references (a fs.read of
+  // public/, an import of a fixture) from inflating every serverless
+  // bundle across all retained deployments. Kept broad and cheap on
+  // purpose: exclusions here never affect client bundles or static files.
+  outputFileTracingExcludes: {
+    "/**": [
+      "public/**",
+      "src/**/__tests__/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "docs/**",
+      "archive/**",
+      "**/*.md",
+    ],
+  },
   // EVO CHAT SURFACE LAW (2026-08-27): the floating widget is the ONLY
   // chat surface. The old full-page /chat route was removed — legacy
   // links/bookmarks land on the EVO page whose CTAs open the widget.

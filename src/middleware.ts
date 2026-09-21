@@ -66,6 +66,20 @@ function isArabicPath(pathname: string): boolean {
  */
 
 export async function middleware(request: NextRequest) {
+  // ──────────────────────────────────────────────────────────────
+  // VERCEL-USAGE-3 (2026-09-21): /_next/image QUOTA GUARD.
+  // `images.unoptimized: true` (Phase 97) stopped next/image from
+  // EMITTING /_next/image URLs, but the optimizer endpoint itself stayed
+  // live — every stale URL still circulating in CDN caches, social-media
+  // scrapers, and crawler memory converts into a PAID Image Optimization
+  // transformation (4K/5K in the September cycle, the closest quota to
+  // breach). With unoptimized as the standing law there is no legitimate
+  // caller of this endpoint, so return 410 Gone at the edge before any
+  // optimizer work happens.
+  if (request.nextUrl.pathname === "/_next/image") {
+    return new NextResponse(null, { status: 410 });
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -182,6 +196,6 @@ export const config = {
  // fire. Excluded here, crawler responses are cookie-free and
  // edge-cacheable, and each bot fetch no longer pays the wasted
  // `getUser()` network hop either (audit item #5).
- "/((?!_next/static|_next/image|api/og-image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|js|css)$).*)",
+ "/((?!_next/static|api/og-image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|js|css)$).*)",
  ],
 };

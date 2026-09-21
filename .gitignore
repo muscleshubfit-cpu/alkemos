@@ -65,6 +65,7 @@ pnpm-lock.yaml
 #   scripts/external-mirror/ → both-repos external git mirror (external-mirror.yml + docs/RECOVERY-MIRROR-SETUP.md, P0-1 hardening plan 2026-09-20 — dormant until owner setup)
 #   scripts/storage-backup.mjs → daily Supabase Storage FILE backup (storage-backup.yml, P0-3(c) owner order 2026-09-20 — same /scripts/* blanket trap; exception added same frame)
 #   scripts/storage-restore.mjs → storage restore/drill tool (storage-restore-drill.yml + runbook §5, P0-3(c) 2026-09-20)
+#   scripts/generate-search-indexes.ts → EVO search light-index generator (VERCEL-USAGE-3, 2026-09-21 — regenerated when foods.ts/exercises.ts change)
 /scripts/*
 !/scripts/blog-runner/
 !/scripts/ai-jobs-runner/
@@ -84,6 +85,7 @@ pnpm-lock.yaml
 !/scripts/storage-inventory.mjs
 !/scripts/storage-backup.mjs
 !/scripts/storage-restore.mjs
+!/scripts/generate-search-indexes.ts
 !/scripts/external-mirror/
 /skills/
 /tests/

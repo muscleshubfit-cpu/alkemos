@@ -19,6 +19,17 @@ import FoodDetailClient from "./FoodDetailClient";
  * any slug to be rendered.
  */
 
+// VERCEL-USAGE-3 (2026-09-21): explicit ISR window. The foods library is
+// frozen reference data (MIT-licensed, batch-updated), so a 7-day
+// revalidate gives every food page a cached origin response instead of a
+// per-request server render. With the root layout de-dynamicized in the
+// same change set (route-group split — the layout's headers()/cookies()
+// calls previously forced EVERY page dynamic, defeating this export),
+// crawlers sweeping thousands of distinct /foods/<slug> URLs now hit the
+// ISR cache instead of re-rendering 3.6MB of module-backed React per
+// request — the main Fluid CPU + invocation saver of this cycle.
+export const revalidate = 604800; // 7 days
+
 export async function generateMetadata({
   params,
 }: {

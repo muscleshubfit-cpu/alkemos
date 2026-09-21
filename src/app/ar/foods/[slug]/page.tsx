@@ -23,6 +23,13 @@ const SITE_URL = "https://alkemos.com";
  * NO generateStaticParams — 8,830 × 2 languages is too many to pre-build
  * (same decision as the EN route); pages render on-demand and are cached.
  */
+
+// VERCEL-USAGE-3 (2026-09-21): explicit 7-day ISR window — mirrors the EN
+// route. Frozen reference data + crawlers sweeping thousands of distinct
+// /ar/foods/<slug> URLs make per-request SSR the top Fluid CPU consumer;
+// the ISR cache (live once the root layout de-dynamicization lands in
+// this same change set) serves repeats without invoking the function.
+export const revalidate = 604800; // 7 days
 export async function generateMetadata({
   params,
 }: {
