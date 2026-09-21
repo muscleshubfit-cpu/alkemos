@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: RECOVERY-OTP-TEMPLATE-APPLY-2026-09-22
+Agent: Super Z (owner session)
+Task: الخطوة الأخيرة لخيار OTP — المالك زوّد الجلسة بمفتاح Supabase شخصي (sbp_) فطُبّق قالب بريد Recovery ثنائي اللغة برمجيًا عبر Management API وتحقق بالقراءة العكسية — إغلاق كامل لمسار الرمز الرقمي.
+
+Work Log:
+- PAT صالح: GET /v1/projects أعاد مشروعًا واحدًا wyopqryzfjifyeyvyxfy (alkemos · eu-central-1 · org yqbxqgxoaijteqjmrsbb)
+- GET config كشف القالب الحالي = الافتراضي الإنجليزي (254 حرفًا، {{ .ConfirmationURL }} فقط بلا {{ .Token }}) — تأكيد جذري لعدم ظهور الرمز سلفًا
+- اكتشاف حاسم: mailer_otp_length = 8 بينما قانون التطبيق /^\d{6}$/ (recovery-otp.ts +11 اختبارًا) — الرمز الصحيح من 8 أرقام كان سيُرفض محليًا قبل أي verifyOtp؛ مواءم إلى 6 في نفس الـPATCH (otp_exp=3600 كما هو فيطابق نص «صالح لساعة»)
+- PATCH واحد (scripts/apply-recovery-template.py — urllib فقط، بلا اعتماد جديد): mailer_templates_recovery_content = §2 حرفيًا + mailer_subjects_recovery ثنائي اللغة + أعلام custom_contents (subject/content) = true على نمط قالب الدعوة العربي
+- تحقق قراءة عكسية فوري: GET بعد PATCH طابق القالب حرفيًا (طول + متغيرا القالب) وكل المفاتيح؛ الجيران سليمون (autoconfirm=false · external_email=true · قالب الدعوة العربية لم يُمس · SMTP Brevo كما هو) — النسخ المحلية في scripts/ خارج المستودع ومخفاة smtp_pass
+- الإنتاج: build-info = 69d5661 (أحدث كوميت كود) · /auth/reset?mode=code = 200 بعلامات الشاشة (Recovery code · Enter your email · six) · /auth/reset = 200
+- حد المنهج: قراءة صندوق بريد حقيقي غير ممكنة من الجلسة — الاختبار النهائي ببريد حقيقي (رمز صحيح ← جلسة ← كلمة مرور جديدة ← داشبورد) بيد المالك بخطوات §5 من التقرير
+
+Stage Summary:
+- خيار OTP مغلق من الطرفين: التطبيق (b53ad590 + 69d5661 منشور) + القالب المطبق والمتحقق — الذراعان (رابط + رمز) جاهزتان على الإنتاج، والرمز لا يعتمد على كوكي PKCE ولا نقرة رابط فيصمد لفاحصات روابط البريد عبر الأجهزة
+- المالك: يطلب الاستعادة من أي متصفح ← رمز 6 أرقام في البريد بعنوان «رمز استعادة كلمة مرورك» ← يدخله من أي جهاز على /auth/reset?mode=code ← كلمة مرور جديدة ودخول مباشر
+- Commit SHA: this commit carries this entry [vercel skip]
+- Push status: pushed immediately after this entry
+
+---
 Task ID: RECOVERY-OTP-MODE-2026-09-22
 Agent: Super Z (owner session)
 Task: أمر المالك «نفذ خيار otp» 2026-09-22 — مسار استعادة بالرمز الرقمي لا يعتمد على كوكي PKCE ولا نقرة الرابط (يعمل من أي جهاز ويصمد لفاحصات روابط البريد) + القالب الجاهز للصق بيد المالك.
