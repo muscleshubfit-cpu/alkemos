@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-VERIFY-ROUND2-2026-09-21
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ التنفيذ» — جولة تحقق حية مستقلة فوق UX-TEST-REPORT-2026-09-21 (جلسة متصفح جديدة كليًا + SQL قراءة-فقط) وإعادة إثبات H1-2026 بأدلة طازجة.
+
+Work Log:
+- الزائر: الرئيسية EN كاملة بصفر أخطاء كونسول · BMI E2E (82kg/178cm → 25.9 · Overweight) · تبديل اللغة ينعكس الرابط + dir=rtl + محتوى عربي خالص · /ar/foods/chicken-breast «صدور دجاج» · موبايل 390px صفر تجاوز أفقي وفوتر 34 عنصرًا بأدنى هدف لمس 24px
+- المصادقة: M1 حي بغتين («البريد الإلكتروني أو كلمة المرور غير صحيحة.» عربي داخل AR / «Invalid login credentials» إنجليزي داخل EN — GoTrue 400 مترجم) · m9 حي: qa.ux0922.member1 → /dashboard فورًا · لوحة العضو كاملة البطاقات
+- المدرب: qa.ux0922.coach1 تسجيل ذاتي → /coach/landing · دعوة qa.ux0922.client3 (200 + توست) · جرس 2 إشعارًا خاصين
+- H1-2026 أُعيد إنتاجه حيًا بالكامل بأدوات مستقلة: جلسة نظيفة سجلت بالبريد المدعو → «Account already exists — Sign in with your password» → الدخول بالكلمة المختارة → «Invalid login credentials» (400) → SQL القاطع: encrypted_password='' + last_sign_in_at=null + created_at بلحظة الدعوة + صف coach_assignments موجود
+- ملاحظتان جديدتان خفيفتان: m-D تناقض عدّادات قائمة عملاء المدرب (Total=0 مقابل فلتر No subscription=1 مقابل صف ظاهر) + توست خطأ الدخول مكرر مرتين بنفس اللحظة
+- التوثيق: docs/UX-TEST-VERIFICATION-ROUND2-2026-09-21.md + صف في docs/README بنفس الفريم (قانون §3.8 parity)
+- البوابات (docs-only): الكوميت يحمل [vercel skip] وفق قانون §10.5-2(أ) — لا كود ولا ميجريشن ولا إعدادات
+
+Stage Summary:
+- نتائج تقرير 2026-09-21 صامدة تحت إعادة الفحص المستقل: 12/12 إصلاحًا حية + H1-2026 حي بدليل SQL قاطع — الحلول الثلاثة المقترحة قائمة
+- حسابات اليوم: qa.ux0922.member1/.coach1/.client3 (alkemos-test.com) — الحذف متاح للمالك من /admin/accounts
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: UX-FULL-TEST-CLOSURE-2026-09-21
 Agent: Super Z (owner session)
 Task: إغلاق UX-FULL-TEST-2026-09-21 — تنفيذ الخطة كاملة (أمواج A–H) على الإنتاج الحي وتسليم التقرير.
