@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: RECOVERY-LINK-ERROR-FIX-2026-09-22
+Agent: Super Z (owner session)
+Task: بلاغ المالك الحي «جربت استعاده كلمة المرور وتم ارسال البريد وبداخلة الرابط وبعد الضغط على الرابط فتح الموقع مع رسالة خطاء» — تشخيص جذري + إصلاح + تحقق حي (كوميت 9f67731b).
+
+Work Log:
+- التشخيص المثبت حيًا قبل الإصلاح: GET /auth/callback?code=fake&next=/auth/reset على الإنتاج (741f2f3) رد 307 → /?auth_error=PKCE code verifier not found in storage… — أي أن فشل تبادل PKCE كان يرمي المستخدم على الرئيسية بنص GoTrue خام إنجليزي (توست AuthErrorToast) — وهو «رسالة الخطأ» التي رآها المالك
+- الجذر: كوكي code-verifier يُكتب فقط في المتصفح الذي طلب الاستعادة؛ فتح الرابط من متصفح/تطبيق بريد مختلف (WebView)، أو استهلاك الكود لمرة واحدة (فاحص روابط البريد/نقرة مكررة)، أو انتهاء الصلاحية — كلها تُفشل التبادل وتصل الرئيسية بالسطح الخاطئ
+- الإصلاح (9f67731b): src/lib/auth-callback-redirect.ts — جدول قرارات تحويل نقي (provider-error / missing-code / exchange-failure / success) كل فروع فشل الاستعادة تهبط /auth/reset?recovery_error=1 · /auth/callback/route.ts محوّل رفيع بترتيب الفروع نفسه ما قبل الإصلاح (سطح OAuth جوجل حرفيًا كما كان: /?auth_error=…) · /auth/reset يقرأ recovery_error ويعرض حالة صادقة AR/EN (الأسباب الثلاثة + نصيحة نفس المتصفح + CTA «ابدأ الاستعادة من جديد» → /auth?mode=login) — لا نصوص GoTrue خام (قانون M1)
+- اختبارات +14 (auth-callback-redirect): فروع الاستعادة الأربعة · فروع OAuth الثلاثة حرفيًا · isRecoveryNext (المسارات الشبيهة/المعادية) · قانون safeNext يبقى حارسًا على next
+- البوابات: tsc 0 · eslint 0 · vitest 94 ملفًا/1565 (+14) · next build ✓ · صفر ميجريشن
+- التحقق الحي بعد النشر (9f67731): /auth/callback?code=fake&next=/auth/reset → 307 إلى /auth/reset?recovery_error=1 ✓ · /auth/callback?code=fake (OAuth) → 307 إلى /?auth_error=… كما هو ✓ · /auth/reset?recovery_error=1 = 200 ✓ · متصفح حقيقي: الحالة EN ثم AR كاملة النص (العنوان + الأسباب الثلاثة + بطاقة نفس المتصفح) + CTA يهبط /auth?mode=login و«نسيت كلمة المرور؟» ظاهرة ✓
+- حد المنهج: قراءة صندوق بريد حقيقي ليست ممكنة من الجلسة — نقرة الرابط الحقيقي الأخيرة بيد المالك (نمط I-2 LIVE-VERIF)
+
+Stage Summary:
+- فشل رابط الاستعادة لم يعد يُخرج المستخدم من سياقه: هبوط صادق محلي الشكل على /auth/reset نفسها مع زر إعادة المحاولة ونصيحة «نفس المتصفح» — وسطح OAuth لم يتغير بايتًا
+- خطوة المالك لإعادة الاختبار: اطلب الاستعادة من نفس المتصفح الذي ستفتح فيه البريد واضغط الرابط داخله؛ إن كان بريده المؤسسي يفحص الروابط مسبقًا (SafeLinks) فسيُستهلك الكود — الخيار الترقيوي الموثق: قالب بريد بكود OTP (يد لوحة Supabase — عرض متبقٍ على المالك)
+- Commit SHA: 9f67731b
+- Push status: pushed (9f67731b على origin/main — 48c13c18..9f67731b)
+
+---
 Task ID: UX-IMPROVEMENTS-LIVE-VERIF-2026-09-22
 Agent: Super Z (owner session)
 Task: التحقق الحي E2E لدفعة 245 (كوميت 741f2f3f) بعد اكتمال نشر Vercel — إثبات كل تحسين على الإنتاج بجلسات أدوار معزولة (≤40 سطرًا).
