@@ -859,10 +859,13 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  </Card>
  </div>
 
- {/* Apple Health-style metrics dashboard */}
+ {/* Apple Health-style metrics dashboard — M-2026 fix: the component is
+     locale-aware now (lang prop) so the EN client page no longer shows
+     raw Arabic strings from the dashboard. */}
  <HealthMetricsDashboard
  progress={progress}
  questionnaire={(nutriQ?.data ?? null) as Record<string, unknown> | null}
+ lang={lang}
  />
  </div>
  )}

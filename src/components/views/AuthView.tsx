@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,12 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  // m-E FIX (UX-TEST-VERIFICATION-ROUND2-2026-09-21 §5 — duplicate login
+  // error toast): `loading` disables the button only AFTER React re-renders,
+  // so a fast double-click (or a second Enter) ran the submit handler twice
+  // → two identical auth calls → two identical error toasts stacked. This
+  // ref is the SYNCHRONOUS lock the state can never be.
+  const submitBusyRef = useRef(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   // M2 FIX (DEEP-UX-AUDIT-2026-09-18, owner decision — no email
   // confirmation): signup with an ALREADY-REGISTERED email now shows an
@@ -69,6 +75,8 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitBusyRef.current) return; // m-E: drop the duplicate submission
+    submitBusyRef.current = true;
     setLoading(true);
     try {
       if (isSignup) {
@@ -104,7 +112,9 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
         if (error) {
           // M1 fix: GoTrue's raw English strings were shown verbatim
           // inside the Arabic UI — localize at the display layer.
-          toast.error(localizeAuthError(error, isAr));
+          // m-E fix: a stable id — sonner REPLACES a same-id toast instead
+          // of stacking a second identical one.
+          toast.error(localizeAuthError(error, isAr), { id: "auth-error" });
         } else if (dupEmail) {
           // M2 fix (owner decision 2026-09-18 — m9: signup stays instant,
           // no email confirmation): GoTrue's duplicate-email answer
@@ -120,7 +130,7 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           clearCoachSlugCookie();
           setNeedsConfirmation(true);
         } else {
-          toast.success(t("auth.accountCreated"));
+          toast.success(t("auth.accountCreated"), { id: "auth-ok" });
           goAfterLogin(false);
         }
       } else {
@@ -128,28 +138,34 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
         if (error) {
           // M1 fix (audit case ب): "Invalid login credentials" used to
           // surface raw-English inside the Arabic UI at the login moment.
-          toast.error(localizeAuthError(error, isAr));
+          // m-E fix: stable id — no more duplicate stacked toasts.
+          toast.error(localizeAuthError(error, isAr), { id: "auth-error" });
         } else {
-          toast.success(t("auth.welcomeBack"));
+          toast.success(t("auth.welcomeBack"), { id: "auth-ok" });
           goAfterLogin(profile?.role !== "client");
         }
       }
     } finally {
+      submitBusyRef.current = false;
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
+    if (submitBusyRef.current) return; // m-E: same lock for the Google button
+    submitBusyRef.current = true;
     setGoogleLoading(true);
     try {
       const { error } = await signInGoogle(next);
       if (error) {
-        toast.error(t("auth.googleError"));
+        toast.error(t("auth.googleError"), { id: "auth-error" });
         setGoogleLoading(false);
       }
     } catch {
       setGoogleLoading(false);
-      toast.error(t("auth.googleError"));
+      toast.error(t("auth.googleError"), { id: "auth-error" });
+    } finally {
+      submitBusyRef.current = false;
     }
   };
 

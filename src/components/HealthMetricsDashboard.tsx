@@ -17,10 +17,25 @@ import {
  Droplet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  hmsBmiLabel,
+  hmsLocale,
+  hmsStr,
+  HMS_STRINGS,
+  type HmsBmiKey,
+  type HmsLang,
+} from "@/lib/health-metrics-i18n";
 
 /**
  * Health Metrics Dashboard — Apple Health-style overview of the client's
  * key health indicators, with baseline + current + progress indicators.
+ *
+ * M-2026 FIX (UX-TEST-REPORT-2026-09-21): the component used to ship every
+ * string HARDCODED in Arabic, rendering raw Arabic inside the coach's
+ * ENGLISH client page. Every string now goes through the EN/AR dictionary
+ * in lib/health-metrics-i18n.ts via the `lang` prop (locale = presentation
+ * concern — the same law as the M1 fix). Calculations, thresholds and
+ * colors are UNTOUCHED.
  *
  * Inputs:
  * - progress: progress_entries[] (sorted by created_at asc — oldest first)
@@ -72,17 +87,21 @@ type QuestionnaireData = {
 export function HealthMetricsDashboard({
  progress,
  questionnaire,
+ lang = "en",
 }: {
  progress: ProgressEntry[];
  questionnaire?: QuestionnaireData | null;
+ /** UI language at the render site (M-2026) — passed by CoachClientView. */
+ lang?: HmsLang;
 }) {
  const data = useMemo(() => computeMetrics(progress, questionnaire), [progress, questionnaire]);
+ const s = HMS_STRINGS[lang];
 
  if (progress.length === 0 && !questionnaire) {
  return (
  <Card className="p-6 text-center text-sm text-muted-foreground">
  <Activity className="mx-auto h-8 w-8 opacity-50" />
- <p className="mt-2">لا توجد بيانات كافية لعرض المؤشرات الصحية. ابدأ بإضافة قياسات للعميل.</p>
+ <p className="mt-2">{hmsStr(lang, "emptyState")}</p>
  </Card>
  );
  }
@@ -95,10 +114,10 @@ export function HealthMetricsDashboard({
  <div>
  <div className="flex items-center gap-2">
  <Heart className="h-5 w-5 text-primary" />
- <h3 className="font-display text-lg font-bold">المؤشرات الصحية</h3>
+ <h3 className="font-display text-lg font-bold">{s.title}</h3>
  </div>
  <p className="mt-0.5 text-xs text-muted-foreground">
- مؤشر شامل لتتبع تقدم العميل — يحسب من الوزن، نسبة الدهون، الالتزام، والطاقة
+ {s.subtitle}
  </p>
  </div>
  {/* Health Score Ring */}
@@ -133,23 +152,25 @@ export function HealthMetricsDashboard({
  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
  <MetricCard
  icon={<Scale className="h-4 w-4" />}
- label="الوزن"
+ label={s.weight}
  baseline={data.baseline.weight}
  current={data.current.weight}
  delta={data.delta.weight}
- unit="كجم"
+ unit={s.kg}
  lowerIsBetter={data.targetDirection === "loss"}
  progress={data.weightProgress}
+ lang={lang}
  />
  <MetricCard
  icon={<Percent className="h-4 w-4" />}
- label="نسبة الدهون"
+ label={s.bodyFat}
  baseline={data.baseline.bodyFat}
  current={data.current.bodyFat}
  delta={data.delta.bodyFat}
  unit="%"
  lowerIsBetter={true}
  progress={data.bodyFatProgress}
+ lang={lang}
  />
  <MetricCard
  icon={<Activity className="h-4 w-4" />}
@@ -160,17 +181,23 @@ export function HealthMetricsDashboard({
  unit=""
  lowerIsBetter={data.targetDirection === "loss"}
  progress={data.bmiProgress}
- status={data.bmiStatus}
+ status={
+ data.bmiStatus
+ ? { label: hmsBmiLabel(lang, data.bmiStatus.key), color: data.bmiStatus.color }
+ : undefined
+ }
+ lang={lang}
  />
  <MetricCard
  icon={<Target className="h-4 w-4" />}
- label="الكتلة العضلية"
+ label={s.leanMass}
  baseline={data.baseline.leanMass}
  current={data.current.leanMass}
  delta={data.delta.leanMass}
- unit="كجم"
+ unit={s.kg}
  lowerIsBetter={false}
  progress={data.leanMassProgress}
+ lang={lang}
  />
  </div>
 
@@ -178,14 +205,14 @@ export function HealthMetricsDashboard({
  <Card className="p-4 shadow-card">
  <h4 className="mb-3 flex items-center gap-2 text-sm font-bold">
  <Ruler className="h-4 w-4 text-primary" />
- المقاسات (سم)
+ {s.measurements}
  </h4>
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
- <MeasurementCard label="الخصر" baseline={data.baseline.waist} current={data.current.waist} delta={data.delta.waist} lowerIsBetter={true} />
- <MeasurementCard label="الصدر" baseline={data.baseline.chest} current={data.current.chest} delta={data.delta.chest} lowerIsBetter={false} />
- <MeasurementCard label="الورك" baseline={data.baseline.hips} current={data.current.hips} delta={data.delta.hips} lowerIsBetter={true} />
- <MeasurementCard label="الذراع" baseline={data.baseline.arm} current={data.current.arm} delta={data.delta.arm} lowerIsBetter={false} />
- <MeasurementCard label="الرقبة" baseline={data.baseline.neck} current={data.current.neck} delta={data.delta.neck} lowerIsBetter={false} />
+ <MeasurementCard label={s.waist} baseline={data.baseline.waist} current={data.current.waist} delta={data.delta.waist} lowerIsBetter={true} />
+ <MeasurementCard label={s.chest} baseline={data.baseline.chest} current={data.current.chest} delta={data.delta.chest} lowerIsBetter={false} />
+ <MeasurementCard label={s.hips} baseline={data.baseline.hips} current={data.current.hips} delta={data.delta.hips} lowerIsBetter={true} />
+ <MeasurementCard label={s.arm} baseline={data.baseline.arm} current={data.current.arm} delta={data.delta.arm} lowerIsBetter={false} />
+ <MeasurementCard label={s.neck} baseline={data.baseline.neck} current={data.current.neck} delta={data.delta.neck} lowerIsBetter={false} />
  </div>
  </Card>
 
@@ -193,23 +220,25 @@ export function HealthMetricsDashboard({
  <div className="grid gap-3 sm:grid-cols-2">
  <MetricCard
  icon={<Zap className="h-4 w-4" />}
- label="مستوى الطاقة"
+ label={s.energy}
  baseline={data.baseline.energy}
  current={data.current.energy}
  delta={data.delta.energy}
- unit="/10"
+ unit={s.per10}
  lowerIsBetter={false}
  progress={data.energyProgress}
+ lang={lang}
  />
  <MetricCard
  icon={<Target className="h-4 w-4" />}
- label="الالتزام بالنظام"
+ label={s.adherence}
  baseline={data.baseline.adherence}
  current={data.current.adherence}
  delta={data.delta.adherence}
- unit="/10"
+ unit={s.per10}
  lowerIsBetter={false}
  progress={data.adherenceProgress}
+ lang={lang}
  />
  </div>
 
@@ -218,7 +247,7 @@ export function HealthMetricsDashboard({
  <Card className="flex items-center gap-3 p-4 shadow-card">
  <Droplet className="h-5 w-5 text-primary" />
  <div>
- <span className="text-sm font-bold">هدف الماء اليومي: </span>
+ <span className="text-sm font-bold">{s.waterTarget}</span>
  <span className="text-sm text-muted-foreground">{data.waterTarget}</span>
  </div>
  </Card>
@@ -226,28 +255,28 @@ export function HealthMetricsDashboard({
 
  {/* Baseline summary */}
  <Card className="p-4 shadow-card">
- <h4 className="mb-3 text-sm font-bold"> نقطة البداية vs الحالي</h4>
+ <h4 className="mb-3 text-sm font-bold">{s.baselineTitle}</h4>
  <div className="grid gap-3 sm:grid-cols-3">
  <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
- <div className="text-xs text-muted-foreground">البداية</div>
+ <div className="text-xs text-muted-foreground">{s.baseline}</div>
  <div className="mt-1 font-display text-lg font-bold">
- {data.baseline.weight ? `${data.baseline.weight} كجم` : "—"}
+ {data.baseline.weight ? `${data.baseline.weight} ${s.kg}` : "—"}
  </div>
  <div className="text-[10px] text-muted-foreground">
- {data.baseline.date ? new Date(data.baseline.date).toLocaleDateString("ar-EG", { day: "numeric", month: "short" }) : ""}
+ {data.baseline.date ? new Date(data.baseline.date).toLocaleDateString(hmsLocale(lang), { day: "numeric", month: "short" }) : ""}
  </div>
  </div>
  <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
- <div className="text-xs text-muted-foreground">الحالي</div>
+ <div className="text-xs text-muted-foreground">{s.current}</div>
  <div className="mt-1 font-display text-lg font-bold">
- {data.current.weight ? `${data.current.weight} كجم` : "—"}
+ {data.current.weight ? `${data.current.weight} ${s.kg}` : "—"}
  </div>
  <div className="text-[10px] text-muted-foreground">
- {data.current.date ? new Date(data.current.date).toLocaleDateString("ar-EG", { day: "numeric", month: "short" }) : ""}
+ {data.current.date ? new Date(data.current.date).toLocaleDateString(hmsLocale(lang), { day: "numeric", month: "short" }) : ""}
  </div>
  </div>
  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center">
- <div className="text-xs text-muted-foreground">إجمالي التغير</div>
+ <div className="text-xs text-muted-foreground">{s.totalChange}</div>
  <div className={cn(
  "mt-1 font-display text-lg font-bold flex items-center justify-center gap-1",
  data.delta.weight === null ? "text-muted-foreground" :
@@ -255,13 +284,13 @@ export function HealthMetricsDashboard({
  )}>
  {data.delta.weight === null ? "—" : (
  <>
- {data.delta.weight > 0 ? "+" : ""}{data.delta.weight} كجم
+ {data.delta.weight > 0 ? "+" : ""}{data.delta.weight} {s.kg}
  {data.delta.weight < 0 ? <TrendingDown className="h-4 w-4" /> : data.delta.weight > 0 ? <TrendingUp className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
  </>
  )}
  </div>
  <div className="text-[10px] text-muted-foreground">
- {data.delta.weight !== null && data.baseline.weight ? `${Math.abs(Math.round((data.delta.weight / data.baseline.weight) * 100))}% من البداية` : ""}
+ {data.delta.weight !== null && data.baseline.weight ? `${Math.abs(Math.round((data.delta.weight / data.baseline.weight) * 100))}${s.ofBaseline}` : ""}
  </div>
  </div>
  </div>
@@ -282,6 +311,7 @@ function MetricCard({
  lowerIsBetter,
  progress,
  status,
+ lang = "en",
 }: {
  icon: React.ReactNode;
  label: string;
@@ -292,6 +322,7 @@ function MetricCard({
  lowerIsBetter: boolean;
  progress?: number; // 0-100
  status?: { label: string; color: string };
+ lang?: HmsLang;
 }) {
  const improved = delta !== null && delta !== 0
  ? lowerIsBetter ? delta < 0 : delta > 0
@@ -324,7 +355,7 @@ function MetricCard({
  )}>
  {improved === true ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
  {delta > 0 ? "+" : ""}{Math.abs(delta).toFixed(1)}{unit}
- <span className="text-muted-foreground">من {baseline ?? "—"}</span>
+ <span className="text-muted-foreground">{HMS_STRINGS[lang].from} {baseline ?? "—"}</span>
  </div>
  )}
  {/* Progress bar */}
@@ -430,7 +461,7 @@ type Metrics = {
  leanMassProgress: number;
  energyProgress: number;
  adherenceProgress: number;
- bmiStatus?: { label: string; color: string };
+ bmiStatus?: { key: HmsBmiKey; color: string };
  waterTarget: string | null;
 };
 
@@ -538,13 +569,15 @@ function computeMetrics(progress: ProgressEntry[], q?: QuestionnaireData | null)
  else if (currentWeight > baselineWeight + 1) targetDirection = "gain";
  }
 
- // BMI status
- let bmiStatus: { label: string; color: string } | undefined;
+ // BMI status — 0092 (M-2026): a STABLE KEY + color only; the localized
+ // label is looked up at render time via hmsBmiLabel(). Thresholds and
+ // colors are untouched.
+ let bmiStatus: { key: HmsBmiKey; color: string } | undefined;
  if (currentBMI !== null) {
- if (currentBMI < 18.5) bmiStatus = { label: "نحافة", color: "border-warning text-warning" };
- else if (currentBMI < 25) bmiStatus = { label: "طبيعي", color: "border-success text-success" };
- else if (currentBMI < 30) bmiStatus = { label: "زيادة وزن", color: "border-warning text-warning" };
- else bmiStatus = { label: "سمنة", color: "border-destructive text-destructive" };
+ if (currentBMI < 18.5) bmiStatus = { key: "underweight", color: "border-warning text-warning" };
+ else if (currentBMI < 25) bmiStatus = { key: "normal", color: "border-success text-success" };
+ else if (currentBMI < 30) bmiStatus = { key: "overweight", color: "border-warning text-warning" };
+ else bmiStatus = { key: "obese", color: "border-destructive text-destructive" };
  }
 
  // Health score (0-100) — composite of:

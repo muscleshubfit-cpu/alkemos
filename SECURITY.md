@@ -401,6 +401,20 @@ These are in addition to the general operating rules in `AGENTS.md`:
     no new external HTTP calls (HIBP stays client-side); no schema,
     RLS, or money-path change (service-role admin auth API + bounded
     profiles update by primary key only).
+14.  **Auth-adjacent data visibility — invite-pending marker (0092,
+    2026-09-22, phase 244).** `get_coach_client_list_paged` /
+    `get_coach_client_stats` gain an `invite_pending` boolean /
+    `pending_invites` counter (UX-TEST-REPORT-2026-09-21 m-C+m-D;
+    owner order «ابدأ»). The security-definer RPCs (postgres owner,
+    unchanged signatures, no new grants beyond the existing
+    `authenticated` execute) read `auth.users` internally to derive
+    the marker: `encrypted_password = '' AND last_sign_in_at IS NULL`
+    — the EXACT predicate of the H1-2026 adoption gate (rule 13), so
+    the flag is true ONLY for a pending invite and flips false the
+    moment any signup/adoption/OAuth join happens; a self-registered
+    or activated account can never match. Only the derived boolean
+    crosses the RPC boundary — no auth column, hash, or timestamp is
+    exposed. No RLS, table, or money-path change.
 
 ---
 

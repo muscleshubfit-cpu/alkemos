@@ -136,10 +136,23 @@ export function QuestionnairesView() {
         upsertQuestionnaire(profile!.id, "nutrition", nutritionForm, "submitted"),
         upsertQuestionnaire(profile!.id, "fitness", fitnessForm, "submitted"),
       ]);
-      if (nRow) setNutrition(nRow);
-      if (fRow) setFitness(fRow);
+      if (nRow) {
+        setNutrition(nRow);
+        // Belt & suspenders: re-sync the form from the DB row the server
+        // actually persisted (the review screen renders from these).
+        setNutritionForm((nRow.data as Record<string, Json>) ?? nutritionForm);
+      }
+      if (fRow) {
+        setFitness(fRow);
+        setFitnessForm((fRow.data as Record<string, Json>) ?? fitnessForm);
+      }
       toast.success(t("q.allSubmitted"));
-      setStep(1);
+      // m-B FIX (UX-TEST-REPORT-2026-09-21): the old flow landed the member
+      // back on the EMPTY step-1 form right after a successful submit —
+      // «Submitted» at the top, «Required» on the fields: a “did my data
+      // even save?” moment. The review step IS the honest landing: the
+      // submitted values read-only, with an Edit button per section.
+      setStep(3);
     } catch (e) {
       console.error("[submitAll] Error:", e);
       toast.error((e instanceof Error ? e.message : "") || t("common.error"));
@@ -360,6 +373,9 @@ export function QuestionnairesView() {
 
   // If both are locked, show a "both submitted" state
   const bothLocked = nutritionLocked && fitnessLocked;
+  // m-B FIX: after a successful submission the review screen greets with a
+  // success header instead of the neutral «review» copy.
+  const bothSubmitted = nutritionStatus === "submitted" && fitnessStatus === "submitted";
 
   return (
     <div className="space-y-6">
@@ -593,8 +609,20 @@ export function QuestionnairesView() {
               <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#0071e3]/10 text-[#0071e3]">
                 <Check className="h-7 w-7" />
               </span>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight">{t("q.reviewTitle")}</h2>
-              <p className="mt-1 text-sm font-normal text-[#6e6e73]">{t("q.reviewDesc")}</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight">
+                {bothSubmitted
+                  ? isAr
+                    ? "تم إرسال استبياناتك بنجاح"
+                    : "Your questionnaires are submitted"
+                  : t("q.reviewTitle")}
+              </h2>
+              <p className="mt-1 text-sm font-normal text-[#6e6e73]">
+                {bothSubmitted
+                  ? isAr
+                    ? "بياناتك وصلت لمدربك — دي قيم ما أرسلته بالضبط. تقدر تعدّل أي قسم في أي وقت."
+                    : "Your coach has your data — below is exactly what you submitted. Edit any section anytime."
+                  : t("q.reviewDesc")}
+              </p>
             </div>
 
             {/* Nutrition summary */}

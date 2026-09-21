@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-MINORS-244-2026-09-22
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ» 2026-09-22 — إغلاق بقية بنود UX-TEST-REPORT-2026-09-21 بعد إغلاق H1-2026 في 243: M-2026 + m-B + m-C + m-D + m-E (+ حسم m-A بالتحقق الحي) — ميجريشن 0092.
+
+Work Log:
+- جذر M-2026 أوسع من التقرير: `HealthMetricsDashboard` كله نصوص عربية مضمّنة (الترويسة، التسميات، الوحدات كجم، تواريخ ar-EG، حالات BMI داخل computeMetrics) — ليس رسالة الفراغ فقط. جديد `lib/health-metrics-i18n.ts`: قاموس EN/AR واحد + مفاتيح BMI مستقرة (underweight/normal/overweight/obese) + hmsLocale — المكوّن يستقبل `lang` من CoachClientView (قانون M1: اللغة عُرض لا منطق) — الحسابات والعتبات والألوان صفر مساس + 5 اختبارات تعاقد
+- ميجريشن 0092 (additive فقط، التواقيع ثابتة، drop+create بنمط 0072): `get_coach_client_list_paged` +عمود invite_pending (au.encrypted_password='' وau.last_sign_in_at فارغ — قانون بوابة تبني H1-2026 حصرًا؛ يقلب false لحظة أي تفعيل/تسجيل/OAuth) + فلتر invite_pending · `get_coach_client_stats` +pending_invites — قراءة auth.users داخل security definer والمتسرب سطحًا بولي مشتق فقط — 0072 أساس النسخ حرفيًا (النسخ الحي وليس 0047 القديم) + منح authenticated معاد
+- m-C واجهةً: شارة «دعوة معلقة — لم يفعل بعد» بدل «بدون اشتراك» للمدعو غير المفعّل + فلتر «دعوات معلقة» + toast الدعوة يطابق الحقيقة («يظهر هنا فور تفعيله حسابه») — types.ts وCoachClientStats بصفوف إضافية اختيارية
+- جذر m-D مثبت: العدّادات تُحمّل مرة عند فتح اللوحة (deps=[]) فتتعارض مع قائمة تنعش — statsVersion: انتعاش القائمة+العدّادات معًا بعد الدعوة، وعند تحرك إجمالي العرض الافتراضي (tab=all·بلا بحث·صفحة 1 — محرس من الرفض الزائف أثناء البحث/الفلاتر، و totalCountRef يمنع ضربة التحميل الأولى)
+- m-B: submitAll كانت setStep(1) بعد النجاح ← نموذج فارغ بعلامات Required تحت «Submitted» — الآن setStep(3): المراجعة ترويسة نجاح + القيم المقروءة + تعديل لكل قسم + مزامنة النماذج من صف الخادم المرتجع
+- جذر m-E: loading يعطّل الزر بعد إعادة الرسم فقط — النقر المزدوج السريع (أو Enter مرتين) يفلت مرتين = نداءان وتوستا متطابقان (مطابق لملاحظة الجولة الثانية «في كل محاولات M1») — submitBusyRef قفل متزامن في submit وhandleGoogle + معرفات توست ثابتة auth-error/auth-ok (sonner يستبدل ولا يرص)
+- m-A: النقر مربوط أصلًا بالكود على صفوف role=client حصرًا (المرحلة 143) — صفوف المدربين/الأدمن خاملة عمدًا (بوابة /coach/[clientId] تخدم clients فقط) — الاحتكاك المرصود غالبًا نقر صف مدرب؛ الحسم بالتحقق الحي بعد النشر
+- البوابات: tsc 0 · eslint 0 · vitest 93 ملفًا/1542 (+5) · build ✓ · docs_audit ✓ · migration_audit ✓ صفر انحراف · stale-refs ✓ · ui-wiring ✓ — STATE مضغوط بحد 32KB (سابقة 235: صفّا 242/241 انضغطا — تاريخهما الكامل بworklog)
+
+Stage Summary:
+- خمسة بنود مغلقة كودًا (M-2026 · m-B · m-C · m-D · m-E) + m-A محسوم بالتحقق الحي — دفعة ما بعد H1-2026 كاملة
+- 0092 يجعل حالة الدعوة مرئية للمدرب من طبقة البيانات — بوابة الأمان نفس قانون تبني H1 (لا يمكن أبدًا إعادة كتابة كلمة مرور حساب غير «دعوة معلقة»)
+- الحي-E2E بعد النشر في مدخل LIVE-VERIF مستقل فور اكتمال deploy
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: H1-2026-FIX-LIVE-VERIF-2026-09-21
 Agent: Super Z (owner session)
 Task: التحقق الحي E2E لإصلاح H1-2026 (كوميت ff744b4c) بعد اكتمال نشر Vercel — إثبات أن المدعو يصل حسابه وأن الإنقاذ يعمل (≤40 سطرًا).

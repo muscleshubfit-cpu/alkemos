@@ -2041,6 +2041,10 @@ export type Database = {
           assigned_coach_id: string | null;
           assigned_coach_name: string | null;
           total_count: string;
+          // 0092 (m-C): additive columns — absent before the migration.
+          member_kind?: string | null;
+          site_member_active?: boolean | null;
+          invite_pending?: boolean | null;
         }[];
       };
       get_coach_client_stats: {
@@ -2058,6 +2062,8 @@ export type Database = {
           coaching: string;
           coach_clients: string;
           site_clients: string;
+          // 0092 (m-C): additive column — absent before the migration.
+          pending_invites?: string;
         }[];
       };
       // Added by migration 0067 — the unified admin clients feed (every

@@ -112,6 +112,8 @@ export type CoachClientStats = {
  coaching: number;
  coach_clients: number;
  site_clients: number;
+ // 0092 (m-C): invited clients who never joined yet (migration-absent → 0).
+ pending_invites: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -212,6 +214,7 @@ export async function getCoachClientStats(): Promise<CoachClientStats | null> {
  pending_payment: n(s.pending_payment), expired: n(s.expired),
  premium: n(s.premium), pro: n(s.pro), coaching: n(s.coaching),
  coach_clients: n(s.coach_clients), site_clients: n(s.site_clients),
+ pending_invites: n(s.pending_invites),
  };
  }
  if (error) console.warn("[data] get_coach_client_stats not ready:", error.message);

@@ -28,6 +28,7 @@ type FilterTab =
   | "active"
   | "expiring"
   | "no_plan"
+  | "invite_pending"
   | "no_questionnaire"
   | "pending_payment"
   | "expired"
@@ -61,6 +62,8 @@ type ClientWithMeta = {
   memberKind: "b2b" | "site" | null;
   // follow-up signal for site members (any active sub, no tier exposed)
   siteMemberActive: boolean | null;
+  // 0092 (m-C): invited client who never joined yet (RPC-absent → null).
+  invitePending: boolean | null;
 };
 
 /** Subscription info attached to a client row (RPC view or full row). */
@@ -95,6 +98,8 @@ type CoachClientRpcRow = {
   // 0072 additive columns (absent before the migration → undefined)
   member_kind?: string | null;
   site_member_active?: boolean | null;
+  // 0092 (m-C) additive column (absent before the migration → undefined)
+  invite_pending?: boolean | null;
   total_count?: number | string;
 };
 
@@ -141,6 +146,7 @@ function enrichClientRow(row: CoachClientRpcRow): ClientWithMeta {
     assigned_coach_name: row.assigned_coach_name ?? null,
     memberKind: row.member_kind === "site" || row.member_kind === "b2b" ? row.member_kind : null,
     siteMemberActive: row.site_member_active ?? null,
+    invitePending: row.invite_pending ?? null,
   } as ClientWithMeta;
 }
 
@@ -186,6 +192,15 @@ export function CoachView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
+  // m-D FIX (UX-TEST-REPORT-2026-09-21): the stats RPC used to load ONCE on
+  // mount and then go STALE — right after an invite the screen showed
+  // «Total clients: 0» next to the invitee's fresh row (caught live in the
+  // round-2 verification). statsVersion bumps whenever the roster actually
+  // changes (invite sent / total moves on the default view) and refetches
+  // BOTH the stats and the list, so the counters can never drift from it.
+  const [statsVersion, setStatsVersion] = useState(0);
+  // Last total_count seen from the list RPC (null = not loaded yet).
+  const totalCountRef = useRef<number | null>(null);
   const [sort, setSort] = useState<"newest" | "oldest" | "name" | "expiry">("newest");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -196,21 +211,31 @@ export function CoachView() {
   const [singleResults, setSingleResults] = useState<ClientPickerHit[]>([]);
   const [singleChosen, setSingleChosen] = useState<{ id: string; label: string } | null>(null);
 
-  // Stats + pending payment requests — one small load, independent of paging.
+  // Stats — refetched whenever the roster version bumps (m-D fix).
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [st, reqs] = await Promise.all([
-          getCoachClientStats(),
-          listSubscriptionRequests("pending").catch(() => []),
-        ]);
-        if (!cancelled) {
-          setStats(st);
-          setPendingRequests(reqs);
-        }
+        const st = await getCoachClientStats();
+        if (!cancelled) setStats(st);
       } catch {
         /* stats stay null → tab pills count the loaded page/list instead */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [statsVersion]);
+
+  // Pending payment requests — one small load, independent of paging.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const reqs = await listSubscriptionRequests("pending").catch(() => []);
+        if (!cancelled) setPendingRequests(reqs);
+      } catch {
+        /* non-critical */
       }
     })();
     return () => {
@@ -243,7 +268,23 @@ export function CoachView() {
         return;
       }
       setClients(rows.map(enrichClientRow));
-      setTotalCount(rows.length ? Number(rows[0].total_count) || 0 : 0);
+      const nextTotal = rows.length ? Number(rows[0].total_count) || 0 : 0;
+      // m-D FIX: on the DEFAULT view (tab=all · no search · page 1) the
+      // paged total IS the roster size — if it moved, the roster moved, so
+      // refetch the stats with it. Skipped on the very first load (the
+      // stats effect already ran) and on filtered views (their total
+      // legitimately changes with the query, not the roster).
+      if (
+        totalCountRef.current !== null &&
+        nextTotal !== totalCountRef.current &&
+        page === 1 &&
+        activeTab === "all" &&
+        !debouncedSearch
+      ) {
+        setStatsVersion((v) => v + 1);
+      }
+      totalCountRef.current = nextTotal;
+      setTotalCount(nextTotal);
       firstLoad.current = false;
       setLoading(false);
       setRefreshing(false);
@@ -251,7 +292,7 @@ export function CoachView() {
     return () => {
       cancelled = true;
     };
-  }, [pagedMode, page, pageSize, debouncedSearch, activeTab, clientSegment, sort, isAdmin]);
+  }, [pagedMode, page, pageSize, debouncedSearch, activeTab, clientSegment, sort, isAdmin, statsVersion]);
 
   // Reset to page 1 whenever the query shape changes.
   useEffect(() => {
@@ -449,6 +490,7 @@ export function CoachView() {
         coaching: stats.coaching,
         coach_clients: stats.coach_clients,
         site_clients: stats.site_clients,
+        invite_pending: stats.pending_invites,
       };
     }
     return {
@@ -465,6 +507,8 @@ export function CoachView() {
       // Owner directive: admin split — coach clients vs site clients
       coach_clients: clients.filter((c) => !!c.assigned_coach_id).length,
       site_clients: clients.filter((c) => !c.assigned_coach_id).length,
+      // 0092 (m-C): legacy in-memory count (RPC-absent field → 0)
+      invite_pending: clients.filter((c) => c.invitePending).length,
     };
   }, [clients, stats, pagedMode]);
 
@@ -495,6 +539,8 @@ export function CoachView() {
           return c.isExpiring;
         case "no_plan":
           return !c.hasSub;
+        case "invite_pending":
+          return !!c.invitePending;
         case "no_questionnaire":
           return !c.hasNutriQ && !c.hasFitQ;
         case "pending_payment":
@@ -563,6 +609,7 @@ export function CoachView() {
     { id: "active", labelAr: "نشط", labelEn: "Active", count: counts.active, color: "#34c759" },
     { id: "expiring", labelAr: "ينتهي قريباً", labelEn: "Expiring", count: counts.expiring, color: "#ff9500" },
     { id: "no_plan", labelAr: "بدون اشتراك", labelEn: "No subscription", count: counts.no_plan, color: "#6e6e73" },
+    { id: "invite_pending", labelAr: "دعوات معلقة", labelEn: "Invite pending", count: counts.invite_pending, color: "#ff9500" },
     { id: "no_questionnaire", labelAr: "بدون استبيان", labelEn: "No questionnaire", count: counts.no_questionnaire, color: "#ff3b30" },
     { id: "pending_payment", labelAr: "بانتظار الدفع", labelEn: "Pending payment", count: counts.pending_payment, color: "#0071e3" },
     { id: "expired", labelAr: "منتهي", labelEn: "Expired", count: counts.expired, color: "#8b5cf6" },
@@ -612,13 +659,17 @@ export function CoachView() {
       if (res.ok) {
         toast.success(
           isAr
-            ? `تم إرسال دعوة إلى ${email} — هيظهر عندك هنا أول ما يسجّل`
-            : `Invite sent to ${email} — he will appear here once he signs up`,
+            ? `تم إرسال الدعوة إلى ${email} — يظهر هنا فور تفعيله حسابه`
+            : `Invite sent to ${email} — he appears here the moment he activates`,
           { duration: 7000 },
         );
         setInviteEmail("");
         setInviteName("");
         setShowInvite(false);
+        // m-C/m-D FIX: the invitee is already a roster row (invite creates
+        // the profile) — refresh the list AND the counters in the same
+        // frame so «Total clients» moves with reality (was: stale 0).
+        setStatsVersion((v) => v + 1);
       } else {
         toast.error(json.message || json.error || (isAr ? "فشل إرسال الدعوة" : "Invite failed"));
       }
@@ -1140,9 +1191,17 @@ export function CoachView() {
                               {isAr ? "منتهي" : "Expired"}
                             </span>
                           )}
-                          {!c.hasSub && (
+                          {!c.hasSub && !c.invitePending && (
                             <span className="rounded-full bg-[#6e6e73]/10 px-2 py-0.5 text-[10px] font-medium text-[#6e6e73]">
                               {isAr ? "بدون اشتراك" : "No sub"}
+                            </span>
+                          )}
+                          {/* 0092 (m-C): pending invite — replaces the plain
+                              «No sub» badge so the coach can tell an
+                              invited-not-joined client from a real one. */}
+                          {c.invitePending && (
+                            <span className="rounded-full bg-[#ff9500]/10 px-2 py-0.5 text-[10px] font-medium text-[#ff9500]">
+                              {isAr ? "دعوة معلقة — لم يفعل بعد" : "Invite pending — not activated"}
                             </span>
                           )}
                         </div>
