@@ -6,6 +6,25 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: H1-2026-FIX-LIVE-VERIF-2026-09-21
+Agent: Super Z (owner session)
+Task: التحقق الحي E2E لإصلاح H1-2026 (كوميت ff744b4c) بعد اكتمال نشر Vercel — إثبات أن المدعو يصل حسابه وأن الإنقاذ يعمل (≤40 سطرًا).
+
+Work Log:
+- النشر: /api/build-info انتقل إلى ff744b4 (poll خامس — النشر الحي يحمل الإصلاح)
+- التدفق الحي (أدوات مستقلة، حسابات qa.ux0923.*): مدرب جديد (qa.ux0923.coach1) تسجيل ذاتي ← دعوة qa.ux0923.client3 (200 + توست) ← جلسة نظيفة سجلت بالبريد المدعو وكلمة مرور جديدة ← **/dashboard فورًا — «Welcome back, QA Invited Client Fix»** (قبل الإصلاح: «Account already exists» ← «Invalid login credentials» بلا مخرج)
+- SQL القاطع على الحساب نفسه: pw_empty=false + signed_in=true + was_invited=true (الصف انتقل من دعوة معلقة إلى حساب مفعل بجلسة حية)
+- الإنقاذ: الحساب المحشور من جولة الأمس qa.ux0922.client3 ← signup بالبريد نفسه ← تبنٍّ ← دخول /dashboard («Welcome back, QA Invited Client 3») + SQL: pw_empty=false + signed_in=true — qa.ux0921.client3 (الجولة الأولى) ما زال pw_empty=true وقابل للإنقاذ بنفس التدفق متى احتاج المالك
+- إشعار المدرب: الجرس 2←3 ويدخل «عميل مدعو أكمل تفعيل حسابه! — عميلك المدعو QA Invited Client Fix (…) أكمل التسجيل»
+- الحسابات الجديدة: qa.ux0923.coach1/.client3 (alkemos-test.com) — الحذف متاح للمالك من /admin/accounts
+
+Stage Summary:
+- H1-2026 مغلق ومثبت حيًا E2E: تسجيل المدعو = تفعيل فوري + جلسة + إشعار — صفر حصار، ورابط الإيميل بقي مسارًا بديلًا
+- بوابة الأمان مثبتة عمليًا: حسابان ذاتيا التسجيل (member1 وcoach1) لم يُمسا، والإنقاذ اشتغل على الدعوتين المعلقتين حصرًا
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: H1-2026-FIX-243-2026-09-21
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ تنفيذ الخطوة التالية» 2026-09-21 (الخطوة المعروضة: إصلاح H1-2026) — إغلاق طريق المسدود في تسجيل العميل المدعو («تفعيل عند التسجيل» — الحل 1 من تقرير UX-TEST-REPORT-2026-09-21 §3) — الموافقة §7 المسبقة على تغيير مسار المصادقة موثقة في SECURITY §9-13.
