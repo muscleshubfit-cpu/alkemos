@@ -1,25 +1,41 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { safeNext } from "@/lib/safe-redirect";
+import { authCallbackRedirect } from "@/lib/auth-callback-redirect";
 
 /**
- * OAuth callback handler (server-side).
+ * OAuth + recovery callback handler (server-side).
  *
  * Flow:
- * 1. User clicks "Continue with Google" on the client.
- * 2. Client calls supabase.auth.signInWithOAuth({ redirectTo: '/auth/callback' }).
- * This stores a PKCE code verifier in cookies (via @supabase/ssr + middleware).
+ * 1. User clicks "Continue with Google" on the client — or opens a
+ * forgot-password email link (RECOVERY: redirectTo=/auth/callback?next=
+ * /auth/reset from AuthView).
+ * 2. Client calls supabase.auth.signInWithOAuth({ redirectTo: '/auth/callback' })
+ * (OAuth) or supabase.auth.resetPasswordForEmail(…) (recovery). Both store
+ * a PKCE code verifier in cookies (via @supabase/ssr + middleware).
  * 3. Browser redirects to Google → user consents → Google redirects to Supabase.
  * 4. Supabase exchanges Google's code for its own auth code, then redirects to
  * /auth/callback?code=XXX (our server route).
  * 5. THIS handler reads the code, exchanges it for a session (using the PKCE
- * verifier from the cookie), sets the session cookie, and redirects to /.
+ * verifier from the cookie), sets the session cookie, and redirects to the
+ * sanitized `next` (default /).
  * 6. The client's onAuthStateChange listener fires with the new session,
  * updating the UI (user lands on their dashboard).
  *
- * If anything goes wrong, the user is redirected to /?auth_error=... so the
- * client can display a friendly error message.
+ * RECOVERY-LINK-ERROR FIX (2026-09-22, owner live bug report «بعد الضغط على
+ * الرابط فتح الموقع مع رسالة خطاء»): the PKCE verifier cookie only exists in
+ * the browser that STARTED the flow. A recovery email link opened in a
+ * different browser / mail-app WebView — or with its one-time code already
+ * consumed (email scanners, second click) — or expired used to dump the user
+ * on the HOMEPAGE with the raw GoTrue string as a toast («Login failed:
+ * invalid request: …»). The redirect decision table
+ * (src/lib/auth-callback-redirect.ts, unit-tested) now sends EVERY recovery
+ * failure branch to /auth/reset?recovery_error=1, where the reset page shows
+ * an honest localized state with a «start the recovery again» CTA. The OAuth
+ * surface keeps its exact pre-fix behavior (/?auth_error=… on the homepage)
+ * — branch ordering below mirrors the pre-fix route on purpose.
+ *
+ * PII law (SECURITY.md §2.3): never log user emails.
  */
 export async function GET(request: Request) {
  const requestUrl = new URL(request.url);
@@ -28,25 +44,34 @@ export async function GET(request: Request) {
  const error = requestUrl.searchParams.get("error");
  const errorDescription = requestUrl.searchParams.get("error_description");
 
+ // ── Gate 1: provider/GoTrue forwarded an error (used/expired link,
+ // provider deny…). No Supabase work is done — same as pre-fix.
  if (error) {
- console.error("[auth/callback] OAuth provider error:", error, errorDescription);
- return NextResponse.redirect(
- `${requestUrl.origin}/?auth_error=${encodeURIComponent(error)}`,
- );
+ console.error("[auth/callback] provider error:", error, errorDescription);
+ const decision = authCallbackRedirect({ code, next, providerError: error });
+ return NextResponse.redirect(`${requestUrl.origin}${decision.href}`);
  }
 
+ // ── Gate 2: no code at all (malformed link / verify dropped it).
+ // OAuth keeps its silent home redirect; recovery gets its honest landing.
  if (!code) {
- return NextResponse.redirect(`${requestUrl.origin}/`);
+ const decision = authCallbackRedirect({ code: null, next, providerError: null });
+ return NextResponse.redirect(`${requestUrl.origin}${decision.href}`);
  }
 
+ // ── Gate 3: server configuration.
  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
  if (!supabaseUrl || !supabaseAnonKey) {
  console.error("[auth/callback] Missing Supabase env vars");
- return NextResponse.redirect(
- `${requestUrl.origin}/?auth_error=${encodeURIComponent("server-config")}`,
- );
+ const decision = authCallbackRedirect({
+ code,
+ next,
+ providerError: null,
+ exchangeError: "server-config",
+ });
+ return NextResponse.redirect(`${requestUrl.origin}${decision.href}`);
  }
 
  const cookieStore = await cookies();
@@ -68,22 +93,31 @@ export async function GET(request: Request) {
  },
  });
 
+ // ── Gate 4: PKCE exchange (code is guaranteed non-null here).
  try {
- const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+ const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
  if (exchangeError) {
  console.error("[auth/callback] Code exchange failed:", exchangeError.message);
- return NextResponse.redirect(
- `${requestUrl.origin}/?auth_error=${encodeURIComponent(exchangeError.message)}`,
- );
  }
- // Session is now set in cookies. Send the user home.
- // Do not log user email — PII violation per SECURITY.md §2.3 (C9 fix).
- return NextResponse.redirect(`${requestUrl.origin}${safeNext(next)}`);
+ // Session (if exchanged) is now in cookies. Redirect per the decision
+ // table: recovery failures land on /auth/reset?recovery_error=1, OAuth
+ // failures on /?auth_error=…, success on the sanitized `next`.
+ const decision = authCallbackRedirect({
+ code,
+ next,
+ providerError: null,
+ exchangeError: exchangeError?.message ?? null,
+ });
+ return NextResponse.redirect(`${requestUrl.origin}${decision.href}`);
  } catch (e) {
  const msg = e instanceof Error ? e.message : String(e);
  console.error("[auth/callback] Exception:", msg);
- return NextResponse.redirect(
- `${requestUrl.origin}/?auth_error=${encodeURIComponent(msg || "unknown")}`,
- );
+ const decision = authCallbackRedirect({
+ code,
+ next,
+ providerError: null,
+ exchangeError: msg || "unknown",
+ });
+ return NextResponse.redirect(`${requestUrl.origin}${decision.href}`);
  }
 }

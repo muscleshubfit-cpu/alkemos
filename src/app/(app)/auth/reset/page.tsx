@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,15 +20,83 @@ import { toast } from "sonner";
  * dashboard. No token is ever rendered in a URL the app must parse
  * (detectSessionInUrl=false stays untouched).
  *
+ * RECOVERY-LINK-ERROR FIX (2026-09-22, owner live bug report «بعد الضغط
+ * على الرابط فتح الموقع مع رسالة خطاء»): when the PKCE exchange fails at
+ * /auth/callback — the link is one-time and was already consumed, it
+ * expired, or it was opened in a DIFFERENT browser / mail-app WebView
+ * than the one that requested it (the verifier cookie lives only in the
+ * requesting browser) — the route now lands back HERE with
+ * ?recovery_error=1 instead of dumping the user on the homepage with a
+ * raw English GoTrue toast. This page renders the honest state: what
+ * happened, the three causes, and a «start the recovery again» CTA
+ * (same-browser advice included).
+ *
  * AUTH-SURFACE NOTE (§7): pre-approved by the owner's «ابدأ التحسينات»
  * order — the report's §5-2 IS the approved spec, H1-2026 precedent
  * (SECURITY.md §9.13/§9.15).
  */
 
+/**
+ * RecoveryFailureState — the ?recovery_error=1 landing (see header note).
+ * Honest AR/EN copy, no raw GoTrue strings, one clear CTA.
+ */
+function RecoveryFailureState() {
+  const { lang } = useI18n();
+  const router = useRouter();
+  const isAr = lang === "ar";
+
+  const causes = isAr
+    ? [
+        "روابط الاستعادة تُستخدم مرة واحدة فقط — وقد استُهلك هذا الرابط (نقرة سابقة أو فاحص روابط في خدمة البريد)",
+        "انتهت صلاحية الرابط — روابط الاستعادة قصيرة العمر",
+        "فُتح الرابط من متصفح أو تطبيق بريد مختلف عن المتصفح الذي طُلبت منه الاستعادة",
+      ]
+    : [
+        "Recovery links work only once — this one was already consumed (an earlier click or your mail provider's link scanner)",
+        "The link expired — recovery links are short-lived",
+        "The link was opened in a different browser or mail app than the one you requested the reset from",
+      ];
+
+  return (
+    <div className="w-full max-w-md px-2">
+      <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+        {isAr ? "تعذّر تأكيد رابط الاستعادة" : "We couldn't confirm this recovery link"}
+      </h1>
+      <p className="mt-2 text-base font-normal text-[var(--muted-foreground)]">
+        {isAr
+          ? "لا مشكلة — أعد الطلب يستغرق ثوانٍ. الأسباب المحتملة:"
+          : "No harm done — request a new link, it takes seconds. Likely causes:"}
+      </p>
+      <ul className="mt-4 list-disc space-y-2 ps-5 text-sm font-normal text-[var(--muted-foreground)]">
+        {causes.map((c) => (
+          <li key={c}>{c}</li>
+        ))}
+      </ul>
+      <div className="marble-card mt-6 p-4 text-sm font-normal text-[var(--text)]">
+        {isAr
+          ? "لضمان نجاح الرابط الجديد: اطلب الاستعادة من نفس المتصفح الذي ستفتح فيه البريد، ثم اضغط الرابط داخل ذلك المتصفح نفسه."
+          : "To make the new link work: request the reset from the same browser you'll open the email in, then click the link inside that same browser."}
+      </div>
+      <button
+        type="button"
+        onClick={() => router.replace("/auth?mode=login")}
+        className="btn-chrome mt-6 w-full px-6 py-3 text-base"
+      >
+        {isAr ? "ابدأ الاستعادة من جديد" : "Start the recovery again"}
+      </button>
+    </div>
+  );
+}
+
 function ResetForm() {
   const { lang, t } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isAr = lang === "ar";
+
+  // RECOVERY-LINK-ERROR FIX: the callback route lands failed recovery
+  // attempts HERE — render the honest failure state instead of the form.
+  const recoveryFailed = searchParams.get("recovery_error") === "1";
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -99,6 +167,9 @@ function ResetForm() {
       </header>
 
       <main className="flex flex-1 items-center justify-center px-4 py-10">
+        {recoveryFailed ? (
+          <RecoveryFailureState />
+        ) : (
         <div className="w-full max-w-md px-2">
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             {isAr ? "عيّن كلمة مرور جديدة" : "Set a new password"}
@@ -168,6 +239,7 @@ function ResetForm() {
             </button>
           </p>
         </div>
+        )}
       </main>
 
       <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
