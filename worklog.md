@@ -6,6 +6,30 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-FULL-TEST-CLOSURE-2026-09-21
+Agent: Super Z (owner session)
+Task: إغلاق UX-FULL-TEST-2026-09-21 — تنفيذ الخطة كاملة (أمواج A–H) على الإنتاج الحي وتسليم التقرير.
+
+Work Log:
+- الزائر: 23 صفحة EN + 10 مرايا AR بمحتوى كامل وRTL · BMI E2E (26.8/Overweight/وزن مثالي) · تبديل اللغة يعكس الرابط · 404 مخصصة سليمة · صفر أخطاء كونسول
+- التسجيل والدخول: تسجيل فوري → /dashboard · مؤشر قوة كلمة المرور حي · رسائل الأخطاء i18n سليمة بغتين (M1) · «Account already exists» شاشة صادقة (M2)
+- العضو Free: استبيان 3 خطوات E2E بمراجعة مفهومة (m5) · توليد خطة AI حية وحفظ تلقائي · EVO يجيب ويكشف الحصص · check-in E2E · تذكرة دعم E2E · مسح EVO عند الخروج مؤكد (m3) · عدد الأدوات 8 (m4) · رسالة Premium للبدائل (m6)
+- المدرب B2B: تسجيل ذاتي → landing editor → Publish → اعتماد الأدمن → صفحة عامة حية · دعوة عميل (200+إسناد) · جرس نظيف (C1) · محفظة وطلب شحن إيصال
+- المال بالرصيد الوهمي حصرًا (صفر PayPal): طلب شحن 30$ → اعتماد الأدمن → تفعيل Coaching بـ6$ → خصم وledger (30→24) → العميل يرى «كوتشينج · 30 يوم · مفعّلة بواسطة مدربك» → swaps 6/6 · مسار الدفع اليدوي في checkout E2E بطلب حقيقي اعتمده الأدمن
+- الأدمن: 17 صفحة ترندر · اعتماد المدفوعات («Subscription approved and activated!») · مراجعة صفحات المدربين · تحويل B2C كامل (Make site coach → roster → نص لوحة المدرب يتبدل) · دفتر 35 حسابًا بـ4 test accounts
+- الموبايل @390px: الفوتر 32×32/24px (m1) · درج EVO 274px (m2)
+- تعريب الأطعمة حي: food-search?lang=ar يرد nameAr · /ar/foods/chicken-breast «صدور دجاج»
+- الاكتشاف الجديد الأهم (H1-2026 موثق بحسابين + SQL): دعوة المدرب تُنشئ صف auth بكلمة مرور فارغة → العميل المدعو يعلق بين «Account already exists» و«Invalid login credentials» بلا مخرج ذاتي — + M-2026 (خلط عربي خام بواجهة EN في صفحة عميل المدرب) + 3 بنود صغيرة + 7 فرص تحسين
+- الحسابات: qa.ux0921.member1/.coach1/.client2/.client3 (جديدة) · qa.admin1431 (موجودة معلمة — أعيد ضبط كلمة مرورها بوسيلة 0050 لأن المؤرشفة قديمة) · صفر مساس ببيانات حقيقية · كل التحقق SQL قراءة-فقط عدا ذلك
+- البوابات (docs-only): docs_audit ✓ — الكوميت [vercel skip]
+
+Stage Summary:
+- التقرير docs/UX-TEST-REPORT-2026-09-21.md + صفاه في docs/README (الخطة EXECUTED) بنفس الكوميت
+- إصلاحات 09-18 كلها حية (12/12) — الاكتشاف الوحيد عالي الخطورة: H1-2026 (طريق مسدود للعميل المدعو) بالحلول الثلاثة المقترحة
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: UX-FULL-TEST-2026-09-21
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ بعمل خطة تنفيذ ووثقها وادفعها، ثم ابدأ فى تنفيذها» — خطة اختبار UX شامل لكل أنواع الحسابات على الإنتاج الحي (برصيد وهمي حصرًا — PayPal وكل بوابات الدفع الحقيقية خارج النطاق بأمر المالك).
