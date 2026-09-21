@@ -107,13 +107,41 @@ export async function listAdminNotifications() {
  return read<AdminNotificationRow[]>(LS_PREFIX + "admin_notifs", []);
 }
 
-export async function markAdminNotificationsRead() {
+// Phase 246 — the ADMIN's feed goes through GET /api/notifications/admin:
+// RLS hands an admin EVERY staff row (the is_admin() branch), so the bell
+// drowned in pings targeted at other coaches (new-client / questionnaire /
+// plan-approval) plus rows meant for one specific coach. The GET route
+// filters service-side to `target_coach_id is null OR in (admin ids)` —
+// precise multi-admin visibility with zero RLS changes. Any failure falls
+// back to the raw RLS fetch — the bell never goes empty-handed.
+export async function listAdminNotificationsForAdmin(): Promise<AdminNotificationRow[]> {
  if (isSupabaseConfigured && supabase) {
- await supabase.from("admin_notifications").update({ read: true }).eq("read", false);
+ try {
+ const res = await fetch("/api/notifications/admin");
+ if (res.ok) {
+ const json = (await res.json()) as { items?: AdminNotificationRow[] };
+ if (Array.isArray(json.items)) return json.items;
+ }
+ } catch {
+ /* fall through to the RLS fetch */
+ }
+ }
+ return listAdminNotifications();
+}
+
+// Phase 246 — «تعليم الكل» now scopes to the ids the bell actually shows.
+// The old update touched EVERY read=false row in the table — for an admin
+// that literally marked OTHER coaches' rows read (RLS admin-update-all).
+// .in("id", ids) keeps the write inside the visible set for every staff
+// role, matching what the bell displayed.
+export async function markAdminNotificationsRead(ids: string[]) {
+ if (isSupabaseConfigured && supabase) {
+ if (ids.length === 0) return;
+ await supabase.from("admin_notifications").update({ read: true }).in("id", ids).eq("read", false);
  return;
  }
  const all = read<AdminNotificationRow[]>(LS_PREFIX + "admin_notifs", []);
- all.forEach((n) => { n.read = true; });
+ all.forEach((n) => { if (ids.includes(n.id)) n.read = true; });
  write(LS_PREFIX + "admin_notifs", all);
 }
 

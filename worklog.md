@@ -6,6 +6,27 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: ADMIN-DASH-246-2026-09-22
+Agent: Super Z (owner session)
+Task: بلاغ المالك «داشبورد الادمن يظهر عدد عملاء وصفحة جدول العملاء يظهر رقم اخر، طلبات الموافقة على الدفع زر الايصال لا يعمل، الاشعارات كلها تظهر للادمن (راجع أيضًا الاشعارات عند باقي الحسابات)، داش بورد الادمن محتاج اعاده تنظيم وتحسين وعدم تكرار — ابتكر أفضل حل يكون مريح ومنظم — كذلك داشبورد كل انواع الحسابات» — مرحلة 246: ثلاثة إصلاحات بجذور مثبتة + إعادة تنظيم اللوحات.
+
+Work Log:
+- استكشاف: وكيلان متوازيان (فاحصات admin + notifications/dashboards) — خريطة تكرار كاملة (عدّاد الدفع المعلق 5× · الإيراد reduce مكرر موضعين · الجرس بلا أي فلتر)
+- B1 العدّاد: الداشبورد كان يقرأ get_coach_client_stats (role='client' حصرًا) بينما /admin/clients يقرأ get_admin_clients_stats (كل profiles) — الداشبورد الآن يستدعي RPC صفحة العملاء نفسه: بلاطة «إجمالي الحسابات» + تفصيل صادق (منهم عملاء · مدربون) — التطابق تعريفي لا تصادفي
+- B2 الإيصال (ميت بفشلين متراكبين): DB يحمل receipts/<uid>/<file> بينما المفتاح داخل bucket هو <uid>/<file> (توقيع receipts/receipts/… = Not Found) + 0071 أسقطت سياسة SELECT على receipts بلا بديل (التوقيع من المتصفح ميت للجميع) + فشل صامت ({data} بلا error وif(url) بلا else) — الحل: قراءة عبر البروكسي المفوّض سلفًا /api/file (staff role≠client + service-role داخليًا — المسار الذي يرجعه /api/upload وكان يُرمى) — جديد lib/receipt-view.ts نقيتان (تطبيع Lيجاسي receipts/<file> والجديد receipts/<uid>/<file>) + إحلال في AdminPaymentsView/AdminWalletsView/CoachWalletView + حذف getReceiptSignedUrl + openReceipt متزامن (popup-safe) — شكل الكتابة لم يُمس (قانون receipt-ownership سليم)
+- B3 إشعارات الأدمن: الجرس يقرأ admin_notifications بلا فلتر وRLS (0088) يمنح admin كل صفوف is_staff — بما فيها pings المدربين الخاصة — الحل بلا ميجريشن: جديد GET /api/notifications/admin (service-role بفلتر target_coach_id is null أو ∈ admin ids — adminFeedOrFilter نقية + getAdminIds/getPrimaryAdminId بnotifications-server) + listAdminNotificationsForAdmin + AdminNotificationBell واعٍ بالدور (الكوتش يبقى على RLS fetch) + markAdminNotificationsRead(ids) بمعرفات الظاهر حصرًا (كان يقرأ كل read=false فيمسح صفوف مدربين آخرين!) + إعادة توجيه 3 بثوث عامة للأدمن عند الإرسال (coach_ad/coach_support/payout_request — كانت تصل كل الكوتشز) + إصلاح misroute تذاكر الدعم (target_coach_id = auth.id معرف العميل! ← assigned coach ← fallback admin بنمط المسار العميلي)
+- B4 اللوحات: داشبورد الأدمن معاد تنظيمه — شريط «يحتاج انتباهك» (الدفع المعلق + الصفحات) يظهر عند الازدحام حصرًا وصامت عند الصفر + KPI مصنفة ثلاث مجموعات (الحسابات/الاشتراكات/المالية) بمصدر واحد لكل رقم + مجاميع الإيراد بدالة نقية مشتركة sumSubscriptionRequestsByStatus (كانت مكررة موضعين) · CoachView: الإحصائيات الثلاث + شريط الطلبات المعلقة فوق النماذج القابلة للطي (كانت مدفونة تحتها — الأرقام أولًا) · داشبورد العضو: إجراء «الدعم» في السريع
+- البوابات: tsc 0 · eslint 0 (تحذير root-shell قديم) · vitest 96 ملفًا/1593 (+14: receipt-view 7 · subscription-sums 4 · adminFeedOrFilter 3) · next build ✓ · docs_audit ✓ (ضغط صفوف 232-238 التاريخية لنمط Phase 235 — 28.9KB < 32KB) · migration_audit ✓ صفر انحراف — صفر ميجريشن — صفر متغير بيئة جديد
+- حد المنهج: نقر «الإيصال» الفعلي بإيصال حقيقي معلق وقراءة الجرس بأدوار حية — مدخل LIVE-VERIF مستقل بعد النشر
+
+Stage Summary:
+- الأرقام أصبحت مصدر واحد لكل رقم: الداشبورد وجدول العملاء يتطابقان تعريفيًا، الإيراد دالة واحدة، شريط الانتباه بلا تكرار
+- زر الإيصال حي عبر بروكسي مفوّض (لا توقيع متصفح ولا سياسة storage مطلوبة — صفر مساس RLS)
+- الأدمن يرى إشعارات الأعمال الإدارية حصرًا، والكوتشز توقف تسرب 3 أنواع، والتذاكر تصب لمستلمها الصحيح
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: RECOVERY-OTP-TEMPLATE-APPLY-2026-09-22
 Agent: Super Z (owner session)
 Task: الخطوة الأخيرة لخيار OTP — المالك زوّد الجلسة بمفتاح Supabase شخصي (sbp_) فطُبّق قالب بريد Recovery ثنائي اللغة برمجيًا عبر Management API وتحقق بالقراءة العكسية — إغلاق كامل لمسار الرمز الرقمي.

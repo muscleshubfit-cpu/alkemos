@@ -5,6 +5,7 @@ import {
   supportTicketBodySchema,
   TICKET_STATUSES,
 } from "@/lib/validation/schemas";
+import { getPrimaryAdminId } from "@/lib/notifications-server";
 
 /**
  * STAFF side of CLIENT support tickets (Phase 55 fix).
@@ -375,7 +376,21 @@ async function memberCreateTicket(
     .from("ticket_messages")
     .insert({ ticket_id: (ticket as { id: string }).id, sender_id: auth.id, body: text.slice(0, MAX_BODY) });
 
-  // Staff bell (same wording/routing as the legacy client-side path)
+  // Staff bell — Phase 246 routing fix: the old insert targeted
+  // `auth.id` = the CLIENT who opened the ticket, a row no coach-facing
+  // RLS branch ever matched (it silently became an admin-only zombie).
+  // The legacy client-side path routes new_ticket to the client's
+  // ASSIGNED coach with an admin fallback — the server path mirrors
+  // that exactly now.
+  const targetCoachId = await (async () => {
+    const { data: asg } = await supabaseAdmin
+      .from("coach_assignments")
+      .select("coach_id")
+      .eq("client_id", auth.id)
+      .maybeSingle();
+    const coachId = (asg as { coach_id: string } | null)?.coach_id;
+    return coachId ?? (await getPrimaryAdminId());
+  })();
   await supabaseAdmin
     .from("admin_notifications")
     .insert({
@@ -383,7 +398,7 @@ async function memberCreateTicket(
       title: "تذكرة دعم جديدة ",
       body: `موضوع: ${subject.slice(0, 200)}${priority === "high" ? " — أولوية (عضوية كوتشينج)" : ""}`,
       link: "coach-support",
-      target_coach_id: auth.id,
+      target_coach_id: targetCoachId,
       read: false,
     })
     .then(undefined, () => {});

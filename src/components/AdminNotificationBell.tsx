@@ -10,6 +10,7 @@ import {
  PopoverTrigger,
 } from "@/components/ui/popover";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
 // P3-10 (deep-audit Phase 217 — safeNext expansion): same law as the
@@ -26,6 +27,11 @@ export function AdminNotificationBell() {
  const isAr = lang === "ar";
  const { navigate } = useNav();
  const router = useRouter();
+ // Phase 246 — role-aware feed: the admin goes through the filtered
+ // GET /api/notifications/admin (owner bug: «الاشعارات كلها تظهر للادمن»);
+ // coaches keep the RLS fetch (own rows + broadcasts).
+ const { profile } = useAuth();
+ const isAdmin = profile?.role === "admin";
  const [open, setOpen] = useState(false);
  const [items, setItems] = useState<AdminNotificationRow[]>([]);
  const [loading, setLoading] = useState(true);
@@ -33,8 +39,10 @@ export function AdminNotificationBell() {
  useEffect(() => {
  let interval: ReturnType<typeof setInterval> | undefined;
  const load = async () => {
- const { listAdminNotifications } = await import("@/lib/data");
- const data = await listAdminNotifications();
+ const { listAdminNotifications, listAdminNotificationsForAdmin } = await import("@/lib/data");
+ const data = isAdmin
+ ? await listAdminNotificationsForAdmin()
+ : await listAdminNotifications();
  setItems(data);
  setLoading(false);
  };
@@ -56,13 +64,16 @@ export function AdminNotificationBell() {
  clearInterval(interval);
  document.removeEventListener("visibilitychange", handleVisibility);
  };
- }, []);
+ }, [isAdmin]);
 
  const unread = items.filter((n) => !n.read).length;
 
  const handleMarkRead = async () => {
  const { markAdminNotificationsRead } = await import("@/lib/data");
- await markAdminNotificationsRead();
+ // Phase 246 — scope the write to the ids the bell actually shows (the
+ // old update touched EVERY read=false row — for an admin that meant
+ // marking OTHER coaches' rows read).
+ await markAdminNotificationsRead(items.map((n) => n.id));
  setItems((prev) => prev.map((n) => ({ ...n, read: true })));
  };
 

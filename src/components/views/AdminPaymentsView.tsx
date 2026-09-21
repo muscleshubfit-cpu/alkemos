@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useNav } from "@/hooks/use-nav";
 import { cn } from "@/lib/utils";
-import { listSubscriptionRequests, reviewSubscriptionRequest, getReceiptSignedUrl } from "@/lib/data";
+import { listSubscriptionRequests, reviewSubscriptionRequest } from "@/lib/data";
+import { receiptViewUrl } from "@/lib/receipt-view";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { getTier, type TierId } from "@/lib/plans";
 import { toast } from "sonner";
@@ -145,14 +146,13 @@ export function AdminPaymentsView() {
 
   // Accepts null: the JSX guard hides the button when receipt_path is null,
   // but the click handler must accept the row's nullable field type.
-  const openReceipt = async (path: string | null) => {
+  // Phase 246: the authorized same-origin proxy (receipt-view.ts law) —
+  // the old browser-side signing asked for `receipts/receipts/…` with no
+  // storage SELECT policy and failed SILENTLY. Synchronous open so popup
+  // blockers never eat the click.
+  const openReceipt = (path: string | null) => {
     if (!path) return;
-    try {
-      const url = await getReceiptSignedUrl(path);
-      if (url) window.open(url, "_blank", "noopener");
-    } catch {
-      toast.error(t("common.error"));
-    }
+    window.open(receiptViewUrl(path), "_blank", "noopener");
   };
 
   // Resolve membership tier name from new MEMBERSHIPS table OR legacy plans

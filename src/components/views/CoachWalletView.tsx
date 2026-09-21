@@ -13,7 +13,8 @@ import {
   coachTopupMethodLabel,
   type CoachTopupMethod,
 } from "@/lib/coach-limits";
-import { uploadReceipt, getReceiptSignedUrl } from "@/lib/data";
+import { uploadReceipt } from "@/lib/data";
+import { receiptViewUrl } from "@/lib/receipt-view";
 
 /**
  * COACH WALLET (0035) — /coach/wallet
@@ -304,9 +305,12 @@ export function CoachWalletView() {
     }
   };
 
-  const openReceipt = async (path: string) => {
-    const url = await getReceiptSignedUrl(path);
-    if (url) window.open(url, "_blank", "noopener");
+  // Phase 246: the authorized same-origin proxy (receipt-view.ts law) —
+  // the old browser-side signing asked for `receipts/receipts/…` with no
+  // storage SELECT policy and failed silently. Synchronous open so popup
+  // blockers never eat the click.
+  const openReceipt = (path: string) => {
+    window.open(receiptViewUrl(path), "_blank", "noopener");
   };
 
   const fmt = (n: number) =>

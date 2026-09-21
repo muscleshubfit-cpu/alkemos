@@ -236,6 +236,10 @@ export function DashboardView() {
             { label: t("dash.logProgress"), to: "progress" as const },
             { label: t("dash.fillQuestionnaires"), to: "questionnaires" as const },
             { label: t("dash.viewPlans"), to: "plans" as const },
+            // Phase 246 (owner: dashboards of ALL account types): support
+            // was missing from the quick actions — a member with a billing
+            // or coaching question had to know the /support route exists.
+            { label: isAr ? "الدعم" : "Support", to: "support" as const },
           ].map((action) => (
             <button
               key={action.to}

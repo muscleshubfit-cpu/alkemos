@@ -778,6 +778,56 @@ export function CoachView() {
         )}
       </div>
 
+      {/* Phase 246 reorganization — the glanceable numbers come FIRST:
+          stats + the admin pending-payments banner sit right under the
+          action row, and the (toggled, collapsible) forms follow. The old
+          order buried the numbers under two always-in-DOM forms.
+
+          Stats — Apple-style large numbers (paged mode: DB-wide counts) */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl bg-[#f5f5f7] p-6">
+          <p className="text-3xl font-semibold tracking-tight">{fmtNum(counts.all, isAr)}</p>
+          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.totalClients")}</p>
+        </div>
+        <div className="rounded-2xl bg-[#f5f5f7] p-6">
+          <p className="text-3xl font-semibold tracking-tight text-[#34c759]">{fmtNum(counts.active, isAr)}</p>
+          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.activeSubs")}</p>
+        </div>
+        <div className="rounded-2xl bg-[#f5f5f7] p-6">
+          <p className="text-3xl font-semibold tracking-tight text-[#ff9500]">{fmtNum(counts.expiring, isAr)}</p>
+          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.expiringSoon")}</p>
+        </div>
+      </div>
+
+      {/* Pending payment requests — actionable banner (0043: ADMIN ONLY).
+          SITE membership requests are B2C/admin business per the
+          terminology law — coaches' lists return 0 pending from the RPC
+          and the admin gets the review link to /admin/payments. */}
+      {isAdmin && pendingRequests.length > 0 && (
+        <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-[#0071e3]">
+                {isAr
+                  ? `${pendingRequests.length} طلب دفع بانتظار المراجعة`
+                  : `${pendingRequests.length} payment request${pendingRequests.length > 1 ? "s" : ""} pending review`}
+              </h3>
+              <p className="mt-1 text-sm font-normal text-[#6e6e73]">
+                {isAr
+                  ? "عملاء رفعوا إيصالات الدفع وينتظرون التفعيل"
+                  : "Clients who uploaded payment receipts and await activation"}
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("admin-payments")}
+              className="shrink-0 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-normal text-white transition-opacity hover:opacity-90"
+            >
+              {isAr ? "مراجعة الطلبات ›" : "Review requests ›"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Invite-client form (the B2B coach brings his own clients — 0033) */}
       {showInvite && isB2BCoach && (
         <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/[0.04] p-6">
@@ -945,51 +995,6 @@ export function CoachView() {
             onSelectAll={selectVisibleClients}
             onClearSelection={clearSelection}
           />
-        </div>
-      )}
-
-      {/* Stats — Apple-style large numbers (paged mode: DB-wide counts) */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight">{fmtNum(counts.all, isAr)}</p>
-          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.totalClients")}</p>
-        </div>
-        <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight text-[#34c759]">{fmtNum(counts.active, isAr)}</p>
-          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.activeSubs")}</p>
-        </div>
-        <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight text-[#ff9500]">{fmtNum(counts.expiring, isAr)}</p>
-          <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.expiringSoon")}</p>
-        </div>
-      </div>
-
-      {/* Pending payment requests — actionable banner (0043: ADMIN ONLY).
-          SITE membership requests are B2C/admin business per the
-          terminology law — coaches' lists return 0 pending from the RPC
-          and the admin gets the review link to /admin/payments. */}
-      {isAdmin && pendingRequests.length > 0 && (
-        <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h3 className="text-base font-semibold text-[#0071e3]">
-                {isAr
-                  ? `${pendingRequests.length} طلب دفع بانتظار المراجعة`
-                  : `${pendingRequests.length} payment request${pendingRequests.length > 1 ? "s" : ""} pending review`}
-              </h3>
-              <p className="mt-1 text-sm font-normal text-[#6e6e73]">
-                {isAr
-                  ? "عملاء رفعوا إيصالات الدفع وينتظرون التفعيل"
-                  : "Clients who uploaded payment receipts and await activation"}
-              </p>
-            </div>
-            <button
-              onClick={() => navigate("admin-payments")}
-              className="shrink-0 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-normal text-white transition-opacity hover:opacity-90"
-            >
-              {isAr ? "مراجعة الطلبات ›" : "Review requests ›"}
-            </button>
-          </div>
         </div>
       )}
 

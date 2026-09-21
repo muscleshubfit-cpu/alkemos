@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { listSubscriptionRequests } from "@/lib/data";
+import { listSubscriptionRequests, sumSubscriptionRequestsByStatus } from "@/lib/data";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { COACH_CLIENT_PACKAGES } from "@/lib/coach-limits";
 import { getTier, type TierId } from "@/lib/plans";
@@ -157,8 +157,10 @@ export default function AdminFinancesPage() {
   const site = useMemo(() => {
     const approved = reqs.filter((r) => r.status === "approved");
     const pending = reqs.filter((r) => r.status === "pending");
-    const approvedSum = approved.reduce((s, r) => s + (Number(r.price_usd) || 0), 0);
-    const pendingSum = pending.reduce((s, r) => s + (Number(r.price_usd) || 0), 0);
+    // Phase 246 dedup: one shared pure sums definition (the same reduce
+    // used to live here AND on the admin dashboard tile).
+    const approvedSum = sumSubscriptionRequestsByStatus(reqs, "approved");
+    const pendingSum = sumSubscriptionRequestsByStatus(reqs, "pending");
     const refundsApproved = refunds
       .filter((r) => r.status === "approved")
       .reduce((s, r) => s + (Number(r.amount_usd) || 0), 0);

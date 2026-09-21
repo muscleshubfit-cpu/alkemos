@@ -3,6 +3,7 @@ import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { COACH_AD_PACKAGES, coachAdPackageById } from "@/lib/coach-limits";
 import { coachAdPackageBodySchema } from "@/lib/validation/schemas";
+import { getPrimaryAdminId } from "@/lib/notifications-server";
 import type { CoachAd } from "@/lib/supabase/types";
 
 /**
@@ -228,6 +229,12 @@ export async function POST(request: NextRequest) {
     // Fire-and-forget visibility: admins learn about the purchase, the
     // coach gets a receipt notification. Neither can fail the purchase.
     const endsAr = new Date(String(ad!.ends_at)).toLocaleDateString("ar-EG");
+    // Phase 246: ad purchases are ADMIN business (wallet accounting,
+    // /admin/wallets) — the old NULL target broadcast to every coach's
+    // bell. Route to the primary admin like every other admin-business
+    // event (fallback: NULL broadcast when no admin exists — the event is
+    // never silently lost).
+    const adminTarget = await getPrimaryAdminId();
     const { error: adminNotifErr } = await supabaseAdmin
       .from("admin_notifications")
       .insert({
@@ -235,7 +242,8 @@ export async function POST(request: NextRequest) {
         title: "اشتراك إعلان جديد",
         body: `مدرب اشترك في باقة إعلان (${pkg.ar}) مقابل ${price}$ — سارية حتى ${endsAr}.`,
         link: "/admin/wallets",
-        target_role: "coach",
+        target_role: "admin",
+        ...(adminTarget ? { target_coach_id: adminTarget } : {}),
       });
     if (adminNotifErr) {
       console.error("[api/coach/ads] admin notification failed:", adminNotifErr.message);

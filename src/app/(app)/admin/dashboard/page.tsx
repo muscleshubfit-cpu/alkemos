@@ -3,22 +3,36 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
-import { getCoachClientStats, listSubscriptionRequests, type CoachClientStats } from "@/lib/data";
+import {
+  getAdminClientsStats,
+  listSubscriptionRequests,
+  sumSubscriptionRequestsByStatus,
+  type AdminClientsStats,
+} from "@/lib/data";
 import { PageHeader, StatTile, fmtMoney, fmtNum } from "@/components/admin/ui";
 
 /**
- * ADMIN DASHBOARD (/admin/dashboard) — Admin Panel 2.0 (Phase 101).
+ * ADMIN DASHBOARD (/admin/dashboard) — Phase 246 reorganization
+ * (owner: «داش بورد الادمن محتاج اعاده تنظيم وتحسين وعدم تكرار — ابتكر
+ * أفضل حل يكون مريح ومنظم»).
  *
- * The old /admin home was a launcher of launchers (13 cards → coach-system
- * hub → 4 more cards). With the dedicated sidebar carrying navigation,
- * the dashboard becomes an AT-A-GLANCE screen: the six numbers the owner
- * checks daily (clients, active subs, expired, pending payments, pending
- * page reviews, approved revenue) + compact quick-action cards.
- *
- * PHASE 142 (owner: «تكرار ازرار»): the old 14-card QUICK grid was a
- * full COPY of the sidebar (every admin surface twice on one screen).
- * Reduced to the FOUR daily actions — the sidebar stays the single
- * complete map (and the mobile button grid mirrors it).
+ * What changed and why:
+ * - ONE canonical source per number. The clients tile used to read
+ *   get_coach_client_stats (role='client' only) while /admin/clients showed
+ *   get_admin_clients_stats (every profile) — two different metrics under
+ *   one label family (owner bug: dashboard count ≠ table count). The
+ *   dashboard now reads getAdminClientsStats() — the SAME RPC the clients
+ *   page uses — so the totals match BY DEFINITION, with the honest
+ *   clients/coaches breakdown in the tile's sub-line.
+ * - A "needs attention" strip: the two live queues (pending payments,
+ *   page reviews) surface as actionable cards ONLY when non-zero — the
+ *   comfortable default is silence, not a permanent orange tile.
+ * - KPIs grouped by domain (accounts / subscriptions / money) instead of
+ *   one undifferentiated strip of six.
+ * - Revenue sums ride the shared pure subscription-sums helper (the same
+ *   reduce was duplicated here and on /admin/finances).
+ * - Quick actions stay the four daily ones (Phase 142 law: the sidebar is
+ *   the single complete map — never a second copy of it).
  *
  * All counters are best-effort — a failing source hides its tile, never
  * breaks the page.
@@ -43,7 +57,7 @@ const QUICK: { ar: string; en: string; cards: QuickCard[] }[] = [
 export default function AdminDashboardPage() {
   const { lang } = useI18n();
   const isAr = lang === "ar";
-  const [stats, setStats] = useState<CoachClientStats | null>(null);
+  const [stats, setStats] = useState<AdminClientsStats | null>(null);
   const [pendingPages, setPendingPages] = useState<number | null>(null);
   const [revenueApproved, setRevenueApproved] = useState<number | null>(null);
   const [revenuePending, setRevenuePending] = useState<number | null>(null);
@@ -52,8 +66,11 @@ export default function AdminDashboardPage() {
     let cancelled = false;
     (async () => {
       try {
+        // Phase 246: getAdminClientsStats — the clients page's own RPC —
+        // replaces getCoachClientStats (the coach-scoped lens that made
+        // this page disagree with the clients table).
         const [st, pagesRes, reqs] = await Promise.all([
-          getCoachClientStats(),
+          getAdminClientsStats(),
           fetch("/api/admin/coach-pages").catch(() => null),
           listSubscriptionRequests("all"),
         ]);
@@ -63,14 +80,8 @@ export default function AdminDashboardPage() {
           const data = await pagesRes.json();
           if (data?.counts) setPendingPages(Number(data.counts.pending) || 0);
         }
-        const approved = reqs
-          .filter((r) => r.status === "approved")
-          .reduce((s, r) => s + (Number(r.price_usd) || 0), 0);
-        const pending = reqs
-          .filter((r) => r.status === "pending")
-          .reduce((s, r) => s + (Number(r.price_usd) || 0), 0);
-        setRevenueApproved(approved);
-        setRevenuePending(pending);
+        setRevenueApproved(sumSubscriptionRequestsByStatus(reqs, "approved"));
+        setRevenuePending(sumSubscriptionRequestsByStatus(reqs, "pending"));
       } catch {
         /* tiles stay hidden */
       }
@@ -80,61 +91,155 @@ export default function AdminDashboardPage() {
     };
   }, []);
 
+  const accountsSub = stats
+    ? isAr
+      ? `منهم ${fmtNum(stats.member_site + stats.client_of_coach, isAr)} عميل · ${fmtNum(stats.coach_site + stats.coach_b2b, isAr)} مدرب`
+      : `${fmtNum(stats.member_site + stats.client_of_coach, isAr)} clients · ${fmtNum(stats.coach_site + stats.coach_b2b, isAr)} coaches`
+    : undefined;
+  const pendingPayments = stats?.pending_payment ?? 0;
+  const needsAttention = pendingPayments > 0 || (pendingPages ?? 0) > 0;
+
   return (
     <div className="space-y-8">
       <PageHeader
         title={isAr ? "الرئيسية" : "Dashboard"}
         sub={
           isAr
-            ? "الأرقام اللي بتفحصها كل يوم في مكان واحد — التنقل الكامل من القائمة الجانبية."
-            : "The daily numbers in one place — full navigation lives in the sidebar."
+            ? "الأرقام المصنفة بمصدر واحد لكل رقم — والتنقل الكامل من القائمة الجانبية."
+            : "Grouped numbers, one source per metric — full navigation lives in the sidebar."
         }
       />
 
-      {/* KPI strip — the six daily numbers */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <StatTile
-          label={isAr ? "إجمالي العملاء" : "Total clients"}
-          value={stats ? fmtNum(stats.total, isAr) : null}
-          href="/admin/clients"
-        />
-        <StatTile
-          label={isAr ? "اشتراكات نشطة" : "Active subs"}
-          value={stats ? fmtNum(stats.active, isAr) : null}
-          tone="green"
-          href="/admin/clients"
-        />
-        <StatTile
-          label={isAr ? "اشتراكات منتهية" : "Expired subs"}
-          value={stats ? fmtNum(stats.expired, isAr) : null}
-          tone="red"
-          href="/admin/clients"
-        />
-        <StatTile
-          label={isAr ? "طلبات دفع معلّقة" : "Pending payments"}
-          value={stats ? fmtNum(stats.pending_payment, isAr) : null}
-          tone="orange"
-          href="/admin/payments"
-        />
-        <StatTile
-          label={isAr ? "صفحات بانتظار المراجعة" : "Pages pending review"}
-          value={pendingPages !== null ? fmtNum(pendingPages, isAr) : null}
-          tone="orange"
-          href="/admin/coach-pages"
-        />
-        <StatTile
-          label={isAr ? "إيرادات معتمدة" : "Approved revenue"}
-          value={revenueApproved !== null ? fmtMoney(revenueApproved) : null}
-          sub={
-            revenuePending !== null && revenuePending > 0
-              ? isAr
-                ? `${fmtMoney(revenuePending)} معلّقة`
-                : `${fmtMoney(revenuePending)} pending`
-              : undefined
-          }
-          tone="blue"
-          href="/admin/finances"
-        />
+      {/* Needs-attention strip — the two live queues, ONLY when non-zero */}
+      {needsAttention && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {pendingPayments > 0 && (
+            <Link
+              href="/admin/payments"
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-[#ff9500]/30 bg-[#ff9500]/[0.06] p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5"
+            >
+              <span className="flex items-center gap-3">
+                <span className="text-2xl">⏳</span>
+                <span>
+                  <span className="block font-medium">
+                    {isAr ? "طلبات دفع بانتظار المراجعة" : "Payments awaiting review"}
+                  </span>
+                  <span className="text-xs text-[#6e6e73]">
+                    {isAr ? "إيصالات رفعها عملاء الموقع" : "Site members' payment receipts"}
+                  </span>
+                </span>
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="rounded-full bg-[#ff9500]/15 px-3 py-1 text-sm font-semibold text-[#c77700]">
+                  {fmtNum(pendingPayments, isAr)}
+                </span>
+                <span className="text-[#6e6e73] transition-transform group-hover:translate-x-0.5 rtl:rotate-180">
+                  ›
+                </span>
+              </span>
+            </Link>
+          )}
+          {(pendingPages ?? 0) > 0 && (
+            <Link
+              href="/admin/coach-pages"
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-[#ff9500]/30 bg-[#ff9500]/[0.06] p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5"
+            >
+              <span className="flex items-center gap-3">
+                <span className="text-2xl">🗂️</span>
+                <span>
+                  <span className="block font-medium">
+                    {isAr ? "صفحات مدربين بانتظار المراجعة" : "Coach pages awaiting review"}
+                  </span>
+                  <span className="text-xs text-[#6e6e73]">
+                    {isAr ? "إقرار أو رفض من قائمة المراجعة" : "Approve or reject from the queue"}
+                  </span>
+                </span>
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="rounded-full bg-[#ff9500]/15 px-3 py-1 text-sm font-semibold text-[#c77700]">
+                  {fmtNum(pendingPages ?? 0, isAr)}
+                </span>
+                <span className="text-[#6e6e73] transition-transform group-hover:translate-x-0.5 rtl:rotate-180">
+                  ›
+                </span>
+              </span>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* KPI groups — one canonical source per number */}
+      <div className="space-y-6">
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6e6e73]">
+            {isAr ? "الحسابات" : "Accounts"}
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <StatTile
+              label={isAr ? "إجمالي الحسابات" : "Total accounts"}
+              value={stats ? fmtNum(stats.total, isAr) : null}
+              sub={accountsSub}
+              href="/admin/clients"
+            />
+            <StatTile
+              label={isAr ? "العملاء" : "Clients"}
+              value={stats ? fmtNum(stats.member_site + stats.client_of_coach, isAr) : null}
+              href="/admin/clients"
+            />
+            <StatTile
+              label={isAr ? "المدربون" : "Coaches"}
+              value={stats ? fmtNum(stats.coach_site + stats.coach_b2b, isAr) : null}
+              href="/admin/coaches"
+            />
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6e6e73]">
+            {isAr ? "الاشتراكات" : "Subscriptions"}
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <StatTile
+              label={isAr ? "اشتراكات نشطة" : "Active subs"}
+              value={stats ? fmtNum(stats.active, isAr) : null}
+              tone="green"
+              href="/admin/clients"
+            />
+            <StatTile
+              label={isAr ? "تنتهي خلال أسبوعين" : "Expiring in 2 weeks"}
+              value={stats ? fmtNum(stats.expiring, isAr) : null}
+              tone="orange"
+              href="/admin/clients"
+            />
+            <StatTile
+              label={isAr ? "اشتراكات منتهية" : "Expired subs"}
+              value={stats ? fmtNum(stats.expired, isAr) : null}
+              tone="red"
+              href="/admin/clients"
+            />
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6e6e73]">
+            {isAr ? "المالية" : "Money"}
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <StatTile
+              label={isAr ? "إيرادات معتمدة" : "Approved revenue"}
+              value={revenueApproved !== null ? fmtMoney(revenueApproved) : null}
+              sub={
+                revenuePending !== null && revenuePending > 0
+                  ? isAr
+                    ? `${fmtMoney(revenuePending)} معلّقة`
+                    : `${fmtMoney(revenuePending)} pending`
+                  : undefined
+              }
+              tone="blue"
+              href="/admin/finances"
+            />
+          </div>
+        </section>
       </div>
 
       {/* Compact quick actions — the sidebar carries the full map */}

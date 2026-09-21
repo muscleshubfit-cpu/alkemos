@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
-import { getReceiptSignedUrl } from "@/lib/data";
+import { receiptViewUrl } from "@/lib/receipt-view";
 import { COACH_CLIENT_PACKAGES, coachTopupMethodLabel } from "@/lib/coach-limits";
 import type { CoachTopupRequest } from "@/lib/supabase/types";
 
@@ -96,9 +96,12 @@ export function AdminWalletsView() {
     }
   };
 
-  const openReceipt = async (path: string) => {
-    const url = await getReceiptSignedUrl(path);
-    if (url) window.open(url, "_blank", "noopener");
+  // Phase 246: the authorized same-origin proxy (receipt-view.ts law) —
+  // the old browser-side signing asked for `receipts/receipts/…` with no
+  // storage SELECT policy and failed silently. Synchronous open so popup
+  // blockers never eat the click.
+  const openReceipt = (path: string) => {
+    window.open(receiptViewUrl(path), "_blank", "noopener");
   };
 
   const adjust = async () => {

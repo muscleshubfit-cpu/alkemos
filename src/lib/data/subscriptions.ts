@@ -352,13 +352,13 @@ export async function reviewSubscriptionRequest(id: string, action: "approve" | 
  return all[idx];
 }
 
-export async function getReceiptSignedUrl(filePath: string): Promise<string> {
- if (isSupabaseConfigured && supabase) {
- const { data } = await supabase.storage.from("receipts").createSignedUrl(filePath, 3600);
- return data?.signedUrl ?? "";
- }
- return "";
-}
+// Phase 246: receipt reads no longer sign from the browser — the old
+// getReceiptSignedUrl asked for `receipts/receipts/…` (double-prefixed DB
+// path) AND had no storage SELECT policy to sign with, silently returning
+// "" (the dead «الإيصال» button). The single reader is the authorized
+// /api/file proxy: src/lib/receipt-view.ts (receiptObjectKey/receiptViewUrl).
+// Revenue sums deduped into the pure src/lib/subscription-sums.ts:
+export { sumSubscriptionRequestsByStatus } from "@/lib/subscription-sums";
 
 export async function uploadReceipt(file: File): Promise<string> {
  // P3-11 🔐 (deep-audit confirmed 18/19, Phase 217 — owner §7 approval

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { coachSupportBodySchema } from "@/lib/validation/schemas";
+import { getPrimaryAdminId } from "@/lib/notifications-server";
 
 /**
  * COACH → SITE SUPPORT CHANNEL (0037, owner-approved: «دعم للمدربين
@@ -140,6 +141,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Admin visibility — same bell the other coach events ring.
+  // Phase 246: support mail from coaches is ADMIN business
+  // (/admin/coach-support) — the old NULL target broadcast to every
+  // coach's bell. Route to the primary admin (fallback: NULL broadcast).
+  const adminTarget = await getPrimaryAdminId();
   await supabaseAdmin
     .from("admin_notifications")
     .insert({
@@ -147,7 +152,8 @@ export async function POST(request: NextRequest) {
       title: "رسالة دعم من مدرب",
       body: subject,
       link: "/admin/coach-support",
-      target_role: "coach",
+      target_role: "admin",
+      ...(adminTarget ? { target_coach_id: adminTarget } : {}),
     });
 
   return NextResponse.json({ ok: true, id: data?.id ?? null });

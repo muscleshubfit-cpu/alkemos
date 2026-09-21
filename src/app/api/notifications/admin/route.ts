@@ -5,6 +5,7 @@ import {
   adminNotificationBodySchema,
   ADMIN_NOTIF_TYPES,
 } from "@/lib/validation/schemas";
+import { getAdminIds, adminFeedOrFilter } from "@/lib/notifications-server";
 
 /**
  * POST /api/notifications/admin
@@ -55,6 +56,62 @@ const ALLOWED_TYPES = new Set([
 const MAX_TITLE_LEN = 200;
 const MAX_BODY_LEN = 1000;
 const MAX_LINK_LEN = 200;
+
+/**
+ * GET /api/notifications/admin — Phase 246: the ADMIN's staff-bell feed.
+ *
+ * Owner bug: «الاشعارات كلها تظهر للادمن». The bell's old fetch was an
+ * unfiltered client-side SELECT whose only scoping was RLS — and RLS hands
+ * an admin EVERY row (is_admin() branch), including pings targeted at
+ * other coaches (new-client / questionnaire / plan-approval of assigned
+ * coaches, page approvals, referral-commission copies).
+ *
+ * This feed is the precise admin view: service-role SELECT filtered to
+ * `target_coach_id is null` (broadcasts) OR `target_coach_id in (admin
+ * ids)` (admin-targeted rows — payment requests, page reviews, refunds…)
+ * — so admins see everything admin-relevant regardless of WHICH admin an
+ * emit site picked, and none of the coaches' private pings. No RLS
+ * change, no migration. Coaches keep the RLS fetch (their own rows +
+ * broadcasts) — the three admin-business broadcasts now target the admin
+ * explicitly at emit time, so they stop ringing coaches' bells too.
+ */
+export async function GET(request: NextRequest) {
+  if (!authRequired) {
+    return NextResponse.json({ ok: true, demo: true, items: [] });
+  }
+
+  const auth = await requireUser(request);
+  if (auth instanceof Response) return auth;
+  if (auth.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json(
+      { error: "Supabase admin not configured" },
+      { status: 500 },
+    );
+  }
+
+  // The caller is an admin — guarantee the in-filter is never empty even
+  // if the profiles query hiccups (fallback: the caller's own id).
+  const adminIds = await getAdminIds();
+  const scope = adminIds.length > 0 ? adminIds : [auth.id];
+
+  const { data, error } = await supabaseAdmin
+    .from("admin_notifications")
+    .select("*")
+    .or(adminFeedOrFilter(scope))
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error("[api/notifications/admin][GET] query failed:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true, items: data ?? [] });
+}
 
 export async function POST(request: NextRequest) {
   if (!authRequired) {

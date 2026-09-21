@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { emptyEnvelopeBodySchema } from "@/lib/validation/schemas";
+import { getPrimaryAdminId } from "@/lib/notifications-server";
 
 /**
  * POST /api/affiliate/payout-notify — Phase 75 (owner request:
@@ -87,12 +88,17 @@ export async function POST(request: NextRequest) {
 
   const name = auth.full_name || auth.email || "عضو";
 
+  // Phase 246: payout requests are ADMIN business (/admin/referrals) —
+  // the old NULL target broadcast to every coach's bell. Route to the
+  // primary admin explicitly (fallback: NULL broadcast).
+  const adminTarget = await getPrimaryAdminId();
   const { error } = await supabaseAdmin.from("admin_notifications").insert({
     type: "payout_request",
     title: "طلب صرف عمولة جديد 💸",
     body: `${name} طلب صرف $${Number((payout as { amount: number }).amount).toFixed(2)} عبر ${methodLabel}. راجعه من صفحة الإحالات. [uid:${auth.id}]`,
     link: "/admin/referrals",
     target_role: "admin",
+    ...(adminTarget ? { target_coach_id: adminTarget } : {}),
     read: false,
   });
 
