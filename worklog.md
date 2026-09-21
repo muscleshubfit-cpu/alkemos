@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-MINORS-LIVE-VERIF-2026-09-22
+Agent: Super Z (owner session)
+Task: التحقق الحي E2E لدفعة 244 (كوميت 41c146a9) بعد اكتمال نشر Vercel وتطبيق 0092 — إثبات كل إصلاح على الإنتاج (≤40 سطرًا).
+
+Work Log:
+- النشر: /api/build-info → 41c146a · ميجريشن 0092 مطبق تلقائيًا بتكامل Supabase (pg_proc: الدالتان تحملان invite_pending)
+- m-E حي: دخول بكلمة خاطئة → توست واحد حرفيًا؛ ثم 3 نقرات «Log in» متتالية سريعًا → ما زال توستًا واحدًا (كان يتراص اثنان)
+- M-2026 حي: صفحة العميل EN (/coach/<id> Overview) — الفراغ: «Not enough data to show health indicators yet…» إنجليزيًا خالصًا + body عربي صفر (كان «لا توجد بيانات كافية…» خامًا) · المرآة AR: النص العربي ذاته مع dir=rtl · الوضع الكامل ببيانات: Weight/Body fat/Lean mass/Measurements (cm)/Baseline vs current + شارة BMI «Overweight» (25.9 مطابق لحاسبة الجولة 2) — arabicLeak=false
+- m-C/m-D حي: مدرب يدعو qa.ux0924.client1 ← الصف يظهر فورًا بشارة «دعوة معلقة — لم يفعل بعد» بدل «بدون اشتراك» + فلتر «دعوات معلقة» 0→1 وعده الكلي 1→2 في نفس اللحظة دون إعادة تحميل (statsVersion) · الفلتر يعزل الصف المعلق حصرًا
+- التبني يقلب المؤشر: العميل المدعو سجّل ← /dashboard فورًا (H1-243 سليم) + SQL: pw_empty=false وnever_signed_in=false · لوحة المدرب بعد التحميل: الشارة اختفت والفلتر عاد 0 و«بدون اشتراك» عادت صادقة
+- m-B حي: استبيان 3 خطوات E2E كامل ببيانات جديدة ← الإرسال يهبط شاشة المراجعة «Your questionnaires are submitted» بقيم مقروءة وزر تعديل (كان: نموذج فارغ بعلامات Required)
+- m-A حي: /admin/clients كأدمن ← النقر على جسم صف عميل ينتقل /coach/<id> (مؤكد مرتين) — الصفوف غير العملائية خاملة عمدًا (بوابة الدور) والنص موثق مطابق
+- مساس كتابة واحد خارج واجهات المنتج: إعادة ضبط كلمة مرور qa.admin1431 (is_test_account=true، وسيلة 0050 — كلمتا الأرشيف Qa#Admin1431x وMH#AdminTest2026x كانا مرفوضين 400) — حساب اختباري معلم حصرًا
+- الحسابات: qa.ux0924.client1 (جديد، مُتبنى) — الحذف متاح للمالك من /admin/accounts
+
+Stage Summary:
+- دفعة 244 مثبتة حيًا E2E بندًا بندًا: M-2026 · m-B · m-C · m-D · m-E + m-A مؤكد مطابق للتوثيق — قائمة UX-TEST-REPORT-2026-09-21 مغلقة بالكامل (H1-2026 في 243)
+- 0092 حي: حالة الدعوة مرئية للمدرب من طبقة البيانات بمؤشر مشتق بولي — لا تسريب لأي عمود من auth.users
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: UX-MINORS-244-2026-09-22
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ» 2026-09-22 — إغلاق بقية بنود UX-TEST-REPORT-2026-09-21 بعد إغلاق H1-2026 في 243: M-2026 + m-B + m-C + m-D + m-E (+ حسم m-A بالتحقق الحي) — ميجريشن 0092.
