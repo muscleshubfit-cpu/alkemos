@@ -195,18 +195,18 @@ const repoRoot = resolve(__dirname, "../../..");
 
 /** The 12 live ShareButtons surfaces — each MUST declare its canonical path. */
 const SURFACES: Array<[string, string]> = [
-  ["src/app/evo/page.tsx", 'path="/evo"'],
-  ["src/app/coaching/page.tsx", 'path="/coaching"'],
-  ["src/app/memberships/page.tsx", 'path="/memberships"'],
-  ["src/app/meal-planner/page.tsx", 'path="/meal-planner"'],
-  ["src/app/tools/bmi-calculator/page.tsx", 'path="/tools/bmi-calculator"'],
-  ["src/app/tools/body-fat-calculator/page.tsx", 'path="/tools/body-fat-calculator"'],
-  ["src/app/tools/calorie-calculator/page.tsx", 'path="/tools/calorie-calculator"'],
-  ["src/app/tools/macro-calculator/page.tsx", 'path="/tools/macro-calculator"'],
-  ["src/app/tools/water-tracker/page.tsx", 'path="/tools/water-tracker"'],
-  ["src/app/exercises/[slug]/ExerciseDetailClient.tsx", "path={`/exercises/${slug}`}"],
-  ["src/app/foods/[slug]/FoodDetailClient.tsx", "path={`/foods/${food.slug}`}"],
-  ["src/app/programs/[slug]/ProgramDetailClient.tsx", "path={`/programs/${program.slug}`}"],
+  ["src/app/(en)/evo/page.tsx", 'path="/evo"'],
+  ["src/app/(en)/coaching/page.tsx", 'path="/coaching"'],
+  ["src/app/(en)/memberships/page.tsx", 'path="/memberships"'],
+  ["src/app/(en)/meal-planner/page.tsx", 'path="/meal-planner"'],
+  ["src/app/(en)/tools/bmi-calculator/page.tsx", 'path="/tools/bmi-calculator"'],
+  ["src/app/(en)/tools/body-fat-calculator/page.tsx", 'path="/tools/body-fat-calculator"'],
+  ["src/app/(en)/tools/calorie-calculator/page.tsx", 'path="/tools/calorie-calculator"'],
+  ["src/app/(en)/tools/macro-calculator/page.tsx", 'path="/tools/macro-calculator"'],
+  ["src/app/(en)/tools/water-tracker/page.tsx", 'path="/tools/water-tracker"'],
+  ["src/app/(en)/exercises/[slug]/ExerciseDetailClient.tsx", "path={`/exercises/${slug}`}"],
+  ["src/app/(en)/foods/[slug]/FoodDetailClient.tsx", "path={`/foods/${food.slug}`}"],
+  ["src/app/(en)/programs/[slug]/ProgramDetailClient.tsx", "path={`/programs/${program.slug}`}"],
 ];
 
 describe("SHARE URL LAW source guards — regression net over every surface", () => {

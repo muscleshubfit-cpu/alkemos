@@ -36,10 +36,10 @@ import type { BlogPostCard } from "@/lib/blog";
 
 const ARABIC = /[\u0600-\u06FF]/;
 
-const BLOG_EN = "src/app/blog/[slug]/page.tsx";
-const BLOG_AR = "src/app/ar/blog/[slug]/page.tsx";
-const COMPARE_EN = "src/app/compare/[slug]/page.tsx";
-const COMPARE_AR = "src/app/ar/compare/[slug]/page.tsx";
+const BLOG_EN = "src/app/(en)/blog/[slug]/page.tsx";
+const BLOG_AR = "src/app/(ar)/ar/blog/[slug]/page.tsx";
+const COMPARE_EN = "src/app/(en)/compare/[slug]/page.tsx";
+const COMPARE_AR = "src/app/(ar)/ar/compare/[slug]/page.tsx";
 const LIST = "src/components/blog/BlogListPage.tsx";
 const BLOG_TS = "src/lib/blog.ts";
 
@@ -74,7 +74,8 @@ describe("P2-14 / §12.40 — locale-aware entity schema (audit finding #9)", ()
   });
 
   it("root layout passes the RESOLVED route locale to both schemas", () => {
-    const src = readFileSync("src/app/layout.tsx", "utf8");
+    // VERCEL-USAGE-3: the root layout is now the static RootShell component.
+    const src = readFileSync("src/components/root-shell.tsx", "utf8");
     expect(src).toContain("getOrganizationSchema(lang)");
     expect(src).toContain("getWebSiteSchema(lang)");
     // The old locale-blind module-level calls are gone.

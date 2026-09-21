@@ -121,7 +121,7 @@ describe("shopping list (§12.30)", () => {
   });
 
   it("WIRING: the meal planner mounts the card and the written promise points at it", () => {
-    const page = readFileSync("src/app/meal-planner/page.tsx", "utf8");
+    const page = readFileSync("src/app/(en)/meal-planner/page.tsx", "utf8");
     expect(page).toContain('from "@/components/ShoppingListCard"');
     expect(page).toContain("<ShoppingListCard meals={meals} />");
     const content = readFileSync("src/lib/content/meal-planner.ts", "utf8");

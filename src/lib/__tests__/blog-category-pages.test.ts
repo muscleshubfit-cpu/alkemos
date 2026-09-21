@@ -21,8 +21,8 @@ import { scanArabicDialect } from "@/lib/blog-msa";
  *   5. SITEMAP: the 20 category URLs are advertised with alternates.
  */
 
-const ROUTE_EN = "src/app/blog/category/[slug]/page.tsx";
-const ROUTE_AR = "src/app/ar/blog/category/[slug]/page.tsx";
+const ROUTE_EN = "src/app/(en)/blog/category/[slug]/page.tsx";
+const ROUTE_AR = "src/app/(ar)/ar/blog/category/[slug]/page.tsx";
 const COMPONENT = "src/components/blog/BlogCategoryPage.tsx";
 const LIST = "src/components/blog/BlogListPage.tsx";
 const ARTICLE = "src/components/blog/BlogArticlePage.tsx";

@@ -127,8 +127,8 @@ describe("render-time SERP title clamp (Phase 189 — P1-1)", () => {
 
   it("BOTH article pages exempt the title from layout templates (absolute — the P1-1 fix)", () => {
     for (const rel of [
-      "src/app/ar/blog/[slug]/page.tsx",
-      "src/app/blog/[slug]/page.tsx",
+      "src/app/(ar)/ar/blog/[slug]/page.tsx",
+      "src/app/(en)/blog/[slug]/page.tsx",
     ]) {
       const src = readFileSync(repoRootPath(rel), "utf8");
       expect(src, rel).toContain("title: {");
@@ -139,7 +139,7 @@ describe("render-time SERP title clamp (Phase 189 — P1-1)", () => {
   });
 
   it("the /ar layout KEEPS its template for short-title surfaces (design split)", () => {
-    const src = readFileSync(repoRootPath("src/app/ar/layout.tsx"), "utf8");
+    const src = readFileSync(repoRootPath("src/app/(ar)/ar/layout.tsx"), "utf8");
     expect(src).toContain('template: "%s — Alkemos"');
   });
 });

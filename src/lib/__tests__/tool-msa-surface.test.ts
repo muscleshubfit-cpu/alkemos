@@ -33,15 +33,15 @@ import { FAQS_AR } from "@/lib/faq-content";
 
 const TOOL_SURFACE_FILES = [
   // — the ten bilingual tool pages (EN root; /ar mirrors re-export) —
-  "src/app/tools/page.tsx",
-  "src/app/tools/bmi-calculator/page.tsx",
-  "src/app/tools/body-fat-calculator/page.tsx",
-  "src/app/tools/calorie-calculator/page.tsx",
-  "src/app/tools/macro-calculator/page.tsx",
-  "src/app/tools/water-tracker/page.tsx",
-  "src/app/meal-planner/page.tsx",
-  "src/app/ai-meal-planner/page.tsx",
-  "src/app/ai-workout-planner/page.tsx",
+  "src/app/(en)/tools/page.tsx",
+  "src/app/(en)/tools/bmi-calculator/page.tsx",
+  "src/app/(en)/tools/body-fat-calculator/page.tsx",
+  "src/app/(en)/tools/calorie-calculator/page.tsx",
+  "src/app/(en)/tools/macro-calculator/page.tsx",
+  "src/app/(en)/tools/water-tracker/page.tsx",
+  "src/app/(en)/meal-planner/page.tsx",
+  "src/app/(en)/ai-meal-planner/page.tsx",
+  "src/app/(en)/ai-workout-planner/page.tsx",
   // — tool-page chrome (renders on the tool pages) —
   "src/components/OtherTools.tsx",
   "src/components/ShoppingListCard.tsx",
@@ -51,16 +51,16 @@ const TOOL_SURFACE_FILES = [
   "src/components/ToolReferenceContent.tsx",
   "src/lib/review-invite.ts",
   // — AR tool metadata (SERP-visible titles/descriptions/keywords) —
-  "src/app/ar/tools/layout.tsx",
-  "src/app/ar/tools/bmi-calculator/layout.tsx",
-  "src/app/ar/tools/body-fat-calculator/layout.tsx",
-  "src/app/ar/tools/calorie-calculator/layout.tsx",
-  "src/app/ar/tools/macro-calculator/layout.tsx",
-  "src/app/ar/tools/water-tracker/layout.tsx",
-  "src/app/ar/meal-planner/layout.tsx",
-  "src/app/ar/ai-meal-planner/layout.tsx",
-  "src/app/ar/ai-workout-planner/layout.tsx",
-  "src/app/ar/faq/page.tsx",
+  "src/app/(ar)/ar/tools/layout.tsx",
+  "src/app/(ar)/ar/tools/bmi-calculator/layout.tsx",
+  "src/app/(ar)/ar/tools/body-fat-calculator/layout.tsx",
+  "src/app/(ar)/ar/tools/calorie-calculator/layout.tsx",
+  "src/app/(ar)/ar/tools/macro-calculator/layout.tsx",
+  "src/app/(ar)/ar/tools/water-tracker/layout.tsx",
+  "src/app/(ar)/ar/meal-planner/layout.tsx",
+  "src/app/(ar)/ar/ai-meal-planner/layout.tsx",
+  "src/app/(ar)/ar/ai-workout-planner/layout.tsx",
+  "src/app/(ar)/ar/faq/page.tsx",
   // — the main FAQ data —
   "src/lib/faq-content.ts",
   // PHASE 204 (owner order 2026-09-15 — internal-pages MSA/terminology
@@ -199,7 +199,7 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
 
   it("CANARY: the §12.41 gloss-direction fixes stay fixed", () => {
     const caloriePage = readFileSync(
-      "src/app/tools/calorie-calculator/page.tsx",
+      "src/app/(en)/tools/calorie-calculator/page.tsx",
       "utf8",
     );
     expect(caloriePage).toContain('"معدل الأيض الأساسي (BMR)"');
@@ -213,12 +213,12 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
     );
     expect(faq).toContain("تطبيق ويب تقدمي (PWA)");
     const calorieLayout = readFileSync(
-      "src/app/ar/tools/calorie-calculator/layout.tsx",
+      "src/app/(ar)/ar/tools/calorie-calculator/layout.tsx",
       "utf8",
     );
     expect(calorieLayout).toContain("(Mifflin-St Jeor)");
     const bodyFatLayout = readFileSync(
-      "src/app/ar/tools/body-fat-calculator/layout.tsx",
+      "src/app/(ar)/ar/tools/body-fat-calculator/layout.tsx",
       "utf8",
     );
     expect(bodyFatLayout).toContain("(U.S. Navy)");
@@ -243,16 +243,16 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
   // keeps the approved phrasing.
   it("CANARY Phase 204: «كارب» and «اعرف هل» stay dead on the tool surface", () => {
     const KARB_FILES = [
-      "src/app/tools/macro-calculator/page.tsx",
-      "src/app/tools/calorie-calculator/page.tsx",
-      "src/app/meal-planner/page.tsx",
-      "src/app/ar/diet-plan/page.tsx",
-      "src/app/ar/tools/macro-calculator/layout.tsx",
-      "src/app/ar/tools/calorie-calculator/layout.tsx",
-      "src/app/ar/tools/bmi-calculator/layout.tsx",
-      "src/app/ar/meal-planner/layout.tsx",
-      "src/app/ar/foods/[slug]/page.tsx",
-      "src/app/foods/[slug]/FoodDetailClient.tsx",
+      "src/app/(en)/tools/macro-calculator/page.tsx",
+      "src/app/(en)/tools/calorie-calculator/page.tsx",
+      "src/app/(en)/meal-planner/page.tsx",
+      "src/app/(ar)/ar/diet-plan/page.tsx",
+      "src/app/(ar)/ar/tools/macro-calculator/layout.tsx",
+      "src/app/(ar)/ar/tools/calorie-calculator/layout.tsx",
+      "src/app/(ar)/ar/tools/bmi-calculator/layout.tsx",
+      "src/app/(ar)/ar/meal-planner/layout.tsx",
+      "src/app/(ar)/ar/foods/[slug]/page.tsx",
+      "src/app/(en)/foods/[slug]/FoodDetailClient.tsx",
       "src/lib/tools-shared.ts",
       "src/lib/foods-shared.ts",
       "src/components/foods/FoodsFilters.tsx",
@@ -269,8 +269,8 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
       ).toBe(false);
     }
     const KNOW_FILES = [
-      "src/app/tools/bmi-calculator/page.tsx",
-      "src/app/ar/tools/bmi-calculator/layout.tsx",
+      "src/app/(en)/tools/bmi-calculator/page.tsx",
+      "src/app/(ar)/ar/tools/bmi-calculator/layout.tsx",
       "src/lib/tools-shared.ts",
     ];
     for (const rel of KNOW_FILES) {

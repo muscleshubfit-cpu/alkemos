@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 export type View =
  | "landing"
@@ -141,17 +141,29 @@ const AR_VIEW_MIRRORS: Partial<Record<View, string>> = {
 export function useNav() {
  const router = useRouter();
  const pathname = usePathname();
- const searchParams = useSearchParams();
-
+ // VERCEL-USAGE-3 (2026-09-21): was useSearchParams() — that hook
+ // suspends, so with the site's pages becoming statically prerenderable
+ // (static RootShell — VERCEL-USAGE-3) every page rendering SiteHeader
+ // failed the build with missing-suspense-with-csr-bailout, and wrapping
+ // the header in Suspense would drop the nav links from the crawler-facing
+ // static shell. The same established law as LanguageToggle/BlogListPage
+ // applies instead: read window.location in an effect — client-only,
+ // hydration-safe (initial SSR state stays ""), zero suspense.
  const view = useMemo(() => viewForPath(pathname || "/"), [pathname]);
- const params = useMemo(() => {
- const obj: Record<string, string> = {};
- searchParams?.forEach((value, key) => { obj[key] = value; });
- if (view === "coach-client") {
- obj.clientId = (pathname || "").split("/").filter(Boolean)[1];
- }
- return obj;
- }, [searchParams, pathname, view]);
+ const [routeParams, setRouteParams] = useState<Record<string, string>>({});
+ useEffect(() => {
+   const obj: Record<string, string> = {};
+   if (typeof window !== "undefined" && window.location.search) {
+     new URLSearchParams(window.location.search).forEach((value, key) => {
+       obj[key] = value;
+     });
+   }
+   if (view === "coach-client") {
+     obj.clientId = (pathname || "").split("/").filter(Boolean)[1];
+   }
+   setRouteParams(obj);
+ }, [pathname, view]);
+ const params = routeParams;
 
  const navigate = useCallback(
  (v: View, p: Record<string, string> = {}) => {

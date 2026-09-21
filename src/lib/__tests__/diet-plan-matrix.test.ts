@@ -57,11 +57,11 @@ import { scanArabicDialect, needsMsaRepair } from "@/lib/blog-msa";
  */
 
 const LEAF_FILE =
-  "src/app/ar/diet-plan/[level]/[system]/page.tsx";
-const HUB_FILE = "src/app/ar/diet-plan/page.tsx";
+  "src/app/(ar)/ar/diet-plan/[level]/[system]/page.tsx";
+const HUB_FILE = "src/app/(ar)/ar/diet-plan/page.tsx";
 const LEAF_FILE_EN =
-  "src/app/diet-plan/[level]/[system]/page.tsx";
-const HUB_FILE_EN = "src/app/diet-plan/page.tsx";
+  "src/app/(en)/diet-plan/[level]/[system]/page.tsx";
+const HUB_FILE_EN = "src/app/(en)/diet-plan/page.tsx";
 const SITEMAP_FILE = "src/app/sitemap-pages.xml/route.ts";
 
 describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
@@ -327,13 +327,13 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(toolsHub).toContain('slug: "/diet-plan"');
     expect(toolsHub).toContain("مكتبة الخطط الغذائية الجاهزة");
     expect(toolsHub).toContain("export const TOOL_LIBRARIES");
-    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    const toolsPage = readFileSync("src/app/(en)/tools/page.tsx", "utf8");
     expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/diet-plan"');
     expect(otherTools).toContain("مكتبة الخطط الغذائية الجاهزة");
     expect(otherTools).toContain("const LIBRARIES = [");
-    const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
+    const mealPlanner = readFileSync("src/app/(en)/meal-planner/page.tsx", "utf8");
     expect(mealPlanner).toContain('"/ar/diet-plan"');
     expect(mealPlanner).toContain('"/diet-plan"');
     // Access-point fix (2026-09-14): the homepage footer (with the
