@@ -113,8 +113,12 @@ export function localizeAuthError(raw: string | null | undefined, isAr: boolean)
   if (!isAr) return msg;
 
   // GoTrue messages are stable strings; match on the known set.
+  // RECOVERY-OTP MODE (2026-09-22, owner order «نفذ خيار otp»): the
+  // verifyOtp({ type: "recovery" }) failure strings join the set — a
+  // wrong/expired code and a consumed link must speak the UI language
+  // on /auth/reset (M1 law: no raw GoTrue strings in the AR UI).
   const KEY_RE =
-    /(invalid login credentials|email not confirmed|user already registered|password should be at least|too many requests|network request failed|unable to validate email|email address is invalid)/i;
+    /(invalid login credentials|email not confirmed|user already registered|password should be at least|too many requests|network request failed|unable to validate email|email address is invalid|email otp has expired or is invalid|otp has expired|email link is invalid or has already been used)/i;
   const key = KEY_RE.exec(msg)?.[1]?.toLowerCase();
   switch (key) {
     case "invalid login credentials":
@@ -132,6 +136,11 @@ export function localizeAuthError(raw: string | null | undefined, isAr: boolean)
     case "unable to validate email":
     case "email address is invalid":
       return "البريد الإلكتروني غير صالح.";
+    case "email otp has expired or is invalid":
+    case "otp has expired":
+      return "رمز الاستعادة غير صحيح أو انتهت صلاحيته — تأكد من الأرقام الستة، أو أعد إرسال رمز جديد.";
+    case "email link is invalid or has already been used":
+      return "رابط الاستعادة غير صالح أو استُخدم سابقًا — ابدأ الاستعادة من جديد أو أدخل الرمز من بريدك.";
     default:
       return msg;
   }

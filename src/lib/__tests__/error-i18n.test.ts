@@ -83,6 +83,27 @@ describe("localizeAuthError — Supabase GoTrue raw strings", () => {
     expect(localizeAuthError(unknown, false)).toBe(unknown);
   });
 
+  it("RECOVERY-OTP: wrong/expired code localizes in AR and passes through in EN", () => {
+    const ar = localizeAuthError("Email OTP has expired or is invalid", true);
+    expect(ar).toContain("رمز الاستعادة");
+    expect(ar).not.toBe("Email OTP has expired or is invalid");
+    expect(localizeAuthError("Email OTP has expired or is invalid", false)).toBe(
+      "Email OTP has expired or is invalid",
+    );
+  });
+
+  it("RECOVERY-OTP: consumed/expired link localizes with the code-entry alternative", () => {
+    const ar = localizeAuthError(
+      "Email link is invalid or has already been used",
+      true,
+    );
+    expect(ar).toContain("رابط الاستعادة");
+    expect(ar).toContain("الرمز");
+    expect(localizeAuthError("Email link is invalid or has already been used", false)).toBe(
+      "Email link is invalid or has already been used",
+    );
+  });
+
   it("empty/null input yields an empty string", () => {
     expect(localizeAuthError(null, true)).toBe("");
     expect(localizeAuthError("", false)).toBe("");

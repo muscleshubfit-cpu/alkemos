@@ -256,9 +256,22 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           </h1>
           <p className="mt-3 text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? `أرسلنا رابط تعيين كلمة مرور جديدة إلى ${email} — افحص بريدك (وبدل الرسائل غير المرغوبة) واضغط الرابط خلال ساعة.`
-              : `We sent a password-reset link to ${email} — check your inbox (and spam folder) and open the link within the hour.`}
+              ? `أرسلنا رابط تعيين كلمة مرور جديدة إلى ${email} — افحص بريدك (وبدل الرسائل غير المرغوبة) واضغط الرابط خلال ساعة. إن وجدت بريدًا فيه رمز من 6 أرقام فيمكنك إدخاله مباشرة بدل الرابط.`
+              : `We sent a password-reset link to ${email} — check your inbox (and spam folder) and open the link within the hour. If your email shows a six-digit code, you can enter it directly instead of the link.`}
           </p>
+          {/* RECOVERY-OTP MODE (owner order «نفذ خيار otp» 2026-09-22): the
+              code path works from ANY browser/device — the honest rescue
+              when the link path fails (verifier cookie, one-time code). */}
+          <button
+            onClick={() =>
+              router.push(
+                `/auth/reset?mode=code&email=${encodeURIComponent(email.trim())}`,
+              )
+            }
+            className="mt-4 text-sm font-normal text-[var(--muted-2)] underline-offset-4 transition-opacity hover:opacity-70 hover:underline"
+          >
+            {isAr ? "لديك رمز في البريد؟ أدخله هنا" : "Have a code in your email? Enter it here"}
+          </button>
           <button
             onClick={() => {
               setForgotSent(false);
