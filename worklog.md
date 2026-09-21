@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-IMPROVEMENTS-LIVE-VERIF-2026-09-22
+Agent: Super Z (owner session)
+Task: التحقق الحي E2E لدفعة 245 (كوميت 741f2f3f) بعد اكتمال نشر Vercel — إثبات كل تحسين على الإنتاج بجلسات أدوار معزولة (≤40 سطرًا).
+
+Work Log:
+- النشر: /api/build-info → 741f2f3 · /auth/reset ترد 200 (مسار جديد) · /api/coach/clients/invite/resend ترد 401 بلا جلسة (مسار جديد محروس)
+- I-1 حي: مدرب 0922 يدعو qa.ux0925.client1 ← توست النجاح + الصف يظهر بفلتر «Invite pending 0→1» ← زر «Resend invite» على الصف ← توست «Activation instructions re-sent to …» (200 — البريد عبر Brevo)
+- I-2 حي EN+AR: نموذج الدخول يظهر «Forgot password?» ← شاشة الطلب (البريد محفوظ) ← الإرسال يهبط «Recovery link sent / أرسلنا رابط الاستعادة» ردًا موحدًا حتى لبريد غير موجود (مكافحة الاستكشاف) · شاشة «Account already exists» تظهر الزر الجديد «نسيت كلمة المرور؟ استعيدها من بريدك» ← يهبط شاشة الاستعادة والبريد محفوظ (qa.ux0924.client1) · /auth/reset مباشرة بلا جلسة استعادة: الإرسال يعرض الخطأ الصادق «انتهت صلاحية رابط الاستعادة…» (لا نص GoTrue خام) — وصول بريد الاستعادة الحقيقي إلى الصندوق يبقى بيد المالك (حد المنهج الموثق)
+- I-3 حي: عضو جديد qa.ux0925.member1 يقدم طلب InstaPay (premium شهر + إيصال qa-ux0925-receipt.png) ← حالة النجاح تعرض: «Request sent successfully» + ORDER SUMMARY (Premium · 1 months · InstaPay · اسم الإيصال · $14.99) + WHAT HAPPENS NEXT? (مراجعة ≤24 ساعة · تفعيل تلقائي · إشعار واتساب بالرقم) + زر العودة — بلا أي تحويل تلقائي (ملاحظة: أول تحقق ظهر الحالة القديمة — كاش CDN لصفحة SSG؛ الكاش-باستر أثبت الجديدة)
+- I-4 حي: توليد خطة تمرين لعضو 0925 (200) ← حقل الاسم يظهر معبأً «AI Workout Plan — 3 days» ← تعديل إلى «My 3-Day Starter Split» + «Save name» ← توست «Plan name updated» + إعادة تحميل: الحقل والـAPI يرجعان الاسم الجديد (hydration path أيضًا)
+- I-6 حي: تسجيل مدرب جديد qa.ux0925.coach1 باسم «Ahmed QA Test» ← محرر /coach/landing يقترح السلاج «ahmed-qa-test» (وليس coach-<id6>)
+- البند 5 حي (موجود سلفًا): درج EVO لعضو 0925 يعرض «plans this month (nutrition + workout): 0/2» + عدّاد الرسائل المتبقية — §12.6: لا تكرار واجهة، الإثبات يغلق البند
+- ملاحظة تشغيلية: توليد وجبتان فشلا 422 «missed the required shape» قبل نجاح التمرين — المحاولات الفاشلة لم تخصم الرصيد (2/2 بقي) — تقلب سلسلة AI لا علاقة له بالدفعة
+- الحسابات/البيانات المتبقية (نمط alkemos-test.com، الحذف متاح للمالك): qa.ux0925.coach1 (+صفحة غير منشورة) · qa.ux0925.member1 (+طلب اشتراك معلق + إيصال) · qa.ux0922.member1 (+طلب معلق ثانٍ + خطة تمرين معاد تسميتها) · qa.ux0925.client1 (دعوة معلقة) · qa.ux0925.recover1 (لا صف — ردود موحدة فقط)
+- لقطات: شوتس3 المحلية (i1-resend · i2-×7 · i3-×2 · i4-×3 · i5) — local-only, not preserved
+
+Stage Summary:
+- دفعة 245 مثبتة حيًا E2E بندًا بندًا: I-1 · I-2 · I-3 · I-4 · I-6 + البند 5 مثبت موجود — قائمة UX-TEST-REPORT-2026-09-21 §5 السبع مغلقة كليًا بإثبات حي
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: UX-IMPROVEMENTS-245-2026-09-22
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ التحسينات» 2026-09-22 — تنفيذ فرص التحسين المتبقية من UX-TEST-REPORT-2026-09-21 §5 (البند 7 أُغلق بm-B والبند 1 جزئيًا بm-C/0092 في 244): إعادة إرسال الدعوة (I-1) + استعادة كلمة المرور (I-2) + ملخص ما بعد الدفع اليدوي (I-3) + تسمية الخطط المولدة (I-4) + slug المدرب من الاسم (I-6) — البند 5 مثبت موجود سلفًا.
