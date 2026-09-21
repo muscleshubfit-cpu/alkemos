@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: UX-FULL-TEST-2026-09-21
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ بعمل خطة تنفيذ ووثقها وادفعها، ثم ابدأ فى تنفيذها» — خطة اختبار UX شامل لكل أنواع الحسابات على الإنتاج الحي (برصيد وهمي حصرًا — PayPal وكل بوابات الدفع الحقيقية خارج النطاق بأمر المالك).
+
+Work Log:
+- استكشاف المصدر: STATE.md + DEVELOPER_GUIDE + تقرير UX السابق docs/DEEP-UX-AUDIT-REPORT-2026-09-18.md (المغلق بالمراحل 225–229) — مصفوفة الأدوار ثبتت من الكود: user_role enum (client/coach/admin) + المدرب B2C site بالتحويل الإداري + الاشتراكات بالتفعيل من محفظة المدرب
+- كتابة docs/UX-TEST-PLAN-2026-09-21.md: هدف + علاقة بالتدقيقين السابقين + مصفوفة 6 أدوار (Guest · Free · Premium بالتفعيل · Coach B2B · Coach B2C · Admin) + أمواج تنفيذ A–H (الزائر EN+AR والموبايل · التسجيل والدخول · العضو المجاني · المدرب B2B · الرصيد الوهمي E2E · الأدمن · إعادة تحقق إصلاحات 09-18 · تغييرات 230–242) + قيود ملزمة (صفر كود، صفر دفع حقيقي، صفر مساس بيانات حقيقية، لا أسرار في الملفات) + تسليمات
+- تسجيل الوثيقة في docs/README.md بنفس الفريم (قانون §3.8 parity)
+- البوابات (docs-only): docs_audit ✓ (تغيير docs/ + worklog حي بصيغة §12.5.1 — لا tsc/build لغياب أي كود) · الكوميت يحمل [vercel skip] وفق قانون §10.5-2(أ)
+
+Stage Summary:
+- الخطة موثقة ومسجلة ومدفوعة — التنفيذ يبدأ فور الدفع بالموجات A→H على alkemos.com
+- التسليم النهائي المتوقع: docs/UX-TEST-REPORT-2026-09-21.md + ملخص المحادثة (المشاكل · الحلول المطلوبة · فرص التحسين)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: VERCEL-USAGE-6-2026-09-21
 Agent: Super Z (owner session)
 Task: أمر المالك «بالنسبة الى مشاكل deployment storage, production storage يجب ان تحل» — التحقق الحي النهائي + تأكيد Vercel الرسمي لسلوك العدّادين + تنفيذ §10.5-2(أ).
