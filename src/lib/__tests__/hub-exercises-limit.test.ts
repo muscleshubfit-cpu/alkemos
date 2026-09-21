@@ -15,10 +15,10 @@ import { resolve } from "node:path";
  */
 
 const HUB_PAGES = [
-  "src/app/equipment/[type]/page.tsx",
-  "src/app/ar/equipment/[type]/page.tsx",
-  "src/app/muscles/[group]/page.tsx",
-  "src/app/ar/muscles/[group]/page.tsx",
+  "src/app/(en)/equipment/[type]/page.tsx",
+  "src/app/(ar)/ar/equipment/[type]/page.tsx",
+  "src/app/(en)/muscles/[group]/page.tsx",
+  "src/app/(ar)/ar/muscles/[group]/page.tsx",
 ];
 
 function repoRootPath(rel: string): string {

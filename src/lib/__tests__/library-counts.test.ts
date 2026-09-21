@@ -64,7 +64,7 @@ describe("tools count guard (Phase 195)", () => {
 // homepage «8+» chip) — it was a hardcoded "6" while the hub serves 8
 // (Phase 195). Same source-canary style as the Phase 217 block below.
 describe("m4: the profile Tools stat derives from the single source", () => {
-  const PROFILE = "src/app/profile/page.tsx";
+  const PROFILE = "src/app/(app)/profile/page.tsx";
 
   it("the profile imports TOOLS_COUNT from tools-shared", () => {
     const src = readFileSync(PROFILE, "utf8");

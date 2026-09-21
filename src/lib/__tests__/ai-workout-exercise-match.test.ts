@@ -26,7 +26,7 @@ import {
  */
 
 const ROUTE_FILE = "src/app/api/ai/workout-plan-demo/route.ts";
-const PAGE_FILE = "src/app/ai-workout-planner/page.tsx";
+const PAGE_FILE = "src/app/(en)/ai-workout-planner/page.tsx";
 const MATCHER_FILE = "src/lib/ai-workout-exercise-match.ts";
 
 const stripComments = (s: string) =>

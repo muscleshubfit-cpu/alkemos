@@ -18,41 +18,41 @@ import { scanArabicDialect, scanLatinContamination } from "@/lib/blog-msa";
 
 const MARKETING_SURFACE_FILES = [
   // EVO landing (shared by /evo and /ar/evo — the AR mirror re-exports)
-  "src/app/evo/page.tsx",
+  "src/app/(en)/evo/page.tsx",
   // Homepage landing (shared by / and /ar)
   "src/components/views/LandingView.tsx",
   // Memberships (FAQ + tier copy — the §12.41-هـ pending item, now MSA)
-  "src/app/memberships/page.tsx",
+  "src/app/(en)/memberships/page.tsx",
   // Coaching landing (EVO FAQ + program copy)
-  "src/app/coaching/page.tsx",
+  "src/app/(en)/coaching/page.tsx",
   // Phase 193 (§12.50-B3): the two B2B/B2C marketing surfaces converted
   // from full-Egyptian copy to Pan-Arab MSA in the same pass.
   "src/components/views/AffiliateProgramView.tsx",
-  "src/app/for-coaches/page.tsx",
-  "src/app/for-coaches/content.ts",
+  "src/app/(en)/for-coaches/page.tsx",
+  "src/app/(en)/for-coaches/content.ts",
   // Phase 193 (§12.50-B3): the tools hub + the foods hub intro are public marketing
   // headlines too (كوبساتك / شوف الماكروز findings).
-  "src/app/tools/page.tsx",
+  "src/app/(en)/tools/page.tsx",
   "src/components/foods/FoodsExplorer.tsx",
   // Phase 194 (Copy Refinement Pass): the remaining public surfaces
   // converted to MSA — the food detail CTA, programs empty state,
   // contact hero, the floating EVO widget (public on every page), the
   // auth/checkout funnel, and the for-coaches AR mirror metadata.
-  "src/app/foods/[slug]/FoodDetailClient.tsx",
-  "src/app/programs/page.tsx",
+  "src/app/(en)/foods/[slug]/FoodDetailClient.tsx",
+  "src/app/(en)/programs/page.tsx",
   "src/components/views/ContactView.tsx",
   "src/components/EvoFloatingWidget.tsx",
   "src/components/views/AuthView.tsx",
-  "src/app/for-coaches/register/page.tsx",
-  "src/app/ar/for-coaches/layout.tsx",
-  "src/app/ar/for-coaches/register/layout.tsx",
+  "src/app/(en)/for-coaches/register/page.tsx",
+  "src/app/(ar)/ar/for-coaches/layout.tsx",
+  "src/app/(ar)/ar/for-coaches/register/layout.tsx",
   // PHASE 204 (owner order 2026-09-15 — internal-pages MSA cleanup): the
   // program library data + program detail CTA, the affiliate share
   // templates + toolkit UI, the static pages (about/terms/faq visible
   // copy), the FAQ JSON-LD source, and the foods-library labels joined
   // the law — the whole public non-blog surface is MSA-guarded now.
   "src/lib/workout-programs.ts",
-  "src/app/programs/[slug]/ProgramDetailClient.tsx",
+  "src/app/(en)/programs/[slug]/ProgramDetailClient.tsx",
   // NOTE: src/lib/affiliate-content.ts is deliberately NOT in the scanned
   // manifest — its escapeHtml() quote-regexes desync the naive string
   // tokenizer (pre-existing). It stays guarded by the raw Phase 204
@@ -75,23 +75,23 @@ const MARKETING_SURFACE_FILES = [
   "src/lib/hub-depth-equipment.ts",
   "src/lib/hub-depth-muscles.ts",
   "src/lib/hub-depth.ts",
-  "src/app/ar/foods/page.tsx",
-  "src/app/ar/foods/[slug]/page.tsx",
+  "src/app/(ar)/ar/foods/page.tsx",
+  "src/app/(ar)/ar/foods/[slug]/page.tsx",
   "src/lib/external-plan-text.ts",
   "src/lib/seo.ts",
   // PHASE 205 round 2 (live production verification caught the prefixed
   // «الأكلة/أكلة» forms the word-boundary audit list missed): the foods
   // explorer counts/filters, the bottom promo cluster, the meal-planner
   // page + AR metadata, and the EVO chat local-fallback copy joined too.
-  "src/app/meal-planner/page.tsx",
-  "src/app/ar/meal-planner/layout.tsx",
+  "src/app/(en)/meal-planner/page.tsx",
+  "src/app/(ar)/ar/meal-planner/layout.tsx",
   "src/components/PageBottomPromo.tsx",
   "src/app/api/ai/chat/route.ts",
   // PHASE 205 round 3 (production sweep caught the library-strip +
   // visible-breadcrumb + keywords leftovers): OtherTools (the libraries
   // cluster strip on tool/planner pages) and the AR for-coaches metadata.
   "src/components/OtherTools.tsx",
-  "src/app/ar/for-coaches/layout.tsx",
+  "src/app/(ar)/ar/for-coaches/layout.tsx",
 ] as const;
 
 const AR_RUN = /[\u0600-\u06FF]/;
@@ -186,7 +186,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   );
 
   it("EVO page: the hero/subtitle copy is MSA, not dialect (the live finding)", () => {
-    const src = readFileSync("src/app/evo/page.tsx", "utf8");
+    const src = readFileSync("src/app/(en)/evo/page.tsx", "utf8");
     // The exact dialect phrases the live audit found on /ar/evo — none
     // of them may return in ANY string literal.
     for (const banned of [
@@ -219,8 +219,8 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   });
 
   it("memberships/coaching FAQ: the documented §12.41-هـ dialect stays dead", () => {
-    const memberships = readFileSync("src/app/memberships/page.tsx", "utf8");
-    const coaching = readFileSync("src/app/coaching/page.tsx", "utf8");
+    const memberships = readFileSync("src/app/(en)/memberships/page.tsx", "utf8");
+    const coaching = readFileSync("src/app/(en)/coaching/page.tsx", "utf8");
     for (const banned of ["مفيش تجربة مجانية", "هتفضل شغالة", "لو ما جدّدتش"]) {
       expect(memberships, `dialect phrase returned: "${banned}"`).not.toContain(banned);
     }
@@ -236,23 +236,23 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     const surfaces: Record<string, string[]> = {
       // Phase 193 lists — extended in Phase 194 with the phrases removed by
       // the Copy Refinement Pass (merged per-file; no duplicate keys).
-      "src/app/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين", "كل أداة محتاجها", "EVO معاك", "بتتعدل مع تقدمك"],
+      "src/app/(en)/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين", "كل أداة محتاجها", "EVO معاك", "بتتعدل مع تقدمك"],
       "src/components/views/LandingView.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين", "كوتش بيتابعك", "أسعارك إيدك", "أدوات المنصة معاك", "شغال معاك", "صفر٪ عمولة", "Your complete fitness platform.", "منصتك الرياضية المتكاملة."],
-      "src/app/tools/page.tsx": ["كوبساتك", "شوف الماكروز"],
+      "src/app/(en)/tools/page.tsx": ["كوبساتك", "شوف الماكروز"],
       "src/components/foods/FoodsExplorer.tsx": ["شوف السعرات", "اللي محتاجها"],
       "src/components/views/AffiliateProgramView.tsx": ["مفيش معالجة دفعات", "إزاي بيشتغل", "لمين ده مناسب", "بتاعك", "هتلاقي رابط"],
-      "src/app/for-coaches/page.tsx": ["اقبض بنفسك", "ضيف عملاءك", "شوف العضويات", "يستهل يشتغل", "عايز مميزات", "بيتم من محفظتك", "كوتش بيتابع عميله", "0% Commission — fixed fee only"],
-      "src/app/for-coaches/content.ts": ["بتدفع", "مين اللي", "إزاي بحصّل", "إيه اللي بيدفعه", "هيبقوا تابعين", "تقدر تشترك"],
+      "src/app/(en)/for-coaches/page.tsx": ["اقبض بنفسك", "ضيف عملاءك", "شوف العضويات", "يستهل يشتغل", "عايز مميزات", "بيتم من محفظتك", "كوتش بيتابع عميله", "0% Commission — fixed fee only"],
+      "src/app/(en)/for-coaches/content.ts": ["بتدفع", "مين اللي", "إزاي بحصّل", "إيه اللي بيدفعه", "هيبقوا تابعين", "تقدر تشترك"],
       "src/lib/i18n.tsx": ["2 meal + 2 exercise swaps / day", "Unlimited daily swaps"],
       // Phase 194 — the newly-converted surfaces pin their removed phrases:
-      "src/app/foods/[slug]/FoodDetailClient.tsx": ["عايز توصل", "دوس على زرار", "عايز خطة وجبات"],
-      "src/app/for-coaches/register/page.tsx": ["بنحوّلك دلوقتي", "عندك حساب بالفعل"],
-      "src/app/ar/for-coaches/layout.tsx": ["في إيدك", "بتحددها", "إنت اللي"],
+      "src/app/(en)/foods/[slug]/FoodDetailClient.tsx": ["عايز توصل", "دوس على زرار", "عايز خطة وجبات"],
+      "src/app/(en)/for-coaches/register/page.tsx": ["بنحوّلك دلوقتي", "عندك حساب بالفعل"],
+      "src/app/(ar)/ar/for-coaches/layout.tsx": ["في إيدك", "بتحددها", "إنت اللي"],
       "src/components/views/AuthView.tsx": ["عشان تكمّل", "هترجع تلقائيًا"],
       "src/components/EvoFloatingWidget.tsx": ["إزاي أعمل", "عايز برنامج", "جرب تاني", "عشان تكمل"],
-      "src/app/programs/page.tsx": ["مفيش برامج"],
+      "src/app/(en)/programs/page.tsx": ["مفيش برامج"],
       "src/components/views/ContactView.tsx": ["ابعتلنا رسالة وهنرد"],
-      "src/app/evo/page.tsx": ["وتستمر معك على كل جهاز", "يتذكّر وزنك وهدفك وتقدّمك"],
+      "src/app/(en)/evo/page.tsx": ["وتستمر معك على كل جهاز", "يتذكّر وزنك وهدفك وتقدّمك"],
     };
     for (const [rel, bannedList] of Object.entries(surfaces)) {
       const src = readFileSync(rel, "utf8");
@@ -266,7 +266,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   // testimonials and the «500+ clients» claim must never return, and the
   // dead wrong i18n swap claims stay deleted.
   it("Phase 193 claims honesty: no fabricated testimonials / client counts / wrong swap limits", () => {
-    const coaching = readFileSync("src/app/coaching/page.tsx", "utf8");
+    const coaching = readFileSync("src/app/(en)/coaching/page.tsx", "utf8");
     for (const banned of [
       "randomuser.me",
       "500+ clients",
@@ -320,7 +320,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         "feature: \"EVO: تبديلات\"",
         "featureEn: \"EVO: Swaps\"",
       ],
-      "src/app/memberships/layout.tsx": ["6 swaps/week"],
+      "src/app/(en)/memberships/layout.tsx": ["6 swaps/week"],
       "src/lib/faq-content.ts": ["3 swaps/week", "3 استبدالات", "كم عدد الاستبدالات", "ويقترح تبديلات ذكية. متاح"],
       "src/components/views/StaticPageView.tsx": [
         "3 swaps/week",
@@ -365,12 +365,12 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       expect(landing, `dynamic count constant missing: ${required}`).toContain(required);
     }
     // (5) The tools hub + memberships consume the single source.
-    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    const toolsPage = readFileSync("src/app/(en)/tools/page.tsx", "utf8");
     expect(toolsPage).toContain('from "@/lib/tools-shared"');
     const memberships = readFileSync("src/lib/memberships.ts", "utf8");
     expect(memberships).toContain('from "@/lib/tools-shared"');
     // (6) The Memberships page carries the owner's swaps clarification.
-    const membershipsPage = readFileSync("src/app/memberships/page.tsx", "utf8");
+    const membershipsPage = readFileSync("src/app/(en)/memberships/page.tsx", "utf8");
     expect(membershipsPage).toContain("دون إعادة إنشاء الخطة كاملة");
     expect(membershipsPage).toContain("never a full plan regeneration");
   });
@@ -397,10 +397,10 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       ],
       "src/lib/seo.ts": ["أكثر من 868", "868-exercise"],
       "src/lib/authors.ts": ["868-exercise", "الـ868 تمرينًا"],
-      "src/app/ar/meal-planner/layout.tsx": ["8830"],
-      "src/app/ai-workout-planner/page.tsx": ["أكثر من 868"],
+      "src/app/(ar)/ar/meal-planner/layout.tsx": ["8830"],
+      "src/app/(en)/ai-workout-planner/page.tsx": ["أكثر من 868"],
       "src/lib/blog-category-content.ts": ["868 تمريناً", "868 entries"],
-      "src/app/coaching/page.tsx": [
+      "src/app/(en)/coaching/page.tsx": [
         "not a separate subscription",
         "لا اشتراك منفصل",
         "جزء من باقة الكوتشينج",
@@ -416,7 +416,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     // a user-facing marketing surface.
     for (const rel of [
       "src/components/views/LandingView.tsx",
-      "src/app/memberships/layout.tsx",
+      "src/app/(en)/memberships/layout.tsx",
       "src/lib/faq-content.ts",
       "src/components/views/StaticPageView.tsx",
       "src/lib/comparisons.ts",
@@ -428,7 +428,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     }
     // (4) The unified EVO-ownership message: the coaching page carries the
     // every-membership fact in BOTH languages.
-    const coaching = readFileSync("src/app/coaching/page.tsx", "utf8");
+    const coaching = readFileSync("src/app/(en)/coaching/page.tsx", "utf8");
     expect(coaching).toContain("part of every Alkemos membership");
     expect(coaching).toContain("جزء من كل عضويات Alkemos");
   });
@@ -540,7 +540,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         "الجيم", "اللي ", "عايز", "تمرينة", "الكور", "تعلية",
         "بالوزن الجسم", "في البيت", "بس. مثالي",
       ],
-      "src/app/programs/[slug]/ProgramDetailClient.tsx": [
+      "src/app/(en)/programs/[slug]/ProgramDetailClient.tsx": [
         "عايز خطة", "ليك؟", "بتعمل خطط",
       ],
       "src/lib/affiliate-content.ts": [
@@ -558,22 +558,22 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "src/lib/faq-content.ts": [
         "حجزه", "you can book", "Who is EVO",
       ],
-      "src/app/memberships/page.tsx": [
+      "src/app/(en)/memberships/page.tsx": [
         "كوتش بشري", "يراجعه الكوتش", 'q: isAr ? "طرق الدفع؟"',
         "Pro يعطيك صلاحيات المنصة",
       ],
-      "src/app/coaching/page.tsx": [
+      "src/app/(en)/coaching/page.tsx": [
         "من هو EVO", "Who is EVO", "مشفرة على Supabase",
         'q: isAr ? "طرق الدفع؟"', 'q: isAr ? "بياناتي آمنة؟"',
       ],
-      "src/app/evo/page.tsx": ["كوتش ذكاء اصطناعي", "شات بوت"],
-      "src/app/coaches/[slug]/page.tsx": ["Book private coaching"],
-      "src/app/ar/coaches/[slug]/page.tsx": ["احجز متابعة"],
-      "src/app/for-coaches/page.tsx": [
+      "src/app/(en)/evo/page.tsx": ["كوتش ذكاء اصطناعي", "شات بوت"],
+      "src/app/(en)/coaches/[slug]/page.tsx": ["Book private coaching"],
+      "src/app/(ar)/ar/coaches/[slug]/page.tsx": ["احجز متابعة"],
+      "src/app/(en)/for-coaches/page.tsx": [
         "للكوتشات", "أسئلة الكوتشات", "ابدأ شغلك", "في الجيم",
       ],
-      "src/app/ar/for-coaches/layout.tsx": ["فلوسك", "شغل كوتش"],
-      "src/app/ar/for-coaches/register/layout.tsx": ["انشاء حساب كوتش"],
+      "src/app/(ar)/ar/for-coaches/layout.tsx": ["فلوسك", "شغل كوتش"],
+      "src/app/(ar)/ar/for-coaches/register/layout.tsx": ["انشاء حساب كوتش"],
       "src/components/views/ContactView.tsx": ['"سجل دخول وافتح'],
       "src/lib/comparisons.ts": ["والجيم،"],
     };
@@ -607,7 +607,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     // rewritten About wording.
     expect(aboutVisible).toContain("وقاعدة أطعمة تضم ${FOOD_LIB} صنفًا غذائيًا");
     expect(aboutVisible).toContain("وبرو $29.99 شهريًا أو $239 سنويًا");
-    const arCoaches = readFileSync("src/app/ar/coaches/[slug]/page.tsx", "utf8");
+    const arCoaches = readFileSync("src/app/(ar)/ar/coaches/[slug]/page.tsx", "utf8");
     expect(arCoaches).toContain("اشترك في متابعة خاصة");
   });
 
@@ -631,11 +631,11 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         "أي حاجة رياضية", "الأكلات، التغذية",
       ],
       "src/lib/seo.ts": ["مكتبة أكلات"],
-      "src/app/ar/foods/page.tsx": [
+      "src/app/(ar)/ar/foods/page.tsx": [
         "قاعدة بيانات الأكلات", "أكلة 8,830", "احسب جرامك",
         "قاعدة بيانات الأطعمة | Alkemos",
       ],
-      "src/app/ar/foods/[slug]/page.tsx": ['{ name: "الأكلات"', "الأكلة غير موجودة"],
+      "src/app/(ar)/ar/foods/[slug]/page.tsx": ['{ name: "الأكلات"', "الأكلة غير موجودة"],
       "src/components/views/PlansView.tsx": [
         "هتحتاج تعمله", "كوتش أونلاين", 'stat-label">كارب', "ليتمكن الكوتش",
       ],
@@ -653,13 +653,13 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "src/components/foods/FoodsExplorer.tsx": ['? "أكلة"'],
       "src/components/foods/FoodsFilters.tsx": ["ابحث عن أكلة", "مكتبة الأكلات"],
       "src/components/PageBottomPromo.tsx": ["مكتبة الأكلات", "8,830+ أكلة", "شوف خطط"],
-      "src/app/meal-planner/page.tsx": ["أضف أكلة", "٨٨٣٠+ أكلة", "وشوف الماكروز", "بحث عن أكلة"],
-      "src/app/ar/meal-planner/layout.tsx": ["8,830+ أكلة"],
-      "src/app/foods/[slug]/FoodDetailClient.tsx": ["الأكلة غير موجودة", "شارك الأكلة دي", '? "الأكلات"'],
+      "src/app/(en)/meal-planner/page.tsx": ["أضف أكلة", "٨٨٣٠+ أكلة", "وشوف الماكروز", "بحث عن أكلة"],
+      "src/app/(ar)/ar/meal-planner/layout.tsx": ["8,830+ أكلة"],
+      "src/app/(en)/foods/[slug]/FoodDetailClient.tsx": ["الأكلة غير موجودة", "شارك الأكلة دي", '? "الأكلات"'],
       "src/app/api/ai/chat/route.ts": ["مقدرش ألاقي", "دلوقتي", "سؤال تاني", "مكتبة الأكلات", "8830+ أكلة", "تقدر تتصفح"],
       // PHASE 205 round 3 — library strip + breadcrumb + keywords:
       "src/components/OtherTools.tsx": ["مكتبة الأكلات"],
-      "src/app/ar/for-coaches/layout.tsx": ["عمل كوتش اونلاين", "إدارة عملاء الكوتش", "كوتش جيم"],
+      "src/app/(ar)/ar/for-coaches/layout.tsx": ["عمل كوتش اونلاين", "إدارة عملاء الكوتش", "كوتش جيم"],
     };
     for (const [rel, bannedList] of Object.entries(surfaces)) {
       const src = readFileSync(rel, "utf8");
@@ -675,7 +675,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(hubDepthCollections).toContain("أسطورة النادي الرياضي");
     expect(hubDepthCollections).toContain("تُجوّع تدريبك");
     expect(hubDepthCollections).toContain("كما يفعل أي متدرب آخر");
-    const arFoods = readFileSync("src/app/ar/foods/page.tsx", "utf8");
+    const arFoods = readFileSync("src/app/(ar)/ar/foods/page.tsx", "utf8");
     expect(arFoods).toContain('title: "مكتبة الأطعمة — السعرات والماكروز لكل 100 جرام"');
     expect(arFoods).toContain("8,830+ صنفًا غذائيًا");
     const widget = readFileSync("src/components/EvoFloatingWidget.tsx", "utf8");
@@ -709,11 +709,11 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     expect(promo).toContain('nameAr: "مكتبة الأطعمة"');
     expect(promo).toContain("8,830+ صنف غذائي بالسعرات والماكروز");
     expect(promo).toContain("استعرض خطط الاشتراك");
-    const mealPlanner = readFileSync("src/app/meal-planner/page.tsx", "utf8");
+    const mealPlanner = readFileSync("src/app/(en)/meal-planner/page.tsx", "utf8");
     expect(mealPlanner).toContain("8,830+ صنف غذائي وتابع الماكروز");
-    const arMealPlanner = readFileSync("src/app/ar/meal-planner/layout.tsx", "utf8");
+    const arMealPlanner = readFileSync("src/app/(ar)/ar/meal-planner/layout.tsx", "utf8");
     expect(arMealPlanner).toContain("8,830+ صنف غذائي وتتبّع الماكروز");
-    const foodDetail = readFileSync("src/app/foods/[slug]/FoodDetailClient.tsx", "utf8");
+    const foodDetail = readFileSync("src/app/(en)/foods/[slug]/FoodDetailClient.tsx", "utf8");
     expect(foodDetail).toContain("شارك هذا الصنف الغذائي");
     expect(foodDetail).toContain("الصنف الغذائي غير موجود");
     const coachView2 = readFileSync("src/components/views/CoachView.tsx", "utf8");
@@ -725,9 +725,9 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     // PHASE 205 round 3 — replacements present:
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('nameAr: "مكتبة الأطعمة"');
-    const foodDetail2 = readFileSync("src/app/foods/[slug]/FoodDetailClient.tsx", "utf8");
+    const foodDetail2 = readFileSync("src/app/(en)/foods/[slug]/FoodDetailClient.tsx", "utf8");
     expect(foodDetail2).toContain('? "الأطعمة"');
-    const arForCoaches = readFileSync("src/app/ar/for-coaches/layout.tsx", "utf8");
+    const arForCoaches = readFileSync("src/app/(ar)/ar/for-coaches/layout.tsx", "utf8");
     expect(arForCoaches).toContain("العمل كمدرب أونلاين");
     expect(arForCoaches).toContain("مدرب نادي رياضي");
   });

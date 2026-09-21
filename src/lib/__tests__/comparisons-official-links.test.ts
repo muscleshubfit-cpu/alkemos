@@ -118,8 +118,8 @@ describe("comparison competitor official links (owner directive 2026-09-14)", ()
     // href exactly once (the ItemList JSON-LD usage is a `url:` prop, not
     // an href, and does not count).
     for (const file of [
-      "src/app/compare/[slug]/page.tsx",
-      "src/app/ar/compare/[slug]/page.tsx",
+      "src/app/(en)/compare/[slug]/page.tsx",
+      "src/app/(ar)/ar/compare/[slug]/page.tsx",
     ]) {
       const src = readFileSync(file, "utf8");
       const anchors = src.match(/href=\{comparison\.competitorUrl\}/g) ?? [];
@@ -132,10 +132,10 @@ describe("comparison competitor official links (owner directive 2026-09-14)", ()
   });
 
   it("official-link labels are localized on both renderers", () => {
-    expect(readFileSync("src/app/compare/[slug]/page.tsx", "utf8")).toContain(
+    expect(readFileSync("src/app/(en)/compare/[slug]/page.tsx", "utf8")).toContain(
       "Official Website",
     );
-    expect(readFileSync("src/app/ar/compare/[slug]/page.tsx", "utf8")).toContain(
+    expect(readFileSync("src/app/(ar)/ar/compare/[slug]/page.tsx", "utf8")).toContain(
       "الموقع الرسمي",
     );
   });

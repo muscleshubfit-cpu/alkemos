@@ -41,9 +41,9 @@ import {
  */
 
 const ROUTE_FILE = "src/app/api/ai/workout-plan-demo/route.ts";
-const PAGE_FILE = "src/app/ai-workout-planner/page.tsx";
-const LAYOUT_EN = "src/app/ai-workout-planner/layout.tsx";
-const LAYOUT_AR = "src/app/ar/ai-workout-planner/layout.tsx";
+const PAGE_FILE = "src/app/(en)/ai-workout-planner/page.tsx";
+const LAYOUT_EN = "src/app/(en)/ai-workout-planner/layout.tsx";
+const LAYOUT_AR = "src/app/(ar)/ar/ai-workout-planner/layout.tsx";
 const SITEMAP_FILE = "src/app/sitemap-pages.xml/route.ts";
 const LLMS = "public/llms.txt";
 const LLMS_FULL = "src/app/llms-full.txt/route.ts";
@@ -282,7 +282,7 @@ describe("ai workout planner trial (§12.32)", () => {
     const toolsHub = readFileSync("src/lib/tools-shared.ts", "utf8");
     expect(toolsHub).toContain('slug: "/ai-workout-planner"');
     expect(toolsHub).toContain("مخطط التمارين بالذكاء الاصطناعي");
-    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    const toolsPage = readFileSync("src/app/(en)/tools/page.tsx", "utf8");
     expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-workout-planner"');
@@ -324,7 +324,7 @@ describe("ai workout planner trial (§12.32)", () => {
     // Soft signup nudge for guests (benefits only, never a block).
     expect(page).toContain("auth?mode=signup");
     // The AR mirror re-exports the same bilingual page.
-    const ar = readFileSync("src/app/ar/ai-workout-planner/page.tsx", "utf8");
-    expect(ar).toContain("@/app/ai-workout-planner/page");
+    const ar = readFileSync("src/app/(ar)/ar/ai-workout-planner/page.tsx", "utf8");
+    expect(ar).toContain("@/app/(en)/ai-workout-planner/page");
   });
 });

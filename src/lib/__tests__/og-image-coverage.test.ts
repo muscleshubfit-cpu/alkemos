@@ -71,91 +71,91 @@ const CARDS = [
 /** surface source → the family card it must reference */
 const WIRED_SURFACES: Array<[string, string]> = [
   // Detail surfaces (Phase 187)
-  ["src/app/exercises/[slug]/page.tsx", "og-exercises-en"],
-  ["src/app/ar/exercises/[slug]/page.tsx", "og-exercises-ar"],
-  ["src/app/foods/[slug]/page.tsx", "og-foods-en"],
-  ["src/app/ar/foods/[slug]/page.tsx", "og-foods-ar"],
-  ["src/app/muscles/[group]/page.tsx", "og-hubs-en"],
-  ["src/app/ar/muscles/[group]/page.tsx", "og-hubs-ar"],
-  ["src/app/collections/[slug]/page.tsx", "og-collections-en"],
-  ["src/app/ar/collections/[slug]/page.tsx", "og-collections-ar"],
-  ["src/app/blog/category/[slug]/page.tsx", "og-blog-category-en"],
-  ["src/app/ar/blog/category/[slug]/page.tsx", "og-blog-category-ar"],
-  ["src/app/tools/layout.tsx", "og-tools-en"],
-  ["src/app/tools/bmi-calculator/layout.tsx", "og-tools-en"],
-  ["src/app/tools/body-fat-calculator/layout.tsx", "og-tools-en"],
-  ["src/app/tools/calorie-calculator/layout.tsx", "og-tools-en"],
-  ["src/app/tools/macro-calculator/layout.tsx", "og-tools-en"],
-  ["src/app/tools/water-tracker/layout.tsx", "og-tools-en"],
-  ["src/app/ar/tools/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/tools/bmi-calculator/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/tools/body-fat-calculator/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/tools/calorie-calculator/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/tools/macro-calculator/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/tools/water-tracker/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/layout.tsx", "og-home-ar"],
+  ["src/app/(en)/exercises/[slug]/page.tsx", "og-exercises-en"],
+  ["src/app/(ar)/ar/exercises/[slug]/page.tsx", "og-exercises-ar"],
+  ["src/app/(en)/foods/[slug]/page.tsx", "og-foods-en"],
+  ["src/app/(ar)/ar/foods/[slug]/page.tsx", "og-foods-ar"],
+  ["src/app/(en)/muscles/[group]/page.tsx", "og-hubs-en"],
+  ["src/app/(ar)/ar/muscles/[group]/page.tsx", "og-hubs-ar"],
+  ["src/app/(en)/collections/[slug]/page.tsx", "og-collections-en"],
+  ["src/app/(ar)/ar/collections/[slug]/page.tsx", "og-collections-ar"],
+  ["src/app/(en)/blog/category/[slug]/page.tsx", "og-blog-category-en"],
+  ["src/app/(ar)/ar/blog/category/[slug]/page.tsx", "og-blog-category-ar"],
+  ["src/app/(en)/tools/layout.tsx", "og-tools-en"],
+  ["src/app/(en)/tools/bmi-calculator/layout.tsx", "og-tools-en"],
+  ["src/app/(en)/tools/body-fat-calculator/layout.tsx", "og-tools-en"],
+  ["src/app/(en)/tools/calorie-calculator/layout.tsx", "og-tools-en"],
+  ["src/app/(en)/tools/macro-calculator/layout.tsx", "og-tools-en"],
+  ["src/app/(en)/tools/water-tracker/layout.tsx", "og-tools-en"],
+  ["src/app/(ar)/ar/tools/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/tools/bmi-calculator/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/tools/body-fat-calculator/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/tools/calorie-calculator/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/tools/macro-calculator/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/tools/water-tracker/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/layout.tsx", "og-home-ar"],
   // EN list surfaces (§12.53 item 4 — a child openGraph block replaces
   // the root one in Next.js merging, so these must pin their own card)
-  ["src/app/exercises/layout.tsx", "og-exercises-en"],
-  ["src/app/foods/layout.tsx", "og-foods-en"],
-  ["src/app/programs/layout.tsx", "og-home-en"],
-  ["src/app/coaching/layout.tsx", "og-home-en"],
-  ["src/app/memberships/layout.tsx", "og-home-en"],
-  ["src/app/evo/layout.tsx", "og-evo-en"],
-  ["src/app/diet-plan/page.tsx", "og-home-en"],
-  ["src/app/diet-plan/[level]/[system]/page.tsx", "og-home-en"],
-  ["src/app/equipment/[type]/page.tsx", "og-home-en"],
+  ["src/app/(en)/exercises/layout.tsx", "og-exercises-en"],
+  ["src/app/(en)/foods/layout.tsx", "og-foods-en"],
+  ["src/app/(en)/programs/layout.tsx", "og-home-en"],
+  ["src/app/(en)/coaching/layout.tsx", "og-home-en"],
+  ["src/app/(en)/memberships/layout.tsx", "og-home-en"],
+  ["src/app/(en)/evo/layout.tsx", "og-evo-en"],
+  ["src/app/(en)/diet-plan/page.tsx", "og-home-en"],
+  ["src/app/(en)/diet-plan/[level]/[system]/page.tsx", "og-home-en"],
+  ["src/app/(en)/equipment/[type]/page.tsx", "og-home-en"],
   // AR list surfaces (batch 1-b — the same replace-not-inherit gap on
   // the AR side, caught by batch-1 live verification)
-  ["src/app/ar/evo/layout.tsx", "og-evo-ar"],
-  ["src/app/ar/coaching/layout.tsx", "og-home-ar"],
-  ["src/app/ar/diet-plan/page.tsx", "og-home-ar"],
-  ["src/app/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/evo/layout.tsx", "og-evo-ar"],
+  ["src/app/(ar)/ar/coaching/layout.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/diet-plan/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
   // §12.53 item 11 (2026-09-16): the affiliate AR mirror — same gap
   // (its layout declares openGraph, so og-home-ar must be pinned).
-  ["src/app/ar/affiliate/layout.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/affiliate/layout.tsx", "og-home-ar"],
   // Discovery 208 → Phase 209 (2026-09-16): the EN half of the affiliate
   // pair — same replace-not-inherit gap (see header note).
-  ["src/app/affiliate/layout.tsx", "og-home-en"],
+  ["src/app/(en)/affiliate/layout.tsx", "og-home-en"],
   // Phase 216 (P2-1 — deep-audit confirmed-7): the 14 audited surfaces —
   // static AR pages (about/privacy/terms/contact), FAQ ×2, compare ×2,
   // the two AI planners ×2 and the coach-registration pair; the compare
   // + register + AR-equipment twitter cards were "summary" (ignores
   // images) and are now summary_large_image.
-  ["src/app/ar/about/page.tsx", "og-home-ar"],
-  ["src/app/ar/privacy/page.tsx", "og-home-ar"],
-  ["src/app/ar/terms/page.tsx", "og-home-ar"],
-  ["src/app/ar/contact/page.tsx", "og-home-ar"],
-  ["src/app/faq/page.tsx", "og-home-en"],
-  ["src/app/ar/faq/page.tsx", "og-home-ar"],
-  ["src/app/compare/page.tsx", "og-home-en"],
-  ["src/app/ar/compare/page.tsx", "og-home-ar"],
-  ["src/app/ai-meal-planner/layout.tsx", "og-tools-en"],
-  ["src/app/ar/ai-meal-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/ai-workout-planner/layout.tsx", "og-tools-en"],
-  ["src/app/ar/ai-workout-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/for-coaches/register/layout.tsx", "og-home-en"],
-  ["src/app/ar/for-coaches/register/layout.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/about/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/privacy/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/terms/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/contact/page.tsx", "og-home-ar"],
+  ["src/app/(en)/faq/page.tsx", "og-home-en"],
+  ["src/app/(ar)/ar/faq/page.tsx", "og-home-ar"],
+  ["src/app/(en)/compare/page.tsx", "og-home-en"],
+  ["src/app/(ar)/ar/compare/page.tsx", "og-home-ar"],
+  ["src/app/(en)/ai-meal-planner/layout.tsx", "og-tools-en"],
+  ["src/app/(ar)/ar/ai-meal-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/(en)/ai-workout-planner/layout.tsx", "og-tools-en"],
+  ["src/app/(ar)/ar/ai-workout-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/(en)/for-coaches/register/layout.tsx", "og-home-en"],
+  ["src/app/(ar)/ar/for-coaches/register/layout.tsx", "og-home-ar"],
   // Phase 216 (P2-1 discoveries beyond the audit list — same defect
   // class, live-verified missing og:image): the meal-planner pair and
   // the AR equipment hub (twin of the already-wired EN surface).
-  ["src/app/meal-planner/layout.tsx", "og-tools-en"],
-  ["src/app/ar/meal-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/ar/equipment/[type]/page.tsx", "og-home-ar"],
+  ["src/app/(en)/meal-planner/layout.tsx", "og-tools-en"],
+  ["src/app/(ar)/ar/meal-planner/layout.tsx", "og-tools-ar"],
+  ["src/app/(ar)/ar/equipment/[type]/page.tsx", "og-home-ar"],
   // Phase 218 (D-02 — owner deferred-item reopened 2026-09-17): the
   // coach-landing pair — noindex, but shared directly by coaches
   // (WhatsApp/X embeds), so a cardless share was the defect (same
   // replace-not-inherit class as every surface above).
-  ["src/app/coaches/[slug]/page.tsx", "og-home-en"],
-  ["src/app/ar/coaches/[slug]/page.tsx", "og-home-ar"],
+  ["src/app/(en)/coaches/[slug]/page.tsx", "og-home-en"],
+  ["src/app/(ar)/ar/coaches/[slug]/page.tsx", "og-home-ar"],
   // Phase 231 (owner order C): the for-coaches pair drops the vertical
   // coach-portrait.jpg (1122×1402) for the dedicated horizontal
   // 1200×630 card; the blog index pair stops inheriting the homepage
   // card and pins its own dedicated card.
-  ["src/app/for-coaches/layout.tsx", "og-for-coaches-en"],
-  ["src/app/ar/for-coaches/layout.tsx", "og-for-coaches-ar"],
-  ["src/app/blog/page.tsx", "og-blog-en"],
-  ["src/app/ar/blog/page.tsx", "og-blog-ar"],
+  ["src/app/(en)/for-coaches/layout.tsx", "og-for-coaches-en"],
+  ["src/app/(ar)/ar/for-coaches/layout.tsx", "og-for-coaches-ar"],
+  ["src/app/(en)/blog/page.tsx", "og-blog-en"],
+  ["src/app/(ar)/ar/blog/page.tsx", "og-blog-ar"],
 ];
 
 function repoRootPath(rel: string): string {

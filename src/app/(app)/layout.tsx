@@ -1,29 +1,42 @@
-import type { Metadata } from "next";
-import { AuthGate } from "./auth-gate";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import RootShell from "@/components/root-shell";
+import { metadata, viewport } from "../metadata";
+
+export { metadata, viewport };
+
+// VERCEL-USAGE-3 (2026-09-21): the whole (app) subtree is session-aware
+// (auth gates, admin panels, checkout). Under the old single dynamic root
+// layout these pages were dynamic by inheritance; now that the root shell
+// is static they must declare it EXPLICITLY or the build prerenders them
+// (and session-dependent client code then explodes during export).
+// Being dynamic is CORRECT for these surfaces — they are login-gated,
+// excluded from the Cloudflare public-HTML cache, and a negligible share
+// of crawler traffic (the usage-critical surface is the public content
+// in (en)/(ar), which stays static/ISR).
+export const dynamic = "force-dynamic";
 
 /**
- * Server-component layout for all authenticated routes (dashboard, plans,
- * progress, chat, support, referral, coach/*, questionnaires).
+ * (APP) ROOT LAYOUT — VERCEL-USAGE-3 (2026-09-21).
  *
- * Exports `metadata` with `noindex, nofollow` so Google does not index any
- * page under this layout. The auth gate (client component) is rendered as
- * the body — keeping the auth logic intact while allowing this server
- * component to own the metadata.
+ * This group hosts the authenticated/admin surface that the Phase-139
+ * ad-free law covers wholesale: /dashboard, /coach/*, /plans,
+ * /progress, /questionnaires, /referral, /support (under (authed)/ with
+ * its AuthGate + noindex) plus /admin, /profile, /checkout, /auth and
+ * /preview (each keeps its own gating exactly as before).
  *
- * Routes covered (one metadata for all — minimal change):
- *   /dashboard, /plans, /progress, /support, /referral
- *   (the /chat page was removed — the floating widget is the only
- *    chat surface; see AGENTS.md EVO CHAT SURFACE LAW)
- *   /coach/*, /questionnaires
+ * AdSense loader: OFF for the entire group — the loader tag disappears
+ * from the authenticated surfaces by construction (the isAdFreePath()
+ * per-request check it replaces no longer exists anywhere).
+ *
+ * NOTE: these routes are session-aware and stay server-rendered — that
+ * is fine: the traffic-heavy CRAWLER surface (public content) is what
+ * the usage crisis was measured on, and it lives in (en)/(ar).
  */
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
-
-export default function AuthenticatedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <AuthGate>{children}</AuthGate>;
+export default function AppGroupRootLayout({ children }: { children: ReactNode }) {
+  return (
+    <RootShell lang="en" dir="ltr" showAds={false}>
+      {children}
+    </RootShell>
+  );
 }

@@ -68,15 +68,15 @@ const LAYOUT_FILES = [
     "body-fat-calculator",
     "water-tracker",
   ].flatMap((t) => [
-    `src/app/tools/${t}/layout.tsx`,
-    `src/app/ar/tools/${t}/layout.tsx`,
+    `src/app/(en)/tools/${t}/layout.tsx`,
+    `src/app/(ar)/ar/tools/${t}/layout.tsx`,
   ]),
-  "src/app/meal-planner/layout.tsx",
-  "src/app/ar/meal-planner/layout.tsx",
+  "src/app/(en)/meal-planner/layout.tsx",
+  "src/app/(ar)/ar/meal-planner/layout.tsx",
   // §12.28: the AI meal-planner trial pair renders the same layered
   // schema (WebApplication + Offer($0) + BreadcrumbList + HowTo).
-  "src/app/ai-meal-planner/layout.tsx",
-  "src/app/ar/ai-meal-planner/layout.tsx",
+  "src/app/(en)/ai-meal-planner/layout.tsx",
+  "src/app/(ar)/ar/ai-meal-planner/layout.tsx",
 ];
 
 /** Every paragraph of ≥25 words in one language, normalized. */

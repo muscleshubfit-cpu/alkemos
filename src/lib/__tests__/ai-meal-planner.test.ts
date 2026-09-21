@@ -39,14 +39,14 @@ import {
  */
 
 const ROUTE_FILE = "src/app/api/ai/meal-plan-demo/route.ts";
-const PAGE_FILE = "src/app/ai-meal-planner/page.tsx";
-const LAYOUT_EN = "src/app/ai-meal-planner/layout.tsx";
-const LAYOUT_AR = "src/app/ar/ai-meal-planner/layout.tsx";
+const PAGE_FILE = "src/app/(en)/ai-meal-planner/page.tsx";
+const LAYOUT_EN = "src/app/(en)/ai-meal-planner/layout.tsx";
+const LAYOUT_AR = "src/app/(ar)/ar/ai-meal-planner/layout.tsx";
 const SITEMAP_FILE = "src/app/sitemap-pages.xml/route.ts";
-const LEAF_AR = "src/app/ar/diet-plan/[level]/[system]/page.tsx";
-const LEAF_EN = "src/app/diet-plan/[level]/[system]/page.tsx";
-const HUB_AR = "src/app/ar/diet-plan/page.tsx";
-const HUB_EN = "src/app/diet-plan/page.tsx";
+const LEAF_AR = "src/app/(ar)/ar/diet-plan/[level]/[system]/page.tsx";
+const LEAF_EN = "src/app/(en)/diet-plan/[level]/[system]/page.tsx";
+const HUB_AR = "src/app/(ar)/ar/diet-plan/page.tsx";
+const HUB_EN = "src/app/(en)/diet-plan/page.tsx";
 const LLMS = "public/llms.txt";
 const LLMS_FULL = "src/app/llms-full.txt/route.ts";
 
@@ -258,7 +258,7 @@ describe("ai meal planner trial (§12.28)", () => {
     // DATA there + the page's import wiring.
     const toolsHub = readFileSync("src/lib/tools-shared.ts", "utf8");
     expect(toolsHub).toContain('slug: "/ai-meal-planner"');
-    const toolsPage = readFileSync("src/app/tools/page.tsx", "utf8");
+    const toolsPage = readFileSync("src/app/(en)/tools/page.tsx", "utf8");
     expect(toolsPage).toContain('import { TOOLS, TOOL_LIBRARIES } from "@/lib/tools-shared"');
     const otherTools = readFileSync("src/components/OtherTools.tsx", "utf8");
     expect(otherTools).toContain('slug: "/ai-meal-planner"');
@@ -313,7 +313,7 @@ describe("ai meal planner trial (§12.28)", () => {
     // Soft signup nudge for guests (benefits only, never a block).
     expect(page).toContain("auth?mode=signup");
     // The AR mirror re-exports the same bilingual page.
-    const ar = readFileSync("src/app/ar/ai-meal-planner/page.tsx", "utf8");
-    expect(ar).toContain('@/app/ai-meal-planner/page');
+    const ar = readFileSync("src/app/(ar)/ar/ai-meal-planner/page.tsx", "utf8");
+    expect(ar).toContain('@/app/(en)/ai-meal-planner/page');
   });
 });

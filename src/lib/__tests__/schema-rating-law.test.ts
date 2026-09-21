@@ -76,10 +76,10 @@ describe("§12.53 item 3 — EVO/Coaching schemas are locale-aware", () => {
 
   it("the four surfaces pass the RESOLVED route locale (no locale-blind calls left)", () => {
     const surfaces: Array<[string, string]> = [
-      ["src/app/coaching/layout.tsx", 'getCoachingServiceSchema("en")'],
-      ["src/app/ar/coaching/layout.tsx", 'getCoachingServiceSchema("ar")'],
-      ["src/app/evo/layout.tsx", 'getEVOApplicationSchema("en")'],
-      ["src/app/ar/evo/layout.tsx", 'getEVOApplicationSchema("ar")'],
+      ["src/app/(en)/coaching/layout.tsx", 'getCoachingServiceSchema("en")'],
+      ["src/app/(ar)/ar/coaching/layout.tsx", 'getCoachingServiceSchema("ar")'],
+      ["src/app/(en)/evo/layout.tsx", 'getEVOApplicationSchema("en")'],
+      ["src/app/(ar)/ar/evo/layout.tsx", 'getEVOApplicationSchema("ar")'],
     ];
     for (const [file, call] of surfaces) {
       const src = readFileSync(file, "utf8");

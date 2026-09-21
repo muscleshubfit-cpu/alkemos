@@ -100,7 +100,7 @@ describe("exercise-names-ar (SEO-GEO-7)", () => {
 
   it("ExerciseDetailClient CTA stays MSA — the Egyptian-dialect regression canary", () => {
     const src = readFileSync(
-      join(process.cwd(), "src/app/exercises/[slug]/ExerciseDetailClient.tsx"),
+      join(process.cwd(), "src/app/(en)/exercises/[slug]/ExerciseDetailClient.tsx"),
       "utf-8",
     );
     expect(src).not.toContain("عايز خطة");

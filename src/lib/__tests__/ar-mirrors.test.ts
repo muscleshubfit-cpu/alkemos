@@ -2,12 +2,12 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { GET as pagesSitemapGET } from "@/app/sitemap-pages.xml/route";
-import { metadata as arEvoMetadata } from "@/app/ar/evo/layout";
-import { metadata as arCoachingMetadata } from "@/app/ar/coaching/layout";
-import { metadata as enEvoMetadata } from "@/app/evo/layout";
-import { metadata as enCoachingMetadata } from "@/app/coaching/layout";
-import { metadata as arAffiliateMetadata } from "@/app/ar/affiliate/layout";
-import { metadata as enAffiliateMetadata } from "@/app/affiliate/layout";
+import { metadata as arEvoMetadata } from "@/app/(ar)/ar/evo/layout";
+import { metadata as arCoachingMetadata } from "@/app/(ar)/ar/coaching/layout";
+import { metadata as enEvoMetadata } from "@/app/(en)/evo/layout";
+import { metadata as enCoachingMetadata } from "@/app/(en)/coaching/layout";
+import { metadata as arAffiliateMetadata } from "@/app/(ar)/ar/affiliate/layout";
+import { metadata as enAffiliateMetadata } from "@/app/(en)/affiliate/layout";
 
 /**
  * Phase SEO-GEO-6.4 canaries (§12.23) — P1-9 Arabic mirrors for /evo and
@@ -160,10 +160,10 @@ describe("AR mirror for /affiliate (§12.53 item 11 — Phase 208)", () => {
 
   it("the AR page re-exports the shared bilingual EN page (no forked content)", () => {
     const src = readFileSync(
-      resolve(__dirname, "../../app/ar/affiliate/page.tsx"),
+      resolve(__dirname, "../../app/(ar)/ar/affiliate/page.tsx"),
       "utf8",
     );
-    expect(src).toContain('export { default } from "@/app/affiliate/page"');
+    expect(src).toContain('export { default } from "@/app/(en)/affiliate/page"');
   });
 
   it("the language toggle carries the affiliate mirror route", () => {

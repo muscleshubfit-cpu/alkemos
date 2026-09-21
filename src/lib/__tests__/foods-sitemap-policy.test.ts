@@ -83,12 +83,12 @@ describe("foods sitemap policy (A-5)", () => {
   // FOOD-ARABIZATION Phase 1: translated band mirrors flip to indexable
   // AUTOMATICALLY via the same regex — no route change, by design.
   it("P2-12: the AR food route noindexes arabicless USDA mirrors only", () => {
-    const route = readFileSync("src/app/ar/foods/[slug]/page.tsx", "utf8");
+    const route = readFileSync("src/app/(ar)/ar/foods/[slug]/page.tsx", "utf8");
     expect(route).toContain("arabiclessName");
     expect(route).toContain("robots: { index: false, follow: true }");
     expect(route).toContain("/[\\u0600-\\u06FF]/.test(food.nameAr)");
     // The EN twin stays indexable for the whole dataset (141 policy).
-    const en = readFileSync("src/app/foods/[slug]/page.tsx", "utf8");
+    const en = readFileSync("src/app/(en)/foods/[slug]/page.tsx", "utf8");
     expect(en).not.toContain("arabiclessName");
     expect(en).not.toContain("index: false, follow: true");
     // Data facts the law depends on: the long tail outside the

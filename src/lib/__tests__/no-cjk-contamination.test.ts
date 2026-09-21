@@ -24,7 +24,7 @@ const CJK = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/;
 function isSanctioned(rel: string): boolean {
   const p = rel.replaceAll("\\", "/");
   if (p.includes("/__tests__/") || /\.test\.[cm]?[tj]sx?$/.test(p)) return true;
-  if (p.startsWith("src/app/blog/") || p.includes("/blog/")) return true;
+  if (p.startsWith("src/app/(en)/blog/") || p.includes("/blog/")) return true;
   if (/\/blog-[^/]+\.ts$/.test(p)) return true; // blog-* engine modules (incl. the sanitizer)
   if (p.startsWith("src/app/api/admin/blog/")) return true;
   return false;

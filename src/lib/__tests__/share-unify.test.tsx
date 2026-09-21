@@ -277,22 +277,22 @@ const REGISTERED_SURFACES: Array<{
   pathExpr: string;
 }> = [
   // ShareButtons (12 surfaces — Phase 230 registry, unchanged)
-  { file: "src/app/evo/page.tsx", component: "ShareButtons", pathExpr: 'path="/evo"' },
-  { file: "src/app/coaching/page.tsx", component: "ShareButtons", pathExpr: 'path="/coaching"' },
-  { file: "src/app/memberships/page.tsx", component: "ShareButtons", pathExpr: 'path="/memberships"' },
-  { file: "src/app/meal-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/meal-planner"' },
-  { file: "src/app/tools/bmi-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/bmi-calculator"' },
-  { file: "src/app/tools/body-fat-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/body-fat-calculator"' },
-  { file: "src/app/tools/calorie-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/calorie-calculator"' },
-  { file: "src/app/tools/macro-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/macro-calculator"' },
-  { file: "src/app/tools/water-tracker/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/water-tracker"' },
-  { file: "src/app/exercises/[slug]/ExerciseDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/exercises/${slug}`}" },
-  { file: "src/app/foods/[slug]/FoodDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/foods/${food.slug}`}" },
-  { file: "src/app/programs/[slug]/ProgramDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/programs/${program.slug}`}" },
+  { file: "src/app/(en)/evo/page.tsx", component: "ShareButtons", pathExpr: 'path="/evo"' },
+  { file: "src/app/(en)/coaching/page.tsx", component: "ShareButtons", pathExpr: 'path="/coaching"' },
+  { file: "src/app/(en)/memberships/page.tsx", component: "ShareButtons", pathExpr: 'path="/memberships"' },
+  { file: "src/app/(en)/meal-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/meal-planner"' },
+  { file: "src/app/(en)/tools/bmi-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/bmi-calculator"' },
+  { file: "src/app/(en)/tools/body-fat-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/body-fat-calculator"' },
+  { file: "src/app/(en)/tools/calorie-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/calorie-calculator"' },
+  { file: "src/app/(en)/tools/macro-calculator/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/macro-calculator"' },
+  { file: "src/app/(en)/tools/water-tracker/page.tsx", component: "ShareButtons", pathExpr: 'path="/tools/water-tracker"' },
+  { file: "src/app/(en)/exercises/[slug]/ExerciseDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/exercises/${slug}`}" },
+  { file: "src/app/(en)/foods/[slug]/FoodDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/foods/${food.slug}`}" },
+  { file: "src/app/(en)/programs/[slug]/ProgramDetailClient.tsx", component: "ShareButtons", pathExpr: "path={`/programs/${program.slug}`}" },
   // Blog article share bar (Phase 231 — canonical path from the single source)
   { file: "src/components/blog/BlogArticlePage.tsx", component: "SocialShare", pathExpr: "path={`/blog/${post.slug}`}" },
   // For-coaches share bar (Phase 231 — canonical path, no WhatsApp)
-  { file: "src/app/for-coaches/page.tsx", component: "CoachShareButtons", pathExpr: 'path="/for-coaches"' },
+  { file: "src/app/(en)/for-coaches/page.tsx", component: "CoachShareButtons", pathExpr: 'path="/for-coaches"' },
 ];
 
 describe("SHARE-COVERAGE GUARD — every public share surface is registered + deterministic", () => {
