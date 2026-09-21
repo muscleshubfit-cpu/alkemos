@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-21 (H1-2026 fix — complete-invite adoption auth-flow change + §7 approval trail: §9-13 · 2026-09-20: Storage privacy-class split — three private buckets /api/file-proxy-only by law, member avatars to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
+> **Last updated:** 2026-09-22 (improvements batch 245 — FIRST self-serve password-recovery path (forgot-password → /auth/reset) + coach invite-resend route; §7 approval trail: §9-15 · H1-2026 fix — complete-invite adoption auth-flow change: §9-13 · 2026-09-20: Storage privacy-class split — three private buckets /api/file-proxy-only by law, member avatars to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -415,6 +415,27 @@ These are in addition to the general operating rules in `AGENTS.md`:
     or activated account can never match. Only the derived boolean
     crosses the RPC boundary — no auth column, hash, or timestamp is
     exposed. No RLS, table, or money-path change.
+15.  **Auth-flow addition — self-serve password recovery + invite
+    resend (batch 245, 2026-09-22).** (أ) «Forgot password?» entries
+    (login form, the M2 «Account already exists» screen, request
+    screen) call GoTrue `resetPasswordForEmail` CLIENT-SIDE with
+    `redirectTo=/auth/callback?next=/auth/reset` — the SAME server
+    route OAuth uses exchanges the PKCE code with the shared cookie
+    strategy (detectSessionInUrl=false untouched; no token ever parsed
+    by app code) — then `/auth/reset` sets the new password via
+    `updateUser` (min 8 + confirm-match client gates, honest
+    expired-link error, GoTrue's uniform anti-enumeration answer kept).
+    (ب) `POST /api/coach/clients/invite/resend` re-notifies a PENDING
+    invitee ONLY — the exact `isAdoptableInvitedUser` predicate of
+    rule 13's adoption gate (an activated or self-registered account
+    answers honest 409) — rate-limited 5/min/IP + 3/hour/email, and
+    the email carries NO GoTrue token link: it is an instruction card
+    pointing at the signup form whose duplicate-branch completes the
+    adoption (rule 13) — sent via the EXISTING Brevo account
+    (no new external service, no new env var). §7 pre-approval trail:
+    the owner ordered «ابدأ التحسينات» after the report listed these
+    exact items in §5-1/§5-2 (UX-TEST-REPORT-2026-09-21), the
+    same «order = pre-approval» pattern as rule 13.
 
 ---
 

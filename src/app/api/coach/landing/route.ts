@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireCoach, authRequired, type AuthUser } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { coachLandingBodySchema } from "@/lib/validation/schemas";
+import { coachSlugFromName } from "@/lib/slug";
 import type { Database } from "@/lib/supabase/types";
 
 // 0049 SOFT-ROLL LAW: certificates is sent only on the FIRST attempt —
@@ -141,8 +142,34 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Suggested slug: coach-<6 chars of id> (the coach edits it freely)
-  const suggested = `coach-${user.id.slice(0, 6).toLowerCase()}`;
+  // I-6 (UX-TEST-REPORT-2026-09-21 §5-6 — owner «ابدأ التحسينات»
+  // 2026-09-22): the FIRST-TIME suggested slug derives from the coach's
+  // profile name when it carries a latin core (coachSlugFromName — the
+  // ONE-SLUG-LAW module), with a bounded uniqueness walk (base → -2/-3/-4)
+  // against coach_pages. An Arabic-only name (or an exhausted walk) keeps
+  // the legacy coach-<id6> net. The coach edits the suggestion freely and
+  // PUT still enforces SLUG_RE + the slug_taken 409.
+  let suggested = `coach-${user.id.slice(0, 6).toLowerCase()}`;
+  if (!data) {
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    const base = coachSlugFromName(prof?.full_name ?? "");
+    if (base) {
+      let candidate = base;
+      for (let n = 2; n <= 4; n++) {
+        const { count } = await supabaseAdmin
+          .from("coach_pages")
+          .select("slug", { count: "exact", head: true })
+          .eq("slug", candidate);
+        if (!count) break;
+        candidate = `${base}-${n}`;
+      }
+      suggested = candidate;
+    }
+  }
 
   return NextResponse.json({
     page: data ?? null,

@@ -56,6 +56,7 @@ import {
   MAX_MEMBER_PLAN_TITLE,
   MAX_TICKET_BODY,
   MAX_TICKET_SUBJECT,
+  memberPlanRenameBodySchema,
   memberSaveEvoBodySchema,
   memberSwapBodySchema,
   planNormalizeBodySchema,
@@ -1827,5 +1828,47 @@ describe("affiliateCommissionBodySchema — POST /api/affiliate/commission (Wave
       expect(r.data).not.toHaveProperty("rate");
       expect(r.data).not.toHaveProperty("affiliate_user_id");
     }
+  });
+});
+
+// ── I-4 (UX-TEST-REPORT-2026-09-21 §5-4 — «تسمية الخطط المولدة»): the
+// member rename payload shares the save-evo title ceiling and the swap
+// planId bounded-STRING law. ──
+describe("memberPlanRenameBodySchema — POST /api/plans/member-edit mode:rename (I-4)", () => {
+  it("accepts a valid rename payload and trims the title", () => {
+    const r = memberPlanRenameBodySchema.safeParse({
+      planId: "  plan-row-1  ",
+      title: "  My cutting week  ",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.planId).toBe("plan-row-1");
+      expect(r.data.title).toBe("My cutting week");
+    }
+  });
+
+  it("rejects titles below 3 chars and above the MAX_MEMBER_PLAN_TITLE ceiling", () => {
+    expect(
+      memberPlanRenameBodySchema.safeParse({ planId: "p1", title: "ab" }).success,
+    ).toBe(false);
+    expect(
+      memberPlanRenameBodySchema.safeParse({ planId: "p1", title: "x".repeat(MAX_MEMBER_PLAN_TITLE + 1) }).success,
+    ).toBe(false);
+    expect(
+      memberPlanRenameBodySchema.safeParse({ planId: "p1", title: "x".repeat(MAX_MEMBER_PLAN_TITLE) }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an empty/oversize planId (the swap 404-policy stays)", () => {
+    expect(memberPlanRenameBodySchema.safeParse({ planId: "", title: "Valid name" }).success).toBe(false);
+    expect(
+      memberPlanRenameBodySchema.safeParse({ planId: "p".repeat(101), title: "Valid name" }).success,
+    ).toBe(false);
+  });
+
+  it("rejects missing keys and non-string shapes", () => {
+    expect(memberPlanRenameBodySchema.safeParse({}).success).toBe(false);
+    expect(memberPlanRenameBodySchema.safeParse({ planId: 5, title: "Valid name" }).success).toBe(false);
+    expect(memberPlanRenameBodySchema.safeParse({ planId: "p1", title: 42 }).success).toBe(false);
   });
 });

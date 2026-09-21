@@ -6,6 +6,7 @@ import { diffFoodNames, mergeSwapPayload } from "@/lib/evo-nutrition-learning";
 import {
   memberSaveEvoBodySchema,
   memberSwapBodySchema,
+  memberPlanRenameBodySchema,
 } from "@/lib/validation/schemas";
 import type { Json } from "@/lib/supabase/types";
 
@@ -259,6 +260,48 @@ export async function POST(request: NextRequest) {
     ).catch(() => undefined);
 
     return NextResponse.json({ ok: true });
+  }
+
+  // ── rename (I-4, UX-TEST-REPORT-2026-09-21 §5-4 — owner «ابدأ
+  // التحسينات» 2026-09-22) ──────────────────────────────────────
+  // «تسمية الخطط المولدة»: the AI planners auto-save with a template
+  // title; members managing several plans rename their row here. The
+  // ONLY field touched is title — content/status/is_current are
+  // unreachable from this mode (swap/save-evo remain separate branches).
+  if (mode === "rename") {
+    const parsed = memberPlanRenameBodySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "bad_request", message: "اسم الخطة غير صالح (3 أحرف على الأقل و120 كحد أقصى)" },
+        { status: 400 },
+      );
+    }
+    const planId = parsed.data.planId;
+    // Ownership gate — the same service-role policy as swap: the member
+    // may rename only HIS OWN plan rows.
+    const { data: plan } = await supabaseAdmin
+      .from("plans")
+      .select("id, client_id")
+      .eq("id", planId)
+      .maybeSingle();
+    if (!plan || (plan as { client_id: string }).client_id !== auth.id) {
+      return NextResponse.json(
+        { error: "not_found", message: "الخطة غير موجودة" },
+        { status: 404 },
+      );
+    }
+    const { error } = await supabaseAdmin
+      .from("plans")
+      .update({ title: parsed.data.title })
+      .eq("id", planId);
+    if (error) {
+      console.error("[api/plans/member-edit] rename error:", error.message);
+      return NextResponse.json(
+        { error: "update_failed", message: "تعذر حفظ الاسم — حاول مرة أخرى" },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json({ ok: true, title: parsed.data.title });
   }
 
   return NextResponse.json({ error: "unknown_mode" }, { status: 400 });

@@ -447,6 +447,19 @@ export const memberSwapBodySchema = z.object({
 
 export type MemberSwapBody = z.infer<typeof memberSwapBodySchema>;
 
+/** rename payload (I-4 — UX-TEST-REPORT-2026-09-21 §5-4, owner «ابدأ
+ *  التحسينات» 2026-09-22): the member renames an AI-planner plan he
+ *  owns. planId follows the swap schema's bounded-STRING law (the
+ *  ownership lookup and its 404 not_found class stay the policy); the
+ *  title shares the save-evo ceiling (3..MAX_MEMBER_PLAN_TITLE) — same
+ *  bounds the auto-save title was written under. */
+export const memberPlanRenameBodySchema = z.object({
+  planId: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(3).max(MAX_MEMBER_PLAN_TITLE),
+});
+
+export type MemberPlanRenameBody = z.infer<typeof memberPlanRenameBodySchema>;
+
 // ── POST /api/support/tickets (member ticket creation + staff replies) ──
 
 /** Member subject — the route's own 3..200 check (both bounds legacy

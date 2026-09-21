@@ -19,6 +19,7 @@ import {
   slugifyAscii,
   articleSlugFromTitle,
   resolveSlug,
+  coachSlugFromName,
 } from "../slug";
 
 const repo = (rel: string) =>
@@ -107,5 +108,45 @@ describe("ONE-SLUG-LAW — no local slug copies may reappear", () => {
     expect(codeOnly).not.toContain("\\u0600-\\u06FF"); // Arabic-keeping range
     expect(codeOnly).not.toMatch(/title\.toLowerCase\(\)\.replace\(/);
     expect(src).toContain("articleSlugFromTitle");
+  });
+});
+
+// ── I-6 (UX-TEST-REPORT-2026-09-21 §5-6 — «slug من الاسم»): the landing
+// editor's first-time suggestion derives from the coach's name. The
+// function lives HERE (ONE-SLUG-LAW) — the canary also proves the
+// landing route imports it instead of growing a local copy.
+describe("coachSlugFromName (I-6 — the coach landing suggested slug)", () => {
+  it("derives a latin name slug that obeys the coach SLUG_RE law", () => {
+    expect(coachSlugFromName("Ahmed Zaki")).toBe("ahmed-zaki");
+    expect(coachSlugFromName("Sara M. Hassan")).toBe("sara-m-hassan");
+    for (const s of ["ahmed-zaki", "sara-m-hassan"]) {
+      expect(s).toMatch(/^[a-z0-9-]{3,40}$/);
+    }
+  });
+
+  it("caps at 40 chars and never ends on a hyphen", () => {
+    const s = coachSlugFromName("Alexander Maximilian Bartholomew von Hohenzollern");
+    expect(s.length).toBeLessThanOrEqual(40);
+    expect(s).toMatch(/^[a-z0-9-]{3,40}$/);
+    expect(s.endsWith("-")).toBe(false);
+  });
+
+  it("returns '' for Arabic-only names — the legacy coach-<id6> net stays", () => {
+    expect(coachSlugFromName("أحمد زكي")).toBe("");
+    expect(coachSlugFromName("محمد")).toBe("");
+  });
+
+  it("keeps the latin core of a mixed name and rejects junk", () => {
+    expect(coachSlugFromName("Coach أحمد")).toBe("coach");
+    expect(coachSlugFromName("ab")).toBe(""); // < 3 meaningful chars
+    expect(coachSlugFromName("   ")).toBe("");
+    expect(coachSlugFromName("")).toBe("");
+  });
+
+  it("the landing route imports the function from THE slug module (no local copy)", () => {
+    const src = readSrc("app/api/coach/landing/route.ts");
+    expect(src).toContain('from "@/lib/slug"');
+    expect(src).toContain("coachSlugFromName(");
+    expect(src).not.toMatch(/function\s+coachSlugFromName/);
   });
 });

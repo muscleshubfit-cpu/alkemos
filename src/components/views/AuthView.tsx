@@ -45,6 +45,15 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
   // honest «account exists — sign in» screen instead of the misleading
   // «check your email» dead-end (no email is ever sent).
   const [accountExists, setAccountExists] = useState(false);
+  // I-2 (UX-TEST-REPORT-2026-09-21 §5-2 — owner «ابدأ التحسينات»
+  // 2026-09-22): the forgot-password flow. `forgot` swaps the form for a
+  // request screen; `forgotSent` is the honest «link sent» state. The
+  // actual password set happens on /auth/reset (the recovery link lands
+  // there via /auth/callback?next=/auth/reset — same PKCE cookie
+  // exchange as OAuth; detectSessionInUrl=false stays untouched).
+  const [forgot, setForgot] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   // COACH ATTRIBUTION (0033): the signup CTA on a coach's landing page
   // links here as /auth?mode=signup&coach={slug}. Persist the slug in a
@@ -151,6 +160,36 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
     }
   };
 
+  // I-2: request a recovery link (client-side GoTrue — the SAME dynamic
+  // import pattern the lazy auth law mandates; /auth is a gated prefix).
+  const submitForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitBusyRef.current) return;
+    submitBusyRef.current = true;
+    setForgotLoading(true);
+    try {
+      const { supabase } = await import("@/lib/supabase/client");
+      if (!supabase || !isSupabaseConfigured) {
+        toast.error(isAr ? "خدمة البريد غير مهيأة حاليًا" : "Email service is not configured", { id: "auth-error" });
+        return;
+      }
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset`,
+      });
+      if (error) {
+        toast.error(localizeAuthError(error.message, isAr), { id: "auth-error" });
+        return;
+      }
+      // Honest uniform success: GoTrue never reveals whether the email
+      // exists (anti-enumeration) — the «link sent» state is shown for
+      // any valid request, exactly like the standard flow.
+      setForgotSent(true);
+    } finally {
+      submitBusyRef.current = false;
+      setForgotLoading(false);
+    }
+  };
+
   const handleGoogle = async () => {
     if (submitBusyRef.current) return; // m-E: same lock for the Google button
     submitBusyRef.current = true;
@@ -201,6 +240,104 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
     );
   }
 
+  // I-2: the «link sent» state — honest about what happens next (and
+  // that the message may sit in spam), mirroring the M6 screen's shape.
+  if (forgotSent) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg)] px-4 text-center text-[var(--text)]">
+        <div className="mx-auto max-w-md">
+          <div className="mb-6 grid h-16 w-16 mx-auto place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)]">
+            <svg className="h-8 w-8 text-[var(--muted-2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {isAr ? "أرسلنا رابط الاستعادة" : "Recovery link sent"}
+          </h1>
+          <p className="mt-3 text-sm font-normal text-[var(--muted-foreground)]">
+            {isAr
+              ? `أرسلنا رابط تعيين كلمة مرور جديدة إلى ${email} — افحص بريدك (وبدل الرسائل غير المرغوبة) واضغط الرابط خلال ساعة.`
+              : `We sent a password-reset link to ${email} — check your inbox (and spam folder) and open the link within the hour.`}
+          </p>
+          <button
+            onClick={() => {
+              setForgotSent(false);
+              setForgot(false);
+              navigate("auth", { mode: "login" });
+            }}
+            className="btn-chrome mt-6 px-6 py-2.5 text-sm"
+          >
+            {isAr ? "العودة لتسجيل الدخول" : "Back to login"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // I-2: the recovery-request screen (replaces the login form in-place —
+  // same mount, so the typed email is preserved).
+  if (forgot) {
+    return (
+      <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--text)]">
+        <header className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
+          <button className="text-lg font-semibold tracking-tight" onClick={() => navigate("landing")}>
+            Alkemos
+          </button>
+          <LanguageToggle />
+        </header>
+        <main className="flex flex-1 items-center justify-center px-4 py-10">
+          <div className="w-full max-w-md px-2">
+            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "استعادة كلمة المرور" : "Reset your password"}
+            </h1>
+            <p className="mt-2 text-base font-normal text-[var(--muted-foreground)]">
+              {isAr
+                ? "اكتب بريدك المسجل وسنرسل لك رابط تعيين كلمة مرور جديدة."
+                : "Enter your account email and we'll send you a password-reset link."}
+            </p>
+            <form onSubmit={submitForgot} className="mt-8 space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-email" className="text-sm font-medium">
+                  {t("auth.email")}
+                </Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="rounded-xl border-[var(--edge)] bg-[var(--card)] px-4 py-3 text-base"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={forgotLoading}
+                className="btn-chrome w-full px-6 py-3 text-base disabled:opacity-50"
+              >
+                {forgotLoading
+                  ? t("common.loading")
+                  : isAr ? "أرسل رابط الاستعادة" : "Send the recovery link"}
+              </button>
+            </form>
+            <p className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setForgot(false)}
+                className="text-sm font-normal text-[var(--muted-2)] underline-offset-4 transition-opacity hover:opacity-70 hover:underline"
+              >
+                {isAr ? "← رجوع لتسجيل الدخول" : "← Back to login"}
+              </button>
+            </p>
+          </div>
+        </main>
+        <footer className="mt-auto border-t border-[var(--edge)] py-6 text-center text-xs font-normal text-[var(--muted-foreground)]">
+          © {new Date().getFullYear()} Alkemos. {isAr ? "كل الحقوق محفوظة." : "All rights reserved."}
+        </footer>
+      </div>
+    );
+  }
+
   // M2 fix (owner decision 2026-09-18 — m9 resolved: NO email confirmation,
   // registration stays instant): signup with an already-registered email.
   // The honest answer is «this account exists — sign in»: no email was
@@ -232,6 +369,20 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
           >
             {isAr ? "الانتقال لتسجيل الدخول" : "Go to login"}
           </button>
+          {/* I-2 (UX-TEST-REPORT-2026-09-21 §5-2): the honest secondary
+              exit — this screen is exactly where a «forgot password»
+              moment happens; the recovery link shortens the way back in. */}
+          <p className="mt-4">
+            <button
+              onClick={() => {
+                setAccountExists(false);
+                setForgot(true);
+              }}
+              className="text-sm font-normal text-[var(--muted-2)] underline-offset-4 transition-opacity hover:opacity-70 hover:underline"
+            >
+              {isAr ? "نسيت كلمة المرور؟ استعيدها من بريدك" : "Forgot your password? Recover it via email"}
+            </button>
+          </p>
         </div>
       </div>
     );
@@ -418,6 +569,21 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
                 {loading ? t("common.loading") : isSignup ? t("auth.signUp") : t("auth.signIn")}
               </button>
             </form>
+
+            {/* I-2 (UX-TEST-REPORT-2026-09-21 §5-2): the login form's
+                recovery entry — «shortening account recovery» per the
+                report. Signup keeps none (no password set yet). */}
+            {!isSignup && (
+              <p className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setForgot(true)}
+                  className="text-sm font-normal text-[var(--muted-2)] underline-offset-4 transition-opacity hover:opacity-70 hover:underline"
+                >
+                  {isAr ? "نسيت كلمة المرور؟" : "Forgot password?"}
+                </button>
+              </p>
+            )}
 
             <p className="mt-8 text-center text-sm font-normal text-[var(--muted-foreground)]">
               {isSignup ? t("auth.haveAccount") : t("auth.noAccount")}{" "}

@@ -69,3 +69,18 @@ export function articleSlugFromTitle(title: string): string {
 export function resolveSlug(modelSlug: string | undefined, title: string): string {
   return sanitizeModelSlug(modelSlug || "") || articleSlugFromTitle(title);
 }
+
+/** COACH SLUG FROM NAME (I-6 — UX-TEST-REPORT-2026-09-21 §5-6, owner
+ * «ابدأ التحسينات» 2026-09-22): the landing editor's FIRST-TIME suggested
+ * slug derives from the coach's profile name when it carries a latin core
+ * («Ahmed Zaki» → «ahmed-zaki») — a marketing-polish upgrade over the
+ * opaque «coach-c54d20». An Arabic-only name yields "" BY DESIGN (the M15
+ * latin law — no transliteration here) and the caller keeps the legacy
+ * coach-<id6> net. Output obeys the coach SLUG_RE law
+ * (/^[a-z0-9-]{3,40}$/ — lowercase latin/digits/hyphens, 3..40). */
+export function coachSlugFromName(fullName: string): string {
+  const base = slugifyAscii(fullName)
+    .slice(0, 40)
+    .replace(/-+$/g, "");
+  return base.length >= 3 ? base : "";
+}

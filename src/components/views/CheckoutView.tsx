@@ -328,7 +328,10 @@ export function CheckoutView({ tier, months }: { tier: TierId | MembershipTier; 
       toast.success(
         isAr ? "تم إرسال طلب الاشتراك! راجعه فريق Alkemos قريباً." : "Subscription request sent!",
       );
-      setTimeout(() => navigate("dashboard"), 3000);
+      // I-3 (UX-TEST-REPORT-2026-09-21 §5-3): the 3s auto-redirect is
+      // RETIRED — the success state is now the post-payment summary (the
+      // report's anti-«متى يتفعل؟» surface) and yanking the user away
+      // after 3 seconds defeated its purpose.
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error(msg || t("common.error"));
@@ -382,22 +385,97 @@ export function CheckoutView({ tier, months }: { tier: TierId | MembershipTier; 
             </button>
           </div>
         ) : done ? (
-          /* Manual payment success state (unchanged) */
-          <div className="marble-card mt-12 p-12 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              {isAr ? "تم إرسال طلبك بنجاح!" : "Request sent successfully!"}
-            </h2>
-            <p className="mt-3 text-base font-normal text-[var(--muted-foreground)]">
-              {isAr
-                ? "استلمنا طلب اشتراكك وإيصال الدفع. راجعه فريق Alkemos قريباً وسيتم تفعيل اشتراكك. ستصللك إشعار فور التفعيل."
-                : "We received your subscription request and payment receipt. The Alkemos team will review and activate your subscription shortly. You'll be notified once it's active."}
-            </p>
-            <button
-              onClick={() => navigate("dashboard")}
-              className="btn-chrome mt-8 px-6 py-3 text-base"
-            >
-              {isAr ? "العودة للوحة التحكم" : "Back to dashboard"}
-            </button>
+          /* I-3 (UX-TEST-REPORT-2026-09-21 §5-3): the manual-payment
+             success state grew into the POST-PAYMENT SUMMARY — what was
+             ordered, what happens next, and the honest review window.
+             Data is all client-side state already on screen (plan,
+             method, receipt, whatsapp) — no new fetch, no new route. */
+          <div className="marble-card mt-12 p-8 md:p-12">
+            <div className="text-center">
+              <CheckCircle2 className="mx-auto h-16 w-16 text-[#34c759]" />
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight">
+                {isAr ? "تم إرسال طلبك بنجاح!" : "Request sent successfully!"}
+              </h2>
+              <p className="mt-3 text-base font-normal text-[var(--muted-foreground)]">
+                {isAr
+                  ? "استلمنا طلب اشتراكك وإيصال الدفع، وسيبدأ فريق Alkemos بمراجعته."
+                  : "We received your subscription request and payment receipt — the Alkemos team will start reviewing it."}
+              </p>
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-[var(--edge)] bg-[var(--card)] p-5 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                {isAr ? "ملخص الطلب" : "Order summary"}
+              </p>
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--muted-foreground)]">{isAr ? "الخطة" : "Plan"}</span>
+                  <span className="font-medium">{plan.name}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--muted-foreground)]">{isAr ? "المدة" : "Duration"}</span>
+                  <span className="font-medium">
+                    {plan.durationMonths} {isAr ? "شهر" : "months"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--muted-foreground)]">{isAr ? "طريقة الدفع" : "Payment method"}</span>
+                  <span className="font-medium">
+                    {method === "instapay"
+                      ? isAr ? "إنستاباي" : "InstaPay"
+                      : isAr ? "فودافون كاش" : "Vodafone Cash"}
+                  </span>
+                </div>
+                {receipt && (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[var(--muted-foreground)]">{isAr ? "الإيصال" : "Receipt"}</span>
+                    <span className="max-w-[60%] truncate font-medium" dir="ltr">
+                      {receipt.name}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-3 border-t border-[var(--edge)] pt-2">
+                  <span className="text-[var(--muted-foreground)]">{isAr ? "الإجمالي" : "Total"}</span>
+                  <span className="text-lg font-semibold">${plan.price}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-[var(--edge)] bg-[var(--card)] p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                {isAr ? "ماذا بعد؟" : "What happens next?"}
+              </p>
+              <ol className="mt-3 list-decimal space-y-2.5 ps-5 text-sm font-normal leading-relaxed text-[var(--text)]">
+                <li>
+                  {isAr
+                    ? "يراجع فريق Alkemos طلبك وإيصال الدفع — عادةً خلال ساعات العمل وبحد أقصى 24 ساعة."
+                    : "The Alkemos team reviews your request and receipt — usually within working hours, 24 hours at most."}
+                </li>
+                <li>
+                  {isAr
+                    ? "عند الاعتماد يتفعل اشتراكك تلقائيًا في حسابك دون أي خطوة منك."
+                    : "Once approved, your subscription activates in your account automatically — no action needed from you."}
+                </li>
+                <li>
+                  {isAr
+                    ? whatsapp
+                      ? `يصلك إشعار على واتساب (${whatsapp}) فور التفعيل، وستجد الخطة جاهزة في لوحة تحكمك.`
+                      : "يصلك إشعار فور التفعيل، وستجد الخطة جاهزة في لوحة تحكمك."
+                    : whatsapp
+                      ? `You'll be notified on WhatsApp (${whatsapp}) the moment it's active, and the plan will be waiting in your dashboard.`
+                      : "You'll be notified the moment it's active, and the plan will be waiting in your dashboard."}
+                </li>
+              </ol>
+            </div>
+
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => navigate("dashboard")}
+                className="btn-chrome px-6 py-3 text-base"
+              >
+                {isAr ? "العودة للوحة التحكم" : "Back to dashboard"}
+              </button>
+            </div>
           </div>
         ) : (
           <>

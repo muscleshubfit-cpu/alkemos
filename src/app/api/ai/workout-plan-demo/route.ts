@@ -207,7 +207,9 @@ export async function POST(request: NextRequest) {
     });
 
     // ── MEMBER AUTO-SAVE (spec: plans always saved to the account). ──
-    let saved: { planId: string } | null = null;
+    // I-4: the title rides the response so the page can offer its
+    // editable rename field pre-filled with the auto name.
+    let saved: { planId: string; title: string } | null = null;
     if (userId && isSupabaseAdminConfigured && supabaseAdmin) {
       const title =
         req.language === "ar"
@@ -248,7 +250,7 @@ export async function POST(request: NextRequest) {
         // either way. Never fail the whole request over the mirror.
         console.error("[api/ai/workout-plan-demo] member auto-save failed:", insertErr.message);
       } else {
-        saved = { planId: planRow.id };
+        saved = { planId: planRow.id, title };
       }
     }
 

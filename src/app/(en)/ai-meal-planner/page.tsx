@@ -16,6 +16,7 @@ import {
   saveGuestPlan,
 } from "@/lib/plan-persistence";
 import { Loader2, Sparkles, RotateCcw, HardDriveDownload, Check } from "lucide-react";
+import { toast } from "sonner";
 
 /**
  * /ai-meal-planner — the AI meal planner page (§12.28 → Phase 183,
@@ -57,6 +58,13 @@ export default function AiMealPlannerPage() {
   const [quota, setQuota] = useState<QuotaInfo | null>(null);
   const [accountSaved, setAccountSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  // I-4 (UX-TEST-REPORT-2026-09-21 §5-4 — «تسمية الخطط المولدة»): the
+  // auto-saved row's id + title, surfaced as an editable pre-filled name
+  // field (the auto title is the suggestion, the member owns the name).
+  const [savedPlanId, setSavedPlanId] = useState<string | null>(null);
+  const [savedTitle, setSavedTitle] = useState<string | null>(null);
+  const [nameValue, setNameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
 
   const systems = demoSystemOptions(isAr ? "ar" : "en");
 
@@ -73,6 +81,13 @@ export default function AiMealPlannerPage() {
             if (!cancelled && data?.plan) {
               setPlan(data.plan as DemoPlan);
               setAccountSaved(true);
+              // I-4: the hydration response carries the saved row's id +
+              // title — the rename field pre-fills from the account copy.
+              if (typeof data.planId === "string") setSavedPlanId(data.planId);
+              if (typeof data.title === "string") {
+                setSavedTitle(data.title);
+                setNameValue(data.title);
+              }
               const inputs = data?.inputs ?? null;
               if (inputs) {
                 if (typeof inputs.calories === "number") setCalories(String(inputs.calories));
@@ -166,6 +181,13 @@ export default function AiMealPlannerPage() {
       setPlan(newPlan);
       setModel(data.model ?? null);
       setAccountSaved(Boolean(data?.saved));
+      // I-4: the auto-save returns the row id + the auto title it wrote —
+      // the editable name field appears pre-filled right at save time.
+      if (typeof data?.saved?.planId === "string") setSavedPlanId(data.saved.planId);
+      if (typeof data?.saved?.title === "string") {
+        setSavedTitle(data.saved.title);
+        setNameValue(data.saved.title);
+      }
       if (data?.quota) {
         setQuota({
           used: data.quota.used ?? 0,
@@ -184,6 +206,32 @@ export default function AiMealPlannerPage() {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // I-4: persist a renamed title (mode:"rename" — ownership-gated,
+  // title-only; the plan content is unreachable from this path).
+  const renamePlan = async () => {
+    const next = nameValue.trim();
+    if (!savedPlanId || next.length < 3 || next === savedTitle) return;
+    setRenaming(true);
+    try {
+      const res = await fetch("/api/plans/member-edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "rename", planId: savedPlanId, title: next }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.ok) {
+        setSavedTitle(next);
+        toast.success(isAr ? "تم تحديث اسم الخطة" : "Plan name updated");
+      } else {
+        toast.error(data?.message || data?.error || (isAr ? "تعذر حفظ الاسم" : "Rename failed"));
+      }
+    } catch {
+      toast.error(isAr ? "تعذر حفظ الاسم" : "Rename failed");
+    } finally {
+      setRenaming(false);
     }
   };
 
@@ -329,6 +377,33 @@ export default function AiMealPlannerPage() {
                 <Check className="h-3.5 w-3.5" aria-hidden="true" />
                 {isAr ? "محفوظة في حسابك — متاحة من أي جهاز" : "Saved to your account — available on any device"}
               </p>
+            )}
+            {/* I-4: the editable plan name — the auto title is the
+                suggestion; the saved name shows on /plans. */}
+            {accountSaved && savedPlanId && (
+              <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="plan-name-row">
+                <label htmlFor="plan-name" className="text-xs font-medium text-[var(--muted-foreground)]">
+                  {isAr ? "اسم الخطة" : "Plan name"}
+                </label>
+                <input
+                  id="plan-name"
+                  type="text"
+                  maxLength={120}
+                  value={nameValue}
+                  onChange={(e) => setNameValue(e.target.value)}
+                  className="w-full max-w-xs rounded-full border border-[var(--edge)] bg-[var(--card)] px-4 py-1.5 text-sm font-normal outline-none focus:border-[var(--chrome-edge)]"
+                />
+                <button
+                  type="button"
+                  onClick={renamePlan}
+                  disabled={renaming || nameValue.trim().length < 3 || nameValue.trim() === savedTitle}
+                  className="rounded-full border border-[var(--edge)] px-3 py-1.5 text-xs font-medium text-[var(--text)] transition-opacity hover:opacity-80 disabled:opacity-40"
+                >
+                  {renaming
+                    ? isAr ? "جارٍ الحفظ…" : "Saving…"
+                    : isAr ? "حفظ الاسم" : "Save name"}
+                </button>
+              </div>
             )}
             <div className="mt-4 space-y-4">
               {plan.meals.map((meal) => (

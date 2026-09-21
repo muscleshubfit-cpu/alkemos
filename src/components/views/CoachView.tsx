@@ -179,6 +179,9 @@ export function CoachView() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviting, setInviting] = useState(false);
+  // I-1 (UX-TEST-REPORT-2026-09-21 §5-1): per-row resend state for the
+  // pending-invite badge — one row busy at a time.
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [broadcastTarget, setBroadcastTarget] = useState<"all" | "selected" | "single">("all");
   const [selectedClientIds, setSelectedClientIds] = useState<Set<string>>(new Set());
   const [selectedSingleId, setSelectedSingleId] = useState("");
@@ -675,6 +678,36 @@ export function CoachView() {
       }
     } finally {
       setInviting(false);
+    }
+  }
+
+  // I-1: re-notify a PENDING invitee (0092/H1 law — the server re-gates
+  // with isAdoptableInvitedUser; an activated row answers honest 409).
+  async function resendInvite(c: { id: string; email?: string | null }) {
+    const email = (c.email ?? "").trim();
+    if (!email) {
+      toast.error(isAr ? "لا يوجد بريد على هذا الصف" : "This row has no email");
+      return;
+    }
+    setResendingId(c.id);
+    try {
+      const res = await fetch("/api/coach/clients/invite/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok) {
+        toast.success(
+          isAr
+            ? `أُعيد إرسال تعليمات التفعيل إلى ${email}`
+            : `Activation instructions re-sent to ${email}`,
+        );
+      } else {
+        toast.error(json.message || json.error || (isAr ? "فشل إعادة الإرسال" : "Resend failed"));
+      }
+    } finally {
+      setResendingId(null);
     }
   }
 
@@ -1329,6 +1362,24 @@ export function CoachView() {
                         >
                           {t("coach.manage")} ›
                         </button>
+                        {/* I-1 (UX-TEST-REPORT-2026-09-21 §5-1): the pending
+                            invite row gets a re-notify action — the resend
+                            gate re-checks the 0092 law server-side, so the
+                            button is honest even if the badge went stale. */}
+                        {c.invitePending && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void resendInvite(c);
+                            }}
+                            disabled={resendingId === c.id}
+                            className="mt-1 block text-xs font-normal text-[#ff9500] transition-opacity hover:opacity-70 disabled:opacity-50"
+                          >
+                            {resendingId === c.id
+                              ? isAr ? "جارٍ الإرسال…" : "Sending…"
+                              : isAr ? "إعادة إرسال الدعوة" : "Resend invite"}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
