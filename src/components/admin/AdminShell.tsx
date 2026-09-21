@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getCoachClientStats } from "@/lib/data";
+import { getAdminClientsStats } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -161,7 +161,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const [stats, pagesRes] = await Promise.all([
-          getCoachClientStats(),
+          // Phase 246: same RPC as the dashboard attention card and the
+          // clients page — one canonical pending-payments number across
+          // sidebar badge, dashboard strip and review queue (the old
+          // getCoachClientStats lens counted role='client' only and could
+          // disagree when a non-client profile had a pending request).
+          getAdminClientsStats(),
           fetch("/api/admin/coach-pages").catch(() => null),
         ]);
         if (cancelled) return;
