@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-20 (owner-directed urgent security fix — Storage privacy-class split: the three private buckets are /api/file-proxy-only by law, member avatars moved to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
+> **Last updated:** 2026-09-21 (H1-2026 fix — complete-invite adoption auth-flow change + §7 approval trail: §9-13 · 2026-09-20: Storage privacy-class split — three private buckets /api/file-proxy-only by law, member avatars to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -386,6 +386,21 @@ These are in addition to the general operating rules in `AGENTS.md`:
     `RUN_ON_SUPABASE_*`/`VERIFY_*` files) — AGENTS.md §3.3/§6.
 12. **Always update this file** when adding a new env var, a new
     external service, a new auth flow, or a new data category.
+13. **Auth-flow change — complete-invite adoption (H1-2026 fix,
+    2026-09-21).** `POST /api/auth/complete-invite` +
+    `lib/auth-invite-adopt.ts` + the `signUpEmail` duplicate-branch
+    wiring. §7 pre-approval trail: the owner ordered «ابدأ تنفيذ
+    الخطوة التالية» immediately after being shown the proposed next
+    step «إصلاح H1-2026» (the auth signup deadlock documented in
+    `docs/UX-TEST-REPORT-2026-09-21.md` §3, reproduced live twice with
+    SQL proof). Invariants: the password write is gated on
+    `invited_at` set + `last_sign_in_at` null (pending invites ONLY —
+    self-registered or activated accounts can never have their
+    password rewritten); uniform `{ok:false}` answers for every
+    non-adoptable case (anti-enumeration); rate-limited 5/10min/IP;
+    no new external HTTP calls (HIBP stays client-side); no schema,
+    RLS, or money-path change (service-role admin auth API + bounded
+    profiles update by primary key only).
 
 ---
 

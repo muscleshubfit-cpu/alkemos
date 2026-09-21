@@ -6,6 +6,27 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: H1-2026-FIX-243-2026-09-21
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ تنفيذ الخطوة التالية» 2026-09-21 (الخطوة المعروضة: إصلاح H1-2026) — إغلاق طريق المسدود في تسجيل العميل المدعو («تفعيل عند التسجيل» — الحل 1 من تقرير UX-TEST-REPORT-2026-09-21 §3) — الموافقة §7 المسبقة على تغيير مسار المصادقة موثقة في SECURITY §9-13.
+
+Work Log:
+- التصميم من قاعدة الإنتاج أولاً: SQL قراءة-فقط على كلا المدعوين المحشورين (qa.ux0921/0922.client3): was_invited=true + never_signed_in=true + encrypted_password='' → بوابة `invited_at && !last_sign_in_at` عبر GoTrue admin getUserById كافية ومغلقة الأمان — **صفر ميجريشن** (سابقة M2: طبقة إشارة خالصة)
+- جديد `src/app/api/auth/complete-invite/route.ts`: rate-limit ‏5/10د/IP (المخزن المشترك، نمط coachreg) · zod (emailSchema + password 8-128 + full_name≤120 + phone cleanPhone) · البوابة المزدوجة ثم updateUserById(password+email_confirm) + تحديث profiles (full_name/phone) بالمفتاح الرئيسي حصراً · رد موحد {ok:false} لكل غير القابل للتبني (مكافحة الاستكشاف) · صفر نداءات خارجية جديدة (HIBP بقي على العميل) · صفر مساس RLS/ميجريشنز/المال
+- جديد `src/lib/auth-invite-adopt.ts`: البوابة النقية isAdoptableInvitedUser (تفشل مغلقة على أي حقل غائب) + requestInviteAdoption للعميل (تفشل مغلقة لأي خطأ شبكة ← شاشة M2 بلا انحدار)
+- ربط `src/lib/data/auth.ts` signUpEmail: إشارة التكرار (M2) تجرب التبني أولاً ← signInWithPassword الطبيعي + fetchProfile + مسح كوكيز الإسناد + إشعار new_client للمدرب («عميلك المدعو أكمل التسجيل») ← غير القابل للتبني يرى شاشة «Account already exists» كما هي — AuthView صفر تغيير
+- اختبارات: `src/lib/__tests__/auth-invite-adopt.test.ts` — 6 كاناري (السلبية الحاسمة: حساب ذاتي التسجيل/مفعّل لا تُمس كلمة مروره)
+- البوابات: tsc 0 · eslint 0 (تحذير root-shell قديم غير مرتبط) · vitest 92/1537 (+6) · next build ✓ · docs_audit ✓ · migration_audit ✓ صفر انحراف — إصلاح TS واحد أثناء التنفيذ (نوع patch)
+- التوثيق: STATE 243 (ترويسة + صف + QA) + SECURITY §9-13 (أثر الموافقة §7 + الثوابت) + هذا المدخل
+- الحي-E2E بعد النشر (سيوثق في مدخل LIVE-VERIF مستقل فور اكتمال deploy): مدرب جديد يدعو بريداً جديداً ← جلسة نظيفة تسجل بالبريد المدعو ← دخول فوري للوحة
+
+Stage Summary:
+- H1-2026 مغلق: المدعو يسجل كأي زائر فيصل لحسابه فوراً — رابط الإيميل يبقى مساراً بديلاً والإسناد وقت الدعوة محفوظ
+- الأثر الأمني محصور: بوابة مزدوجة تمنع إعادة كتابة كلمة مرور أي حساب غير «دعوة معلقة» — 6 اختبارات تثبتها
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: UX-VERIFY-ROUND2-2026-09-21
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ التنفيذ» — جولة تحقق حية مستقلة فوق UX-TEST-REPORT-2026-09-21 (جلسة متصفح جديدة كليًا + SQL قراءة-فقط) وإعادة إثبات H1-2026 بأدلة طازجة.

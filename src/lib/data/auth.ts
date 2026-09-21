@@ -27,6 +27,8 @@ import {
 } from "../coach-cookie";
 // M2 FIX (DEEP-UX-AUDIT-2026-09-18): GoTrue's duplicate-email signal.
 import { isDuplicateEmailSignup } from "../auth-signup-signals";
+// H1-2026 FIX (UX-TEST-REPORT-2026-09-21 §3): stranded-invitee adoption.
+import { requestInviteAdoption } from "../auth-invite-adopt";
 // m3 FIX (DEEP-UX-AUDIT-2026-09-18): sign-out wipes the EVO chat surface.
 import { resetEvoChatOnSignOut } from "../evo-chat-events";
 
@@ -81,6 +83,45 @@ export async function signUpEmail(
  // sign in» screen instead — and fire NO new_client notification for
  // a user who was never created (the fake id is not a real account).
  if (isDuplicateEmailSignup(data.user)) {
+ // H1-2026 FIX (UX-TEST-REPORT-2026-09-21 §3, owner order «ابدأ تنفيذ
+ // الخطوة التالية» 2026-09-21): the duplicate signal used to be the
+ // DEADLOCK for coach-invited clients — the invite pre-created the
+ // auth row with an EMPTY password, so «Account already exists → sign
+ // in» answered «Invalid login credentials» for a password that was
+ // never stored (reproduced live twice with SQL proof). Before showing
+ // that screen, try ADOPTING the pending invite with the SAME form
+ // values: the server writes the chosen password onto the shadow row
+ // (gated: invited_at set + never signed in) and the normal sign-in
+ // below completes the flow — the email link stays valid as an
+ // alternative, the invite-time assignment is kept, and a
+ // non-adoptable email (regular registered user) falls through to the
+ // unchanged M2 screen. requestInviteAdoption resolves false on ANY
+ // failure → zero regression surface.
+ const adopted = await requestInviteAdoption(email, password, fullName, phone);
+ if (adopted) {
+  const {
+   data: adoptIn,
+   error: adoptInError,
+  } = await supabase.auth.signInWithPassword({ email, password });
+  if (!adoptInError && adoptIn?.user) {
+   const profile = await fetchProfile(adoptIn.user.id);
+   if (profile) {
+    // Attribution happened at INVITE time (assignment row) — the
+    // cookies' job is over; notify the coach exactly like a normal
+    // signup (his invitee just completed registration).
+    clearCoachSlugCookie();
+    clearReferralCookie();
+    await createAdminNotification(
+     "new_client",
+     "عميل مدعو أكمل تفعيل حسابه! ",
+     `عميلك المدعو ${fullName} (${email}) أكمل التسجيل — اطمئن على استبياناته وجهّز خططه.`,
+     "coach",
+     adoptIn.user.id,
+    ).catch(() => {});
+    return { error: null, profile };
+   }
+  }
+ }
  return { error: null, profile: null, duplicateEmail: true };
  }
  // M6 fix: detect email confirmation requirement.
