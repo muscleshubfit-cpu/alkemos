@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VERCEL-USAGE-6-2026-09-21
+Agent: Super Z (owner session)
+Task: أمر المالك «بالنسبة الى مشاكل deployment storage, production storage يجب ان تحل» — التحقق الحي النهائي + تأكيد Vercel الرسمي لسلوك العدّادين + تنفيذ §10.5-2(أ).
+
+Work Log:
+- التحقق الحي 11:22Z (run 35593698107 — push event بعد دمج PR #5): 3 نشرات فقط — KEEP production (17h) + fresh (0h) + حذف نشر 2d — deleted=1 failed=0؛ الموقع 200؛ أتمتة التنظيف (ساعة + push) خضراء بـ105 تشغيلًا
+- تأكيد Vercel الرسمي (staff، community topic 49413، 2026-09-19): «The deployment storage resets every 30 days, at the start of the next period — your new usage will not be reflected immediately» → سلوك §10.3 (الحذف لا يُخصم فورًا) موثق من الجهة الأولى؛ القراءتان المعلقتان (22.5/10 و14.07/10) محاسبة دورة لا حالة فعلية
+- تنفيذ §10.5-2(أ): قانون Deploy-skip في §10 — كوميت docs-only يحمل [vercel skip] فلا يُبنى نشر (كل بناء = +0.42GB deployment + +0.29GB functions فورًا على العدّادين) مع بقاء GitHub Actions يعمل (الرمز خاص بـVercel ولا يكتم workflow التنظيف كـ[skip ci]) + أمر Ignored Build Step الجاهز في §10 للحاجز الميكانيكي
+- لا إعادة لمحاولة PATCH الاستبقاء (§10.2-3: مرفوض 400 على Hobby — إعداد مقفل) — §10.6 محفوظ: صفر كود موقع/ميجريشن/بناء في هذا الفريم
+- البوابات (docs-only): docs_audit + مراجعة القوانين — لا tsc/build لغياب أي تغيير كود
+
+Stage Summary:
+- التخزين الفعلي محلول ومثبت: ~1.0–1.4GB فيزيائيًا منذ 09-18 (هامش >7× تحت السقفين) — والعدّادان يظهران محاسبة الدورة حتى إعادة تعيينها أو تسوية Vercel عبر التذكرة
+- على المالك (3 خطوات جاهزة): تذكرة الدعم (§10.5-1 بأرقام اليوم + اقتباس الستاف من §10.7) · Ignored Build Step (أمر §10) · تدوير الأسرار (§10.5-3)
+- Commit SHA: this commit carries this entry
+- Push status: pushed immediately after this entry
+
+---
 Task ID: RECOVERY-OPS-CLOSURE-2026-09-20
 Agent: Super Z (owner session)
 Task: أمر المالك (الاستكمال): فحص BACKUP_REPO_TOKEN + التوكنات الميتة + مصير الحاويات الليجاسي الخمس + إغلاق التوثيق الحي.

@@ -1,7 +1,7 @@
 # AGENTS.md — Alkemos AI Agent Operating System
 
 > **Status:** Active — required reading for every AI agent (and human contributor) before any commit, PR, or production change.
-> **Last updated:** 2026-09-19 (Phase 237 — migration Phase 5: §12.5.1 gains the entry-size budget + evidence rule, §10 gains the commit-message budget; earlier today Phases 233–236 landed the migration's stale-ref/de-dup/registry waves).
+> **Last updated:** 2026-09-21 (VERCEL-USAGE-6: §10 gains the deploy-skip law — docs-only commits carry `[vercel skip]` so Vercel skips the build; rationale + owner backstops in audit doc §10.7).
 > **Owner:** muscleshubfit@gmail.com (project owner + human supervisor).
 > **Deep technical detail** (Supabase · full RLS · migration law · special-rules tables · storage · Shadcn inventory · SQL snippets) lives in [`docs/TECH_REFERENCE.md`](docs/TECH_REFERENCE.md); the CI-gates narrative lives in [`docs/CI_GATES.md`](docs/CI_GATES.md). This file stays the LAW file.
 
@@ -182,6 +182,7 @@ Explicit human approval BEFORE implementation (not just after) for: auth (`auth-
 - Commit author email: `muscleshubfit@gmail.com` — agents use the same identity.
 - Prefixes: `feat:` new feature · `fix:` bug fix · `docs:` documentation only · `refactor:` no behavior change · `security:` security-sensitive (pre-approved per §7) · `chore:` tooling, deps, build config.
 - **Commit-message budget (Phase 237 — migration Phase 5; applies from Phase 237 forward, history untouched):** subject ≤ 72 chars; body ≤ 500 chars; the body POINTS at the task's `worklog.md` entry (Task ID) instead of restating it — one narrative per change, three surfaces that agree (audit F-06: worklog + STATE + commit message must not triple-store the same prose).
+- **Deploy-skip law (VERCEL-USAGE-6, 2026-09-21 — enacts audit doc §10.5-2(a)):** a commit touching ONLY `docs/**`, `archive/**`, `.github/**`, `scripts/**`, or any `**.md` MUST carry `[vercel skip]` in its subject — Vercel then skips the build entirely while GitHub Actions still runs it (`[vercel skip]` is Vercel-specific and does NOT mute the push-triggered cleanup workflow the way `[skip ci]` would). Why: every build books +0.42GB Deployment / +0.29GB Functions on the usage meters instantly while deletions deduct only at the period reset (audit §10.3/§10.7) — docs-only builds are pure meter cost with zero site change. Never add the token when `src/**`, `public/**`, `supabase/**`, or build config (`next.config.*`, `package.json`, `tsconfig.json`) changed — those need a real deploy. Mechanical backstop (owner, one-time — Project ▸ Settings ▸ Git ▸ Ignored Build Step ▸ Custom): `bash -c "git diff --name-only HEAD^ HEAD | grep -vE '^(docs/|archive/|\.github/|scripts/)' | grep -vE '\.md$' | grep -q . && exit 0 || exit 1"` (exit 0 = build, exit 1 = skip).
 - Push to `origin` only after the local verification step (§3.5) passes — if `tsc --noEmit` fails, do not push.
 
 ---
