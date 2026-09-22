@@ -21,7 +21,7 @@ Stage Summary:
 - التوثيق عاد متطابقًا مع الواقع المنفذ: STATE = 252 وفوقها كل المراحل بصفوف موثقة، والفجوة 248-251 مغلقة دون فقد أي حقيقة (الأرشفة بworklog لا الحذف)
 - هامش البايت المستعاد (~5KB) مخصص لفريمات تنفيذ المتبقي القادمة بتعريفات STATE بنفس الفريم — تمريرة ضغط ثانية أجريت على صفوف 250/251/248+249 نفسها لتحقيق الهامش
 - Commit SHA: this commit carries this entry
-- Push status: pending (docs [vercel skip] — بلا نشر)
+- Push status: pushed (74fe7549..8016b87a — [vercel skip] بلا نشر)
 
 ---
 Task ID: STAFF-BELL-I18N-251-LIVE-VERIF-2026-09-22
