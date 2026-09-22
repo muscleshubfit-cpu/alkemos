@@ -6,6 +6,22 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: SOCIAL-OG-248-LIVE-VERIF-2026-09-22
+Agent: Super Z (owner session)
+Task: إصلاح بطاقات المشاركة الاجتماعية الزرقاء (بلا صورة) — «اجعل النشر يستخدم صورة الصفحة/المقال المنشور» + إثبات حي E2E.
+
+Work Log:
+- التشخيص الحي: og:image للمقالات كان مولّد /api/og-image البارد 1.7–5.2s (مُثبت: EN 5.23s · AR 1.69s) → زواحف واتساب/فيسبوك تتوقف بعد ~3s → بطاقة زرقاء بلا صورة؛ وs-maxage=3600 كان يعيد تعريض الزحف البارد كل ساعة
+- الإصلاح (dff3decf): blog-server يبني shareImage مصدراً وحيداً — صورة featured الحقيقية بقصّ Pexels 1200×630 fm=jpeg (CDN <100ms، لا دالة باردة على مسار الزاحف)؛ المولّد احتياط للمقالات بلا صورة فقط؛ s-maxage 3600→86400؛ remote-image-size بارامتر format اختياري (الافتراضي webp — المتصلون الحاليون بلا تغيير)
+- الاتساق: og:image = twitter:image = JSON-LD image كلها og.shareImage على المرايتين EN/AR (قانون §12.40 محفوظ)؛ قوانين محدّثة: og-image-coverage + P2-14 + hreflang mock
+- التحقق: tsc ✓ · eslint ✓ · vitest 1610/1610 ✓ · نشر dff3decf READY (~40s بعد الدفع)
+- إثبات حي: og:image = images.pexels.com/photos/17219736/...w=1200&h=630&fm=jpeg على EN وAR (بعد مسح كاش CF لنطاق alkemos.com — كان يخدم HTML بعمر 21 دقيقة قبله، cf-cache-status HIT/age:1257) · جلب الزاحف للصورة: 200 image/jpeg 89KB/0.51s · المولّد الاحتياطي: 200 PNG
+
+Stage Summary:
+- بطاقات المشاركة (واتساب/فيسبوك/X/تيليجرام) تعرض صورة المقال الحقيقية بدل المربع الأزرق — مثبت على الإنتاج
+- الحالة الوحيدة المتبقية على المولّد: مقال بلا featured_image (أدفأ الآن — s-maxage يوم كامل + CF يوم)
+- ملاحظة تشغيلية: واتساب/فيسبوك يخزّنون معاينات الروابط القديمة — المشاركة الجديدة تُحدّث البطاقة تلقائياً
+---
 Task ID: DASH-WAVE-247-LIVE-VERIF-2026-09-22
 Agent: Super Z (owner session)
 Task: التحقق الحي E2E للمرحلة 247 (92e0977d) — إثبات موجة التحسين المتبقية على الإنتاج بجلسات أدوار حقيقية.
