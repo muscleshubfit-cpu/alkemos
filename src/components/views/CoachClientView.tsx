@@ -369,24 +369,24 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  await materializePlanDraft(entry, (job.result ?? {}) as PlanJobResult);
  toast.success(
  entry.kind === "workout"
- ? "وصل برنامج التمارين وتم حفظه كمسودة ✅ راجعه ثم وافق عليه لإرساله للعميل."
- : "وصلت خطة التغذية وتم حفظها كمسودة ✅ راجعها ثم وافق عليها لإرسالها للعميل.",
+ ? (isAr ? "وصل برنامج التمارين وتم حفظه كمسودة ✅ راجعه ثم وافق عليه لإرساله للعميل." : "The workout plan arrived and was saved as a draft ✅ Review it, then approve to send it to the client.")
+ : (isAr ? "وصلت خطة التغذية وتم حفظها كمسودة ✅ راجعها ثم وافق عليها لإرسالها للعميل." : "The meal plan arrived and was saved as a draft ✅ Review it, then approve to send it to the client."),
  );
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "وصلت الخطة لكن فشل حفظ المسودة — استخدم بطاقة الاسترجاع.");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "وصلت الخطة لكن فشل حفظ المسودة — استخدم بطاقة الاسترجاع." : "The plan arrived but saving the draft failed — use the recovery card."));
  }
  return;
  }
  if (job?.status === "failed") {
  removePendingPlanJob(entry.id);
  setPendingPlanJobs(readPendingPlanJobs());
- toast.error(job.error_message || "فشل توليد الخطة. حاول مرة أخرى.");
+ toast.error(job.error_message || (isAr ? "فشل توليد الخطة. حاول مرة أخرى." : "Plan generation failed. Please try again."));
  return;
  }
  }
  // Timeout: the job may STILL finish later — keep the registry entry
  // so the next mount re-watches and the recovery card can pick it up.
- toast.info("الخطة لسه بتتولد في الخلفية — هتتطبق تلقائيًا أول ما تفتح صفحة العميل تاني.");
+ toast.info(isAr ? "الخطة لسه بتتولد في الخلفية — هتتطبق تلقائيًا أول ما تفتح صفحة العميل تاني." : "The plan is still generating in the background — it will apply automatically the next time you open this client's page.");
  } finally {
  activePlanWatchers.current.delete(entry.id);
  }
@@ -406,17 +406,17 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  try {
  const full = await getAiJob(job.id); // single GET carries result
  if (full?.status !== "done" || !full?.result?.title || !full?.result?.content || !job.payload?.clientId) {
- throw new Error("النتيجة غير متاحة لهذه المهمة");
+ throw new Error(isAr ? "النتيجة غير متاحة لهذه المهمة" : "Result unavailable for this job");
  }
  const kind = planJobTypeToKind(job.job_type);
- if (!kind) throw new Error("نوع مهمة غير معروف");
+ if (!kind) throw new Error(isAr ? "نوع مهمة غير معروف" : "Unknown job type");
  await materializePlanDraft(
  { id: job.id, clientId: job.payload.clientId as string, kind, createdAt: Date.now() },
  (full.result ?? {}) as PlanJobResult,
  );
- toast.success("تم استرجاع الخطة وحفظها كمسودة ✅");
+ toast.success(isAr ? "تم استرجاع الخطة وحفظها كمسودة ✅" : "Plan recovered and saved as a draft ✅");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل الاسترجاع");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل الاسترجاع" : "Recovery failed"));
  } finally {
  setRecoveringId(null);
  }
@@ -451,8 +451,8 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  void watchPlanJob(entry);
  toast.info(
  planType === "workout"
- ? "تم إرسال طلب التوليد 🚀 البرنامج هيوصل خلال ~10 دقائق ويتم حفظه كمسودة تلقائيًا حتى لو قفلت الصفحة."
- : "تم إرسال طلب التوليد 🚀 الخطة هتوصل خلال ~10 دقائق ويتم حفظها كمسودة تلقائيًا حتى لو قفلت الصفحة.",
+ ? (isAr ? "تم إرسال طلب التوليد 🚀 البرنامج هيوصل خلال ~10 دقائق ويتم حفظه كمسودة تلقائيًا حتى لو قفلت الصفحة." : "Generation request sent 🚀 The program will arrive within ~10 minutes and is saved as a draft automatically — even if you close the page.")
+ : (isAr ? "تم إرسال طلب التوليد 🚀 الخطة هتوصل خلال ~10 دقائق ويتم حفظها كمسودة تلقائيًا حتى لو قفلت الصفحة." : "Generation request sent 🚀 The plan will arrive within ~10 minutes and is saved as a draft automatically — even if you close the page."),
  );
  } catch (e) {
  toast.error((e instanceof Error ? e.message : "") || t("coach.genFailed"));
@@ -552,7 +552,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  const [normalizing, setNormalizing] = useState(false);
  const normalizeAndUpload = async () => {
  if (!planTitle.trim() || !planNotes.trim()) {
- toast.error("اكتب عنوان الخطة والصق محتواها في حقل الملاحظات أولاً.");
+ toast.error(isAr ? "اكتب عنوان الخطة والصق محتواها في حقل الملاحظات أولاً." : "Enter a plan title and paste its content into the notes field first.");
  return;
  }
  if (!planGateOpen) {
@@ -583,9 +583,9 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  setPlanNotes("");
  const data = await listPlans(clientId);
  setPlans(data);
- toast.success(`تم تنسيق الخطة وإضافتها! (${source})`);
+ toast.success(isAr ? `تم تنسيق الخطة وإضافتها! (${source})` : `Plan normalized and added! (${source})`);
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل التنسيق");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل التنسيق" : "Normalization failed"));
  } finally {
  setNormalizing(false);
  }
@@ -714,7 +714,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  await activatePlan(planId, clientId);
  const refreshed = await listAllClientPlans(clientId);
  setPlans(refreshed);
- toast.success("تمت الموافقة على الخطة وإرسالها للعميل! ");
+ toast.success(isAr ? "تمت الموافقة على الخطة وإرسالها للعميل!" : "Plan approved and sent to the client!");
  } catch (e) {
  toast.error((e instanceof Error ? e.message : "") || t("common.error"));
  } finally {
@@ -725,7 +725,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  // Regenerate a plan — queue the replacement, delete the old draft only
  // AFTER the new plan arrives (and only if it was never approved meanwhile).
  const handleRegeneratePlan = async (plan: Plan) => {
- if (!confirm("هل تريد إعادة توليد هذه الخطة؟ سيتم توليد واحدة جديدة وستحل محل المسودة الحالية عند وصولها.")) return;
+ if (!confirm(isAr ? "هل تريد إعادة توليد هذه الخطة؟ سيتم توليد واحدة جديدة وستحل محل المسودة الحالية عند وصولها." : "Regenerate this plan? A new one will be generated and will replace the current draft when it arrives.")) return;
  setViewingPlan(null);
  const clientContext = {
  name: client?.full_name || "العميل",
@@ -1398,6 +1398,11 @@ function QuestionnaireCard({
  t: (k: string) => string;
  onChanged: (row: QuestionnaireRow) => void;
 }) {
+ // STAGE-254: the card's toasts speak the viewer's language (t arrives as
+ // a prop but lang doesn't — useI18n is safe: the card lives inside the
+ // I18nProvider).
+ const { lang: cardLang } = useI18n();
+ const isAr = cardLang === "ar";
  const status = data?.status;
  const qData = asForm(data?.data);
  const [editMode, setEditMode] = useState(false);
@@ -1417,9 +1422,9 @@ function QuestionnaireCard({
  const row = await upsertQuestionnaire(clientId, type, form, data?.status || "draft");
  onChanged(row);
  setEditMode(false);
- toast.success("تم حفظ التعديلات!");
+ toast.success(isAr ? "تم حفظ التعديلات!" : "Changes saved!");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل الحفظ");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل الحفظ" : "Saving failed"));
  } finally {
  setSaving(false);
  }
@@ -1607,6 +1612,9 @@ function QuestionnaireCard({
 
 function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose: () => void; onRegenerate?: () => void }) {
  const { t, lang } = useI18n();
+ // STAGE-254: bilingual toasts — the modal is fully bilingual already, the
+ // toasts were the only Arabic-only stragglers in it.
+ const isAr = lang === "ar";
  // BUNDLE LAW (2026-09-05): the 1.6MB exercises array was imported at
  // module scope — now lazy-loaded mini records (session-cached).
  const EXERCISES = useExerciseLookup();
@@ -1635,16 +1643,16 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  });
  // Job results are job-type-specific JSON — narrow to the exercise contract the engine honors.
  const rep = (result.replacement ?? null) as WorkoutPlanContent["days"][number]["exercises"][number] | null;
- if (!rep?.name) throw new Error("لم يتم إرجاع بديل صالح من الذكاء الاصطناعي");
+ if (!rep?.name) throw new Error(isAr ? "لم يتم إرجاع بديل صالح من الذكاء الاصطناعي" : "The AI did not return a valid replacement");
  const newContent = { ...content };
  newContent.days = [...newContent.days];
  newContent.days[dayIdx] = { ...newContent.days[dayIdx] };
  newContent.days[dayIdx].exercises = [...newContent.days[dayIdx].exercises];
  newContent.days[dayIdx].exercises[exIdx] = { ...newContent.days[dayIdx].exercises[exIdx], ...rep };
  setContent(newContent);
- toast.success("تم استبدال التمرين ببديل آمن ✅ — اضغط \"حفظ\" لتثبيت التعديل.");
+ toast.success(isAr ? "تم استبدال التمرين ببديل آمن ✅ — اضغط \"حفظ\" لتثبيت التعديل." : "Exercise replaced with a safe alternative ✅ — press \"Save\" to apply the change.");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل استبدال التمرين");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل استبدال التمرين" : "Failed to replace the exercise"));
  } finally {
  setRegeneratingExKey(null);
  }
@@ -1659,10 +1667,10 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  // copy so the UI updates without modifying the source object.
  const updated = { ...plan, title, notes, content };
  Object.assign(plan, updated);
- toast.success("تم حفظ التعديلات بنجاح!");
+ toast.success(isAr ? "تم حفظ التعديلات بنجاح!" : "Changes saved successfully!");
  setEditMode(false);
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل الحفظ");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل الحفظ" : "Saving failed"));
  } finally {
  setSaving(false);
  }
@@ -1674,7 +1682,7 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  const downloadPlanPDF = () => {
  const w = window.open("", "_blank", "width=820,height=1040");
  if (!w) {
- toast.error("المتصفح حظر النافذة المنبثقة. اسمح بالنوافذ المنبثقة ثم حاول مرة أخرى.");
+ toast.error(isAr ? "المتصفح حظر النافذة المنبثقة. اسمح بالنوافذ المنبثقة ثم حاول مرة أخرى." : "The browser blocked the popup. Allow pop-ups for this site and try again.");
  return;
  }
  const c = content;
@@ -1969,9 +1977,9 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  }
 
  setContent(newContent);
- toast.success("تم إعادة توليد الوجبة!");
+ toast.success(isAr ? "تم إعادة توليد الوجبة!" : "Meal regenerated!");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل إعادة التوليد");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل إعادة التوليد" : "Regeneration failed"));
  } finally {
  setRegeneratingMealIdx(null);
  }
@@ -2030,7 +2038,7 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  const item = meal?.items?.[itemIdx];
  if (!meal || !item) return;
  if (!String(item.food || "").trim()) {
- toast.error("الصنف فاضي — اكتب اسم الصنف الأول أو احذفه.");
+ toast.error(isAr ? "الصنف فاضي — اكتب اسم الصنف الأول أو احذفه." : "The item is empty — write the item name first or delete it.");
  return;
  }
  const key = `item:${mealIdx}:${itemIdx}`;
@@ -2051,7 +2059,7 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  });
  // Job results are job-type-specific JSON — narrow to the item contract the engine honors.
  const rep = (result.replacement ?? null) as NutritionPlanContent["meals"][number]["items"][number] | null;
- if (!rep?.food) throw new Error("لم يتم إرجاع بديل صالح من الذكاء الاصطناعي");
+ if (!rep?.food) throw new Error(isAr ? "لم يتم إرجاع بديل صالح من الذكاء الاصطناعي" : "The AI did not return a valid replacement");
  const newContent: NutritionPlanContent = { ...content };
  newContent.meals = [...newContent.meals];
  newContent.meals[mealIdx] = { ...newContent.meals[mealIdx] };
@@ -2059,9 +2067,9 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  newContent.meals[mealIdx].items[itemIdx] = { ...newContent.meals[mealIdx].items[itemIdx], ...rep };
  recomputeTotals(newContent);
  setContent(newContent);
- toast.success("تم استبدال الصنف ✅ — اضغط \"حفظ\" لتثبيت التعديل.");
+ toast.success(isAr ? "تم استبدال الصنف ✅ — اضغط \"حفظ\" لتثبيت التعديل." : "Item replaced ✅ — press \"Save\" to apply the change.");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل استبدال الصنف");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل استبدال الصنف" : "Failed to replace the item"));
  } finally {
  setRegeneratingElKey(null);
  }
@@ -2088,15 +2096,15 @@ function PlanViewerModal({ plan, onClose, onRegenerate }: { plan: Plan; onClose:
  });
  // Job results are job-type-specific JSON — narrow to the day contract the engine honors.
  const rep = (result.replacement ?? null) as WorkoutPlanContent["days"][number] | null;
- if (!rep?.exercises?.length) throw new Error("لم يتم إرجاع يوم صالح من الذكاء الاصطناعي");
+ if (!rep?.exercises?.length) throw new Error(isAr ? "لم يتم إرجاع يوم صالح من الذكاء الاصطناعي" : "The AI did not return a valid day");
  const newContent = { ...content };
  newContent.days = [...newContent.days];
  // Same weekly slot label; fresh focus + exercises from the engine.
  newContent.days[dayIdx] = { ...d, ...rep, day: d.day };
  setContent(newContent);
- toast.success("تم إعادة توليد اليوم ✅ — اضغط \"حفظ\" لتثبيت التعديل.");
+ toast.success(isAr ? "تم إعادة توليد اليوم ✅ — اضغط \"حفظ\" لتثبيت التعديل." : "Day regenerated ✅ — press \"Save\" to apply the change.");
  } catch (e) {
- toast.error((e instanceof Error ? e.message : "") || "فشل إعادة توليد اليوم");
+ toast.error((e instanceof Error ? e.message : "") || (isAr ? "فشل إعادة توليد اليوم" : "Failed to regenerate the day"));
  } finally {
  setRegeneratingElKey(null);
  }

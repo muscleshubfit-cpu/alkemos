@@ -501,9 +501,9 @@ const runAITool = async (tool: string) => {
  { ...entry, key: tool, label: aiResultLabel(tool), at, recovered: false, jobId: jobId || undefined },
  ...prev,
  ]);
- toast.success("تم التوليد من الطابور!");
+ toast.success(isAr ? "تم التوليد من الطابور!" : "Generated from the queue!");
  } catch (e) {
- toast.error(e instanceof Error ? e.message : "فشل التوليد");
+ toast.error(e instanceof Error ? e.message : (isAr ? "فشل التوليد" : "Generation failed"));
  } finally {
  setAiBusy((b) => ({ ...b, [tool]: false }));
  }
@@ -672,7 +672,7 @@ useEffect(() => {
 
  {/* Slug */}
  <div>
- <Label>Slug</Label>
+ <Label>{isAr ? "المعرّف (Slug)" : "Slug"}</Label>
  <Input
  value={post.slug || ""}
  onChange={(e) => setPost((p) => ({ ...p, slug: e.target.value }))}

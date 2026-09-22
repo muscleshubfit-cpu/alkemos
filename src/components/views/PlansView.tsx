@@ -114,7 +114,7 @@ export function PlansView() {
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  } catch (e) {
  console.error("[PlansView] swap persist failed (state kept):", e);
- toast.error("الاستبدال ظاهر حاليًا لكن تعذّر حفظه — ستحتاج إلى إعادته إذا حدّثت الصفحة.");
+ toast.error(isAr ? "الاستبدال ظاهر حاليًا لكن تعذّر حفظه — ستحتاج إلى إعادته إذا حدّثت الصفحة." : "The swap is visible now but saving it failed — you'll need to redo it if you refresh the page.");
  }
  }, []);
 
@@ -214,17 +214,17 @@ export function PlansView() {
  applySwapToPlans(entry, job.result?.replacement);
  removePendingSwap(entry.id);
  await refreshUsage();
- toast.success("تم استبدال العنصر من الذكاء الاصطناعي ✅");
+ toast.success(isAr ? "تم استبدال العنصر من الذكاء الاصطناعي ✅" : "Item swapped by the AI ✅");
  return;
  }
  if (job?.status === "failed") {
  removePendingSwap(entry.id);
- toast.error(job.error_message || "فشل الاستبدال.");
+ toast.error(job.error_message || (isAr ? "فشل الاستبدال." : "The swap failed."));
  return;
  }
  }
  removePendingSwap(entry.id);
- toast.error("انتهت مهلة انتظار الاستبدال — حاول مرة أخرى.");
+ toast.error(isAr ? "انتهت مهلة انتظار الاستبدال — حاول مرة أخرى." : "The swap wait timed out — please try again.");
  } finally {
  activeWatchers.current.delete(entry.id);
  }
@@ -316,7 +316,7 @@ export function PlansView() {
  // reconcile is fire-and-forget so the toast fires instantly.
  void refreshUsage();
  void watchSwapJob(pendingEntry);
- toast.info("تم إرسال طلب الاستبدال 🚀 النتيجة هتتطبق تلقائيًا خلال ~10 دقائق حتى لو قفلت الصفحة.");
+ toast.info(isAr ? "تم إرسال طلب الاستبدال 🚀 النتيجة هتتطبق تلقائيًا خلال ~10 دقائق حتى لو قفلت الصفحة." : "Swap request sent 🚀 The result applies automatically within ~10 minutes, even if you close the page.");
  } catch (e) {
  // Roll back the optimistic quota decrement to server truth.
  void refreshUsage();
@@ -359,7 +359,7 @@ export function PlansView() {
  // PHASE 99 OPTIMISTIC: fire-and-forget reconcile (rollback on catch).
  void refreshUsage();
  void watchSwapJob(pendingEntry);
- toast.info("تم إرسال طلب استبدال التمرين 🚀 البديل الآمن هيظهر خلال ~10 دقائق.");
+ toast.info(isAr ? "تم إرسال طلب استبدال التمرين 🚀 البديل الآمن هيظهر خلال ~10 دقائق." : "Exercise swap request sent 🚀 The safe alternative appears within ~10 minutes.");
  } catch (e) {
  // Roll back the optimistic quota decrement to server truth.
  void refreshUsage();

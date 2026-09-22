@@ -106,7 +106,7 @@ export function BlogAdminView() {
               return;
             }
             if (!r.title || !r.markdown) {
-              toast.error("وصلت نتيجة غير مكتملة — حاول التوليد مرة أخرى.");
+              toast.error(isAr ? "وصلت نتيجة غير مكتملة — حاول التوليد مرة أخرى." : "Incomplete result arrived — try generating again.");
               return;
             }
             // DRAFT MATERIALIZATION (2026-08-28d): the runner already saved
@@ -143,23 +143,23 @@ export function BlogAdminView() {
                 }),
               );
             } catch {
-              toast.error("تعذّر تخزين المسودة محلياً — افتح المحرر وحاول مرة أخرى.");
+              toast.error(isAr ? "تعذّر تخزين المسودة محلياً — افتح المحرر وحاول مرة أخرى." : "Could not store the draft locally — open the editor and try again.");
               return;
             }
-            toast.success("وصل المقال وتم فتح المحرر بالمسودة ✅ راجعه قبل الحفظ.");
+            toast.success(isAr ? "وصل المقال وتم فتح المحرر بالمسودة ✅ راجعه قبل الحفظ." : "Article arrived and the editor opened with the draft ✅ Review it before saving.");
             router.push("/admin/blog/new?ai=1");
             return;
           }
           if (job?.status === "failed") {
             writePendingArticleJob(null);
             setGenJob(null);
-            toast.error(job.error_message || "فشل توليد المقال. حاول مرة أخرى.");
+            toast.error(job.error_message || (isAr ? "فشل توليد المقال. حاول مرة أخرى." : "Article generation failed. Please try again."));
             return;
           }
         }
         // Timeout: job may STILL finish — keep the registry entry so the
         // next mount re-watches (PLAN JOB RECOVERY LAW pattern).
-        toast.info("المقال لسه بيتولد في الخلفية — هنكمل المتابعة تلقائياً لما تفتح الصفحة تاني.");
+        toast.info(isAr ? "المقال لسه بيتولد في الخلفية — هنكمل المتابعة تلقائياً لما تفتح الصفحة تاني." : "The article is still generating in the background — tracking resumes automatically the next time you open this page.");
       } finally {
         activeGenWatcher.current = null;
       }
