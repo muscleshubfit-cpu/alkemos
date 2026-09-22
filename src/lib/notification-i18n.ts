@@ -348,6 +348,32 @@ const CATALOG: Record<string, CatalogEntry> = {
         : `Your ad subscription (${pkg}) is active — it will appear in “Featured Coaches” until ${ends}.`;
     },
   },
+
+  // STAGE-253 — the weekly progress reminder. The ONLY variable is the
+  // decorative greeting name (optional): the copy itself is FIXED per
+  // type, so even pre-253 rows without payload re-render from this entry
+  // — nothing is invented (the truth law forbids GUESSES about data, and
+  // here there is no data to guess; the at-rest Arabic copy stays the
+  // legacy fallback for any row type we fail to render).
+  progress_weekly_reminder: {
+    title: (_p, lang) =>
+      lang === "ar"
+        ? "حان وقت تسجيل تقدمك الأسبوعي!"
+        : "Time to log your weekly progress!",
+    body: (p, lang) => {
+      const name = asString(p.name).trim();
+      const hi = name
+        ? lang === "ar"
+          ? `مرحبًا ${name}`
+          : `Hi ${name}`
+        : lang === "ar"
+          ? "مرحبًا"
+          : "Hi";
+      return lang === "ar"
+        ? `${hi}، لا تنسَ تسجيل متابعتك الأسبوعية (الوزن، القياسات، الطاقة) — فهي تساعد مدربك على تتبع تقدمك!`
+        : `${hi} — don't forget your weekly check-in (weight, measurements, energy). It helps your coach track your progress!`;
+    },
+  },
 };
 
 /**

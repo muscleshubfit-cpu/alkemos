@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useI18n } from "@/lib/i18n";
 
 /**
  * AuthErrorToast — the OAuth-callback error listener, extracted from the
@@ -12,8 +13,14 @@ import { useEffect } from "react";
  * Behavior (verbatim from the pre-Phase-202 homepage): when the OAuth
  * callback redirects back with ?auth_error=..., clean the URL and show
  * a friendly toast. Renders nothing.
+ *
+ * STAGE-253 (i18n sweep): the toasts speak the viewer's UI language —
+ * the component is mounted inside I18nProvider (root-shell) on both
+ * homepage mirrors, so `lang` is the same URL-first law every view uses.
  */
 export function AuthErrorToast() {
+  const { lang } = useI18n();
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -23,12 +30,16 @@ export function AuthErrorToast() {
       import("sonner").then(({ toast }) => {
         toast.error(
           authError === "server-config"
-            ? "Server configuration error. Please contact support."
-            : `Login failed: ${authError}`,
+            ? lang === "ar"
+              ? "خطأ في إعدادات الخادم. يرجى التواصل مع الدعم."
+              : "Server configuration error. Please contact support."
+            : lang === "ar"
+              ? `فشل تسجيل الدخول: ${authError}`
+              : `Login failed: ${authError}`,
         );
       });
     }
-  }, []);
+  }, [lang]);
 
   return null;
 }

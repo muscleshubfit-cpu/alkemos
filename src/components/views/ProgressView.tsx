@@ -98,7 +98,7 @@ export function ProgressView() {
  const num = Number(form[k]);
  // M45 fix: validate ranges to prevent NaN + impossible values
  if (isNaN(num)) {
- toast.error(`${k}: invalid number`);
+ toast.error(isAr ? "قيمة رقمية غير صالحة" : "Invalid number — please enter a numeric value");
  setSaving(false);
  return;
  }
@@ -216,7 +216,7 @@ export function ProgressView() {
  </div>
  <div className="mt-6 h-64">
  {chartData.length > 1 ? (
- <WeightChart data={chartData} />
+ <WeightChart data={chartData} lang={lang} />
  ) : chartData.length === 1 ? (
  // M50 fix: single entry — show a message instead of a broken chart sliver
  <div className="flex h-full flex-col items-center justify-center gap-2 text-center">

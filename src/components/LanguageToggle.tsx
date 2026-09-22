@@ -232,7 +232,7 @@ export function LanguageToggle() {
  size="sm"
  className="gap-2"
  onClick={handleToggle}
- aria-label="Toggle language"
+ aria-label={lang === "ar" ? "تبديل اللغة" : "Toggle language"}
  >
  <Languages className="h-4 w-4" />
  <span className="text-xs font-semibold">{lang === "ar" ? "EN" : "ع"}</span>

@@ -214,3 +214,81 @@ describe("format-locale — UI-language numbers and dates", () => {
  expect(formatDateTimeFor("not-a-date", "en")).toBe("");
  });
 });
+
+/**
+ * STAGE-253 — progress_weekly_reminder: the weekly cron bell speaks the
+ * viewer's language. Fixed-copy type (the only variable is the optional
+ * greeting name), so even legacy rows without payload localize — nothing
+ * is invented, there is no data to guess.
+ */
+describe("progress_weekly_reminder — weekly bell i18n (STAGE-253)", () => {
+ it("EN member with name gets an English bell", () => {
+ expect(
+ localizeNotification(
+ {
+ type: "progress_weekly_reminder",
+ title: "حان وقت تسجيل تقدمك الأسبوعي!",
+ body: "مرحباً أحمد، متنساش تسجل متابعتك",
+ payload: { name: "Ahmed" },
+ },
+ "en",
+ ),
+ ).toEqual({
+ title: "Time to log your weekly progress!",
+ body: "Hi Ahmed — don't forget your weekly check-in (weight, measurements, energy). It helps your coach track your progress!",
+ });
+ });
+
+ it("AR member keeps a correct Arabic bell from the payload", () => {
+ const out = localizeNotification(
+ {
+ type: "progress_weekly_reminder",
+ title: "حان وقت تسجيل تقدمك الأسبوعي!",
+ body: "مرحباً أحمد، متنساش تسجل متابعتك",
+ payload: { name: "أحمد" },
+ },
+ "ar",
+ );
+ expect(out.title).toBe("حان وقت تسجيل تقدمك الأسبوعي!");
+ expect(out.body).toContain("مرحبًا أحمد");
+ expect(out.body).toContain("متابعتك الأسبوعية");
+ });
+
+ it("legacy rows (no payload) still localize — fixed-copy type, no data guessed", () => {
+ expect(
+ localizeNotification(
+ {
+ type: "progress_weekly_reminder",
+ title: "حان وقت تسجيل تقدمك الأسبوعي!",
+ body: "مرحباً، متنساش تسجل متابعتك الأسبوعية",
+ },
+ "en",
+ ).title,
+ ).toBe("Time to log your weekly progress!");
+ });
+
+ it("empty name → greeting without a name in both languages", () => {
+ expect(
+ localizeNotification(
+ {
+ type: "progress_weekly_reminder",
+ title: "t",
+ body: "b",
+ payload: { name: "" },
+ },
+ "ar",
+ ).body,
+ ).toMatch(/^مرحبًا،/);
+ expect(
+ localizeNotification(
+ {
+ type: "progress_weekly_reminder",
+ title: "t",
+ body: "b",
+ payload: {},
+ },
+ "en",
+ ).body,
+ ).toMatch(/^Hi —/);
+ });
+});

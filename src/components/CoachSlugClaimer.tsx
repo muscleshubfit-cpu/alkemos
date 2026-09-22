@@ -6,6 +6,7 @@ import {
   getCoachSlugCookie,
   clearCoachSlugCookie,
 } from "@/lib/coach-cookie";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 /**
@@ -19,11 +20,12 @@ import { toast } from "sonner";
  * (POST /api/coach/claim — allowed only while the client is still with
  * the admin/general coach), then clears the cookie.
  *
- * Mounted in the root layout inside AuthProvider, next to
+ * Mounted in the root layout inside I18nProvider → AuthProvider, next to
  * ReferralCookieChecker's pattern.
  */
 export function CoachSlugClaimer() {
   const { profile, loading } = useAuth();
+  const { lang } = useI18n();
   const tried = useRef(false);
 
   useEffect(() => {
@@ -43,8 +45,12 @@ export function CoachSlugClaimer() {
         });
         const json = await res.json().catch(() => ({}));
         if (res.ok && json.coach_name) {
+          // STAGE-253 (i18n sweep): the success toast speaks the viewer's
+          // UI language — an EN-UI client no longer reads raw Arabic.
           toast.success(
-            `تم ربطك بالمدرب ${json.coach_name} 🤝`,
+            lang === "ar"
+              ? `تم ربطك بالمدرب ${json.coach_name} 🤝`
+              : `You're now linked with coach ${json.coach_name} 🤝`,
             { duration: 6000 },
           );
         }
@@ -58,7 +64,7 @@ export function CoachSlugClaimer() {
       }
       clearCoachSlugCookie();
     })();
-  }, [profile, loading]);
+  }, [profile, loading, lang]);
 
   return null;
 }

@@ -22,10 +22,13 @@ import {
 export function WeightChart({
   data,
   variant = "member",
+  lang = "ar",
 }: {
   data: Array<{ date: string; weight: number }>;
   /** member = the app chrome law (#0071e3) · client = the staff view's softer slate. */
   variant?: "member" | "client";
+  /** STAGE-253: localizes the tooltip series name (default ar — the core-audience law). */
+  lang?: "ar" | "en";
 }) {
   const stroke = variant === "client" ? "#1F8FFF" : "#0071e3";
   const grid = variant === "client" ? "#E2E8F0" : "#d2d2d7";
@@ -54,7 +57,14 @@ export function WeightChart({
                 }
           }
         />
-        <Area type="monotone" dataKey="weight" stroke={stroke} strokeWidth={2.5} fill={`url(#${gradientId})`} />
+        <Area
+          type="monotone"
+          dataKey="weight"
+          name={lang === "ar" ? "الوزن" : "Weight"}
+          stroke={stroke}
+          strokeWidth={2.5}
+          fill={`url(#${gradientId})`}
+        />
       </AreaChart>
     </ResponsiveContainer>
   );

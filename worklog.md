@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: I18N-SWEEP-253-2026-09-22
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ في تنفيذ كل المتبقى من قائمة التحسينات» — الإطار الأول من مسح i18n الشامل (وكيل استكشاف وثّق 5 فئات متبقية بعد 250/251): الفئة الأعلى تأثيرًا على العضو + أسطح اللمسة الأولى.
+
+Work Log:
+- أثقل فجوة: جرس التقدم الأسبوعي (cron progress-reminder) عربي خام لكل عضو EN — التعليق الموثق بالكود نفسه يؤكد (لا عمود lang بprofiles) → نمط 250/251: الكرون يخزن payload {name} + مدخل progress_weekly_reminder بكتالوج الأعضاء (نسخة ثابتة — الاسم زخرفي اختياري، فالصفوف القديمة بلا payload تتعرّب هي الأخرى بلا اختراع أي بيانات — قانون الصدق)
+- أسطح اللمسة الأولى (جذر الموقع): AuthErrorToast توستات إنجليزية على الواجهة العربية ← useI18n (متاح — مركب داخل I18nProvider بroot-shell) · CoachSlugClaimer توست «تم ربطك بالمدرب» عربي لعميل EN ← ثنائي اللغة · VoiceMicButton تسميات aria/tooltip عربية في واجهة EN ← تتبع لغة Speech المحلية نفسها (lang.startsWith("ar")) · LanguageToggle aria-label إنجليزي ← ثنائي
+- WeightChart (المتوحّد 247): Tooltip يطبع مفتاح السلسلة الخام «weight» داخل الواجهة العربية ← prop lang (افتراضي ar — قانون الجمهور الأساسي) + name={الوزن/Weight} — المستهلكان ProgressView (lang) وCoachClientView عبر ClientWeightChart (lang) ممرران
+- ProgressView:101 «{k}: invalid number» بمفتاح آلة إنجليزي داخل عربي ← رسالة ثنائية بلا مفتاح آلة
+- 4 اختبارات كاناري جديدة (EN باسم · AR باسم · صف ليجاسي بلا payload يتعرّب · اسم فارغ بلا تحية) — vitest 99 ملفًا/1674 (+4)
+- البوابات: tsc 0 · eslint 0 (الملفات العشرة الممسوسة) · build ✓ BUILD_ID — البقية بعد الدفع بالتحقق الحي
+
+Stage Summary:
+- عضو EN لم يعد يقرأ جرسًا أسبوعيًا عربيًا — وكل أسطح اللمسة الأولى (خطأ OAuth · ربط المدرب · الميكروفون · تبديل اللغة · تلميح الرسم البياني) تتكلم لغة المشاهد
+- Commit SHA: this commit carries this entry
+- Push status: pushed (نشر تلقائي — بلا [vercel skip] — التحقق الحي بعد النشر)
+
+---
 Task ID: STATE-SYNC-252-2026-09-22
 Agent: Super Z (owner session)
 Task: أمر المالك «تاكد من توثيق العمل المكتمل ثم ابدأ في تنفيذ كل المتبقى من قائمة التحسينات» — الجزء 1: التحقق من التوثيق وإصلاح فجوته قبل أي تنفيذ جديد.

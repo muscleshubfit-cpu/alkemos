@@ -1361,7 +1361,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  <h2 className="text-lg font-semibold">{t("prog.weightChart")}</h2>
  <div className="mt-4 h-64">
  {chartData.length > 0 ? (
- <ClientWeightChart data={chartData} variant="client" />
+ <ClientWeightChart data={chartData} variant="client" lang={lang} />
  ) : (
  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
  {t("prog.noEntries")}

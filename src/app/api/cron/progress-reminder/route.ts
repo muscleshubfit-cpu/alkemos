@@ -131,8 +131,13 @@ export async function GET(request: NextRequest) {
       // made PostgREST reject the ENTIRE query (hidden for years by an
       // `any` annotation). Site language is URL-locale based; the old
       // ternary's own fallback branch was "ar" (Alkemos core
-      // audience) — the AR text below IS that designed fallback, with
-      // the unreachable EN branch removed as dead code.
+      // audience) — the AR text below IS that designed at-rest fallback.
+      //
+      // STAGE-253 (i18n sweep): rows additionally carry a structured
+      // `payload` so the member catalog (lib/notification-i18n.ts →
+      // progress_weekly_reminder) re-renders title/body in the VIEWER's
+      // UI language at display time — an EN-UI member no longer reads a
+      // weekly Arabic bell. The stored text stays the honest fallback.
       const name = client?.full_name || "";
 
       const title = `حان وقت تسجيل تقدمك الأسبوعي!`;
@@ -146,6 +151,7 @@ export async function GET(request: NextRequest) {
         body,
         link: "/progress",
         read: false,
+        payload: { name },
       };
     });
 

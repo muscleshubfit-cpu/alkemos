@@ -35,13 +35,36 @@ export function VoiceMicButton({
 
   if (!supported) return null;
 
+  // STAGE-253 (i18n sweep): the mic labels follow the composer's Speech
+  // locale — the same signal that already drives transcription itself,
+  // so tooltip/aria always match the language the user is speaking.
+  const ar = lang.toLowerCase().startsWith("ar");
+
   return (
     <button
       type="button"
       onClick={toggle}
       disabled={disabled}
-      aria-label={title || (listening ? "إيقاف التسجيل" : "تسجيل صوتي")}
-      title={title || (listening ? "جارٍ الاستماع… اضغط للإيقاف" : "اسأل بصوتك")}
+      aria-label={
+        title ||
+        (listening
+          ? ar
+            ? "إيقاف التسجيل"
+            : "Stop recording"
+          : ar
+            ? "تسجيل صوتي"
+            : "Voice input")
+      }
+      title={
+        title ||
+        (listening
+          ? ar
+            ? "جارٍ الاستماع… اضغط للإيقاف"
+            : "Listening… tap to stop"
+          : ar
+            ? "اسأل بصوتك"
+            : "Ask with your voice")
+      }
       className={
         listening
           ? "grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ff3b30] text-white animate-pulse transition-opacity hover:opacity-90 disabled:opacity-50"
