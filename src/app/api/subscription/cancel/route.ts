@@ -117,6 +117,7 @@ export async function POST(request: NextRequest) {
         link: "/admin/payments",
         target_role: "coach",
         target_coach_id: (adm as { id: string }).id,
+        payload: { email: auth.email ?? auth.id, tier: rows[0].tier, end_iso: rows[0].end_date },
         read: false,
       });
     }

@@ -320,6 +320,7 @@ export async function submitSubscriptionRequest(req: SubscriptionRequestInput): 
  `${req.full_name} طلب اشتراك ${req.plan_tier} لمدة ${req.duration_months} شهر — $${req.price_usd}`,
  "/admin/payments",
  req.user_id,
+ { name: req.full_name, tier: req.plan_tier, months: req.duration_months, price_usd: req.price_usd },
  ).catch(() => {});
  return data;
  }

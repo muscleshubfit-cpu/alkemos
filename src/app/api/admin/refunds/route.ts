@@ -159,6 +159,7 @@ export async function POST(request: NextRequest) {
         title: "تم رفض طلب الاسترداد",
         body: `تمت مراجعة طلب الاسترداد ورفضه.${note ? ` السبب: ${note}` : ""} للاستفسار تواصل مع الدعم.`,
         link: "/profile",
+        payload: { note: note ?? "" },
         read: false,
       });
     } catch (e) {
@@ -240,6 +241,7 @@ export async function POST(request: NextRequest) {
       title: "تم قبول طلب الاسترداد ✅",
       body: `تم قبول استرداد اشتراكك${req.amount_usd ? ` (${req.amount_usd}$)` : ""} وإيقافه من الآن. سيتم تحويل المبلغ بنفس طريقة الدفع خلال أيام العمل.${subEnded ? "" : " (لم نتمكن من إيقاف الاشتراك تلقائيًا — سيتم إنهاؤه يدويًا)."}`,
       link: "/profile",
+      payload: { amount_usd: req.amount_usd ?? null, ended: subEnded },
       read: false,
     });
   } catch (e) {

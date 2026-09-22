@@ -380,6 +380,7 @@ export async function POST(request: NextRequest) {
         link: "/admin/coach-pages",
         target_role: "coach",
         target_coach_id: (adm as { id: string }).id,
+        payload: { name: fullName, email },
       });
     if (admErr) {
       console.error("[coach/register] admin notification error:", admErr.message);

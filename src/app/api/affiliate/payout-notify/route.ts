@@ -99,6 +99,11 @@ export async function POST(request: NextRequest) {
     link: "/admin/referrals",
     target_role: "admin",
     ...(adminTarget ? { target_coach_id: adminTarget } : {}),
+    payload: {
+      name,
+      amount_usd: Number((payout as { amount: number }).amount),
+      method: (payout as { method: string }).method,
+    },
     read: false,
   });
 

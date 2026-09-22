@@ -281,6 +281,7 @@ async function processCommission(
       title: "عمولة جديدة! 🎉",
       body: `ربحت $${commissionAmount} عمولة من ${label}.`,
       link,
+      payload: { amount_usd: commissionAmount, source: transaction.transaction_type },
       read: false,
     });
 
@@ -297,6 +298,7 @@ async function processCommission(
         link,
         target_role: "coach",
         target_coach_id: transaction.affiliate_user_id,
+        payload: { amount_usd: commissionAmount, source: transaction.transaction_type },
         read: false,
       });
     }
@@ -491,6 +493,7 @@ export async function reverseCommissionServer(
       title: "عمولة تم عكسها ⚠️",
       body: `تم عكس عمولة بمبلغ $${Number(row.amount).toFixed(2)} (استرجاع/إلغاء الدفع). السبب: ${reason}. لو عندك استفسار تواصل مع الدعم.`,
       link: "/referral",
+      payload: { amount_usd: Number(row.amount), reason },
       read: false,
     });
 
@@ -507,6 +510,7 @@ export async function reverseCommissionServer(
         link: "/coach/affiliate",
         target_role: "coach",
         target_coach_id: row.affiliate_user_id,
+        payload: { amount_usd: Number(row.amount), reason },
         read: false,
       });
     }

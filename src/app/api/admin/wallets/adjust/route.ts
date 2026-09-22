@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
     title: amount > 0 ? "تم إضافة رصيد لمحفظتك" : "تم تعديل رصيد محفظتك",
     body: `${amount > 0 ? "+" : ""}${amount}$ — ${note}`,
     link: "/coach/wallet",
+    payload: { amount, note: note ?? "" },
   });
 
   return NextResponse.json({ ok: true, balance });

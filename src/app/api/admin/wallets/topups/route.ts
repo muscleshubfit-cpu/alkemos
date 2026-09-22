@@ -142,6 +142,7 @@ export async function PATCH(request: NextRequest) {
       title: "تم شحن محفظتك ✅",
       body: `اتقبل طلب شحن المحفظة بمبلغ ${amount}$ — الرصيد الجديد ${newBalance}.`,
       link: "/coach/wallet",
+      payload: { amount, balance: newBalance, provider: "manual" },
     });
 
     return NextResponse.json({ ok: true, balance: newBalance });
@@ -172,6 +173,7 @@ export async function PATCH(request: NextRequest) {
     title: "طلب شحن المحفظة مرفوض",
     body: `لم يتم قبول طلب الشحن بمبلغ ${amount}$.${adminNote ? ` السبب: ${adminNote}` : ""} راجع إيصال الدفع وحاول تاني.`,
     link: "/coach/wallet",
+    payload: { amount, note: adminNote || "" },
   });
 
   return NextResponse.json({ ok: true, rejected: true });

@@ -119,6 +119,7 @@ async function serverCreateAdminNotification(
   body: string,
   link?: string,
   clientId?: string,
+  payload?: Record<string, unknown>,
 ) {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
 
@@ -144,7 +145,7 @@ async function serverCreateAdminNotification(
 
   const { error } = await supabaseAdmin
     .from("admin_notifications")
-    .insert({ type, title, body, link, target_role: "coach", target_coach_id: targetCoachId });
+    .insert({ type, title, body, link, target_role: "coach", target_coach_id: targetCoachId, payload: (payload ?? {}) as Json });
   if (error) console.error("[paypal/capture-order] Admin notification insert error:", error.message);
 }
 
@@ -337,6 +338,7 @@ async function handleWalletTopupCapture(
       title: "تم شحن محفظتك عبر PayPal ✅",
       body: `اتشحن ${usd}$ في محفظتك — الرصيد الجديد ${newBalance}.`,
       link: "/coach/wallet",
+      payload: { amount: usd, balance: newBalance, provider: "paypal" },
     });
     if (notifyErr) console.error("[paypal/capture-order] Top-up notify error:", notifyErr.message);
   }
@@ -597,6 +599,7 @@ export async function POST(request: NextRequest) {
       `تم دفع $${paymentAmountForRecord.toFixed(2)} عبر PayPal لخطة ${plan_tier} (${duration_months} ${duration_months === 1 ? "شهر" : "أشهر"}). الاشتراك مُفعّل تلقائياً.`,
       "/admin/payments",
       user_id,
+      { provider: "paypal", tier: plan_tier, months: duration_months, price_usd: paymentAmountForRecord },
     );
 
     console.log(

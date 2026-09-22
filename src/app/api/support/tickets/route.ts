@@ -399,6 +399,7 @@ async function memberCreateTicket(
       body: `موضوع: ${subject.slice(0, 200)}${priority === "high" ? " — أولوية (عضوية كوتشينج)" : ""}`,
       link: "coach-support",
       target_coach_id: targetCoachId,
+      payload: { subject: subject.slice(0, 200), high: priority === "high" },
       read: false,
     })
     .then(undefined, () => {});

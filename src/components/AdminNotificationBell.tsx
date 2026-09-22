@@ -17,10 +17,11 @@ import { cn } from "@/lib/utils";
 // client bell — notification links pass the shared open-redirect
 // validator before any router.push.
 import { safeNext } from "@/lib/safe-redirect";
-// NOTIF-I18N-250: staff bell rows stay verbatim (free-text staff content),
-// but their TIMESTAMPS speak the active UI language — no more en-US dates
-// inside the Arabic UI.
+// NOTIF-I18N-250 + STAFF-BELL-I18N-251: system notifications render in the
+// ACTIVE UI language (catalog + payload, honest verbatim fallback); staff
+// bell rows do the same — the crew bell speaks the VIEWER's language.
 import { formatDateTimeFor } from "@/lib/format-locale";
+import { localizeAdminNotification } from "@/lib/notification-i18n";
 // PHASE 182: type-only import (erased at compile) — the notification
 // functions are dynamically imported at their call sites so this
 // header-mounted bell never pulls @supabase/ssr into first-load JS.
@@ -158,7 +159,9 @@ export function AdminNotificationBell() {
  {isAr ? "لا توجد إشعارات" : "No notifications"}
  </p>
  ) : (
- items.map((n) => (
+ items.map((n) => {
+ const view = localizeAdminNotification(n, lang);
+ return (
  <button
  key={n.id}
  onClick={() => handleItemClick(n)}
@@ -167,13 +170,14 @@ export function AdminNotificationBell() {
  !n.read && "bg-gold/5",
  )}
  >
- <span className="text-sm font-medium">{n.title}</span>
- {n.body && <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>}
+ <span className="text-sm font-medium">{view.title}</span>
+ {view.body && <span className="line-clamp-2 text-xs text-muted-foreground">{view.body}</span>}
  <span className="text-[10px] text-muted-foreground">
  {formatDateTimeFor(n.created_at, lang)}
  </span>
  </button>
- ))
+ );
+ })
  )}
  </div>
  </PopoverContent>

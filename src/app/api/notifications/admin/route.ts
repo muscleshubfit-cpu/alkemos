@@ -6,6 +6,7 @@ import {
   ADMIN_NOTIF_TYPES,
 } from "@/lib/validation/schemas";
 import { getAdminIds, adminFeedOrFilter } from "@/lib/notifications-server";
+import type { Json } from "@/lib/supabase/types";
 
 /**
  * POST /api/notifications/admin
@@ -56,6 +57,24 @@ const ALLOWED_TYPES = new Set([
 const MAX_TITLE_LEN = 200;
 const MAX_BODY_LEN = 1000;
 const MAX_LINK_LEN = 200;
+// STAFF-BELL-I18N-251 — payload size cap: the endpoint is open to any
+// authenticated user, so the structured fields (consumed only by the
+// render-side catalog) are capped before insert. Oversized/invalid
+// payloads degrade to {} — the row still renders verbatim.
+const MAX_PAYLOAD_JSON_LEN = 2000;
+
+function sanitizePayload(
+  payload: Record<string, unknown> | undefined,
+): Record<string, unknown> {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return {};
+  try {
+    const json = JSON.stringify(payload);
+    if (!json || json.length > MAX_PAYLOAD_JSON_LEN) return {};
+    return payload;
+  } catch {
+    return {};
+  }
+}
 
 /**
  * GET /api/notifications/admin — Phase 246: the ADMIN's staff-bell feed.
@@ -163,7 +182,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { type, title, body: notifBody, link, clientId } = parsed.data;
+  const { type, title, body: notifBody, link, clientId, payload } = parsed.data;
 
   if (!type || !title) {
     return NextResponse.json(
@@ -222,6 +241,7 @@ export async function POST(request: NextRequest) {
       body: safeBody,
       link: safeLink,
       target_coach_id: targetCoachId,
+      payload: sanitizePayload(payload) as Json,
     })
     .select("id")
     .single();

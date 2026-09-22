@@ -117,6 +117,7 @@ export async function signUpEmail(
      `عميلك المدعو ${fullName} (${email}) أكمل التسجيل — اطمئن على استبياناته وجهّز خططه.`,
      "coach",
      adoptIn.user.id,
+     { name: fullName, email, variant: "invited" },
     ).catch(() => {});
     return { error: null, profile };
    }
@@ -158,6 +159,7 @@ export async function signUpEmail(
  `${fullName} (${email}) انضم للمنصة. اطمئن على استبياناته وجهّز خططه.`,
  "coach",
  retry.user.id,
+ { name: fullName, email, variant: "standard" },
  ).catch(() => {});
  return { error: null, profile };
  }
@@ -172,6 +174,7 @@ export async function signUpEmail(
  `${fullName} (${email}) انضم للمنصة — في انتظار تأكيد البريد الإلكتروني.`,
  "coach",
  data.user.id,
+ { name: fullName, email, variant: "pending" },
  ).catch(() => {});
  return { error: null, profile: null, needsConfirmation: true };
  }
@@ -194,6 +197,7 @@ export async function signUpEmail(
  `${fullName} (${email}) انضم للمنصة. اطمئن على استبياناته وجهّز خططه.`,
  "coach",
  data.user.id,
+ { name: fullName, email, variant: "standard" },
  ).catch(() => {});
  clearCoachSlugCookie();
  clearReferralCookie();

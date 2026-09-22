@@ -84,6 +84,10 @@ export async function markNotificationRead(id: string) {
 // 0093 — optional `payload`: structured fields for system notifications
 // so the bell can localize known types at render time. Legacy callers
 // (and free-text broadcasts) omit it — the row renders verbatim as before.
+// STAFF-BELL-I18N-251 — createAdminNotification carries the same optional
+// payload for STAFF rows: the crew bell's catalog (lib/notification-i18n.ts
+// ADMIN_CATALOG) renders them in the VIEWER's language; old rows stay
+// verbatim (honest fallback).
 export async function createNotification(userId: string, type: string, title: string, body: string, link?: string, payload?: Record<string, unknown>) {
  if (isSupabaseConfigured && supabase) {
  const { data, error } = await supabase
@@ -177,6 +181,7 @@ export async function createAdminNotification(
  body: string,
  link?: string,
  clientId?: string,
+ payload?: Record<string, unknown>,
 ) {
  if (isSupabaseConfigured && supabase) {
  // Use the server-side endpoint instead of direct supabase insert.
@@ -193,7 +198,7 @@ export async function createAdminNotification(
  const res = await fetch("/api/notifications/admin", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ type, title, body, link, clientId }),
+ body: JSON.stringify({ type, title, body, link, clientId, payload }),
  });
  if (!res.ok) {
  const err = await res.json().catch(() => ({}));
@@ -207,7 +212,7 @@ export async function createAdminNotification(
  }
  }
  const all = read<AdminNotificationRow[]>(LS_PREFIX + "admin_notifs", []);
- const row = { id: uid(), type, title, body, link, read: false, created_at: new Date().toISOString() };
+ const row = { id: uid(), type, title, body, link, payload: payload ?? {}, read: false, created_at: new Date().toISOString() };
  all.push(row);
  write(LS_PREFIX + "admin_notifs", all);
  return row;

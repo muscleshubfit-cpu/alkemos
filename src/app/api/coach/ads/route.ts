@@ -244,6 +244,7 @@ export async function POST(request: NextRequest) {
         link: "/admin/wallets",
         target_role: "admin",
         ...(adminTarget ? { target_coach_id: adminTarget } : {}),
+        payload: { pkg_ar: pkg.ar, pkg_en: pkg.en, price_usd: price, ends_iso: String(ad!.ends_at) },
       });
     if (adminNotifErr) {
       console.error("[api/coach/ads] admin notification failed:", adminNotifErr.message);
@@ -253,6 +254,7 @@ export async function POST(request: NextRequest) {
       type: "coach_ad_started",
       title: "إعلانك اشتغل 🎉",
       body: `تم تفعيل اشتراك الإعلان (${pkg.ar}) — سيظهر إعلانك في «مدربون مميزون» حتى ${endsAr}.`,
+      payload: { pkg_ar: pkg.ar, pkg_en: pkg.en, ends_iso: String(ad!.ends_at) },
       link: "/coach/ads",
     });
 

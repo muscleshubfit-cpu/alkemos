@@ -1016,6 +1016,12 @@ export const adminNotificationBodySchema = z.object({
   body: z.string().max(MAX_ADMIN_NOTIF_BODY).optional(),
   link: z.string().max(MAX_ADMIN_NOTIF_LINK).optional(),
   clientId: z.string().min(1).max(MAX_ADMIN_ID_LEN).optional(),
+  // STAFF-BELL-I18N-251 — structured fields for the crew bell's render-side
+  // catalog (lib/notification-i18n.ts ADMIN_CATALOG). Optional: legacy
+  // callers omit it and their rows render verbatim (honest fallback).
+  // Values are data (strings/numbers/booleans) written by our own emit
+  // sites; the route caps the serialized size before insert.
+  payload: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type AdminNotificationBody = z.infer<typeof adminNotificationBodySchema>;

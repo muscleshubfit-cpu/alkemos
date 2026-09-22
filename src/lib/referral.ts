@@ -277,6 +277,7 @@ export async function awardCommission(
       title: "عمولة جديدة! 🎉",
       body: `ربحت $${commission} عمولة من إحالة صديق.`,
       link: "/referral",
+      payload: { amount_usd: commission, source: "friend_referral" },
       read: false,
     });
   } catch {}
@@ -603,6 +604,7 @@ export async function adminApprovePayout(payoutId: string, adminNote?: string): 
       title: "تم صرف عمولتك! ✅",
       body: `تم صرف $${payout.amount} من عمولاتك.`,
       link: "/referral",
+      payload: { amount_usd: Number(payout.amount) },
       read: false,
     });
   } catch {}
@@ -666,6 +668,7 @@ export async function adminRejectPayout(payoutId: string, adminNote?: string): P
       title: "طلب صرف مرفوض",
       body: `تم رفض طلب صرف $${payout.amount}. ${adminNote || ""}`,
       link: "/referral",
+      payload: { amount_usd: Number(payout.amount), note: adminNote || "" },
       read: false,
     });
   } catch {}

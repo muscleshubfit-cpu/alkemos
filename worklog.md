@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STAFF-BELL-I18N-251-2026-09-22
+Agent: Super Z (owner session)
+Task: أمر المالك «ابدأ الخطوه التالية المقترحة ترجمة نصوص جرس الطاقم ثم ابحث عن اى مشاكل مشابهة لحلها» — الموجة 1: كتالوج جرس الطاقم (19 نوعًا) · الموجة 2: مسح المشاكل المشابهة → 12 نوع عضو خارج كتالوج 250.
+
+Work Log:
+- التحقق المسبق (لا تكرار): مزامنة origin/main (db767827) — 250 مغلقة بتحقق حي، وحدّها الموثق (جرس الطاقم حرفي) هو هذا الفريم
+- جرد كامل لمواضع admin_notifications: 20 موضعًا (5 عميلية عبر POST + 15 سيرفر مباشر) و19 نوعًا — منها 3 أنواع بلواحق إزالة تكرار (refund_request/subscription_cancel_request/coach_page_pending:{uid}:{date})
+- الموجة 1 — lib/notification-i18n.ts: ADMIN_CATALOG + localizeAdminNotification (مطابقة النوع الأساسي قبل «:» · قانون UGC: موضوع التذكرة ورد الدعم وسبب الرفض/العكس حرفيًا داخل القالب المترجم · فولباك صادق على مستوى المُدخل · $ لاتينية وأرقام لغة الواجهة · arMonthsPhrase يصلح «لمدة 1 شهر» في الجديد)
+- قناة payload: createAdminNotification(+payload) → adminNotificationBodySchema (record optional) → POST يطهره (JSON ≤2000 وإلا {} — منع إساءة) ويخزنه — صفر ميجريشن (0093 سبق وأضاف العمودين)
+- 14 موضع إنشاء مررت حقولًا مهيكلة (variant/qtype/tier/months/price_usd/subject/high/plan_type/name/email/coach_name/pkg_ar+en/ends_iso/amount_usd/method/source/reason/note/balance/provider/ended) — المواضع الساكنة (welcome/setup/reminder/approved + coach_support + pages/notify) بلا payload بحاجة
+- AdminNotificationBell يعرض عبر الكتالوج — الأدمن والمدرب يقرأ كلٌّ بلغة واجهته من نفس الصف
+- الموجة 2 — مسح كل مواضع notifications/createNotification: 12 نوع عضو كانت تكتب عربيًا خامًا بعد 250 (referral_commission ×2 · referral_commission_reversed · payout_paid/rejected · refund_approved/rejected · wallet_adjusted · wallet_topup_approved ×2 manual+paypal · wallet_topup_rejected · coach_ad_started · coach_support_reply/support_reply عنوانيًا) — أضيفت لكتالوج 250 بنفس القانون + payload في 12 موضعًا + friend_referral لمصدر الإحالة
+- خارج القانون عمدًا: coach_message (بث المدرب UGC خالص — الفولباك الحرفي هو الصواب)
+- البوابات: tsc 0 · eslint 0 (27 ملفًا ممسوسًا) · vitest 99 ملفًا/1670 (+38 اختبارًا) · next build ✓ · docs_audit ✓ · migration_audit ✓ صفر انحراف
+- حدود الفريم (docs/STAFF-BELL-I18N-251-2026-09-22.md §4): الصفوف القديمة بلا payload تبقى حرفية (صدق) — التحسن اللغوي يبدأ من لحظة النشر · الحي-E2E بمدخل LIVE-VERIF مستقل
+
+Stage Summary:
+- جرس الطاقم يتكلم لغة المشاهد: أدمن EN يقرأ «New payment request — X requested the Premium plan for 2 months — $18.» وجرس العضو كمل — 31 نوع إشعار على المنصة (19 طاقم + 12 عضو) تعرض بلغة الواجهة من payload مهيكل، مع فولباك صادق لا يخمّن
+- Commit SHA: this commit carries this entry
+- Push status: pushed (نشر تلقائي — التحقق الحي بعد النشر بمدخل LIVE-VERIF مستقل)
+
+---
 Task ID: NOTIF-I18N-250-LIVE-VERIF-2026-09-22
 Agent: Super Z (owner session)
 Task: التحقق الحي E2E للمرحلة 250 (562ed5be) — إثبات أن الإشعارات والأرقام تتكلم لغة المستخدم على الإنتاج.

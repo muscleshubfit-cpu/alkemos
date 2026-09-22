@@ -82,6 +82,7 @@ export async function upsertQuestionnaire(
  `استبيان ${type === "nutrition" ? "التغذية" : "اللياقة"} — بانتظار مراجعتك`,
  "coach",
  clientId,
+ { qtype: type },
  ).catch(() => {});
  }
  return row;

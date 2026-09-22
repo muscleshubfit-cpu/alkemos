@@ -101,6 +101,7 @@ export async function activatePlan(planId: string, clientId: string) {
  `خطة ${plan?.type === "meal" ? "تغذية" : "تمارين"} تم تفعيلها وإرسالها للعميل.`,
  "coach",
  clientId,
+ { plan_type: plan?.type === "meal" ? "meal" : "workout" },
  ).catch(() => {});
  return data;
  }

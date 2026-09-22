@@ -359,6 +359,7 @@ export async function PUT(request: NextRequest) {
         link: "/admin/coach-pages",
         target_role: "admin",
         target_coach_id: tid,
+        payload: { coach_name: coachName },
         read: false,
       }));
       const { error: notifErr } = await supabaseAdmin

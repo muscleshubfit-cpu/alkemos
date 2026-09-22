@@ -276,6 +276,7 @@ export async function PATCH(request: NextRequest) {
     link: approvedSlug ? `/coaches/${approvedSlug}` : "/coach/landing",
     target_role: "coach",
     target_coach_id: coachId,
+    payload: approved ? {} : { reason: note },
     read: false,
   });
   if (notifErr) {
