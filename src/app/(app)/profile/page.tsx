@@ -76,6 +76,9 @@ export default function ProfilePage() {
   const [refundStatus, setRefundStatus] = useState<"pending" | "approved" | "rejected" | null>(null);
   const [refundNote, setRefundNote] = useState<string | null>(null);
   const [refundBusy, setRefundBusy] = useState(false);
+  // Phase 247: a failed eligibility check used to render identically to
+  // «ineligible» — an honest degraded note instead of a silent lie.
+  const [refundCheckFailed, setRefundCheckFailed] = useState(false);
 
   // Determine membership tier via the useMembershipTier hook
   // (queries subscriptions table — NOT the missing profile.membership_tier field)
@@ -105,7 +108,8 @@ export default function ProfilePage() {
       .order("end_date", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("[profile] subscription read failed:", error.message);
         if (data) {
           setSubEndDate(data.end_date);
           setCancelRequested(!!data.cancel_requested_at);
@@ -120,7 +124,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!profile || isCoach || isAdmin) return;
     fetch("/api/refund/request")
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((body) => {
         if (!body) return;
         setRefundInfo(body.eligibility ?? null);
@@ -129,7 +133,10 @@ export default function ProfilePage() {
           setRefundNote(body.latest.admin_note ?? null);
         }
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.error("[profile] refund eligibility check failed:", e);
+        setRefundCheckFailed(true);
+      });
   }, [profile, isCoach, isAdmin]);
 
   const requestRefund = async () => {
@@ -469,6 +476,13 @@ export default function ProfilePage() {
                     </p>
                     {refundInfo && !refundInfo.eligible && refundStatus === null && refundInfo.message && (
                       <p className="mt-1 text-xs font-normal text-[#ff3b30]">{refundInfo.message}</p>
+                    )}
+                    {refundCheckFailed && (
+                      <p className="mt-1 text-xs font-normal text-[#6e6e73]">
+                        {isAr
+                          ? "تعذر التحقق من أهلية الاسترداد الآن — حدّث الصفحة لاحقًا."
+                          : "Couldn't check refund eligibility right now — refresh later."}
+                      </p>
                     )}
                     {refundStatus === "pending" && (
                       <p className="mt-2 inline-flex rounded-full bg-[#ff9500]/10 px-3 py-1.5 text-xs font-medium text-[#ff9500]">

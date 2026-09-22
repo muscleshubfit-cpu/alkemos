@@ -25,8 +25,10 @@ import {
 } from "lucide-react";
 // #5 fix: lazy-load recharts (~600KB) — only loaded when progress tab is opened
 import dynamic from "next/dynamic";
+// Phase 247: ONE weight chart (WeightChart variant="client") — the old
+// ClientWeightChart was a byte-for-byte twin differing only in colors.
 const ClientWeightChart = dynamic(
-  () => import("@/components/ClientWeightChart").then((m) => m.ClientWeightChart),
+  () => import("@/components/WeightChart").then((m) => m.WeightChart),
   { ssr: false, loading: () => null },
 );
 import { useI18n } from "@/lib/i18n";
@@ -52,6 +54,7 @@ import {
  getQuestionnaire,
  fetchProfile,
 } from "@/lib/data";
+import { pickPrimarySubscription } from "@/lib/subscription-view";
 import { getTier, type Duration, type TierId } from "@/lib/plans";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { resolveExerciseImage, getExerciseImage, getExerciseImages, getFallbackSVG } from "@/lib/exercise-images";
@@ -241,30 +244,18 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  ? clientSubs
  : clientSubs.filter((x) => x.tier === "coaching");
  setAllSubs(visibleSubs);
- // Set the primary sub — separate coaching from memberships
- // Pick best MEMBERSHIP tier (pro > premium). If only coaching, pick coaching.
- const hasCoaching = visibleSubs.some((s) => s.tier === "coaching");
- const membershipSubs = visibleSubs.filter((s) => ["premium", "pro"].includes(s.tier));
- let s: Subscription | null = null;
- if (membershipSubs.length > 0) {
- const priority = (tier: string) => {
- if (tier === "pro") return 3;
- if (tier === "premium") return 2;
- return 0;
- };
- const sorted = [...membershipSubs].sort((a, b) => priority(b.tier) - priority(a.tier));
- s = sorted[0];
- } else if (hasCoaching) {
- s = clientSubs.find((sub) => sub.tier === "coaching") ?? null;
- }
- setSub(s);
+ // Phase 247: the primary-sub pick law lives in lib/subscription-view.ts —
+ // this block was written out twice in this file (and a third time inside
+ // getSubscriptionForClient) — one definition now.
+ const picked = pickPrimarySubscription(visibleSubs);
+ setSub(picked);
  setProgress(p);
  setPlans(pl);
  setNutriQ(n);
  setFitQ(f);
- if (s) {
- setTier(s.tier);
- setMonths(s.months as Duration); // DB stores any int; the form offers the standard durations
+ if (picked) {
+ setTier(picked.tier);
+ setMonths(picked.months as Duration); // DB stores any int; the form offers the standard durations
  // 0043: no manual date prefill — dates are computed/previewed only.
  }
  setLoading(false);
@@ -517,22 +508,8 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  ? updatedSubs
  : updatedSubs.filter((x) => x.tier === "coaching");
  setAllSubs(visibleUpdated);
- // Update primary sub — separate coaching from memberships
- const hasCoaching = visibleUpdated.some((s) => s.tier === "coaching");
- const membershipSubs = visibleUpdated.filter((s) => ["premium", "pro"].includes(s.tier));
- let s: Subscription | null = null;
- if (membershipSubs.length > 0) {
- const priority = (t: string) => {
- if (t === "pro") return 3;
- if (t === "premium") return 2;
- return 0;
- };
- const sorted = [...membershipSubs].sort((a, b) => priority(b.tier) - priority(a.tier));
- s = sorted[0];
- } else if (hasCoaching) {
- s = updatedSubs.find((sub) => sub.tier === "coaching") ?? null;
- }
- setSub(s);
+ // Phase 247: same shared pick law (was a hand-rolled copy).
+ setSub(pickPrimarySubscription(visibleUpdated));
  } catch (e) {
  toast.error((e instanceof Error ? e.message : "") || t("common.error"));
  } finally {
@@ -1384,7 +1361,7 @@ export function CoachClientView({ clientId }: { clientId: string }) {
  <h2 className="text-lg font-semibold">{t("prog.weightChart")}</h2>
  <div className="mt-4 h-64">
  {chartData.length > 0 ? (
- <ClientWeightChart data={chartData} />
+ <ClientWeightChart data={chartData} variant="client" />
  ) : (
  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
  {t("prog.noEntries")}

@@ -113,14 +113,19 @@ export function AdminPaymentsView() {
 
   const load = async () => {
     setLoading(true);
-    const data = await listSubscriptionRequests(filter);
+    // Phase 247: ONE fetch of ALL requests (same law /admin/finances already
+    // follows) — the «pending» tab badge used to be derived from the
+    // currently-filtered rows, so browsing approved/rejected showed NO badge
+    // while pending requests existed. Different tab, different badge = two
+    // numbers for one fact.
+    const data = await listSubscriptionRequests("all");
     setRows(data);
     setLoading(false);
   };
 
   useEffect(() => {
     load();
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     loadRefunds();
@@ -176,7 +181,10 @@ export function AdminPaymentsView() {
 
   const tabs: FilterTab[] = ["pending", "approved", "rejected", "all"];
 
-  // Count pending for emphasis
+  // The tab filter is now client-side slicing (the fetch is filter-free),
+  // and the pending badge is stable regardless of the active tab.
+  const visibleRows = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  // Count pending for emphasis — from the FULL set, not the visible slice.
   const pendingCount = rows.filter((r) => r.status === "pending").length;
 
   return (
@@ -215,13 +223,13 @@ export function AdminPaymentsView() {
 
       {loading ? (
         <div className="py-20 text-center text-base font-normal text-[#6e6e73]">{t("common.loading")}</div>
-      ) : rows.length === 0 ? (
+      ) : visibleRows.length === 0 ? (
         <div className="rounded-2xl bg-[#f5f5f7] p-12 text-center text-base font-normal text-[#6e6e73]">
           {t("admin.empty")}
         </div>
       ) : (
         <div className="space-y-3">
-          {rows.map((r) => {
+          {visibleRows.map((r) => {
             const tierCls = tierColor(r.plan_tier);
             return (
               <div key={r.id} className="rounded-2xl bg-[#f5f5f7] p-6">

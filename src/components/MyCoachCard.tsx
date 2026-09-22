@@ -35,13 +35,16 @@ export function MyCoachCard() {
   // 0037 — coach WhatsApp number (server-gated: active subscription only)
   const [waPhone, setWaPhone] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Silent — a null/failed response simply means no button.
+  // 0037 — coach WhatsApp number (server-gated: active subscription only).
+  // Phase 247: gated on the assignment actually existing — the old effect
+  // fired /api/my/coach-whatsapp for EVERY member (the majority unassigned)
+  // and the card popped in late above the numbers, shifting the layout.
+  const loadWaPhone = () => {
     fetch("/api/my/coach-whatsapp")
       .then((r) => (r.ok ? r.json() : null))
       .then((json) => setWaPhone(json?.phone ?? null))
       .catch(() => setWaPhone(null));
-  }, []);
+  };
 
   useEffect(() => {
     if (!profile || !supabase) return;
@@ -57,6 +60,7 @@ export function MyCoachCard() {
         const row = data as { coach: CoachInfo | null } | null;
         if (!cancelled && !error && row?.coach) {
           setCoach(row.coach);
+          loadWaPhone();
         }
       } catch {
         // table/policy not migrated yet — the card simply stays hidden

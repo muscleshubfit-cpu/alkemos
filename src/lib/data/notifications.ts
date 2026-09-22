@@ -122,8 +122,11 @@ export async function listAdminNotificationsForAdmin(): Promise<AdminNotificatio
  const json = (await res.json()) as { items?: AdminNotificationRow[] };
  if (Array.isArray(json.items)) return json.items;
  }
- } catch {
- /* fall through to the RLS fetch */
+ } catch (e) {
+ // Phase 247: the fallback re-opens the RAW RLS feed (which for an admin
+ // means EVERY staff row — the exact B3 leak). It stays as a never-empty-
+ // handed tradeoff, but it must never degrade silently again.
+ console.error("[notifications] admin feed fetch failed — falling back to raw RLS fetch:", e);
  }
  }
  return listAdminNotifications();

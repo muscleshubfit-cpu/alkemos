@@ -39,12 +39,20 @@ export function AdminNotificationBell() {
  useEffect(() => {
  let interval: ReturnType<typeof setInterval> | undefined;
  const load = async () => {
+ try {
  const { listAdminNotifications, listAdminNotificationsForAdmin } = await import("@/lib/data");
  const data = isAdmin
  ? await listAdminNotificationsForAdmin()
  : await listAdminNotifications();
  setItems(data);
+ } catch (e) {
+ // Phase 247: a throw used to leave the bell stuck on «loading» forever
+ // (unhandled rejection, setLoading never reached) — mirror the member
+ // bell: keep the last good items, log loudly, stop the spinner.
+ console.error("[AdminNotificationBell] load failed:", e);
+ } finally {
  setLoading(false);
+ }
  };
  load();
  // VERCEL-USAGE cleanup (2026-09-16): pause polling while the tab is

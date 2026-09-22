@@ -31,6 +31,31 @@ export async function getQuestionnaire(clientId: string, type: "nutrition" | "fi
  return store[clientId] ?? null;
 }
 
+/**
+ * Phase 247 — STATUS-ONLY read for the member dashboard's attention strip.
+ * The full-row read carries the whole JSONB answer payload; the strip only
+ * needs the lifecycle flag (`draft|submitted|approved|needs_info`). Same
+ * RLS surface as getQuestionnaire (client reads his own rows).
+ */
+export async function getQuestionnaireStatus(
+ clientId: string,
+ type: "nutrition" | "fitness",
+): Promise<QuestionnaireRow["status"] | null> {
+ if (isSupabaseConfigured && supabase) {
+ const table = type === "nutrition" ? "nutrition_questionnaires" : "fitness_questionnaires";
+ const { data } = await supabase
+ .from(table)
+ .select("status")
+ .eq("client_id", clientId)
+ .order("updated_at", { ascending: false })
+ .limit(1)
+ .maybeSingle();
+ return (data as { status: QuestionnaireRow["status"] } | null)?.status ?? null;
+ }
+ const store = read<Record<string, NutritionQuestionnaire | FitnessQuestionnaire>>(type === "nutrition" ? LS_NUTRI_Q : LS_FIT_Q, {});
+ return store[clientId]?.status ?? null;
+}
+
 export async function upsertQuestionnaire(
  clientId: string,
  type: "nutrition" | "fitness",

@@ -20,8 +20,14 @@ import {
  DialogFooter,
 } from "@/components/ui/dialog";
 import { listProgress, addProgress, listPhotos, uploadPhoto, deletePhoto, type ProgressEntryInsert } from "@/lib/data";
+import { weightSummary } from "@/lib/weight-summary";
 import type { ProgressEntry, ProgressPhoto } from "@/lib/supabase/types";
 import { toast } from "sonner";
+
+// Phase 247 — deep-link handshake from the member dashboard's
+// «سجّل وزن اليوم» quick action: the flag is set right before navigating
+// here, and this view opens the add-entry dialog on mount.
+const OPEN_ADD_KEY = "alkemos.progress.openAdd";
 
 // Lazy-load the chart component so recharts (~600KB) is only fetched
 // when the Progress page is opened — not on every dashboard load.
@@ -67,6 +73,18 @@ export function ProgressView() {
  useEffect(() => {
  load();
  }, [profile]);
+
+ // Phase 247 — honor the dashboard's «سجّل وزن اليوم» deep link.
+ useEffect(() => {
+ try {
+ if (sessionStorage.getItem(OPEN_ADD_KEY) === "1") {
+ sessionStorage.removeItem(OPEN_ADD_KEY);
+ setOpen(true);
+ }
+ } catch {
+ /* private mode — no deep link, no problem */
+ }
+ }, []);
 
  const submit = async () => {
  if (!profile) return;
@@ -147,9 +165,7 @@ export function ProgressView() {
  weight: e.weight,
  }));
 
- const latest = entries[entries.length - 1];
- const first = entries[0];
- const change = latest?.weight && first?.weight ? Number(latest.weight) - Number(first.weight) : null;
+ const weight = weightSummary(entries);
 
  if (loading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
 
@@ -192,9 +208,9 @@ export function ProgressView() {
  <div className="rounded-3xl bg-[#f5f5f7] p-6 md:p-8">
  <div className="flex items-center justify-between">
  <h2 className="text-xl font-semibold tracking-tight">{t("prog.weightChart")}</h2>
- {change !== null && change !== 0 && (
- <span className={`text-sm font-normal ${change < 0 ? "text-[#0071e3]" : "text-[#6e6e73]"}`}>
- {change < 0 ? "↓" : "↑"} {Math.abs(change).toFixed(1)} {t("common.kg")}
+ {weight?.delta != null && weight.delta !== 0 && (
+ <span className={`text-sm font-normal ${weight.direction === "down" ? "text-[#34c759]" : "text-[#ff9500]"}`}>
+ {weight.direction === "down" ? "↓" : "↑"} {Math.abs(weight.delta).toFixed(1)} {t("common.kg")}
  </span>
  )}
  </div>

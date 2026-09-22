@@ -14,6 +14,7 @@ import {
 } from "./helpers";
 import { createNotification, createAdminNotification } from "./notifications";
 import { canonicalModelTier } from "../plans";
+import { pickPrimarySubscription } from "../subscription-view";
 import type { Subscription, SubscriptionRequest } from "@/lib/supabase/types";
 
 /** Input accepted by submitSubscriptionRequest — mirrors the subscription_requests Insert shape (payment_method union == lib/plans PaymentMethod). */
@@ -79,7 +80,52 @@ export type CoachClientPageOpts = {
   sort?: string; // newest|oldest|name|expiry
 };
 
-export async function getCoachClientListPaged(opts: CoachClientPageOpts = {}) {
+/** Row shape of get_coach_client_list_paged / get_coach_client_list (0047/0043) —
+ *  consumed by CoachView's enrichClientRow (single definition, Phase 247). */
+export type CoachClientRpcRow = {
+  client_id: string;
+  client_full_name: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  client_created_at: string;
+  sub_tier: string | null;
+  sub_status: string | null;
+  sub_end_date: string | null;
+  sub_months: number | null;
+  pending_payments: number | null;
+  nutri_q_status: string | null;
+  fit_q_status: string | null;
+  assigned_coach_id: string | null;
+  assigned_coach_name: string | null;
+  // 0072 additive columns (absent before the migration → undefined)
+  member_kind?: string | null;
+  site_member_active?: boolean | null;
+  // 0092 (m-C) additive column (absent before the migration → undefined)
+  invite_pending?: boolean | null;
+  total_count?: number | string;
+};
+
+/** Phase 247 — discriminated result: "missing" (0047 RPC not applied → the
+ *  caller MAY fall back to the legacy full-list path) is deliberately
+ *  distinct from "error" (anything else — the caller must speak instead of
+ *  silently downgrading the whole session to the N+1 legacy path). */
+export type CoachClientPagedResult =
+  | { status: "ok"; rows: CoachClientRpcRow[] }
+  | { status: "missing" }
+  | { status: "error"; message: string };
+
+/** PostgREST "function does not exist" arrives as code 404/42883 (or
+ *  PGRST202 on newer gateways) or a message mentioning the missing function. */
+function isRpcMissing(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  const code = error.code ?? "";
+  if (code === "404" || code === "42883" || code === "PGRST202") return true;
+  return /could not find the function|schema cache/i.test(error.message ?? "");
+}
+
+export async function getCoachClientListPaged(
+ opts: CoachClientPageOpts = {},
+): Promise<CoachClientPagedResult> {
  if (isSupabaseConfigured && supabase) {
  try {
  const { data, error } = await supabase.rpc("get_coach_client_list_paged", {
@@ -90,13 +136,23 @@ export async function getCoachClientListPaged(opts: CoachClientPageOpts = {}) {
  p_segment: opts.segment || "all",
  p_sort: opts.sort || "newest",
  });
- if (!error && data) return data;
- if (error) console.warn("[data] get_coach_client_list_paged not ready:", error.message);
+ if (!error && data) return { status: "ok", rows: data as CoachClientRpcRow[] };
+ if (isRpcMissing(error)) {
+ console.warn("[data] get_coach_client_list_paged not ready:", error?.message);
+ return { status: "missing" };
+ }
+ // Phase 247 (honest-failure law): ANY other error used to be swallowed
+ // into the same "migration absent" bucket, silently downgrading the
+ // whole session to the N+1 legacy path. Now the caller can speak.
+ console.error("[data] get_coach_client_list_paged failed:", error?.message);
+ return { status: "error", message: error?.message || "request failed" };
  } catch (e) {
- console.warn("[data] get_coach_client_list_paged failed, using fallback:", e);
+ const message = e instanceof Error ? e.message : String(e);
+ console.error("[data] get_coach_client_list_paged threw:", message);
+ return { status: "error", message };
  }
  }
- return null;
+ return { status: "missing" };
 }
 
 export type CoachClientStats = {
@@ -442,22 +498,10 @@ export async function getSubscriptionForClient(clientId: string): Promise<Subscr
  .order("created_at", { ascending: false });
  const arr = data ?? [];
  if (arr.length === 0) return null;
- // Separate coaching from memberships — pick best MEMBERSHIP tier
- // (pro > premium). If only coaching, return coaching.
- const hasCoaching = arr.some((s) => s.tier === "coaching");
- const membershipSubs = arr.filter((s) => ["premium", "pro"].includes(s.tier));
- if (membershipSubs.length > 0) {
- const priority = (tier: string) => {
- if (tier === "pro") return 3;
- if (tier === "premium") return 2;
- return 0;
- };
- membershipSubs.sort((a, b) => priority(b.tier) - priority(a.tier));
- return membershipSubs[0];
- } else if (hasCoaching) {
- return arr.find((s) => s.tier === "coaching") ?? null;
- }
- return arr[0];
+ // Phase 247: the pick law (best membership pro > premium, else coaching)
+ // lives in lib/subscription-view.ts — it was hand-rolled here AND twice in
+ // CoachClientView. `?? arr[0]` preserves this function's final fallback.
+ return pickPrimarySubscription(arr) ?? arr[0];
  }
  // Local fallback mirrors the same active + expiry filter.
  const now = new Date().toISOString();
@@ -465,14 +509,7 @@ export async function getSubscriptionForClient(clientId: string): Promise<Subscr
  (s) => s.client_id === clientId && s.status === "active" && s.end_date !== null && s.end_date > now,
  );
  if (all.length === 0) return null;
- const hasCoaching = all.some((s) => s.tier === "coaching");
- const membershipSubs = all.filter((s) => ["premium", "pro"].includes(s.tier));
- if (membershipSubs.length > 0) {
- const priority = (tier: string) => (tier === "pro" ? 3 : tier === "premium" ? 2 : 0);
- membershipSubs.sort((a, b) => priority(b.tier) - priority(a.tier));
- return membershipSubs[0];
- }
- return all.find((s) => s.tier === "coaching") ?? all[0];
+ return pickPrimarySubscription(all) ?? all[0];
 }
 
 /**

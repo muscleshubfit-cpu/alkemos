@@ -11,33 +11,50 @@ import {
 } from "recharts";
 
 /**
- * WeightChart — lazy-loaded chart component for ProgressView.
+ * WeightChart — the ONE weight AreaChart (Phase 247 dedup: ClientWeightChart
+ * was a byte-for-byte twin differing only in colors; both are now variants
+ * of this file).
  *
- * Extracted into its own file so recharts (~600KB) can be code-split
- * out of the main bundle and only loaded when the user actually opens
- * the Progress page.
+ * Kept in its own file so recharts (~600KB) stays code-split out of the
+ * main bundle — the two lazy `dynamic()` importers (ProgressView member
+ * chart + CoachClientView client chart) only fetch it when rendered.
  */
-export function WeightChart({ data }: { data: Array<{ date: string; weight: number }> }) {
+export function WeightChart({
+  data,
+  variant = "member",
+}: {
+  data: Array<{ date: string; weight: number }>;
+  /** member = the app chrome law (#0071e3) · client = the staff view's softer slate. */
+  variant?: "member" | "client";
+}) {
+  const stroke = variant === "client" ? "#1F8FFF" : "#0071e3";
+  const grid = variant === "client" ? "#E2E8F0" : "#d2d2d7";
+  const tick = variant === "client" ? "#475569" : "#6e6e73";
+  const gradientId = variant === "client" ? "clientWeightGradient" : "weightGradient";
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
         <defs>
-          <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0071e3" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="#0071e3" stopOpacity={0} />
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={stroke} stopOpacity={variant === "client" ? 0.5 : 0.3} />
+            <stop offset="100%" stopColor={stroke} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#d2d2d7" />
-        <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#6e6e73" }} />
-        <YAxis tick={{ fontSize: 12, fill: "#6e6e73" }} domain={["auto", "auto"]} />
+        <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+        <XAxis dataKey="date" tick={{ fontSize: 12, fill: tick }} />
+        <YAxis tick={{ fontSize: 12, fill: tick }} domain={["auto", "auto"]} />
         <Tooltip
-          contentStyle={{
-            borderRadius: 12,
-            border: "1px solid #d2d2d7",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          }}
+          contentStyle={
+            variant === "client"
+              ? undefined
+              : {
+                  borderRadius: 12,
+                  border: "1px solid #d2d2d7",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                }
+          }
         />
-        <Area type="monotone" dataKey="weight" stroke="#0071e3" strokeWidth={2.5} fill="url(#weightGradient)" />
+        <Area type="monotone" dataKey="weight" stroke={stroke} strokeWidth={2.5} fill={`url(#${gradientId})`} />
       </AreaChart>
     </ResponsiveContainer>
   );

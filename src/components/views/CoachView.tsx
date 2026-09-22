@@ -12,9 +12,10 @@ import {
   getCoachClientListOptimized,
   getCoachClientListPaged,
   getCoachClientStats,
+  getAdminClientsStats,
   type CoachClientStats,
+  type CoachClientRpcRow,
 } from "@/lib/data";
-import type { SubscriptionRequest } from "@/lib/supabase/types";
 import { getTier, type TierId } from "@/lib/plans";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { toast } from "sonner";
@@ -79,32 +80,14 @@ type StaffMember = { id: string; full_name: string | null; email: string | null;
 
 type ClientPickerHit = Pick<ClientWithMeta, "id" | "full_name" | "email" | "phone">;
 
-/** Row shape shared by get_coach_client_list_paged + get_coach_client_list (0043 columns). */
-type CoachClientRpcRow = {
-  client_id: string;
-  client_full_name: string | null;
-  client_email: string | null;
-  client_phone: string | null;
-  client_created_at: string;
-  sub_tier: string | null;
-  sub_status: string | null;
-  sub_end_date: string | null;
-  sub_months: number | null;
-  pending_payments: number | null;
-  nutri_q_status: string | null;
-  fit_q_status: string | null;
-  assigned_coach_id: string | null;
-  assigned_coach_name: string | null;
-  // 0072 additive columns (absent before the migration → undefined)
-  member_kind?: string | null;
-  site_member_active?: boolean | null;
-  // 0092 (m-C) additive column (absent before the migration → undefined)
-  invite_pending?: boolean | null;
-  total_count?: number | string;
-};
-
 function fmtNum(n: number, isAr: boolean) {
   return n.toLocaleString(isAr ? "ar-EG" : "en-US");
+}
+
+/** Phase 247 honest counts: null = the DB-wide stats source is unavailable —
+ *  render «…» instead of page-scoped numbers pretending to be totals. */
+function fmtCount(n: number | null, isAr: boolean) {
+  return n === null ? "…" : fmtNum(n, isAr);
 }
 
 /**
@@ -159,7 +142,6 @@ export function CoachView() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
-  const [pendingRequests, setPendingRequests] = useState<SubscriptionRequest[]>([]);
   // Admin reassignment (Phase 2B): staff dropdown + per-row saving state
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [reassigning, setReassigning] = useState<string | null>(null);
@@ -192,6 +174,21 @@ export function CoachView() {
   // full-list path takes over and the UI slices it instead — nothing breaks.
   const [pagedMode, setPagedMode] = useState(true);
   const [stats, setStats] = useState<CoachClientStats | null>(null);
+  // Phase 247 (honest-degradation): the stats RPC failing must NOT silently
+  // downgrade the pills to page-of-25 counts pretending to be DB-wide — the
+  // pills render «…» and a retry is offered instead.
+  const [statsFailed, setStatsFailed] = useState(false);
+  // Phase 247 — the admin's pending-payments banner rides the CANONICAL
+  // getAdminClientsStats RPC (the same number as the AdminShell badge, the
+  // admin dashboard strip and /admin/clients — the 101a3559 law). The old
+  // banner counted subscription_request ROWS while everything else counted
+  // CLIENTS-with-pending — one client with two pending requests said 2 vs 1.
+  const [adminStats, setAdminStats] = useState<
+    Awaited<ReturnType<typeof getAdminClientsStats>>
+  >(null);
+  // Phase 247 — a transient list error must not flip the session into the
+  // legacy N+1 path (≈90+ queries for 44 clients) with zero signal.
+  const [listError, setListError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
@@ -215,36 +212,31 @@ export function CoachView() {
   const [singleChosen, setSingleChosen] = useState<{ id: string; label: string } | null>(null);
 
   // Stats — refetched whenever the roster version bumps (m-D fix).
+  // Phase 247: the admin's banner number rides getAdminClientsStats in the
+  // same round-trip — one canonical source, zero extra fetches per role.
   useEffect(() => {
     let cancelled = false;
+    setStatsFailed(false);
     (async () => {
       try {
-        const st = await getCoachClientStats();
-        if (!cancelled) setStats(st);
+        const [st, aSt] = await Promise.all([
+          getCoachClientStats(),
+          isAdmin ? getAdminClientsStats() : Promise.resolve(null),
+        ]);
+        if (cancelled) return;
+        setStats(st);
+        if (aSt) setAdminStats(aSt);
+        // null = RPC missing or failed — in paged mode that means «…», not
+        // a fake page-scoped total.
+        if (st === null) setStatsFailed(true);
       } catch {
-        /* stats stay null → tab pills count the loaded page/list instead */
+        if (!cancelled) setStatsFailed(true);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [statsVersion]);
-
-  // Pending payment requests — one small load, independent of paging.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const reqs = await listSubscriptionRequests("pending").catch(() => []);
-        if (!cancelled) setPendingRequests(reqs);
-      } catch {
-        /* non-critical */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  }, [statsVersion, isAdmin]);
 
   // PAGED path (0047): the DB applies search/segment/tab/sort and returns
   // ONE page + total_count. If the RPC is missing (migration not applied
@@ -255,7 +247,7 @@ export function CoachView() {
     if (firstLoad.current) setLoading(true);
     else setRefreshing(true);
     (async () => {
-      const rows = await getCoachClientListPaged({
+      const result = await getCoachClientListPaged({
         limit: pageSize,
         offset: (page - 1) * pageSize,
         search: debouncedSearch,
@@ -264,12 +256,22 @@ export function CoachView() {
         sort,
       });
       if (cancelled) return;
-      if (rows === null) {
+      if (result.status === "missing") {
         // 0047 RPC not applied → legacy full-list mode takes over.
         firstLoad.current = true;
         setPagedMode(false);
         return;
       }
+      if (result.status === "error") {
+        // Phase 247: speak honestly + offer retry — do NOT silently
+        // downgrade to the N+1 legacy path (≈90+ queries for 44 clients).
+        setListError(result.message);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      setListError(null);
+      const rows = result.rows;
       setClients(rows.map(enrichClientRow));
       const nextTotal = rows.length ? Number(rows[0].total_count) || 0 : 0;
       // m-D FIX: on the DEFAULT view (tab=all · no search · page 1) the
@@ -318,7 +320,7 @@ export function CoachView() {
     }
     const t = setTimeout(async () => {
       if (pagedMode) {
-        const rows = await getCoachClientListPaged({
+        const result = await getCoachClientListPaged({
           limit: 8,
           offset: 0,
           search: q,
@@ -327,8 +329,8 @@ export function CoachView() {
           sort: "newest",
         });
         setSingleResults(
-          rows
-            ? rows.map((r) => ({
+          result.status === "ok"
+            ? result.rows.map((r) => ({
                 id: r.client_id,
                 full_name: r.client_full_name,
                 email: r.client_email,
@@ -422,7 +424,6 @@ export function CoachView() {
 
         if (!cancelled) {
           setClients(enrichedFallback);
-          setPendingRequests(reqs);
         }
       } catch (e) {
         console.error("[CoachView] load failed", e);
@@ -469,7 +470,14 @@ export function CoachView() {
               : c,
           ),
         );
+        // Phase 247: the roster just moved — the segment pills must follow
+        // (and the assignment now can't fail silently either).
+        setStatsVersion((v) => v + 1);
+      } else {
+        toast.error(isAr ? "تعذر إسناد العميل — أعد المحاولة" : "Couldn't reassign the client — please retry");
       }
+    } catch {
+      toast.error(isAr ? "تعذر إسناد العميل — أعد المحاولة" : "Couldn't reassign the client — please retry");
     } finally {
       setReassigning(null);
     }
@@ -477,9 +485,19 @@ export function CoachView() {
 
   // Tab counts — paged mode reads them from get_coach_client_stats()
   // (computed by the DB over the WHOLE scope, not just the loaded page);
-  // legacy mode counts the in-memory full list.
-  const counts = useMemo(() => {
-    if (pagedMode && stats) {
+  // legacy mode counts the in-memory full list. Phase 247: while paged and
+  // the stats source is unavailable the pills render «…» (honest) instead of
+  // page-scoped counts pretending to be DB-wide totals.
+  const counts = useMemo<Record<FilterTab | "coach_clients" | "site_clients", number | null>>(() => {
+    if (pagedMode) {
+      if (!stats) {
+        return {
+          all: null, active: null, expiring: null, no_plan: null,
+          no_questionnaire: null, pending_payment: null, expired: null,
+          premium: null, pro: null, coaching: null,
+          coach_clients: null, site_clients: null, invite_pending: null,
+        };
+      }
       return {
         all: stats.total,
         active: stats.active,
@@ -607,7 +625,7 @@ export function CoachView() {
     return subTier || "—";
   };
 
-  const tabs: Array<{ id: FilterTab; labelAr: string; labelEn: string; count: number; color: string }> = [
+  const tabs: Array<{ id: FilterTab; labelAr: string; labelEn: string; count: number | null; color: string }> = [
     { id: "all", labelAr: "الكل", labelEn: "All", count: counts.all, color: "#1d1d1f" },
     { id: "active", labelAr: "نشط", labelEn: "Active", count: counts.active, color: "#34c759" },
     { id: "expiring", labelAr: "ينتهي قريباً", labelEn: "Expiring", count: counts.expiring, color: "#ff9500" },
@@ -714,7 +732,9 @@ export function CoachView() {
   // Build sendMode for NotificationForm
   const notifSendMode =
     broadcastTarget === "all"
-      ? { kind: "all" as const, totalCount: counts.all }
+      // Phase 247: when the stats source is down, counts.all is null — the
+      // broadcast itself is count-independent, only the confirm copy shows it.
+      ? { kind: "all" as const, totalCount: counts.all ?? 0 }
       : broadcastTarget === "selected"
         ? { kind: "selected" as const, userIds: Array.from(selectedClientIds) }
         : { kind: "single" as const, userId: selectedSingleId };
@@ -786,31 +806,50 @@ export function CoachView() {
           Stats — Apple-style large numbers (paged mode: DB-wide counts) */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight">{fmtNum(counts.all, isAr)}</p>
+          <p className="text-3xl font-semibold tracking-tight">{fmtCount(counts.all, isAr)}</p>
           <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.totalClients")}</p>
         </div>
         <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight text-[#34c759]">{fmtNum(counts.active, isAr)}</p>
+          <p className="text-3xl font-semibold tracking-tight text-[#34c759]">{fmtCount(counts.active, isAr)}</p>
           <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.activeSubs")}</p>
         </div>
         <div className="rounded-2xl bg-[#f5f5f7] p-6">
-          <p className="text-3xl font-semibold tracking-tight text-[#ff9500]">{fmtNum(counts.expiring, isAr)}</p>
+          <p className="text-3xl font-semibold tracking-tight text-[#ff9500]">{fmtCount(counts.expiring, isAr)}</p>
           <p className="mt-1 text-xs font-normal text-[#6e6e73]">{t("coach.expiringSoon")}</p>
         </div>
       </div>
 
+      {/* Phase 247: if the DB-wide stats source is down, say so and offer a
+          retry instead of letting page-of-25 counts pose as totals. */}
+      {statsFailed && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#ff9500]/30 bg-[#ff9503]/[0.06] px-4 py-3">
+          <p className="text-sm font-normal text-[#6e6e73]">
+            {isAr ? "تعذر تحميل الإحصائيات الدقيقة — الأرقام أعلاه غير مكتملة." : "Couldn't load the DB-wide stats — the numbers above are incomplete."}
+          </p>
+          <button
+            onClick={() => setStatsVersion((v) => v + 1)}
+            className="shrink-0 rounded-full bg-[#1d1d1f] px-4 py-1.5 text-xs font-normal text-white transition-opacity hover:opacity-90"
+          >
+            {isAr ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
+      )}
+
       {/* Pending payment requests — actionable banner (0043: ADMIN ONLY).
           SITE membership requests are B2C/admin business per the
           terminology law — coaches' lists return 0 pending from the RPC
-          and the admin gets the review link to /admin/payments. */}
-      {isAdmin && pendingRequests.length > 0 && (
+          and the admin gets the review link to /admin/payments.
+          Phase 247: the count is the CANONICAL clients-with-pending number
+          (getAdminClientsStats — same source as the AdminShell badge, the
+          admin dashboard strip and /admin/clients), not a request-ROW count. */}
+      {isAdmin && (adminStats?.pending_payment ?? 0) > 0 && (
         <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-base font-semibold text-[#0071e3]">
                 {isAr
-                  ? `${pendingRequests.length} طلب دفع بانتظار المراجعة`
-                  : `${pendingRequests.length} payment request${pendingRequests.length > 1 ? "s" : ""} pending review`}
+                  ? `${adminStats?.pending_payment} طلب دفع بانتظار المراجعة`
+                  : `${adminStats?.pending_payment} client${(adminStats?.pending_payment ?? 0) > 1 ? "s" : ""} with pending payments`}
               </h3>
               <p className="mt-1 text-sm font-normal text-[#6e6e73]">
                 {isAr
@@ -1070,7 +1109,7 @@ export function CoachView() {
                       active ? "bg-white/20 text-white" : "bg-[#f5f5f7] text-[#6e6e73]"
                     }`}
                   >
-                    {seg.count}
+                    {fmtCount(seg.count, isAr)}
                   </span>
                 </button>
               );
@@ -1102,22 +1141,80 @@ export function CoachView() {
                     isActive ? "bg-white/20 text-white" : "bg-[#f5f5f7] text-[#6e6e73]"
                   }`}
                 >
-                  {tab.count}
+                  {fmtCount(tab.count, isAr)}
                 </span>
               </button>
             );
           })}
         </div>
 
+        {/* Phase 247: a transient list error is spoken, not swallowed —
+            the old catch flipped the whole session into the N+1 legacy
+            path (≈90+ queries) with zero user-visible signal. */}
+        {listError && (
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#ff3b30]/25 bg-[#ff3b30]/[0.05] px-4 py-3">
+            <p className="text-sm font-normal text-[#6e6e73]">
+              {isAr ? "تعذر تحميل قائمة العملاء — أعد المحاولة." : "Couldn't load the client list — please retry."}
+            </p>
+            <button
+              onClick={() => setStatsVersion((v) => v + 1)}
+              className="shrink-0 rounded-full bg-[#1d1d1f] px-4 py-1.5 text-xs font-normal text-white transition-opacity hover:opacity-90"
+            >
+              {isAr ? "إعادة المحاولة" : "Retry"}
+            </button>
+          </div>
+        )}
+
         {/* Client list */}
         {filtered.length === 0 ? (
-          <p className="py-12 text-center text-base font-normal text-[#6e6e73]">
-            {isSiteCoach
-              ? isAr
-                ? "لا أعضاء معيّنين لك بعد — الإدارة بتضيف أعضاء الموقع من لوحة الأدمن (مدربو الموقع)"
-                : "No members assigned to you yet — the admin assigns site members from the admin console"
-              : t("coach.noClients")}
-          </p>
+          <div className="py-12 text-center">
+            {(() => {
+              // Phase 247 — honest empty states: «no clients YET» (route to
+              // the next action) is different from «no MATCHES» (the filter
+              // is too narrow), and each role gets its own next step.
+              const filteredView =
+                !!debouncedSearch || activeTab !== "all" || (isAdmin && clientSegment !== "all");
+              if (filteredView)
+                return (
+                  <p className="text-base font-normal text-[#6e6e73]">
+                    {isAr
+                      ? "لا نتائج مطابقة — جرّب تعديل البحث أو الفلتر."
+                      : "No matches — try adjusting the search or filter."}
+                  </p>
+                );
+              if (isSiteCoach)
+                return (
+                  <p className="text-base font-normal text-[#6e6e73]">
+                    {isAr
+                      ? "لا أعضاء معيّنين لك بعد — الإدارة بتضيف أعضاء الموقع من لوحة الأدمن (مدربو الموقع)"
+                      : "No members assigned to you yet — the admin assigns site members from the admin console"}
+                  </p>
+                );
+              if (isB2BCoach)
+                return (
+                  <>
+                    <p className="text-base font-normal text-[#6e6e73]">{t("coach.noClients")}</p>
+                    <button
+                      onClick={() => setShowInvite(true)}
+                      className="mt-4 rounded-full bg-[#0071e3] px-5 py-2.5 text-sm font-normal text-white transition-opacity hover:opacity-90"
+                    >
+                      {isAr ? "دعوة أول عميل ›" : "Invite your first client ›"}
+                    </button>
+                  </>
+                );
+            return (
+              <>
+                <p className="text-base font-normal text-[#6e6e73]">{t("coach.noClients")}</p>
+                <a
+                  href="/admin/clients"
+                  className="mt-4 inline-block rounded-full border border-[#d2d2d7] bg-white px-5 py-2.5 text-sm font-normal text-[#1d1d1f] transition-opacity hover:opacity-80"
+                >
+                  {isAr ? "فتح سجل العملاء الموحد ›" : "Open the unified clients roster ›"}
+                </a>
+              </>
+            );
+            })()}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

@@ -14,8 +14,10 @@ import type { CoachTopupRequest } from "@/lib/supabase/types";
  *
  * OWNER FLOW («الأدمن يراجعهم ويكتب الرصيد يدوى لمحفظة المدرب»):
  *  1. PENDING QUEUE — every top-up request with its receipt (open the
- *     signed URL, verify the transfer, approve = credit the wallet
- *     through coach_adjust_wallet, or reject with a reason).
+ *     authorized /api/file proxy view — Phase 246 receipt law, the old
+ *     browser-side signed URL is gone, verify the transfer, approve =
+ *     credit the wallet through coach_adjust_wallet, or reject with a
+ *     reason).
  *  2. BALANCES — per-coach wallet balance next to his live client
  *     count and the site-wide FIXED activation price (m7 owner
  *     decision «أ» 2026-09-18: the per-coach fee is gone; the price

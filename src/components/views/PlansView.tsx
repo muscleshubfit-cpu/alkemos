@@ -264,6 +264,9 @@ export function PlansView() {
  const openFile = async (bucket: string, filePath: string) => {
  const url = await getPlanFileUrl(bucket, filePath);
  if (url) window.open(url, "_blank");
+ // Phase 247: a failed sign used to be a DEAD click — the exact
+ // silent-failure shape the 246 receipt fix removed elsewhere.
+ else toast.error(t("plans.openFailed"));
  };
 
  const swapMeal = async (planId: string, mealIndex: number) => {

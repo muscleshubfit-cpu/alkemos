@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
-import { getAdminClientsPaged, type AdminClientsPageOpts } from "@/lib/data";
+import { getAdminClientsPaged, getAdminClientsStats, type AdminClientsPageOpts } from "@/lib/data";
 import { Loader2, MapPin, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -67,6 +67,11 @@ export default function CoachesPage() {
   const [loading, setLoading] = useState(true);
   const [rpcFailed, setRpcFailed] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // Phase 247: the roster subtitle rides the CANONICAL stats RPC — the same
+  // getAdminClientsStats() the dashboard tiles and /admin/clients read. The
+  // old subtitle re-derived the coach counts from this page's ≤100-row fetch
+  // and diverged from the dashboard past 100 coaches.
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getAdminClientsStats>>>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,7 +82,11 @@ export default function CoachesPage() {
         type: "coach",
         sort: "name",
       };
-      const data = await getAdminClientsPaged(opts);
+      const [data, st] = await Promise.all([
+        getAdminClientsPaged(opts),
+        getAdminClientsStats(),
+      ]);
+      if (st) setStats(st);
       if (data === null) {
         setRpcFailed(true);
         setRows([]);
@@ -128,7 +137,8 @@ export default function CoachesPage() {
     }
   };
 
-  const siteCount = rows.filter((r) => r.coach_kind === "site").length;
+  const siteCount = stats ? stats.coach_site : rows.filter((r) => r.coach_kind === "site").length;
+  const coachTotal = stats ? stats.coach_site + stats.coach_b2b : rows.length;
 
   return (
     <div className="space-y-8">
@@ -146,8 +156,8 @@ export default function CoachesPage() {
         title={isAr ? "قائمة المدربين" : "Coach roster"}
         sub={
           isAr
-            ? `${rows.length} مدرب — منهم ${siteCount} مدرب موقع`
-            : `${rows.length} coaches — ${siteCount} site coach(es)`
+            ? `${coachTotal} مدرب — منهم ${siteCount} مدرب موقع`
+            : `${coachTotal} coaches — ${siteCount} site coach(es)`
         }
       >
         {rpcFailed ? (
