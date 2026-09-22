@@ -40,6 +40,7 @@ import {
 } from "@/lib/paypal";
 import { canonicalModelTier } from "@/lib/plans";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import type { Json } from "@/lib/supabase/types";
 import { processSubscriptionInitialPaymentServer } from "@/lib/affiliate-engine-server";
 import { paypalCaptureOrderBodySchema } from "@/lib/validation/schemas";
 
@@ -93,11 +94,12 @@ async function serverCreateNotification(
   title: string,
   body: string,
   link?: string,
+  payload?: Record<string, unknown>,
 ) {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
   const { error } = await supabaseAdmin
     .from("notifications")
-    .insert({ user_id: userId, type, title, body, link });
+    .insert({ user_id: userId, type, title, body, link, payload: (payload ?? {}) as Json });
   if (error) console.error("[paypal/capture-order] Notification insert error:", error.message);
 }
 
@@ -539,12 +541,14 @@ export async function POST(request: NextRequest) {
     );
 
     // Notify the user that their subscription is active
+    // 0093: payload feeds the bell's render-side catalog (notification-i18n).
     await serverCreateNotification(
       user_id,
       "subscription_approved",
       "تم تفعيل اشتراكك! 🎉",
       `تم تفعيل اشتراكك (${plan_tier}) لمدة ${duration_months} ${duration_months === 1 ? "شهر" : "أشهر"} عبر PayPal.`,
       "/dashboard",
+      { tier: plan_tier, months: duration_months },
     );
 
     // Award affiliate commission (server-side, idempotent)

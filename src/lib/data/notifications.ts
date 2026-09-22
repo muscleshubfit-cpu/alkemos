@@ -8,9 +8,14 @@ import {
  uid,
  LS_PREFIX,
 } from "./helpers";
+import type { Json } from "@/lib/supabase/types";
 
 // Row shapes for the notifications tables + their localStorage mirrors.
 // (Shared with NotificationBell / AdminNotificationBell — Phase 90.)
+// 0093 — `payload` carries structured fields for SYSTEM notifications
+// (tier/months/reason/…); the bell localizes known types from it at
+// render time (lib/notification-i18n.ts) — legacy rows fall back to the
+// stored text verbatim.
 export type NotificationRow = {
  id: string;
  user_id: string;
@@ -20,6 +25,7 @@ export type NotificationRow = {
  link?: string | null;
  read: boolean;
  created_at: string;
+ payload?: Record<string, unknown> | null;
 };
 
 export type AdminNotificationRow = {
@@ -31,6 +37,7 @@ export type AdminNotificationRow = {
  read: boolean;
  created_at: string;
  target_coach_id?: string | null;
+ payload?: Record<string, unknown> | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -74,18 +81,21 @@ export async function markNotificationRead(id: string) {
  write(LS_PREFIX + "notifs", all);
 }
 
-export async function createNotification(userId: string, type: string, title: string, body: string, link?: string) {
+// 0093 — optional `payload`: structured fields for system notifications
+// so the bell can localize known types at render time. Legacy callers
+// (and free-text broadcasts) omit it — the row renders verbatim as before.
+export async function createNotification(userId: string, type: string, title: string, body: string, link?: string, payload?: Record<string, unknown>) {
  if (isSupabaseConfigured && supabase) {
  const { data, error } = await supabase
  .from("notifications")
- .insert({ user_id: userId, type, title, body, link })
+ .insert({ user_id: userId, type, title, body, link, payload: (payload ?? {}) as Json })
  .select()
  .single();
  if (error) throw new Error(error.message);
  return data;
  }
  const all = read<NotificationRow[]>(LS_PREFIX + "notifs", []);
- const row = { id: uid(), user_id: userId, type, title, body, link, read: false, created_at: new Date().toISOString() };
+ const row = { id: uid(), user_id: userId, type, title, body, link, payload: payload ?? {}, read: false, created_at: new Date().toISOString() };
  all.push(row);
  write(LS_PREFIX + "notifs", all);
  return row;

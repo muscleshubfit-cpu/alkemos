@@ -118,9 +118,9 @@ export async function setQuestionnaireStatus(
  .select()
  .single();
  if (error) throw new Error(error.message);
- // Notify the user
+ // Notify the user — 0093: payload feeds the bell's render-side catalog
  const statusMsg = status === "approved" ? "تمت الموافقة على استبيانك" : "يحتاج استبيانك لمزيد من المعلومات";
- await createNotification(clientId, "questionnaire_status", statusMsg, `استبيان ${type === "nutrition" ? "التغذية" : "اللياقة"}: ${statusMsg}`, "/questionnaires");
+ await createNotification(clientId, "questionnaire_status", statusMsg, `استبيان ${type === "nutrition" ? "التغذية" : "اللياقة"}: ${statusMsg}`, "/questionnaires", { qtype: type, status });
  return data;
  }
  const key = type === "nutrition" ? LS_NUTRI_Q : LS_FIT_Q;

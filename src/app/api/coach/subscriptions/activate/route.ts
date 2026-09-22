@@ -366,6 +366,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Tell the client his subscription is live.
+  // 0093: payload carries the ISO end date — the bell's catalog formats it
+  // per UI language (ar-EG renders Arabic-Indic; en-US renders English).
   const end = subscription.end_date
     ? new Date(subscription.end_date).toLocaleDateString("ar-EG")
     : "";
@@ -375,6 +377,7 @@ export async function POST(request: NextRequest) {
     title: "تم تفعيل اشتراكك 🎉",
     body: `مدربك قام بتفعيل اشتراكك لمدة ${months} ${months === 1 ? "شهر" : "شهور"} — ساري حتى ${end}.`,
     link: "/dashboard",
+    payload: { months, end: subscription.end_date ?? "" },
   });
 
   return NextResponse.json({

@@ -370,8 +370,10 @@ export async function reviewSubscriptionRequest(id: string, action: "approve" | 
  // (0042) — no (client,tier,months) evidence match is required. The
  // client notification below keeps the PRODUCT name they actually bought.
  await upsertSubscription(req.user_id, canonicalModelTier(req.plan_tier), req.duration_months, start.toISOString(), end.toISOString(), req.id);
- // Notify the user
- await createNotification(req.user_id, "subscription_approved", "تم تفعيل اشتراكك!", `تم الموافقة على طلب اشتراكك (${req.plan_tier}) لمدة ${req.duration_months} أشهر.`, "/dashboard");
+ // Notify the user — 0093: payload feeds the bell's render-side catalog
+ // (lib/notification-i18n.ts) so EN members read English and the «1 أشهر»
+ // grammar bug never reappears (arMonthsPhrase law).
+ await createNotification(req.user_id, "subscription_approved", "تم تفعيل اشتراكك!", `تم الموافقة على طلب اشتراكك (${req.plan_tier}) لمدة ${req.duration_months} أشهر.`, "/dashboard", { tier: req.plan_tier, months: req.duration_months });
  // PHASE 66 (owner-approved): award the affiliate commission from the
  // SERVER (POST /api/affiliate/commission) instead of the browser.
  // The Phase 64 study proved the old browser engine call failed
@@ -397,7 +399,7 @@ export async function reviewSubscriptionRequest(id: string, action: "approve" | 
  } else {
  // M55 fix: include rejection reason in the notification if provided
  const reasonText = adminNote ? ` (${adminNote})` : "";
- await createNotification(data.user_id, "subscription_rejected", "تم رفض طلب الاشتراك", `تم رفض طلب اشتراكك.${reasonText} يرجى التواصل مع الدعم.`, "/memberships");
+ await createNotification(data.user_id, "subscription_rejected", "تم رفض طلب الاشتراك", `تم رفض طلب اشتراكك.${reasonText} يرجى التواصل مع الدعم.`, "/memberships", { reason: adminNote || "" });
  }
  return data;
  }

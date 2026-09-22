@@ -18,13 +18,17 @@ import { cn } from "@/lib/utils";
 // "/" check alone still lets "//evil.com" (protocol-relative) and
 // "/\\" (backslash bypass) through on malformed DB rows.
 import { safeNext } from "@/lib/safe-redirect";
+// NOTIF-I18N-250: system notifications render in the ACTIVE UI language
+// (catalog + payload, honest verbatim fallback) — never raw server text.
+import { localizeNotification } from "@/lib/notification-i18n";
+import { formatDateTimeFor } from "@/lib/format-locale";
 // PHASE 182: type-only import (erased at compile) — the notification
 // functions are dynamically imported at their call sites so this
 // header-mounted bell never pulls @supabase/ssr into first-load JS.
 import type { NotificationRow } from "@/lib/data";
 
 export function NotificationBell() {
- const { t } = useI18n();
+ const { t, lang } = useI18n();
  const { profile } = useAuth();
  const { navigate } = useNav();
  const router = useRouter();
@@ -132,7 +136,9 @@ export function NotificationBell() {
  ) : items.length === 0 ? (
  <p className="px-3 py-8 text-center text-sm text-muted-foreground">{t("notif.empty")}</p>
  ) : (
- items.map((n) => (
+ items.map((n) => {
+ const view = localizeNotification(n, lang);
+ return (
  <button
  key={n.id}
  onClick={() => handleItemClick(n)}
@@ -141,13 +147,14 @@ export function NotificationBell() {
  !n.read && "bg-primary/5",
  )}
  >
- <span className="text-sm font-medium">{n.title}</span>
- {n.body && <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>}
+ <span className="text-sm font-medium">{view.title}</span>
+ {n.body && <span className="line-clamp-2 text-xs text-muted-foreground">{view.body}</span>}
  <span className="text-[10px] text-muted-foreground">
- {new Date(n.created_at).toLocaleString()}
+ {formatDateTimeFor(n.created_at, lang)}
  </span>
  </button>
- ))
+ );
+ })
  )}
  </div>
  </PopoverContent>

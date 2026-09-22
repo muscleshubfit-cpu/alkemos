@@ -15,6 +15,10 @@ import { getTier, type TierId } from "@/lib/plans";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { daysLeftOn, effectiveSubStatus } from "@/lib/subscription-view";
 import { weightSummary } from "@/lib/weight-summary";
+// NOTIF-I18N-250: numbers and dates speak the ACTIVE UI language —
+// the AR mirror renders Arabic-Indic digits (same law as the admin
+// dashboard), instead of Latin digits + US date order.
+import { formatDateFor, formatNumberFor } from "@/lib/format-locale";
 
 // Phase 247 — the member's health numbers (BMI/body-fat/health score) are
 // already computed locale-aware (M-2026) and proven on the staff side; the
@@ -358,7 +362,7 @@ export function DashboardView() {
                       </div>
                       {days !== null && (
                         <p className={`mt-1 text-xs font-normal ${days <= 14 ? "font-medium text-[#ff9500]" : "text-[#6e6e73]"}`}>
-                          {days} {t("dash.daysLeft")}
+                          {formatNumberFor(days, lang)} {t("dash.daysLeft")}
                         </p>
                       )}
                       {pay && (
@@ -377,7 +381,7 @@ export function DashboardView() {
                     </div>
                     {s.end_date && (
                       <p className="text-[10px] text-[#6e6e73]">
-                        {new Date(s.end_date).toLocaleDateString()}
+                        {formatDateFor(s.end_date, lang)}
                       </p>
                     )}
                   </div>
@@ -405,7 +409,7 @@ export function DashboardView() {
           {weight?.latest ? (
             <>
               <p className="mt-4 text-3xl font-semibold tracking-tight">
-                {weight.latest}
+                {formatNumberFor(weight.latest, lang)}
                 <span className="ml-1 text-base font-normal text-[#6e6e73]">{t("common.kg")}</span>
               </p>
               {weight.delta !== null && weight.delta !== 0 && (
@@ -414,7 +418,7 @@ export function DashboardView() {
                     weight.direction === "down" ? "text-[#34c759]" : "text-[#ff9500]"
                   }`}
                 >
-                  {weight.direction === "down" ? "↓" : "↑"} {Math.abs(weight.delta).toFixed(1)}{" "}
+                  {weight.direction === "down" ? "↓" : "↑"} {formatNumberFor(Math.abs(weight.delta), lang, { maximumFractionDigits: 1 })}{" "}
                   {t("common.kg")} {t("dash.change")}
                 </p>
               )}
@@ -432,7 +436,7 @@ export function DashboardView() {
             {t("dash.mealPlans")}
           </span>
           <p className="mt-4 text-3xl font-semibold tracking-tight">
-            {plans.filter((p) => p.type === "meal").length}
+            {formatNumberFor(plans.filter((p) => p.type === "meal").length, lang)}
           </p>
           {plans.some((p) => p.type === "meal") && (
             <button
@@ -450,7 +454,7 @@ export function DashboardView() {
             {t("dash.workoutPlans")}
           </span>
           <p className="mt-4 text-3xl font-semibold tracking-tight">
-            {plans.filter((p) => p.type === "workout").length}
+            {formatNumberFor(plans.filter((p) => p.type === "workout").length, lang)}
           </p>
           {plans.some((p) => p.type === "workout") && (
             <button

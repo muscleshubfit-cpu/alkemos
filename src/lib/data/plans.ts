@@ -85,13 +85,14 @@ export async function activatePlan(planId: string, clientId: string) {
  .select()
  .single();
  if (error) throw new Error(error.message);
- // Notify the client
+ // Notify the client — 0093: payload feeds the bell's render-side catalog
  await createNotification(
  clientId,
  "plan_activated",
  "تم تفعيل خطة جديدة لك! ",
  "خطتك الجديدة جاهزة الآن. اطّلع عليها من صفحة خططي.",
  "/plans",
+ { plan_type: plan?.type === "meal" ? "meal" : "workout" },
  );
  // Notify coach (confirmation — routed to the client's assigned coach)
  await createAdminNotification(

@@ -17,6 +17,10 @@ import { cn } from "@/lib/utils";
 // client bell — notification links pass the shared open-redirect
 // validator before any router.push.
 import { safeNext } from "@/lib/safe-redirect";
+// NOTIF-I18N-250: staff bell rows stay verbatim (free-text staff content),
+// but their TIMESTAMPS speak the active UI language — no more en-US dates
+// inside the Arabic UI.
+import { formatDateTimeFor } from "@/lib/format-locale";
 // PHASE 182: type-only import (erased at compile) — the notification
 // functions are dynamically imported at their call sites so this
 // header-mounted bell never pulls @supabase/ssr into first-load JS.
@@ -166,7 +170,7 @@ export function AdminNotificationBell() {
  <span className="text-sm font-medium">{n.title}</span>
  {n.body && <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>}
  <span className="text-[10px] text-muted-foreground">
- {new Date(n.created_at).toLocaleString()}
+ {formatDateTimeFor(n.created_at, lang)}
  </span>
  </button>
  ))

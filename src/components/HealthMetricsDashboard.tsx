@@ -17,6 +17,9 @@ import {
  Droplet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+// NOTIF-I18N-250: metric numbers render in the ACTIVE UI language
+// (ar → Arabic-Indic digits) — same law as the admin dashboard tiles.
+import { formatNumberFor } from "@/lib/format-locale";
 import {
   hmsBmiLabel,
   hmsLocale,
@@ -140,7 +143,7 @@ export function HealthMetricsDashboard({
  </svg>
  <div className="text-center">
  <div className={cn("font-display text-xl font-bold", data.healthScore >= 70 ? "text-success" : data.healthScore >= 40 ? "text-warning" : "text-destructive")}>
- {data.healthScore}
+ {formatNumberFor(data.healthScore, lang)}
  </div>
  <div className="text-[9px] text-muted-foreground">/ 100</div>
  </div>
@@ -208,11 +211,11 @@ export function HealthMetricsDashboard({
  {s.measurements}
  </h4>
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
- <MeasurementCard label={s.waist} baseline={data.baseline.waist} current={data.current.waist} delta={data.delta.waist} lowerIsBetter={true} />
- <MeasurementCard label={s.chest} baseline={data.baseline.chest} current={data.current.chest} delta={data.delta.chest} lowerIsBetter={false} />
- <MeasurementCard label={s.hips} baseline={data.baseline.hips} current={data.current.hips} delta={data.delta.hips} lowerIsBetter={true} />
- <MeasurementCard label={s.arm} baseline={data.baseline.arm} current={data.current.arm} delta={data.delta.arm} lowerIsBetter={false} />
- <MeasurementCard label={s.neck} baseline={data.baseline.neck} current={data.current.neck} delta={data.delta.neck} lowerIsBetter={false} />
+ <MeasurementCard label={s.waist} baseline={data.baseline.waist} current={data.current.waist} delta={data.delta.waist} lowerIsBetter={true} lang={lang} />
+ <MeasurementCard label={s.chest} baseline={data.baseline.chest} current={data.current.chest} delta={data.delta.chest} lowerIsBetter={false} lang={lang} />
+ <MeasurementCard label={s.hips} baseline={data.baseline.hips} current={data.current.hips} delta={data.delta.hips} lowerIsBetter={true} lang={lang} />
+ <MeasurementCard label={s.arm} baseline={data.baseline.arm} current={data.current.arm} delta={data.delta.arm} lowerIsBetter={false} lang={lang} />
+ <MeasurementCard label={s.neck} baseline={data.baseline.neck} current={data.current.neck} delta={data.delta.neck} lowerIsBetter={false} lang={lang} />
  </div>
  </Card>
 
@@ -260,7 +263,7 @@ export function HealthMetricsDashboard({
  <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
  <div className="text-xs text-muted-foreground">{s.baseline}</div>
  <div className="mt-1 font-display text-lg font-bold">
- {data.baseline.weight ? `${data.baseline.weight} ${s.kg}` : "—"}
+ {data.baseline.weight ? `${formatNumberFor(data.baseline.weight, lang)} ${s.kg}` : "—"}
  </div>
  <div className="text-[10px] text-muted-foreground">
  {data.baseline.date ? new Date(data.baseline.date).toLocaleDateString(hmsLocale(lang), { day: "numeric", month: "short" }) : ""}
@@ -269,7 +272,7 @@ export function HealthMetricsDashboard({
  <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
  <div className="text-xs text-muted-foreground">{s.current}</div>
  <div className="mt-1 font-display text-lg font-bold">
- {data.current.weight ? `${data.current.weight} ${s.kg}` : "—"}
+ {data.current.weight ? `${formatNumberFor(data.current.weight, lang)} ${s.kg}` : "—"}
  </div>
  <div className="text-[10px] text-muted-foreground">
  {data.current.date ? new Date(data.current.date).toLocaleDateString(hmsLocale(lang), { day: "numeric", month: "short" }) : ""}
@@ -284,13 +287,13 @@ export function HealthMetricsDashboard({
  )}>
  {data.delta.weight === null ? "—" : (
  <>
- {data.delta.weight > 0 ? "+" : ""}{data.delta.weight} {s.kg}
+ {data.delta.weight > 0 ? "+" : ""}{formatNumberFor(data.delta.weight, lang)} {s.kg}
  {data.delta.weight < 0 ? <TrendingDown className="h-4 w-4" /> : data.delta.weight > 0 ? <TrendingUp className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
  </>
  )}
  </div>
  <div className="text-[10px] text-muted-foreground">
- {data.delta.weight !== null && data.baseline.weight ? `${Math.abs(Math.round((data.delta.weight / data.baseline.weight) * 100))}${s.ofBaseline}` : ""}
+ {data.delta.weight !== null && data.baseline.weight ? `${formatNumberFor(Math.abs(Math.round((data.delta.weight / data.baseline.weight) * 100)), lang)}${s.ofBaseline}` : ""}
  </div>
  </div>
  </div>
@@ -343,7 +346,7 @@ function MetricCard({
  </div>
  <div className="mt-2 flex items-baseline gap-1.5">
  <span className="font-display text-2xl font-bold">
- {current !== null ? current : "—"}
+ {current !== null ? formatNumberFor(current, lang) : "—"}
  </span>
  {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
  </div>
@@ -354,8 +357,8 @@ function MetricCard({
  improved === true ? "text-success" : improved === false ? "text-destructive" : "text-muted-foreground",
  )}>
  {improved === true ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
- {delta > 0 ? "+" : ""}{Math.abs(delta).toFixed(1)}{unit}
- <span className="text-muted-foreground">{HMS_STRINGS[lang].from} {baseline ?? "—"}</span>
+ {delta > 0 ? "+" : ""}{formatNumberFor(Math.abs(delta), lang, { maximumFractionDigits: 1 })}{unit}
+ <span className="text-muted-foreground">{HMS_STRINGS[lang].from} {baseline !== null ? formatNumberFor(baseline, lang) : "—"}</span>
  </div>
  )}
  {/* Progress bar */}
@@ -380,12 +383,14 @@ function MeasurementCard({
  current,
  delta,
  lowerIsBetter,
+ lang = "en",
 }: {
  label: string;
  baseline: number | null;
  current: number | null;
  delta: number | null;
  lowerIsBetter: boolean;
+ lang?: "en" | "ar";
 }) {
  const improved = delta !== null && delta !== 0
  ? lowerIsBetter ? delta < 0 : delta > 0
@@ -394,7 +399,7 @@ function MeasurementCard({
  <div className="rounded-lg border border-border bg-background p-3 text-center">
  <div className="text-xs text-muted-foreground">{label}</div>
  <div className="mt-1 font-display text-lg font-bold">
- {current !== null ? current : "—"}
+ {current !== null ? formatNumberFor(current, lang) : "—"}
  </div>
  {delta !== null && delta !== 0 && (
  <div className={cn(
@@ -402,7 +407,7 @@ function MeasurementCard({
  improved === true ? "text-success" : improved === false ? "text-destructive" : "text-muted-foreground",
  )}>
  {improved === true ? <TrendingDown className="h-2.5 w-2.5" /> : <TrendingUp className="h-2.5 w-2.5" />}
- {delta > 0 ? "+" : ""}{Math.abs(delta).toFixed(1)}
+ {delta > 0 ? "+" : ""}{formatNumberFor(Math.abs(delta), lang, { maximumFractionDigits: 1 })}
  </div>
  )}
  </div>

@@ -499,6 +499,7 @@ export type Database = {
           link: string | null;
           read: boolean;
           created_at: string;
+          payload: Json | null;
         };
         Insert: {
           id?: string;
@@ -509,6 +510,7 @@ export type Database = {
           link?: string | null;
           read?: boolean;
           created_at?: string;
+          payload?: Json | null;
         };
         Update: {
           type?: string;
@@ -516,6 +518,7 @@ export type Database = {
           body?: string | null;
           link?: string | null;
           read?: boolean;
+          payload?: Json | null;
         };
         Relationships: [
           { foreignKeyName: "notifications_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
@@ -532,6 +535,7 @@ export type Database = {
           target_coach_id: string | null;
           read: boolean;
           created_at: string;
+          payload: Json | null;
         };
         Insert: {
           id?: string;
@@ -543,6 +547,7 @@ export type Database = {
           target_coach_id?: string | null;
           read?: boolean;
           created_at?: string;
+          payload?: Json | null;
         };
         Update: {
           type?: string;
@@ -552,6 +557,7 @@ export type Database = {
           target_role?: string;
           target_coach_id?: string | null;
           read?: boolean;
+          payload?: Json | null;
         };
         Relationships: [
           { foreignKeyName: "admin_notifications_target_coach_id_fkey"; columns: ["target_coach_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
