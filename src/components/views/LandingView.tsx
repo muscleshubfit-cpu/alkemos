@@ -14,7 +14,6 @@ import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPost
 import { deferIdle } from "@/lib/defer-idle";
 import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
-import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -58,15 +57,19 @@ const PALETTE = {
 // ============================================================
 const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
-const TOOLS_PLUS = `${TOOLS_COUNT}+`;
 
 // ============================================================
-// HOME-REDESIGN-256 (owner order 2026-09-22): the homepage becomes an
-// 8-section discovery flow — Hero («ابنِ لياقتك. بطريقتك.») → Explore
-// Alkemos (Exercises / Nutrition / Tools / Articles) → EVO («مدربك
-// الذكي») → Training + Nutrition (ONE connected experience) → Content
-// & Knowledge → Memberships & Coaching (NO prices on the homepage) →
-// FAQ → Final CTA («ابدأ رحلتك مع Alkemos»).
+// HOME-BLUEPRINT-257 (owner-approved blueprint, 2026-09-23): the
+// homepage tells ONE progression in TEN sections —
+//   Outcome (Hero) → Explore (All-in-One paths) → Personalize (Plan)
+//   → Train → Eat → EVO → Learn → Memberships + Online Coaching
+//   → FAQ → Final CTA.
+// The owner supplies the Arabic anchor lines per section; the English
+// is INDEPENDENT native fitness-product copy — never a translation.
+// Sections from HOME-REDESIGN-256 that duplicated this structure are
+// removed/merged (Explore 4-card grid → the three-path All-in-One;
+// the experience connector card → the Personalized Plan section; the
+// tier ladder → a two-path Memberships/Coaching split).
 //
 // PRESERVED VERBATIM from the previous phases: the Marble & Chrome
 // identity (recipes + engraved icons + zero emoji), the Phase 202 real
@@ -75,9 +78,7 @@ const TOOLS_PLUS = `${TOOLS_COUNT}+`;
 // widget stays the only chat surface — the section CTA dispatches
 // openEvoFloatingChat), the blog selection logic
 // (selectHomeBlogCarousels), the paid featured-coaches strip (0037),
-// and the FAQ JSON-LD single source. Arabic and English copy are
-// written independently — natural MSA / natural international fitness
-// English — never sentence-by-sentence translation.
+// and the FAQ JSON-LD single source.
 // ============================================================
 
 // Disabled Reveal — animations were causing jarring "shake" effects
@@ -261,25 +262,24 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   const blogHref = isCoach ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
 
   // FAQ schema for SEO.
-  // HOME-REDESIGN-256: the five verified usage questions stay (every limit
-  // matches the implementation verbatim — unified plan pool, guest
-  // persistence, EVO availability, RLS law) + ONE new coaching question
-  // whose answer mirrors memberships.ts coaching features exactly (no
-  // prices on the homepage — pricing lives on the memberships and
-  // coaching pages).
+  // HOME-BLUEPRINT-257 §9: the FIVE owner-specified questions — the ones
+  // that remove hesitation before starting. Every claim mirrors the
+  // implementation (free browsing + free tier — memberships.ts; guest AI
+  // pool — unified pool decree; EVO availability with tier limits; the
+  // coaching promise — memberships.ts coaching entry) with NO prices and
+  // NO variable counts in the copy.
   // The FAQPage JSON-LD derives from the same array (single source law).
   const faqs = [
-    { q: isAr ? "هل أحتاج حسابًا أو اشتراكًا لاستخدام الأدوات؟" : "Do I need an account or subscription to use the tools?", a: isAr ? `لا — جميع أدوات المنصة (${TOOLS_COUNT} أدوات: الحاسبات، ومخطط الوجبات، ومولّدا الخطط بالذكاء الاصطناعي) مجانية بالكامل وتعمل دون تسجيل.` : `No — all ${TOOLS_COUNT} tools (the calculators, the meal planner, and the two AI planners) are completely free to use without an account.` },
-    { q: isAr ? "هل يمكنني تجربة توليد الخطط بالذكاء الاصطناعي مجانًا؟" : "Can I try AI plan generation for free?", a: isAr ? "نعم — كل زائر يملك رصيدًا شهريًا موحدًا يجمع خطط التغذية والتمارين معًا (توليدان ناجحان شهريًا) دون تسجيل، ويُحتسب التوليد الناجح فقط؛ أما المحاولات الفاشلة فلا تستهلك الرصيد."
-      : "Yes — every visitor gets one unified monthly pool for nutrition and workout plans combined (2 successful generations) with no signup. Only successful generations count; failed attempts never touch your balance." },
-    { q: isAr ? "هل تختفي خطتي إذا لم أنشئ حسابًا؟" : "Will my plan disappear if I don't create an account?", a: isAr ? "لا — خطتك تبقى على هذا الجهاز في التنقل والتحديث، ولا تختفي عند نفاد رصيد الشهر. وبحساب مجاني تُحفظ كل خطة تولّدها في حسابك بشكل دائم وتتزامن عبر أجهزتك."
-      : "No — your plan stays on this device across navigation and refreshes, and never disappears when the month's quota runs out. With a free account, every plan you generate is saved to your account permanently and synced across your devices." },
-    { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "EVO هو مدربك الذكي داخل المنصة — تراه كفقاعة محادثة في كل صفحة. اسأله عن التدريب والتغذية أو اطلب منه بناء خطة، وهو متاح للجميع بمن فيهم الزوار وفق حدود الاستخدام."
-      : "EVO is the AI coach built into Alkemos — you'll see it as a chat bubble on every page. Ask it about training or nutrition, or have it build a plan for you. It's available to everyone, visitors included, with tier-based limits." },
-    { q: isAr ? "كيف يعمل الكوتشينج أونلاين؟" : "How does online coaching work?", a: isAr ? "باقة الكوتشينج تمنحك مدربًا بشريًا يبني خطط التغذية والتمارين، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — مع كل مزايا Pro. التفاصيل الكاملة على صفحة الكوتشينج."
-      : "Coaching gives you a human coach who builds your nutrition and workout plans, follows your progress weekly, and stays in direct contact with you — with all Pro features included. Full details live on the coaching page." },
-    { q: isAr ? "هل بياناتي آمنة؟" : "Is my data safe?", a: isAr ? "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل."
-      : "Yes — access to your data is controlled at the database level itself: only you can view it, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
+    { q: isAr ? "هل يمكنني استخدام Alkemos مجانًا؟" : "Can I use Alkemos for free?", a: isAr ? "نعم. التصفح مجاني بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل دون تسجيل، وكل زائر يملك رصيدًا شهريًا لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، وEVO متاح للجميع ضمن حدود الاستخدام. وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
+      : "Yes. Browsing is completely free — the exercises, foods, programs, and tools all work without an account. Every visitor gets a monthly allowance for AI nutrition and workout plans, and EVO is open to everyone within fair-use limits. A free account saves your plans and syncs them across your devices." },
+    { q: isAr ? "كيف يعمل EVO؟" : "How does EVO work?", a: isAr ? "EVO هو المدرب الذكي داخل المنصة، وتجده في فقاعة محادثة أسفل كل صفحة. اسأله عن التدريب والتغذية، أو اطلب منه بناء خطة حول بياناتك وأهدافك، ثم عدّلها بتبديلات ذكية للوجبات والتمارين. وهو متاح للزوار والأعضاء معًا وفق حدود كل باقة."
+      : "EVO is the smart coach built into Alkemos, living in the chat bubble at the bottom of every page. Ask it about training or nutrition, have it build a plan around your data and goals, then fine-tune it with smart meal and exercise swaps. It stays available to visitors and members alike, within each tier's limits." },
+    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا. يوجد مستوى مجاني دائم إلى جانب أدوات تعمل دون حساب أصلًا. الاشتراكات اختيارية: تفتح توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وتصديرًا كاملًا، وتجربة بلا إعلانات — عندما تحتاجها فعلًا."
+      : "No. There's a permanent free tier alongside tools that work without an account in the first place. Memberships are optional — they unlock more AI plan generations, unlimited EVO chat, full export, and an ad-free experience, for when you actually want them." },
+    { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم. كل تمرين يأتي بشرح واضح وصور تُريك الأداء الصحيح، وبرامج جاهزة تبدأ من المستوى المبتدئ ويمكن تنفيذها في المنزل، وخطط الذكاء الاصطناعي تُبنى حول مستواك الحالي ومعداتك المتاحة."
+      : "Yes. Every exercise comes with clear instructions and images that show proper form, the ready-made programs start at beginner level and can be done at home, and the AI planners build around your current level and the equipment you actually have." },
+    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير، وتجربة بلا إعلانات. أما الكوتشينج فيضيف مدربًا بشريًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
+      : "A membership widens what you can do inside the platform — more AI plan generations, unlimited EVO chat, export, and no ads. Online coaching adds a human coach who builds your plans personally, follows your progress weekly, and stays in direct contact with you — with all Pro features included." },
   ];
   const faqSchema = getFAQSchema(faqs);
 
@@ -293,12 +293,15 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
       <SiteHeader variant="landing" />
 
-      {/* ===================== 1. HERO — «ابنِ لياقتك. بطريقتك.» =====================
-          HOME-REDESIGN-256: the Phase 131 overlay scene is brand identity
-          and stays (artwork + chrome logo + H1 + subtitle + account CTA +
-          seal chips). The H1 is the owner's new positioning line — the
-          Arabic is the ORIGINAL, the English is its native counterpart
-          (not a translation). The CTA stays account-driven (Phase 203). */}
+      {/* ===================== 1. HERO — Outcome =====================
+          HOME-BLUEPRINT-257 §1: the Phase 131 overlay scene is brand
+          identity and stays (artwork + chrome logo + H1 + subtitle +
+          account CTA). The H1 is the owner's outcome line — the Arabic
+          is the ORIGINAL, the English is its native counterpart (not a
+          translation). The primary CTA stays account-driven (Phase
+          203); the new secondary CTA opens the exercises library. The
+          old hero seal chips are retired — the real counts live in the
+          TRAIN and EAT sections where they belong. */}
       <section className="hero-art relative w-full">
         {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP). */}
         <div className="hero-bg" aria-hidden="true">
@@ -331,19 +334,18 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "ابنِ لياقتك. بطريقتك." : "Build your fitness. Your way."}
+            {isAr ? "خطتك للياقة تبدأ من هنا." : "Your fitness plan starts here."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
-            {/* Real counts ride the shared constants — the library grows and
-                the copy follows (Phase 195 owner directive). */}
             {isAr
-              ? `أدوات مجانية تعمل دون تسجيل، و${EX_PLUS} تمرينًا بالشرح والصور، و${FOODS_PLUS} صنف غذائي بالقيم الغذائية، وEVO مدرب ذكي يرافقك في كل خطوة — ابدأ مجانًا، وأنشئ حسابًا فقط لحفظ خططك ومزامنتها عبر أجهزتك.`
-              : `Free tools that work without an account, ${EX_PLUS} exercises with step-by-step instructions, ${FOODS_PLUS} foods with full nutrition data, and EVO, an AI coach that adapts as you progress. Start free — create an account only to save and sync your plans.`}
+              ? "تدريب، تغذية، وأدوات ذكية تساعدك على اتخاذ قرارات أفضل والتقدم نحو هدفك."
+              : "Training, nutrition, and smart tools that help you make better decisions and keep moving toward your goal."}
           </p>
 
           {/* Account-action CTA pair (Phase 203 law unchanged): guests get
               ONE primary chrome button → signup + ONE quiet login link;
-              signed-in members get their own console. */}
+              signed-in members get their own console. The blueprint adds
+              ONE secondary explore CTA → the exercises library. */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:mt-6">
             {isLoggedIn ? (
               <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
@@ -353,8 +355,15 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             ) : (
               <>
                 <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
-                  {isAr ? "أنشئ حسابك المجاني" : "Create your free account"}
+                  {isAr ? "ابدأ مجانًا" : "Start free"}
                   <span className="rtl:rotate-180">›</span>
+                </a>
+                <a
+                  href={isAr ? "/ar/exercises" : "/exercises"}
+                  className="btn-outline px-6 py-2.5 text-sm font-medium md:py-3 md:text-base"
+                >
+                  {isAr ? "استكشف التمارين" : "Explore exercises"}
+                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
                 <a
                   href="/auth?mode=login"
@@ -366,83 +375,56 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               </>
             )}
           </div>
-
-          {/* Stat chips — engraved seals (mission §3), hero-scoped smaller
-              (.hero-seals in globals.css). Proof of depth, not offers. */}
-          <div className="hero-seals mt-4 flex flex-wrap items-center justify-center gap-2 md:mt-6 md:gap-3">
-            <span className="seal-chip">
-              <EngravedIcon name="dumbbell" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
-            </span>
-            <span className="seal-chip">
-              <EngravedIcon name="hydration" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${FOODS_PLUS} صنف غذائي بالسعرات والماكروز` : `${FOODS_PLUS} foods with calories & macros`}
-            </span>
-            <span className="seal-chip">
-              <EngravedIcon name="calories" alt="" size={14} className="h-3 w-3" />
-              {isAr ? `${TOOLS_COUNT} أدوات مجانية` : `${TOOLS_COUNT} FREE TOOLS`}
-            </span>
-            <span className="seal-chip">
-              <EngravedIcon name="evo" alt="" size={14} className="h-3 w-3" />
-              {isAr ? "EVO — مدرب ذكاء اصطناعي، متاح 24/7" : "EVO — AI coach, available 24/7"}
-            </span>
-          </div>
         </div>
       </section>
 
       {/* Greek meander divider — mission §4 */}
       <div className="meander-divider" aria-hidden="true" />
 
-      {/* ===================== 2. EXPLORE ALKEMOS =====================
-          The page's discovery hub (HOME-REDESIGN-256 section 2): four
-          real doors into the platform — Exercises / Nutrition / Tools /
-          Articles. Each card is a full-link into its live hub, carries
-          its engraved icon + a real volume chip (dynamic constants),
-          and one plain-language description. Replaces the retired
-          quick-nav chips row (anchors → real routes). */}
-      <section id="explore" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      {/* ===================== 2. ALL-IN-ONE — three paths =====================
+          HOME-BLUEPRINT-257 §2: how Alkemos is USED — three clear paths,
+          not a feature catalog: Train / Eat / Track & Plan. Each card is
+          one full link into its real hub with one benefit line. This
+          replaces the retired Explore 4-card grid (Articles get their
+          own LEARN section later — the paths stay focused on usage). */}
+      <section id="paths" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "استكشف Alkemos" : "Explore Alkemos"}
+              {isAr ? "منصة واحدة، ثلاثة مسارات." : "One platform, three paths."}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "أربعة أبواب إلى كل ما تقدمه المنصة — ابدأ من حيث يناسبك."
-                : "Four doors into everything the platform offers — start wherever it suits you."}
+                ? "ثلاثة مسارات تخدم هدفك — ابدأ من حيث أنت، وانتقل بينها متى احتجت."
+                : "Three paths toward the same goal — start where you are and move between them as you need."}
             </p>
           </div>
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
             {(isAr
               ? [
-                  { icon: "dumbbell", title: "التمارين", desc: "تمارين لكل مجموعة عضلية بشرح واضح وصور توضح الأداء الصحيح.", stat: `${EX_PLUS} تمرين`, link: "تصفح التمارين ›", href: "/ar/exercises" },
-                  { icon: "protein", title: "التغذية", desc: "أطعمة بقيمها الكاملة: سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام.", stat: `${FOODS_PLUS} صنف`, link: "تصفح الأطعمة ›", href: "/ar/foods" },
-                  { icon: "calories", title: "أدوات مجانية", desc: "حاسبات ومخططات جاهزة تعطيك أهدافك اليومية في دقائق — دون تسجيل.", stat: `${TOOLS_PLUS} أدوات`, link: "افتح الأدوات ›", href: "/ar/tools" },
-                  { icon: "scroll", title: "المقالات", desc: "التدريب والتغذية بأسلوب علمي واضح يخدم رحلتك.", stat: "جديدة أسبوعيًا", link: "اقرأ المقالات ›", href: "/ar/blog" },
+                  { icon: "dumbbell", title: "تدرّب", desc: "تمارين لكل مجموعة عضلية بشرح وصور، وبرامج جاهزة تنقلك من البداية إلى التقدّم.", link: "ابدأ التدريب ›", href: "/ar/exercises" },
+                  { icon: "protein", title: "تغذَّ", desc: "سعرات وماكروز لكل صنف، لتبني وجبات تناسب هدفك بدل التخمين.", link: "ابدأ التغذية ›", href: "/ar/foods" },
+                  { icon: "calories", title: "خطّط وتتبّع", desc: "حاسبات ومخططات ذكية تضع خطتك وأهدافك أمامك، وتحدّثها مع تغيّر ظروفك.", link: "اكتشف الأدوات ›", href: "/ar/tools" },
                 ]
               : [
-                  { icon: "dumbbell", title: "Exercises", desc: "Step-by-step instructions and clear images for every muscle group.", stat: `${EX_PLUS} exercises`, link: "Browse exercises ›", href: "/exercises" },
-                  { icon: "protein", title: "Nutrition", desc: "Calories, protein, carbs, and fat for every food — per 100g.", stat: `${FOODS_PLUS} foods`, link: "Browse foods ›", href: "/foods" },
-                  { icon: "calories", title: "Free tools", desc: "Calculators and planners that hand you your daily targets in minutes — no signup.", stat: `${TOOLS_PLUS} tools`, link: "Open the tools ›", href: "/tools" },
-                  { icon: "scroll", title: "Articles", desc: "Training and nutrition explained clearly, the way it matters to your journey.", stat: "New every week", link: "Read the articles ›", href: "/blog" },
+                  { icon: "dumbbell", title: "Train", desc: "Exercises for every muscle group with instructions and images, plus ready-made programs that carry you from day one to steady progress.", link: "Start training ›", href: "/exercises" },
+                  { icon: "protein", title: "Eat", desc: "Calories and macros for every food, so you build meals around your goal instead of guessing.", link: "Start eating smarter ›", href: "/foods" },
+                  { icon: "calories", title: "Track & Plan", desc: "Calculators and smart planners that put your targets and plan in front of you — and update them as your circumstances change.", link: "Open the tools ›", href: "/tools" },
                 ]
-            ).map((card) => (
-              <Reveal key={card.title}>
+            ).map((path) => (
+              <Reveal key={path.title}>
                 <a
-                  href={card.href}
-                  className="marble-card group flex h-full flex-col p-5 transition-transform duration-300 hover:-translate-y-0.5 md:p-6"
+                  href={path.href}
+                  className="marble-card group flex h-full flex-col p-6 transition-transform duration-300 hover:-translate-y-0.5 md:p-7"
                 >
-                  <EngravedIcon name={card.icon} alt="" size={48} className="h-12 w-12 shrink-0" />
-                  <h3 className="mt-4 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                    {card.title}
+                  <EngravedIcon name={path.icon} alt="" size={48} className="h-12 w-12 shrink-0" />
+                  <h3 className="mt-4 text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                    {path.title}
                   </h3>
                   <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                    {card.desc}
+                    {path.desc}
                   </p>
-                  <div className="mt-4 flex items-center justify-between gap-2">
-                    <span className="seal-chip py-1! text-[10px]!">{card.stat}</span>
-                    <span className="chrome-text shrink-0 text-sm font-semibold">{card.link}</span>
-                  </div>
+                  <span className="chrome-text mt-4 text-sm font-semibold">{path.link}</span>
                 </a>
               </Reveal>
             ))}
@@ -450,16 +432,215 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 3. EVO — مدربك الذكي =====================
-          HOME-REDESIGN-256 section 3 (owner order): EVO gets ONE section
-          that introduces the smart coach — while the EVO CHAT SURFACE LAW
-          (2026-08-27) stays untouched: the floating widget is the only
-          chat surface and this section's CTA opens it via
-          openEvoFloatingChat(). The card revives the Phase 127 warrior-art
-          recipe: text on the inline-start, warrior art dissolving into
-          the marble on the inline-end (.evo-art-mask, mirrored in RTL).
-          Quiet secondary link → the full /evo page. */}
-      <section id="evo" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+      {/* ===================== 3. PERSONALIZED PLAN =====================
+          HOME-BLUEPRINT-257 §3: how personalization works, briefly and
+          honestly — goal, level, equipment, preferences in; a nutrition
+          + workout plan out; adjustable as things change. Merges the
+          retired connector card (the AI planners ARE the personalized
+          plan builders — their locale-aware hrefs stay pinned by the
+          ai-meal-planner canary). The three steps mirror how the
+          planners actually flow. */}
+      <section id="plan" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="marble-card mx-auto max-w-4xl p-6 md:p-10">
+            <div className="text-center">
+              <span className="seal-chip">
+                <EngravedIcon name="mealplanner" alt="" size={12} className="h-3 w-3" />
+                {isAr ? "مخططات ذكية" : "SMART PLANNERS"}
+              </span>
+              <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+                {isAr ? "خطة تناسبك، لا خطة تناسب الجميع." : "A plan built for you, not for everyone."}
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? "Alkemos يبني خطتك حول ما أنت عليه فعلًا: هدفك، مستواك، معداتك، ووقتك — لا حول قوالب عامة."
+                  : "Alkemos builds your plan around where you actually are — your goal, your level, your equipment, and your time. Not around generic templates."}
+              </p>
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
+              {(isAr
+                ? [
+                    { n: "01", t: "أجب عن أسئلة قصيرة", d: "عن هدفك ومستواك ومعداتك وتفضيلاتك." },
+                    { n: "02", t: "استلم خطتك", d: "خطة تغذية وتمارين مبنية على إجاباتك." },
+                    { n: "03", t: "عدّلها كلما تقدّمت", d: "تتغير أهدافك أو ظروفك؟ تُحدَّث الخطة معك." },
+                  ]
+                : [
+                    { n: "01", t: "Answer a few questions", d: "Your goal, level, equipment, and preferences." },
+                    { n: "02", t: "Get your plan", d: "A nutrition and workout plan shaped by your answers." },
+                    { n: "03", t: "Adjust it as you progress", d: "Goals or circumstances change? The plan moves with you." },
+                  ]
+              ).map((step) => (
+                <div key={step.n} className="text-center sm:text-start">
+                  <span className="chrome-text text-lg font-semibold">{step.n}</span>
+                  <p className="mt-1 text-base font-semibold" style={{ color: PALETTE.textPrim }}>{step.t}</p>
+                  <p className="mt-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{step.d}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:px-7">
+                {isAr ? "أنشئ خطتي" : "Create My Plan"}
+              </a>
+              <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                {isAr ? "مخطط التمارين الذكي ›" : "AI Workout Planner ›"}
+              </a>
+            </div>
+            <p className="mt-5 text-center text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+              {isAr
+                ? "تعمل دون تسجيل — وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
+                : "Works without an account — and a free account saves your plans and syncs them across devices."}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== 4. TRAIN =====================
+          HOME-BLUEPRINT-257 §4: the exercise library gets its own
+          section — the owner's headline, the real library count
+          (EX_PLUS rides the verified constant), the muscle-group
+          browse chips with live counts, and the 8 real curated lifts
+          as samples. The ready-made programs stay as a compact
+          sub-row (a starting point, not a separate section). All
+          sample data arrives as server props (getHomeSamples) — the
+          bundle law holds. */}
+      <section id="train" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
+              {isAr ? `${EX_PLUS} تمرين` : `${EX_PLUS} exercises`}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "تدرّب بثقة." : "Train with confidence."}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? "كل تمرين بشرح واضح وصور تُريك الأداء الصحيح — مصنّف حسب المجموعة العضلية والمستوى والمعدات."
+                : "Every exercise with clear instructions and images that show proper form — organized by muscle group, level, and equipment."}
+            </p>
+          </div>
+
+          <div className="mt-10">
+            {/* Browse paths — muscle-group chips with real live counts
+                (Phase 203 law preserved); the section CTA follows the
+                samples below. */}
+            <div className="mt-6">
+              <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+                {isAr ? "تصفّح حسب المجموعة العضلية" : "Browse by muscle group"}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                {[
+                  { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
+                  { labelAr: "ظهر", labelEn: "Back", slug: "back" },
+                  { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
+                  { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
+                  { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
+                  { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
+                  { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
+                ].map((cat) => (
+                  <a
+                    key={cat.slug}
+                    href={`${isAr ? "/ar" : ""}/exercises?cat=${cat.slug}`}
+                    className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
+                    title={isAr ? `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} exercises`}
+                  >
+                    {isAr ? cat.labelAr : cat.labelEn}
+                    <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+            {/* REAL exercise samples — 8 curated lifts (one per muscle
+                family), each card links to its /exercises/[slug] page. */}
+            <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {samples.exercises.map((ex) => (
+                <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
+              ))}
+            </div>
+            {/* ONE focused section CTA (blueprint §4). */}
+            <div className="mt-8 text-center">
+              <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
+                {isAr ? "استكشف مكتبة التمارين" : "Explore the exercise library"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </a>
+            </div>
+
+            {/* REAL program samples — 3 curated programs from the live
+                WORKOUT_PROGRAMS array (real images, real splits). A quiet
+                starting-point row inside TRAIN — not a separate section. */}
+            <div className="mt-14 text-center">
+              <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                {isAr ? "تفضّل البدء بخطة جاهزة؟" : "Prefer a ready-made starting point?"}
+              </h3>
+              <p className="mx-auto mt-2 max-w-lg text-sm font-normal md:text-base" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? "برامج كاملة بجدول أسبوعي وتمارين ومجموعات — اتبعها كما هي أو اجعلها نقطة البداية."
+                  : "Complete programs with a weekly schedule, exercises, and sets — follow them as-is or make them your starting point."}
+              </p>
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+              {samples.programs.map((prog) => (
+                <LandingProgramCard key={prog.slug} prog={prog} isAr={isAr} />
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <a href={isAr ? "/ar/programs" : "/programs"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
+                {isAr ? "كل البرامج ›" : "View all programs ›"}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== 5. EAT =====================
+          HOME-BLUEPRINT-257 §5: the food database gets its own section —
+          the owner's headline, the real database count (FOODS_PLUS rides
+          the verified constant), and the 8 real per-100g staples as
+          samples (server props — the bundle law holds). */}
+      <section id="eat" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="protein" alt="" size={12} className="h-3 w-3" />
+              {isAr ? `${FOODS_PLUS} صنف غذائي` : `${FOODS_PLUS} foods`}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "اعرف ما تأكل. خطط لما تحتاجه." : "Know what you eat. Plan what you need."}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام — قاعدة أطعمة تجعل بناء وجباتك وحساب احتياجك أمرًا واضحًا."
+                : "Calories, protein, carbs, and fat for every 100g — a food database that makes building meals and hitting your targets straightforward."}
+            </p>
+          </div>
+          {/* REAL food samples — 8 curated staples spanning the food
+              families, same macro presentation as the /foods explorer. */}
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {samples.foods.map((food) => (
+              <LandingFoodCard key={food.slug} food={food} isAr={isAr} />
+            ))}
+          </div>
+          {/* ONE focused section CTA (blueprint §5). */}
+          <div className="mt-8 text-center">
+            <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
+              {isAr ? "استكشف قاعدة الأطعمة" : "Explore the food database"}
+              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== 6. EVO — the intelligent layer =====================
+          HOME-BLUEPRINT-257 §6: EVO is positioned as the intelligent
+          layer connecting the whole experience — NOT another feature
+          card — so the numbered capability rows are retired. The EVO
+          CHAT SURFACE LAW (2026-08-27) stays untouched: the floating
+          widget is the only chat surface and this section's CTA opens
+          it via openEvoFloatingChat(). The card keeps the Phase 127
+          warrior-art recipe: text on the inline-start, warrior art
+          dissolving into the marble on the inline-end (.evo-art-mask,
+          mirrored in RTL). Quiet secondary link → the full /evo page. */}
+      <section id="evo" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="marble-card marble-card--unclipped relative overflow-hidden p-6 md:p-10 lg:p-12">
             {/* Desktop warrior art — inline-end, masked into the marble. */}
@@ -476,38 +657,21 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             <div className="relative max-w-xl">
               <span className="seal-chip">
                 <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
-                {isAr ? "مدربك الذكي" : "YOUR AI COACH"}
+                {isAr ? "مدرب ذكي في كل صفحة" : "A SMART COACH ON EVERY PAGE"}
               </span>
               <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "EVO — مدربك الذكي" : "EVO — Your AI Coach"}
+                {isAr ? "مدربك الذكي، عندما تحتاجه." : "Your smart coach, when you need one."}
               </h2>
               <p className="mt-4 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "EVO مدرب ذكي داخل Alkemos: اسأله عن التدريب والتغذية، أو اطلب منه بناء خطة تناسب بياناتك وأهدافك، ثم عدّلها بتبديلات ذكية كلما تقدمت. تجده في فقاعة المحادثة أسفل كل صفحة."
-                  : "EVO is the smart coach built into Alkemos. Ask it about training or nutrition, have it build a plan around your data and goals, then refine it with smart swaps as you progress. You'll find it in the chat bubble on every page."}
+                  ? "يساعدك EVO على بناء خطتك، تعديلها، واتخاذ قرارات أفضل مع تغيّر أهدافك واحتياجاتك."
+                  : "EVO helps you build your plan, adjust it, and make better decisions as your goals and needs change."}
               </p>
-              <div className="mt-6 space-y-4">
-                {(isAr
-                  ? [
-                      { n: "01", t: "إجابات على قياس بياناتك", d: "يجيب بناءً على أهدافك وقياساتك، لا بإجابات عامة تناسب الجميع." },
-                      { n: "02", t: "خطط تتعدّل معك", d: "استبدل أي وجبة أو تمرينًا ببديل يناسب مستواك ومعداتك بضغطة واحدة." },
-                      { n: "03", t: "متاح للجميع", d: "ابدأ المحادثة فورًا دون تسجيل — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق." },
-                    ]
-                  : [
-                      { n: "01", t: "Answers sized to your data", d: "Responses shaped by your goals and measurements — not one-size-fits-all advice." },
-                      { n: "02", t: "Plans that move with you", d: "Swap any meal or exercise for an alternative that matches your level and equipment." },
-                      { n: "03", t: "Open to everyone", d: "Start chatting instantly — no signup. Subscribers unlock a bigger allowance and deeper features." },
-                    ]
-                ).map((cap) => (
-                  <div key={cap.n} className="flex items-start gap-4">
-                    <span className="chrome-text shrink-0 text-lg font-semibold leading-snug">{cap.n}</span>
-                    <div>
-                      <p className="text-base font-semibold" style={{ color: PALETTE.textPrim }}>{cap.t}</p>
-                      <p className="mt-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{cap.d}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+                {isAr
+                  ? "تجده في فقاعة المحادثة أسفل كل صفحة — يعمل مع ما تتدرّب به، وما تأكله، وما تخطط له."
+                  : "You'll find it in the chat bubble at the bottom of every page — working alongside whatever you train, eat, and plan."}
+              </p>
               {/* EVO CHAT SURFACE LAW: the button OPENS THE WIDGET — it is
                   not a link to a chat page (the /chat route is retired). */}
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
@@ -524,7 +688,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                     height={32}
                     className="h-8 w-8 rounded-full object-cover"
                   />
-                  <span>{isAr ? "تحدث مع EVO" : "Chat with EVO"}</span>
+                  <span>{isAr ? "جرّب EVO" : "Try EVO"}</span>
                 </button>
                 <a
                   href={isAr ? "/ar/evo" : "/evo"}
@@ -552,194 +716,23 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 4. TRAINING + NUTRITION — ONE EXPERIENCE =====================
-          HOME-REDESIGN-256 section 4 (owner order): the two libraries are
-          ONE connected fitness experience now — the section frame says WHY
-          they belong together, the training block keeps its real samples
-          (muscle chips with live counts + 8 curated lifts + ready-made
-          programs), the AI planner card becomes the CONNECTOR between the
-          two halves (it literally builds both), and the food database
-          closes the loop with its real per-100g samples. All sample data
-          arrives as server props (getHomeSamples) — the bundle law holds. */}
-      <section id="experience" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "التدريب والتغذية في تجربة واحدة" : "Training and nutrition — one connected experience"}
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "العضلة تُبنى بالتمرين وتُغذّى بالطعام — اختر تمارينك، وخطط وجباتك، ودع الخطة الذكية تربط بينهما."
-                : "Muscle is built in training and fed in the kitchen — pick your exercises, plan your meals, and let the smart planner connect the two."}
-            </p>
-          </div>
-
-          {/* ── Training block ── */}
-          <div className="mt-12">
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                {isAr ? "مكتبة التدريب" : "The Training Library"}
-              </h3>
-              <p className="mx-auto mt-2 max-w-xl text-sm font-normal md:text-base" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? `${EX_PLUS} تمرينًا بالشرح والصور لكل مجموعة عضلية، وبرامج جاهزة لكل مستوى.`
-                  : `${EX_PLUS} exercises with instructions and images for every muscle group, plus ready-made programs for every level.`}
-              </p>
-            </div>
-            {/* Browse paths above the samples (Phase 203 law preserved):
-                muscle-group chips with real counts + ONE All Exercises CTA. */}
-            <div className="mt-6">
-              <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-                {isAr ? "تصفّح حسب المجموعة العضلية" : "Browse by muscle group"}
-              </p>
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                {[
-                  { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
-                  { labelAr: "ظهر", labelEn: "Back", slug: "back" },
-                  { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
-                  { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
-                  { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
-                  { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-                  { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
-                ].map((cat) => (
-                  <a
-                    key={cat.slug}
-                    href={`${isAr ? "/ar" : ""}/exercises?cat=${cat.slug}`}
-                    className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
-                    title={isAr ? `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0} exercises`}
-                  >
-                    {isAr ? cat.labelAr : cat.labelEn}
-                    <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[cat.slug] ?? 0}</span>
-                  </a>
-                ))}
-              </div>
-              <div className="mt-5 text-center">
-                <a
-                  href={isAr ? "/ar/exercises" : "/exercises"}
-                  className="btn-outline px-6 py-2.5 text-sm font-medium"
-                >
-                  {isAr ? "كل التمارين" : "All Exercises"}
-                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
-                </a>
-              </div>
-            </div>
-            {/* REAL exercise samples — 8 curated lifts (one per muscle
-                family), each card links to its /exercises/[slug] page. */}
-            <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {samples.exercises.map((ex) => (
-                <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
-              ))}
-            </div>
-
-            {/* REAL program samples — 3 curated programs from the live
-                WORKOUT_PROGRAMS array (real images, real splits). */}
-            <div className="mt-14 text-center">
-              <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                {isAr ? "برامج جاهزة لكل مستوى" : "Ready-Made Programs for Every Level"}
-              </h3>
-              <p className="mx-auto mt-2 max-w-lg text-sm font-normal md:text-base" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? "برامج كاملة بجدول أسبوعي وتمارين ومجموعات — اتبعها كما هي أو اجعلها نقطة البداية."
-                  : "Complete programs with a weekly schedule, exercises, and sets — follow them as-is or make them your starting point."}
-              </p>
-            </div>
-            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-              {samples.programs.map((prog) => (
-                <LandingProgramCard key={prog.slug} prog={prog} isAr={isAr} />
-              ))}
-            </div>
-            <div className="mt-8 text-center">
-              <a href={isAr ? "/ar/programs" : "/programs"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "كل البرامج ›" : "View all programs ›"}
-              </a>
-            </div>
-          </div>
-
-          {/* ── The connector — ONE AI plan for both halves ──
-              The AI planner card (the flagship free entry, Phase 185/194
-              benefit-first copy preserved in spirit) now sits BETWEEN the
-              training and nutrition blocks: it is the bridge that turns
-              two libraries into one experience. */}
-          <Reveal delay={100}>
-            <div className="marble-card mt-14 p-6 md:p-8">
-              <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-start">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
-                  <EngravedIcon name="evo" alt="" size={30} className="h-7 w-7" />
-                </span>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "خطة واحدة تجمع التدريب والتغذية" : "One plan for training and nutrition"}
-                  </h3>
-                  <p className="mt-2 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
-                    {isAr
-                      ? "أنشئ خطة تغذية وتمارين مخصصة لأهدافك وبياناتك وتفضيلاتك — ثم طوّرها مع تقدمك."
-                      : "Generate a nutrition and workout plan built around your goals, body, and preferences — then adjust it as you progress."}
-                  </p>
-                  <p className="mt-2 text-xs font-normal leading-relaxed md:text-sm" style={{ color: PALETTE.textMuted }}>
-                    {isAr
-                      ? "تعمل دون تسجيل وتبقى خطتك على جهازك — وبحساب مجاني تُحفظ وتتزامن عبر أجهزتك."
-                      : "Works without an account — your plan stays on this device. A free account saves and syncs it everywhere."}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-col gap-2">
-                  <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-5 py-2.5 text-sm">
-                    {isAr ? "أنشئ خطتي" : "Create My Plan"}
-                  </a>
-                  <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-5 py-2.5 text-sm font-normal">
-                    {isAr ? "مخطط التمارين الذكي ›" : "AI Workout Planner ›"}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* ── Nutrition block ── */}
-          <div className="mt-14">
-            <div className="text-center">
-              <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                {isAr ? "قاعدة الأطعمة — بالسعرات والماكروز" : "The Food Database — Calories & Macros"}
-              </h3>
-              <p className="mx-auto mt-2 max-w-xl text-sm font-normal md:text-base" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? `${FOODS_PLUS} صنفًا غذائيًا بسعراته وماكروزه لكل 100 جرام — ابنِ وجباتك بمعرفة كاملة.`
-                  : `${FOODS_PLUS} foods with calories and macros per 100g — build your meals knowing exactly what goes in.`}
-              </p>
-            </div>
-            {/* REAL food samples — 8 curated staples spanning the food
-                families, same macro presentation as the /foods explorer. */}
-            <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              {samples.foods.map((food) => (
-                <LandingFoodCard key={food.slug} food={food} isAr={isAr} />
-              ))}
-            </div>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
-              <a href={isAr ? "/ar/foods" : "/foods"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "تصفّح كل الأطعمة ›" : "Browse all foods ›"}
-              </a>
-              <a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "ابنِ وجباتك في مخطط الوجبات ›" : "Build meals in the Meal Planner ›"}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== 5. CONTENT & KNOWLEDGE =====================
-          HOME-REDESIGN-256 section 5: the blog stays a first-class part
-          of the experience (Phase 202 owner order). Selection logic
-          (selectHomeBlogCarousels) untouched; the whole section renders
-          only when posts loaded (the needsPosts law). */}
+      {/* ===================== 7. LEARN =====================
+          HOME-BLUEPRINT-257 §7: a focused selection of real articles —
+          the blog stays a first-class part of the experience (Phase
+          202 owner order). Selection logic (selectHomeBlogCarousels)
+          untouched; the whole section renders only when posts loaded
+          (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="knowledge" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "المحتوى والمعرفة" : "Content & Knowledge"}
+                {isAr ? "تعلّم. طبّق. تقدّم." : "Learn. Apply. Progress."}
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "مقالات تشرح ما يهم رحلتك فعلًا — من أساسيات التدريب إلى تفاصيل التغذية — وتُنشر أسبوعيًا بالعربية والإنجليزية."
-                  : "Articles that explain what actually matters for your journey — training fundamentals to nutrition details — published weekly in English and Arabic."}
+                  ? "مقالات بالعربية والإنجليزية تشرح التدريب والتغذية بأسلوب واضح — اقرأ ما يخص هدفك، وطبّقه في تدريبك وفي طبقك."
+                  : "Articles in English and Arabic that explain training and nutrition in plain terms — read what matters for your goal and put it to work in your training and on your plate."}
               </p>
             </div>
             {/* ONE carousel — featured posts lead the row as dark cards,
@@ -752,8 +745,9 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               />
             </div>
             <div className="mt-6 text-center">
-              <a href={blogHref} className="text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "كل المقالات ›" : "View all articles ›"}
+              <a href={blogHref} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                {isAr ? "استكشف المحتوى" : "Explore the articles"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
               </a>
             </div>
           </div>
@@ -764,97 +758,88 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           exploration ends here, the services act begins. */}
       <div className="meander-divider" aria-hidden="true" />
 
-      {/* ===================== 6. MEMBERSHIPS & COACHING — NO PRICES =====================
-          HOME-REDESIGN-256 section 6 (owner order): ONE section combining
-          memberships + online coaching. The four real tiers render from
-          the single source (memberships.ts — taglines + feature lists,
-          display strings only) with NO prices anywhere — pricing and the
-          subscribe flows stay on /memberships and /coaching (both remain
-          reachable from the header drawer and the footer). One focused
-          CTA pair closes the section. The paid featured-coaches strip
-          (0037) follows — it renders only when active ads exist. */}
+      {/* ===================== 8. MEMBERSHIPS + ONLINE COACHING =====================
+          HOME-BLUEPRINT-257 §8: ONE section, TWO paths — Memberships and
+          Online Coaching — briefly explained. NO prices anywhere, NO
+          pricing table (the tier ladder is retired; the real tier NAMES
+          still ride memberships.ts as chips, and the coaching card
+          states the real Pro-inheritance). Pricing and the subscribe
+          flows stay on /memberships and /coaching (both remain
+          reachable from the header drawer and the footer). The paid
+          featured-coaches strip (0037) follows — it renders only when
+          active ads exist. */}
       <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "الباقات والكوتشينج" : "Memberships & Coaching"}
+              {isAr ? "خذ خطوتك التالية." : "Take your next step."}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "ابدأ مجانًا وارتقِ متى احتجت — كل باقة تفتح قدرات أوسع، وباقة الكوتشينج تضع مدربًا بشريًا إلى جانبك."
-                : "Start free and level up when you're ready — each membership unlocks more room to work, and Coaching puts a human coach in your corner."}
+                ? "مساران بحسب حاجتك: باقات توسّع قدراتك داخل المنصة، أو كوتشينج أونلاين يضع مدربًا إلى جانبك."
+                : "Two paths depending on what you need: memberships that widen what the platform does for you, or online coaching that puts a coach in your corner."}
             </p>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {MEMBERSHIPS.map((tier) => {
-              const isPro = tier.id === "pro";
-              const isCoaching = tier.id === "coaching";
-              const isFree = tier.id === "free";
-              const features = isAr ? tier.features : tier.featuresEn;
-              return (
-                <div
-                  key={tier.id}
-                  className={`marble-card marble-card--unclipped relative flex flex-col p-6 ${isPro ? "text-[#F5F5F7]" : ""}`}
-                  style={
-                    isPro
-                      ? {
-                          backgroundColor: "#0B0B0D",
-                          color: "#F5F5F7",
-                          border: "2px solid transparent",
-                          backgroundImage:
-                            "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
-                          backgroundOrigin: "border-box",
-                          backgroundClip: "padding-box, border-box",
-                        }
-                      : undefined
-                  }
-                >
-                  {isPro && (
-                    <span className="seal-chip absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0B0B0D]" style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}>
-                      <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
-                      {isAr ? "موصى بها" : "Recommended"}
-                    </span>
-                  )}
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-xl font-bold tracking-tight">{isAr ? tier.nameAr : tier.nameEn}</h3>
-                    {isFree && <span className="seal-chip py-1! text-[10px]!">{isAr ? "مجاني للأبد" : "Free forever"}</span>}
-                  </div>
-                  {isCoaching && (
-                    <span className="seal-chip mt-2 py-1! text-[10px]!">
-                      <EngravedIcon name="laurel" alt="" size={11} className="h-3 w-3" />
-                      {isAr ? "كوتشينج أونلاين" : "ONLINE COACHING"}
-                    </span>
-                  )}
-                  <p className={`mt-2 text-xs font-normal leading-relaxed ${isPro ? "text-[#9BA0A6]" : ""}`} style={isPro ? undefined : { color: PALETTE.textSec }}>
-                    {isAr ? tier.taglineAr : tier.taglineEn}
-                  </p>
-                  <ul className="mt-4 flex-1 space-y-2.5">
-                    {features.slice(0, 4).map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs font-normal leading-relaxed" style={isPro ? { color: "#C9CED3" } : { color: PALETTE.textSec }}>
-                        <EngravedIcon name="checkseal" alt="" size={14} className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {isPro && <p className="mt-4 text-[11px] font-normal" style={{ color: "#9BA0A6" }}>{isAr ? "كل التفاصيل على صفحة الباقات" : "Full details on the memberships page"}</p>}
-                </div>
-              );
-            })}
-          </div>
-          {/* ONE focused CTA pair for the whole section — pricing and
-              subscribe flows live on the destination pages. */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-7 py-3 text-sm md:px-8">
-              {isAr ? "اكتشف الباقات" : "See memberships"}
-              <span className="rtl:rotate-180">›</span>
-            </a>
-            <a
-              href={isAr ? "/ar/coaching" : "/coaching"}
-              className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textSec }}
-            >
-              {isAr ? "تفاصيل الكوتشينج ›" : "Explore coaching ›"}
-            </a>
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Path 1 — Memberships: the real tier names from the single
+                source (memberships.ts); capabilities described without
+                prices or variable counts. */}
+            <div className="marble-card flex flex-col p-6 md:p-8">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
+                  <EngravedIcon name="laurel" alt="" size={26} className="h-6 w-6" />
+                </span>
+                <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? "الباقات" : "Memberships"}
+                </h3>
+              </div>
+              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وحفظ وتصدير أوسع، وتجربة بلا إعلانات."
+                  : "Start on a free tier that stays free, and move up when you need more room — more AI plan generations, unlimited EVO chat, bigger save capacity with export, and an ad-free experience."}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {MEMBERSHIPS.filter((tier) => !tier.separate).map((tier) => (
+                  <span key={tier.id} className="seal-chip py-1! text-[10px]!">{isAr ? tier.nameAr : tier.nameEn}</span>
+                ))}
+              </div>
+              <div className="mt-6">
+                <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                  {isAr ? "تفاصيل الباقات ›" : "See memberships ›"}
+                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                </a>
+              </div>
+            </div>
+            {/* Path 2 — Online Coaching: the real coaching promise from
+                memberships.ts — human-built plans, weekly follow-up,
+                direct contact, all Pro features inherited. */}
+            <div className="marble-card flex flex-col p-6 md:p-8">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
+                  <EngravedIcon name="runner" alt="" size={26} className="h-6 w-6" />
+                </span>
+                <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? "الكوتشينج أونلاين" : "Online Coaching"}
+                </h3>
+              </div>
+              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? "مدرب بشري يبني لك خطط التغذية والتمارين، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — مع كل مزايا برو."
+                  : "A human coach who builds your nutrition and workout plans, follows your progress week by week, and stays in direct contact — with all Pro features included."}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="seal-chip py-1! text-[10px]!">
+                  <EngravedIcon name="checkseal" alt="" size={11} className="h-3 w-3" />
+                  {isAr ? "يشمل كل مزايا برو" : "ALL PRO FEATURES INCLUDED"}
+                </span>
+              </div>
+              <div className="mt-6">
+                <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                  {isAr ? "تفاصيل الكوتشينج ›" : "Explore coaching ›"}
+                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -911,14 +896,14 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </section>
       )}
 
-      {/* ===================== 7. FAQ — usage questions =====================
-          Six verified questions (five carried over + the new coaching
-          one) — every claimed limit matches the implementation. The
-          FAQPage JSON-LD derives from the same array above. */}
+      {/* ===================== 9. FAQ — hesitation-removers =====================
+          The FIVE owner-specified questions; every claim mirrors the
+          implementation. The FAQPage JSON-LD derives from the same
+          array above (single source law). */}
       <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
-            {isAr ? "أسئلة شائعة وإجاباتها" : "Frequently Asked Questions"}
+            {isAr ? "أسئلة قبل أن تبدأ." : "Questions, answered."}
           </h2>
           <Accordion type="single" collapsible className="mt-12">
             {faqs.map((faq, i) => (
@@ -935,11 +920,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 8. FINAL CTA — «ابدأ رحلتك مع Alkemos» =====================
-          HOME-REDESIGN-256 section 8: one quiet dark-marble band closes
-          the page — the Arabic is the owner's exact line, the English is
-          its native counterpart. The CTA stays account-driven (the same
-          single action as the hero — no new destinations introduced). */}
+      {/* ===================== 10. FINAL CTA — «ابدأ اليوم. وابنِ روتينًا يناسبك.» =====================
+          HOME-BLUEPRINT-257 §10: one quiet dark-marble band closes the
+          page — the Arabic is the owner's exact line, the English is
+          its native counterpart. ONE focused action, account-driven
+          (the same single action as the hero — no new destinations). */}
       <section className="bg-[var(--bg)] px-4 py-12 md:py-20">
         <div
           className="relative mx-auto max-w-6xl overflow-hidden rounded-[var(--radius-chrome)]"
@@ -966,13 +951,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           />
           <div className="relative flex flex-col items-center px-6 py-12 text-center md:py-16">
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
-              {isAr ? "ابدأ رحلتك مع Alkemos" : "Start your journey with Alkemos"}
+              {isAr ? "ابدأ اليوم. وابنِ روتينًا يناسبك." : "Start today. Build a routine that fits you."}
             </h2>
-            <p className="mt-4 max-w-xl text-base font-normal leading-relaxed md:text-lg" style={{ color: "#B9BEC4" }}>
-              {isAr
-                ? "كل ما تحتاجه لبناء لياقتك في مكان واحد — ابدأ اليوم، وتقدّم في وتيرتك."
-                : "Everything you need to build your fitness, in one place — start today and move at your own pace."}
-            </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
               {isLoggedIn ? (
                 <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
@@ -982,7 +962,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               ) : (
                 <>
                   <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
-                    {isAr ? "أنشئ حسابك المجاني" : "Create your free account"}
+                    {isAr ? "ابدأ مجانًا" : "Start free"}
                     <span className="rtl:rotate-180">›</span>
                   </a>
                   <a

@@ -6,6 +6,25 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: HOME-BLUEPRINT-257-2026-09-23
+Agent: Super Z (owner session)
+Task: تنفيذ المخطط المعتمد للصفحة الرئيسية («Implement the approved Alkemos homepage blueprint») — تدفق من 10 أقسام بنسخ عربية/إنجليزية مستقلة، فوق المرحلة 256 دون مساس بمنطق العمل.
+
+Work Log:
+- تفتيش ما قبل التعديل (§3.1): STATE (256) + LandingView.tsx (1,149 سطرًا) + memberships.ts + home-samples.ts + canaries — بناء على كوميت 2e0370bb، شجرة نظيفة
+- الهيكل العشري الجديد في LandingView.tsx: Hero («خطتك للياقة تبدأ من هنا.» / "Your fitness plan starts here." + CTA «ابدأ مجانًا» + ثانوي «استكشف التمارين») → All-in-One (#paths — ثلاثة مسارات تدرّب/تغذَّ/خطّط وتتبّع، دمج شبكة استكشف الرباعية) → خطة مخصصة (#plan — «خطة تناسبك، لا خطة تناسب الجميع.» + خطوات 01-03 + مخططا AI، دمج بطاقة الرابطة) → تدرّب بثقة (#train — رقاقة 868+ + رقائق العضلات + 8 عينات + CTA «استكشف مكتبة التمارين» + صف البرامج مصغرًا داخله) → اعرف ما تأكل (#eat — رقاقة 8,830+ + 8 عينات + CTA «استكشف قاعدة الأطعمة») → EVO (#evo «مدربك الذكي، عندما تحتاجه.» — نزع صفوف المزايا المرقمة، CTA «جرّب EVO» يفتح الودجت — قانون سطح المحادثة سليم) → تعلّم. طبّق. تقدّم. (#learn) → خذ خطوتك التالية (#memberships — مساران: الباقات (أسماء المستويات الحقيقية رقائقًا من MEMBERSHIPS.filter) + الكوتشينج أونلاين — بلا أسعار ولا سلّم باقات) → FAQ (5 أسئلة المالك بالضبط) → CTA ختامي («ابدأ اليوم. وابنِ روتينًا يناسبك.» / "Start today. Build a routine that fits you.")
+- النسخ: العربية سطور المالك الحرفية + إنجليزية منتج مستقلة (لا ترجمة حرفية)؛ الأرقام الحية حيث حددها المخطط فقط (EX_PLUS في التدريب، FOODS_PLUS في الأكل) — نزع TOOLS_PLUS من الرئيسية (رقاقة «8 أدوات» بالبطل والشبكة انتهتا)
+- محفوظ حرفيًا: Marble & Chrome · منطق المدونة selectHomeBlogCarousels + قانون needsPosts · عينات getHomeSamples (قانون الحزمة) · شريط المدربين المدفوع 0037 · قانون CTA المحسوب 203 (البطل/الختامي: تسجيل/دخول/لوحة) · مرايا SEO لم تُمسّ
+- الكاناري: homepage-adoption.test.ts يعاد تثبيته (خريطة 10 أقسام + اختبار ترتيب الأقسام + حظر MEMBERSHIPS.map/الأسعار + حارس المنطقتين على id="paths"/id="faq" + أسئلة FAQ الخمسة) · ai-meal-planner.test.ts يثبت عنوان الخطة الشخصية الجديد · marketing-msa-surface.test.ts: EX_PLUS/FOODS_PLUS مطلوبان وTOOLS_PLUS محظور على الرئيسية (قانون أرقام المخطط)
+- البوابات: tsc 0 · eslint 0 (تحذير root-shell سابق) · vitest 99 ملفًا/1679 (+1 اختبار ترتيب) · next build 2020/2020 · docs_audit ✓ · check-ui-wiring ✓ · check-stale-refs ✓ · migration_audit صفر انحراف
+- الحي-E2E بالمتصفح: EN/AR × 390/1440 × فاتح/داكن — RTL مطابق (قناع المحارب ينقلب، الخطوات تتدفق يمين→يسار) · «جرّب EVO» يفتح الودجت العائم فعليًا · FAQPage JSON-LD على اللغتين · 23 مسارًا مرتبطًا كلها 200
+
+Stage Summary:
+- المخطط المعتمد منفذ حرفيًا: تدرّج Outcome→Explore→Personalize→Train→Eat→EVO→Learn→Memberships/Coaching→FAQ→CTA بقسمين مدموجين (الاستكشاف الرباعي، بطاقة الرابطة) وثالث مصغر (سلّم الباقات → مساران) — كل القوانين السابقة محفوظة أو مثبتة بصيغتها الجديدة
+- Commit SHA: this commit carries this entry
+- Push status: pushed
+
+
 Task ID: HOME-REDESIGN-256-2026-09-22
 Agent: Super Z (owner session)
 Task: إعادة تصميم الصفحة الرئيسية كهيكل اكتشاف من 8 أقسام (أمر المالك 2026-09-22 «Audit and redesign the current Alkemos homepage») — دون هدم الموقع أو تغيير منطق العمل.
