@@ -70,9 +70,10 @@ const CARDS = [
 
 /** surface source → the family card it must reference */
 const WIRED_SURFACES: Array<[string, string]> = [
-  // Detail surfaces (Phase 187)
-  ["src/app/(en)/exercises/[slug]/page.tsx", "og-exercises-en"],
-  ["src/app/(ar)/ar/exercises/[slug]/page.tsx", "og-exercises-ar"],
+  // Detail surfaces (Phase 187). NOTE (SOCIAL-OG-EX, 2026-09-22): the
+  // exercise detail pair MOVED to the dedicated cover-first test below —
+  // they now share the exercise's REAL photo (branded card = fallback
+  // only), so the exact-string family-card assertion no longer applies.
   ["src/app/(en)/foods/[slug]/page.tsx", "og-foods-en"],
   ["src/app/(ar)/ar/foods/[slug]/page.tsx", "og-foods-ar"],
   ["src/app/(en)/muscles/[group]/page.tsx", "og-hubs-en"],
@@ -196,6 +197,30 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
     const specs = gen.slice(gen.indexOf("SPECS = ["));
     expect(specs).not.toMatch(/868/);
     expect(specs).not.toMatch(/8830/);
+  });
+
+  it("SOCIAL-OG-EX (2026-09-22): exercise shares use the exercise's real photo — cover-first, branded card fallback only", () => {
+    // Owner report: sharing an exercise page (e.g. /ar/exercises/tire-flip)
+    // rendered the blue branded family card instead of the exercise's own
+    // photo. Same defect class + same cure as the blog SOCIAL-OG-248 law:
+    // cover-first real photo, family card only when the row has no photos.
+    for (const [rel, card] of [
+      ["src/app/(en)/exercises/[slug]/page.tsx", "og-exercises-en"],
+      ["src/app/(ar)/ar/exercises/[slug]/page.tsx", "og-exercises-ar"],
+    ] as const) {
+      const src = readFileSync(repoRootPath(rel), "utf8");
+      // cover-first: primary photo derived from the exercise's imageKey
+      expect(src).toContain("getExerciseImages(exercise.imageKey)[0]");
+      expect(src).toContain("images: [shareImage]");
+      expect(src).toContain("images: [shareImage.url]");
+      // absolute share URL (crawlers never resolve relative og:image)
+      expect(src).toMatch(/\$\{SITE_URL\}\$\{primaryPhoto\}|https:\/\/alkemos\.com\$\{primaryPhoto\}/);
+      // branded card survives as the photo-less fallback only
+      expect(src).toContain(`/images/og/${card}.png`);
+      expect(src).toContain('card: "summary_large_image"');
+      // no regression to the raw logo card
+      expect(src).not.toContain('url: "/logo.png"');
+    }
   });
 
   it("SOCIAL-OG (2026-09-22): article shares use the real featured photo — cover-first, generator fallback only", () => {

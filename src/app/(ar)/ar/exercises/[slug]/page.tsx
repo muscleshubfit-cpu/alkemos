@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExerciseBySlug, getRelatedExercises, EXERCISES, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { MUSCLE_LABELS } from "@/lib/exercises-shared";
+import { getExerciseImages } from "@/lib/exercise-images";
 import {
   getMuscleHubByCategory,
   getEquipmentHubByEquipment,
@@ -52,6 +53,23 @@ export async function generateMetadata({
   const description = `تعلّم كيف تؤدي تمرين ${exercise.nameAr} بأداء صحيح. العضلات المستهدفة: ${exercise.primaryMuscles.map((m) => MUSCLE_LABELS[m]?.ar ?? m).join("، ")}. المعدات: ${EQUIPMENT_LABELS[exercise.equipment].ar}. المستوى: ${LEVEL_LABELS[exercise.level].ar}.`;
   const url = `${SITE_URL}/ar/exercises/${exercise.slug}`;
 
+  // SOCIAL-OG-EX (2026-09-22, owner report «المربع الأزرق يظهر بدل صورة
+  // الصفحة»): cover-first share image — the exercise's REAL self-hosted
+  // photo (start position, 0.webp), mirroring the blog SOCIAL-OG-248 law
+  // and the EN mirror. Static file <100ms + ~16KB average = inside every
+  // crawler/messenger fetch budget; absolute URL because Facebook/
+  // WhatsApp do not resolve relative og:image reliably. The branded
+  // family card is the FALLBACK only (no photos) — never the default.
+  const primaryPhoto = getExerciseImages(exercise.imageKey)[0];
+  const shareImage = primaryPhoto
+    ? { url: `${SITE_URL}${primaryPhoto}`, alt: title }
+    : {
+        url: `${SITE_URL}/images/og/og-exercises-ar.png`,
+        width: 1200,
+        height: 630,
+        alt: "مكتبة تمارين Alkemos",
+      };
+
   return {
     title,
     description,
@@ -70,22 +88,15 @@ export async function generateMetadata({
       description,
       siteName: "Alkemos",
       locale: "ar_EG",
-      // PHASE 187 (deep-audit P0-2): og:image for the AR exercise surface —
-      // static branded family card (design mirrors /api/og-image).
-      images: [
-        {
-          url: "/images/og/og-exercises-ar.png",
-          width: 1200,
-          height: 630,
-          alt: "مكتبة تمارين Alkemos",
-        },
-      ],
+      // SOCIAL-OG-EX: real exercise photo (cover-first) — see shareImage
+      // above for the full rationale. Fallback: branded family card.
+      images: [shareImage],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/images/og/og-exercises-ar.png"],
+      images: [shareImage.url],
     },
   };
 }
