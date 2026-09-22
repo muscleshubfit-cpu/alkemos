@@ -98,6 +98,16 @@ The lapidary serif (`font-display` / default `h1–h4`) is the "engraved in
 stone" voice. Arabic headings keep Cairo per owner directive §16 — Arabic
 readability beats stylistic mirroring.
 
+> **VRD-V0 (2026-09-23, phase 259):** the RTL typography rules live in
+> **UNLAYERED CSS** in `globals.css` (after `@layer base`), not in the base
+> layer — Tailwind v4's utilities layer always beats `@layer base`, which
+> made Arabic headings lose Cairo to `font-display`/`tracking-tight`/
+> `leading-tight` utilities (live bug, audit C-1). Unlayered rules win by
+> cascade position: Cairo 700, `letter-spacing: 0`, line-height 1.35 (h1) /
+> 1.4 (h2) / 1.45 (h3-h4). Cairo is also appended to the `--font-display`
+> stack. EN/LTR rendering is untouched. Guarded by
+> `src/lib/__tests__/rtl-typography.test.ts`.
+
 ### Font Sizes (Tailwind scale)
 
 | Element | Mobile | Desktop |

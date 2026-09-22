@@ -128,7 +128,7 @@ function BlogCarousel({
       <div className="mb-4 flex justify-end gap-2">
         <button
           onClick={() => scroll(isAr ? "right" : "left")}
-          className="grid h-9 w-9 place-items-center rounded-full transition-colors"
+          className="grid h-9 w-9 max-md:h-11 max-md:w-11 place-items-center rounded-full transition-colors"
           style={{ backgroundColor: PALETTE.surface, color: PALETTE.textPrim, border: `1px solid ${PALETTE.border}` }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = PALETTE.halo; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = PALETTE.surface; }}
@@ -140,7 +140,7 @@ function BlogCarousel({
         </button>
         <button
           onClick={() => scroll(isAr ? "left" : "right")}
-          className="grid h-9 w-9 place-items-center rounded-full transition-colors"
+          className="grid h-9 w-9 max-md:h-11 max-md:w-11 place-items-center rounded-full transition-colors"
           style={{ backgroundColor: PALETTE.surface, color: PALETTE.textPrim, border: `1px solid ${PALETTE.border}` }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = PALETTE.halo; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = PALETTE.surface; }}
@@ -333,7 +333,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             srcSetDark="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
             sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
-          <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
+          {/* VRD-V0 (§10.2 leg 3 — utility discipline): rtl: counterparts sit
+              next to the EN tight utilities so Arabic never inherits negative
+              tracking or tight leading even if the unlayered RTL block in
+              globals.css is ever refactored away (belt and braces with legs
+              1-2; EN rendering is untouched). */}
+          <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight rtl:leading-snug rtl:tracking-normal md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
             {isAr ? "خطتك للياقة تبدأ من هنا." : "Your fitness plan starts here."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
@@ -908,7 +913,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Accordion type="single" collapsible className="mt-12">
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
-                <AccordionTrigger className="py-5 text-start text-lg font-normal hover:no-underline">
+                {/* VRD-V0 (audit C-15): full-row hover state + a bigger,
+                   higher-contrast chevron (was size-4 / muted — VLM: «small
+                   and low-contrast»). Scoped here, NOT in the shared
+                   accordion.tsx (app surfaces keep their treatment). */}
+                <AccordionTrigger className="py-5 text-start text-lg font-normal hover:bg-[var(--bg)] hover:no-underline [&>svg]:size-5 [&>svg]:text-[var(--muted-2)]">
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="pb-5 text-base font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>

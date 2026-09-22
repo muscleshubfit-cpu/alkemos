@@ -53,7 +53,11 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
 
-  --font-display: var(--font-playfair), var(--font-inter), ui-serif, Georgia, serif;
+  /* VRD-V0 (audit C-1, §10.2 leg 1): Cairo appended after Playfair so any
+     Arabic glyph inside a font-display element resolves to Cairo even when
+     a Tailwind utility re-asserts this stack (EN pages never fetch Cairo —
+     next/font unicode-range keeps the pair zero-cost; see root-shell D-01). */
+  --font-display: var(--font-playfair), var(--font-cairo), var(--font-inter), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
   --font-arabic: var(--font-cairo), "Arabic Fallback", ui-sans-serif, system-ui, sans-serif;
@@ -298,6 +302,9 @@
   border: 1px solid var(--chrome-edge);
   border-radius: 999px;
   font-weight: 600;
+  /* VRD-V0 (audit C-15): 44px minimum touch target — Apple HIG bar
+     (WCAG 2.5.8 only demands 24px; the site holds the stricter one). */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -317,6 +324,9 @@
   border: 1px solid var(--text);
   color: var(--text);
   border-radius: 999px;
+  /* VRD-V0 (audit C-15): 44px minimum touch target (same HIG bar as
+     .btn-chrome — measured live at 40-42px on mobile before this). */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -661,20 +671,15 @@ html:not([data-mhe-consent-ok]) body {
 
   h1 { font-weight: 600; }
 
-  /* Arabic / RTL typography — keep weight slightly heavier for readability */
+  /* Arabic / RTL typography — the html element rides Cairo here (base
+     layer; nothing competes on <html>). The HEADING/body overrides moved
+     OUT of @layer base into the UNLAYERED block right after this layer
+     (VRD-V0, audit C-1/C-2/C-3): Tailwind v4's utilities layer always
+     beats @layer base, so these rules kept losing to font-display /
+     tracking-tight / leading-tight / font-semibold utilities — measured
+     live, the AR hero H1 rendered in the OS default Arabic serif. */
   html[dir="rtl"] {
     font-family: var(--font-arabic);
-  }
-  html[dir="rtl"] body,
-  html[dir="rtl"] h1,
-  html[dir="rtl"] h2,
-  html[dir="rtl"] h3,
-  html[dir="rtl"] h4,
-  html[dir="rtl"] .font-display {
-    font-family: var(--font-arabic);
-    letter-spacing: 0;
-    font-weight: 700;
-    line-height: 1.2;
   }
 
   /* Selection color — neutral graphite (Phase 132 zero-blue law) */
@@ -698,6 +703,54 @@ html:not([data-mhe-consent-ok]) body {
   a:hover {
     opacity: 0.7;
   }
+}
+
+/* ====================================================================
+ * VRD-V0 (2026-09-23) — RTL TYPOGRAPHY, UNLAYERED (audit C-1/C-2/C-3).
+ * Cascade law: Tailwind v4 puts utilities in @layer utilities, which
+ * ALWAYS beats @layer base — the old base-layer RTL rules above lost to
+ * every font-display / tracking-tight / leading-tight / font-semibold
+ * utility on an Arabic heading (live proof: AR hero H1 in the OS default
+ * Arabic serif, -1.5px tracking, 1.25 leading; every AR H2 at -0.9px and
+ * 1.11). UNLAYERED CSS beats every layer, so these win by cascade
+ * position — no !important anywhere. Scoped to [dir="rtl"] only: the
+ * EN/LTR rendering is bit-identical (plan §22 risk mitigation).
+ * Values per docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md §10.1/§10.2:
+ * Cairo 700, letter-spacing 0, leading 1.35/1.4/1.45 by heading level
+ * (Cairo's tall ascenders/descenders need more leading than EN).
+ * ==================================================================== */
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+[dir="rtl"] .font-display,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4 {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+  font-weight: 700;
+}
+/* Element+class selectors outrank the bare .font-display rule below, so
+ * a heading that also carries .font-display resolves to ITS level's
+ * leading (the hero H1 is exactly that case). */
+[dir="rtl"] h1,
+[dir="rtl"] h1.font-display {
+  line-height: 1.35;
+}
+[dir="rtl"] h2,
+[dir="rtl"] h2.font-display {
+  line-height: 1.4;
+}
+[dir="rtl"] h3,
+[dir="rtl"] h3.font-display,
+[dir="rtl"] h4,
+[dir="rtl"] h4.font-display {
+  line-height: 1.45;
+}
+/* Non-heading display elements (rare) ride the general AR leading. */
+[dir="rtl"] .font-display {
+  line-height: 1.4;
 }
 
 /* === Utility classes === */
@@ -854,10 +907,14 @@ html:not([data-mhe-consent-ok]) body {
   background: rgba(99, 102, 241, 0.4);
 }
 
-/* Focus rings — soft indigo */
+/* Focus rings — neutral graphite (VRD-V0, audit C-4: the legacy
+   Liquid-Glass indigo violated the zero-blue law; the ring rides the
+   theme-aware --text token so it stays visible in BOTH modes — the
+   Phase-132 selection color is the same graphite family). V1 retunes
+   this to the bronze --accent-deep ring per the redesign plan §13.4/§17. */
 *:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text) 55%, transparent);
   border-radius: 4px;
 }
 

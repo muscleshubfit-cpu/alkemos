@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V0-2026-09-23
+Agent: Super Z (owner session)
+Task: تنفيذ Wave V0 من خطة إعادة التصميم البصري (docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md §20) — إصلاحات الطباعة والوصولية فقط، صفر تغيير لوحة ألوان.
+
+Work Log:
+- الإصلاح النظامي RTL (C-1/C-2/C-3 §10.2 بثلاث ساقين): (1) كايرو داخل ستاك --font-display بعد Playfair (globals.css @theme) (2) نقل قواعد طباعة RTL من @layer base إلى CSS غير مُطبَّق يهزم utilities بلا !important — كايرو 700 + letter-spacing: 0 + line-height ‏1.35/1.4/1.45 حسب مستوى العنوان (3) انضباط utilities: H1 البطل يحمل rtl:tracking-normal + rtl:leading-snug بجوار أدوات EN الضيقة (الإنجليزية بلا أي تغيير)
+- C-4: حلقة التركيز النيلية rgba(99,102,241) ← جرافيت محايد theme-aware عبر color-mix(var(--text) 55%) · themeColor ‏#0071e3 ← زوج قيمتين #FFFFFF/#0B0B0D بمطابقة prefers-color-scheme (metadata.ts)
+- C-15: min-height: 44px على وصفتي .btn-chrome/.btn-outline (كانت روابط <a> تفلت من قاعدة 2026-08-13 الخاصة بـ<button> فقاست 40-42px) · أسهم الكاروسيل max-md:h-11/w-11 (44px على اللمس) · سهم FAQ أكبر وأعلى تباينًا ([&>svg]:size-5 + --muted-2) مع hover صف كامل — كله موضعيًا في LandingView لا في accordion.tsx المشترك
+- الكاناري الجديد: src/lib/__tests__/rtl-typography.test.ts (9 اختبارات) يثبت الساقات الثلاث + قواعد a11y ويبرمج بلوك base بالأقواس لإثبات أن قواعد RTL خارجه — حارس انحدار دائم في CI (§21.5)
+- البوابات: tsc 0 · eslint 0 (تحذير root-shell السابق وحده) · vitest 100 ملفًا/1688 (+9) · next build 2020/2020 · docs_audit ✓ · migration_audit ✓ صفر انحراف · check-stale-refs ✓ · check-ui-wiring ✓ — docs_parity فاشل بقديم مستمر (INDEX.md عنوانه 0092 والملفات 0093 — فاشل عبر 8+ كوميتات قبل V0، تشغيل 35775487454 على 27fba9ad)
+- التحقق الحي محليًا (next start + متصفح رأسي، أدلة محلية غير محفوظة): AR 1440: H1 المحسوب = Cairo 700 / ls=normal / lh=81px÷60=1.35 (كان serif النظام و-1.5px و1.25) · H2 = كايرو 700 / ls=0 / lh=1.4 (كان -0.9px و1.11) · EN 1440 مطابق حرفيًا للخط الأساسي (Playfair/-1.5px/1.25/600 — صفر انحدار) · داكن: --bg=#0b0b0d وحلقة التركيز #F5F5F7@55% بلا نيلي · جوال 390 AR: أزرار 44px وصفر overflow أفقي · /ar/memberships: الإصلاح النظامي مؤكد (H1 كايرو 1.35) · theme-color meta زوج القيمتين يُصدر صحيحًا · لقطات VLM في 6 سياقات: كايرو هندسي حديث متصل سليم، RTL سليم — ملاحظتا EN من VLM هما C-9/C-16 القديمتان (نطاق V2/V3)
+- فحص دخان محلي: 23 مسارًا عامًا كلها 200 باللغتين
+
+Stage Summary:
+- V0 منفذة كاملة ضمن نطاقها: خلل خط العنوان العربي الحي مُصلح نظاميًا (كل صفحات /ar/* لا الرئيسية فقط) والإنجليزية غير ممسوسة — اللوحة اللونية كما هي (V1 التالية تجلب Ivory & Bronze Steel)
+- المرحلة 259 · الكاناري يحرس السقوط لأي أداة utilities مستقبلية على العناوين العربية
+- Commit SHA: this commit carries this entry
+- Push status: pushed
+
+---
 Task ID: VISUAL-REDESIGN-AUDIT-258-2026-09-23
 Agent: Super Z (owner session)
 Task: تدقيق بصري/UX/UI/نسخ كامل للصفحة الرئيسية الحية + خطة تنفيذ إعادة تصميم موثقة (أمر المالك 2026-09-23) — docs-only، صفر كود.

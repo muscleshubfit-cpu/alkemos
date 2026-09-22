@@ -126,7 +126,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0071e3",
+  // VRD-V0 (audit C-4): the legacy Apple-blue #0071e3 clashed with the
+  // Marble & Chrome identity (zero-blue law). Two-value format tracking
+  // the REAL theme surfaces: light --bg #FFFFFF, dark --bg #0B0B0D
+  // (globals.css Marble & Chrome tokens). V1 retunes the values when
+  // the Ivory & Bronze Steel palette lands (plan §8.3).
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0B0D" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
