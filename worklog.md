@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: STAFF-BELL-I18N-251-LIVE-VERIF-2026-09-22
+Agent: Super Z (owner session)
+Task: التحقق الحي E2E للمرحلة 251 (211695c2) — إثبات أن جرس الطاقم وجرس العضو يتكلمان لغة المشاهد على الإنتاج.
+
+Work Log:
+- النشر: /api/build-info = 211695c (~4 دقائق بعد الدفع)
+- زرع صفّي اختبار مهيكلين بالحروف الحرفية عبر Management API SQL (new_ticket بحمولة {subject,high:true} موجّه للأدمن الأساسي + referral_commission بحمولة {amount_usd:10,source:subscription_initial} لعضو QA) — id مزدوجان موثقان بالاتجاهين
+- جلسة عضو حية EN (qa.ux0922.member1): جرس العضو — «New commission! 🎉 / You earned $10 commission from a new subscription.» كتالوج كامل + الصف القديمة بلا حمولة «Subscription activated! / تم الموافقة على طلب اشتراكك (premium) لمدة 1 أشهر.» العنوان من كتالوج 250 والمتن حرفيًا كما خُزّن (قانون الصدق يحفظ حتى العيب النحوي الموروث) — لقطة 251-member-bell-en.png
+- ترقية مؤقتة member1→admin (نمط 246) ثم إعادة العميل فورًا (returning موثق) — جرس الطاقم عبر GET /api/notifications/admin: الصف المزروعة «New support ticket / Subject: 251-staff-live-check — priority (coaching membership)» — العنوان والمتن إنجليزيان ولاحقة الأولوية تُرجم من حقل high المنطقي
+- اللقطة نفسها أثبتت القانون المختلط على الصفوف القديمة: عناوين الأنواع الساكنة تُترجم بلا حمولة («New payment request» · «A new coach self-registered» · «New questionnaire to review») وأمتحتها حرفية عربية كما خُزّنت («طلب اشتراك premium لمدة 1 شهر») — القانون لكل حقل: title || row.title
+- التنظيف: إعادة الدور client (returning) + حذف الصفين بشرط الحمولة (returning بid) — صفر بقايا بيانات · لقطات محلية فقط (testing/shots/251-*)
+
+Stage Summary:
+- المرحلة 251 مثبتة حيًا على الإنتاج بالجرسين: جرس الطاقم وجرس العضو يتكلمان لغة واجهة المشاهد من payload مهيكل، والصفوف القديمة تُعرض حرفيًا بصدق مع تعريب العناوين القابلة للتوطين
+- Commit SHA: 211695c2 (الكود + مدخل التنفيذ) — هذا المدخل بكوميت التوثيق
+- Push status: pushed
+
+---
 Task ID: STAFF-BELL-I18N-251-2026-09-22
 Agent: Super Z (owner session)
 Task: أمر المالك «ابدأ الخطوه التالية المقترحة ترجمة نصوص جرس الطاقم ثم ابحث عن اى مشاكل مشابهة لحلها» — الموجة 1: كتالوج جرس الطاقم (19 نوعًا) · الموجة 2: مسح المشاكل المشابهة → 12 نوع عضو خارج كتالوج 250.
@@ -24,8 +42,8 @@ Work Log:
 
 Stage Summary:
 - جرس الطاقم يتكلم لغة المشاهد: أدمن EN يقرأ «New payment request — X requested the Premium plan for 2 months — $18.» وجرس العضو كمل — 31 نوع إشعار على المنصة (19 طاقم + 12 عضو) تعرض بلغة الواجهة من payload مهيكل، مع فولباك صادق لا يخمّن
-- Commit SHA: this commit carries this entry
-- Push status: pushed (نشر تلقائي — التحقق الحي بعد النشر بمدخل LIVE-VERIF مستقل)
+- Commit SHA: 211695c2 (الكود + الوثيقة + مدخل التنفيذ)
+- Push status: pushed (db767827..211695c2 — نشر تلقائي، التحقق الحي بمدخل LIVE-VERIF مستقل)
 
 ---
 Task ID: NOTIF-I18N-250-LIVE-VERIF-2026-09-22
