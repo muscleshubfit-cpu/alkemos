@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V0-LIVE-VERIF-2026-09-23
+Agent: Super Z (owner session)
+Task: التحقق الحي بعد النشر — Wave V0 على إنتاج alkemos.com (الكوميت 95aaf40b).
+
+Work Log:
+- النشر مؤكد: HTML بتخطي كاش Cloudflare (Cache-Control: no-cache + معامل عشوائي) يحمل البناء الجديد — الكاش العام يقدم HTML قديمًا حتى TTL ‏(s-maxage=3600 + stale-while-revalidate؛ عمر الملحوظ 6,873 ثانية وقت الفحص) — لا خطر نسخ مختلطة: كل chunks بمسمعات immutable
+- الحسابات المحسوبة على الإنتاج (متصفح رأسي 1440): /ar — H1 = Cairo ‏700 / letter-spacing normal / lh ‏81px÷60=1.35 · H2 = Cairo 700 / ls 0 / lh 1.4 — الخلل الحي C-1 مغلق على الإنتاج · / — H1 = Playfair Display / -1.5px / 75px÷60=1.25 / 600 = مطابق حرفيًا لما قبل V0 (صفر انحدار EN)
+- CSS الإنتاج (chunk 1a5vkijtn4v18.css): ستاك --font-display يحمل كايرو بعد Playfair ✓ · قواعد RTL غير المطبَّقة حاضرة ([dir=rtl] h1..h4 كايرو 700/ls 0 + lh 1.35/1.4/1.45) ✓ · .btn-chrome min-height:44px ✓ · حلقة التركيز color-mix(var(--text) 55%) خلف حارس @supports ✓ · صفر نيلي في *:focus-visible ✓ (نيلي .scrollbar-thin المتبقي = C-18 نطاق V5)
+- meta theme-color على /ar الحي: #FFFFFF فاتح / #0B0B0D داكن (زوج القيمتين) ✓
+- أدلة محلية غير محفوظة (جلسة المتصفح) — القيم أعلاه منسوخة حرفيًا وقت القياس
+
+Stage Summary:
+- V0 حية على الإنتاج ومؤكدة بالقياس على اللغتين — لا يتبقى شيء على Wave V0
+- Commit SHA: this commit carries this entry (التحقق على كوميت 95aaf40b)
+- Push status: pushed
+
+---
 Task ID: VRD-V0-2026-09-23
 Agent: Super Z (owner session)
 Task: تنفيذ Wave V0 من خطة إعادة التصميم البصري (docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md §20) — إصلاحات الطباعة والوصولية فقط، صفر تغيير لوحة ألوان.

@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-19 (Phase 233 — migration Phase 1: the brand-asset provenance note reworded to past tense — the referenced build scripts were local-only and never committed (verified: absent from all git history; no current build path exists). No design-system content changed.)
+> **Last updated:** 2026-09-23 (VRD-V0, phase 259 — §3 Typography gains the unlayered-RTL note: Cairo 700 / ls 0 / lh 1.35-1.45 on Arabic headings, cascade-law fix, canary rtl-typography.test.ts. Prior: Phase 233 provenance reword.)
 > **Status:** Active — binding reference for all UI/UX decisions
 > **Audience:** AI agents, developers, designers
 
