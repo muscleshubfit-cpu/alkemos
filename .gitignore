@@ -119,3 +119,6 @@ ar_logs/
 ar_logs.zip
 ar2_logs/
 ar2_logs.zip
+
+# Local live-verification screenshots (worklog: لقطات محلية فقط)
+/testing/
