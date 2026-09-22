@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: DOCS-PARITY-FIX-260-2026-09-23
+Agent: Super Z (owner session)
+Task: إغلاق فشل docs-parity القديم الموثّق بتقرير V0 — تحديث supabase/migrations/INDEX.md ليطابق عدد التهجيرات الفعلي (فريم docs-only صفر كود، أمر المالك 2026-09-23).
+
+Work Log:
+- الجذر المؤكد: التهجيرة 0093 (NOTIF-I18N-250) هبطت بالكوميت 562ed5be (2026-09-22) بلا أي تحديث لـINDEX.md — العنوان بقي 0092 والصف غاب — ففشل docs_parity عبر 8+ كوميتات قبل V0 (تشغيل CI ‏35775487454 على 27fba9ad) ووُثّق قديمًا في مدخل VRD-V0 وSTATE (ملاحظة «المفتوح الآن»)
+- الإصلاح (ملف واحد فقط): (1) عنوان «خريطة الترقيم 0001 → 0092» ← «0001 → 0093» — الادعاء المحكوم بالبوابة (2) إضافة صف 0093 المفقود للجدول بنمط إخوته: payload jsonb not null default '{}' على الجدولين · additive صفر RLS/تواقيع/backfill · طُبقت إنتاجًا قبل الدفع (تحقق information_schema وقت 250)
+- صفر مساس بأي كود/مخطط/تهجيرة — ملف 562ed5be نفسه بقي كما هو؛ هذا الفريم توثيق مطابقة فقط (قانون الفهرس §6 استُوفى متأخرًا)
+- البوابات: docs_parity ✓ (عنوان 0093 = حقيقة القرص) · docs_audit ✓ (STATE ‏100 سطر/31.4KB · الطور 260) · migration_audit ✓ صفر انحراف · tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell السابق وحده) · vitest ✓ 100 ملفًا/1688 · check-stale-refs ✓ · check-ui-wiring ✓ — next build غير مطلوب (فريم توثيقي، شجرة الكود مطابقة لبوابات 259 الخضراء وCI لا يشغّله)
+- STATE: الترويسة + المرحلة 260 + صف الطور + إزالة ملاحظة «docs-parity حمراء بقديم» من «المفتوح الآن» (أُغلقت) + صف QA ‏260 + تصحيح إحالة صف 259 («موثق أعلاه» ← «أُغلق بفريم 260»)
+
+Stage Summary:
+- بوابية docs-parity خضراء لأول مرة منذ 8+ كوميتات — الفهرس والقرص متطابقان على 0093 (المخطط نفسه لم يُمس)
+- المرحلة 260 · فريم docs-only مستقل · [vercel skip] بالعنوان (قانون §10)
+- Commit SHA: this commit carries this entry
+- Push status: pushed
+
+---
 Task ID: VRD-V0-LIVE-VERIF-2026-09-23
 Agent: Super Z (owner session)
 Task: التحقق الحي بعد النشر — Wave V0 على إنتاج alkemos.com (الكوميت 95aaf40b).
