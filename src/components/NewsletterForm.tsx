@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { localizeLeadError } from "@/lib/error-i18n";
 import {
   validateEmailStrict,
   emailErrorMessage,

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   const rl = await checkRateLimit(ip);
   if (!rl.allowed) {
     return NextResponse.json(
-      { error: "Too many requests. Please try again later." },
+      { error: "Too many requests. Please try again later.", code: "rate_limited" },
       {
         status: 429,
         headers: {
@@ -76,7 +76,12 @@ export async function POST(request: NextRequest) {
           : field === "email"
             ? "Valid email is required"
             : "Invalid request body";
-      return NextResponse.json({ error }, { status: 400 });
+      // I18N-SWEEP-255: stable code for the display-layer localizer.
+      const code =
+        field === "email"
+          ? "invalid_email"
+          : "invalid_request";
+      return NextResponse.json({ error, code }, { status: 400 });
     }
     const { tool_slug, email, name, result_summary, result_json, lang } =
       parsed.data;
@@ -87,7 +92,7 @@ export async function POST(request: NextRequest) {
     const emailCheck = validateEmailStrict(cleanEmail);
     if (!emailCheck.ok) {
       return NextResponse.json(
-        { error: "Valid email is required" },
+        { error: "Valid email is required", code: "invalid_email" },
         { status: 400 },
       );
     }
@@ -142,7 +147,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("[api/tools/lead] Insert failed:", error.message);
       return NextResponse.json(
-        { error: "Failed to save lead" },
+        { error: "Failed to save lead", code: "save_failed" },
         { status: 500 },
       );
     }
@@ -151,7 +156,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     console.error("[api/tools/lead] Exception:", e instanceof Error ? e.message : e);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", code: "internal" },
       { status: 500 },
     );
   }

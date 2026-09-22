@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   if (existing) {
     return NextResponse.json(
       {
-        error: "already_registered",
+        error: existing.role === "client" ? "already_registered_client" : "already_registered_staff",
         message:
           existing.role === "client"
             ? "هذا الإيميل عميل مسجل بالفعل — الأدمن فقط يمكنه تعيينه لك"

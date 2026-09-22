@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: I18N-SWEEP-255-2026-09-22
+Agent: Super Z (owner session)
+Task: «نفّذ كل المتبقى» — الإطار الثالث (الأخير) من مسح i18n: أخطاء API المواجهة للعميل/المدرب تُعرض خامًا بلغة خاطئة + رموز ثابتة للأنابيب وفق قانون M1.
+
+Work Log:
+- قانون الأنابيب (error-i18n.ts — نمط M1 القائم): جديد localizeCoachInviteError (رموز invite/resend الثمانية: invalid_email · already_registered_client/staff · invite_failed · rate_limited · not_found · not_pending · email_not_configured — مجهول يرجع null فيبقى تمرير المتصل الصادق) + localizeSendEmailError (rate_limited · daily_limit · invalid_email · invalid_request · not_configured · send_failed) + localizeLeadError (rate_limited · invalid_email · invalid_request · save_failed · internal)
+- رموز على السلك: invite route فوّت already_registered إلى already_registered_client/staff (كان يخسر تفرقة العميل/موظف عند العرض من الرمز — المستهلك الوحيد عرضي) · send-email أضيف code لعشرة مواضع خطأ · lead أضيف code لخمسة مواضع — النصوص الإنجليزية القديمة بقيت (توافق خلفي)
+- نقاط العرض: CoachView (دعوة + إعادة إرسال: الرمز أولًا ثم التمرير) · LeadCaptureCard (/api/send-email) · NewsletterForm (/api/tools/lead) — كلها تستدعي المُعرِّب قبل التمرير
+- +4 اختبارات كاناري بالاتجاهين (معلومة: محاولة إلحاق سابقة سقطت صمتًا لأن grep فاشل كسر سلسلة && — اكتُشفت بعدم تطابق عدّاد المتابعة 1674 وأعيد الإلحاق بعد تشخيص السبب) — vitest 99/1678 (+4) · tsc/eslint 0 · build 2020/2020
+- خارج هذا الإطار عمدًا (موثق للمالك): zod الافتراضي الإنجليزي عبر 55 موقع API (يستلزم قرارًا معماريًا: رسائل مزدوجة بالـschemas أم معرِّب لكل مسار — فريم مستقل بأمر ملكي) · e.message الخام في توستات العرض العائمة (قانون M1 يغطي المسارات الكانونية؛ التعميم الشامل فريم مستقل)
+
+Stage Summary:
+- مدرب EN يقرأ «This email is already a registered client — only the admin can assign him to you» بدل العربي الخام، وزائر عربي يقرأ «طلبات كثيرة…» بدل الإنجليزي الخام — على أسطح الدعوة والبريد والأدوات العامة
+- مسح i18n الوكيل مغلق: الفئات الخمس (أ+ب إطار 253، ج إطار 254، د إطار 255) منفذة — والفئة (هـ) zod موثقة كبند مؤجل بقرار معماري
+- Commit SHA: this commit carries this entry
+- Push status: pushed (نشر تلقائي)
+
+---
 Task ID: I18N-SWEEP-254-2026-09-22
 Agent: Super Z (owner session)
 Task: «نفّذ كل المتبقى» — الإطار الثاني من مسح i18n: أكبر عنقود موثق — ~35 توست/confirm عربيًا خامًا على سطح المدرب/الأدمن الثنائي اللغة (CoachClientView · PlansView · BlogAdminView · BlogEditorView).

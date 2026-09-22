@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { localizeSendEmailError } from "@/lib/error-i18n";
 import {
   validateEmailStrict,
   emailErrorMessage,
@@ -79,7 +80,12 @@ export function LeadCaptureCard({ toolSlug, resultSummary, resultJson }: Props) 
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.error || (isAr ? "حدث خطأ" : "Something went wrong"));
+        // I18N-SWEEP-255: localize from the stable code at display (M1 law).
+        setError(
+          localizeSendEmailError(data.code, isAr) ||
+            data.error ||
+            (isAr ? "حدث خطأ" : "Something went wrong"),
+        );
         return;
       }
       setDone(true);

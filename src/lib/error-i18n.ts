@@ -146,3 +146,111 @@ export function localizeAuthError(raw: string | null | undefined, isAr: boolean)
       return msg;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* I18N-SWEEP-255 — client-facing API surfaces (coach invite/resend,   */
+/* send-email, tools/lead): stable codes on the wire, UI-language text */
+/* at the toast site. Honest fallback: unknown codes pass through.     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Coach invite + resend codes (/api/coach/clients/invite[/resend]).
+ * Known codes localize to the UI language; unknown codes return null so
+ * the caller keeps its existing message||error passthrough.
+ */
+export function localizeCoachInviteError(
+  code: string | null | undefined,
+  isAr: boolean,
+): string | null {
+  switch (code) {
+    case "invalid_email":
+      return isAr ? "اكتب بريدًا إلكترونيًا صحيحًا" : "Please enter a valid email address";
+    case "already_registered_client":
+      return isAr
+        ? "هذا الإيميل عميل مسجل بالفعل — الأدمن فقط يمكنه تعيينه لك"
+        : "This email is already a registered client — only the admin can assign him to you";
+    case "already_registered_staff":
+      return isAr
+        ? "هذا الإيميل من فريق العمل بالفعل"
+        : "This email is already a staff member";
+    case "invite_failed":
+      return isAr
+        ? "فشل إرسال الدعوة — حاول مرة أخرى"
+        : "Failed to send the invite — please try again";
+    case "rate_limited":
+      return isAr
+        ? "محاولات كثيرة — انتظر دقيقة ثم حاول مرة أخرى"
+        : "Too many attempts — wait a minute and try again";
+    case "not_found":
+      return isAr
+        ? "لا توجد دعوة معلقة لهذا البريد"
+        : "No pending invitation for this email";
+    case "not_pending":
+      return isAr
+        ? "هذا العميل فعّل حسابه بالفعل — لا حاجة لإعادة الإرسال"
+        : "This client already activated his account — no need to resend";
+    case "email_not_configured":
+      return isAr
+        ? "خدمة البريد غير مهيأة — أبلغ الدعم"
+        : "Email service is not configured — contact support";
+    default:
+      return null; // honest fallback — the caller keeps its own passthrough
+  }
+}
+
+/** /api/send-email codes (LeadCaptureCard). */
+export function localizeSendEmailError(
+  code: string | null | undefined,
+  isAr: boolean,
+): string | null {
+  switch (code) {
+    case "rate_limited":
+      return isAr
+        ? "طلبات كثيرة — حاول مرة أخرى بعد قليل"
+        : "Too many requests — please try again shortly";
+    case "daily_limit":
+      return isAr
+        ? "تم بلوغ الحد اليومي للرسائل — حاول مجددًا غدًا"
+        : "Daily email limit reached — please try again tomorrow";
+    case "invalid_email":
+      return isAr
+        ? "اكتب بريدًا إلكترونيًا صحيحًا"
+        : "Please enter a valid email address";
+    case "invalid_request":
+      return isAr ? "طلب غير صالح" : "Invalid request";
+    case "not_configured":
+      return isAr ? "خدمة البريد غير مهيأة" : "Email service is not configured";
+    case "send_failed":
+      return isAr
+        ? "فشل إرسال البريد — حاول مرة أخرى"
+        : "Failed to send the email — please try again";
+    default:
+      return null;
+  }
+}
+
+/** /api/tools/lead codes (NewsletterForm). */
+export function localizeLeadError(
+  code: string | null | undefined,
+  isAr: boolean,
+): string | null {
+  switch (code) {
+    case "rate_limited":
+      return isAr
+        ? "طلبات كثيرة — حاول مرة أخرى بعد قليل"
+        : "Too many requests — please try again shortly";
+    case "invalid_email":
+      return isAr
+        ? "اكتب بريدًا إلكترونيًا صحيحًا"
+        : "Please enter a valid email address";
+    case "invalid_request":
+      return isAr ? "طلب غير صالح" : "Invalid request";
+    case "save_failed":
+    case "internal":
+      return isAr
+        ? "حدث خطأ — حاول مرة أخرى"
+        : "Something went wrong — please try again";
+    default:
+      return null;
+  }
+}

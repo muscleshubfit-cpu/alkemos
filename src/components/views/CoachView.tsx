@@ -23,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { NotificationForm } from "@/components/NotificationForm";
 import { Pagination } from "@/components/Pagination";
 import { cn } from "@/lib/utils";
+import { localizeCoachInviteError } from "@/lib/error-i18n";
 
 type FilterTab =
   | "all"
@@ -692,7 +693,14 @@ export function CoachView() {
         // frame so «Total clients» moves with reality (was: stale 0).
         setStatsVersion((v) => v + 1);
       } else {
-        toast.error(json.message || json.error || (isAr ? "فشل إرسال الدعوة" : "Invite failed"));
+        // I18N-SWEEP-255: localize from the stable code (M1 law); unknown
+        // codes keep the server message passthrough (honest fallback).
+        toast.error(
+          localizeCoachInviteError(json.error, isAr) ||
+            json.message ||
+            json.error ||
+            (isAr ? "فشل إرسال الدعوة" : "Invite failed"),
+        );
       }
     } finally {
       setInviting(false);
@@ -722,7 +730,12 @@ export function CoachView() {
             : `Activation instructions re-sent to ${email}`,
         );
       } else {
-        toast.error(json.message || json.error || (isAr ? "فشل إعادة الإرسال" : "Resend failed"));
+        toast.error(
+          localizeCoachInviteError(json.error, isAr) ||
+            json.message ||
+            json.error ||
+            (isAr ? "فشل إعادة الإرسال" : "Resend failed"),
+        );
       }
     } finally {
       setResendingId(null);

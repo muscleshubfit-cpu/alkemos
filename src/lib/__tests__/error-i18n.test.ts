@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { localizeApiError, localizeAuthError } from "../error-i18n";
+import {
+ localizeApiError,
+ localizeAuthError,
+ localizeCoachInviteError,
+ localizeSendEmailError,
+ localizeLeadError,
+} from "../error-i18n";
 
 /**
  * M1 canaries (DEEP-UX-AUDIT-2026-09-18) — the error-i18n display-layer
@@ -119,4 +125,41 @@ describe("localizeAuthError — Supabase GoTrue raw strings", () => {
     expect(localizeAuthError(null, true)).toBe("");
     expect(localizeAuthError("", false)).toBe("");
   });
+});
+
+/**
+ * I18N-SWEEP-255 canaries — client-facing API surfaces localize from
+ * stable codes at the toast site; unknown codes fall through (honest
+ * fallback, never masked).
+ */
+describe("localizeCoachInviteError — invite/resend codes (255)", () => {
+ it("known codes localize both ways", () => {
+ expect(localizeCoachInviteError("invalid_email", false)).toBe("Please enter a valid email address");
+ expect(localizeCoachInviteError("invalid_email", true)).toBe("اكتب بريدًا إلكترونيًا صحيحًا");
+ expect(localizeCoachInviteError("already_registered_client", false)).toMatch(/only the admin/);
+ expect(localizeCoachInviteError("already_registered_staff", true)).toMatch(/فريق العمل/);
+ expect(localizeCoachInviteError("not_pending", false)).toMatch(/already activated/);
+ });
+
+ it("unknown/missing codes return null — caller keeps passthrough", () => {
+ expect(localizeCoachInviteError("something_new", true)).toBeNull();
+ expect(localizeCoachInviteError(undefined, false)).toBeNull();
+ expect(localizeCoachInviteError("String must contain at most 120 characters", false)).toBeNull();
+ });
+});
+
+describe("localizeSendEmailError / localizeLeadError — public tools (255)", () => {
+ it("send-email codes localize; unknown passes through", () => {
+ expect(localizeSendEmailError("daily_limit", true)).toMatch(/الحد اليومي/);
+ expect(localizeSendEmailError("daily_limit", false)).toMatch(/Daily email limit/);
+ expect(localizeSendEmailError("not_configured", true)).toMatch(/غير مهيأة/);
+ expect(localizeSendEmailError("mystery", false)).toBeNull();
+ });
+
+ it("lead codes localize; unknown passes through", () => {
+ expect(localizeLeadError("invalid_email", true)).toMatch(/بريد/);
+ expect(localizeLeadError("save_failed", false)).toMatch(/went wrong/);
+ expect(localizeLeadError("internal", true)).toMatch(/حدث خطأ/);
+ expect(localizeLeadError("mystery", true)).toBeNull();
+ });
 });

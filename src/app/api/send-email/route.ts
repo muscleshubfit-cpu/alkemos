@@ -386,7 +386,7 @@ export async function POST(request: NextRequest) {
   const ipLimit = await rateLimit(`sendemail:ip:${ip}`, IP_MAX, IP_WINDOW);
   if (!ipLimit.allowed) {
     return NextResponse.json(
-      { error: "Too many requests. Please try again later." },
+      { error: "Too many requests. Please try again later.", code: "rate_limited" },
       { status: 429, headers: { "Retry-After": "600" } },
     );
   }
@@ -394,7 +394,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     if (!body) {
-      return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid body", code: "invalid_request" }, { status: 400 });
     }
 
     const tool_slug = String(body.tool_slug ?? "");
@@ -405,20 +405,20 @@ export async function POST(request: NextRequest) {
     const lang = body.lang === "en" ? "en" : "ar";
 
     if (!ALLOWED_TOOLS.includes(tool_slug as ToolSlug)) {
-      return NextResponse.json({ error: "Invalid tool_slug" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid tool_slug", code: "invalid_request" }, { status: 400 });
     }
     // Phase 73: STRICT email filtering (same rules as the client-side form)
     const emailCheck = validateEmailStrict(email);
     if (!emailCheck.ok) {
-      return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
+      return NextResponse.json({ error: "Valid email is required", code: "invalid_email" }, { status: 400 });
     }
     // Phase 73: name is optional — but when present, no weird symbols
     const nameIssue = validateNameStrict(name, lang === "ar");
     if (nameIssue) {
-      return NextResponse.json({ error: "Invalid name", message: nameIssue }, { status: 400 });
+      return NextResponse.json({ error: "Invalid name", code: "invalid_request", message: nameIssue }, { status: 400 });
     }
     if (!result_json || typeof result_json !== "object") {
-      return NextResponse.json({ error: "Missing results" }, { status: 400 });
+      return NextResponse.json({ error: "Missing results", code: "invalid_request" }, { status: 400 });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -459,6 +459,7 @@ export async function POST(request: NextRequest) {
         );
         return NextResponse.json(
           {
+            code: "daily_limit",
             error: "Daily email limit reached. Please try again tomorrow.",
             message: "تم بلوغ الحد الأقصى لعدد الرسائل اليوم (100) — حاول مجددًا غدًا وسنكمل من حيث توقفنا",
           },
@@ -470,7 +471,7 @@ export async function POST(request: NextRequest) {
     // H3: distributed per-email limit (was the in-memory Map above).
     const emailLimit = await rateLimit(`sendemail:email:${email}`, EMAIL_MAX, EMAIL_WINDOW);
     if (!emailLimit.allowed) {
-      return NextResponse.json({ error: "Too many emails for this address. Try later." }, { status: 429 });
+      return NextResponse.json({ error: "Too many emails for this address. Try later.", code: "rate_limited" }, { status: 429 });
     }
 
     /* ---- 2) Save the lead FIRST (owner directive: save before send) ---- */
@@ -527,7 +528,7 @@ export async function POST(request: NextRequest) {
     if (!apiKey) {
       console.error("[api/send-email] BREVO_API_KEY is not configured");
       return NextResponse.json(
-        { error: "Email service is not configured", leadSaved },
+        { error: "Email service is not configured", code: "not_configured", leadSaved },
         { status: 500 },
       );
     }
@@ -569,7 +570,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     console.error("[api/send-email] Exception:", e instanceof Error ? e.message : e);
     return NextResponse.json(
-      { error: "Failed to send the email. Please try again." },
+      { error: "Failed to send the email. Please try again.", code: "send_failed" },
       { status: 500 },
     );
   }
