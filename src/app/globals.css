@@ -488,6 +488,21 @@
 }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+/* HOME-REDESIGN-256 — EVO section warrior-art mask (revives the Phase 127
+   .evo-hero-card recipe for the new homepage EVO section): the art sits on
+   the INLINE-END side of the card and dissolves into the marble on its
+   inner edge; [dir=rtl] mirrors the fade so the inner edge always melts
+   into the surface and the outer edge stays crisp. Mask only — the image
+   itself is never flipped (brand artwork stays LTR). */
+.evo-art-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 45%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 45%);
+}
+[dir="rtl"] .evo-art-mask {
+  -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 45%);
+  mask-image: linear-gradient(to left, transparent 0%, #000 45%);
+}
+
 /* Navbar chrome — mission §1 */
 .navbar-chrome {
   background: var(--navbar-bg);

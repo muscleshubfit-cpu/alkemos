@@ -6,6 +6,25 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: HOME-REDESIGN-256-2026-09-22
+Agent: Super Z (owner session)
+Task: إعادة تصميم الصفحة الرئيسية كهيكل اكتشاف من 8 أقسام (أمر المالك 2026-09-22 «Audit and redesign the current Alkemos homepage») — دون هدم الموقع أو تغيير منطق العمل.
+
+Work Log:
+- تفتيش القانون قبل التعديل (§3.1): AGENTS.md + STATE (المرحلة 255) + DESIGN.md + LandingView.tsx (1,139 سطرًا) + home-samples.ts + memberships.ts + evo-chat-events.ts — لقطات «قبل» للجوال (EN/AR) محفوظة في جلسة العمل
+- الهيكل الجديد في LandingView.tsx: Hero («ابنِ لياقتك. بطريقتك.» / "Build your fitness. Your way.") → استكشف Alkemos (#explore: تمارين/تغذية/أدوات/مقالات بأيقونات محفورة وأرقام حية) → EVO (#evo «مدربك الذكي» — لوح المحارب بقناع .evo-art-mask جديد في globals.css ينقلب مع RTL، وزر CTA يستدعي openEvoFloatingChat — قانون سطح المحادثة الوحيد سليم) → التدريب والتغذية (#experience — قسم واحد متصل: رقائق العضلات + 8 تمارين + 3 برامج + بطاقة رابطة «خطة واحدة تجمع التدريب والتغذية» + 8 أطعمة) → المحتوى والمعرفة (#knowledge) → الباقات والكوتشينج (#memberships — سلّم MEMBERSHIPS الحقيقي بلا أي أسعار ولا حقول سعر ولا CTA اشتراك + شريط المدربين المميزين المدفوع كما هو) → الأسئلة الشائعة (6 أسئلة — خامسها كوتشينج جديد مطابق لميزات memberships.ts) → CTA الختامي («ابدأ رحلتك مع Alkemos» / "Start your journey with Alkemos")
+- النسخ ثنائي اللغة مستقل عمدًا: عربية فصحى موجزة + إنجليزية منتج عالمية — لا ترجمة حرفية؛ الأرقام من الثوابت الحية فقط (EX_PLUS/FOODS_PLUS/TOOLS_PLUS)؛ CTA البطل والختامي محسوبان بالحساب (القانون 203)
+- محفوظ حرفيًا: هوية Marble & Chrome (أزرار btn-chrome/btn-outline + marble-card + seal-chip + no-emoji) · مرايا SEO والميتاداتا (لم تُمسّ) · منطق جلب المدونة والاختيار (selectHomeBlogCarousels) · عينات getHomeSamples (قانون الحزمة) · رأس/تذييل الموقع
+- الكاناري تحدّثت بقانون المالك الجديد نفسه: homepage-adoption.test.ts يعيد تثبيت الهيكل الجديد (بلا أسعار + قسم EVO يفتح الودجت + خريطة الأقسام + حارس مُنطّق: منطقتا البطل/الختامي فقط ممنوع فيهما /memberships) + ai-meal-planner.test.ts يثبت عنوان بطاقة الرابطة الجديد
+- البوابات: tsc 0 · eslint 0 (تحذير root-shell سابق موجود) · vitest 99/1678 · next build 2020/2020 (بيئة 4GB أوقفت أول محاولة OOM ثم نجحت كاملة)
+- التحقق الحي بالمتصفح: EN/AR جوالًا (390) ومكتبيًا (1440) + فاتح/داكن — RTL يطابق (الأرقام والقناع والفن) · CTA «تحدث مع EVO» يفتح الودجت العائم فعليًا · أكورديون FAQ يعمل · 19 مسارًا مرتبطًا كلها 200
+
+Stage Summary:
+- الصفحة الرئيسية صارت تدفق اكتشاف من 8 أقسام بهوية العلامة محفوظة وكود التسويق خالٍ من الأسعار — كل القوانين السابقة (202/203/204) إما محفوظة أو مثبتة بصيغتها الجديدة بأمر المالك
+- Commit SHA: this commit carries this entry
+- Push status: pushed (نشر تلقائي)
+
+---
 Task ID: I18N-SWEEP-255-LIVE-VERIF-2026-09-22
 Agent: Super Z (owner session)
 Task: التحقق الحي E2E للمراحل 253+254+255 (08003111 · fac89207 · 855cb6ef) — إثبات أن أسطح المسح تتكلم لغة المشاهد على الإنتاج.

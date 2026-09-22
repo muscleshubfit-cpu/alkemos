@@ -11,41 +11,57 @@ import {
 } from "@/lib/home-samples";
 
 /**
- * PHASE 202 CANARIES — the homepage «Product-Website» order (owner
- * directive 2026-09-15: «أعد تصميم الـHomepage لتصبح Homepage حقيقية
- * لموقع Fitness Platform هدفه الانتشار والاستخدام، وليس البيع»).
+ * HOME-REDESIGN-256 CANARIES — the 8-section homepage discovery order
+ * (owner order 2026-09-22: audit + redesign of the Alkemos homepage on
+ * a premium global fitness-platform benchmark), superseding the Phase
+ * 202/203 structural pins this file used to carry.
  *
- * These guards pin the three structural laws of the redesign:
- *   1) NO PRICING SURFACES on the homepage — no membership tier cards,
- *      no price tables, no sales CTAs (the /memberships page and every
- *      business rule are untouched elsewhere).
+ * These guards pin the structural laws of the NEW homepage:
+ *   1) NO PRICES on the homepage — the Memberships & Coaching section
+ *      renders the REAL tier ladder from memberships.ts (taglines +
+ *      feature lists, display strings only) but never a price, never a
+ *      subscribe CTA (the /memberships + /coaching pages own pricing
+ *      and the subscribe flows).
  *   2) REAL CONTENT ENTRY POINTS — the curated homepage samples must
  *      exist in the LIVE libraries (drift guard, library-counts
- *      pattern) so the Training / Nutrition sections always render
- *      actual browsable content, never empty grids.
- *   3) THE NEW NAVIGATION CONTRACT — the header carries the five core
- *      services (Training / Nutrition / Tools / AI / Coaching), the
- *      footer is the ecosystem service map with the owner's new
- *      tagline, and EVO has no dedicated promotional section on the
- *      homepage (the floating widget is the access point).
+ *      pattern) so Training + Nutrition always render actual browsable
+ *      content, never empty grids.
+ *   3) THE NEW SECTION MAP — Hero («ابنِ لياقتك. بطريقتك.») → Explore
+ *      (#explore: Exercises / Nutrition / Tools / Articles) → EVO
+ *      (#evo — the CTA opens the FLOATING widget via
+ *      openEvoFloatingChat; the widget stays the ONLY chat surface) →
+ *      Training + Nutrition (#experience — ONE connected section) →
+ *      Content & Knowledge (#knowledge) → Memberships & Coaching
+ *      (#memberships) → FAQ (#faq) → Final CTA («ابدأ رحلتك مع
+ *      Alkemos»).
+ *   4) The hero + the final CTA stay ACCOUNT-DRIVEN (signup/login/
+ *      console) — neither links the memberships page (the Memberships
+ *      section owns that link).
  */
 
 const LANDING = "src/components/views/LandingView.tsx";
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
 
-describe("Phase 202 — homepage adoption redesign canaries", () => {
-  // (1) NO PRICING / SALES-FUNNEL SURFACES on the homepage.
-  it("the homepage carries no membership pricing, tier cards, or sales CTAs", () => {
+describe("HOME-REDESIGN-256 — homepage redesign canaries", () => {
+  // (1) The tier ladder renders WITHOUT any pricing or subscribe CTA.
+  it("the Memberships & Coaching section carries no prices, price fields, or subscribe CTAs", () => {
     const src = readFileSync(LANDING, "utf8");
+    // Required: the section exists and reads the SINGLE source.
+    expect(src, "the memberships section is missing").toContain('id="memberships"');
+    expect(src).toContain('from "@/lib/memberships"');
+    expect(src).toContain("MEMBERSHIPS.map");
     for (const banned of [
       // Tier prices (memberships.ts is the single source — never here)
       "$14.99",
       "$29.99",
       "$39.99",
-      '$0',
-      // Tier card / sales CTA markup
-      'id="memberships"',
+      "$0",
+      // The price FIELDS/price renderer never reach the homepage source
+      "priceMonthly",
+      "priceYearly",
+      "getPriceString",
+      // Subscribe/sales CTA labels
       "اشترك الآن",
       "Subscribe now",
       "قارن كل العضويات",
@@ -64,35 +80,52 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
     }
   });
 
-  // (2) The EVO promotional card is retired — the floating widget is
-  //     the access point (owner order: «EVO: موجود بالفعل كـFloating
-  //     Widget؛ لا تنشئ له قسمًا دعائيًا جديدًا»).
-  it("EVO has no dedicated promotional section on the homepage", () => {
+  // (2) The EVO section exists (owner order 2026-09-22) and its CTA
+  //     opens the FLOATING WIDGET — the only chat surface law holds.
+  it("the EVO section CTA dispatches openEvoFloatingChat and never links a chat page", () => {
     const src = readFileSync(LANDING, "utf8");
+    expect(src, "the EVO section is missing").toContain('id="evo"');
+    expect(src).toContain("openEvoFloatingChat");
+    // The section headline pair (h2) — Arabic original + native English.
+    expect(src).toContain("EVO — مدربك الذكي");
+    expect(src).toContain("EVO — Your AI Coach");
+    // The retired /chat route stays dead (the widget is the surface).
+    expect(src).not.toContain('href="/chat"');
+    expect(src).not.toContain('"/chat"');
+    // The retired Phase-127 class names stay dead (the mask recipe is
+    // .evo-art-mask now).
     expect(src).not.toContain("evo-hero-card");
     expect(src).not.toContain("evo-hero-art");
-    expect(src).not.toContain('id="evo"');
-    // The old warrior-card headline is gone too. (2026-09-16 owner copy
-    // order: the new hero subtitle legitimately contains «مدربك الذكي
-    // 24/7» INSIDE its platform-summary sentence, so the guard pins the
-    // STANDALONE card headline — the quoted literal form — instead of
-    // the bare phrase.)
+    // The old standalone card headline stays dead.
     expect(src).not.toContain("Your 24/7 Smart Coach");
     expect(src).not.toContain('"مدربك الذكي 24/7"');
   });
 
-  // (3) The real content entry points exist: the three sample sections
-  //     with their browse-all links.
-  it("the content entry-point sections and their browse-all links exist", () => {
+  // (3) The new section map + the real content entry points exist.
+  it("the 8-section map and its browse-all links exist", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
-      'id="training"',
-      'id="nutrition"',
-      'id="articles"',
-      'id="tools"',
-      'id="coaching"',
+      // The section ids (explore / evo pinned by their own tests above)
+      'id="explore"',
+      'id="experience"',
+      'id="knowledge"',
       'id="faq"',
-      // Locale-aware browse-all entry points
+      // The new hero H1 pair (Arabic original + native English)
+      "ابنِ لياقتك. بطريقتك.",
+      "Build your fitness. Your way.",
+      // The final CTA pair (owner's Arabic line + native English)
+      "ابدأ رحلتك مع Alkemos",
+      "Start your journey with Alkemos",
+      // The Explore hub links (real routes, not anchors)
+      'href: "/ar/exercises"',
+      'href: "/exercises"',
+      'href: "/ar/foods"',
+      'href: "/foods"',
+      'href: "/ar/tools"',
+      'href: "/tools"',
+      'href: "/ar/blog"',
+      'href: "/blog"',
+      // Locale-aware browse-all entry points inside the experience section
       'isAr ? "/ar/exercises" : "/exercises"',
       'isAr ? "/ar/foods" : "/foods"',
       'isAr ? "/ar/programs" : "/programs"',
@@ -106,26 +139,36 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
     }
   });
 
-  // (4) The account-action hero (Phase 203 copy refinement, owner-
-  //     approved 2026-09-15): guests get the signup primary + login
-  //     secondary (the usage path is owned by the quick-nav chip + the
-  //     tools lead card — no duplicated CTA message), signed-in members
-  //     get their own console. The hero still never links the sales
-  //     funnel.
-  it("the hero CTA pair drives the account action (signup/login), not a duplicated usage CTA or the sales funnel", () => {
+  // (4) The hero + final CTA stay account-driven: signup/login for
+  //     guests, the member console when signed in — and NEITHER links
+  //     the memberships page (the Memberships section owns that link).
+  it("the hero and final CTA drive the account action, not the sales funnel", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain('"/auth?mode=signup"');
     expect(src).toContain("Create your free account");
     expect(src).toContain("أنشئ حسابك المجاني");
     expect(src).toContain('"/auth?mode=login"');
     // The retired Phase 202 usage-CTA pair stays dead (the usage paths
-    // belong to the quick-nav chip + the tools section, never the hero).
+    // belong to the Explore cards + the connector card, never the hero).
     expect(src).not.toContain("Try the Free Tools");
     expect(src).not.toContain("جرّب الأدوات المجانية");
-    // The hero's primary button must not link the memberships page.
-    expect(src).not.toContain('href={isAr ? "/ar/memberships" : "/memberships"}');
+    // SCOPED funnel guard: the HERO region (everything before the
+    // Explore section) and the PAGE TAIL (FAQ + final CTA) must never
+    // link memberships — the Memberships section is the only surface
+    // that does.
+    const exploreAt = src.indexOf('id="explore"');
+    const faqAt = src.indexOf('id="faq"');
+    expect(exploreAt).toBeGreaterThan(-1);
+    expect(faqAt).toBeGreaterThan(exploreAt);
+    for (const region of [src.slice(0, exploreAt), src.slice(faqAt)]) {
+      for (const href of ['"/memberships"', '"/ar/memberships"']) {
+        expect(region, `hero/final CTA region links the memberships page: ${href}`).not.toContain(href);
+      }
+    }
   });
+});
 
+describe("HOME-REDESIGN-256 — header/footer contract (unchanged law)", () => {
   // (5) The header carries the five core services as VISIBLE navigation
   //     (desktop nav) with the secondary services demoted to the
   //     drawer's «More» group.
@@ -176,19 +219,21 @@ describe("Phase 202 — homepage adoption redesign canaries", () => {
   });
 });
 
-describe("Phase 203 — homepage copy refinement canaries", () => {
-  // The five REAL usage questions (owner-approved FAQ reselection): every
+describe("HOME-REDESIGN-256 — FAQ canaries", () => {
+  // The six REAL questions (five carried over + the coaching one): every
   // limit in the answers matches the implementation verbatim (unified
   // pool 2/4/8/8 — memberships.ts; guest-plan device persistence —
   // plan-persistence.ts; EVO for everyone with tier-based limits;
-  // database-level access control).
-  it("the homepage FAQ answers the five usage questions; the retired questions stay dead", () => {
+  // coaching features — memberships.ts coaching entry; database-level
+  // access control).
+  it("the homepage FAQ answers the six usage questions; the retired questions stay dead", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
       "Do I need an account or subscription to use the tools?",
       "Can I try AI plan generation for free?",
       "Will my plan disappear if I don't create an account?",
       "What is EVO?",
+      "How does online coaching work?",
       "Is my data safe?",
     ]) {
       expect(src, `usage question missing: ${required}`).toContain(required);
@@ -225,7 +270,7 @@ describe("Phase 203 — homepage copy refinement canaries", () => {
   });
 });
 
-describe("Phase 202 — homepage sample drift guard (real content, curated)", () => {
+describe("HOME-REDESIGN-256 — homepage sample drift guard (real content, curated)", () => {
   // The curated homepage samples must exist in the LIVE libraries —
   // if a data file renames/retires a curated entry, this fails so the
   // curation is consciously updated (library-counts pattern).
