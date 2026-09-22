@@ -52,17 +52,12 @@ export async function generateMetadata({
       url: og.articleUrl,
       title: og.title,
       description: og.description,
-      // Phase SEO-GEO-3 (2026-09-08): use the dynamically-generated OG
-      // image (Alkemos-branded 1200×630 PNG with title + description)
-      // instead of the raw Pexels JPEG — see EN mirror for the rationale.
-      images: [
-        {
-          url: `https://alkemos.com/api/og-image/${slug}?lang=ar`,
-          width: 1200,
-          height: 630,
-          alt: og.title,
-        },
-      ],
+      // SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة المقال»):
+      // share the article's REAL featured photo (og.shareImage) — see the
+      // EN mirror for the full rationale (cold generator latency →
+      // blue-box cards on WhatsApp/Facebook; generator = photo-less
+      // fallback only, inside blog-server).
+      images: [{ url: og.shareImage, alt: og.title }],
       siteName: "Alkemos",
       locale: "ar_EG",
     },
@@ -70,7 +65,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: og.title,
       description: og.description,
-      images: [`https://alkemos.com/api/og-image/${slug}?lang=ar`],
+      images: [og.shareImage],
     },
   };
 }
@@ -95,11 +90,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         description: og.description,
         slug,
         // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
-        // consistency — same branded /api/og-image URL that
-        // generateMetadata declares for og:image/twitter:image (?lang=ar
-        // variant). Previously the raw external Pexels photo — see the
+        // consistency — the SAME og.shareImage (real featured photo,
+        // cover-first) that openGraph/twitter declare above. See the
         // EN mirror (/blog/[slug]/page.tsx) for the full rationale.
-        image: `https://alkemos.com/api/og-image/${slug}?lang=ar`,
+        image: og.shareImage,
         datePublished: publishedAt,
         dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): resolved author Person — see

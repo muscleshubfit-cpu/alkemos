@@ -23,12 +23,20 @@ import type { BlogPostCard } from "@/lib/blog";
  *       /api/og-image/{slug}, Article JSON-LD image = external Pexels URL
  *       (logo.png fallback on comparisons). Fix: the JSON-LD image is now
  *       the SAME branded og-image URL the metadata declares.
+ *       SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة
+ *       المقال»): article mirrors now single-source `og.shareImage` —
+ *       the real featured photo, cover-first (the generator's cold
+ *       1.7–5.2s render exceeded crawler budgets → blue-box share
+ *       cards); compare mirrors keep the branded generator (no photo
+ *       exists for comparisons).
  *
  * LAWS GUARDED:
  *   1. ENTITY LOCALE: EN descriptions carry zero Arabic script; AR
  *      descriptions carry Arabic; both mention the flagship numbers.
  *   2. IMAGE CONSISTENCY: the four Article-schema surfaces (blog EN/AR +
- *      compare EN/AR) pass the same /api/og-image URL as og:image.
+ *      compare EN/AR) pass the SAME share image as og:image — blog
+ *      mirrors via the single-source `og.shareImage` (SOCIAL-OG),
+ *      compare mirrors via the branded /api/og-image URL.
  *   3. SEARCH CONTRACT: the schema still declares the SearchAction target,
  *      BlogListPage seeds the ?search= deep link, and the shared predicate
  *      lives in ONE pure module used by listBlogPosts (no inline drift).
@@ -87,8 +95,8 @@ describe("P2-14 / §12.40 — locale-aware entity schema (audit finding #9)", ()
 
 describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit finding #10)", () => {
   const cases: Array<[string, string]> = [
-    [BLOG_EN, "image: `https://alkemos.com/api/og-image/${slug}?lang=en`"],
-    [BLOG_AR, "image: `https://alkemos.com/api/og-image/${slug}?lang=ar`"],
+    [BLOG_EN, "image: og.shareImage,"],
+    [BLOG_AR, "image: og.shareImage,"],
     [
       COMPARE_EN,
       "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`",
@@ -100,7 +108,7 @@ describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit find
   ];
 
   for (const [file, imageLine] of cases) {
-    it(`${file}: Article schema image = the branded og-image URL`, () => {
+    it(`${file}: Article schema image = the declared share image`, () => {
       const src = readFileSync(file, "utf8");
       expect(src).toContain(imageLine);
       // The mixed-source inconsistency is gone: no raw Pexels passthrough.
@@ -109,7 +117,17 @@ describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit find
   }
 
   it("each surface declares the SAME URL for og:image and twitter:image", () => {
-    for (const file of [BLOG_EN, BLOG_AR, COMPARE_EN, COMPARE_AR]) {
+    // Blog mirrors (SOCIAL-OG): single-source og.shareImage from
+    // blog-server — og:image object + twitter array + JSON-LD all read it.
+    for (const file of [BLOG_EN, BLOG_AR]) {
+      const src = readFileSync(file, "utf8");
+      expect(src).toContain("url: og.shareImage");
+      expect(src).toContain("images: [og.shareImage]");
+      expect(src).toContain("image: og.shareImage,");
+    }
+    // Compare mirrors: the branded generator URL is declared once and
+    // must be identical for og:image and twitter:image.
+    for (const file of [COMPARE_EN, COMPARE_AR]) {
       const src = readFileSync(file, "utf8");
       const og = src.match(/url: `(https:\/\/alkemos\.com\/api\/og-image\/[^`]+)`/);
       const twitter = src.match(/images: \[`(https:\/\/alkemos\.com\/api\/og-image\/[^`]+)`\]/);

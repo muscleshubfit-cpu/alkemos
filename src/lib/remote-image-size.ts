@@ -24,6 +24,10 @@ export function sizedRemoteImage(
   url: string | null | undefined,
   width: number,
   aspect?: number,
+  // SOCIAL-OG (2026-09-22): share-image callers pass "jpeg" — WebP
+  // og:image is a blank/blue-box risk on strict social crawlers; the
+  // default stays "webp" so every existing in-page caller is unchanged.
+  format: "webp" | "jpeg" = "webp",
 ): string | null {
   if (!url) return null;
   if (!url.startsWith("https://images.pexels.com/")) return url;
@@ -35,7 +39,7 @@ export function sizedRemoteImage(
       u.searchParams.set("h", String(Math.round(w / aspect)));
     }
     u.searchParams.set("fit", "crop");
-    u.searchParams.set("fm", "webp");
+    u.searchParams.set("fm", format);
     return u.toString();
   } catch {
     return url;

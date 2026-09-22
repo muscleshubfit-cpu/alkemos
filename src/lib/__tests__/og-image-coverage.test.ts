@@ -197,4 +197,29 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
     expect(specs).not.toMatch(/868/);
     expect(specs).not.toMatch(/8830/);
   });
+
+  it("SOCIAL-OG (2026-09-22): article shares use the real featured photo — cover-first, generator fallback only", () => {
+    const server = readFileSync(repoRootPath("src/lib/blog-server.ts"), "utf8");
+    // shareImage is built at the single choke point (blog-server): the
+    // featured photo Pexels-cropped to 1200×630 fm=jpeg, with the branded
+    // generator ONLY when the article carries no photo.
+    expect(server).toMatch(
+      /sizedRemoteImage\(featuredAbsolute,\s*1200,\s*1200 \/ 630,\s*"jpeg"\)/,
+    );
+    expect(server).toContain("${baseUrl}/api/og-image/${data.slug}?lang=${lang}");
+    for (const rel of [
+      "src/app/(en)/blog/[slug]/page.tsx",
+      "src/app/(ar)/ar/blog/[slug]/page.tsx",
+    ]) {
+      const src = readFileSync(repoRootPath(rel), "utf8");
+      // og:image object + twitter array + JSON-LD all read og.shareImage
+      expect(src).toContain("url: og.shareImage");
+      expect(src).toContain("images: [og.shareImage]");
+      expect(src).toContain("image: og.shareImage,");
+      // the inline generator URL pattern must be gone from article pages
+      expect(src).not.toContain("api/og-image/${slug}");
+      // no regression to the raw logo card
+      expect(src).not.toContain('url: "/logo.png"');
+    }
+  });
 });

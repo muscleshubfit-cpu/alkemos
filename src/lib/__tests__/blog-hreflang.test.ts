@@ -19,6 +19,7 @@ function og(overrides: Partial<BlogOGData>): BlogOGData {
     title: "t",
     description: "d",
     image: "https://alkemos.com/logo.png",
+    shareImage: "https://alkemos.com/logo.png",
     articleUrl: EN_SELF,
     locale: "en_US",
     twinSlug: null,

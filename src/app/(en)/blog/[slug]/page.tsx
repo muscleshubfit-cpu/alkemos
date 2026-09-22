@@ -60,20 +60,16 @@ export async function generateMetadata({
       url: og.articleUrl,
       title: og.title,
       description: og.description,
-      // Phase SEO-GEO-3 (2026-09-08): use the dynamically-generated OG
-      // image (Alkemos-branded 1200×630 PNG with title + description)
-      // instead of the raw Pexels JPEG. The branded image is more
-      // recognizable in social feeds (Facebook, X, LinkedIn, WhatsApp)
-      // and reinforces the Alkemos brand on every share. The Pexels
-      // image is still shown as the article hero inside the page body.
-      images: [
-        {
-          url: `https://alkemos.com/api/og-image/${slug}?lang=en`,
-          width: 1200,
-          height: 630,
-          alt: og.title,
-        },
-      ],
+      // SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة المقال»):
+      // share the article's REAL featured photo (og.shareImage — Pexels
+      // 1200×630 jpeg crop served by Pexels' fast CDN) instead of the
+      // branded generator card. Root cause of the blue-box share cards:
+      // the generator's cold render (1.7–5.2s live) exceeds the
+      // WhatsApp/Facebook crawler fetch budget. The generator stays the
+      // fallback inside blog-server for photo-less articles only.
+      // og:image / twitter:image / Article JSON-LD all read the SAME
+      // og.shareImage (§12.40 consistency — single source in blog-server).
+      images: [{ url: og.shareImage, alt: og.title }],
       siteName: "Alkemos",
       locale: "en_US",
     },
@@ -81,7 +77,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: og.title,
       description: og.description,
-      images: [`https://alkemos.com/api/og-image/${slug}?lang=en`],
+      images: [og.shareImage],
     },
   };
 }
@@ -112,14 +108,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         description: og.description,
         slug,
         // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
-        // consistency — the Article schema now carries the SAME branded
-        // 1200×630 og-image URL that generateMetadata declares for
-        // og:image/twitter:image (previously the raw external Pexels
-        // photo, a mixed-source inconsistency the audit flagged). The
-        // branded card IS a faithful representation of the article
-        // (title + description + Alkemos mark) and is what social
-        // platforms and Google Discover see on every share.
-        image: `https://alkemos.com/api/og-image/${slug}?lang=en`,
+        // consistency — the Article schema carries the SAME og.shareImage
+        // (the article's real featured photo, cover-first) that
+        // generateMetadata declares for og:image/twitter:image. The real
+        // photo IS a faithful representation of the article and is what
+        // social platforms and Google Discover see on every share.
+        image: og.shareImage,
         datePublished: publishedAt,
         dateModified: updatedAt,
         // Phase SEO-GEO-2 (2026-09-08): pass the resolved author Profile

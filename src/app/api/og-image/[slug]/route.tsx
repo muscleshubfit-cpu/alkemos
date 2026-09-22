@@ -48,6 +48,14 @@ import { fetchBlogForOG } from "@/lib/blog-server";
  *      CF edge now serves these PNGs cf-cache-status MISS→HIT for a
  *      full day — this s-maxage header remains the Vercel-edge half
  *      of the same two-layer defense.
+ *   6. SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة المقال»):
+ *      article og:image is now COVER-FIRST (og.shareImage in
+ *      blog-server.ts — the real featured photo, Pexels 1200×630 jpeg
+ *      crop), so this generator is the FALLBACK path for photo-less
+ *      articles only. s-maxage 3600 → 86400: a card only changes when
+ *      its title/description change (rare), and one full edge day per
+ *      slug+lang keeps the first-platform-fetch warm (the cold
+ *      1.7–5.2s render is exactly what crawlers time out on).
  */
 
 export const runtime = "edge";
@@ -213,10 +221,13 @@ export async function GET(
       height: 630,
       ...(fonts ? { fonts } : {}),
       headers: {
-        // VERCEL-USAGE-2: s-maxage=3600 lets Vercel's edge cache the PNG —
-        // crawler re-fetches within the hour stop re-running Satori.
+        // VERCEL-USAGE-2: s-maxage lets Vercel's edge cache the PNG —
+        // crawler re-fetches stop re-running Satori. SOCIAL-OG
+        // (2026-09-22): 3600 → 86400 (doc item 6) — a cold render is
+        // what social crawlers time out on; one full edge day per
+        // slug+lang keeps the first-platform-fetch warm.
         "Cache-Control":
-          "public, max-age=86400, s-maxage=3600, stale-while-revalidate=604800",
+          "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },
     },
   );

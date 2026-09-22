@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 // module never imports the AI provider chain (see that file's header).
 import { clampMetaTitle } from "./blog-meta-title";
 import type { BlogPost, BlogPostCard, BlogFaq } from "./blog";
+import { sizedRemoteImage } from "./remote-image-size";
 
 /**
  * Server-side blog helpers — for route handlers and server components.
@@ -26,6 +27,18 @@ export type BlogOGData = {
   title: string;
   description: string;
   image: string;
+  /**
+   * SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة المقال»):
+   * the single share-image source for og:image / twitter:image / Article
+   * JSON-LD on both mirrors — the article's REAL featured photo, Pexels-
+   * cropped to the 1200×630 social ratio with fm=jpeg (WebP og:image is a
+   * blank/blue-box risk on strict crawlers). The branded /api/og-image
+   * generator is the fallback ONLY for photo-less articles: its cold
+   * render (1.7–5.2s live) exceeds WhatsApp/Facebook fetch budgets —
+   * that latency is what produced the blue-box share cards. `image`
+   * stays the raw featured_image (page-body hero source).
+   */
+  shareImage: string;
   articleUrl: string;
   locale: "en_US" | "ar_EG";
   /**
@@ -109,6 +122,16 @@ const fetchBlogForOGUncached = async (
 
     const baseUrl = "https://alkemos.com";
     const articleUrl = `${baseUrl}${lang === "ar" ? "/ar/blog" : "/blog"}/${data.slug}`;
+    // SOCIAL-OG (2026-09-22): cover-first share image — see the
+    // shareImage field doc above. Pexels' CDN serves the 1200×630 jpeg
+    // crop in <100ms globally: no cold function on the crawler path.
+    const featured = (data.featured_image || "").trim();
+    const featuredAbsolute = featured.startsWith("/")
+      ? `${baseUrl}${featured}`
+      : featured;
+    const shareImage =
+      sizedRemoteImage(featuredAbsolute, 1200, 1200 / 630, "jpeg") ||
+      `${baseUrl}/api/og-image/${data.slug}?lang=${lang}`;
     // PHASE 189 (SEO-GEO-10, deep-audit P1-1): RENDER-TIME title clamp —
     // the durable guarantee that a stored meta_title can never leak an
     // over-budget <title> to SERP. Live audit 2026-09-13: 5 legacy AR rows
@@ -123,6 +146,7 @@ const fetchBlogForOGUncached = async (
       title: clampMetaTitle(data.meta_title || data.title || "", lang),
       description: data.meta_description || data.excerpt || "",
       image: data.featured_image || `${baseUrl}/logo.png`,
+      shareImage,
       articleUrl,
       locale: lang === "ar" ? "ar_EG" : "en_US",
       twinSlug,
