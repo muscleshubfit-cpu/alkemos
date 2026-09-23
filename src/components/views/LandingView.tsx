@@ -274,11 +274,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       : "Yes. Browsing is completely free — the exercises, foods, programs, and tools all work without an account. Every visitor gets a monthly allowance for AI nutrition and workout plans, and EVO is open to everyone within fair-use limits. A free account saves your plans and syncs them across your devices." },
     { q: isAr ? "كيف يعمل EVO؟" : "How does EVO work?", a: isAr ? "EVO هو المدرب الذكي داخل المنصة، وتجده في فقاعة محادثة أسفل كل صفحة. اسأله عن التدريب والتغذية، أو اطلب منه بناء خطة حول بياناتك وأهدافك، ثم عدّلها بتبديلات ذكية للوجبات والتمارين. وهو متاح للزوار والأعضاء معًا وفق حدود كل باقة."
       : "EVO is the smart coach built into Alkemos, living in the chat bubble at the bottom of every page. Ask it about training or nutrition, have it build a plan around your data and goals, then fine-tune it with smart meal and exercise swaps. It stays available to visitors and members alike, within each tier's limits." },
-    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا. يوجد مستوى مجاني دائم إلى جانب أدوات تعمل دون حساب أصلًا. الاشتراكات اختيارية: تفتح توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وتصديرًا كاملًا، وتجربة بلا إعلانات — عندما تحتاجها فعلًا."
+    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا. يوجد مستوى مجاني دائم إلى جانب أدوات تعمل دون حساب أصلًا. الاشتراكات اختيارية: تفتح توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصديرًا كاملًا، وتجربة بلا إعلانات — عندما تحتاجها فعلًا."
       : "No. There's a permanent free tier alongside tools that work without an account in the first place. Memberships are optional — they unlock more AI plan generations, unlimited EVO chat, full export, and an ad-free experience, for when you actually want them." },
     { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم. كل تمرين يأتي بشرح واضح وصور تُريك الأداء الصحيح، وبرامج جاهزة تبدأ من المستوى المبتدئ ويمكن تنفيذها في المنزل، وخطط الذكاء الاصطناعي تُبنى حول مستواك الحالي ومعداتك المتاحة."
       : "Yes. Every exercise comes with clear instructions and images that show proper form, the ready-made programs start at beginner level and can be done at home, and the AI planners build around your current level and the equipment you actually have." },
-    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير، وتجربة بلا إعلانات. أما الكوتشينج فيضيف مدربًا بشريًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
+    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير، وتجربة بلا إعلانات. أما الكوتشينج فيضيف مدربًا بشريًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
       : "A membership widens what you can do inside the platform — more AI plan generations, unlimited EVO chat, export, and no ads. Online coaching adds a human coach who builds your plans personally, follows your progress weekly, and stays in direct contact with you — with all Pro features included." },
   ];
   const faqSchema = getFAQSchema(faqs);
@@ -343,8 +343,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? "تدريب، تغذية، وأدوات ذكية تساعدك على اتخاذ قرارات أفضل والتقدم نحو هدفك."
-              : "Training, nutrition, and smart tools that help you make better decisions and keep moving toward your goal."}
+              ? "تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك."
+              : "Training, nutrition, and smart tools — one plan that moves with you toward your goal."}
           </p>
 
           {/* Account-action CTA pair (Phase 203 law unchanged): guests get
@@ -561,7 +561,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
                   { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
                   { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-                  { labelAr: "بطن/كور", labelEn: "Core", slug: "core" },
+                  { labelAr: "كور", labelEn: "Core", slug: "core" },
                 ].map((cat) => (
                   <a
                     key={cat.slug}
@@ -826,8 +826,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               </div>
               <p className="mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وحفظ وتصدير أوسع، وتجربة بلا إعلانات."
-                  : "Start on a free tier that stays free, and move up when you need more room — more AI plan generations, unlimited EVO chat, bigger save capacity with export, and an ad-free experience."}
+                  ? "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتجربة بلا إعلانات."
+                  : "Start on a free tier that stays free, and move up when you need more room — more AI plan generations, unlimited EVO chat, and an ad-free experience."}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {MEMBERSHIPS.filter((tier) => !tier.separate).map((tier) => (
@@ -885,7 +885,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "مدربون على المنصة" : "Featured Coaches on Alkemos"}
+              {isAr ? "مدربون مميزون على Alkemos" : "Featured Coaches on Alkemos"}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-base font-normal" style={{ color: PALETTE.textSec }}>
               {isAr

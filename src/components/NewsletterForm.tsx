@@ -174,7 +174,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "h
           ) : (
             <>
               <Send className="h-4 w-4" />
-              {isAr ? "اشترك الآن مجانًا" : "Subscribe free"}
+              {isAr ? "اشترك مجانًا" : "Subscribe free"}
             </>
           )}
         </button>

@@ -505,8 +505,9 @@
   .chips-row > * {
     scroll-snap-align: start;
     /* The row never wraps, so a chip must neither shrink (the count
-       pill would squeeze) nor break its label internally — «بطن/كور»
-       measured wrapping to 2 lines inside a 74px pill without this. */
+       pill would squeeze) nor break its label internally — the muscle
+       chip (VRD-V3's «بطن/كور», renamed «كور» by VRD-V4 K-5) measured
+       wrapping to 2 lines inside a 74px pill without this. */
     flex-shrink: 0;
     white-space: nowrap;
   }

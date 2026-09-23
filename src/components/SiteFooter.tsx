@@ -27,8 +27,9 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  * exact href and locale-awareness (access-point laws preserved — diet-plan,
  * compare, hub families, EVO entry untouched).
  *
- * The bottom tagline is the owner's new pair (owner order 2026-09-15):
- * EN "Built with care for the fitness community" · AR "صُنع بحب لمجتمع اللياقة"
+ * The bottom tagline is the owner's new pair (owner order 2026-09-15;
+ * AR refined VRD-V4 K-4 2026-09-23 — «بعناية» aligns with the EN "care"):
+ * EN "Built with care for the fitness community" · AR "صُنع بعناية لمجتمع اللياقة"
  * (the old geographically-scoped pair is retired).
  *
  * VRD-V2 §12 (owner order 2026-09-23 «اكمل المرحلة التالية», audit C-8:
@@ -287,9 +288,10 @@ export function SiteFooter() {
         <div className="mt-8 border-t border-[var(--edge)] pt-4 text-center text-[10px] text-[var(--muted-foreground)]">
           {/* Phase 202 (owner order 2026-09-15): the footer tagline —
               EN "Built with care for the fitness community" ·
-              AR "صُنع بحب لمجتمع اللياقة" (the old geographically-
+              AR "صُنع بعناية لمجتمع اللياقة" (VRD-V4 K-4 — «بحب» ← «بعناية»
+              to mirror the EN "care"; the old geographically-
               scoped pair is retired). */}
-          {isAr ? "صُنع بحب لمجتمع اللياقة" : "Built with care for the fitness community"}
+          {isAr ? "صُنع بعناية لمجتمع اللياقة" : "Built with care for the fitness community"}
         </div>
       </div>
     </footer>

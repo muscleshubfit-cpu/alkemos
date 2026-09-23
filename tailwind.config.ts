@@ -80,8 +80,15 @@ const config: Config = {
                         mono: ['ui-monospace', 'monospace'],
                 },
                 boxShadow: {
-                        'glow': '0 8px 30px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(99, 102, 241, 0.06)',
-                        'gold': '0 8px 30px rgba(217, 119, 6, 0.15), 0 4px 12px rgba(217, 119, 6, 0.08)',
+                        // VRD-V4 (audit §19 — verify-by-grep done 2026-09-23):
+                        // the legacy indigo 'glow' and amber 'gold' shadows are
+                        // REMOVED. This whole v3-style config is dead-by-
+                        // construction under Tailwind v4 CSS-first (no @config
+                        // anywhere; components.json points at globals.css) —
+                        // the live utilities come from globals.css @utility
+                        // recipes over monochrome tokens (--shadow-glow /
+                        // --shadow-gold / --shadow-card). Full config-file
+                        // removal is deferred to the V5 sweep (C-18).
                         'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03)',
                 },
         }

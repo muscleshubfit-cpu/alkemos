@@ -132,9 +132,10 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
       // The hero pair (owner's Arabic + native English)
       "خطتك للياقة تبدأ من هنا.",
       "Your fitness plan starts here.",
-      // The hero supporting pair
-      "تدريب، تغذية، وأدوات ذكية تساعدك على اتخاذ قرارات أفضل والتقدم نحو هدفك.",
-      "Training, nutrition, and smart tools that help you make better decisions and keep moving toward your goal.",
+      // The hero supporting pair (VRD-V4 K-6 trim — audit §14 verbatim:
+      // ~25% shorter, relieves C-9 on the mobile stage)
+      "تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.",
+      "Training, nutrition, and smart tools — one plan that moves with you toward your goal.",
       // The hero CTA pair + secondary explore CTA
       "ابدأ مجانًا",
       "Start free",
@@ -276,9 +277,10 @@ describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => 
       '"Tools & AI"',
       '"Coaching & Services"',
       '"Company"',
-      // The owner's new tagline (verbatim).
+      // The owner's new tagline (verbatim; AR refined VRD-V4 K-4 —
+      // «بعناية» mirrors the EN "care").
       "Built with care for the fitness community",
-      "صُنع بحب لمجتمع اللياقة",
+      "صُنع بعناية لمجتمع اللياقة",
     ]) {
       expect(src, `footer service map missing: ${required}`).toContain(required);
     }
@@ -456,6 +458,89 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
     ]) {
       expect(css, `card-lift recipe missing: ${required}`).toContain(required);
     }
+  });
+});
+
+describe("VRD-V4 — copy refinement K-1..K-7 contract", () => {
+  // Audit §14 (owner order 2026-09-23 «اكمل V4… ابدأ مباشرة من K-1..K-7»):
+  // surgical copy refinements only — §23.9 law: NO wholesale rewrite, the
+  // Phase-257 voice stays. Canaries re-pinned + added in the SAME commit
+  // as the copy (§21.3 law).
+  const NEWSLETTER = "src/components/NewsletterForm.tsx";
+
+  // K-1: «توليدات» is a mechanical pseudo-plural — the verbal noun is the
+  // natural MSA. It appeared 3× (FAQ ×2 + the memberships card); the whole
+  // pseudo-plural stays dead on the homepage (numeric counts like «4
+  // توليدات شهريًا» live in memberships.ts — the pricing-page source, out of
+  // this file's scope).
+  it("K-1: the pseudo-plural «توليدات» stays dead; the natural verbal noun lands 3×", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).not.toContain("توليدات");
+    expect(src.match(/توليد خطط أكثر/g)?.length).toBe(3);
+  });
+
+  // K-2: the coaches H2 restores the «featured» meaning the EN carries.
+  it("K-2: the featured-coaches H2 says «مميزون»", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain('"مدربون مميزون على Alkemos"');
+    expect(src).not.toContain("مدربون على المنصة");
+  });
+
+  // K-5: the muscle chip drops the unfinished-edit slash pair; «كور»
+  // matches the register of the transliterated siblings (بايسبس/ترايسبس).
+  it("K-5: the core chip is plain «كور» — no slash pair", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain('labelAr: "كور"');
+    expect(src).not.toContain("بطن/كور");
+  });
+
+  // K-3: the newsletter button drops the salesy «الآن» the EN avoids.
+  it("K-3: the newsletter button is «اشترك مجانًا» — no «الآن»", () => {
+    const src = readFileSync(NEWSLETTER, "utf8");
+    expect(src).toContain('"اشترك مجانًا"');
+    expect(src).not.toContain("اشترك الآن");
+  });
+
+  // K-4: the footer credit AR mirrors the EN "care".
+  it("K-4: the footer credit is «صُنع بعناية» — the old «بحب» stays dead", () => {
+    const src = readFileSync(FOOTER, "utf8");
+    expect(src).toContain('"صُنع بعناية لمجتمع اللياقة"');
+    expect(src).not.toContain("صُنع بحب");
+  });
+
+  // K-6: the retired hero subtitle pair stays dead (the new pair is
+  // pinned up in the BLUEPRINT-257 required list).
+  it("K-6: the retired long hero subtitle stays dead", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).not.toContain("قرارات أفضل والتقدم نحو هدفك");
+    expect(src).not.toContain("keep moving toward your goal");
+  });
+
+  // K-7: the memberships card drops the 4th enumeration item (save
+  // capacity/export) — 3 items max in the 2-col card; the EN core
+  // (generations · EVO chat · ad-free) survives verbatim.
+  it("K-7: the memberships card copy carries a 3-item enumeration", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain(
+      "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتجربة بلا إعلانات.",
+    );
+    expect(src).toContain(
+      "more AI plan generations, unlimited EVO chat, and an ad-free experience",
+    );
+    expect(src).not.toContain("حفظ وتصدير أوسع");
+    expect(src).not.toContain("bigger save capacity");
+  });
+
+  // Exit criterion (§20 V4 row): the FAQ JSON-LD must stay single-source —
+  // the visible array is the only source; the schema derives from it
+  // (getFAQSchema lives in lib/seo.ts — no hardcoded schema here).
+  it("the FAQ JSON-LD stays derived from the visible faqs array (single source)", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain("const faqSchema = getFAQSchema(faqs);");
+    // No hardcoded schema construction in the view — the JSON-LD types
+    // ("@type"/Question literals) live only in lib/seo.ts.
+    expect(src).not.toContain('"@type"');
+    expect(src).not.toContain('"Question"');
   });
 });
 
