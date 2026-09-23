@@ -6,6 +6,24 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V3-LIVE-VERIF-2026-09-23
+Agent: Super Z (owner session)
+Task: التحقق الحي بعد النشر — Wave V3 على إنتاج alkemos.com (الكوميت 932a5bac).
+
+Work Log:
+- النشر مؤكد فور اكتمال بناء Vercel (تخطي كاش Cloudflare بمعامل cb — card-lift حي بالـHTML بعمر 0)
+- CI على 932a5bac: **4/4 خضراء** (Quality gate · Docs & schema parity · Anti-regression guard · Vercel cleanup)
+- الجوال الحي 390×844 EN: **10,274px بالصفحة الكاملة** (كاروسيل LEARN + شريط المدربين حيّان — loadDeferred كما هو متوقع وموثق) · البطل 473px · المسارات 547px · الرقائق صف واحد · أساسي 48/ثانوي 44 · عضويات 48/كوتشينج 44 · خلوص Log in ‏28px · صفر overflow
+- الجوال الحي AR: 10,046px بالكاملة · بطل 473 · مسارات 547 · صفر overflow — الديسكتوب EN ‏1440: أساسي 52/ثانوي 48 · عضويات 52/كوتشينج 48 · صفر overflow
+- مسار الدخان §21.6: **23/23 مسارًا 200** بالغتين (الجذر + 11 مسار EN + 11 مسار AR)
+- لقطات السجل download/v3-shots-prod/ (3)
+
+Stage Summary:
+- V3 حية على الإنتاج ومطابقة للقياسات المحلية حرفيًا — الصفحة الساكنة ≤9,500 محققة والفارق المتبقي حصرًا الأقسام الديناميكية حاملة المحتوى (موثق §25/worklog)
+- Commit SHA: 932a5bac
+- Push status: pushed
+
+---
 Task ID: VRD-V3-2026-09-23
 Agent: Super Z (owner session)
 Task: تنفيذ Wave V3 «كثافة الجوال وCTA» (أمر المالك «اكمل» + توكن دفع) — §11 كثافة البطاقات + §13 معيار الأزرار وعدم التماثل O-3 + §16 بطل الجوال ورقائق العضلات، مع ضغط إيقاع §16.1.
@@ -23,7 +41,7 @@ Work Log:
 Stage Summary:
 - V3 كاملة محليًا كفريم واحد قابل للتراجع: كثافة جوال + معيار أزرار + O-3 + hover موحد + بطل بمسرح حقيقي + رقائق بصف واحد — بلا أي حذف محتوى وبلا أي لون جديد
 - Commit SHA: this commit carries this entry
-- Push status: pending — push + CI + live verification complete the moment the token is applied (same one-frame path)
+- Push status: pushed (932a5bac على origin/main) — التحقق الحي بمدخل VRD-V3-LIVE-VERIF
 
 ---
 Task ID: VRD-V2-LIVE-VERIF-2026-09-23
