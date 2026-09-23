@@ -6,6 +6,26 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V5-LIVE-VERIF-2026-09-23
+Agent: Super Z (owner session)
+Task: التحقق الحي بعد النشر — Wave V5 الختامية على إنتاج alkemos.com (الكوميت 85d5bd76).
+
+Work Log:
+- النشر مؤكد فور اكتمال بناء Vercel (تخطي كاش Cloudflare بمعامل cb): CSS الإنتاج يحمل V5 كاملة بعمر 0
+- CI على 85d5bd76: **4/4 خضراء** (Quality gate · Docs & schema parity · Anti-regression guard · Vercel cleanup)
+- CSS الإنتاج (التشنك الرئيسي 191KB): **صفر** من كل الأدوات المحذوفة (neon-text/gradient-border/grid-bg/text-shimmer/glass-gold/skeleton-shimmer/scroll-hidden/hero-seals/cmp-details/shadow-soft-lg/transition-smooth/fade-in-up/pulse-ring/gold-pulse/float-up/tap-target) · كل الحي حاضر (marble-card/btn-chrome/chips-row/shadow-card/scrollbar-thin/card-hover/footer-marble/meander-divider/mhe-cookie-bar/card-lift) · بصمة التوكنز مطابقة للبناء المحلي حرفيًا (FAF8F5 ×4 · primary ‏67 · قواعد data-theme ‏27) · الذيل الوحيد الباقي `var(--shadow-soft-lg)` المعلّق داخل .sr-only-focusable — محفوظ عمدًا (حال سابق، يُحلّ إلى لا شيء، والمساواة البكسلية أثبتت عدم تأثيره)
+- **أصول texture-marble حذفها حي**: light وdark كلاهما **404** بالإنتاج — وصفر ذكر لها بالـHTML المُقدَّم
+- مسارات الإنتاج 9/9 ‏200 بلغتين (/ · /ar · memberships · tools · blog · evo · auth · ar-memberships · ar-tools) · زوج البطل K-6 حي بالنصين (EN+AR) · صفر overflow أفقي
+- الجوال الحي 390×844: EN ‏**10,274px** (مطابق لسجل V4 الحي بالبكسل) · AR ‏**10,114px** (كانت 10,037 بV4 — فارق +77px بمحتوى LEARN الديناميكي: مقالات أحدث، لا علاقة له بالـCSS — النواة الساكنة محلية مثبتة المساواة البكسلية)
+- لقطات الإنتاج الأرشيفية download/v5-shots-prod/ (8: الرئيسية EN/AR × فاتح/داكن ديسكتوب + موبايل فاتح + memberships فاتح + tools داكن)
+- **برنامج إعادة التصميم البصري V0–V5 مكتمل ومتحقق منه حيًا على الإنتاج** — لا موجة تالية؛ أي عمل بصري لاحق = فريم جديد مستقل بأمر مالك
+
+Stage Summary:
+- V5 حية على الإنتاج ومطابقة للتحقق المحلي والبرهان البكسلي — الكوميت 85d5bd76
+- Commit SHA: 3114a1f3..85d5bd76 (feat 267) + هذا المدخل (268 توثيقي)
+- Push status: pushed (الكوميت التوثيقي هذا يحمل المدخل ويُدفع به)
+
+---
 Task ID: VRD-V5-2026-09-23
 Agent: Super Z (owner session)
 Task: تنفيذ Wave V5 الختامية (أمر المالك «اكمل V5 الختامية… بنفس بروتوكول المشروع… لا تعِد تنفيذ أو شرح أي بند تم حسمه في V1–V4، ولا توسّع النطاق خارج خطة V5 المعتمدة») — §20: مسح الصفحات الثانوية + حذف CSS الميت (C-18) + إعادة كتابة DESIGN.md + إغلاق STATE/worklog.
