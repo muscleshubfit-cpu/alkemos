@@ -6,6 +6,29 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V5-2026-09-23
+Agent: Super Z (owner session)
+Task: تنفيذ Wave V5 الختامية (أمر المالك «اكمل V5 الختامية… بنفس بروتوكول المشروع… لا تعِد تنفيذ أو شرح أي بند تم حسمه في V1–V4، ولا توسّع النطاق خارج خطة V5 المعتمدة») — §20: مسح الصفحات الثانوية + حذف CSS الميت (C-18) + إعادة كتابة DESIGN.md + إغلاق STATE/worklog.
+
+Work Log:
+- التحقق قبل النطاق: V1–V4 كلها مغلقة (كوميتات + تحقق حي موثق: 63c5bc24/3114a1f3 آخرها) — جرد C-18 بgrep منهجي لكل مرشح (فصل صارم code/tests/CSS-نفسه): الحي vs الميت
+- **C-18 توحيد الأجيال (globals.css):** جلد Apple-style `:root` المكرر حُذف — كل الأسماء المشتركة (--background/--card/--popover/--secondary/--muted/--accent/--border/--input/--ring/--sidebar*) كانت ميتة القيم (جيل Marble & Chrome يعلوها بالكاسكيد) · بلوك `.dark` النيلي حُذف كاملًا (لا شيء يضبط class="dark" إطلاقًا — المحرك data-theme) · الناجون الحيون وحدهم (radius · primary+fg · destructive/success/warning/gold+fg · gradient-primary · shadow-glow · shadow-card) دُمجوا ببلوك «shadcn/ui compatibility» موسوم بنفس القيم بايت-حرفيًا — primary الأزرق يبقى لأسطح ui/app فقط (حال سابق خارج نطاق VRD؛ sr-only-focusable يستهلكه أيضًا) · --chart-1..5 + خرائط @theme حُذفت (صفر مستهلكين) · --gradient-gold/--gradient-hero/--shadow-gold ماتت مع مستهلكيها
+- **أدوات ميتة حُذفت (كل واحدة بgrep=0 خارج globals.css والاختبارات):** glass · glass-gold · gradient-border+::before · grid-bg · neon-text · text-shimmer + أول keyframes shimmer · text-gradient-gold · bg-gradient-gold · bg-hero-glow · shadow-gold · shadow-soft-lg · transition-smooth/fast/slow · animate-fade-in · animate-fade-in-up + keyframes · gold-pulse/neon-flicker/float-up/pulse-ring (keyframes+utilities) · scroll-hidden · skeleton-shimmer + ثاني keyframes shimmer · .hero-seals .seal-chip · .cmp-details ×2 · .tap-target · .no-print + مراجعها في بلوكات reduced-motion (×2) وprint · تعليق «all removed» الكاذب صار صادقًا بموثق V5 · الناجيات المؤكدات: text-gradient (PlansView) · bg-gradient-primary (CoachClientView/BlogComponents) · shadow-glow/shadow-card (4 ملفات) · shadow-soft/shadow-soft-glow (ui/button — نيلي #6366f16f محفوظ عمدًا لأسطح المصادقة) · scrollbar-thin · card-hover · marquee · animate-fade-up (use-scroll-animation) · fade-in keyframes
+- **حذف الملفات:** tailwind.config.ts (ميت بنيويًا — تنفيذ توصية V4؛ components.json يشير لglobals.css بلا config) · texture-marble-light/dark.webp (نافذة كاش §19 مضت عبر دورات V3+V4 الإنتاجية — صفر طلبات شبكة مؤكد بالقياس)
+- **DESIGN.md أُعيدت كتابتها كاملة** (414→~460 سطرًا): §2 جديدة «Source-of-Truth Architecture» توثق بنية التوكن الواحد وبلاوك التوافق وقانون «لا تُنشئ config» وقانون إعفاء فن المالك · §3-§7 محدثة لحالة ما بعد V4/V5 (زوج البطل K-6 · تعداد العضويات 3 بنود K-7 · الجدول الحقيقي بلا cmp-details · حذف hero-seals · سجل النصوص K-1..K-5) · §10 بروتوكول التحقق يضيف المصفوفة/الكاناري/المساواة البكسلية
+- **الإثبات الذهبي — مساواة بكسلية pre/post:** نفس مصفوفة 10 سياقات (رئيسية EN/AR × فاتح/داكن × 1440/390 + /auth فاتح/داكن) التُقطت من بناء HEAD وبناء V5 (git stash/pop) — 3 متطابقة بايت-بايت و7 بصفر بكسل شديد (فرق قناة >8: لا شيء؛ البقايا = توقيت كاروسيل/marquee فقط) — **V5 صفر تغيير بصري مثبتًا** (سكربت /home/z/my-project/scripts/v5_equivalence.py كقالب موثق بDESIGN.md §10.7)
+- المسح الثانوي (next start محليًا): memberships/tools/blog/evo/auth ‏EN+AR × فاتح/داكن (1440) + موبايل 390 — التوكنز موروثة محسوبًا (#FAF8F5/#12100E · حافة بطاقة rgb(206,201,192)/rgb(58,54,47) · حبر زر #1C1710) · صفر overflow أفقي · 95 مسارًا مرتبطًا بالرئيسية 200 بلغتين · صفر طلبات texture-marble · ارتفاع الرئيسية EN ‏9,474px عند 390 (مطابق لـV4 بالبكسل) — ملاحظتا بيئة محلية موثقتان: /api/coaches/featured ‏500 محليًا بلا Supabase (إنتاجًا يعيد [] — سابق لـV5) وVercel insights 404 محليًا
+- VLM (§21.4 النهائي): الرئيسية 6 سياقات PASS ‏6/6 · الثانوية 8 لقطات PASS ‏8/8 · AR+موبايل 6 لقطات PASS ‏5/6 — الرفض الوحيد (بانر memberships الداكن AR «أزرق») دُحض موضوعيًا: تحليل هوية البانر (49.6% بكسلات باردة — فن المالك من Phase 126 كوميت 74cee582) + نفس الأصل مرّ PASS بلقطة EN بنفس الدفعة + الأصل غير ممسوس بV5 والمساواة البكسلية تثبته — تذبذب حكم VLM، أُدرج قانون «فن المالك معفى من قانون الألوان» بDESIGN.md §1.6 و§10.6
+- البوابات: tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell المسبق وحده) · vitest ✓ 100/1706 (الكانارياهات التي تقرأ globals.css — rtl-typography 9 + homepage-adoption 31 — خضراء بلا أي re-pin: V5 لم تمس الماركأب ولا نصًا) · build ✓ 2020/2020 · مصفوفة التباين ✓ كل البوابات (صفر تغيير توكنز) · parity/migration/stale-refs/ui-wiring/docs_audit ✓ (STATE ‏97 سطرًا/31,785B تحت السقف — دمج صفّي 243+242 وتحويل بند إعادة التصميم ب«المفتوح» إلى مُغلق)
+- توثيق: صف **V5 GO** بجدول قرارات §25 بوثيقة التدقيق (نمط V4) · docs/README صف DESIGN.md ‏(VRD-V5 rewrite) · docs/_AUDIT.md ‏(إزالة tailwind.config من قائمة functional config مع توثيق) · STATE صف 266 + إغلاق البرنامج
+
+Stage Summary:
+- V5 كاملة كفريم واحد قابل للتراجع: توحيد أجيال التوكنز + 22 أداة/قاعدة ميتة محذوفة بgrep + ملفان وأصلان ميتان محذوفان + DESIGN.md كمرجع ملزم جديد — بصفر تغيير بصري (مثبت بكسليًا) وبصفر مساس بأي بند محسوم من V1–V4
+- **برنامج إعادة التصميم البصري V0–V5 مكتمل** — لا موجة تالية
+- Commit SHA: this commit carries this entry
+- Push status: pending (يدفع بهذا الفريم — التحقق الحي بمدخل لاحق)
+
+---
 Task ID: VRD-V4-LIVE-VERIF-2026-09-23
 Agent: Super Z (owner session)
 Task: التحقق الحي بعد النشر — Wave V4 على إنتاج alkemos.com (الكوميت 63c5bc24).

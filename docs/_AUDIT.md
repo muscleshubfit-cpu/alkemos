@@ -62,7 +62,7 @@
 - `LICENSE` — functional config (proprietary license).
 - `bun.lock` — functional config (lockfile).
 - `.gitignore` — functional config (ignore patterns).
-- `next.config.ts`, `tailwind.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`, `vercel.json`, `metadata.json`, `public/manifest.json`, `public/sw.js`, `supabase/migrations/*.sql` — functional config (tooling/runtime).
+- `next.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`, `vercel.json`, `metadata.json`, `public/manifest.json`, `public/sw.js`, `supabase/migrations/*.sql` — functional config (tooling/runtime). (`tailwind.config.ts` was deleted in VRD-V5 — dead under Tailwind v4 CSS-first; the live config surface is `src/app/globals.css` `@theme`/`@utility` per DESIGN.md §2.)
 
 ### 1.4 ملف مفقود مهم
 

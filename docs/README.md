@@ -20,7 +20,7 @@
 | `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 239 — public-interface rewrite: current-Alkemos-only, number-law + STATE-link preserved) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-19 (Ph 233) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-18 | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-23 (VRD-V0 — unlayered-RTL typography note) | — |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-23 (VRD-V5 — full rewrite to the post-redesign system: single-token architecture, C-18 closure) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-08-21 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |
