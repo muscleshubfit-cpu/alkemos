@@ -603,13 +603,17 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
             <nav
               aria-label={isAr ? "خدمات المنصة" : "Platform services"}
               data-service-nav
-              className="ms-2 hidden items-center gap-0.5 lg:flex"
+              className="ms-2 hidden items-center gap-1 lg:flex"
             >
               {SERVICE_NAV.map((section) => {
                 const Icon = section.icon;
                 if (section.items) {
                   return (
                     <div key={section.id} className="relative group">
+                      {/* VRD-V2 §12: +2px item padding (12→14px) — the
+                          VLM pass read the 14px labels as «cramped»
+                          against the 64px navbar; label size itself is
+                          already 14px (text-sm) and stays. */}
                       <button
                         type="button"
                         aria-haspopup="menu"
@@ -617,7 +621,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                         onClick={() =>
                           setOpenMenu((prev) => (prev === section.id ? null : section.id))
                         }
-                        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                        className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
                       >
                         <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
                         {isAr ? section.labelAr : section.labelEn}
@@ -665,7 +669,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                   <a
                     key={section.id}
                     href={section.href}
-                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                    className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
                   >
                     <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
                     {isAr ? section.labelAr : section.labelEn}

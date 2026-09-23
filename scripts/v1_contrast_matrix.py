@@ -145,11 +145,28 @@ def parse_css():
         r"color-mix\(in srgb,\s*var\(--text\)\s+([\d.]+)%,\s*transparent\)", ring
     )
 
-    return light, dark, btn_ink, ct_light_stops, ct_dark_stops, ring_mix
+    # VRD-V2 S-5: cookie-bar glass mix percentages (light + dark). The
+    # \n anchor skips the earlier `html[data-mhe-consent-ok]` hide rule.
+    cookie = rule_body(re.compile(r"\n\.mhe-cookie-bar\s*\{"))
+    cookie_dark = rule_body(re.compile(r'\[data-theme="dark"\]\s+\.mhe-cookie-bar\s*\{'))
+    cookie_mix = re.search(
+        r"color-mix\(in srgb,\s*var\(--card\)\s+([\d.]+)%,\s*transparent\)", cookie
+    )
+    cookie_dark_mix = re.search(
+        r"color-mix\(in srgb,\s*var\(--card\)\s+([\d.]+)%,\s*transparent\)", cookie_dark
+    )
+
+    return (
+        light, dark, btn_ink, ct_light_stops, ct_dark_stops, ring_mix,
+        cookie_mix, cookie_dark_mix,
+    )
 
 
 def main():
-    light, dark, btn_ink, ct_light, ct_dark, ring_mix = parse_css()
+    (
+        light, dark, btn_ink, ct_light, ct_dark, ring_mix,
+        cookie_mix, cookie_dark_mix,
+    ) = parse_css()
     failures, warnings = [], []
 
     def gate(ok, label, detail=""):
@@ -210,6 +227,25 @@ def main():
     for mode, toks in (("light", light), ("dark", dark)):
         e = contrast(toks["--edge"], toks["--bg"])
         print(f"  --edge on --bg [{mode}]: {e:.2f}:1 (decorative hairline)")
+
+    # VRD-V2 S-5: cookie-bar glass — the bar floats over arbitrary page
+    # content, so the honest worst case is a SYNTHETIC underlay: pure
+    # black under the light glass / pure white under the dark glass.
+    # The label token (--muted-2) and the outline-button ink (--text)
+    # must keep >= 4.5:1 through the translucent card blend, both modes.
+    print("\n== cookie-bar glass (VRD-V2 S-5, synthetic worst-case underlay) ==")
+    if cookie_mix and cookie_dark_mix:
+        a_l = float(cookie_mix.group(1)) / 100.0
+        a_d = float(cookie_dark_mix.group(1)) / 100.0
+        glass_light = blend(light["--card"], "#000000", a_l)
+        glass_dark = blend(dark["--card"], "#FFFFFF", a_d)
+        for tok in ("--muted-2", "--text"):
+            r = contrast(light[tok], glass_light)
+            gate(r >= 4.5, f"cookie glass [{tok}] light (card {cookie_mix.group(1)}% over black)", f"{r:.2f}:1")
+            r = contrast(dark[tok], glass_dark)
+            gate(r >= 4.5, f"cookie glass [{tok}] dark (card {cookie_dark_mix.group(1)}% over white)", f"{r:.2f}:1")
+    else:
+        failures.append("cookie glass color-mix rules not found in .mhe-cookie-bar")
 
     print()
     if failures:

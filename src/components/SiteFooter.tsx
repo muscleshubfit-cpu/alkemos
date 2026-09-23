@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
+
 import { useI18n } from "@/lib/i18n";
 import { ThemeImg } from "@/components/ThemeImg";
 import { SOCIAL_PROFILES } from "@/lib/social";
@@ -29,6 +31,16 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  * EN "Built with care for the fitness community" · AR "صُنع بحب لمجتمع اللياقة"
  * (the old geographically-scoped pair is retired).
  *
+ * VRD-V2 §12 (owner order 2026-09-23 «اكمل المرحلة التالية», audit C-8:
+ * the mobile footer measured 1,273px at 390px): below lg the five
+ * service lists collapse into TWO native <details> disclosure groups
+ * («الخدمات / Services» + «المنصة / Platform», 44px summary rows) while
+ * lg+ keeps the six-column service map — the header's own desktop-nav +
+ * drawer responsive pattern. Every link lives in BOTH copies with the
+ * exact same href (href-sync law, canary-pinned: each footer href
+ * exactly ×2) so the Phase-202 service map, locale-awareness, and
+ * access-point laws survive the rebuild verbatim.
+ *
  * Placement law: render AFTER the page's <main> inside the
  * min-h-screen flex-col wrapper (mt-auto keeps it pinned to the bottom).
  *
@@ -53,14 +65,15 @@ export function SiteFooter() {
       {/* Meander divider on the top edge (mission §14) */}
       <div className="footer-meander-top absolute inset-x-0 top-0" aria-hidden="true" />
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
+        <div className="lg:grid lg:grid-cols-6 lg:gap-x-8">
           {/* Brand — theme-aware lockup (Phase 132): the black footer
               lockup on the light band / the white one on the dark band
               (VRD-V1: the marble slab became a clean structural band —
               tint/hairline light, deeper step dark), rendered as a
               ThemeImg pair so CSS swaps it with zero hydration flicker.
-              Spans the full row below lg so the lists pair up cleanly. */}
-          <div className="col-span-2 md:col-span-3 lg:col-span-1">
+              Full-width block below lg (the disclosure groups follow),
+              first column of the grid at lg. */}
+          <div className="lg:col-span-1">
             <ThemeImg
               light="/images/brand/logo-footer-black.png"
               dark="/images/brand/logo-footer-white.png"
@@ -97,12 +110,98 @@ export function SiteFooter() {
             </div>
           </div>
 
+          {/* MOBILE (below lg) — VRD-V2 §12 disclosure groups (audit
+              C-8): the footer measured 1,273px at 390px because five
+              full link lists stack between the brand and the
+              newsletter. Two native <details> groups with 44px summary
+              rows collapse them; zero JS, SSR-rendered, keyboard-native
+              (Enter/Space toggle). Lists mirror the desktop copy below
+              — href-sync law: every footer href exactly ×2
+              (canary-pinned in homepage-adoption.test.ts). */}
+          <div className="mt-8 divide-y divide-[var(--edge)] border-y border-[var(--edge)] lg:hidden">
+            <details className="footer-disc group">
+              <summary className="flex min-h-11 items-center justify-between py-2">
+                <span className="text-sm font-medium text-[var(--text)]">{isAr ? "الخدمات" : "Services"}</span>
+                <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+              </summary>
+              <div className="grid grid-cols-2 gap-x-6 pb-4 pt-1">
+                {/* Mirrors the desktop Training list (href-sync law). */}
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
+                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
+                    <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
+                    <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="block py-1 hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
+                    <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="block py-1 hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
+                    <li><a href={isAr ? "/ar/programs" : "/programs"} className="block py-1 hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
+                  </ul>
+                </div>
+                {/* Mirrors the desktop Nutrition list (href-sync law). */}
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
+                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
+                    <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
+                    <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+                    <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="block py-1 hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
+                    <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="block py-1 hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
+                  </ul>
+                </div>
+                {/* Mirrors the desktop Tools & AI list (href-sync law). */}
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
+                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
+                    <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator"}</a></li>
+                    <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator"}</a></li>
+                    <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
+                    <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
+                    <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع شرب الماء" : "Water Tracker"}</a></li>
+                    <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
+                    <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="block py-1 hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
+                  </ul>
+                </div>
+                {/* Mirrors the desktop Coaching & Services list (href-sync law). */}
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
+                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
+                    <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
+                    <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
+                    <li><a href={isAr ? "/ar/evo" : "/evo"} className="block py-1 hover:underline">EVO AI Coach</a></li>
+                    <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
+                    <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="block py-1 hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
+                  </ul>
+                </div>
+              </div>
+            </details>
+            <details className="footer-disc group">
+              <summary className="flex min-h-11 items-center justify-between py-2">
+                <span className="text-sm font-medium text-[var(--text)]">{isAr ? "المنصة" : "Platform"}</span>
+                <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+              </summary>
+              {/* Mirrors the desktop Company list; the summary IS the
+                  heading here, so the list carries no <p> of its own. */}
+              <div className="grid grid-cols-2 gap-x-6 pb-4 pt-1">
+                <ul className="mt-3 space-y-2 text-[13px] leading-7">
+                  <li><a href={isAr ? "/ar/blog" : "/blog"} className="block py-1 hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
+                  <li><a href={isAr ? "/ar/compare" : "/compare"} className="block py-1 hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
+                  <li><a href={isAr ? "/ar/about" : "/about"} className="block py-1 hover:underline">{isAr ? "من نحن" : "About"}</a></li>
+                  <li><a href={isAr ? "/ar/contact" : "/contact"} className="block py-1 hover:underline">{isAr ? "تواصل معنا" : "Contact"}</a></li>
+                  <li><a href={isAr ? "/ar/faq" : "/faq"} className="block py-1 hover:underline">{isAr ? "أسئلة شائعة" : "FAQ"}</a></li>
+                  <li><a href={isAr ? "/ar/privacy" : "/privacy"} className="block py-1 hover:underline">{isAr ? "الخصوصية" : "Privacy"}</a></li>
+                  <li><a href={isAr ? "/ar/terms" : "/terms"} className="block py-1 hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          {/* DESKTOP (lg+) — the six-column service map, structurally
+              unchanged since Phase 202; VRD-V2 §12 only moves the type
+              ramp (13px links / leading-7 rows / 11px headings). */}
+          <div className="hidden gap-x-8 lg:col-span-5 lg:grid lg:grid-cols-5">
           {/* List 1: TRAINING (Phase 202 service map — same links as the
               old Resources list, grouped under the service the visitor
               comes to use). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
-            <ul className="mt-3 space-y-2 text-xs">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
+            <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
               <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="block py-1 hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
               <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="block py-1 hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
@@ -115,8 +214,8 @@ export function SiteFooter() {
           {/* List 2: NUTRITION (Phase 202 service map — foods, meal
               planner, diet plans, collections). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
-            <ul className="mt-3 space-y-2 text-xs">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
+            <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
               {/* §12.27: locale-aware mirrors + the diet-plan matrix entry. */}
               <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
@@ -129,8 +228,8 @@ export function SiteFooter() {
               cluster + the AI planners; exact same links as the old Tools
               list). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
-            <ul className="mt-3 space-y-2 text-xs">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
+            <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator"}</a></li>
               <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
@@ -146,8 +245,8 @@ export function SiteFooter() {
               EVO, affiliate, for-coaches; exact same links as the old
               sales + partners lists). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
-            <ul className="mt-3 space-y-2 text-xs">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
+            <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
               <li><a href={isAr ? "/ar/evo" : "/evo"} className="block py-1 hover:underline">EVO AI Coach</a></li>
@@ -163,8 +262,8 @@ export function SiteFooter() {
               remaining public surface is reachable; exact same links as
               the old Legal & Basic list + Blog + Comparisons). */}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المنصة" : "Company"}</p>
-            <ul className="mt-3 space-y-2 text-xs">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المنصة" : "Company"}</p>
+            <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/blog" : "/blog"} className="block py-1 hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
               <li><a href={isAr ? "/ar/compare" : "/compare"} className="block py-1 hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
               <li><a href={isAr ? "/ar/about" : "/about"} className="block py-1 hover:underline">{isAr ? "من نحن" : "About"}</a></li>
@@ -173,6 +272,7 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/privacy" : "/privacy"} className="block py-1 hover:underline">{isAr ? "الخصوصية" : "Privacy"}</a></li>
               <li><a href={isAr ? "/ar/terms" : "/terms"} className="block py-1 hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
             </ul>
+          </div>
           </div>
         </div>
 

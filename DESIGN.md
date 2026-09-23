@@ -152,10 +152,12 @@ prices/stat numbers.
 | `.seal-chip` | chrome-border pill, small-caps tracking, `--muted-foreground`, translucent card bg | Stat seals, tags, badges |
 | `.chrome-text` | Phase 198 (audit C3) + VRD-V1 warm re-tune: light theme = dark warm-steel ramp (lightest stop ≈ 10:1 on ivory); dark theme = lightened warm ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
 | `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 (kept — light Greek identity) | Section separators |
-| `.navbar-chrome` | sticky, `--navbar-bg` (Phase 198 audit C5: alpha 0.85) + blur(12px) + chrome bottom border | Site header |
+| `.navbar-chrome` | sticky, `--navbar-bg` (Phase 198 audit C5: alpha 0.85) + blur(12px) + chrome bottom border; VRD-V2 §12: desktop nav items px-3.5 (+2px) + gap-1 — 64px bar unchanged | Site header |
 | `.evo-hero-card` / `.evo-hero-art` | Phase 127 EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask | Homepage EVO section |
 | `.hero-art` / `.hero-bg` | Phase 131 unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it; min-height floor 100vw×713/1280 (92vh on wide viewports) | Homepage hero |
 | `.footer-marble` | VRD-V1 structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (marble slab removed — audit C-7; name kept, markup untouched) | Site footer |
+| `.footer-disc` | VRD-V2 §12 (audit C-8): below lg the five service lists collapse into two native `<details>` groups («الخدمات/Services» + «المنصة/Platform», 44px summary rows, zero JS); lg+ shows the flat 6-column map — href-sync law ×2 (canary-pinned) | Mobile footer |
+| `.mhe-cookie-bar` | VRD-V2 S-5 (audit C-16): theme-aware GLASS — `color-mix(--card 92% / 88% dark, transparent)` + `backdrop-filter: blur(16px)`; solid-card `@supports` fallback; worst-case contrast gated in `scripts/v1_contrast_matrix.py` | Cookie consent bar |
 
 **Buttons law:** there are exactly TWO button styles on marketing/hub
 surfaces — `.btn-chrome` (primary) and `.btn-outline` (secondary). No
@@ -310,22 +312,27 @@ icon; "no" = muted `×` at opacity .5. Below md the table compacts itself
 (`text-xs`, `p-2.5` cells, wrapped text, short trainer header label) so
 the grid stays readable with zero cutoff — cards are NEVER used.
 
-### 7.6 Footer (theme-aware marble, list-menus)
+### 7.6 Footer (structural band + responsive disclosure)
 
-**Phase 132 («لايت مود خلفية الرخام الفاتح وكتابة سوداء، دارك مود رخام
-أسود وكتابة أبيض»): the footer is THEME-AWARE now.** `.footer-marble`
-resolves `var(--bg)` + `var(--marble-img)` (light marble + black text in
-light; black marble + white text in dark) — the old permanently-dark
-slab (mission §14) is retired. The lockup is a ThemeImg pair
-(`logo-footer-black.png` — inverted from the white lockup — /
-`logo-footer-white.png`), the meander band follows `var(--meander-img)`,
-menu headings are `var(--text)`, links are `var(--muted-2)` → hover
-`var(--text)`, separators `var(--edge)`. Phase 131
-(«قوائم بدلاً من صف واحد»): menu-style vertical LISTS in a grid —
-`grid-cols-2` (phones) / `grid-cols-3` (md) / `grid-cols-6` (lg = brand +
-5 lists: Paid Services, Affiliate & Referral, Tools, Resources, Legal &
-Basic). Every footer link lives in a vertical list — no horizontal link
-rows. Bottom credit line centered above nothing else.
+**VRD-V1:** the marble slab is gone — `.footer-marble` is a clean
+structural band (`--tint` + `--edge` hairline light / deeper step
+`#0E0C0A` dark), the meander top band stays (light Greek identity), the
+lockup is the ThemeImg pair (`logo-footer-black.png` /
+`logo-footer-white.png`), headings `var(--text)` 11px/600, links
+`var(--muted-2)` 13px / leading-7 → hover `var(--text)` (+ underline).
+
+**VRD-V2 §12 (audit C-8 — the mobile footer measured 1,273px at
+390px):** below `lg` the five service lists collapse into TWO native
+`<details>` disclosure groups («الخدمات / Services» — Training /
+Nutrition / Tools & AI / Coaching & Services with their sub-headings —
+and «المنصة / Platform» — the Company list) with 44px summary rows,
+zero JS, SSR-rendered, keyboard-native. Collapsed footer: **668px**.
+At `lg+` the flat six-column service map (brand + 5 lists, Phase 202)
+renders from a separate lg-only grid — the header's own desktop-nav +
+drawer pattern. Every link exists in BOTH copies with the exact same
+href: the **href-sync law** (each footer href exactly ×2 in
+`SiteFooter.tsx`) is canary-pinned in `homepage-adoption.test.ts`.
+The bottom credit line stays centered under the newsletter block.
 
 ### 7.7 Secondary pages (Phase 132 identity rollout)
 

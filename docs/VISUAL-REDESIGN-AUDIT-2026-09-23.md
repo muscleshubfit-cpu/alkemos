@@ -536,9 +536,11 @@ rejected the bronze accent («مش عاجبنى لون البرونز») and set
 | V1 scope (EXTENDED) | **Marble treatment removed per V1** (owner order — the plan had it in V2). | `.marble-card::before` + `.footer-marble` slab retired in the V1 commit; cards get the §9.1 inner top-edge highlight; footer becomes the structural band. **Meander dividers STAY** (light Greek identity kept). V2 keeps the remaining surface work (footer rebuild, header spacing, cookie glass). |
 | Modes | **Light and Dark are equal citizens** (§15 unchanged). | Dark shim values land in the same V1 token commit. |
 | O-1/O-2/O-3/O-5 | Provisional adoption stands: no logo regen · no footer motif · CTA asymmetry YES (lands V3) · **pause after V1** for the owner's visual review before V2–V5. | Execution session stops after V1 + live verification and awaits the owner. |
+| **V2 GO (owner order 2026-09-23 «اكمل المرحلة التالية»)** | **V2 executed** (phase 262): footer rebuild (§12/C-8 — mobile 1,273px → **668px**: two native `<details>` groups «الخدمات/Services» + «المنصة/Platform», 44px rows, lg+ keeps the 6-col map via the desktop/drawer pattern; href-sync law ×2 canary-pinned; 13px/leading-7 links + 11px headings) · header spacing (§12: nav items px-3.5 +2px, gap-1) · cookie glass (S-5/C-16: `color-mix(--card 92%/88% dark)` + `blur(16px)` + `@supports` solid fallback). **Meander stays everywhere** (owner direction — §25 V1 row supersedes the plan's §9.2 removal; footer-meander-top + both homepage dividers kept). Contrast gate extended: glass worst-case underlay (synthetic black/white) — label 7.58/6.87 · ink 14.07/11.01, all ≥4.5:1. | Desktop/mobile × EN/AR × light/dark verified (5-col grid aligned, RTL, zero overflow 390px, VLM pass); next wave V3 awaits the owner's order per O-5 discipline. |
 
 Validation: `scripts/v1_contrast_matrix.py` (committed with V1 — §21.1 made real for the monochrome
 system: text/surfaces ≥4.5:1 both modes, chrome-stop ink ≥4.5:1, `.chrome-text` ramps ≥4.5:1 incl.
 the pinned-black cards, focus ring ≥3:1, alternation ΔL* ≥2.8 both modes — measured from
-`globals.css` at run time, never hand-copied).
+`globals.css` at run time, never hand-copied; **extended in V2** with the cookie-glass worst-case
+underlay gates).
 

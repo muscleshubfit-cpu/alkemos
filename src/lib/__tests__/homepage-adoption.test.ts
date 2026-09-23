@@ -290,6 +290,67 @@ describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => 
   });
 });
 
+describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
+  // Audit C-8 (mobile footer 1,273px at 390px) + §12: below lg the five
+  // service lists collapse into TWO native <details> groups; lg+ keeps the
+  // six-column service map. The rebuild must never drop or fork a link.
+  it("mobile: two native disclosure groups with 44px summary rows; desktop: the 5-column map survives", () => {
+    const src = readFileSync(FOOTER, "utf8");
+    // The two mobile disclosure groups (native <details>, zero JS).
+    for (const required of [
+      'className="footer-disc group"',
+      "<details",
+      "<summary",
+      '"الخدمات" : "Services"',
+      '"المنصة" : "Platform"',
+      "min-h-11",
+      "group-open:rotate-180",
+      "lg:hidden",
+    ]) {
+      expect(src, `footer disclosure missing: ${required}`).toContain(required);
+    }
+    // Desktop keeps the flat service map (hidden below lg).
+    expect(src).toContain("lg:grid lg:grid-cols-5");
+    // The §12 type ramp landed (13px links / 11px headings).
+    expect(src).toContain("text-[13px] leading-7");
+    expect(src).toContain("text-[11px] font-semibold");
+    expect(src).not.toContain("text-[10px] font-semibold");
+  });
+
+  // HREF-SYNC LAW: every footer link lives in BOTH the mobile disclosure
+  // copy and the desktop column copy — each locale-aware href appears
+  // EXACTLY twice. A count of 1 means a fork (a link lost from one
+  // breakpoint); a count >2 means a stray third copy crept in.
+  it("href-sync: every footer link href appears exactly twice (mobile + desktop copies)", () => {
+    const src = readFileSync(FOOTER, "utf8");
+    const hrefs = src.match(/href=\{isAr \? "[^"]+" : "[^"]+"\}/g) ?? [];
+    expect(hrefs.length).toBeGreaterThanOrEqual(54);
+    const counts = new Map<string, number>();
+    for (const h of hrefs) counts.set(h, (counts.get(h) ?? 0) + 1);
+    const offenders = [...counts.entries()].filter(([, n]) => n !== 2);
+    expect(
+      offenders,
+      `footer hrefs not exactly ×2 (missing from one copy or duplicated): ${JSON.stringify(offenders)}`,
+    ).toEqual([]);
+  });
+
+  // S-5 (audit C-16): the cookie bar is theme-aware GLASS — translucent
+  // card + backdrop blur, with a solid-card fallback for browsers without
+  // backdrop-filter. Contrast through the glass is gated in
+  // scripts/v1_contrast_matrix.py (worst-case underlay, both modes).
+  it("cookie bar: theme-aware glass surface + no-backdrop-filter fallback", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    for (const required of [
+      "color-mix(in srgb, var(--card) 92%, transparent)",
+      "color-mix(in srgb, var(--card) 88%, transparent)",
+      "backdrop-filter: blur(16px)",
+      "@supports not ((backdrop-filter: blur(1px))",
+    ]) {
+      expect(css, `cookie glass missing: ${required}`).toContain(required);
+    }
+  });
+});
+
 describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
   // The FIVE owner-specified questions (Arabic anchors + independent
   // English). Every claim mirrors the implementation; the retired

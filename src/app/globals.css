@@ -573,14 +573,29 @@ html[data-mhe-consent-ok] .mhe-cookie-bar { display: none !important; }
   bottom: 0;
   z-index: 100;
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  background: var(--card);
+  /* VRD-V2 S-5 (audit C-16): theme-aware GLASS — translucent card +
+     backdrop blur instead of the solid slab, so the bar stops reading
+     as a foreign overlay cutting the hero composition. Worst-case
+     contrast is GATED (scripts/v1_contrast_matrix.py): the label and
+     outline-button inks vs the glass blended over a synthetic
+     pure-black (light) / pure-white (dark) underlay keep >= 4.5:1 in
+     BOTH modes — measured, not assumed. Browsers without
+     backdrop-filter keep the solid card via the @supports fallback
+     below (progressive enhancement, zero behavior change). */
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
   border-top: 1px solid var(--edge);
   box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
   contain: layout style;
 }
 [data-theme="dark"] .mhe-cookie-bar {
-  background: var(--card);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
   box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.45);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mhe-cookie-bar,
+  [data-theme="dark"] .mhe-cookie-bar { background: var(--card); }
 }
 
 /* PHASE 144 — NO-COVER GUARANTEE (the 2026-09-07 /auth finding: the login
@@ -635,6 +650,23 @@ html:not([data-mhe-consent-ok]) body {
   transition: color 0.2s ease;
 }
 .footer-marble a:hover { color: var(--text); }
+
+/* VRD-V2 §12 (audit C-8, mobile footer 1,273px → ≤ ~750px): below lg the
+   five service lists collapse into TWO native <details> disclosure
+   groups — «الخدمات / Services» and «المنصة / Platform» — with 44px
+   summary rows. Zero JS, SSR-rendered, keyboard-native (Enter/Space
+   toggle), and the closed state removes the links from the a11y tree
+   cleanly (that is why the desktop copy is a SEPARATE lg-only grid —
+   the header's own desktop-nav + drawer pattern — instead of a CSS
+   force-open hack that would desync sighted vs screen-reader users).
+   The href-sync law (every footer href exactly ×2 in SiteFooter.tsx)
+   is canary-pinned in homepage-adoption.test.ts. */
+.footer-disc summary {
+  cursor: pointer;
+  list-style: none;
+}
+.footer-disc summary::-webkit-details-marker { display: none; }
+.footer-disc summary::marker { content: ""; }
 
 /* ====================================================================
  * DARK-COMPATIBILITY SHIM (Phase 126) — the identity conversion covered
