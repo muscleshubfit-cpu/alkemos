@@ -6,8 +6,29 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: HOME-REBUILD-258-2026-09-24
+Agent: Super Z (owner session)
+Task: Rebuild the homepage from scratch as a global product interface (owner directive 2026-09-24) — research-driven UX/CRO, native EN/AR copy, honest free-vs-paid story.
+
+Work Log:
+- Cloned/verified repo at a293a435 (main, clean); audited the live site (full-page captures EN desktop 1440 + mobile 390) + LandingView.tsx (HOME-BLUEPRINT-257 10-section structure) + all pinning tests.
+- Research task (sub-agent): 35 web searches + direct captures of 12 world fitness homepages (Hevy, Strong, Alpha Progression, MFP, WHOOP, Peloton, Freeletics, Caliber, Future, Fitbod, MacroFactor, Jefit) + UX/CRO/SEO-GEO 2025-26 best practices; report saved to the session workspace.
+- Diagnosis: no proof anywhere near the hero; generic H1 (no SERP message match); three overlapping "how it works" blocks; free-vs-paid fully opaque (prices hidden, quota facts absent); no refund trust signal.
+- LandingView.tsx rebuilt — NINE blocks: Hero (new native H1 pair message-matching the SERP snippets: «Train smarter. Eat with precision.» / «تدرّب بذكاء. وتغذَّ بدقة.» + the Phase-203 CTA law unchanged) → NEW proof strip (EX_PLUS / FOODS_PLUS / TOOLS_COUNT / the 10-message EVO limit — auditable constants only) → Explore three paths → Train (samples + programs) → Eat → MERGED Intelligence section (#evo: planners + EVO, steps 01-03, quota-transparency box, Try-EVO opens the floating widget — surface law kept) → Learn → Free-vs-Paid (#memberships: THREE cards — Free / Premium & Pro (dark Pro recipe + «Recommended» straddling seal from /memberships) / Coaching — prices DERIVED from memberships.ts lookups, never literals + the REAL 7-day refund line) → FAQ (five questions kept) → final CTA.
+- Featured-coaches strip (0037) + header/footer untouched (their canaries hold).
+- Canaries re-pinned in the SAME change: homepage-adoption.test.ts fully rewritten to the new structure (single-source pricing law, proof-strip constants, merged-#evo quota facts, new headline pairs, order map, drift guards); ai-meal-planner.test.ts headline pins moved to the new #evo anchor; marketing-msa-surface.test.ts Phase-195 block: TOOLS_COUNT required on the homepage (proof strip), TOOLS_PLUS ban kept.
+- DESIGN.md §7.1/§7.3/§7.4 rewritten (new hero copy + proof-strip recipe + Intelligence section + Free-vs-Paid cards); STATE.md phase 268 + QA; old QA rows compressed within the caps.
+- Gates: tsc 0 · eslint 0 (pre-existing root-shell warning only) · vitest 100/1703 · next build 2020/2020 · docs_audit + docs_parity ✓. Live (local prod build): EN/AR × light/dark × 1440/390 full-page passes; fixed one visual defect pre-push (Recommended seal overlapped the price → moved to the straddling /memberships recipe).
+
+Stage Summary:
+- Homepage is now a research-driven, proof-led product page with an honest money moment; zero invented claims (no fake testimonials/ratings — recommended to add REAL ones when available).
+- Commit SHA: this commit carries this entry
+- Push status: pending (pushed with this frame — live verification by a follow-up LIVE-VERIF entry)
+
+---
 Task ID: VRD-V5-LIVE-VERIF-2026-09-23
 Agent: Super Z (owner session)
+
 Task: التحقق الحي بعد النشر — Wave V5 الختامية على إنتاج alkemos.com (الكوميت 85d5bd76).
 
 Work Log:

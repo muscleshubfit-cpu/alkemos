@@ -360,17 +360,16 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     }
     // (4) The dynamic contract: the homepage derives its numbers from
     // the shared constants (grow automatically with data).
-    // HOME-BLUEPRINT-257 (owner-approved blueprint 2026-09-23): the
-    // homepage shows ONLY the two specified counts — exercises (Train)
-    // and foods (Eat). The tools count left the homepage with the
-    // retired hero chips/explore grid (numbers appear only where the
-    // blueprint specifies); TOOLS_PLUS stays pinned to the surfaces
-    // that still carry it below.
+    // HOME-REBUILD-258 (owner directive 2026-09-24): the PROOF STRIP
+    // carries the platform's auditable numbers — exercises (EX_PLUS),
+    // foods (FOODS_PLUS), and the tools count (TOOLS_COUNT, the
+    // "no account needed" hook). The old TOOLS_PLUS constant stays off
+    // the homepage (the raw "8+" claim chip remains retired).
     const landing = readFileSync("src/components/views/LandingView.tsx", "utf8");
-    for (const required of ["EX_PLUS", "FOODS_PLUS"]) {
+    for (const required of ["EX_PLUS", "FOODS_PLUS", "TOOLS_COUNT"]) {
       expect(landing, `dynamic count constant missing: ${required}`).toContain(required);
     }
-    expect(landing, "the tools count left the homepage (blueprint §numbers law)").not.toContain("TOOLS_PLUS");
+    expect(landing, "the retired TOOLS_PLUS chip must not return").not.toContain("TOOLS_PLUS");
     // (5) The tools hub + memberships consume the single source.
     const toolsPage = readFileSync("src/app/(en)/tools/page.tsx", "utf8");
     expect(toolsPage).toContain('from "@/lib/tools-shared"');

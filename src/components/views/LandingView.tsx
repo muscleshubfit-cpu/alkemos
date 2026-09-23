@@ -14,6 +14,7 @@ import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPost
 import { deferIdle } from "@/lib/defer-idle";
 import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
+import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -29,15 +30,12 @@ import type {
 } from "@/lib/home-samples";
 
 // ============================================================
-// Site palette — Gemini-card palette extended to all landing sections
-// All tokens meet WCAG AAA (≥7:1) on their intended backgrounds
+// Site palette — the Marble & Chrome identity resolves through
+// the CSS variables in globals.css (:root + [data-theme="dark"]).
+// All tokens meet WCAG AAA on their intended backgrounds; --ai
+// cyan stays reserved for AI-assistant surfaces only.
 // ============================================================
 const PALETTE = {
-  // Phase 126 «Marble & Chrome» (owner directive 2026-09-06): the identity is
-  // a monochrome marble + chrome system defined as CSS VARIABLES in
-  // globals.css (:root + [data-theme="dark"]) — every value below resolves
-  // through a var so the whole page re-themes WITHOUT re-render. --ai cyan
-  // is reserved for AI-assistant surfaces only.
   textPrim: "var(--text)",
   textSec: "var(--muted-foreground)",
   textMuted: "var(--muted-foreground)",
@@ -49,41 +47,44 @@ const PALETTE = {
 };
 
 // ============================================================
-// Phase 195: content-volume counts derive from the client-safe
-// verified constants (pinned to the real arrays by
-// library-counts.test.ts; TOOLS_COUNT derives from the hub array in
-// tools-shared.ts) — when the platform grows, these labels grow with
-// it. "+" marks CONTENT VOLUME only.
+// Content-volume counts derive from the client-safe verified
+// constants (pinned to the real arrays by library-counts.test.ts;
+// TOOLS_COUNT derives from the hub array in tools-shared.ts) —
+// when the platform grows, these labels grow with it.
+// "+" marks CONTENT VOLUME only.
 // ============================================================
 const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
 // ============================================================
-// HOME-BLUEPRINT-257 (owner-approved blueprint, 2026-09-23): the
-// homepage tells ONE progression in TEN sections —
-//   Outcome (Hero) → Explore (All-in-One paths) → Personalize (Plan)
-//   → Train → Eat → EVO → Learn → Memberships + Online Coaching
-//   → FAQ → Final CTA.
-// The owner supplies the Arabic anchor lines per section; the English
-// is INDEPENDENT native fitness-product copy — never a translation.
-// Sections from HOME-REDESIGN-256 that duplicated this structure are
-// removed/merged (Explore 4-card grid → the three-path All-in-One;
-// the experience connector card → the Personalized Plan section; the
-// tier ladder → a two-path Memberships/Coaching split).
+// HOME-REBUILD-258 (owner directive 2026-09-24: rebuild the
+// homepage from scratch as a GLOBAL product interface — research-
+// driven UX/CRO/SEO, native human copy per language, clear free-
+// vs-paid story without a sales deck).
+//
+// The page tells ONE progression in NINE blocks:
+//   Promise (Hero) → Proof (real numbers) → Explore (three paths)
+//   → Train (real exercises + programs) → Eat (real foods)
+//   → Intelligence (AI planners + EVO, quota-transparent)
+//   → Learn (blog) → Free-vs-Paid (3 honest cards + refund line)
+//   → FAQ → Final CTA.  (+ the conditional featured-coaches strip)
+//
+// Copy laws: EN and AR are independent native pairs (never a
+// translation); counts ride the verified constants; prices ride
+// memberships.ts (single source — no literals); EVO quota facts
+// mirror the unified pool; zero emoji; MSA-clean Arabic.
 //
 // PRESERVED VERBATIM from the previous phases: the Marble & Chrome
-// identity (recipes + engraved icons + zero emoji), the Phase 202 real
-// content entry points (getHomeSamples server slices), the Phase 203
-// account-driven CTA law, the EVO CHAT SURFACE LAW (the floating
-// widget stays the only chat surface — the section CTA dispatches
-// openEvoFloatingChat), the blog selection logic
-// (selectHomeBlogCarousels), the paid featured-coaches strip (0037),
-// and the FAQ JSON-LD single source.
+// identity (recipes + engraved icons + zero emoji), the Phase 202
+// real content entry points (getHomeSamples server slices), the
+// Phase 203 account-driven CTA law, the EVO CHAT SURFACE LAW (the
+// floating widget stays the only chat surface), the blog selection
+// logic (selectHomeBlogCarousels), the paid featured-coaches strip
+// (0037), and the FAQ JSON-LD single source.
 // ============================================================
 
-// Disabled Reveal — animations were causing jarring "shake" effects
-// during scroll. Now just renders children directly without any
-// opacity/transform animation.
+// Disabled Reveal — animations caused jarring scroll effects; renders
+// children directly (kept from the previous phases).
 function Reveal({
   children,
   className = "",
@@ -102,10 +103,8 @@ function BlogCarousel({
   isAr,
 }: {
   posts: BlogPostCard[];
-  /** Phase 198 Batch 2 (audit H2): slugs rendered as the dark featured
-      card — the old two-section Latest+Featured split is ONE carousel
-      now (dark featured cards lead the row). Selection logic
-      (selectHomeBlogCarousels) is untouched — display-only merge. */
+  /** Featured slugs render as the dark lead card; ONE carousel since
+      Phase 198 Batch 2 (selection logic untouched). */
   featuredSlugs?: string[];
   isAr: boolean;
 }) {
@@ -220,10 +219,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   const { lang } = useI18n();
   const { isCoach, isAdmin, profile } = useAuth();
   const isAr = lang === "ar";
-  // Phase 203 (owner-approved copy refinement 2026-09-15): the hero CTA
-  // is account-driven — guests get signup/login, signed-in members get
-  // their own console. Destination resolution mirrors the header's account
-  // icon law (staff → admin, coach → coach console, member → dashboard).
+  // The hero/final CTA stays account-driven (Phase 203 law): guests get
+  // signup/login, signed-in members get their own console.
   const isLoggedIn = !!profile;
   const memberHref = isAdmin ? "/admin" : isCoach ? "/coach" : "/dashboard";
 
@@ -243,15 +240,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   }, []);
 
   useEffect(() => {
-    // PHASE 182: this fetch pulls the Supabase client chunk on demand —
-    // defer to idle so it never competes with LCP/INP on slow networks.
+    // Supabase client chunk loads on demand — deferred to idle so it
+    // never competes with LCP/INP on slow networks.
     deferIdle(() => {
       void (async () => {
         const posts = await listBlogPosts(lang);
-        // Phase 118 (owner directive 2026-09-04): selection is delegated
-        // to selectHomeBlogCarousels (src/lib/blog.ts): featured excludes
-        // ONLY what the latest carousel shows at this moment and rotates
-        // deterministically every UTC day through the whole pool.
         const { latest, featured } = selectHomeBlogCarousels(posts);
         setLatestPosts(latest);
         setFeaturedPosts(featured);
@@ -261,14 +254,28 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
   const blogHref = isCoach ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
 
-  // FAQ schema for SEO.
-  // HOME-BLUEPRINT-257 §9: the FIVE owner-specified questions — the ones
-  // that remove hesitation before starting. Every claim mirrors the
-  // implementation (free browsing + free tier — memberships.ts; guest AI
-  // pool — unified pool decree; EVO availability with tier limits; the
-  // coaching promise — memberships.ts coaching entry) with NO prices and
-  // NO variable counts in the copy.
-  // The FAQPage JSON-LD derives from the same array (single source law).
+  // ── Single-source tier derivations (HOME-REBUILD-258) ──
+  // Prices on the homepage come ONLY from memberships.ts lookups —
+  // never literals — so the pricing page and the homepage can never
+  // drift apart. (The GLOBAL USD law: money strings are USD-only.)
+  const freeTier = MEMBERSHIPS.find((t) => t.id === "free");
+  const premiumTier = MEMBERSHIPS.find((t) => t.id === "premium");
+  const proTier = MEMBERSHIPS.find((t) => t.id === "pro");
+  const coachingTier = MEMBERSHIPS.find((t) => t.id === "coaching");
+  const paidFromMonthly = Math.min(
+    premiumTier?.priceMonthly ?? Number.POSITIVE_INFINITY,
+    proTier?.priceMonthly ?? Number.POSITIVE_INFINITY,
+  );
+  const paidFromLabel = `$${paidFromMonthly.toFixed(2)}`;
+  const coachingPriceLabel = `$${(coachingTier?.priceMonthly ?? 0).toFixed(2)}`;
+  const freePriceLabel = `$${(freeTier?.priceMonthly ?? 0).toFixed(0)}`;
+
+  // FAQ schema for SEO. The FIVE questions that remove hesitation before
+  // starting — every claim mirrors the implementation (free browsing +
+  // free tier — memberships.ts; guest AI pool — unified pool decree; EVO
+  // availability with tier limits; the coaching promise) with NO prices
+  // and NO variable counts. The FAQPage JSON-LD derives from the same
+  // array (single source law).
   const faqs = [
     { q: isAr ? "هل يمكنني استخدام Alkemos مجانًا؟" : "Can I use Alkemos for free?", a: isAr ? "نعم. التصفح مجاني بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل دون تسجيل، وكل زائر يملك رصيدًا شهريًا لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، وEVO متاح للجميع ضمن حدود الاستخدام. وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
       : "Yes. Browsing is completely free — the exercises, foods, programs, and tools all work without an account. Every visitor gets a monthly allowance for AI nutrition and workout plans, and EVO is open to everyone within fair-use limits. A free account saves your plans and syncs them across your devices." },
@@ -283,6 +290,36 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   ];
   const faqSchema = getFAQSchema(faqs);
 
+  // Proof strip — the four auditable platform numbers (Freeletics/MFP
+  // pattern: proof lives directly under the promise). Every value rides
+  // a verified constant or a documented quota; nothing invented.
+  const proofStats = [
+    {
+      icon: "dumbbell",
+      value: EX_PLUS,
+      labelAr: "تمرينًا بصور الأداء الصحيح",
+      labelEn: "exercises with form photos",
+    },
+    {
+      icon: "fruits",
+      value: FOODS_PLUS,
+      labelAr: "صنفًا غذائيًا بالسعرات والماكروز",
+      labelEn: "foods with full macros",
+    },
+    {
+      icon: "calories",
+      value: `${TOOLS_COUNT}`,
+      labelAr: "أدوات مجانية بلا حساب",
+      labelEn: "free tools — no account needed",
+    },
+    {
+      icon: "evo",
+      value: "10",
+      labelAr: "رسائل مع EVO يوميًا — مجانًا",
+      labelEn: "EVO messages a day, free",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       {/* FAQ Schema for SEO */}
@@ -293,15 +330,15 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
       <SiteHeader variant="landing" />
 
-      {/* ===================== 1. HERO — Outcome =====================
-          HOME-BLUEPRINT-257 §1: the Phase 131 overlay scene is brand
-          identity and stays (artwork + chrome logo + H1 + subtitle +
-          account CTA). The H1 is the owner's outcome line — the Arabic
-          is the ORIGINAL, the English is its native counterpart (not a
-          translation). The primary CTA stays account-driven (Phase
-          203); the new secondary CTA opens the exercises library. The
-          old hero seal chips are retired — the real counts live in the
-          TRAIN and EAT sections where they belong. */}
+      {/* ===================== 1. HERO — Promise =====================
+          The Phase 131 overlay scene stays (owner artwork + chrome logo
+          + H1 + subtitle + account CTA). HOME-REBUILD-258: the H1 is the
+          brand line — it message-matches the SERP snippets (metadata
+          description) so a searcher lands on the same words that won
+          the click. Arabic is the original anchor; English is its
+          native counterpart, not a translation. The primary CTA stays
+          account-driven (Phase 203); the secondary opens the exercises
+          library. */}
       <section className="hero-art relative w-full">
         {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP). */}
         <div className="hero-bg" aria-hidden="true">
@@ -318,7 +355,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             sizes="100vw"
           />
         </div>
-        {/* Content overlay — logo + H1 + seal chips, centered in the artwork */}
+        {/* Content overlay — logo + H1 + CTAs, centered in the artwork */}
         <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-4 text-center md:py-8">
           {/* Silver-chrome brand lockup (owner artwork, theme pair). */}
           <ThemeImg
@@ -333,28 +370,22 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             srcSetDark="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
             sizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
           />
-          {/* VRD-V0 (§10.2 leg 3 — utility discipline): rtl: counterparts sit
-              next to the EN tight utilities so Arabic never inherits negative
-              tracking or tight leading even if the unlayered RTL block in
-              globals.css is ever refactored away (belt and braces with legs
-              1-2; EN rendering is untouched). */}
+          {/* RTL law: the H1 keeps the EN tight utilities + explicit rtl:
+              counterparts (rtl-typography.test.ts leg 3). */}
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight rtl:leading-snug rtl:tracking-normal md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "خطتك للياقة تبدأ من هنا." : "Your fitness plan starts here."}
+            {isAr ? "تدرّب بذكاء. وتغذَّ بدقة." : "Train smarter. Eat with precision."}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? "تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك."
-              : "Training, nutrition, and smart tools — one plan that moves with you toward your goal."}
+              ? "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي. بالعربية والإنجليزية."
+              : "One platform that brings training, nutrition, and smart planning together — with EVO, your AI coach, built in. In Arabic and English."}
           </p>
 
-          {/* Account-action CTA pair (Phase 203 law unchanged): guests get
-              ONE primary chrome button → signup + ONE quiet login link;
-              signed-in members get their own console. The blueprint adds
-              ONE secondary explore CTA → the exercises library.
-              VRD-V3 (§16.2, fixes C-9): on touch the three actions STACK
-              full-width (primary → secondary → quiet centered Log in with
-              a 16px clearance — no more mis-tap risk beside the artwork);
-              md+ keeps the single centered row. */}
+          {/* Account-action CTA pair (Phase 203 law): guests get ONE
+              primary chrome button → signup + ONE quiet login link;
+              signed-in members get their own console. On touch the
+              actions STACK full-width (no mis-tap risk beside the
+              artwork); md+ keeps the single centered row. */}
           <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
             {isLoggedIn ? (
               <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
@@ -387,48 +418,61 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* Greek meander divider — mission §4 */}
-      <div className="meander-divider" aria-hidden="true" />
+      {/* ===================== 2. PROOF — the platform in numbers =====================
+          HOME-REBUILD-258: auditable proof directly under the promise —
+          the pattern every leader in the category uses. All four values
+          ride verified constants or documented quotas (EX_PLUS /
+          FOODS_PLUS / TOOLS_COUNT / the EVO fair-use daily limit); the
+          page invents nothing. */}
+      <section aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"} className="border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-8 md:py-10">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-y-8 md:grid-cols-4">
+          {proofStats.map((stat) => (
+            <div key={stat.labelEn} className="flex flex-col items-center px-3 text-center">
+              <EngravedIcon name={stat.icon} alt="" size={28} className="h-7 w-7" />
+              <span className="chrome-text mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                {stat.value}
+              </span>
+              <span className="mt-1 max-w-[18ch] text-xs font-normal leading-snug md:text-sm" style={{ color: PALETTE.textSec }}>
+                {isAr ? stat.labelAr : stat.labelEn}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* ===================== 2. ALL-IN-ONE — three paths =====================
-          HOME-BLUEPRINT-257 §2: how Alkemos is USED — three clear paths,
-          not a feature catalog: Train / Eat / Track & Plan. Each card is
-          one full link into its real hub with one benefit line. This
-          replaces the retired Explore 4-card grid (Articles get their
-          own LEARN section later — the paths stay focused on usage). */}
+      {/* ===================== 3. EXPLORE — three paths =====================
+          How Alkemos is USED — three clear paths, not a feature catalog:
+          Train / Eat / Track & Plan. Each card is one full link into its
+          real hub with one benefit line. */}
       <section id="paths" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "منصة واحدة، ثلاثة مسارات." : "One platform, three paths."}
+              {isAr ? "من أين تودّ أن تبدأ؟" : "Where do you want to start?"}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "ثلاثة مسارات تخدم هدفك — ابدأ من حيث أنت، وانتقل بينها متى احتجت."
-                : "Three paths toward the same goal — start where you are and move between them as you need."}
+                ? "ثلاثة مسارات، منصة واحدة — وكل مسار منها مجاني."
+                : "Three paths, one platform — and every one of them free to walk."}
             </p>
           </div>
           <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-3">
             {(isAr
               ? [
-                  { icon: "dumbbell", title: "تدرّب", desc: "تمارين لكل مجموعة عضلية بشرح وصور، وبرامج جاهزة تنقلك من البداية إلى التقدّم.", link: "ابدأ التدريب ›", href: "/ar/exercises" },
-                  { icon: "protein", title: "تغذَّ", desc: "سعرات وماكروز لكل صنف، لتبني وجبات تناسب هدفك بدل التخمين.", link: "ابدأ التغذية ›", href: "/ar/foods" },
-                  { icon: "calories", title: "خطّط وتتبّع", desc: "حاسبات ومخططات ذكية تضع خطتك وأهدافك أمامك، وتحدّثها مع تغيّر ظروفك.", link: "اكتشف الأدوات ›", href: "/ar/tools" },
+                  { icon: "dumbbell", title: "تدرّب", desc: "صور تُريك الأداء الصحيح، وشرح واضح، وبرامج جاهزة تنقلك من أول يوم إلى تقدّم ثابت.", link: "ابدأ التدريب ›", href: "/ar/exercises" },
+                  { icon: "protein", title: "تغذَّ", desc: "سعرات وماكروز لكل صنف، لتبني وجباتك حول هدفك بدل التخمين.", link: "ابدأ التغذية ›", href: "/ar/foods" },
+                  { icon: "calories", title: "خطّط وتتبّع", desc: "حاسبات ومخططات ذكية تضع أهدافك أمامك — وتحدّثها مع تغيّر ظروفك.", link: "اكتشف الأدوات ›", href: "/ar/tools" },
                 ]
               : [
-                  { icon: "dumbbell", title: "Train", desc: "Exercises for every muscle group with instructions and images, plus ready-made programs that carry you from day one to steady progress.", link: "Start training ›", href: "/exercises" },
+                  { icon: "dumbbell", title: "Train", desc: "Form photos that show proper technique, clear instructions, and ready-made programs that carry you from day one to steady progress.", link: "Start training ›", href: "/exercises" },
                   { icon: "protein", title: "Eat", desc: "Calories and macros for every food, so you build meals around your goal instead of guessing.", link: "Start eating smarter ›", href: "/foods" },
-                  { icon: "calories", title: "Track & Plan", desc: "Calculators and smart planners that put your targets and plan in front of you — and update them as your circumstances change.", link: "Open the tools ›", href: "/tools" },
+                  { icon: "calories", title: "Track & Plan", desc: "Calculators and AI planners that put your targets in front of you — and update them as your life changes.", link: "Open the tools ›", href: "/tools" },
                 ]
             ).map((path) => (
               <Reveal key={path.title}>
-                {/* VRD-V3 (§11, fixes C-10): below md the three path cards
-                    go DENSE — icon+title share one row, the description
-                    clamps to 2 lines, padding drops to p-5, and the unified
-                    .card-lift hover replaces the bare translate utility.
-                    The stacked 1,074px block compresses toward ≤720px
-                    (measured after) with ZERO content removal; md+ keeps
-                    the premium icon-over-title composition at p-7. */}
+                {/* Mobile density law: icon+title share one row, the
+                    description clamps to 2 lines, p-5, unified .card-lift
+                    hover; md+ keeps icon-over-title at p-7. */}
                 <a
                   href={path.href}
                   className="marble-card card-lift group flex h-full flex-col p-5 md:p-7"
@@ -450,81 +494,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 3. PERSONALIZED PLAN =====================
-          HOME-BLUEPRINT-257 §3: how personalization works, briefly and
-          honestly — goal, level, equipment, preferences in; a nutrition
-          + workout plan out; adjustable as things change. Merges the
-          retired connector card (the AI planners ARE the personalized
-          plan builders — their locale-aware hrefs stay pinned by the
-          ai-meal-planner canary). The three steps mirror how the
-          planners actually flow. */}
-      <section id="plan" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          {/* VRD-V3 (§11): p-5 on mobile (was p-6) — one step of the
-              mobile density law; md+ keeps the generous p-10 narrative
-              focus. */}
-          <div className="marble-card mx-auto max-w-4xl p-5 md:p-10">
-            <div className="text-center">
-              <span className="seal-chip">
-                <EngravedIcon name="mealplanner" alt="" size={12} className="h-3 w-3" />
-                {isAr ? "مخططات ذكية" : "SMART PLANNERS"}
-              </span>
-              <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "خطة تناسبك، لا خطة تناسب الجميع." : "A plan built for you, not for everyone."}
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? "Alkemos يبني خطتك حول ما أنت عليه فعلًا: هدفك، مستواك، معداتك، ووقتك — لا حول قوالب عامة."
-                  : "Alkemos builds your plan around where you actually are — your goal, your level, your equipment, and your time. Not around generic templates."}
-              </p>
-            </div>
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-              {(isAr
-                ? [
-                    { n: "01", t: "أجب عن أسئلة قصيرة", d: "عن هدفك ومستواك ومعداتك وتفضيلاتك." },
-                    { n: "02", t: "استلم خطتك", d: "خطة تغذية وتمارين مبنية على إجاباتك." },
-                    { n: "03", t: "عدّلها كلما تقدّمت", d: "تتغير أهدافك أو ظروفك؟ تُحدَّث الخطة معك." },
-                  ]
-                : [
-                    { n: "01", t: "Answer a few questions", d: "Your goal, level, equipment, and preferences." },
-                    { n: "02", t: "Get your plan", d: "A nutrition and workout plan shaped by your answers." },
-                    { n: "03", t: "Adjust it as you progress", d: "Goals or circumstances change? The plan moves with you." },
-                  ]
-              ).map((step) => (
-                <div key={step.n} className="text-center sm:text-start">
-                  <span className="chrome-text text-lg font-semibold">{step.n}</span>
-                  <p className="mt-1 text-base font-semibold" style={{ color: PALETTE.textPrim }}>{step.t}</p>
-                  <p className="mt-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{step.d}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:px-7">
-                {isAr ? "أنشئ خطتي" : "Create My Plan"}
-              </a>
-              <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                {isAr ? "مخطط التمارين الذكي ›" : "AI Workout Planner ›"}
-              </a>
-            </div>
-            <p className="mt-5 text-center text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-              {isAr
-                ? "تعمل دون تسجيل — وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
-                : "Works without an account — and a free account saves your plans and syncs them across devices."}
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* ===================== 4. TRAIN =====================
-          HOME-BLUEPRINT-257 §4: the exercise library gets its own
-          section — the owner's headline, the real library count
-          (EX_PLUS rides the verified constant), the muscle-group
-          browse chips with live counts, and the 8 real curated lifts
-          as samples. The ready-made programs stay as a compact
-          sub-row (a starting point, not a separate section). All
-          sample data arrives as server props (getHomeSamples) — the
-          bundle law holds. */}
-      <section id="train" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+          The exercise library section: the real library count (EX_PLUS
+          rides the verified constant), the muscle-group browse chips with
+          live counts, and the 8 real curated lifts as samples. The
+          ready-made programs stay as a compact sub-row. All sample data
+          arrives as server props (getHomeSamples) — the bundle law holds. */}
+      <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <span className="seal-chip">
@@ -536,23 +512,20 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "كل تمرين بشرح واضح وصور تُريك الأداء الصحيح — مصنّف حسب المجموعة العضلية والمستوى والمعدات."
-                : "Every exercise with clear instructions and images that show proper form — organized by muscle group, level, and equipment."}
+                ? `${EX_PLUS} تمرينًا بصور الأداء الصحيح وشرح واضح — مرتّبة حسب المجموعة العضلية والمستوى والمعدات، بالعربية والإنجليزية.`
+                : "Every exercise with form photos and clear instructions — organized by muscle group, level, and equipment, in both languages."}
             </p>
           </div>
 
           <div className="mt-8 md:mt-10">
-            {/* Browse paths — muscle-group chips with real live counts
-                (Phase 203 law preserved); the section CTA follows the
-                samples below. */}
+            {/* Browse paths — muscle-group chips with real live counts;
+                the section CTA follows the samples below. */}
             <div className="mt-6">
               <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
                 {isAr ? "تصفّح حسب المجموعة العضلية" : "Browse by muscle group"}
               </p>
-              {/* VRD-V3 (§16.3, fixes C-11): the chips ride the .chips-row
-                  recipe — ONE scroll-snap row with symmetric edge fades on
-                  touch (no ragged wrap / orphaned chip), centered wrap on
-                  md+. The chip itself keeps the seal recipe + hover lift. */}
+              {/* ONE scroll-snap row on touch (edge fades, RTL-safe);
+                  centered wrap on md+. */}
               <div className="chips-row scrollbar-none mt-3">
                 {[
                   { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
@@ -582,7 +555,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
               ))}
             </div>
-            {/* ONE focused section CTA (blueprint §4). */}
+            {/* ONE focused section CTA. */}
             <div className="mt-8 text-center">
               <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
                 {isAr ? "استكشف مكتبة التمارين" : "Explore the exercise library"}
@@ -591,8 +564,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </div>
 
             {/* REAL program samples — 3 curated programs from the live
-                WORKOUT_PROGRAMS array (real images, real splits). A quiet
-                starting-point row inside TRAIN — not a separate section. */}
+                WORKOUT_PROGRAMS array. A quiet starting-point row inside
+                TRAIN — not a separate section. */}
             <div className="mt-10 text-center md:mt-14">
               <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
                 {isAr ? "تفضّل البدء بخطة جاهزة؟" : "Prefer a ready-made starting point?"}
@@ -618,11 +591,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       </section>
 
       {/* ===================== 5. EAT =====================
-          HOME-BLUEPRINT-257 §5: the food database gets its own section —
-          the owner's headline, the real database count (FOODS_PLUS rides
-          the verified constant), and the 8 real per-100g staples as
+          The food database section: the real database count (FOODS_PLUS
+          rides the verified constant) and the 8 real per-100g staples as
           samples (server props — the bundle law holds). */}
-      <section id="eat" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      <section id="eat" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <span className="seal-chip">
@@ -634,8 +606,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام — قاعدة أطعمة تجعل بناء وجباتك وحساب احتياجك أمرًا واضحًا."
-                : "Calories, protein, carbs, and fat for every 100g — a food database that makes building meals and hitting your targets straightforward."}
+                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام — قاعدة أطعمة تجعل بناء وجباتك وبلوغ أرقامك أمرًا واضحًا، بالعربية والإنجليزية."
+                : "Calories, protein, carbs, and fat for every 100 g — a database that makes building meals and hitting your targets straightforward, in both languages."}
             </p>
           </div>
           {/* REAL food samples — 8 curated staples spanning the food
@@ -645,7 +617,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <LandingFoodCard key={food.slug} food={food} isAr={isAr} />
             ))}
           </div>
-          {/* ONE focused section CTA (blueprint §5). */}
+          {/* ONE focused section CTA. */}
           <div className="mt-8 text-center">
             <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
               {isAr ? "استكشف قاعدة الأطعمة" : "Explore the food database"}
@@ -655,17 +627,18 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 6. EVO — the intelligent layer =====================
-          HOME-BLUEPRINT-257 §6: EVO is positioned as the intelligent
-          layer connecting the whole experience — NOT another feature
-          card — so the numbered capability rows are retired. The EVO
-          CHAT SURFACE LAW (2026-08-27) stays untouched: the floating
-          widget is the only chat surface and this section's CTA opens
-          it via openEvoFloatingChat(). The card keeps the Phase 127
+      {/* ===================== 6. INTELLIGENCE — AI planners + EVO =====================
+          HOME-REBUILD-258: the two AI surfaces tell ONE story — the
+          planners build the plan, EVO keeps it moving. The quota facts
+          are stated plainly (unified pool decree + EVO fair-use limit):
+          transparency here is the conversion pattern, and honesty is the
+          brand. The EVO CHAT SURFACE LAW stays untouched: the floating
+          widget is the only chat surface and this section's EVO CTA
+          dispatches openEvoFloatingChat. The card keeps the Phase 127
           warrior-art recipe: text on the inline-start, warrior art
           dissolving into the marble on the inline-end (.evo-art-mask,
-          mirrored in RTL). Quiet secondary link → the full /evo page. */}
-      <section id="evo" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+          mirrored in RTL). */}
+      <section id="evo" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
             {/* Desktop warrior art — inline-end, masked into the marble. */}
@@ -681,29 +654,59 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </div>
             <div className="relative max-w-xl">
               <span className="seal-chip">
-                <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
-                {isAr ? "مدرب ذكي في كل صفحة" : "A SMART COACH ON EVERY PAGE"}
+                <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
+                {isAr ? "التخطيط الذكي و EVO" : "SMART PLANNING + EVO"}
               </span>
               <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "مدربك الذكي، عندما تحتاجه." : "Your smart coach, when you need one."}
+                {isAr ? "خطة مبنية حولك — ومدرب يواكب تقدّمك." : "A plan built around you — and a coach who keeps it moving."}
               </h2>
-              <p className="mt-4 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
+              {/* The three steps mirror how the planners + EVO actually
+                  flow: inputs → plan → adjustments. */}
+              <div className="mt-7 space-y-5">
+                {(isAr
+                  ? [
+                      { n: "01", t: "حدّد هدفك ومستواك", d: "معداتك المتاحة ووقتك وتفضيلاتك — التخطيط يُبنى حول واقعك." },
+                      { n: "02", t: "استلم خطتك", d: "خطة تغذية وتمارين مبنية على إجاباتك — لا قوالب عامة." },
+                      { n: "03", t: "عدّلها كلما تقدّمت", d: "تبديلات ذكية للوجبات والتمارين تُبقي خطتك تتحرك مع حياتك." },
+                    ]
+                  : [
+                      { n: "01", t: "Tell it where you are", d: "Your goal, level, equipment, and schedule — the planners build around what's real." },
+                      { n: "02", t: "Get your plan", d: "A nutrition and workout plan shaped by your answers — not generic templates." },
+                      { n: "03", t: "Adjust as you go", d: "Smart meal and exercise swaps keep the plan moving as your life does." },
+                    ]
+                ).map((step) => (
+                  <div key={step.n} className="flex gap-4">
+                    <span className="chrome-text shrink-0 text-lg font-semibold">{step.n}</span>
+                    <div>
+                      <p className="text-base font-semibold" style={{ color: PALETTE.textPrim }}>{step.t}</p>
+                      <p className="mt-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{step.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Quota transparency — the real limits, stated as fact
+                  (memberships.ts free tier + the unified pool decree). */}
+              <p className="mt-6 rounded-[10px] border border-[var(--edge)] bg-[var(--tint)] p-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "يساعدك EVO على بناء خطتك، تعديلها، واتخاذ قرارات أفضل مع تغيّر أهدافك واحتياجاتك."
-                  : "EVO helps you build your plan, adjust it, and make better decisions as your goals and needs change."}
+                  ? "مجاني من أول لحظة: كل زائر يملك رصيدًا شهريًا لخطط الذكاء الاصطناعي و10 رسائل يوميًا مع EVO — والتجربة لا تحتاج حسابًا. وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
+                  : "Free from the first minute: every visitor carries a monthly AI-plan allowance and 10 messages a day with EVO — no account needed to try. A free account saves your plans and syncs them across devices."}
               </p>
-              <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-                {isAr
-                  ? "تجده في فقاعة المحادثة أسفل كل صفحة — يعمل مع ما تتدرّب به، وما تأكله، وما تخطط له."
-                  : "You'll find it in the chat bubble at the bottom of every page — working alongside whatever you train, eat, and plan."}
-              </p>
-              {/* EVO CHAT SURFACE LAW: the button OPENS THE WIDGET — it is
-                  not a link to a chat page (the /chat route is retired). */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+              {/* CTA rows: the planners (one primary each) + EVO (the
+                  widget law — the button OPENS THE WIDGET, never a chat
+                  page link; the /chat route is retired). */}
+              <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
+                <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
+                  {isAr ? "أنشئ خطتي" : "Create My Plan"}
+                </a>
+                <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                  {isAr ? "مخطط التمارين الذكي ›" : "AI Workout Planner ›"}
+                </a>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <button
                   type="button"
                   onClick={openEvoFloatingChat}
-                  className="btn-chrome inline-flex cursor-pointer items-center gap-3 px-6 py-3 text-sm md:text-base"
+                  className="btn-outline inline-flex cursor-pointer items-center gap-3 px-5 py-2.5 text-sm font-medium"
                 >
                   <ThemeImg
                     light="/images/brand/evo-widget-light.webp"
@@ -711,7 +714,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                     alt="EVO"
                     width={32}
                     height={32}
-                    className="h-8 w-8 rounded-full object-cover"
+                    className="h-7 w-7 rounded-full object-cover"
                   />
                   <span>{isAr ? "جرّب EVO" : "Try EVO"}</span>
                 </button>
@@ -742,13 +745,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       </section>
 
       {/* ===================== 7. LEARN =====================
-          HOME-BLUEPRINT-257 §7: a focused selection of real articles —
-          the blog stays a first-class part of the experience (Phase
-          202 owner order). Selection logic (selectHomeBlogCarousels)
-          untouched; the whole section renders only when posts loaded
-          (the needsPosts law). */}
+          A focused selection of real articles — the blog stays a
+          first-class part of the experience (Phase 202 owner order).
+          Selection logic (selectHomeBlogCarousels) untouched; the whole
+          section renders only when posts loaded (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+        <section id="learn" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -756,12 +758,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "مقالات بالعربية والإنجليزية تشرح التدريب والتغذية بأسلوب واضح — اقرأ ما يخص هدفك، وطبّقه في تدريبك وفي طبقك."
-                  : "Articles in English and Arabic that explain training and nutrition in plain terms — read what matters for your goal and put it to work in your training and on your plate."}
+                  ? "مقالات بالعربية والإنجليزية تشرح التدريب والتغذية بأسلوب واضح — اقرأ ما يخص هدفك وطبّقه في تدريبك وفي طبقك."
+                  : "Articles in English and Arabic that explain training and nutrition in plain terms — read what matters for your goal and put it to work."}
               </p>
             </div>
-            {/* ONE carousel — featured posts lead the row as dark cards,
-                latest follows (Phase 198 Batch 2, audit H2). */}
+            {/* ONE carousel — featured posts lead the row as dark cards. */}
             <div className="mt-10">
               <BlogCarousel
                 posts={[...featuredPosts, ...latestPosts].slice(0, 10)}
@@ -779,86 +780,113 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </section>
       )}
 
-      {/* Greek meander divider — the TWO narrative acts law (Phase 201):
-          exploration ends here, the services act begins. */}
+      {/* Greek meander divider — the TWO narrative acts law: exploration
+          ends here, the services act begins. */}
       <div className="meander-divider" aria-hidden="true" />
 
-      {/* ===================== 8. MEMBERSHIPS + ONLINE COACHING =====================
-          HOME-BLUEPRINT-257 §8: ONE section, TWO paths — Memberships and
-          Online Coaching — briefly explained. NO prices anywhere, NO
-          pricing table (the tier ladder is retired; the real tier NAMES
-          still ride memberships.ts as chips, and the coaching card
-          states the real Pro-inheritance). Pricing and the subscribe
-          flows stay on /memberships and /coaching (both remain
-          reachable from the header drawer and the footer). The paid
-          featured-coaches strip (0037) follows — it renders only when
-          active ads exist. */}
+      {/* ===================== 8. FREE vs PAID — the honest money moment =====================
+          HOME-REBUILD-258 (owner directive: the visitor must understand
+          exactly what is free, what upgrading unlocks, and why paid
+          services exist — without feeling sold to). THREE cards, prices
+          derived from memberships.ts (single source — no literals):
+          Free · Premium & Pro (from) · Coaching. The middle card is
+          the visual hero (dark marble + chrome ring + laurel — the Pro
+          recipe from §7.4). The refund line states the REAL 7-day
+          conditional refund (src/lib/refund.ts) — de-risking as fact. */}
       <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "خذ خطوتك التالية." : "Take your next step."}
+              {isAr ? "مجاني فعلًا. والترقية قرارك." : "Free, for real. Upgrading is your call."}
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "مساران بحسب حاجتك: باقات توسّع قدراتك داخل المنصة، أو كوتشينج أونلاين يضع مدربًا إلى جانبك."
-                : "Two paths depending on what you need: memberships that widen what the platform does for you, or online coaching that puts a coach in your corner."}
+                ? "لن تصطدم بجدار دفع كي تتدرّب أو تتغذّى جيدًا — الباقات المدفوعة لمن تجاوز حدود المستوى المجاني: تخطيط أوسع، وEVO بلا حدود، وتصدير، أو مدرب بشري."
+                : "You never hit a paywall to train or eat well here — paid plans exist for when you outgrow the free tier: more AI planning, unlimited EVO, export, or a human coach."}
             </p>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-2">
-            {/* Path 1 — Memberships: the real tier names from the single
-                source (memberships.ts); capabilities described without
-                prices or variable counts.
-                VRD-V3 (§11 density + §13.3 O-3 asymmetry, fixes C-13): the
-                memberships card now carries the section's ONE primary
-                (filled .btn-chrome) while coaching keeps the quiet outline
-                — the commercial heart gets a real click invitation without
-                making both paths shout (§23.5 law). p-5 + clamped copy on
-                mobile per the density law. */}
+          <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-3">
+            {/* Card 1 — FREE: the real free tier (memberships.ts). */}
             <div className="marble-card flex flex-col p-5 md:p-8">
-              <div className="flex items-center gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
-                  <EngravedIcon name="laurel" alt="" size={26} className="h-6 w-6" />
-                </span>
-                <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
-                  {isAr ? "الباقات" : "Memberships"}
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? freeTier?.nameAr : freeTier?.nameEn}
                 </h3>
+                <span className="chrome-text text-lg font-bold">{freePriceLabel}</span>
               </div>
-              <p className="mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base" style={{ color: PALETTE.textSec }}>
+              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتجربة بلا إعلانات."
-                  : "Start on a free tier that stays free, and move up when you need more room — more AI plan generations, unlimited EVO chat, and an ad-free experience."}
+                  ? "كل ما تراه في هذه الصفحة: المكتبات كاملة، وكل أداة، ورصيدك الشهري من الخطط الذكية، وEVO — مجانًا ودائمًا."
+                  : "Everything on this page: the full libraries, every tool, your monthly AI plans, and EVO — free forever."}
+              </p>
+              <div className="mt-6">
+                <a href="/auth?mode=signup" className="btn-outline px-6 py-2.5 text-sm font-medium">
+                  {isAr ? "ابدأ مجانًا" : "Start free"}
+                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                </a>
+              </div>
+            </div>
+            {/* Card 2 — PREMIUM & PRO: the management delta, the ONE
+                filled CTA of the section (O-3 asymmetry law). */}
+            <div
+              className="relative flex flex-col p-5 md:p-8"
+              style={{
+                backgroundColor: "#0B0B0D",
+                color: "#F5F5F7",
+                border: "2px solid transparent",
+                backgroundImage:
+                  "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+              }}
+            >
+              {/* The /memberships Pro-card recipe: the seal straddles the
+                  top border, centered (same label as the pricing page —
+                  one concept, one wording). */}
+              <span className="seal-chip absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0B0B0D]" style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}>
+                <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
+                {isAr ? "موصى بها" : "Recommended"}
+              </span>
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-xl font-semibold tracking-tight" style={{ color: "#F5F5F7" }}>
+                  {isAr
+                    ? `${premiumTier?.nameAr ?? ""} و${proTier?.nameAr ?? ""}`
+                    : `${premiumTier?.nameEn ?? ""} & ${proTier?.nameEn ?? ""}`}
+                </h3>
+                <span className="chrome-text-on-dark text-lg font-bold">{paidFromLabel}</span>
+              </div>
+              <p className="mt-1 text-xs font-medium" style={{ color: "rgba(245,245,247,0.6)" }}>
+                {isAr ? `ابتداءً من ${paidFromLabel} شهريًا` : `From ${paidFromLabel}/mo`}
+              </p>
+              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
+                {isAr
+                  ? "توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات مع برو."
+                  : "More AI plan generations, unlimited EVO chat, full export, and an ad-free experience on Pro."}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {MEMBERSHIPS.filter((tier) => !tier.separate).map((tier) => (
-                  <span key={tier.id} className="seal-chip py-1! text-[10px]!">{isAr ? tier.nameAr : tier.nameEn}</span>
+                {MEMBERSHIPS.filter((tier) => tier.id === "premium" || tier.id === "pro").map((tier) => (
+                  <span key={tier.id} className="seal-chip py-1! text-[10px]!" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#F5F5F7", borderColor: "rgba(255,255,255,0.25)" }}>{isAr ? tier.nameAr : tier.nameEn}</span>
                 ))}
-              </div>
-              <div className="mt-6">
+              </div>              <div className="mt-6">
                 <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-6 py-2.5 text-sm font-medium">
                   {isAr ? "تفاصيل الباقات ›" : "See memberships ›"}
                   <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </div>
             </div>
-            {/* Path 2 — Online Coaching: the real coaching promise from
-                memberships.ts — human-built plans, weekly follow-up,
-                direct contact, all Pro features inherited.
-                VRD-V3 (§11 density): p-5 + clamp-3 mobile; the outline
-                button stays (O-3 — the quiet path by design). */}
+            {/* Card 3 — COACHING: the human-coach promise (memberships.ts
+                coaching entry), the quiet path by design. */}
             <div className="marble-card flex flex-col p-5 md:p-8">
-              <div className="flex items-center gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
-                  <EngravedIcon name="runner" alt="" size={26} className="h-6 w-6" />
-                </span>
-                <h3 className="text-xl font-semibold tracking-tight md:text-2xl" style={{ color: PALETTE.textPrim }}>
-                  {isAr ? "الكوتشينج أونلاين" : "Online Coaching"}
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? coachingTier?.nameAr : coachingTier?.nameEn}
                 </h3>
+                <span className="chrome-text text-lg font-bold">{coachingPriceLabel}</span>
               </div>
-              <p className="mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base" style={{ color: PALETTE.textSec }}>
+              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? "مدرب بشري يبني لك خطط التغذية والتمارين، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — مع كل مزايا برو."
-                  : "A human coach who builds your nutrition and workout plans, follows your progress week by week, and stays in direct contact — with all Pro features included."}
+                  ? "مدرب بشري يبني خططك، ويتابع تقدّمك أسبوعًا بأسبوع، ويبقى على تواصل مباشر معك — مع كل مزايا برو."
+                  : "A human coach builds your plans, follows your progress week by week, and stays in direct contact — every Pro feature included."}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="seal-chip py-1! text-[10px]!">
@@ -868,19 +896,26 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               </div>
               <div className="mt-6">
                 <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                  {isAr ? "تفاصيل الكوتشينج ›" : "Explore coaching ›"}
+                  {isAr ? "استكشف الكوتشينج ›" : "Explore coaching ›"}
                   <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </div>
             </div>
           </div>
+          {/* The REAL refund policy, stated as fact (refund.ts: 7-day
+              conditional, no-features-used). */}
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+            {isAr
+              ? "كل باقة مدفوعة تشمل حق الاسترداد خلال 7 أيام — إن لم تستخدم المزايا المدفوعة، يُعاد إليك المبلغ."
+              : "Every paid plan carries a 7-day refund — if you haven't used the paid features, you get your money back."}
+          </p>
         </div>
       </section>
 
       {/* ===================== 6.5 FEATURED COACHES («أعلن معنا» ads) =====================
           Kept verbatim (0037 paid-ad strip — a real service surface;
           renders only when active ads exist). Labeled as promo spots,
-          not an endorsement (§12.50-أ-3). */}
+          not an endorsement. */}
       {featuredCoaches.length > 0 && (
         <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
           <div className="mx-auto max-w-6xl">
@@ -930,9 +965,9 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       )}
 
       {/* ===================== 9. FAQ — hesitation-removers =====================
-          The FIVE owner-specified questions; every claim mirrors the
-          implementation. The FAQPage JSON-LD derives from the same
-          array above (single source law). */}
+          The FIVE questions; every claim mirrors the implementation. The
+          FAQPage JSON-LD derives from the same array above (single
+          source law). */}
       <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
@@ -941,10 +976,9 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Accordion type="single" collapsible className="mt-8 md:mt-12">
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
-                {/* VRD-V0 (audit C-15): full-row hover state + a bigger,
-                   higher-contrast chevron (was size-4 / muted — VLM: «small
-                   and low-contrast»). Scoped here, NOT in the shared
-                   accordion.tsx (app surfaces keep their treatment). */}
+                {/* Full-row hover + a bigger, higher-contrast chevron
+                    (VRD-V0 audit C-15 — scoped here, NOT in the shared
+                    accordion.tsx). */}
                 <AccordionTrigger className="py-5 text-start text-lg font-normal hover:bg-[var(--bg)] hover:no-underline [&>svg]:size-5 [&>svg]:text-[var(--muted-2)]">
                   {faq.q}
                 </AccordionTrigger>
@@ -957,11 +991,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 10. FINAL CTA — «ابدأ اليوم. وابنِ روتينًا يناسبك.» =====================
-          HOME-BLUEPRINT-257 §10: one quiet dark-marble band closes the
-          page — the Arabic is the owner's exact line, the English is
-          its native counterpart. ONE focused action, account-driven
-          (the same single action as the hero — no new destinations). */}
+      {/* ===================== 10. FINAL CTA =====================
+          One quiet dark-marble band closes the page — the Arabic is the
+          owner's line, the English is its native counterpart. ONE
+          focused action, account-driven (the same single action as the
+          hero — no new destinations). */}
       <section className="bg-[var(--bg)] px-4 py-10 md:py-20">
         <div
           className="relative mx-auto max-w-6xl overflow-hidden rounded-[var(--radius-chrome)]"
@@ -1016,20 +1050,16 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== FOOTER — the SHARED SiteFooter component
-          (access-point fix 2026-09-14): every public page renders the
-          identical footer. Phase 202 service-family link grid preserved.
-          ===================== */}
+      {/* ===================== FOOTER — the SHARED SiteFooter component;
+          every public page renders the identical footer. ===================== */}
       <SiteFooter />
     </div>
   );
 }
 
-// ─── Helper component prop types (typed instead of legacy `any`) ───
-
 // ─── Helper components (conditional rendering — no display:none in DOM) ───
 
-// ─── HOME-REDESIGN-256: real-content sample cards (exercises / foods /
+// ─── HOME-REBUILD-258: real-content sample cards (exercises / foods /
 //     programs). Every card is a plain <a> into its detail page — a real
 //     content entry point. The samples arrive as precomputed serializable
 //     props from the server (getHomeSamples) — zero library imports here. ───
@@ -1086,11 +1116,9 @@ function LandingExerciseCard({ ex, isAr }: { ex: HomeExerciseSample; isAr: boole
 function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }) {
   const name = isAr ? food.nameAr : food.nameEn;
   return (
-    /* VRD-V3 (§11 food cards, fixes the C-1-VLM dead-space note): the
-       whole card stays ONE link (tap target = card); the title gets a
-       fixed 2-line floor (min-h-10) so 1-line and 2-line names align
-       the macro grid across the row, and the gaps tighten title →
-       macros → link (mt-3 → mt-2 — gap-2 rhythm). */
+    /* The whole card stays ONE link (tap target = card); the title keeps
+       a fixed 2-line floor (min-h-10) so macro grids align across the
+       row; title → macros → link rides the tight gap rhythm. */
     <a
       href={`${isAr ? "/ar" : ""}/foods/${food.slug}`}
       className="marble-card card-lift group flex flex-col p-4 text-start"

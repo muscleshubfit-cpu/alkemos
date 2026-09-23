@@ -1,7 +1,7 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-23 (VRD-V5, phase 266 — full rewrite to the
-> post-redesign system; closes the visual-reform program V0–V5)
+> **Last updated:** 2026-09-24 (HOME-REBUILD-258, phase 268 — homepage rebuilt
+> from scratch by owner order; §7.1/§7.3/§7.4 recipes updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
 > **Audience:** AI agents, developers, designers
 > **Redesign record:** `docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md` (audit +
@@ -284,13 +284,24 @@ COVER layer (`.hero-bg`, ThemeImg pair, eager LCP) with the content —
 chrome logo lockup (`w-32` mobile → `w-64` desktop) → serif H1
 (`.hero-copy` halo) → subtitle → CTA pair — centered INSIDE it.
 
-**Hero copy pair (VRD-V4 K-6, audit-verbatim):**
-- EN: «Training, nutrition, and smart tools — one plan that moves with
-  you toward your goal.»
-- AR: «تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.»
+**Hero copy pair (HOME-REBUILD-258 — message-matches the SERP snippets):**
+- EN: «Train smarter. Eat with precision.» · sub: «One platform that
+  brings training, nutrition, and smart planning together — with EVO,
+  your AI coach, built in. In Arabic and English.»
+- AR: «تدرّب بذكاء. وتغذَّ بدقة.» · sub: «منصة واحدة تجمع التدريب
+  والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي.
+  بالعربية والإنجليزية.»
 
-**CTA pair:** `.btn-chrome` «Start Free» → /memberships + translucent
-`.btn-outline` «Explore Free Tools» → `#tools`. On phones the pair
+**Proof strip (new §7.1.1):** directly under the hero — an `--tint` band
+with a hairline top/bottom edge carrying FOUR auditable stat tiles
+(engraved icon + `.chrome-text` number + label): EX_PLUS exercises /
+FOODS_PLUS foods / TOOLS_COUNT free tools / the 10-message daily EVO
+limit. Every value rides a verified constant — the page invents
+nothing (the Freeletics/MyFitnessPal proof-under-promise pattern).
+
+**CTA pair (Phase 203 account law):** `.btn-chrome` «Start free» →
+/auth?mode=signup + translucent `.btn-outline` «Explore exercises» →
+/exercises, plus the quiet centered «Log in» link. On phones the pair
 STACKS full-width — primary → secondary → the quiet centered «Log in»
 link with a 28px clearance (no mis-tap risk); md+ keeps the single
 centered row.
@@ -310,22 +321,33 @@ theme toggle lives on the MENU side; RTL mirrors automatically.
 (a 1280×477 owner artwork strip in a marble-card frame, `mb-10`) → h1 +
 subline. Works in server components (plain `<img>` pair).
 
-### 7.3 EVO section card
+### 7.3 Intelligence section (AI planners + EVO)
 
-One full-width `marble-card.evo-hero-card`: text column left (h2 ONLY —
-no description, no buttons), warrior art absolutely positioned on the
-inline-end side fading into the surface via `.evo-art-mask`;
-`[dir=rtl]` mirrors art + mask. Card min-height 220px mobile / 260px
-desktop. The floating EVO widget stays the chat entry point.
+One full-width `marble-card.evo-hero-card` (merged by HOME-REBUILD-258
+— the retired standalone Plan section folded into the EVO card): text
+column left — seal chip «SMART PLANNING + EVO» → H2 → the three
+numbered steps (inputs → plan → adjustments) → the quota-transparency
+box (the real free-tier facts: monthly AI-plan allowance + 10 EVO
+messages/day, no account needed to try) → CTA rows (chrome «Create My
+Plan» → /ai-meal-planner · outline «AI Workout Planner ›» · the
+widget-opening «Try EVO» with the avatar bust · quiet link → /evo) —
+warrior art absolutely positioned on the inline-end side fading into
+the surface via `.evo-art-mask`; `[dir=rtl]` flips the mask (image
+never flipped). Card min-height 220px mobile / 260px desktop. The
+floating EVO widget stays the chat entry point.
 
-### 7.4 Pricing cards
+### 7.4 Free-vs-Paid cards (homepage)
 
-Homepage: THREE equal-tier `marble-card`s in an `lg:grid-cols-3` row —
-Free ($0, `btn-outline`) / Premium / Pro; Pro is the visual hero (dark
-`#0B0B0D` card, 2px chrome gradient ring, laurel "Popular" seal-chip,
-`.btn-chrome`). Prices in `.chrome-text` (`.chrome-text-on-dark` inside
-the Pro card). **Card enumerations are THREE items** (VRD-V4 K-7: EN
-drops "bigger save capacity with export"; AR drops «حفظ وتصدير أوسع»).
+Homepage (HOME-REBUILD-258): THREE `marble-card`s in an
+`md:grid-cols-3` row — **Free** ($0, name from memberships.ts,
+`btn-outline` → signup) / **Premium & Pro** (the visual hero: dark
+`#0B0B0D` card, 2px chrome gradient ring, the «Recommended» seal
+straddling the top border — the exact /memberships Pro recipe —
+`.btn-chrome`; price line «From $X/mo») / **Coaching** (`btn-outline`;
+$X/mo + the checkseal «ALL PRO FEATURES INCLUDED» chip).
+**Prices derive from memberships.ts lookups — never literals** (the
+single-source law the canaries pin). A quiet refund line closes the
+section (the REAL 7-day conditional refund, refund.ts).
 `/memberships` keeps its own three-card layout.
 
 ### 7.5 Comparison tables

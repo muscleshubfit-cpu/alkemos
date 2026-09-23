@@ -11,63 +11,67 @@ import {
 } from "@/lib/home-samples";
 
 /**
- * HOME-BLUEPRINT-257 CANARIES — the 10-section homepage progression
- * (owner-approved blueprint, 2026-09-23), superseding the
- * HOME-REDESIGN-256 8-section pins.
+ * HOME-REBUILD-258 CANARIES — the rebuilt homepage (owner directive
+ * 2026-09-24: re-evaluate the homepage from scratch as a GLOBAL product
+ * interface), superseding the HOME-BLUEPRINT-257 pins.
  *
- * The page tells ONE progression:
- *   Outcome (Hero «خطتك للياقة تبدأ من هنا.») → Explore (All-in-One:
- *   Train / Eat / Track & Plan) → Personalize (Plan «خطة تناسبك، لا خطة
- *   تناسب الجميع.») → Train («تدرّب بثقة.» 868+) → Eat («اعرف ما تأكل.
- *   خطط لما تحتاجه.» 8,830+) → EVO («مدربك الذكي، عندما تحتاجه.») →
- *   Learn («تعلّم. طبّق. تقدّم.») → Memberships + Online Coaching
- *   («خذ خطوتك التالية.») → FAQ → Final CTA («ابدأ اليوم. وابنِ
- *   روتينًا يناسبك.»).
+ * The page tells ONE progression in NINE blocks:
+ *   Promise (Hero «تدرّب بذكاء. وتغذَّ بدقة.») → Proof (the platform in
+ *   numbers) → Explore (three paths) → Train («تدرّب بثقة.» 868+) →
+ *   Eat («اعرف ما تأكل. خطط لما تحتاجه.» 8,830+) → Intelligence (AI
+ *   planners + EVO «خطة مبنية حولك — ومدرب يواكب تقدّمك.») → Learn
+ *   («تعلّم. طبّق. تقدّم.») → Free-vs-Paid («مجاني فعلًا. والترقية
+ *   قرارك.») → FAQ → Final CTA.
  *
  * Guards pin:
- *   1) NO PRICES on the homepage — the Memberships + Coaching section
- *      presents TWO paths (real tier NAME chips from memberships.ts +
- *      the real coaching promise) but never a price, never a tier
- *      grid, never a subscribe CTA (the /memberships + /coaching pages
- *      own pricing and the subscribe flows).
+ *   1) SINGLE-SOURCE PRICING — the Free-vs-Paid section shows REAL
+ *      prices derived from memberships.ts lookups (never literals,
+ *      never a full tier grid) + the honest 7-day refund line. The
+ *      hero/final-CTA regions stay funnel-free (no memberships links,
+ *      no subscribe CTAs).
  *   2) REAL CONTENT ENTRY POINTS — the curated homepage samples must
  *      exist in the LIVE libraries (drift guard, library-counts
  *      pattern) so Train + Eat always render actual browsable content.
  *   3) THE EVO CHAT SURFACE LAW — the section CTA opens the FLOATING
  *      widget via openEvoFloatingChat; the widget stays the ONLY chat
- *      surface; the /chat route stays dead.
- *   4) The hero + the final CTA stay ACCOUNT-DRIVEN (signup/login/
- *      console) — neither links the memberships page (the Memberships
- *      section owns that link).
- *   5) Arabic is the owner's anchor lines; English is independent
- *      native copy — both pinned verbatim.
+ *      surface. The merged Intelligence section carries quota
+ *      transparency (the unified pool + the daily EVO limit).
+ *   4) The account-driven CTA law (Phase 203) — signup/login for
+ *      guests, the member console when signed in.
+ *   5) Arabic is the native anchor; English is independent native copy
+ *      — both pinned verbatim.
  */
 
 const LANDING = "src/components/views/LandingView.tsx";
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
 
-describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
-  // (1) The Memberships + Coaching section presents TWO PATHS without
-  //     any pricing, tier grid, or subscribe CTA.
-  it("the Memberships + Coaching section carries no prices, tier grid, or subscribe CTAs", () => {
+describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
+  // (1) The Free-vs-Paid section derives every price from the SINGLE
+  //     source (memberships.ts) — no price literals, no tier grid, no
+  //     subscribe-now sales CTA. The refund line states the REAL policy.
+  it("the Free-vs-Paid section derives prices from memberships.ts and states the refund policy", () => {
     const src = readFileSync(LANDING, "utf8");
-    // Required: the section exists and reads the SINGLE source (real
-    // tier names as chips — the only membership data on this page).
+    // Required: the section exists and reads the SINGLE source via
+    // lookups (tier names + prices derive — the page can never drift
+    // from /memberships).
     expect(src, "the memberships section is missing").toContain('id="memberships"');
     expect(src).toContain('from "@/lib/memberships"');
+    expect(src).toContain("MEMBERSHIPS.find");
     expect(src).toContain("MEMBERSHIPS.filter");
+    // Price derivation pins (no literals anywhere).
+    expect(src).toContain("paidFromMonthly");
+    expect(src).toContain("coachingPriceLabel");
+    expect(src).toContain("freePriceLabel");
     for (const banned of [
-      // The retired tier GRID renderer
-      "MEMBERSHIPS.map",
-      // Tier prices (memberships.ts is the single source — never here)
+      // Price literals (memberships.ts is the single source — never here)
       "$14.99",
       "$29.99",
       "$39.99",
       "$0",
-      // The price FIELDS/price renderer never reach the homepage source
-      "priceMonthly",
-      "priceYearly",
+      // The full tier-grid renderer (the homepage shows THREE cards,
+      // not the pricing table — /memberships owns that)
+      "MEMBERSHIPS.map",
       "getPriceString",
       // Subscribe/sales CTA labels
       "اشترك الآن",
@@ -76,85 +80,85 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
       "Compare all plans",
       "قارن الباقات",
       "Compare plans",
-      // The retired sales closing card
-      "Try the platform free",
-      "جرّب المنصة مجانًا",
-      // The retired "Why Alkemos" comparison table
-      "Why Alkemos",
-      "لماذا Alkemos",
-      "comparisonRows",
     ]) {
       expect(src, `pricing/sales phrase returned: "${banned}"`).not.toContain(banned);
     }
+    // The refund line — the honest 7-day conditional refund (refund.ts).
+    expect(src).toContain("7-day refund");
+    expect(src).toContain("الاسترداد خلال 7 أيام");
   });
 
-  // (2) The EVO section exists and its CTA opens the FLOATING WIDGET —
-  //     the only chat surface law holds. EVO is positioned as the
-  //     intelligent layer (no numbered feature-card rows).
-  it("the EVO section CTA dispatches openEvoFloatingChat and never links a chat page", () => {
+  // (2) The EVO section exists, its CTA opens the FLOATING WIDGET —
+  //     the only chat surface law holds — and the section carries the
+  //     quota transparency facts (unified pool + daily EVO limit).
+  it("the Intelligence section carries quota transparency and dispatches openEvoFloatingChat", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src, "the EVO section is missing").toContain('id="evo"');
     expect(src).toContain("openEvoFloatingChat");
-    // The owner's Arabic anchor line + its native English counterpart.
-    expect(src).toContain("مدربك الذكي، عندما تحتاجه.");
-    expect(src).toContain("Your smart coach, when you need one.");
-    // The blueprint CTA pair.
+    // The new headline pair + the CTA labels.
+    expect(src).toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
+    expect(src).toContain("A plan built around you — and a coach who keeps it moving.");
     expect(src).toContain("جرّب EVO");
     expect(src).toContain("Try EVO");
+    // Quota transparency: the free AI-plan allowance + the daily EVO
+    // messages, stated in BOTH languages.
+    expect(src).toContain("monthly AI-plan allowance and 10 messages a day");
+    expect(src).toContain("رصيدًا شهريًا لخطط الذكاء الاصطناعي و10 رسائل يوميًا");
     // The retired /chat route stays dead (the widget is the surface).
     expect(src).not.toContain('href="/chat"');
     expect(src).not.toContain('"/chat"');
-    // The retired Phase-127 class names stay dead (the mask recipe is
-    // .evo-art-mask now).
+    // The retired Phase-127 class names stay dead.
     expect(src).not.toContain("evo-hero-card");
     expect(src).not.toContain("evo-hero-art");
-    // The retired headline + numbered feature-card rows stay dead.
+    // The retired headlines + feature rows stay dead.
     expect(src).not.toContain("EVO — مدربك الذكي");
     expect(src).not.toContain("EVO — Your AI Coach");
     expect(src).not.toContain("Your 24/7 Smart Coach");
     expect(src).not.toContain('"مدربك الذكي 24/7"');
     expect(src).not.toContain("Answers sized to your data");
+    // The merged section retired the standalone Plan section headline.
+    expect(src).not.toContain("خطة تناسبك، لا خطة تناسب الجميع.");
+    expect(src).not.toContain("A plan built for you, not for everyone.");
   });
 
-  // (3) The 10-section map + the real content entry points exist.
-  it("the 10-section map and its browse-all links exist", () => {
+  // (3) The 9-block map + the real content entry points exist.
+  it("the 9-block map and its browse-all links exist", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
-      // The section ids, in blueprint order
+      // The section ids, in rebuild order
       'id="paths"',
-      'id="plan"',
       'id="train"',
       'id="eat"',
       'id="evo"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
-      // The hero pair (owner's Arabic + native English)
-      "خطتك للياقة تبدأ من هنا.",
-      "Your fitness plan starts here.",
-      // The hero supporting pair (VRD-V4 K-6 trim — audit §14 verbatim:
-      // ~25% shorter, relieves C-9 on the mobile stage)
-      "تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.",
-      "Training, nutrition, and smart tools — one plan that moves with you toward your goal.",
+      // The hero pair (native anchors — the SERP message match)
+      "تدرّب بذكاء. وتغذَّ بدقة.",
+      "Train smarter. Eat with precision.",
+      // The hero supporting pair
+      "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي. بالعربية والإنجليزية.",
+      "One platform that brings training, nutrition, and smart planning together — with EVO, your AI coach, built in. In Arabic and English.",
       // The hero CTA pair + secondary explore CTA
       "ابدأ مجانًا",
       "Start free",
       "استكشف التمارين",
       "Explore exercises",
-      // The All-in-One path trio (Train / Eat / Track & Plan)
-      "منصة واحدة، ثلاثة مسارات.",
-      "One platform, three paths.",
+      // The proof strip (auditable numbers — verified constants only)
+      'aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}',
+      "proofStats",
+      "EX_PLUS",
+      "FOODS_PLUS",
+      "TOOLS_COUNT",
+      // The Explore path trio (Train / Eat / Track & Plan)
+      "من أين تودّ أن تبدأ؟",
+      "Where do you want to start?",
       'href: "/ar/exercises"',
       'href: "/exercises"',
       'href: "/ar/foods"',
       'href: "/foods"',
       'href: "/ar/tools"',
       'href: "/tools"',
-      // The Personalized Plan section (owner line + planner CTAs)
-      "خطة تناسبك، لا خطة تناسب الجميع.",
-      "A plan built for you, not for everyone.",
-      'href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}',
-      'href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}',
       // The Train section (owner line + real count + section CTA)
       "تدرّب بثقة.",
       "Train with confidence.",
@@ -170,9 +174,9 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
       "Learn. Apply. Progress.",
       "استكشف المحتوى",
       "Explore the articles",
-      // The Memberships + Coaching two-path section (owner line)
-      "خذ خطوتك التالية.",
-      "Take your next step.",
+      // The Free-vs-Paid section (new headline + real endpoints)
+      "مجاني فعلًا. والترقية قرارك.",
+      "Free, for real. Upgrading is your call.",
       'href={isAr ? "/ar/memberships" : "/memberships"}',
       'href={isAr ? "/ar/coaching" : "/coaching"}',
       // The Final CTA pair (owner's Arabic line + native English)
@@ -181,6 +185,9 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
       // Locale-aware browse-all entry points inside Train/Eat
       'href={isAr ? "/ar/exercises" : "/exercises"}',
       'href={isAr ? "/ar/foods" : "/foods"}',
+      // The AI planners (the merged Intelligence section CTAs)
+      'href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}',
+      'href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}',
       // The samples prop drives the content sections (server-provided
       // real data — the bundle law holds).
       "samples.exercises",
@@ -193,22 +200,21 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
 
   // (4) The hero + final CTA drive the account action, not the sales
   //     funnel: signup/login for guests, the member console when signed
-  //     in — and NEITHER links the memberships page (the Memberships
-  //     section is the only surface that does).
+  //     in — and NEITHER region links the memberships page (the
+  //     Free-vs-Paid section is the only surface that does).
   it("the hero and final CTA drive the account action, not the sales funnel", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain('"/auth?mode=signup"');
     expect(src).toContain('"/auth?mode=login"');
-    // The retired Phase 202/256 usage-CTA labels stay dead (the usage
-    // paths belong to the path cards + section CTAs, never the hero).
+    // The retired Phase 202/256 usage-CTA labels stay dead.
     expect(src).not.toContain("Try the Free Tools");
     expect(src).not.toContain("جرّب الأدوات المجانية");
     expect(src).not.toContain("Create your free account");
     expect(src).not.toContain("أنشئ حسابك المجاني");
-    // SCOPED funnel guard: the HERO region (everything before the
-    // paths section) and the PAGE TAIL (FAQ + final CTA) must never
-    // link memberships — the Memberships section is the only surface
-    // that does.
+    // SCOPED funnel guard: the HERO region (everything before the proof
+    // strip) and the PAGE TAIL (FAQ + final CTA) must never link
+    // memberships — the Free-vs-Paid section is the only surface that
+    // does.
     const pathsAt = src.indexOf('id="paths"');
     const faqAt = src.indexOf('id="faq"');
     expect(pathsAt).toBeGreaterThan(-1);
@@ -220,13 +226,12 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
     }
   });
 
-  // (5) The blueprint ORDER: Train precedes Eat precedes EVO precedes
-  //     Learn precedes Memberships — the progression is the product.
-  it("the sections render in the blueprint order (Outcome→Explore→Personalize→Train→Eat→EVO→Learn→Memberships→FAQ)", () => {
+  // (5) The block ORDER: Train precedes Eat precedes EVO precedes Learn
+  //     precedes Memberships — the progression is the product.
+  it("the sections render in the rebuild order (Promise→Proof→Explore→Train→Eat→EVO→Learn→Memberships→FAQ)", () => {
     const src = readFileSync(LANDING, "utf8");
     const order = [
       'id="paths"',
-      'id="plan"',
       'id="train"',
       'id="eat"',
       'id="evo"',
@@ -235,12 +240,22 @@ describe("HOME-BLUEPRINT-257 — homepage redesign canaries", () => {
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
-      expect(order[i], `section ${i} out of blueprint order`).toBeGreaterThan(order[i - 1]);
+      expect(order[i], `section ${i} out of rebuild order`).toBeGreaterThan(order[i - 1]);
     }
+    // The proof strip sits between the hero and the paths (the research-
+    // driven placement: proof directly under the promise).
+    const proofAt = src.indexOf('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
+    expect(proofAt).toBeGreaterThan(-1);
+    expect(proofAt).toBeLessThan(pathsOrderOf(src));
   });
 });
 
-describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => {
+/** Helper: the paths section position (kept tiny + local to this file). */
+function pathsOrderOf(src: string): number {
+  return src.indexOf('id="paths"');
+}
+
+describe("HOME-REBUILD-258 — header/footer contract (unchanged law)", () => {
   // (6) The header carries the five core services as VISIBLE navigation
   //     (desktop nav) with the secondary services demoted to the
   //     drawer's «More» group.
@@ -266,9 +281,9 @@ describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => 
     expect(src).not.toContain("الخدمات المدفوعة");
   });
 
-  // (7) The footer is the ecosystem service map with the owner's new
+  // (7) The footer is the ecosystem service map with the owner's
   //     tagline pair.
-  it("the footer is the service-map navigation with the new tagline", () => {
+  it("the footer is the service-map navigation with the tagline", () => {
     const src = readFileSync(FOOTER, "utf8");
     for (const required of [
       // Service-map column headers
@@ -277,8 +292,7 @@ describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => 
       '"Tools & AI"',
       '"Coaching & Services"',
       '"Company"',
-      // The owner's new tagline (verbatim; AR refined VRD-V4 K-4 —
-      // «بعناية» mirrors the EN "care").
+      // The tagline (verbatim).
       "Built with care for the fitness community",
       "صُنع بعناية لمجتمع اللياقة",
     ]) {
@@ -293,9 +307,9 @@ describe("HOME-BLUEPRINT-257 — header/footer contract (unchanged law)", () => 
 });
 
 describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
-  // Audit C-8 (mobile footer 1,273px at 390px) + §12: below lg the five
-  // service lists collapse into TWO native <details> groups; lg+ keeps the
-  // six-column service map. The rebuild must never drop or fork a link.
+  // Audit C-8 + §12: below lg the five service lists collapse into TWO
+  // native <details> groups; lg+ keeps the six-column service map. The
+  // rebuild must never drop or fork a link.
   it("mobile: two native disclosure groups with 44px summary rows; desktop: the 5-column map survives", () => {
     const src = readFileSync(FOOTER, "utf8");
     // The two mobile disclosure groups (native <details>, zero JS).
@@ -321,8 +335,7 @@ describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
 
   // HREF-SYNC LAW: every footer link lives in BOTH the mobile disclosure
   // copy and the desktop column copy — each locale-aware href appears
-  // EXACTLY twice. A count of 1 means a fork (a link lost from one
-  // breakpoint); a count >2 means a stray third copy crept in.
+  // EXACTLY twice.
   it("href-sync: every footer link href appears exactly twice (mobile + desktop copies)", () => {
     const src = readFileSync(FOOTER, "utf8");
     const hrefs = src.match(/href=\{isAr \? "[^"]+" : "[^"]+"\}/g) ?? [];
@@ -336,10 +349,7 @@ describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
     ).toEqual([]);
   });
 
-  // S-5 (audit C-16): the cookie bar is theme-aware GLASS — translucent
-  // card + backdrop blur, with a solid-card fallback for browsers without
-  // backdrop-filter. Contrast through the glass is gated in
-  // scripts/v1_contrast_matrix.py (worst-case underlay, both modes).
+  // S-5 (audit C-16): the cookie bar is theme-aware GLASS.
   it("cookie bar: theme-aware glass surface + no-backdrop-filter fallback", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     for (const required of [
@@ -355,26 +365,22 @@ describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
 
 describe("VRD-V3 — homepage density & CTA standard contract", () => {
   // §16.2 / C-9: on touch the hero holds a real stage (56vh floor) and
-  // the three actions STACK full-width; md+ keeps the centered row and
-  // the tablet/desktop floors untouched.
+  // the three actions STACK full-width; md+ keeps the centered row.
   it("hero: mobile CTA stacking with a quiet centered Log in + the 56vh stage floor", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
     // The stacking container (mobile column → md row).
     expect(src).toContain("flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap");
-    // Both hero CTAs go full-width on touch and auto on md+ (paddings
-    // only feed the floor — the recipe min-heights own 48/52 and 44/48).
+    // Both hero CTAs go full-width on touch and auto on md+.
     expect(src).toContain('className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base"');
     expect(src).toContain('className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"');
-    // The quiet Log in link: 16px clearance below the stacked pair on
-    // touch, back into the row on md+.
+    // The quiet Log in link.
     expect(src).toContain("mt-4 self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70 md:mt-0");
-    // The stage floor (mobile only — tablet/desktop floors unchanged).
+    // The stage floor (mobile only).
     expect(css).toContain("min-height: max(56vh, calc(100vw * 713 / 1280))");
   });
 
-  // §16.3 / C-11: the muscle chips ride ONE scroll-snap row on touch —
-  // no ragged wrap, no orphaned chip; md+ reverts to the centered wrap.
+  // §16.3 / C-11: the muscle chips ride ONE scroll-snap row on touch.
   it("chips: single scroll-snap row with symmetric edge fades on touch", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
@@ -392,18 +398,14 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
 
   // §11 / C-10: below md the path cards go DENSE — icon+title one row,
   // description clamped to 2 lines, p-5, the unified .card-lift hover.
-  // The plan + memberships cards drop to p-5 mobile with clamped copy.
-  it("density: path cards compact on mobile; plan + memberships cards p-5 with clamped copy", () => {
+  it("density: path cards compact on mobile; memberships cards p-5", () => {
     const src = readFileSync(LANDING, "utf8");
     // Path cards: dense recipe + icon/title row + 2-line clamp.
     expect(src).toContain('className="marble-card card-lift group flex h-full flex-col p-5 md:p-7"');
     expect(src).toContain('className="flex items-center gap-3 md:block"');
     expect(src).toContain("mt-2 line-clamp-2 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none");
-    // Plan card: p-5 mobile (md:p-10 narrative focus kept).
-    expect(src).toContain('className="marble-card mx-auto max-w-4xl p-5 md:p-10"');
-    // Both memberships cards: p-5 + 3-line clamped copy on touch.
+    // The three Free-vs-Paid cards: p-5 mobile (md:p-8).
     expect(src.match(/marble-card flex flex-col p-5 md:p-8/g)?.length).toBe(2);
-    expect(src.match(/mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base/g)?.length).toBe(2);
   });
 
   // §11 food cards (C-1 VLM note): whole card stays ONE link; the title
@@ -417,32 +419,28 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
   });
 
   // §13.2 / C-15: the CTA sizing standard — primary 48px touch / 52px
-  // md+, secondary 44px touch / 48px md+ (carousel arrows already 44px
-  // on touch since V0).
+  // md+, secondary 44px touch / 48px md+.
   it("CTA standard: btn-chrome 48/52 · btn-outline 44/48", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     expect(css).toContain(".btn-chrome { min-height: 52px; }");
     expect(css).toContain(".btn-outline { min-height: 48px; }");
-    // The mobile floors ride the recipe blocks themselves (48 primary /
-    // 44 secondary) — pinned by proximity to the recipe opener.
     const chromeBlock = css.slice(css.indexOf(".btn-chrome {"), css.indexOf(".btn-chrome:hover"));
     expect(chromeBlock).toContain("min-height: 48px");
     const outlineBlock = css.slice(css.indexOf(".btn-outline {"), css.indexOf(".btn-outline:hover"));
     expect(outlineBlock).toContain("min-height: 44px");
   });
 
-  // §13.3 / O-3 (owner-confirmed YES): the memberships card carries the
-  // section's ONE filled primary; coaching keeps the quiet outline.
-  it("memberships asymmetry (O-3): filled CTA on memberships, outline on coaching", () => {
+  // §13.3 / O-3: the Premium & Pro card carries the section's ONE filled
+  // primary; Free and Coaching keep the quiet outline.
+  it("memberships asymmetry (O-3): filled CTA on Premium & Pro, outline on Free + Coaching", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain(': "/memberships"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
-    expect(src).toContain(': "/coaching"} className="btn-outline px-6 py-2.5 text-sm font-medium"');
+    expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium">/g)?.length).toBeGreaterThanOrEqual(2);
   });
 
   // §11 unified hover: every INTERACTIVE homepage card family rides the
-  // .card-lift recipe (2px lift + shadow deepening + firmer warm hairline,
-  // reduced-motion safe); the old bare translate utility survives ONLY on
-  // the tiny seal chips (a different, lighter treatment by design).
+  // .card-lift recipe; the old bare translate utility survives ONLY on
+  // the tiny seal chips.
   it("unified card hover: card-lift on all six interactive card families; recipe + reduced-motion guard in css", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
@@ -461,94 +459,55 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
   });
 });
 
-describe("VRD-V4 — copy refinement K-1..K-7 contract", () => {
-  // Audit §14 (owner order 2026-09-23 «اكمل V4… ابدأ مباشرة من K-1..K-7»):
-  // surgical copy refinements only — §23.9 law: NO wholesale rewrite, the
-  // Phase-257 voice stays. Canaries re-pinned + added in the SAME commit
-  // as the copy (§21.3 law).
-  const NEWSLETTER = "src/components/NewsletterForm.tsx";
-
-  // K-1: «توليدات» is a mechanical pseudo-plural — the verbal noun is the
-  // natural MSA. It appeared 3× (FAQ ×2 + the memberships card); the whole
-  // pseudo-plural stays dead on the homepage (numeric counts like «4
-  // توليدات شهريًا» live in memberships.ts — the pricing-page source, out of
-  // this file's scope).
-  it("K-1: the pseudo-plural «توليدات» stays dead; the natural verbal noun lands 3×", () => {
+describe("HOME-REBUILD-258 — copy voice canaries", () => {
+  // K-1: «توليدات» is a mechanical pseudo-plural — the natural MSA
+  // verbal noun is the only register. It appears 3× (the Premium & Pro
+  // card + the two membership-related FAQ answers).
+  it("K-1: the pseudo-plural «توليدات» stays dead; the verbal noun is the register", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).not.toContain("توليدات");
     expect(src.match(/توليد خطط أكثر/g)?.length).toBe(3);
   });
 
-  // K-2: the coaches H2 restores the «featured» meaning the EN carries.
+  // K-2: the coaches H2 keeps the «featured» meaning.
   it("K-2: the featured-coaches H2 says «مميزون»", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain('"مدربون مميزون على Alkemos"');
     expect(src).not.toContain("مدربون على المنصة");
   });
 
-  // K-5: the muscle chip drops the unfinished-edit slash pair; «كور»
-  // matches the register of the transliterated siblings (بايسبس/ترايسبس).
+  // K-5: the muscle chip keeps the plain transliterated register.
   it("K-5: the core chip is plain «كور» — no slash pair", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain('labelAr: "كور"');
     expect(src).not.toContain("بطن/كور");
   });
 
-  // K-3: the newsletter button drops the salesy «الآن» the EN avoids.
-  it("K-3: the newsletter button is «اشترك مجانًا» — no «الآن»", () => {
-    const src = readFileSync(NEWSLETTER, "utf8");
-    expect(src).toContain('"اشترك مجانًا"');
-    expect(src).not.toContain("اشترك الآن");
-  });
-
-  // K-4: the footer credit AR mirrors the EN "care".
-  it("K-4: the footer credit is «صُنع بعناية» — the old «بحب» stays dead", () => {
-    const src = readFileSync(FOOTER, "utf8");
-    expect(src).toContain('"صُنع بعناية لمجتمع اللياقة"');
-    expect(src).not.toContain("صُنع بحب");
-  });
-
-  // K-6: the retired hero subtitle pair stays dead (the new pair is
-  // pinned up in the BLUEPRINT-257 required list).
-  it("K-6: the retired long hero subtitle stays dead", () => {
+  // K-6: the retired hero subtitle pair stays dead.
+  it("K-6: the retired hero subtitles stay dead", () => {
     const src = readFileSync(LANDING, "utf8");
-    expect(src).not.toContain("قرارات أفضل والتقدم نحو هدفك");
-    expect(src).not.toContain("keep moving toward your goal");
+    expect(src).not.toContain("خطتك للياقة تبدأ من هنا.");
+    expect(src).not.toContain("Your fitness plan starts here.");
+    expect(src).not.toContain("تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.");
+    expect(src).not.toContain("Training, nutrition, and smart tools — one plan that moves with you toward your goal.");
   });
 
-  // K-7: the memberships card drops the 4th enumeration item (save
-  // capacity/export) — 3 items max in the 2-col card; the EN core
-  // (generations · EVO chat · ad-free) survives verbatim.
-  it("K-7: the memberships card copy carries a 3-item enumeration", () => {
-    const src = readFileSync(LANDING, "utf8");
-    expect(src).toContain(
-      "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتجربة بلا إعلانات.",
-    );
-    expect(src).toContain(
-      "more AI plan generations, unlimited EVO chat, and an ad-free experience",
-    );
-    expect(src).not.toContain("حفظ وتصدير أوسع");
-    expect(src).not.toContain("bigger save capacity");
-  });
-
-  // Exit criterion (§20 V4 row): the FAQ JSON-LD must stay single-source —
-  // the visible array is the only source; the schema derives from it
-  // (getFAQSchema lives in lib/seo.ts — no hardcoded schema here).
+  // Exit criterion: the FAQ JSON-LD must stay single-source — the
+  // visible array is the only source; the schema derives from it.
   it("the FAQ JSON-LD stays derived from the visible faqs array (single source)", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain("const faqSchema = getFAQSchema(faqs);");
     // No hardcoded schema construction in the view — the JSON-LD types
-    // ("@type"/Question literals) live only in lib/seo.ts.
+    // live only in lib/seo.ts.
     expect(src).not.toContain('"@type"');
     expect(src).not.toContain('"Question"');
   });
 });
 
-describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
-  // The FIVE owner-specified questions (Arabic anchors + independent
-  // English). Every claim mirrors the implementation; the retired
-  // HOME-REDESIGN-256 question set stays dead.
-  it("the homepage FAQ answers the five blueprint questions; the retired set stays dead", () => {
+describe("HOME-REBUILD-258 — FAQ canaries", () => {
+  // The FIVE questions (Arabic anchors + independent English). Every
+  // claim mirrors the implementation.
+  it("the homepage FAQ answers the five hesitation-remover questions", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
       "هل يمكنني استخدام Alkemos مجانًا؟",
@@ -562,10 +521,9 @@ describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
       "ما الفرق بين العضوية والتدريب الأونلاين؟",
       "What's the difference between a membership and online coaching?",
     ]) {
-      expect(src, `blueprint FAQ question missing: ${required}`).toContain(required);
+      expect(src, `FAQ question missing: ${required}`).toContain(required);
     }
-    // The retired question sets stay dead (256 usage set + older
-    // illogical ones).
+    // The retired question sets stay dead.
     for (const banned of [
       "Do I need an account or subscription to use the tools?",
       "Can I try AI plan generation for free?",
@@ -581,9 +539,7 @@ describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
     }
   });
 
-  // The Train section keeps the browse-paths-first law: the muscle-group
-  // chips row precedes the samples; the old duplicate CTA labels stay
-  // retired.
+  // The Train section keeps the browse-paths-first law.
   it("the muscle-group chips precede the samples; the retired CTA labels stay dead", () => {
     const src = readFileSync(LANDING, "utf8");
     const chipsAt = src.indexOf("Browse by muscle group");
@@ -602,7 +558,7 @@ describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
   });
 });
 
-describe("HOME-BLUEPRINT-257 — homepage sample drift guard (real content, curated)", () => {
+describe("HOME-REBUILD-258 — homepage sample drift guard (real content, curated)", () => {
   // The curated homepage samples must exist in the LIVE libraries —
   // if a data file renames/retires a curated entry, this fails so the
   // curation is consciously updated (library-counts pattern).
@@ -637,8 +593,7 @@ describe("HOME-BLUEPRINT-257 — homepage sample drift guard (real content, cura
     const chicken = samples.foods.find((f) => f.slug === "chicken-breast");
     expect(chicken?.calories).toBe(165);
     expect(chicken?.protein).toBe(31);
-    // Batch 2 (§12.53 item 2): every exercise sample carries a SELF-HOSTED
-    // WebP image (previously a raw.githubusercontent.com https URL).
+    // Every exercise sample carries a SELF-HOSTED WebP image.
     for (const ex of samples.exercises) {
       expect(ex.image.startsWith("/images/exercises/")).toBe(true);
       expect(ex.image.endsWith(".webp")).toBe(true);

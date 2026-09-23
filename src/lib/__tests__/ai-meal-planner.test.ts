@@ -273,13 +273,13 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     expect(landing).toContain("أنشئ خطتي");
     expect(landing).toContain("Create My Plan");
-    // HOME-BLUEPRINT-257 (owner-approved blueprint 2026-09-23): the
-    // retired connector card merged into the PERSONALIZED PLAN section
-    // (#plan) — the headline pins the owner's anchor line «خطة تناسبك،
-    // لا خطة تناسب الجميع.» with its independent native English; the
-    // CTA labels and hrefs below stay pinned.
-    expect(landing).toContain("خطة تناسبك، لا خطة تناسب الجميع.");
-    expect(landing).toContain("A plan built for you, not for everyone.");
+    // HOME-REBUILD-258 (owner directive 2026-09-24): the retired
+    // connector card + the blueprint Plan section merged into the
+    // INTELLIGENCE section (#evo) — the headline pins the new anchor
+    // line «خطة مبنية حولك — ومدرب يواكب تقدّمك.» with its independent
+    // native English; the CTA labels and hrefs below stay pinned.
+    expect(landing).toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
+    expect(landing).toContain("A plan built around you — and a coach who keeps it moving.");
     // Access-point fix (2026-09-14): the footer (with its locale-aware
     // AI-planner links) moved from LandingView into the SHARED
     // SiteFooter component — the contract follows the markup.
