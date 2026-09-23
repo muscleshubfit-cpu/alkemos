@@ -167,7 +167,7 @@ function BlogCarousel({
           <a
             key={post.id}
             href={`${isAr ? "/ar" : ""}/blog/${encodeURIComponent(post.slug)}`}
-            className="marble-card group block shrink-0 transition-transform duration-300 hover:-translate-y-0.5"
+            className="marble-card card-lift group block shrink-0"
             style={{
               color: isFeatured ? "#F5F5F7" : PALETTE.textPrim,
               width: isFeatured ? "18rem" : "20rem",
@@ -350,29 +350,33 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           {/* Account-action CTA pair (Phase 203 law unchanged): guests get
               ONE primary chrome button → signup + ONE quiet login link;
               signed-in members get their own console. The blueprint adds
-              ONE secondary explore CTA → the exercises library. */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:mt-6">
+              ONE secondary explore CTA → the exercises library.
+              VRD-V3 (§16.2, fixes C-9): on touch the three actions STACK
+              full-width (primary → secondary → quiet centered Log in with
+              a 16px clearance — no more mis-tap risk beside the artwork);
+              md+ keeps the single centered row. */}
+          <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
             {isLoggedIn ? (
-              <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+              <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                 {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
                 <span className="rtl:rotate-180">›</span>
               </a>
             ) : (
               <>
-                <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+                <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                   {isAr ? "ابدأ مجانًا" : "Start free"}
                   <span className="rtl:rotate-180">›</span>
                 </a>
                 <a
                   href={isAr ? "/ar/exercises" : "/exercises"}
-                  className="btn-outline px-6 py-2.5 text-sm font-medium md:py-3 md:text-base"
+                  className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
                   {isAr ? "استكشف التمارين" : "Explore exercises"}
                   <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
                 <a
                   href="/auth?mode=login"
-                  className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+                  className="mt-4 self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70 md:mt-0"
                   style={{ color: PALETTE.textSec }}
                 >
                   {isAr ? "تسجيل الدخول" : "Log in"}
@@ -392,7 +396,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           one full link into its real hub with one benefit line. This
           replaces the retired Explore 4-card grid (Articles get their
           own LEARN section later — the paths stay focused on usage). */}
-      <section id="paths" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      <section id="paths" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -404,7 +408,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 : "Three paths toward the same goal — start where you are and move between them as you need."}
             </p>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-3">
             {(isAr
               ? [
                   { icon: "dumbbell", title: "تدرّب", desc: "تمارين لكل مجموعة عضلية بشرح وصور، وبرامج جاهزة تنقلك من البداية إلى التقدّم.", link: "ابدأ التدريب ›", href: "/ar/exercises" },
@@ -418,15 +422,24 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 ]
             ).map((path) => (
               <Reveal key={path.title}>
+                {/* VRD-V3 (§11, fixes C-10): below md the three path cards
+                    go DENSE — icon+title share one row, the description
+                    clamps to 2 lines, padding drops to p-5, and the unified
+                    .card-lift hover replaces the bare translate utility.
+                    The stacked 1,074px block compresses toward ≤720px
+                    (measured after) with ZERO content removal; md+ keeps
+                    the premium icon-over-title composition at p-7. */}
                 <a
                   href={path.href}
-                  className="marble-card group flex h-full flex-col p-6 transition-transform duration-300 hover:-translate-y-0.5 md:p-7"
+                  className="marble-card card-lift group flex h-full flex-col p-5 md:p-7"
                 >
-                  <EngravedIcon name={path.icon} alt="" size={48} className="h-12 w-12 shrink-0" />
-                  <h3 className="mt-4 text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                    {path.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                  <div className="flex items-center gap-3 md:block">
+                    <EngravedIcon name={path.icon} alt="" size={48} className="h-10 w-10 shrink-0 md:h-12 md:w-12" />
+                    <h3 className="text-xl font-semibold tracking-tight md:mt-4" style={{ color: PALETTE.textPrim }}>
+                      {path.title}
+                    </h3>
+                  </div>
+                  <p className="mt-2 line-clamp-2 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none" style={{ color: PALETTE.textSec }}>
                     {path.desc}
                   </p>
                   <span className="chrome-text mt-4 text-sm font-semibold">{path.link}</span>
@@ -445,9 +458,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           plan builders — their locale-aware hrefs stay pinned by the
           ai-meal-planner canary). The three steps mirror how the
           planners actually flow. */}
-      <section id="plan" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+      <section id="plan" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="marble-card mx-auto max-w-4xl p-6 md:p-10">
+          {/* VRD-V3 (§11): p-5 on mobile (was p-6) — one step of the
+              mobile density law; md+ keeps the generous p-10 narrative
+              focus. */}
+          <div className="marble-card mx-auto max-w-4xl p-5 md:p-10">
             <div className="text-center">
               <span className="seal-chip">
                 <EngravedIcon name="mealplanner" alt="" size={12} className="h-3 w-3" />
@@ -508,7 +524,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           sub-row (a starting point, not a separate section). All
           sample data arrives as server props (getHomeSamples) — the
           bundle law holds. */}
-      <section id="train" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      <section id="train" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <span className="seal-chip">
@@ -525,7 +541,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </p>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-8 md:mt-10">
             {/* Browse paths — muscle-group chips with real live counts
                 (Phase 203 law preserved); the section CTA follows the
                 samples below. */}
@@ -533,7 +549,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
                 {isAr ? "تصفّح حسب المجموعة العضلية" : "Browse by muscle group"}
               </p>
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              {/* VRD-V3 (§16.3, fixes C-11): the chips ride the .chips-row
+                  recipe — ONE scroll-snap row with symmetric edge fades on
+                  touch (no ragged wrap / orphaned chip), centered wrap on
+                  md+. The chip itself keeps the seal recipe + hover lift. */}
+              <div className="chips-row scrollbar-none mt-3">
                 {[
                   { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
                   { labelAr: "ظهر", labelEn: "Back", slug: "back" },
@@ -557,7 +577,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </div>
             {/* REAL exercise samples — 8 curated lifts (one per muscle
                 family), each card links to its /exercises/[slug] page. */}
-            <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-4 md:mt-10 md:grid-cols-4">
               {samples.exercises.map((ex) => (
                 <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
               ))}
@@ -573,7 +593,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             {/* REAL program samples — 3 curated programs from the live
                 WORKOUT_PROGRAMS array (real images, real splits). A quiet
                 starting-point row inside TRAIN — not a separate section. */}
-            <div className="mt-14 text-center">
+            <div className="mt-10 text-center md:mt-14">
               <h3 className="text-2xl font-semibold tracking-tight md:text-3xl">
                 {isAr ? "تفضّل البدء بخطة جاهزة؟" : "Prefer a ready-made starting point?"}
               </h3>
@@ -602,7 +622,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           the owner's headline, the real database count (FOODS_PLUS rides
           the verified constant), and the 8 real per-100g staples as
           samples (server props — the bundle law holds). */}
-      <section id="eat" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+      <section id="eat" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <span className="seal-chip">
@@ -620,7 +640,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </div>
           {/* REAL food samples — 8 curated staples spanning the food
               families, same macro presentation as the /foods explorer. */}
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:mt-10 md:grid-cols-4">
             {samples.foods.map((food) => (
               <LandingFoodCard key={food.slug} food={food} isAr={isAr} />
             ))}
@@ -645,9 +665,9 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           warrior-art recipe: text on the inline-start, warrior art
           dissolving into the marble on the inline-end (.evo-art-mask,
           mirrored in RTL). Quiet secondary link → the full /evo page. */}
-      <section id="evo" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      <section id="evo" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="marble-card marble-card--unclipped relative overflow-hidden p-6 md:p-10 lg:p-12">
+          <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
             {/* Desktop warrior art — inline-end, masked into the marble. */}
             <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[46%] items-end justify-center md:flex" aria-hidden="true">
               <ThemeImg
@@ -728,7 +748,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           untouched; the whole section renders only when posts loaded
           (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -773,7 +793,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           reachable from the header drawer and the footer). The paid
           featured-coaches strip (0037) follows — it renders only when
           active ads exist. */}
-      <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-12 md:py-20">
+      <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -785,11 +805,17 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 : "Two paths depending on what you need: memberships that widen what the platform does for you, or online coaching that puts a coach in your corner."}
             </p>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-4 md:mt-10 md:grid-cols-2">
             {/* Path 1 — Memberships: the real tier names from the single
                 source (memberships.ts); capabilities described without
-                prices or variable counts. */}
-            <div className="marble-card flex flex-col p-6 md:p-8">
+                prices or variable counts.
+                VRD-V3 (§11 density + §13.3 O-3 asymmetry, fixes C-13): the
+                memberships card now carries the section's ONE primary
+                (filled .btn-chrome) while coaching keeps the quiet outline
+                — the commercial heart gets a real click invitation without
+                making both paths shout (§23.5 law). p-5 + clamped copy on
+                mobile per the density law. */}
+            <div className="marble-card flex flex-col p-5 md:p-8">
               <div className="flex items-center gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
                   <EngravedIcon name="laurel" alt="" size={26} className="h-6 w-6" />
@@ -798,7 +824,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   {isAr ? "الباقات" : "Memberships"}
                 </h3>
               </div>
-              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+              <p className="mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base" style={{ color: PALETTE.textSec }}>
                 {isAr
                   ? "ابدأ بمستوى مجاني دائم، وارتقِ متى احتجت مساحة أكبر: توليدات خطط أكثر، ومحادثة غير محدودة مع EVO، وحفظ وتصدير أوسع، وتجربة بلا إعلانات."
                   : "Start on a free tier that stays free, and move up when you need more room — more AI plan generations, unlimited EVO chat, bigger save capacity with export, and an ad-free experience."}
@@ -809,7 +835,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 ))}
               </div>
               <div className="mt-6">
-                <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-outline px-6 py-2.5 text-sm font-medium">
+                <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-6 py-2.5 text-sm font-medium">
                   {isAr ? "تفاصيل الباقات ›" : "See memberships ›"}
                   <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
@@ -817,8 +843,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </div>
             {/* Path 2 — Online Coaching: the real coaching promise from
                 memberships.ts — human-built plans, weekly follow-up,
-                direct contact, all Pro features inherited. */}
-            <div className="marble-card flex flex-col p-6 md:p-8">
+                direct contact, all Pro features inherited.
+                VRD-V3 (§11 density): p-5 + clamp-3 mobile; the outline
+                button stays (O-3 — the quiet path by design). */}
+            <div className="marble-card flex flex-col p-5 md:p-8">
               <div className="flex items-center gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--edge)] bg-[var(--tint)]">
                   <EngravedIcon name="runner" alt="" size={26} className="h-6 w-6" />
@@ -827,7 +855,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   {isAr ? "الكوتشينج أونلاين" : "Online Coaching"}
                 </h3>
               </div>
-              <p className="mt-4 flex-1 text-sm font-normal leading-relaxed md:text-base" style={{ color: PALETTE.textSec }}>
+              <p className="mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base" style={{ color: PALETTE.textSec }}>
                 {isAr
                   ? "مدرب بشري يبني لك خطط التغذية والتمارين، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — مع كل مزايا برو."
                   : "A human coach who builds your nutrition and workout plans, follows your progress week by week, and stays in direct contact — with all Pro features included."}
@@ -854,7 +882,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           renders only when active ads exist). Labeled as promo spots,
           not an endorsement (§12.50-أ-3). */}
       {featuredCoaches.length > 0 && (
-        <section className="bg-[var(--bg)] px-4 pb-12 md:pb-20">
+        <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
               {isAr ? "مدربون على المنصة" : "Featured Coaches on Alkemos"}
@@ -871,7 +899,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   <a
                     key={`${coach.slug || coach.name}-${i}`}
                     href={href}
-                    className="marble-card group block p-5 text-center transition-transform duration-300 hover:-translate-y-0.5"
+                    className="marble-card card-lift group block p-5 text-center"
                   >
                     {coach.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -905,12 +933,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           The FIVE owner-specified questions; every claim mirrors the
           implementation. The FAQPage JSON-LD derives from the same
           array above (single source law). */}
-      <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-12 md:py-20">
+      <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
             {isAr ? "أسئلة قبل أن تبدأ." : "Questions, answered."}
           </h2>
-          <Accordion type="single" collapsible className="mt-12">
+          <Accordion type="single" collapsible className="mt-8 md:mt-12">
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
                 {/* VRD-V0 (audit C-15): full-row hover state + a bigger,
@@ -934,7 +962,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           page — the Arabic is the owner's exact line, the English is
           its native counterpart. ONE focused action, account-driven
           (the same single action as the hero — no new destinations). */}
-      <section className="bg-[var(--bg)] px-4 py-12 md:py-20">
+      <section className="bg-[var(--bg)] px-4 py-10 md:py-20">
         <div
           className="relative mx-auto max-w-6xl overflow-hidden rounded-[var(--radius-chrome)]"
           style={{
@@ -958,19 +986,19 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               backgroundPosition: "center",
             }}
           />
-          <div className="relative flex flex-col items-center px-6 py-12 text-center md:py-16">
+          <div className="relative flex flex-col items-center px-6 py-10 text-center md:py-16">
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
               {isAr ? "ابدأ اليوم. وابنِ روتينًا يناسبك." : "Start today. Build a routine that fits you."}
             </h2>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
               {isLoggedIn ? (
-                <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+                <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
                   {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
                   <span className="rtl:rotate-180">›</span>
                 </a>
               ) : (
                 <>
-                  <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3.5 md:text-base">
+                  <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
                     {isAr ? "ابدأ مجانًا" : "Start free"}
                     <span className="rtl:rotate-180">›</span>
                   </a>
@@ -1011,7 +1039,7 @@ function LandingExerciseCard({ ex, isAr }: { ex: HomeExerciseSample; isAr: boole
   return (
     <a
       href={`${isAr ? "/ar" : ""}/exercises/${ex.slug}`}
-      className="marble-card group flex flex-col transition-transform duration-300 hover:-translate-y-0.5"
+      className="marble-card card-lift group flex flex-col"
     >
       {/* Real exercise image (start-position frame from the library
           artwork) — object-contain keeps the full-body framing honest. */}
@@ -1058,19 +1086,24 @@ function LandingExerciseCard({ ex, isAr }: { ex: HomeExerciseSample; isAr: boole
 function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }) {
   const name = isAr ? food.nameAr : food.nameEn;
   return (
+    /* VRD-V3 (§11 food cards, fixes the C-1-VLM dead-space note): the
+       whole card stays ONE link (tap target = card); the title gets a
+       fixed 2-line floor (min-h-10) so 1-line and 2-line names align
+       the macro grid across the row, and the gaps tighten title →
+       macros → link (mt-3 → mt-2 — gap-2 rhythm). */
     <a
       href={`${isAr ? "/ar" : ""}/foods/${food.slug}`}
-      className="marble-card group flex flex-col p-4 text-start transition-transform duration-300 hover:-translate-y-0.5"
+      className="marble-card card-lift group flex flex-col p-4 text-start"
     >
       <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
         {isAr ? food.categoryLabelAr : food.categoryLabelEn}
       </span>
-      <h3 className="mt-1 text-base font-semibold leading-tight tracking-tight line-clamp-2" style={{ color: PALETTE.textPrim }}>
+      <h3 className="mt-1 min-h-10 text-base font-semibold leading-tight tracking-tight line-clamp-2" style={{ color: PALETTE.textPrim }}>
         {name}
       </h3>
       {/* Real per-100g numbers from the database — same semantics as the
           /foods explorer cards (calories · protein · carbs). */}
-      <div className="mt-3 grid grid-cols-3 gap-1 text-[10px] font-normal">
+      <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal">
         <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
           <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{food.calories}</span>
           <span style={{ color: PALETTE.textMuted }}>{isAr ? "سعرة" : "kcal"}</span>
@@ -1084,7 +1117,7 @@ function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }
           <span style={{ color: PALETTE.textMuted }}>{isAr ? "كربوهيدرات" : "carbs"}</span>
         </div>
       </div>
-      <p className="chrome-text mt-3 text-xs font-semibold">{isAr ? "اعرض الصنف ›" : "View food ›"}</p>
+      <p className="chrome-text mt-2 text-xs font-semibold">{isAr ? "اعرض الصنف ›" : "View food ›"}</p>
     </a>
   );
 }
@@ -1094,7 +1127,7 @@ function LandingProgramCard({ prog, isAr }: { prog: HomeProgramSample; isAr: boo
   return (
     <a
       href={`${isAr ? "/ar" : ""}/programs/${prog.slug}`}
-      className="marble-card group relative flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-0.5"
+      className="marble-card card-lift group relative flex flex-col overflow-hidden"
     >
       {/* Real program artwork (same asset the /programs grid renders). */}
       <div className="relative aspect-[16/10] w-full overflow-hidden">

@@ -351,6 +351,114 @@ describe("VRD-V2 — footer disclosure rebuild + surfaces contract", () => {
   });
 });
 
+describe("VRD-V3 — homepage density & CTA standard contract", () => {
+  // §16.2 / C-9: on touch the hero holds a real stage (56vh floor) and
+  // the three actions STACK full-width; md+ keeps the centered row and
+  // the tablet/desktop floors untouched.
+  it("hero: mobile CTA stacking with a quiet centered Log in + the 56vh stage floor", () => {
+    const src = readFileSync(LANDING, "utf8");
+    const css = readFileSync("src/app/globals.css", "utf8");
+    // The stacking container (mobile column → md row).
+    expect(src).toContain("flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap");
+    // Both hero CTAs go full-width on touch and auto on md+ (paddings
+    // only feed the floor — the recipe min-heights own 48/52 and 44/48).
+    expect(src).toContain('className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base"');
+    expect(src).toContain('className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"');
+    // The quiet Log in link: 16px clearance below the stacked pair on
+    // touch, back into the row on md+.
+    expect(src).toContain("mt-4 self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70 md:mt-0");
+    // The stage floor (mobile only — tablet/desktop floors unchanged).
+    expect(css).toContain("min-height: max(56vh, calc(100vw * 713 / 1280))");
+  });
+
+  // §16.3 / C-11: the muscle chips ride ONE scroll-snap row on touch —
+  // no ragged wrap, no orphaned chip; md+ reverts to the centered wrap.
+  it("chips: single scroll-snap row with symmetric edge fades on touch", () => {
+    const src = readFileSync(LANDING, "utf8");
+    const css = readFileSync("src/app/globals.css", "utf8");
+    expect(src).toContain('className="chips-row scrollbar-none mt-3"');
+    for (const required of [
+      ".chips-row {",
+      "scroll-snap-type: x proximity",
+      "flex-wrap: nowrap",
+      "mask-image: linear-gradient(",
+      "scroll-snap-align: start",
+    ]) {
+      expect(css, `chips-row recipe missing: ${required}`).toContain(required);
+    }
+  });
+
+  // §11 / C-10: below md the path cards go DENSE — icon+title one row,
+  // description clamped to 2 lines, p-5, the unified .card-lift hover.
+  // The plan + memberships cards drop to p-5 mobile with clamped copy.
+  it("density: path cards compact on mobile; plan + memberships cards p-5 with clamped copy", () => {
+    const src = readFileSync(LANDING, "utf8");
+    // Path cards: dense recipe + icon/title row + 2-line clamp.
+    expect(src).toContain('className="marble-card card-lift group flex h-full flex-col p-5 md:p-7"');
+    expect(src).toContain('className="flex items-center gap-3 md:block"');
+    expect(src).toContain("mt-2 line-clamp-2 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none");
+    // Plan card: p-5 mobile (md:p-10 narrative focus kept).
+    expect(src).toContain('className="marble-card mx-auto max-w-4xl p-5 md:p-10"');
+    // Both memberships cards: p-5 + 3-line clamped copy on touch.
+    expect(src.match(/marble-card flex flex-col p-5 md:p-8/g)?.length).toBe(2);
+    expect(src.match(/mt-4 line-clamp-3 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none md:text-base/g)?.length).toBe(2);
+  });
+
+  // §11 food cards (C-1 VLM note): whole card stays ONE link; the title
+  // carries a 2-line floor (min-h-10) so macro grids align across the
+  // row; title → macros → link tightens to the gap-2 rhythm.
+  it("food cards: aligned macro rows (min-h title floor) + gap-2 rhythm", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain("mt-1 min-h-10 text-base font-semibold leading-tight tracking-tight line-clamp-2");
+    expect(src).toContain('className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal"');
+    expect(src).toContain('className="chrome-text mt-2 text-xs font-semibold"');
+  });
+
+  // §13.2 / C-15: the CTA sizing standard — primary 48px touch / 52px
+  // md+, secondary 44px touch / 48px md+ (carousel arrows already 44px
+  // on touch since V0).
+  it("CTA standard: btn-chrome 48/52 · btn-outline 44/48", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    expect(css).toContain(".btn-chrome { min-height: 52px; }");
+    expect(css).toContain(".btn-outline { min-height: 48px; }");
+    // The mobile floors ride the recipe blocks themselves (48 primary /
+    // 44 secondary) — pinned by proximity to the recipe opener.
+    const chromeBlock = css.slice(css.indexOf(".btn-chrome {"), css.indexOf(".btn-chrome:hover"));
+    expect(chromeBlock).toContain("min-height: 48px");
+    const outlineBlock = css.slice(css.indexOf(".btn-outline {"), css.indexOf(".btn-outline:hover"));
+    expect(outlineBlock).toContain("min-height: 44px");
+  });
+
+  // §13.3 / O-3 (owner-confirmed YES): the memberships card carries the
+  // section's ONE filled primary; coaching keeps the quiet outline.
+  it("memberships asymmetry (O-3): filled CTA on memberships, outline on coaching", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain(': "/memberships"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
+    expect(src).toContain(': "/coaching"} className="btn-outline px-6 py-2.5 text-sm font-medium"');
+  });
+
+  // §11 unified hover: every INTERACTIVE homepage card family rides the
+  // .card-lift recipe (2px lift + shadow deepening + firmer warm hairline,
+  // reduced-motion safe); the old bare translate utility survives ONLY on
+  // the tiny seal chips (a different, lighter treatment by design).
+  it("unified card hover: card-lift on all six interactive card families; recipe + reduced-motion guard in css", () => {
+    const src = readFileSync(LANDING, "utf8");
+    const css = readFileSync("src/app/globals.css", "utf8");
+    expect(src.match(/marble-card card-lift/g)?.length).toBe(6);
+    expect(src.match(/transition-transform duration-300 hover:-translate-y-0\.5/g)?.length).toBe(1);
+    for (const required of [
+      ".marble-card.card-lift:hover {",
+      "transform: translateY(-2px)",
+      "var(--shadow-lift), var(--card-inner-hl)",
+      "border-color: color-mix(in srgb, var(--text) 22%, transparent)",
+      ".marble-card.card-lift:hover { transform: none; }",
+      "--shadow-lift:",
+    ]) {
+      expect(css, `card-lift recipe missing: ${required}`).toContain(required);
+    }
+  });
+});
+
 describe("HOME-BLUEPRINT-257 — FAQ canaries", () => {
   // The FIVE owner-specified questions (Arabic anchors + independent
   // English). Every claim mirrors the implementation; the retired

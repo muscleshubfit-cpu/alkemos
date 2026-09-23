@@ -114,13 +114,18 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     expect(rule).toContain("var(--text)");
   });
 
-  it("the button recipes carry a 44px minimum touch target", () => {
+  it("the button recipes carry the 44px minimum touch target (VRD-V3 raised the standard)", () => {
     const css = readFileSync(CSS, "utf8");
-    for (const recipe of [".btn-chrome", ".btn-outline"]) {
-      const m = css.match(new RegExp(recipe.replace(".", "\\.") + "\\s*\\{[^}]*\\}"));
-      expect(m, `${recipe} recipe not found`).toBeTruthy();
-      expect(m![0], `${recipe} must set min-height: 44px`).toContain("min-height: 44px");
-    }
+    // VRD-V3 (§13.2) re-pin — same frame as the code change (§21.3 law):
+    // the touch floor rose from a flat 44px to the CTA sizing standard
+    // (primary 48 touch / 52 md+, secondary 44 touch / 48 md+). Every
+    // value is STILL ≥44px — the HIG bar holds, now with hierarchy.
+    const chrome = css.match(/\.btn-chrome\s*\{[^}]*\}/)![0];
+    const outline = css.match(/\.btn-outline\s*\{[^}]*\}/)![0];
+    expect(chrome, ".btn-chrome must set the 48px touch floor").toContain("min-height: 48px");
+    expect(outline, ".btn-outline must set the 44px touch floor").toContain("min-height: 44px");
+    expect(css, ".btn-chrome must rise to 52px from md+").toContain(".btn-chrome { min-height: 52px; }");
+    expect(css, ".btn-outline must rise to 48px from md+").toContain(".btn-outline { min-height: 48px; }");
   });
 
   it("the homepage carousel arrows are 44px on touch (max-md: variant)", () => {

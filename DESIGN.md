@@ -146,15 +146,17 @@ prices/stat numbers.
 
 | Class | Recipe | Use |
 |---|---|---|
-| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; dark mode adds a hairline warm-white ring (VRD-V1) | ALL primary CTAs |
-| `.btn-outline` | translucent `--card` fill (65% + blur 6px — VRD-V1, survives hero artwork) + 1px `--text` border + `--text` + radius 999px | Secondary CTAs |
+| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; dark mode adds a hairline warm-white ring (VRD-V1). **VRD-V3 §13.2 sizing standard: 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
+| `.btn-outline` | translucent `--card` fill (65% + blur 6px — VRD-V1, survives hero artwork) + 1px `--text` border + `--text` + radius 999px. **VRD-V3 §13.2: 44px touch / 48px md+** | Secondary CTAs |
 | `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + **1px machined inner top-edge highlight** (`--card-inner-hl` — VRD-V1 marble removal; class name kept, 123 usages) | Every card surface |
+| `.marble-card.card-lift` | VRD-V3 §11 unified INTERACTIVE-card hover: 2px lift + `--shadow-lift` deepening + firmer warm-graphite hairline (`color-mix(--text 22%)`) · 200ms ease · lift disabled under `prefers-reduced-motion`. Only on truly interactive cards (§23.4 — static containers never lift) | Interactive cards' hover |
 | `.seal-chip` | chrome-border pill, small-caps tracking, `--muted-foreground`, translucent card bg | Stat seals, tags, badges |
 | `.chrome-text` | Phase 198 (audit C3) + VRD-V1 warm re-tune: light theme = dark warm-steel ramp (lightest stop ≈ 10:1 on ivory); dark theme = lightened warm ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
 | `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 (kept — light Greek identity) | Section separators |
 | `.navbar-chrome` | sticky, `--navbar-bg` (Phase 198 audit C5: alpha 0.85) + blur(12px) + chrome bottom border; VRD-V2 §12: desktop nav items px-3.5 (+2px) + gap-1 — 64px bar unchanged | Site header |
 | `.evo-hero-card` / `.evo-hero-art` | Phase 127 EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask | Homepage EVO section |
-| `.hero-art` / `.hero-bg` | Phase 131 unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it; min-height floor 100vw×713/1280 (92vh on wide viewports) | Homepage hero |
+| `.hero-art` / `.hero-bg` | Phase 131 unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it; min-height floor 100vw×713/1280 (92vh on wide viewports). **VRD-V3 §16.2: phones get `max(56vh, natural)`** — was a 332px strip at 390px (audit C-9); CTAs stack full-width below md | Homepage hero |
+| `.chips-row` | VRD-V3 §16.3 (audit C-11): ONE horizontal scroll-snap row on touch — `nowrap` + `scroll-snap-type: x proximity` + symmetric 24px edge fade masks (RTL-safe) + chips `flex-shrink: 0 · white-space: nowrap`; md+ reverts to the centered wrap | Muscle-group browse chips |
 | `.footer-marble` | VRD-V1 structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (marble slab removed — audit C-7; name kept, markup untouched) | Site footer |
 | `.footer-disc` | VRD-V2 §12 (audit C-8): below lg the five service lists collapse into two native `<details>` groups («الخدمات/Services» + «المنصة/Platform», 44px summary rows, zero JS); lg+ shows the flat 6-column map — href-sync law ×2 (canary-pinned) | Mobile footer |
 | `.mhe-cookie-bar` | VRD-V2 S-5 (audit C-16): theme-aware GLASS — `color-mix(--card 92% / 88% dark, transparent)` + `backdrop-filter: blur(16px)`; solid-card `@supports` fallback; worst-case contrast gated in `scripts/v1_contrast_matrix.py` | Cookie consent bar |
@@ -177,8 +179,9 @@ blue buttons, no gradients besides chrome.
 
 ### Section Padding
 
-Section vertical `py-12` / `md:py-20` · card internal `p-5–p-8` · grid gap
-`gap-4` (cards) / `gap-3` (pills).
+Section vertical `py-10` mobile / `md:py-20` (VRD-V3 §16.1 mobile
+pacing — was a flat py-12) · card internal `p-5` mobile / `md:p-7–p-10`
+· grid gap `gap-4` (cards) / `gap-3` (pills).
 
 ### Border Radius
 
@@ -257,9 +260,20 @@ Hero copy legibility (Phase 198, audit C4): `.hero-copy` adds a
 theme-aware text-shadow halo to H1 + subtitle over artwork details — a
 glyph edge, NOT a veil (luminance law below stays intact).
 
+**VRD-V3 §16.2 (audit C-9) — the phone stage:** below md the hero box
+holds a `max(56vh, 100vw×713/1280)` floor (was a 332px over-cropped
+strip at 390px) and the account CTA pair STACKS full-width — primary
+`.btn-chrome` → secondary `.btn-outline` → the quiet centered «Log in»
+link with a 28px clearance (measured; gap-3 + mt-4) — no more mis-tap
+risk beside the artwork. md+ keeps the single centered row unchanged
+(20px measured gap to Log in).
+
 Height floors keep the artwork effectively complete:
 
-- **every viewport:** `min-height: 100vw × 713/1280` (natural artwork
+- **phones (<md, VRD-V3):** `min-height: max(56vh, 100vw × 713/1280)` —
+  the C-9 stage floor; cover keeps the central barbell/columns band
+  focal while the decorative side margins absorb the crop;
+- **tablet → wide:** `min-height: 100vw × 713/1280` (natural artwork
   height) — phones/tablets show the full scene, sides intact; the compact
   content grows the box only a few px (cover then trims ≤ ~6% of the
   decorative side margins).

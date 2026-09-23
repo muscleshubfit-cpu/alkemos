@@ -227,6 +227,10 @@
   --edge: #E5DFD6;
   --chrome-edge: #837F77;
   --shadow: 0 8px 24px rgba(32, 29, 26, 0.07);
+  /* VRD-V3 (§11 unified card hover): the lifted-shadow stop for
+     .card-lift — a deeper, slightly tighter drop than --shadow so the
+     2px lift reads as elevation, not blur. */
+  --shadow-lift: 0 14px 32px -8px rgba(32, 29, 26, 0.16);
   --ai: #38C7FF;
   --tint: #F1EDE7;
   /* VRD-V1 §9.1: replaces the marble texture — 1px machined top edge */
@@ -270,6 +274,9 @@
   --edge: #2E2A25;
   --chrome-edge: #4A463F;
   --shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 32px rgba(0, 0, 0, 0.5);
+  /* VRD-V3 (§11 unified card hover): dark-mode lift — keeps the hairline
+     ring (the dark .marble-card separation) while deepening the drop. */
+  --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 40px -10px rgba(0, 0, 0, 0.65);
   --ai: #45D6FF;
   --tint: #1A1714;
   --card: #1B1815;
@@ -314,9 +321,10 @@
   border: 1px solid var(--chrome-edge);
   border-radius: 999px;
   font-weight: 600;
-  /* VRD-V0 (audit C-15): 44px minimum touch target — Apple HIG bar
+  /* VRD-V3 (§13.2 sizing standard, fixes C-15): PRIMARY buttons are
+     48px on touch / 52px from md+ (was a flat 44px). Apple HIG bar
      (WCAG 2.5.8 only demands 24px; the site holds the stricter one). */
-  min-height: 44px;
+  min-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -324,6 +332,9 @@
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow);
+}
+@media (min-width: 768px) {
+  .btn-chrome { min-height: 52px; }
 }
 .btn-chrome:hover {
   filter: brightness(1.04) contrast(1.02);
@@ -351,8 +362,9 @@
   border: 1px solid var(--text);
   color: var(--text);
   border-radius: 999px;
-  /* VRD-V0 (audit C-15): 44px minimum touch target (same HIG bar as
-     .btn-chrome — measured live at 40-42px on mobile before this). */
+  /* VRD-V3 (§13.2 sizing standard, fixes C-15): SECONDARY buttons are
+     44px on touch / 48px from md+ — one step under the primary pair,
+     still above the 44px HIG touch bar on mobile. */
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -360,6 +372,9 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+@media (min-width: 768px) {
+  .btn-outline { min-height: 48px; }
 }
 .btn-outline:hover { opacity: 0.72; }
 
@@ -432,6 +447,71 @@
    unlayered beats @layer utilities). */
 .marble-card--unclipped { overflow: visible; }
 
+/* VRD-V3 (§11 unified hover — fixes the «anemic» hover gap): interactive
+   cards get ONE recipe — 2px lift + shadow deepening + a firmer warm-graphite
+   hairline (the bronze --accent-deep border shift from the original plan is
+   DEAD: owner rejected bronze — §25; the shift stays inside the warm neutral
+   family via a color-mix toward --text). 200ms ease, and the lift itself is
+   disabled under prefers-reduced-motion (vestibular safety). Applied ONLY to
+   truly interactive cards (§23.4 — static containers never lift). */
+.marble-card.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.marble-card.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift), var(--card-inner-hl);
+  border-color: color-mix(in srgb, var(--text) 22%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marble-card.card-lift:hover { transform: none; }
+}
+
+/* VRD-V3 (§16.3, fixes C-11 — the ragged chip wrap): the muscle-group
+   browse chips collapse to ONE horizontal scroll-snap row on touch — no
+   wrapping, no orphaned last chip. Symmetric edge fade masks on the scroll
+   container itself (RTL-safe — both edges fade identically), snap targets
+   on each chip, and the existing .scrollbar-none keeps the rail invisible.
+   From md+ the row reverts to the centered wrap (7 chips fit in one line
+   at every desktop width anyway). */
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+@media (max-width: 767.98px) {
+  .chips-row {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-inline: 0.25rem;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+  }
+  .chips-row > * {
+    scroll-snap-align: start;
+    /* The row never wraps, so a chip must neither shrink (the count
+       pill would squeeze) nor break its label internally — «بطن/كور»
+       measured wrapping to 2 lines inside a 74px pill without this. */
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
 /* Greek meander divider band — mission §4 */
 .meander-divider {
   height: 28px;
@@ -464,6 +544,16 @@
   justify-content: center;
   overflow: hidden;
   min-height: calc(100vw * 713 / 1280);
+}
+/* VRD-V3 (§16.2, fixes C-9): on phones the hero gets a real stage — a
+   max(56vh, natural-artwork) floor (was the 100vw×713/1280 band alone,
+   which cover-cropped the 1280×713 landscape art to a thin 332px strip
+   at 390px). The taller box + object-fit: cover keeps the central
+   barbell/columns focal band intact while the decorative side margins
+   absorb the crop; the stacked full-width CTAs (LandingView) ride the
+   reclaimed room. Tablet/desktop floors unchanged. */
+@media (max-width: 767.98px) {
+  .hero-art { min-height: max(56vh, calc(100vw * 713 / 1280)); }
 }
 @media (min-aspect-ratio: 1501/1000) {
   .hero-art { min-height: 92vh; }
