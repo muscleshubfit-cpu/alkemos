@@ -148,8 +148,12 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     const block = src.slice(src.indexOf("export const viewport"));
     expect(block).not.toContain('"#0071e3"');
     expect(block).toContain('(prefers-color-scheme: light)');
-    expect(block).toContain('"#FFFFFF"');
+    // VRD-V1 re-pin (canary law §21.3 — same commit as the token change):
+    // the pair tracks the LIVE --bg tokens — warm ivory / warm graphite.
+    expect(block).toContain('"#FAF8F5"');
     expect(block).toContain('(prefers-color-scheme: dark)');
-    expect(block).toContain('"#0B0B0D"');
+    expect(block).toContain('"#12100E"');
+    expect(block).not.toContain('"#FFFFFF"');
+    expect(block).not.toContain('"#0B0B0D"');
   });
 });

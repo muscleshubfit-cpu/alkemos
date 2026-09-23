@@ -34,34 +34,51 @@ Core laws:
 
 ## 2. Identity Tokens (globals.css — single source of truth)
 
+> **VRD-V1 (2026-09-23, phase 261 — owner direction «تحسين الهوية الحالية
+> دون تغييرها»):** the redesign plan's bronze accent (O-4) was REJECTED by
+> the owner; the identity stays monochrome **Chrome/Silver + Black/Graphite
+> + Ivory**, now on a WARM neutral ramp with NO new accent color. The
+> marble texture was removed (owner order — see §4/§6). Light and Dark are
+> equal citizens. Contrast is gated by `scripts/v1_contrast_matrix.py`
+> (WCAG 2.1 — measured, not assumed). Full system rewrite lands in V5.
+
 ### 2.1 Core palette
 
 | Variable | Light | Dark | Usage |
 |---|---|---|---|
-| `--bg` | `#FFFFFF` | `#0B0B0D` | Page background |
-| `--text` | `#0B0B0D` | `#F5F5F7` | Primary text / solid action color |
-| `--muted` / `--muted-foreground` | `#6B7075` | `#9BA0A6` | Secondary text |
-| `--muted-2` | `#4A5260` | `#B9BEC4` | Body copy on tinted surfaces |
-| `--tint` | `#F5F6F8` | `#121316` | Soft section / chip background |
-| `--card` | `#ffffff` | `#141518` | Card surface |
-| `--edge` | `#E4E6E9` | `#26292E` | Hairline borders |
+| `--bg` | `#FAF8F5` | `#12100E` | Page background (warm ivory / warm graphite) |
+| `--text` | `#201D1A` | `#F4F1EC` | Primary text / solid action color (warm ink) |
+| `--muted` / `--muted-foreground` | `#6E675E` | `#A8A199` | Secondary text |
+| `--muted-2` | `#4E4840` | `#C6C0B8` | Body copy on tinted surfaces |
+| `--tint` | `#F1EDE7` | `#1A1714` | Soft section / chip background (perceptible alternation in BOTH modes — ΔL* 3.75/3.18) |
+| `--card` | `#ffffff` | `#1B1815` | Card surface |
+| `--edge` | `#E5DFD6` | `#2E2A25` | Hairline borders |
+| `--card-inner-hl` | `inset 0 1px 0 rgba(255,255,255,.5)` | `inset 0 1px 0 rgba(255,255,255,.06)` | 1px machined top edge (marble replacement) |
 | `--ai` | `#38C7FF` | `#45D6FF` | **AI-assistant elements ONLY** |
 
 ### 2.2 Chrome system
 
 | Variable | Light | Dark |
 |---|---|---|
-| `--chrome` | `linear-gradient(145deg,#FDFDFD 0%,#C9CED3 35%,#878E94 50%,#E6E9EC 70%,#9AA0A6 100%)` | same |
-| `--chrome-edge` | `#7D8388` | `#4A5056` |
-| `--border-chrome` | `1px solid #C9CED3` | `1px solid #3A3F45` |
-| `--shadow` | `0 8px 24px rgba(11,11,13,.06)` | `0 0 0 1px rgba(255,255,255,.04), 0 12px 32px rgba(0,0,0,.5)` |
+| `--chrome` | `linear-gradient(145deg,#FDFDFD 0%,#CFCBC3 35%,#8E8A82 50%,#E9E6E0 70%,#A09C94 100%)` | same (mode-invariant) |
+| `--chrome-hover` | `linear-gradient(145deg,#FFFFFF 0%,#D8D4CC 35%,#98948C 50%,#F0EDE7 70%,#A8A49C 100%)` | same |
+| `--chrome-edge` | `#837F77` | `#4A463F` |
+| `--border-chrome` | `1px solid #CEC9C0` | `1px solid #3A362F` |
+| `--shadow` | `0 8px 24px rgba(32,29,26,.07)` | `0 0 0 1px rgba(255,255,255,.04), 0 12px 32px rgba(0,0,0,.5)` |
 | `--radius-chrome` | `14px` | `14px` |
+
+VRD-V1 re-warmed every chrome stop (coldest `#878E94` → `#8E8A82`, plan
+§8.4) so the metal belongs to the same warm family as the ivory/graphite
+ramp. The `.btn-chrome` label ink is `#1C1710` (≥5.18:1 on every stop,
+both modes); dark mode adds a hairline warm-white ring + deeper drop so
+the pill reads machined — not washed out — on graphite (audit C-12).
 
 ### 2.3 Artwork-backed tokens
 
-`--hero-img`, `--marble-img`, `--meander-img`, `--prog-backdrop`,
-`--navbar-bg` — CSS `url()` pairs that flip with the theme (zero hydration
-flicker; the browser swaps by `data-theme`, no JS image-src churn).
+`--hero-img`, `--meander-img`, `--prog-backdrop`, `--navbar-bg` — CSS
+`url()`/color pairs that flip with the theme (zero hydration flicker; the
+browser swaps by `data-theme`, no JS image-src churn). `--marble-img` was
+RETIRED in VRD-V1 (marble removal — §4).
 
 ### 2.4 Theme engine
 
@@ -129,15 +146,16 @@ prices/stat numbers.
 
 | Class | Recipe | Use |
 |---|---|---|
-| `.btn-chrome` | chrome gradient bg + `#0B0B0D` text + 1px `--chrome-edge` + radius 999px + 600 weight | ALL primary CTAs |
-| `.btn-outline` | transparent + 1px `--text` border + `--text` + radius 999px | Secondary CTAs |
-| `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + marble texture `::before` at 5% (dark 7%) | Every card surface |
+| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; dark mode adds a hairline warm-white ring (VRD-V1) | ALL primary CTAs |
+| `.btn-outline` | translucent `--card` fill (65% + blur 6px — VRD-V1, survives hero artwork) + 1px `--text` border + `--text` + radius 999px | Secondary CTAs |
+| `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + **1px machined inner top-edge highlight** (`--card-inner-hl` — VRD-V1 marble removal; class name kept, 123 usages) | Every card surface |
 | `.seal-chip` | chrome-border pill, small-caps tracking, `--muted-foreground`, translucent card bg | Stat seals, tags, badges |
-| `.chrome-text` | Phase 198 (audit C3): light theme = dark-steel ramp (lightest stop ≈ 9.8:1 on white — the raw chrome ramp failed AA at ~2.1:1); dark theme = lightened ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
-| `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 | Section separators |
+| `.chrome-text` | Phase 198 (audit C3) + VRD-V1 warm re-tune: light theme = dark warm-steel ramp (lightest stop ≈ 10:1 on ivory); dark theme = lightened warm ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
+| `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 (kept — light Greek identity) | Section separators |
 | `.navbar-chrome` | sticky, `--navbar-bg` (Phase 198 audit C5: alpha 0.85) + blur(12px) + chrome bottom border | Site header |
-| `.evo-hero-card` / `.evo-hero-art` | Phase 127 EVO section card — text left, warrior art right with a mask fade into the marble; `[dir=rtl]` flips the mask | Homepage EVO section |
+| `.evo-hero-card` / `.evo-hero-art` | Phase 127 EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask | Homepage EVO section |
 | `.hero-art` / `.hero-bg` | Phase 131 unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it; min-height floor 100vw×713/1280 (92vh on wide viewports) | Homepage hero |
+| `.footer-marble` | VRD-V1 structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (marble slab removed — audit C-7; name kept, markup untouched) | Site footer |
 
 **Buttons law:** there are exactly TWO button styles on marketing/hub
 surfaces — `.btn-chrome` (primary) and `.btn-outline` (secondary). No
@@ -188,7 +206,7 @@ they are not requested later):
 | `evo-card-light/dark.webp` | Programs-card stadium backdrop (12% blur) + EVO page art |
 | `evo-hero-light/dark.webp` (640×675) | Phase 127 EVO section warrior crop (warrior at 67–85% of crop width) |
 | `evo-widget-light/dark.webp` (480×480) | Widget/avatar bust (72% fill) |
-| `texture-marble-light/dark.webp` | Marble texture layer (5%/7% on cards; full-cover footer slab per theme — Phase 132) |
+| `texture-marble-light/dark.webp` | **RETIRED from CSS in VRD-V1** (marble removal — owner order 2026-09-23). Asset files kept until the V2 cache-law window per plan §19; delete then |
 | `divider-meander-light/dark.webp` | Greek-key repeating band |
 | `icons/<name>-{light,dark}.webp` (200×200) | **38 engraved icons** — the ONLY icon set on marketing/hub surfaces (calories, bmi, macros, bodyfat, hydration, mealplanner, dumbbell, house, rack, runner, protein, carbs, fats, fruits, scroll, laurel, evo, checkseal, doric…) |
 

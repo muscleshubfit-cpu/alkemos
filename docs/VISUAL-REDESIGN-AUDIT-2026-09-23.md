@@ -523,3 +523,22 @@ with zero visual-direction dependency).
 | O-3 | Memberships CTA asymmetry: memberships filled + coaching outline? | **Yes** (recommended — fixes C-13) |
 | O-4 | Bronze exact hue: warmer (#8C6A3F proposal) vs cooler steel-bronze? | Proposal values, subject to §21.1 matrix |
 | O-5 | Execute waves V0–V5 back-to-back or pause after V1 for direction sign-off? | **Pause after V1** for owner visual approval (one screenshot review), then continue |
+
+## 25. Owner decisions record — V1 execution directive (2026-09-23, supersedes the bronze direction)
+
+After seeing the V1 bronze preview (`download/v1-preview/`, owner session 2026-09-23) the owner
+rejected the bronze accent («مش عاجبنى لون البرونز») and settled the direction as
+**«تحسين الهوية الحالية دون تغييرها»** — enhance the current identity without changing it:
+
+| # | Decision (owner, 2026-09-23) | Consequence for this plan |
+|---|---|---|
+| O-4 (REVISED) | **Bronze rejected.** Foundation = **Chrome/Silver + Black/Graphite + Ivory/Warm Off-White**, **no new accent color**. Keep the Alkemos images, EVO, Chrome, the athletic identity, and the light Greek identity. | §8.2 keeps the warm neutral ramp (ivory/graphite) but DROPS the `--accent*` family entirely; §8.3's accent roles stay with the existing families (`.chrome-text` numerals re-warmed, token links, graphite focus ring). §8.4's chrome warm retune stands (coldest stop `#878E94` → `#8E8A82`). Result brief: premium / athletic / clean — not flashy, not salesy. |
+| V1 scope (EXTENDED) | **Marble treatment removed per V1** (owner order — the plan had it in V2). | `.marble-card::before` + `.footer-marble` slab retired in the V1 commit; cards get the §9.1 inner top-edge highlight; footer becomes the structural band. **Meander dividers STAY** (light Greek identity kept). V2 keeps the remaining surface work (footer rebuild, header spacing, cookie glass). |
+| Modes | **Light and Dark are equal citizens** (§15 unchanged). | Dark shim values land in the same V1 token commit. |
+| O-1/O-2/O-3/O-5 | Provisional adoption stands: no logo regen · no footer motif · CTA asymmetry YES (lands V3) · **pause after V1** for the owner's visual review before V2–V5. | Execution session stops after V1 + live verification and awaits the owner. |
+
+Validation: `scripts/v1_contrast_matrix.py` (committed with V1 — §21.1 made real for the monochrome
+system: text/surfaces ≥4.5:1 both modes, chrome-stop ink ≥4.5:1, `.chrome-text` ramps ≥4.5:1 incl.
+the pinned-black cards, focus ring ≥3:1, alternation ΔL* ≥2.8 both modes — measured from
+`globals.css` at run time, never hand-copied).
+

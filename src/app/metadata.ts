@@ -127,13 +127,13 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   // VRD-V0 (audit C-4): the legacy Apple-blue #0071e3 clashed with the
-  // Marble & Chrome identity (zero-blue law). Two-value format tracking
-  // the REAL theme surfaces: light --bg #FFFFFF, dark --bg #0B0B0D
-  // (globals.css Marble & Chrome tokens). V1 retunes the values when
-  // the Ivory & Bronze Steel palette lands (plan §8.3).
+  // Marble & Chrome identity (zero-blue law). VRD-V1 (owner direction
+  // 2026-09-23 «تحسين الهوية الحالية دون تغييرها»): two-value format
+  // tracking the REAL theme surfaces — light --bg warm ivory #FAF8F5,
+  // dark --bg warm graphite #12100E (globals.css VRD-V1 tokens).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B0B0D" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F5" },
+    { media: "(prefers-color-scheme: dark)", color: "#12100E" },
   ],
   width: "device-width",
   initialScale: 1,

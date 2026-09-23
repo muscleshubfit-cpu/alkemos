@@ -55,10 +55,11 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
           {/* Brand — theme-aware lockup (Phase 132): the black footer
-              lockup on light marble / the white one on black marble,
-              rendered as a ThemeImg pair so CSS swaps it with zero
-              hydration flicker. Spans the full row below lg so the
-              lists pair up cleanly. */}
+              lockup on the light band / the white one on the dark band
+              (VRD-V1: the marble slab became a clean structural band —
+              tint/hairline light, deeper step dark), rendered as a
+              ThemeImg pair so CSS swaps it with zero hydration flicker.
+              Spans the full row below lg so the lists pair up cleanly. */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <ThemeImg
               light="/images/brand/logo-footer-black.png"

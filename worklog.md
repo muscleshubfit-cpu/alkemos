@@ -6,6 +6,31 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: VRD-V1-2026-09-23
+Agent: Super Z (owner session)
+Task: تنفيذ Wave V1 من خطة إعادة التصميم البصري (docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md §20/§25) بتوجيه المالك المعدَّل: رفض برونز O-4 ← «تحسين الهوية الحالية دون تغييرها» — كروم/فضة + جرافيتي + عاجي بلا accent جديد + إزالة الـMarble (سُحبت من V2 إلى V1 بأمر صريح).
+
+Work Log:
+- قرارات المالك الموثعة §25 بالمستند: O-4 معدلة (رفض البرونز بعد معاينة download/v1-preview/ — بقاء .chrome-text للأرقام والروابط بالتوكنز بدل عائلة --accent*) · نطاق V1 موسع بإزالة الرخام · الميندر يبقى (هوية يونانية خفيفة) · فاتح/داكن متكافئان (§15) · توقف بعد V1 (O-5)
+- globals.css — السلم المحايد الدافئ كامل الوضعين: --bg ‏#FAF8F5/#12100E · --text ‏#201D1A/#F4F1EC · --muted ‏#6E675E/#A8A199 · --muted-2 ‏#4E4840/#C6C0B8 · --tint ‏#F1EDE7/#1A1714 (ΔL* ‏3.75/3.18 — إغلاق C-5) · --card ‏#FFFFFF/#1B1815 · --edge ‏#E5DFD6/#2E2A25 · --navbar-bg/shadow/hairlines دافئة + shadcn mapping كامل الوضعين (shim القديم يرث تلقائيًا)
+- إعادة تدفئة الكروم (§8.4): كل توقفات --chrome/--chrome-hover/--border-chrome/--chrome-edge نحو الفضة الدافئة (أبرد توقف #878E94←#8E8A82) · .chrome-text الوضعان: فولاذ دافئ غامق بالفاتح (أفتح توقف ≈10:1 على العاجي — انضباط Phase-198) وفولاذ دافئ فاتح بالداكن — عائلة معدنية واحدة
+- الأزرار (§8.3 بديل الرتيب): .btn-chrome حبر دافئ #1C1710 (≥5.18:1 على أسوأ توقف بالوضعين — بوابة 2) + حلقة فصل داكنة (rgba أبيض دافئ 8% + ظل أعمق — معالجة C-12 «المغسول» بلا خروج من الكروم) · .btn-outline تعبئة --card شفافة 65% + blur 6px (تنجو فوق صور البطل — C-12)
+- إزالة الرخام (أمر المالك): حذف .marble-card::before (خامة 5%/7% — C-6) وحذف --marble-img من الوضعين + .footer-marble من لوح رخامي إلى شريط هيكلي (--tint + حد --edge فاتح / #0E0C0A داكن — C-7) · البطاقات: إبراز داخلي 1px علوي (--card-inner-hl جديد) — «حافة معدنية مشغولة» بصفر تكلفة أصول (§9.1) · اسمَي الكلاسين كما هما (123 استخدامًا لا يُمس) · أصول texture-marble تبقى بالنافذة حتى V2 (قانون الكاش §19)
+- وداعًا لآخر النيلي (C-4/C-18 جزئي): scrollbar-thin جرافيتي دافئ (كان rgba(99,102,241)) · ::selection دافئ فاتح + override داكن · skeleton-shimmer دافئ · حلقة التركيز تبقى جرافيت --text لكن 55%←60% (≥3:1 على الخلفيتين الجديدتين — بوابة 4) — تعليق «V1 يعدلها للبرونز» استُبدل بتوثيق قرار المالك
+- metadata.ts — themeColor ‏#FFFFFF/#0B0B0D ← #FAF8F5/#12100E
+- بوابة جديدة ملتزمة: scripts/v1_contrast_matrix.py — تقرأ globals.css نفسه وقت التشغيل (مقيس لا مفترض) وتحرس 5 بوابات: نصوص×أسطح ≥4.5 بالوضعين · حبر الزر × كل توقفات الكروم ≥4.5 · درجات .chrome-text ≥4.5 (بما فيها البطاقات السوداء المثبتة) · حلقة التركيز ≥3 · تناوب ΔL* ≥2.8 — كلها خضراء (أسوأ نص 4.78 · الزر 5.18 · الكروم-تكست 5.96/10.03 · الحلقة 4.33/6.53)
+- DESIGN.md — لافتة VRD-V1 بقسم التوكنز + تحديث جداول §2.1/§2.2/§2.3 (إسقاط --marble-img وإضافة --card-inner-hl) + صفوف §4 (وصفات الأزرار/البطاقة/الفوتر الجديدة) + §6 (سطر أصول الرخام: RETIRED) — إعادة الكتابة الكاملة تظل لـV5
+- البوابات: tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell السابق وحده) · vitest ✓ 100/1688 (كاناري themeColor أعيد تثبيته بنفس الفريم — قانون §21.3) · next build ✓ 2020/2020 · v1_contrast_matrix ✓ · docs_parity ✓ · migration_audit ✓ صفر انحراف · check-stale-refs ✓ · check-ui-wiring ✓ · docs_audit: A/size أُصلح (STATE ‏31,922B/99 سطرًا) وفشلا I/J سابقان سُببا V1 مثبتًا بتجربة git stash على HEAD النظيف 5655934 (أثر إعادة إنشاء المستودع بكوميت bf46c2c: أنشأ أرشيف PROGRESS/QA وREADME بترويسة 2026-09-19 بينما تاريخه 2026-09-20 — البوابة نفسها تقول إن J يستلزم استثناءً بأمر مالك لتحديث الـbaseline) — خارج نطاق V1 ولا يُمس هنا
+- التحقق الحي محليًا (next start + متصفح رأسي): 6 سياقات EN/AR × فاتح/داكن × 1440/390 — محسوبًا: العاجي #FAF8F5 والغرافيتي #12100E حيّان · حبر الزر #1C1710 · marble-card::before = none وصفر طلبات texture-marble على الشبكة · تناوب الأقسام #12100E↔#1A1714 مؤكد بالمعرّفات · صفر overflow أفقي 390/1440 · AR H1 كايرو lh 81px÷60=1.35 (صفر انحدار V0) · الفوتر الداكن #0E0C0A بحد #2E2A25 بلا صورة · themeColor صحيح — لقطات download/v1-shots/ (خارج المستودع)
+- مراجعة VLM (بروتوكول §21.4): EN-فاتح (عاجي فاخر نظيف/زر معدني مقروء/لا كسر) · AR-داكن (غرافيتي دافئ/كروم واضح غير مغسول/كايرو متصل سليم/بلا رخام) · EN-داكن (زر واضح/لا كسر) · AR-فاتح (لا overflow/أزرار مريحة/عربي سليم) — الرخام المرئي الوحيد داخل صورة المعبد (فن التصوير محفوظ عمدًا P-3)
+
+Stage Summary:
+- V1 منفذة كاملة كفريم واحد قابل للتراجع: الهوية كما هي (كروم+معادن) على سلم دافئ حي — بلا أي accent جديد — والرخام مزال — المرحلة 261
+- توقف وفق O-5: V2–V5 تنتظر المراجعة البصرية للمالك على الحي (alkemos.com بعد النشر)
+- Commit SHA: this commit carries this entry
+- Push status: PENDING — the sandbox carries no GitHub credentials (session-local clone); push + CI + production verification complete the moment the owner supplies the PAT (same one-frame path as the previous sessions: remote URL embed, push, then strip). Everything upstream of the push is done and green locally.
+
+---
 Task ID: DOCS-PARITY-FIX-260-2026-09-23
 Agent: Super Z (owner session)
 Task: إغلاق فشل docs-parity القديم الموثّق بتقرير V0 — تحديث supabase/migrations/INDEX.md ليطابق عدد التهجيرات الفعلي (فريم docs-only صفر كود، أمر المالك 2026-09-23).

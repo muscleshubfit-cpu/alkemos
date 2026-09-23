@@ -206,90 +206,100 @@
  * manual toggle (data-theme attribute on <html>, set pre-paint by an
  * inline script in the root layout — zero flash). Monochrome marble &
  * chrome palette; --ai cyan is used ONLY on AI-assistant surfaces.
+ *
+ * VRD-V1 (2026-09-23, owner direction «تحسين الهوية الحالية دون تغييرها»):
+ * bronze (plan O-4) was REJECTED — the identity stays monochrome
+ * Chrome/Silver + Black/Graphite + Ivory. Values retuned warm (ivory
+ * #FAF8F5 / graphite #12100E); chrome ramps re-warmed (coldest stop
+ * #878E94 → #8E8A82, plan §8.4); marble texture removed (owner order —
+ * cards gain a 1px machined inner highlight instead); Light and Dark
+ * are equal citizens (plan §15). Contrast gates: scripts/v1_contrast_matrix.py.
  * ==================================================================== */
 :root {
-  --bg: #FFFFFF;
-  --text: #0B0B0D;
-  --muted: #6B7075;
-  --muted-2: #4A5260;
+  --bg: #FAF8F5;
+  --text: #201D1A;
+  --muted: #6E675E;
+  --muted-2: #4E4840;
   --radius-chrome: 14px;
-  --chrome: linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%);
-  --chrome-hover: linear-gradient(145deg, #FFFFFF 0%, #D4D9DE 35%, #939A96 50%, #ECEFF1 70%, #A3A9AF 100%);
-  --border-chrome: 1px solid #C9CED3;
-  --edge: #E4E6E9;
-  --chrome-edge: #7D8388;
-  --shadow: 0 8px 24px rgba(11, 11, 13, 0.06);
+  --chrome: linear-gradient(145deg, #FDFDFD 0%, #CFCBC3 35%, #8E8A82 50%, #E9E6E0 70%, #A09C94 100%);
+  --chrome-hover: linear-gradient(145deg, #FFFFFF 0%, #D8D4CC 35%, #98948C 50%, #F0EDE7 70%, #A8A49C 100%);
+  --border-chrome: 1px solid #CEC9C0;
+  --edge: #E5DFD6;
+  --chrome-edge: #837F77;
+  --shadow: 0 8px 24px rgba(32, 29, 26, 0.07);
   --ai: #38C7FF;
-  --tint: #F5F6F8;
+  --tint: #F1EDE7;
+  /* VRD-V1 §9.1: replaces the marble texture — 1px machined top edge */
+  --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.5);
   /* Phase 198 (UI audit C5): 0.72 let high-contrast artwork bleed through
      the sticky bar on tablet/mobile — 0.85 keeps the translucent blur
      character while content behind stops competing with the navbar row. */
-  --navbar-bg: rgba(255, 255, 255, 0.85);
-  --marble-img: url("/images/brand/texture-marble-light.webp");
+  --navbar-bg: rgba(250, 248, 245, 0.85);
   --meander-img: url("/images/brand/divider-meander-light.webp");
   --prog-backdrop: url("/images/brand/evo-card-light.webp");
   /* shadcn mapping — existing components theme automatically */
-  --background: #ffffff;
-  --foreground: #0B0B0D;
+  --background: #FAF8F5;
+  --foreground: #201D1A;
   --card: #ffffff;
-  --card-foreground: #0B0B0D;
+  --card-foreground: #201D1A;
   --popover: #ffffff;
-  --popover-foreground: #0B0B0D;
-  --secondary: #F5F6F8;
-  --secondary-foreground: #0B0B0D;
-  --muted: #F5F6F8;
-  --muted-foreground: #6B7075;
-  --accent: #F5F6F8;
-  --accent-foreground: #0B0B0D;
-  --border: #E4E6E9;
-  --input: #E4E6E9;
+  --popover-foreground: #201D1A;
+  --secondary: #F1EDE7;
+  --secondary-foreground: #201D1A;
+  --muted: #F1EDE7;
+  --muted-foreground: #6E675E;
+  --accent: #F1EDE7;
+  --accent-foreground: #201D1A;
+  --border: #E5DFD6;
+  --input: #E5DFD6;
   --ring: #38C7FF;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0B0B0D;
-  --sidebar-accent: #F5F6F8;
-  --sidebar-accent-foreground: #0B0B0D;
-  --sidebar-border: #E4E6E9;
+  --sidebar: #FAF8F5;
+  --sidebar-foreground: #201D1A;
+  --sidebar-accent: #F1EDE7;
+  --sidebar-accent-foreground: #201D1A;
+  --sidebar-border: #E5DFD6;
   --sidebar-ring: #38C7FF;
 }
 
 [data-theme="dark"] {
-  --bg: #0B0B0D;
-  --text: #F5F5F7;
-  --muted: #9BA0A6;
-  --muted-2: #B9BEC4;
-  --border-chrome: 1px solid #3A3F45;
-  --edge: #26292E;
-  --chrome-edge: #4A5056;
+  --bg: #12100E;
+  --text: #F4F1EC;
+  --muted: #A8A199;
+  --muted-2: #C6C0B8;
+  --border-chrome: 1px solid #3A362F;
+  --edge: #2E2A25;
+  --chrome-edge: #4A463F;
   --shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 32px rgba(0, 0, 0, 0.5);
   --ai: #45D6FF;
-  --tint: #121316;
-  --card: #141518;
+  --tint: #1A1714;
+  --card: #1B1815;
+  /* VRD-V1 §9.1: machined inner highlight at dark-mode strength */
+  --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   /* Phase 198 (UI audit C5): see the light-theme note above */
-  --navbar-bg: rgba(11, 11, 13, 0.85);
-  --marble-img: url("/images/brand/texture-marble-dark.webp");
+  --navbar-bg: rgba(18, 16, 14, 0.85);
   --meander-img: url("/images/brand/divider-meander-dark.webp");
   --prog-backdrop: url("/images/brand/evo-card-dark.webp");
   /* shadcn mapping — dark */
-  --background: #0B0B0D;
-  --foreground: #F5F5F7;
-  --card: #141518;
-  --card-foreground: #F5F5F7;
-  --popover: #141518;
-  --popover-foreground: #F5F5F7;
-  --secondary: #191B1F;
-  --secondary-foreground: #F5F5F7;
-  --muted: #191B1F;
-  --muted-foreground: #9BA0A6;
-  --accent: #191B1F;
-  --accent-foreground: #F5F5F7;
-  --border: #3A3F45;
-  --input: #3A3F45;
+  --background: #12100E;
+  --foreground: #F4F1EC;
+  --card: #1B1815;
+  --card-foreground: #F4F1EC;
+  --popover: #1B1815;
+  --popover-foreground: #F4F1EC;
+  --secondary: #1A1714;
+  --secondary-foreground: #F4F1EC;
+  --muted: #1A1714;
+  --muted-foreground: #A8A199;
+  --accent: #1A1714;
+  --accent-foreground: #F4F1EC;
+  --border: #3A362F;
+  --input: #3A362F;
   --ring: #45D6FF;
-  --sidebar: #0B0B0D;
-  --sidebar-foreground: #F5F5F7;
-  --sidebar-accent: #191B1F;
-  --sidebar-accent-foreground: #F5F5F7;
-  --sidebar-border: #3A3F45;
+  --sidebar: #12100E;
+  --sidebar-foreground: #F4F1EC;
+  --sidebar-accent: #1A1714;
+  --sidebar-accent-foreground: #F4F1EC;
+  --sidebar-border: #3A362F;
   --sidebar-ring: #45D6FF;
   color-scheme: dark;
 }
@@ -298,7 +308,9 @@
 
 .btn-chrome {
   background: var(--chrome);
-  color: #0B0B0D;
+  /* VRD-V1: warm ink label (#1C1710) — ≥5.2:1 on every warm-silver
+     stop, both modes (scripts/v1_contrast_matrix.py gate 2). */
+  color: #1C1710;
   border: 1px solid var(--chrome-edge);
   border-radius: 999px;
   font-weight: 600;
@@ -318,9 +330,24 @@
   transform: translateY(-1px);
 }
 .btn-chrome:active { transform: translateY(0); }
+/* VRD-V1 (audit C-12, dark washout — monochrome fix): the chrome pill
+   reads washed-out on the warm-graphite bg; a hairline warm-white ring
+   + deeper drop shadow restore the machined-metal separation without
+   leaving the Chrome/Silver identity (owner: enhance, don't change). */
+[data-theme="dark"] .btn-chrome {
+  box-shadow:
+    0 0 0 1px rgba(244, 241, 236, 0.08),
+    0 10px 28px -14px rgba(0, 0, 0, 0.7);
+}
 
 .btn-outline {
-  background: transparent;
+  /* VRD-V1 (plan §8.3 secondary recipe, fixes audit C-12): translucent
+     --card fill + backdrop blur keeps the text border button readable
+     over busy hero artwork in BOTH modes; on plain sections it reads
+     as a quiet secondary — two-button law intact. */
+  background: color-mix(in srgb, var(--card) 65%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--text);
   color: var(--text);
   border-radius: 999px;
@@ -338,28 +365,29 @@
 
 /* Chrome-gradient text (numbers, prices) — mission §7/§12.
    Phase 198 (UI audit C3 — docs/UI-AUDIT-HOMEPAGE.md): the light-theme
-   ramp was the raw chrome gradient whose mid-stops (#C9CED3/#878E94/
-   #9AA0A6) fail WCAG AA on white (~2.1:1) for muscle-card counts, prices,
-   and affiliate copy. The light ramp is now DARK STEEL — same engraved
-   metal identity, lightest stop #3F444A ≈ 9.8:1 on white (AAA). The dark
-   theme keeps its light ramp (readable on near-black). Surfaces that are
-   dark in BOTH themes (Pro/Coaching black cards) pin the light ramp via
-   .chrome-text-on-dark so light mode keeps a readable price. */
+   ramp was the raw chrome gradient whose mid-stops failed WCAG AA on
+   white (~2.1:1). The light ramp is DARK STEEL — same engraved metal
+   identity, lightest stop ≥4.5:1 (≈10:1, AAA-grade on warm ivory).
+   VRD-V1 (§8.4/R-6): both ramps re-warmed to the warm graphite/silver
+   family so the metallic numerals belong to the warm neutral ramp.
+   Surfaces that are dark in BOTH themes (Pro/Coaching black cards) pin
+   the light ramp via .chrome-text-on-dark so light mode keeps a
+   readable price. */
 .chrome-text {
-  background: linear-gradient(145deg, #262B31 0%, #0B0B0D 35%, #3F444A 50%, #14161A 70%, #2E3338 100%);
+  background: linear-gradient(145deg, #2B2722 0%, #1C1A16 35%, #423E37 50%, #211E1A 70%, #322E28 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 [data-theme="dark"] .chrome-text {
-  /* درج كرومي فاتح على الداكن — يظل قابلاً للقراءة */
-  background: linear-gradient(145deg, #F5F5F7 0%, #B7BDC3 35%, #8A9096 50%, #DDE0E3 70%, #9AA0A6 100%);
+  /* درج كرومي فاتح دافئ على الداكن — يظل قابلاً للقراءة */
+  background: linear-gradient(145deg, #F4F1EC 0%, #BDB8AF 35%, #949087 50%, #E0DCD5 70%, #A29E95 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
 .chrome-text.chrome-text-on-dark,
 [data-theme="dark"] .chrome-text.chrome-text-on-dark {
-  background: linear-gradient(145deg, #F5F5F7 0%, #B7BDC3 35%, #8A9096 50%, #DDE0E3 70%, #9AA0A6 100%);
+  background: linear-gradient(145deg, #F4F1EC 0%, #BDB8AF 35%, #949087 50%, #E0DCD5 70%, #A29E95 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -380,34 +408,28 @@
   background: color-mix(in srgb, var(--card) 55%, transparent);
 }
 
-/* Marble surface card — mission §6/§12 */
+/* Surface card — mission §6/§12. VRD-V1 (owner order 2026-09-23): the
+   marble ::before texture overlay is REMOVED (5%/7% opacity was a
+   decorative dead weight — audit C-6, and the footer slab fought link
+   readability — C-7). Separation now comes from structure: --card
+   surface + --edge-style hairline + soft shadow + a 1px machined
+   inner top-edge highlight (--card-inner-hl) — the «machined metal
+   edge» depth at zero asset cost (plan §9.1). Class NAME keeps
+   `marble-card` (123 usages) — recipe-level change only. */
 .marble-card {
   position: relative;
   background-color: var(--card);
   border: var(--border-chrome);
   border-radius: var(--radius-chrome);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), var(--card-inner-hl);
   overflow: hidden;
 }
-.marble-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: var(--marble-img);
-  background-size: cover;
-  background-position: center;
-  opacity: 0.05;
-  pointer-events: none;
-}
-[data-theme="dark"] .marble-card::before { opacity: 0.07; }
 
 /* Phase 154 — popover escape hatch (owner live report: meal-planner food
    search dropdown lost 271/288px behind overflow:hidden — the card «يحجب
    رؤية البحث عن الاكل»). Cards hosting absolute popovers opt out of the
-   clip; the marble ::before texture still follows the rounded corners via
-   border-radius: inherit above. Unlayered, same cascade tier as
-   .marble-card (Phase 136b lesson: unlayered beats @layer utilities). */
+   clip. Unlayered, same cascade tier as .marble-card (Phase 136b lesson:
+   unlayered beats @layer utilities). */
 .marble-card--unclipped { overflow: visible; }
 
 /* Greek meander divider band — mission §4 */
@@ -584,18 +606,18 @@ html:not([data-mhe-consent-ok]) body {
 [data-theme="dark"] .evo-bubble-ring {
   box-shadow: 0 0 0 2px var(--ai), 0 0 18px rgba(69, 214, 255, 0.45);
 }
-/* Footer marble — Phase 132 (owner feedback 2026-09-06: «الفوتر محتاج تعديل
-   الخلفية ولون الكتابة — لايت مود خلفية الرخام الفاتح وكتابة سوداء،
-   دارك مود خلفية رخام أسود وكتابة أبيض»): the footer is now THEME-AWARE
-   through the marble/meander CSS vars (light = light-marble slab + black
-   lockup/text; dark = black-marble slab + white lockup/text). The old
-   Phase-126 behavior (permanently dark in both themes) is retired. */
+/* Footer band — Phase 132 made the footer theme-aware; VRD-V1 (owner
+   order 2026-09-23) removes the marble slab (audit C-7 readability):
+   the footer is now a clean STRUCTURAL band — light mode --tint with
+   an --edge top hairline; dark mode a slightly deeper step (#0E0C0A)
+   so the page closes firmly (plan §9.1). Class name keeps
+   `footer-marble` (markup untouched). The meander top band stays —
+   the light Greek identity is preserved per the owner's direction. */
 .footer-marble {
-  background-color: var(--bg);
-  background-image: var(--marble-img);
-  background-size: cover;
-  background-position: center;
+  background-color: var(--tint);
+  border-top: 1px solid var(--edge);
 }
+[data-theme="dark"] .footer-marble { background-color: #0E0C0A; }
 .footer-meander-top {
   height: 28px;
   background-image: var(--meander-img);
@@ -606,7 +628,7 @@ html:not([data-mhe-consent-ok]) body {
 }
 
 /* Footer links — black-on-light / white-on-dark via tokens; the global `a`
-   color (app-action blue) must not leak onto the marble footer. */
+   color (app-action blue) must not leak onto the footer band. */
 .footer-marble a {
   color: var(--muted-2);
   text-decoration: none;
@@ -682,10 +704,16 @@ html:not([data-mhe-consent-ok]) body {
     font-family: var(--font-arabic);
   }
 
-  /* Selection color — neutral graphite (Phase 132 zero-blue law) */
+  /* Selection color — neutral graphite (Phase 132 zero-blue law);
+     VRD-V1: warm-ink blend in light mode + a warm-white blend override
+     in dark mode (the old single dark blend was near-invisible on the
+     warm-graphite bg). */
   ::selection {
-    background-color: rgba(11, 11, 13, 0.12);
+    background-color: rgba(32, 29, 26, 0.14);
     color: inherit;
+  }
+  [data-theme="dark"] ::selection {
+    background-color: rgba(244, 241, 236, 0.18);
   }
 
   /* Link defaults — Phase 132 (owner feedback: «باقي الموقع إعادة التنسيق
@@ -891,7 +919,10 @@ html:not([data-mhe-consent-ok]) body {
   background-size: 40px 40px;
 }
 
-/* Custom scrollbar for long lists */
+/* Custom scrollbar for long lists — VRD-V1 (plan §8.3 scrollbar
+   accents; supersedes the V0 note that deferred this indigo to V5's
+   C-18 sweep): warm graphite replaces the remaining Liquid-Glass
+   indigo so zero blue ships outside --ai surfaces. */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -900,21 +931,24 @@ html:not([data-mhe-consent-ok]) body {
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(110, 104, 94, 0.25);
   border-radius: 3px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.4);
+  background: rgba(110, 104, 94, 0.4);
 }
 
 /* Focus rings — neutral graphite (VRD-V0, audit C-4: the legacy
    Liquid-Glass indigo violated the zero-blue law; the ring rides the
    theme-aware --text token so it stays visible in BOTH modes — the
-   Phase-132 selection color is the same graphite family). V1 retunes
-   this to the bronze --accent-deep ring per the redesign plan §13.4/§17. */
+   Phase-132 selection color is the same graphite family). VRD-V1
+   (owner direction 2026-09-23): the bronze --accent-deep ring planned
+   in §13.4/§17 was SUPERSEDED — no new accent color; the graphite ring
+   stays and 55%→60% keeps ≥3:1 (WCAG 1.4.11) against the warm ivory /
+   warm graphite backgrounds (scripts/v1_contrast_matrix.py gate 4). */
 *:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text) 55%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text) 60%, transparent);
   border-radius: 4px;
 }
 
@@ -1170,7 +1204,7 @@ textarea:disabled {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #e5e5e7 25%, #f5f5f7 50%, #e5e5e7 75%);
+  background: linear-gradient(90deg, #E9E5DE 25%, #F5F2EC 50%, #E9E5DE 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
