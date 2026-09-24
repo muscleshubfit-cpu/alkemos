@@ -44,9 +44,16 @@ import {
  *      the REAL demo endpoints (/api/ai/workout-plan-demo ·
  *      /api/ai/meal-plan-demo — the unified pool) and render the
  *      generated plan in-page — real planner vocabulary (ai-
- *      workout-planner.ts), real matrix levels, live previews, BOTH
- *      tool CTAs — and ZERO EVO or coach references inside the
- *      section (the owner's explicit law).
+ *      workout-planner.ts), live previews, BOTH tool CTAs — and
+ *      ZERO EVO or coach references inside the section (the owner's
+ *      explicit law).
+ *      PARITY (owner directive 2026-09-24 «الادوات على الرئيسية تطابق
+ *      الادوات الاصلية — الخانات المطلوبة وباقى تفاصيل التوليد»): the
+ *      builders carry EVERY generation field the tool pages carry —
+ *      the meal side's FREE calorie target (1200–4000, like the tool)
+ *      and BOTH sides' optional notes (≤200 chars) ride the fetch
+ *      bodies AND the saveGuestPlan envelopes (the tool re-hydrates
+ *      them). The retired preset-chips register stays dead.
  *   5) The curated samples exist in the LIVE libraries (drift guard)
  *      — 15 exercises, 8 foods, 3 programs, 4 diet systems.
  *   6) The hero drives the account action + the memberships page (the
@@ -240,6 +247,27 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain('import { ensureGuestId, saveGuestPlan } from "@/lib/plan-persistence"');
     expect(src.match(/saveGuestPlan\("workout"/g)?.length).toBe(1);
     expect(src.match(/saveGuestPlan\("nutrition"/g)?.length).toBe(1);
+    // PARITY LAW (owner directive 2026-09-24: «الادوات على الرئيسية
+    // تطابق الادوات الاصلية — الخانات المطلوبة وباقى تفاصيل التوليد»):
+    // the meal builder carries the TOOL's free calorie field (numeric
+    // 1200–4000 — not the retired 6-preset chips), both builders carry
+    // the tool's optional notes (≤200 chars), and BOTH the fetch bodies
+    // AND the persistence envelopes carry the notes so the full tool
+    // re-hydrates the EXACT selections that produced the plan.
+    expect(src).toContain('min={1200}');
+    expect(src).toContain('max={4000}');
+    expect(src.match(/maxLength=\{200\}/g)?.length).toBe(2);
+    expect(src.match(/notes: notes \|\| undefined/g)?.length).toBe(2);
+    expect(src).toContain(
+      'saveGuestPlan("workout", generated, { goal, level, days, equipment: equip, notes })',
+    );
+    expect(src).toContain(
+      'saveGuestPlan("nutrition", generated, { calories: Number(calories), system: systemSlug, notes })',
+    );
+    // The retired preset-chips register stays dead (the tool's free
+    // input replaced it — the chips capped at 3000, the tool reaches
+    // 4000 with any integer).
+    expect(src).not.toContain("pickCalories(lv)");
     // The honest quota chip register (same as the tool pages).
     expect(src).toContain("رصيد الشهر");
     expect(src).toContain("This month:");

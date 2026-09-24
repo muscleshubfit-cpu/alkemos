@@ -869,6 +869,10 @@ function planSegmented(active: boolean) {
 // planner vocabulary; after generating, changing any choice returns
 // the card to the preview so a rendered plan always matches the
 // CURRENT selections — never a stale generation.
+// PARITY (owner directive 2026-09-24 «الادوات على الرئيسية تطابق
+// الادوات الاصلية»): the card carries EVERY generation field the
+// tool page carries — goal/level/days/equipment vocabulary + the
+// optional notes (≤200 chars) riding the request and the envelope.
 // THE HAND-OFF LAW (owner directive 2026-09-24: «الخطة المولده لا تظهر
 // فى صفحة الأداة»): every successful generation is persisted via
 // saveGuestPlan — the SAME envelope the tool pages re-hydrate from
@@ -887,6 +891,8 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
   const [level, setLevel] = useState(levels[0]?.slug ?? "beginner");
   const [days, setDays] = useState(3);
   const [equip, setEquip] = useState(equipment[2]?.slug ?? "full-gym");
+  // PARITY: the tool's optional notes field (≤200 chars, sent as-is).
+  const [notes, setNotes] = useState("");
   // The REAL generation state (same semantics as the tool page).
   const [plan, setPlan] = useState<HomeWorkoutPlan | null>(null);
   const [loading, setLoading] = useState(false);
@@ -903,6 +909,7 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
   const pickLevel = (v: typeof level) => { setLevel(v); setPlan(null); setError(null); };
   const pickDays = (v: number) => { setDays(v); setPlan(null); setError(null); };
   const pickEquip = (v: typeof equip) => { setEquip(v); setPlan(null); setError(null); };
+  const pickNotes = (v: string) => { setNotes(v); setPlan(null); setError(null); };
 
   const generate = async () => {
     setLoading(true);
@@ -918,6 +925,7 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
           days,
           equipment: equip,
           language: isAr ? "ar" : "en",
+          notes: notes || undefined,
           guestId,
         }),
       });
@@ -934,9 +942,9 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
       setPlan(generated);
       setQuota(readQuota(data?.quota));
       // THE HAND-OFF LAW: persist with the tool pages' envelope (the
-      // inputs ride along so the full tool opens with the SAME
-      // selections that produced this plan).
-      saveGuestPlan("workout", generated, { goal, level, days, equipment: equip });
+      // inputs — including the notes — ride along so the full tool
+      // opens with the SAME selections that produced this plan).
+      saveGuestPlan("workout", generated, { goal, level, days, equipment: equip, notes });
     } catch {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
@@ -1019,6 +1027,26 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
               </button>
             ))}
           </div>
+        </div>
+        {/* PARITY: the tool's optional notes field — rides the request
+            and the hand-off envelope exactly like the tool's copy. */}
+        <div>
+          <label
+            htmlFor="home-workout-notes"
+            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
+            style={{ color: PALETTE.textMuted }}
+          >
+            {isAr ? "ملاحظات اختيارية" : "Optional constraints"}
+          </label>
+          <input
+            id="home-workout-notes"
+            type="text"
+            maxLength={200}
+            value={notes}
+            onChange={(e) => pickNotes(e.target.value)}
+            placeholder={isAr ? "مثال: أتجنب الضغط على الركبة اليسرى…" : "e.g. avoid loading the left knee…"}
+            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
+          />
         </div>
       </div>
 
@@ -1154,22 +1182,29 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
   );
 }
 
-// Card B — the REAL nutrition-plan builder (HOME-REFINE-271 F3):
-// calorie level (the REAL matrix levels, 1200→3000) + diet system →
-// the button calls /api/ai/meal-plan-demo (the unified free pool)
-// and the generated DAY renders in-page — meals, items, grams, and
-// kcal, the same engine as the tool. Before generating, the REAL
-// matrix split previews live; changing any choice returns the card
-// to the preview (a rendered plan always matches the choices).
+// Card B — the REAL nutrition-plan builder (HOME-REFINE-271 F3,
+// PARITY 2026-09-24 «الادوات على الرئيسية تطابق الادوات الاصلية»):
+// the SAME generation fields as /ai-meal-planner — a FREE calorie
+// target (numeric 1200→4000, step 50, + the calculator hint) and the
+// diet system select → the button calls /api/ai/meal-plan-demo (the
+// unified free pool) and the generated DAY renders in-page — meals,
+// items, grams, and kcal, the same engine as the tool. The optional
+// notes (≤200 chars) ride the request exactly like the tool's field.
+// Before generating, the REAL matrix split previews live; changing
+// any choice returns the card to the preview (a rendered plan always
+// matches the choices).
 // THE HAND-OFF LAW (owner directive 2026-09-24): every successful
 // generation is persisted via saveGuestPlan — the same envelope the
-// ai-meal-planner page re-hydrates from, so «افتح الأداة الكاملة»
-// lands on the tool ALREADY showing this exact day.
+// ai-meal-planner page re-hydrates from (inputs: calories + system +
+// notes), so «افتح الأداة الكاملة» lands on the tool ALREADY showing
+// this exact day with the SAME selections.
 function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; isAr: boolean; isLoggedIn: boolean }) {
   const systems = samples.dietSystems;
-  const levels = samples.dietLevels;
-  const [calories, setCalories] = useState(levels.includes(2000) ? 2000 : (levels[3] ?? levels[0] ?? 2000));
+  // PARITY: the tool's free calorie target (string state like the
+  // tool — Number() only at the fetch/persist boundary) + its notes.
+  const [calories, setCalories] = useState("2000");
   const [systemSlug, setSystemSlug] = useState(systems[0]?.slug ?? "balanced");
+  const [notes, setNotes] = useState("");
   // The REAL generation state (same semantics as the tool page).
   const [plan, setPlan] = useState<HomeMealPlan | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1184,8 +1219,9 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
     : 1;
 
   // Any selection change returns the card to the live preview.
-  const pickCalories = (v: number) => { setCalories(v); setPlan(null); setError(null); };
+  const pickCalories = (v: string) => { setCalories(v); setPlan(null); setError(null); };
   const pickSystem = (v: string) => { setSystemSlug(v); setPlan(null); setError(null); };
+  const pickNotes = (v: string) => { setNotes(v); setPlan(null); setError(null); };
 
   const generate = async () => {
     setLoading(true);
@@ -1196,9 +1232,10 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          calories,
+          calories: Number(calories),
           system: systemSlug,
           language: isAr ? "ar" : "en",
+          notes: notes || undefined,
           guestId,
         }),
       });
@@ -1215,8 +1252,8 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
       setPlan(generated);
       setQuota(readQuota(data?.quota));
       // THE HAND-OFF LAW: persist with the tool pages' envelope (the
-      // calorie level + system ride along as the tool's inputs).
-      saveGuestPlan("nutrition", generated, { calories, system: systemSlug });
+      // calorie target + system + notes ride along as the tool's inputs).
+      saveGuestPlan("nutrition", generated, { calories: Number(calories), system: systemSlug, notes });
     } catch {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
@@ -1234,46 +1271,79 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
       </div>
       <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
-          ? "اختر سعراتك ونظامك الغذائي ثم أنشئ خطتك — يوم كامل بالوجبات والغرامات."
-          : "Pick your calories and diet system, then generate — a full day of meals in grams."}
+          ? "حدّد سعراتك ونظامك الغذائي وملاحظاتك ثم أنشئ خطتك — يوم كامل بالوجبات والغرامات."
+          : "Set your calories, diet system and preferences, then generate — a full day of meals in grams."}
       </p>
 
-      {/* Controls */}
+      {/* Controls — PARITY with the tool page's generation fields */}
       <div className="mt-5 space-y-4">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "سعراتك اليومية" : "Your daily calories"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {levels.map((lv) => (
-              <button
-                key={lv}
-                type="button"
-                onClick={() => pickCalories(lv)}
-                aria-pressed={calories === lv}
-                className={`grid min-w-14 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-                  calories === lv
-                    ? "bg-[var(--text)] text-[var(--bg)]"
-                    : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
-                }`}
-                dir="ltr"
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="home-meal-calories"
+              className="mb-2 block text-xs font-semibold uppercase tracking-wider"
+              style={{ color: PALETTE.textMuted }}
+            >
+              {isAr ? "سعرات اليوم المستهدفة" : "Daily calorie target"}
+            </label>
+            {/* The tool's free calorie input — any integer 1200→4000
+                (the API validates the same range). */}
+            <input
+              id="home-meal-calories"
+              type="number"
+              inputMode="numeric"
+              min={1200}
+              max={4000}
+              step={50}
+              value={calories}
+              onChange={(e) => pickCalories(e.target.value)}
+              className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
+              dir="ltr"
+            />
+            <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "من 1200 إلى 4000 — لا تعرف رقمك؟ " : "From 1200 to 4000 — don't know yours? "}
+              <a
+                href={`${isAr ? "/ar" : ""}/tools/calorie-calculator`}
+                className="underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+                style={{ color: PALETTE.textSec }}
               >
-                {lv.toLocaleString("en-US")}
-              </button>
-            ))}
+                {isAr ? "حاسبة السعرات" : "the calorie calculator"}
+              </a>
+            </p>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "نظامك الغذائي" : "Your diet system"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {systems.map((s) => (
+                <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
+                  {isAr ? s.nameAr : s.nameEn}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "أنظمة مطابقة لمكتبة الخطط الغذائية الجاهزة." : "The site's own systems — matching the diet plan library."}
+            </p>
           </div>
         </div>
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "نظامك الغذائي" : "Your diet system"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {systems.map((s) => (
-              <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
-                {isAr ? s.nameAr : s.nameEn}
-              </button>
-            ))}
-          </div>
+          <label
+            htmlFor="home-meal-notes"
+            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
+            style={{ color: PALETTE.textMuted }}
+          >
+            {isAr ? "ملاحظات اختيارية" : "Optional preferences"}
+          </label>
+          <input
+            id="home-meal-notes"
+            type="text"
+            maxLength={200}
+            value={notes}
+            onChange={(e) => pickNotes(e.target.value)}
+            placeholder={isAr ? "مثال: بلا منتجات الألبان، سمك مرتين أسبوعياً…" : "e.g. no dairy, fish twice a week…"}
+            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
+          />
         </div>
       </div>
 
@@ -1370,8 +1440,8 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
               </div>
               <p className="mt-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                 {isAr
-                  ? `خطة يوم كامل بالغرامات تُبنى حول ${calories.toLocaleString("en-US")} سعرة عند الضغط على الزر. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه.`
-                  : `A full day of food in grams builds around ${calories.toLocaleString("en-US")} kcal when you press the button. Don't know your number? Use the calculator above.`}
+                  ? `خطة يوم كامل بالغرامات تُبنى حول ${Number(calories || 0).toLocaleString("en-US")} سعرة عند الضغط على الزر. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه.`
+                  : `A full day of food in grams builds around ${Number(calories || 0).toLocaleString("en-US")} kcal when you press the button. Don't know your number? Use the calculator above.`}
               </p>
             </div>
           )
@@ -1381,7 +1451,7 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
           <button
             type="button"
             onClick={generate}
-            disabled={loading}
+            disabled={loading || !calories}
             className="btn-chrome px-6 py-3 text-sm disabled:opacity-50 md:text-base"
           >
             {loading
