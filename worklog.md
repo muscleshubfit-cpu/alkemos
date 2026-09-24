@@ -6,6 +6,21 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: HOME-EXPERIENCE-269-LIVE-VERIF-2026-09-24
+Agent: Super Z (owner session)
+Task: التحقق الحي بعد النشر — الرئيسية كمنتج حي على إنتاج alkemos.com (الكوميت 94803d00).
+
+Work Log:
+- النشر مؤكد: 55b159cb..94803d00 → main؛ Vercel أكمل البناء والصفحة الجديدة حية (تحقق مباشر بالـHTML: العناوين الجديدة الأربعة كلها تُقدَّم — «Don't read about it. Use it right now.» / «A complete plan to guide you, week by week.» / «Know your plate's numbers before you eat it.» / «A plan built around you…»)
+- وظيفي على الإنتاج مباشرة (بعد قبول الكوكيز): الحاسبة العربية كاملة القيادة — 30 سنة/84 كجم/178 سم/متوسط/تثبيت ← **2,802 سعرة + 210 جم بروتين + 280 جم كربوهيدرات + 93 جم دهون** (مطابقة حرفيًا للحساب المحلي ولمعادلة fitness-math.ts) — اللقطة LIVE-ar-calculator.png
+- بصري كامل على الإنتاج: EN + AR ديسكتوب 1440 بتدقيق VLM — كل الأقسام حية بلا فراغات أو كسور، والـRTL سليم، والحكم النهائي: «This feels like a living product experience»
+- الكوكيز/الودجت/البوابات الأربعة في GitHub Actions سليمة على الكوميت
+
+Stage Summary:
+- HOME-EXPERIENCE-269 مكتملة وموثقة حية: الرئيسية الآن تُستخدم ولا تُقرأ فقط. لا متبقٍ من المرحلة.
+
+---
+---
 Task ID: HOME-EXPERIENCE-269-2026-09-24
 Agent: Super Z (owner session)
 Task: Rebuild the homepage as a LIVING product experience (owner directive 2026-09-24: «الصفحة تبدو كصفحة تعرض وتشرح منتجًا، وليست كمنتج عالمي حي يجعل المستخدم يفهم القيمة ويشعر بها ويتفاعل معها» — solve it, don't report it).
