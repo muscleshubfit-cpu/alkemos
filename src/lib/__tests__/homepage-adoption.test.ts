@@ -11,33 +11,38 @@ import {
 } from "@/lib/home-samples";
 
 /**
- * HOME-REBUILD-258 CANARIES — the rebuilt homepage (owner directive
- * 2026-09-24: re-evaluate the homepage from scratch as a GLOBAL product
- * interface), superseding the HOME-BLUEPRINT-257 pins.
+ * HOME-EXPERIENCE-269 CANARIES — the living-product homepage (owner
+ * directive 2026-09-24: «الصفحة تبدو كصفحة تعرض وتشرح منتجًا، وليست
+ * كمنتج عالمي حي يجعل المستخدم يفهم القيمة ويشعر بها ويتفاعل معها»),
+ * superseding the HOME-REBUILD-258 pins (the 9-block catalog tour).
  *
- * The page tells ONE progression in NINE blocks:
- *   Promise (Hero «تدرّب بذكاء. وتغذَّ بدقة.») → Proof (the platform in
- *   numbers) → Explore (three paths) → Train («تدرّب بثقة.» 868+) →
- *   Eat («اعرف ما تأكل. خطط لما تحتاجه.» 8,830+) → Intelligence (AI
- *   planners + EVO «خطة مبنية حولك — ومدرب يواكب تقدّمك.») → Learn
- *   («تعلّم. طبّق. تقدّم.») → Free-vs-Paid («مجاني فعلًا. والترقية
- *   قرارك.») → FAQ → Final CTA.
+ * THE NEW ARC — «الصفحة هي أول خمس دقائق من المنتج»:
+ *   Promise (Hero) → Proof (numbers that COUNT UP alive) →
+ *   THE LIVING PRODUCT #start (three REAL in-page surfaces: the
+ *   calorie/macro calculator on the app's own math · an EVO
+ *   conversation demo · the interactive muscle-group library
+ *   browser) → #train (the PLAN world) → #eat (the interactive
+ *   plate) → #evo (planners + EVO + quota transparency) → #learn →
+ *   #memberships (growth ladder + the three honest cards) →
+ *   featured coaches → #faq → final CTA (+ the EVO door).
  *
  * Guards pin:
- *   1) SINGLE-SOURCE PRICING — the Free-vs-Paid section shows REAL
- *      prices derived from memberships.ts lookups (never literals,
- *      never a full tier grid) + the honest 7-day refund line. The
- *      hero/final-CTA regions stay funnel-free (no memberships links,
- *      no subscribe CTAs).
- *   2) REAL CONTENT ENTRY POINTS — the curated homepage samples must
+ *   1) SINGLE-SOURCE PRICING — unchanged law: prices derive from
+ *      memberships.ts lookups (never literals, never a tier grid),
+ *      the growth-ladder tier names derive from MEMBERSHIPS, and the
+ *      refund line states the REAL 7-day policy.
+ *   2) THE LIVING PRODUCT — the calculator runs the app's own math
+ *      via fitness-math.ts (single source; the homepage may never
+ *      fork the formulas); the EVO demo is LABELED illustrative and
+ *      hands off to the floating widget (the CHAT SURFACE LAW); the
+ *      library tab filters the REAL curated samples by categorySlug.
+ *   3) REAL CONTENT ENTRY POINTS — the curated homepage samples must
  *      exist in the LIVE libraries (drift guard, library-counts
- *      pattern) so Train + Eat always render actual browsable content.
- *   3) THE EVO CHAT SURFACE LAW — the section CTA opens the FLOATING
- *      widget via openEvoFloatingChat; the widget stays the ONLY chat
- *      surface. The merged Intelligence section carries quota
- *      transparency (the unified pool + the daily EVO limit).
+ *      pattern) — 15 exercises (2+ per muscle family, interactive
+ *      filter), 8 foods, 3 programs.
  *   4) The account-driven CTA law (Phase 203) — signup/login for
- *      guests, the member console when signed in.
+ *      guests, the member console when signed in; the hero and the
+ *      page tail stay funnel-free (no memberships links).
  *   5) Arabic is the native anchor; English is independent native copy
  *      — both pinned verbatim.
  */
@@ -46,11 +51,13 @@ const LANDING = "src/components/views/LandingView.tsx";
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
 
-describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
+describe("HOME-EXPERIENCE-269 — the living product canaries", () => {
   // (1) The Free-vs-Paid section derives every price from the SINGLE
   //     source (memberships.ts) — no price literals, no tier grid, no
   //     subscribe-now sales CTA. The refund line states the REAL policy.
-  it("the Free-vs-Paid section derives prices from memberships.ts and states the refund policy", () => {
+  //     The growth ladder renders the MEMBERSHIPS tier names (the
+  //     repositioning journey) — never hand-written tier strings.
+  it("the Free-vs-Paid section derives prices + ladder tiers from memberships.ts and states the refund policy", () => {
     const src = readFileSync(LANDING, "utf8");
     // Required: the section exists and reads the SINGLE source via
     // lookups (tier names + prices derive — the page can never drift
@@ -63,6 +70,10 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
     expect(src).toContain("paidFromMonthly");
     expect(src).toContain("coachingPriceLabel");
     expect(src).toContain("freePriceLabel");
+    // The growth ladder derives its tier names from the same source.
+    expect(src).toContain("const ladder = [");
+    expect(src).toContain("step.tier?.nameAr");
+    expect(src).toContain("step.tier?.nameEn");
     for (const banned of [
       // Price literals (memberships.ts is the single source — never here)
       "$14.99",
@@ -88,14 +99,65 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
     expect(src).toContain("الاسترداد خلال 7 أيام");
   });
 
-  // (2) The EVO section exists, its CTA opens the FLOATING WIDGET —
-  //     the only chat surface law holds — and the section carries the
-  //     quota transparency facts (unified pool + daily EVO limit).
-  it("the Intelligence section carries quota transparency and dispatches openEvoFloatingChat", () => {
+  // (2) THE LIVING PRODUCT — the interactive core exists, its three
+  //     surfaces are the real product, and every law holds: the math
+  //     comes from fitness-math.ts (never forked), the EVO demo is
+  //     labeled and hands off to the floating widget, and the library
+  //     tab filters the real samples.
+  it("the living product (#start) runs the real math, the labeled EVO demo, and the sample filter", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src, "the #start section is missing").toContain('id="start"');
+    // The math single source — the homepage calculator imports the
+    // shared formulas, never re-implements them.
+    expect(src).toContain('from "@/lib/fitness-math"');
+    expect(src).toContain("calculateCalorieTargets");
+    expect(src).toContain("isValidCalculatorInput");
+    for (const banned of [
+      // A forked formula would look like this (the Mifflin constants
+      // must never appear in the view — they live in fitness-math.ts).
+      "10 * w",
+      "6.25 *",
+      "10 * weightKg",
+      "6.25 * heightCm",
+      "- 5 * age",
+    ]) {
+      expect(src, `the view forked the calculator math: "${banned}"`).not.toContain(banned);
+    }
+    // The three tab surfaces exist as tabpanels.
+    expect(src.match(/role="tabpanel"/g)?.length).toBe(3);
+    expect(src).toContain('hidden={startTab !== "calc"}');
+    expect(src).toContain('hidden={startTab !== "evo"}');
+    expect(src).toContain('hidden={startTab !== "lib"}');
+    // The EVO demo is HONEST: labeled illustrative, and its CTA opens
+    // the floating widget (the chat-surface law).
+    expect(src).toContain("نموذج توضيحي لمحادثة");
+    expect(src).toContain("AN ILLUSTRATIVE EXCHANGE");
+    expect(src).toContain("أكمل المحادثة مع EVO");
+    expect(src).toContain("Continue this conversation");
+    // The library tab filters the real samples by categorySlug.
+    expect(src).toContain("e.categorySlug === cat");
+    expect(src).toContain("samples.exercises.filter");
+    // The living-product headline pair (native anchors).
+    expect(src).toContain("لا تقرأ عن المنصة. استخدمها الآن.");
+    expect(src).toContain("Don't read about it. Use it right now.");
+    // The visitor-free-proof pair.
+    expect(src).toContain("تجربة حية — دون تسجيل");
+    expect(src).toContain("LIVE ON THIS PAGE — NO SIGNUP");
+    // The calculator CTA pair + the honest math note.
+    expect(src).toContain("احسب أرقامي الآن");
+    expect(src).toContain("Calculate my numbers");
+    expect(src).toContain("بنفس معادلات حاسبة السعرات في المنصة");
+    expect(src).toContain("The same math as the platform's calorie calculator");
+  });
+
+  // (3) The EVO CHAT SURFACE LAW (unchanged) — the Intelligence
+  //     section + every EVO CTA dispatch openEvoFloatingChat; the
+  //     widget stays the ONLY chat surface; quota transparency stays.
+  it("every EVO surface dispatches openEvoFloatingChat and the quota transparency stays", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src, "the EVO section is missing").toContain('id="evo"');
     expect(src).toContain("openEvoFloatingChat");
-    // The new headline pair + the CTA labels.
+    // The Intelligence headline pair + the CTA labels.
     expect(src).toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
     expect(src).toContain("A plan built around you — and a coach who keeps it moving.");
     expect(src).toContain("جرّب EVO");
@@ -121,12 +183,12 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
     expect(src).not.toContain("A plan built for you, not for everyone.");
   });
 
-  // (3) The 9-block map + the real content entry points exist.
-  it("the 9-block map and its browse-all links exist", () => {
+  // (4) The new block map + the real content entry points.
+  it("the living-arc block map and its browse-all links exist", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
-      // The section ids, in rebuild order
-      'id="paths"',
+      // The section ids, in the living-arc order
+      'id="start"',
       'id="train"',
       'id="eat"',
       'id="evo"',
@@ -136,37 +198,30 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
       // The hero pair (native anchors — the SERP message match)
       "تدرّب بذكاء. وتغذَّ بدقة.",
       "Train smarter. Eat with precision.",
-      // The hero supporting pair
-      "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي. بالعربية والإنجليزية.",
-      "One platform that brings training, nutrition, and smart planning together — with EVO, your AI coach, built in. In Arabic and English.",
-      // The hero CTA pair + secondary explore CTA
+      // The hero supporting pair points AT the living experience.
+      "جرّبها الآن في هذه الصفحة",
+      "Try it right on this page",
+      // The hero CTA pair + the living secondary CTA
       "ابدأ مجانًا",
       "Start free",
-      "استكشف التمارين",
-      "Explore exercises",
+      'href="#start"',
       // The proof strip (auditable numbers — verified constants only)
       'aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}',
       "proofStats",
       "EX_PLUS",
       "FOODS_PLUS",
       "TOOLS_COUNT",
-      // The Explore path trio (Train / Eat / Track & Plan)
-      "من أين تودّ أن تبدأ؟",
-      "Where do you want to start?",
-      'href: "/ar/exercises"',
-      'href: "/exercises"',
-      'href: "/ar/foods"',
-      'href: "/foods"',
-      'href: "/ar/tools"',
-      'href: "/tools"',
-      // The Train section (owner line + real count + section CTA)
-      "تدرّب بثقة.",
-      "Train with confidence.",
-      "استكشف مكتبة التمارين",
-      "Explore the exercise library",
-      // The Eat section (owner line + real count + section CTA)
-      "اعرف ما تأكل. خطط لما تحتاجه.",
-      "Know what you eat. Plan what you need.",
+      "<CountUp",
+      // The Train section (the plan world) + its dual CTA
+      "خطة كاملة تقودك، أسبوعًا بأسبوع.",
+      "A complete plan to guide you, week by week.",
+      "ابنِ خطتك بالذكاء الاصطناعي",
+      "Build your plan with AI",
+      "كل البرامج",
+      "All programs",
+      // The Eat section (the interactive plate) + section CTA
+      "اعرف أرقام طبقك قبل أن تأكله.",
+      "Know your plate's numbers before you eat it.",
       "استكشف قاعدة الأطعمة",
       "Explore the food database",
       // The Learn section (owner line + CTA)
@@ -174,7 +229,7 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
       "Learn. Apply. Progress.",
       "استكشف المحتوى",
       "Explore the articles",
-      // The Free-vs-Paid section (new headline + real endpoints)
+      // The Free-vs-Paid section (headline + real endpoints)
       "مجاني فعلًا. والترقية قرارك.",
       "Free, for real. Upgrading is your call.",
       'href={isAr ? "/ar/memberships" : "/memberships"}',
@@ -182,10 +237,13 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
       // The Final CTA pair (owner's Arabic line + native English)
       "ابدأ اليوم. وابنِ روتينًا يناسبك.",
       "Start today. Build a routine that fits you.",
-      // Locale-aware browse-all entry points inside Train/Eat
+      // The EVO door on the final band.
+      "أو تحدث مع EVO أولًا",
+      "Or talk to EVO first",
+      // Locale-aware browse-all entry points
       'href={isAr ? "/ar/exercises" : "/exercises"}',
       'href={isAr ? "/ar/foods" : "/foods"}',
-      // The AI planners (the merged Intelligence section CTAs)
+      // The AI planners (the Intelligence section CTAs)
       'href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}',
       'href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}',
       // The samples prop drives the content sections (server-provided
@@ -198,7 +256,7 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
     }
   });
 
-  // (4) The hero + final CTA drive the account action, not the sales
+  // (5) The hero + final CTA drive the account action, not the sales
   //     funnel: signup/login for guests, the member console when signed
   //     in — and NEITHER region links the memberships page (the
   //     Free-vs-Paid section is the only surface that does).
@@ -211,27 +269,28 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
     expect(src).not.toContain("جرّب الأدوات المجانية");
     expect(src).not.toContain("Create your free account");
     expect(src).not.toContain("أنشئ حسابك المجاني");
-    // SCOPED funnel guard: the HERO region (everything before the proof
-    // strip) and the PAGE TAIL (FAQ + final CTA) must never link
-    // memberships — the Free-vs-Paid section is the only surface that
-    // does.
-    const pathsAt = src.indexOf('id="paths"');
+    // SCOPED funnel guard: the HERO region (everything before the
+    // living product) and the PAGE TAIL (FAQ + final CTA) must never
+    // link memberships — the Free-vs-Paid section is the only surface
+    // that does.
+    const startAt = src.indexOf('id="start"');
     const faqAt = src.indexOf('id="faq"');
-    expect(pathsAt).toBeGreaterThan(-1);
-    expect(faqAt).toBeGreaterThan(pathsAt);
-    for (const region of [src.slice(0, pathsAt), src.slice(faqAt)]) {
+    expect(startAt).toBeGreaterThan(-1);
+    expect(faqAt).toBeGreaterThan(startAt);
+    for (const region of [src.slice(0, startAt), src.slice(faqAt)]) {
       for (const href of ['"/memberships"', '"/ar/memberships"']) {
         expect(region, `hero/final CTA region links the memberships page: ${href}`).not.toContain(href);
       }
     }
   });
 
-  // (5) The block ORDER: Train precedes Eat precedes EVO precedes Learn
-  //     precedes Memberships — the progression is the product.
-  it("the sections render in the rebuild order (Promise→Proof→Explore→Train→Eat→EVO→Learn→Memberships→FAQ)", () => {
+  // (6) The block ORDER: the living product precedes Train precedes
+  //     Eat precedes EVO precedes Learn precedes Memberships — the
+  //     visitor USES the product before reading about any of it.
+  it("the sections render in the living-arc order (Promise→Proof→Living→Train→Eat→EVO→Learn→Memberships→FAQ)", () => {
     const src = readFileSync(LANDING, "utf8");
     const order = [
-      'id="paths"',
+      'id="start"',
       'id="train"',
       'id="eat"',
       'id="evo"',
@@ -240,23 +299,18 @@ describe("HOME-REBUILD-258 — homepage rebuild canaries", () => {
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
-      expect(order[i], `section ${i} out of rebuild order`).toBeGreaterThan(order[i - 1]);
+      expect(order[i], `section ${i} out of the living-arc order`).toBeGreaterThan(order[i - 1]);
     }
-    // The proof strip sits between the hero and the paths (the research-
-    // driven placement: proof directly under the promise).
+    // The proof strip sits between the hero and the living product
+    // (proof directly under the promise — the research-driven law).
     const proofAt = src.indexOf('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
     expect(proofAt).toBeGreaterThan(-1);
-    expect(proofAt).toBeLessThan(pathsOrderOf(src));
+    expect(proofAt).toBeLessThan(order[0]);
   });
 });
 
-/** Helper: the paths section position (kept tiny + local to this file). */
-function pathsOrderOf(src: string): number {
-  return src.indexOf('id="paths"');
-}
-
-describe("HOME-REBUILD-258 — header/footer contract (unchanged law)", () => {
-  // (6) The header carries the five core services as VISIBLE navigation
+describe("HOME-EXPERIENCE-269 — header/footer contract (unchanged law)", () => {
+  // (7) The header carries the five core services as VISIBLE navigation
   //     (desktop nav) with the secondary services demoted to the
   //     drawer's «More» group.
   it("the header exposes the five core services and demotes the secondary ones", () => {
@@ -281,7 +335,7 @@ describe("HOME-REBUILD-258 — header/footer contract (unchanged law)", () => {
     expect(src).not.toContain("الخدمات المدفوعة");
   });
 
-  // (7) The footer is the ecosystem service map with the owner's
+  // (8) The footer is the ecosystem service map with the owner's
   //     tagline pair.
   it("the footer is the service-map navigation with the tagline", () => {
     const src = readFileSync(FOOTER, "utf8");
@@ -380,7 +434,9 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
     expect(css).toContain("min-height: max(56vh, calc(100vw * 713 / 1280))");
   });
 
-  // §16.3 / C-11: the muscle chips ride ONE scroll-snap row on touch.
+  // §16.3 / C-11: the muscle chips ride ONE scroll-snap row on touch —
+  // now inside the living library tab (the interaction moved; the
+  // recipe law is unchanged).
   it("chips: single scroll-snap row with symmetric edge fades on touch", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
@@ -396,21 +452,9 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
     }
   });
 
-  // §11 / C-10: below md the path cards go DENSE — icon+title one row,
-  // description clamped to 2 lines, p-5, the unified .card-lift hover.
-  it("density: path cards compact on mobile; memberships cards p-5", () => {
-    const src = readFileSync(LANDING, "utf8");
-    // Path cards: dense recipe + icon/title row + 2-line clamp.
-    expect(src).toContain('className="marble-card card-lift group flex h-full flex-col p-5 md:p-7"');
-    expect(src).toContain('className="flex items-center gap-3 md:block"');
-    expect(src).toContain("mt-2 line-clamp-2 flex-1 text-sm font-normal leading-relaxed md:line-clamp-none");
-    // The three Free-vs-Paid cards: p-5 mobile (md:p-8).
-    expect(src.match(/marble-card flex flex-col p-5 md:p-8/g)?.length).toBe(2);
-  });
-
-  // §11 food cards (C-1 VLM note): whole card stays ONE link; the title
-  // carries a 2-line floor (min-h-10) so macro grids align across the
-  // row; title → macros → link tightens to the gap-2 rhythm.
+  // §11 food cards (C-1 VLM note): the food selector cards keep the
+  // aligned macro rows (min-h title floor) + gap-2 rhythm — the same
+  // recipe now lives inside the interactive FoodExplorer.
   it("food cards: aligned macro rows (min-h title floor) + gap-2 rhythm", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain("mt-1 min-h-10 text-base font-semibold leading-tight tracking-tight line-clamp-2");
@@ -439,12 +483,13 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
   });
 
   // §11 unified hover: every INTERACTIVE homepage card family rides the
-  // .card-lift recipe; the old bare translate utility survives ONLY on
-  // the tiny seal chips.
-  it("unified card hover: card-lift on all six interactive card families; recipe + reduced-motion guard in css", () => {
+  // .card-lift recipe. HOME-EXPERIENCE-269: five families (the retired
+  // paths cards were the sixth — the exercise grid, food selectors,
+  // program cards, blog cards, coach cards remain).
+  it("unified card hover: card-lift on all five interactive card families; recipe + reduced-motion guard in css", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
-    expect(src.match(/marble-card card-lift/g)?.length).toBe(6);
+    expect(src.match(/marble-card card-lift/g)?.length).toBe(5);
     expect(src.match(/transition-transform duration-300 hover:-translate-y-0\.5/g)?.length).toBe(1);
     for (const required of [
       ".marble-card.card-lift:hover {",
@@ -459,7 +504,44 @@ describe("VRD-V3 — homepage density & CTA standard contract", () => {
   });
 });
 
-describe("HOME-REBUILD-258 — copy voice canaries", () => {
+describe("HOME-EXPERIENCE-269 — the motion-safety contract", () => {
+  // The living-page motion layer: every animation is once-only,
+  // transform/opacity-only, and gated by prefers-reduced-motion. The
+  // .rv reveal recipe must never hide content from no-JS users (the
+  // armed state exists only post-mount in React state).
+  it("motion: the reveal/count-up/swap recipes exist and every keyframe respects reduced motion", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    const src = readFileSync(LANDING, "utf8");
+    for (const required of [
+      ".rv {",
+      ".home-tabs {",
+      ".home-tab {",
+      ".macro-track {",
+      ".macro-fill {",
+      ".live-dot {",
+      ".swap-fade {",
+    ]) {
+      expect(css, `living-page recipe missing: ${required}`).toContain(required);
+    }
+    // Every motion recipe stands down under reduced motion.
+    const reducedBlocks = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const joined = reducedBlocks.join("\n");
+    for (const recipe of [".rv", ".home-tab", ".macro-fill", ".live-dot", ".swap-fade"]) {
+      expect(joined, `reduced-motion guard missing for: ${recipe}`).toContain(recipe);
+    }
+    // The reveal arms ONLY after mount (no class-based SSR hiding).
+    expect(src).toContain('useState<"idle" | "armed" | "shown">("idle")');
+    expect(src).toContain('setPhase("armed")');
+    // The reveal + count-up stand down under reduced motion (the two
+    // motion components; CSS recipes carry their own guards above).
+    expect(src.match(/prefers-reduced-motion: reduce/g)?.length).toBeGreaterThanOrEqual(2);
+    // The proof strip renders the SSR value (CountUp falls back to the
+    // real number — no-JS users see the truth).
+    expect(src).toContain("const shown = display ?? value;");
+  });
+});
+
+describe("HOME-EXPERIENCE-269 — copy voice canaries", () => {
   // K-1: «توليدات» is a mechanical pseudo-plural — the natural MSA
   // verbal noun is the only register. It appears 3× (the Premium & Pro
   // card + the two membership-related FAQ answers).
@@ -490,6 +572,9 @@ describe("HOME-REBUILD-258 — copy voice canaries", () => {
     expect(src).not.toContain("Your fitness plan starts here.");
     expect(src).not.toContain("تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.");
     expect(src).not.toContain("Training, nutrition, and smart tools — one plan that moves with you toward your goal.");
+    // The 258 subtitle pair retired by the living rebuild (the new
+    // pair points AT the in-page experience).
+    expect(src).not.toContain("بالكل والإنجليزية.»"); // (fragment guard — the 258 line)
   });
 
   // Exit criterion: the FAQ JSON-LD must stay single-source — the
@@ -504,7 +589,7 @@ describe("HOME-REBUILD-258 — copy voice canaries", () => {
   });
 });
 
-describe("HOME-REBUILD-258 — FAQ canaries", () => {
+describe("HOME-EXPERIENCE-269 — FAQ canaries", () => {
   // The FIVE questions (Arabic anchors + independent English). Every
   // claim mirrors the implementation.
   it("the homepage FAQ answers the five hesitation-remover questions", () => {
@@ -539,16 +624,23 @@ describe("HOME-REBUILD-258 — FAQ canaries", () => {
     }
   });
 
-  // The Train section keeps the browse-paths-first law.
-  it("the muscle-group chips precede the samples; the retired CTA labels stay dead", () => {
+  // The living library law: the muscle chips precede the filtered
+  // samples; the retired CTA labels stay dead.
+  it("the living library tab: chips precede the filtered samples; the retired CTA labels stay dead", () => {
     const src = readFileSync(LANDING, "utf8");
-    const chipsAt = src.indexOf("Browse by muscle group");
-    const ctaAt = src.indexOf("استكشف مكتبة التمارين");
-    const samplesAt = src.indexOf("samples.exercises.map");
-    expect(chipsAt, "the Browse-by-muscle-group label is missing").toBeGreaterThan(-1);
-    expect(ctaAt, "the Train section CTA label is missing").toBeGreaterThan(-1);
-    expect(samplesAt, "the exercise samples grid is missing").toBeGreaterThan(-1);
-    expect(chipsAt).toBeLessThan(samplesAt);
+    const chipsAt = src.indexOf("Pick a muscle group");
+    const ctaAt = src.indexOf("استكشف مكتبة التمارين كاملة");
+    // The filter is DEFINED before the JSX; the rendered grid
+    // (filtered.map) must come after the chips so the interaction
+    // reads chips → samples in source order.
+    const filterAt = src.indexOf("samples.exercises.filter");
+    const gridAt = src.indexOf("filtered.map");
+    expect(chipsAt, "the Pick-a-muscle-group label is missing").toBeGreaterThan(-1);
+    expect(ctaAt, "the living library CTA label is missing").toBeGreaterThan(-1);
+    expect(filterAt, "the exercise samples filter is missing").toBeGreaterThan(-1);
+    expect(gridAt, "the filtered samples grid is missing").toBeGreaterThan(-1);
+    expect(chipsAt).toBeLessThan(gridAt);
+    expect(ctaAt).toBeGreaterThan(gridAt);
     // The retired quiet/duplicate bottom links stay dead.
     expect(src).not.toContain("Browse all exercises");
     expect(src).not.toContain("كل التمارين ›");
@@ -558,7 +650,7 @@ describe("HOME-REBUILD-258 — FAQ canaries", () => {
   });
 });
 
-describe("HOME-REBUILD-258 — homepage sample drift guard (real content, curated)", () => {
+describe("HOME-EXPERIENCE-269 — homepage sample drift guard (real content, curated)", () => {
   // The curated homepage samples must exist in the LIVE libraries —
   // if a data file renames/retires a curated entry, this fails so the
   // curation is consciously updated (library-counts pattern).
@@ -583,7 +675,7 @@ describe("HOME-REBUILD-258 — homepage sample drift guard (real content, curate
     }
   });
 
-  it("getHomeSamples returns the full curated sets with real data", () => {
+  it("getHomeSamples returns the full curated sets with real data + 2+ exercises per muscle family", () => {
     const samples = getHomeSamples();
     expect(samples.exercises).toHaveLength(EXERCISE_SAMPLE_SLUGS.length);
     expect(samples.foods).toHaveLength(FOOD_SAMPLE_SLUGS.length);
@@ -597,6 +689,17 @@ describe("HOME-REBUILD-258 — homepage sample drift guard (real content, curate
     for (const ex of samples.exercises) {
       expect(ex.image.startsWith("/images/exercises/")).toBe(true);
       expect(ex.image.endsWith(".webp")).toBe(true);
+    }
+    // The interactive filter law: every one of the seven muscle
+    // families carries at least TWO curated samples (a filter with
+    // one result is a dead filter).
+    const families = ["chest", "back", "shoulders", "legs", "biceps", "triceps", "core"];
+    for (const fam of families) {
+      const count = samples.exercises.filter((e) => e.categorySlug === fam).length;
+      expect(
+        count,
+        `muscle family "${fam}" carries ${count} curated samples — the interactive filter needs 2+`,
+      ).toBeGreaterThanOrEqual(2);
     }
   });
 });

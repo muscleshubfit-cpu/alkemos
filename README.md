@@ -20,6 +20,20 @@ development transparency and auditing — the product itself is proprietary**
 
 ## 🧭 What Alkemos offers
 
+### The living homepage (`src/components/views/LandingView.tsx`)
+The homepage IS the product's first five minutes — the visitor USES the
+platform before any signup: a real calorie/macro calculator running the
+app's own formulas (`src/lib/fitness-math.ts` — the single source the
+tools page shares), a labeled EVO conversation demo whose CTA opens the
+real floating chat widget, and an interactive muscle-group exercise
+browser (real curated samples, `src/lib/home-samples.ts`). Below it: a
+programs-first training section, an interactive food macro explorer, the
+AI planners + EVO moment with quota transparency, and a growth-ladder
+framing (Free → Premium → Pro → Coaching) above the three honest
+membership cards (prices derive from `memberships.ts` — never literals).
+Motion is once-only, transform/opacity-only, and fully
+`prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2).
+
 ### Free content & tools — no account needed
 - **Exercise library** — 868 exercises with start/end position images
   (self-hosted WebP), bilingual names / instructions / tips in modern standard

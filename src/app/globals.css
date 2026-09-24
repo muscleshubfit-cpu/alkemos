@@ -1091,3 +1091,141 @@ textarea:disabled {
     transition: none !important;
   }
 }
+
+/* ═══ HOME-EXPERIENCE-269 — the living-page motion + interaction layer ═══
+   Owner directive 2026-09-24: «الصفحة تبدو كصفحة تعرض منتجًا، لا كمنتج
+   حي» — the homepage becomes the product's first five minutes. This block
+   adds the four interaction recipes the living page needs. All of them
+   stay inside the Marble & Chrome identity (monochrome surfaces, chrome
+   metal accents, hairline edges) and ALL motion respects
+   prefers-reduced-motion (the site-wide vestibular-safety law). */
+
+/* (1) .rv — the once-only scroll reveal TRANSITION shell.
+   The React <Reveal> arms the hidden state ONLY after mount (JS on +
+   motion allowed), so SSR/no-JS users always see the content — the
+   failure mode of the retired pre-258 reveal (jarring, layout-shifting)
+   is structurally impossible here: transform/opacity only (zero CLS),
+   once-only (no re-trigger jank), 550ms Apple-style curve. */
+.rv {
+  transition:
+    opacity 0.55s cubic-bezier(0.28, 0.11, 0.32, 1),
+    transform 0.55s cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv {
+    transition: none;
+  }
+}
+
+/* (2) .home-tabs — the three product-surface tabs of the interactive
+   core (calculator / EVO / library). Apple-style underline tabs on a
+   hairline rail; the active tab carries the ink + a 2px machined
+   indicator; the rail scrolls on touch (chips-row snap pattern, RTL
+   safe via logical properties). Min 44px touch rows per the CTA law. */
+.home-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--edge);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.home-tabs::-webkit-scrollbar { display: none; }
+.home-tab {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 -2px 0 0 transparent;
+  transition: color 0.2s ease, box-shadow 0.2s ease;
+}
+.home-tab:hover { color: var(--muted-2); }
+.home-tab[aria-selected="true"] {
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 0 var(--text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-tab { transition: none; }
+}
+
+/* (3) .macro-track / .macro-fill — the animated macro bars (calculator
+   results + the food explorer). The track is a hairline-edged tinted
+   rail; the fill is the CHROME METAL itself (the identity's engraved
+   accent — monochrome by law, no chromatic macro colors). Width is
+   driven inline (percentage of the per-macro max) and transitions so
+   the bars GROW when a result/food lands — the "product answering"
+   moment. */
+.macro-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--tint);
+  border: 1px solid var(--edge);
+  overflow: hidden;
+}
+.macro-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 999px;
+  background: var(--chrome);
+  transition: width 0.65s cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .macro-fill { transition: none; }
+}
+
+/* (4) .live-dot — the quiet "EVO is here" presence pulse on AI surfaces
+   (the --ai cyan is lawful ONLY on AI-assistant surfaces — this dot
+   marks the EVO teaser, an AI surface). Two-second breathing pulse,
+   motion-safe users only. */
+.live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ai);
+  flex-shrink: 0;
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1px solid var(--ai);
+  opacity: 0.6;
+  animation: live-dot-pulse 2.4s ease-out infinite;
+}
+@keyframes live-dot-pulse {
+  0% { transform: scale(0.6); opacity: 0.6; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot::after { animation: none; opacity: 0.25; }
+}
+
+/* (5) .swap-fade — the 250ms crossfade shell for interactive content
+   swaps (the library tab muscle switch, the food explorer selection).
+   Applied by React as a keyed re-mount wrapper: opacity+translate only. */
+.swap-fade {
+  animation: swap-fade-in 0.3s cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+@keyframes swap-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swap-fade { animation: none; }
+}

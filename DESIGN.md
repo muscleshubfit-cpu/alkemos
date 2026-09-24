@@ -1,7 +1,8 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-24 (HOME-REBUILD-258, phase 268 — homepage rebuilt
-> from scratch by owner order; §7.1/§7.3/§7.4 recipes updated to the new page)
+> **Last updated:** 2026-09-24 (HOME-EXPERIENCE-269, phase 269 — the
+> living-product homepage: in-page calculator + EVO demo + interactive
+> library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
 > **Audience:** AI agents, developers, designers
 > **Redesign record:** `docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md` (audit +
@@ -284,27 +285,61 @@ COVER layer (`.hero-bg`, ThemeImg pair, eager LCP) with the content —
 chrome logo lockup (`w-32` mobile → `w-64` desktop) → serif H1
 (`.hero-copy` halo) → subtitle → CTA pair — centered INSIDE it.
 
-**Hero copy pair (HOME-REBUILD-258 — message-matches the SERP snippets):**
-- EN: «Train smarter. Eat with precision.» · sub: «One platform that
-  brings training, nutrition, and smart planning together — with EVO,
-  your AI coach, built in. In Arabic and English.»
+**Hero copy pair (HOME-EXPERIENCE-269 — the H1 message-matches the SERP
+snippets; the subtitle points AT the living experience):**
+- EN: «Train smarter. Eat with precision.» · sub: «One platform for
+  training, nutrition, and smart planning — with EVO, your AI coach,
+  built in. Try it right on this page, in Arabic and English.»
 - AR: «تدرّب بذكاء. وتغذَّ بدقة.» · sub: «منصة واحدة تجمع التدريب
   والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي.
-  بالعربية والإنجليزية.»
+  جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية.»
 
-**Proof strip (new §7.1.1):** directly under the hero — an `--tint` band
+**Proof strip (§7.1.1):** directly under the hero — an `--tint` band
 with a hairline top/bottom edge carrying FOUR auditable stat tiles
 (engraved icon + `.chrome-text` number + label): EX_PLUS exercises /
 FOODS_PLUS foods / TOOLS_COUNT free tools / the 10-message daily EVO
 limit. Every value rides a verified constant — the page invents
 nothing (the Freeletics/MyFitnessPal proof-under-promise pattern).
+HOME-EXPERIENCE-269: the numbers COUNT UP once when the strip enters
+the view (`.CountUp` — rAF ease-out, SSR renders the final value,
+reduced-motion stands down) — the page's first heartbeat.
 
 **CTA pair (Phase 203 account law):** `.btn-chrome` «Start free» →
-/auth?mode=signup + translucent `.btn-outline` «Explore exercises» →
-/exercises, plus the quiet centered «Log in» link. On phones the pair
-STACKS full-width — primary → secondary → the quiet centered «Log in»
-link with a 28px clearance (no mis-tap risk); md+ keeps the single
-centered row.
+/auth?mode=signup + translucent `.btn-outline` «Try it on this page»
+→ `#start` (the living product — the secondary CTA now scrolls INTO
+the experience instead of routing away), plus the quiet centered
+«Log in» link. On phones the pair STACKS full-width — primary →
+secondary → the quiet centered «Log in» link with a 28px clearance
+(no mis-tap risk); md+ keeps the single centered row.
+
+### 7.1.2 The living product (`#start` — HOME-EXPERIENCE-269)
+
+The page's heart: THREE real product surfaces running in-page inside
+one `marble-card--unclipped` slab, switched by the `.home-tabs` rail
+(Apple-style underline tabs, 44px rows, scrollable on touch):
+
+1. **Calculate your numbers** — the REAL calorie/macro calculator.
+   The math flows from `src/lib/fitness-math.ts` (the single source
+   the /tools/calorie-calculator app tool also imports — the two
+   surfaces can never drift). Inputs: gender + age/weight/height
+   trio + activity + goal (the tool's own labels). The result panel
+   answers with a `.chrome-text` target number + three `.macro-track`
+   chrome bars (relative to the result's largest macro) + the honest
+   math note + the benefit ladder CTAs («Build my plan around these»
+   → the AI planner · «Save this in a free account» → signup).
+2. **Ask EVO** — a LABELED illustrative conversation (4 turns, native
+   AR/EN pairs — never a translation): user goal → EVO answers with
+   real numbers → user context → EVO adjusts. The hand-off CTA
+   «Continue this conversation» dispatches `openEvoFloatingChat()`
+   (the CHAT SURFACE LAW holds — this is a demonstration, never a
+   second input). The panel carries the `.live-dot` presence pulse
+   (lawful `--ai` cyan — an AI surface).
+3. **Browse exercises** — the interactive muscle-group browser:
+   `.chips-row` (the seven families, live counts) + the real curated
+   samples (15 slugs, 2+ per family) filtered client-side by
+   `categorySlug` with the `.swap-fade` crossfade on every switch.
+   The exercise GRID lives HERE now — no two homepage sections share
+   a skeleton.
 
 Height floors: phones `max(56vh, 100vw×713/1280)`; tablet→wide
 `100vw × 713/1280`; aspect > 1501/1000: `92vh`. Luminance law: the
@@ -338,9 +373,15 @@ floating EVO widget stays the chat entry point.
 
 ### 7.4 Free-vs-Paid cards (homepage)
 
-Homepage (HOME-REBUILD-258): THREE `marble-card`s in an
+Homepage (HOME-EXPERIENCE-269): the section OPENS with the **growth
+ladder** — a 4-step journey strip (Free = Experience → Premium =
+Manage → Pro = Adapt & Optimize → Coaching = Human Coach + AI; tier
+NAMES derive from memberships.ts lookups, the stages are the
+repositioning vocabulary) — so the money moment reads as the member's
+JOURNEY, not a price sheet. Below it, THREE `marble-card`s in an
 `md:grid-cols-3` row — **Free** ($0, name from memberships.ts,
-`btn-outline` → signup) / **Premium & Pro** (the visual hero: dark
+`btn-outline` → signup; the copy ties back to what the visitor just
+TRIED on the page) / **Premium & Pro** (the visual hero: dark
 `#0B0B0D` card, 2px chrome gradient ring, the «Recommended» seal
 straddling the top border — the exact /memberships Pro recipe —
 `.btn-chrome`; price line «From $X/mo») / **Coaching** (`btn-outline`;
@@ -349,6 +390,29 @@ $X/mo + the checkseal «ALL PRO FEATURES INCLUDED» chip).
 single-source law the canaries pin). A quiet refund line closes the
 section (the REAL 7-day conditional refund, refund.ts).
 `/memberships` keeps its own three-card layout.
+
+### 7.4.1 The interactive plate (`#eat` — HOME-EXPERIENCE-269)
+
+The food database made touchable: an `aria-live` result panel (the
+`.macro-track` chrome bars + a DERIVED contextual sentence built from
+the real per-100g numbers — never hand-written claims) beside a grid
+of tappable food selector cards (the §11 macro-grid recipe; the
+selected card carries the ink ring + `--shadow-lift`). Selection
+swaps with `.swap-fade`; the panel CTA opens the food's detail page.
+
+### 7.4.2 Living-page motion + interaction layer (HOME-EXPERIENCE-269)
+
+The recipes live in globals.css under the HOME-EXPERIENCE-269 block:
+`.rv` (once-only scroll-reveal transition — armed ONLY post-mount in
+React state so SSR/no-JS users always see content, transform/opacity
+only = zero CLS, 1.8s failsafe timer guarantees nothing stays hidden
+in any environment), `.home-tabs`/`.home-tab` (underline tab rail,
+aria-selected driven), `.macro-track`/`.macro-fill` (chrome macro
+bars), `.live-dot` (the `--ai` presence pulse — AI surfaces only),
+`.swap-fade` (the 250ms content-swap crossfade). EVERY motion recipe
+stands down under `prefers-reduced-motion` (the vestibular-safety
+law); the retired pre-258 jarring reveal is structurally impossible
+here (no layout animation, no re-trigger, no SSR-hidden state).
 
 ### 7.5 Comparison tables
 

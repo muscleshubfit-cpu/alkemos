@@ -13,18 +13,19 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
 import { ToolReferenceContent } from "@/components/ToolReferenceContent";
 import { CALORIE_CALCULATOR_CONTENT } from "@/lib/content/calorie-calculator";
+import {
+  calculateCalorieTargets,
+  ACTIVITY_FACTORS as SHARED_ACTIVITY_FACTORS,
+} from "@/lib/fitness-math";
 
 type Gender = "male" | "female";
 type Activity = "sedentary" | "light" | "moderate" | "active" | "very_active";
 type Goal = "lose" | "maintain" | "gain";
 
-const ACTIVITY_FACTORS: Record<Activity, number> = {
-  sedentary: 1.2,
-  light: 1.375,
-  moderate: 1.55,
-  active: 1.725,
-  very_active: 1.9,
-};
+/* HOME-EXPERIENCE-269: the math now flows from the shared single source
+   (src/lib/fitness-math.ts) so the tool page and the homepage calculator
+   can never drift. The local alias keeps the template unchanged. */
+const ACTIVITY_FACTORS = SHARED_ACTIVITY_FACTORS;
 
 const ACTIVITY_LABELS_AR: Record<Activity, string> = {
   sedentary: "خامل (بدون رياضة)",
@@ -79,23 +80,17 @@ export default function CalorieCalculatorPage() {
     }
     setError(null);
 
-    // Mifflin-St Jeor Equation
-    const bmr = gender === "male"
-      ? 10 * w + 6.25 * h - 5 * a + 5
-      : 10 * w + 6.25 * h - 5 * a - 161;
-
-    const tdee = Math.round(bmr * ACTIVITY_FACTORS[activity]);
-
-    let target = tdee;
-    if (goal === "lose") target = Math.round(tdee - 500);
-    if (goal === "gain") target = Math.round(tdee + 400);
-
-    // Macros: 40% carbs, 30% protein, 30% fat
-    const protein = Math.round((target * 0.3) / 4);
-    const carbs = Math.round((target * 0.4) / 4);
-    const fat = Math.round((target * 0.3) / 9);
-
-    setResult({ bmr: Math.round(bmr), tdee, target, protein, carbs, fat });
+    // The math flows from the shared single source (fitness-math.ts) —
+    // byte-identical results to the previous inline formulas.
+    const targets = calculateCalorieTargets({
+      gender,
+      age: a,
+      weightKg: w,
+      heightCm: h,
+      activity,
+      goal,
+    });
+    setResult(targets);
   };
 
   return (

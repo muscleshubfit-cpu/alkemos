@@ -6,6 +6,28 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: HOME-EXPERIENCE-269-2026-09-24
+Agent: Super Z (owner session)
+Task: Rebuild the homepage as a LIVING product experience (owner directive 2026-09-24: «الصفحة تبدو كصفحة تعرض وتشرح منتجًا، وليست كمنتج عالمي حي يجعل المستخدم يفهم القيمة ويشعر بها ويتفاعل معها» — solve it, don't report it).
+
+Work Log:
+- Session opened per §3.6/§3.7: STATE.md read · origin/main verified at 55b159cb (clean) · live alkemos.com audited fresh (H1/H2 grep = the deployed 268 build).
+- LIVE + VLM diagnosis of the 268 page (full-page captures EN/AR × desktop): the rebuild organized the page honestly but it remained a PRESENTATION — nothing on the page could be USED (every section routed away), three sections shared one catalog skeleton (heading → subtext → grid → button = grid fatigue), EVO was explained in steps but never SHOWN, zero motion (Reveal was disabled), and free-vs-paid landed as a pricing table. Cross-checked against live captures of Freeletics / Hevy / Whoop / MyFitnessPal (product-in-hero, immediate utility, conversation-first, transformation framing).
+- THE FIX — the new arc «الصفحة هي أول خمس دقائق من المنتج»: Hero (kept: owner artwork + logo + H1 pair + Phase-203 CTA law; the subtitle now points AT the in-page experience; secondary CTA «جرّبها الآن في الصفحة» scrolls to #start) → Proof strip (same auditable constants, now COUNT UP alive) → NEW #start THE LIVING PRODUCT: three real surfaces on a .home-tabs rail — (1) a REAL calorie/macro calculator, (2) a labeled EVO conversation demo (native AR/EN pairs, 4 turns) whose CTA opens the REAL floating widget, (3) an interactive muscle-group library browser (15 curated exercises, 2+ per family, client-side categorySlug filter with .swap-fade) → #train now the PLAN world (programs lead + AI-planner dual CTA; the exercise grid moved into the tab — no two sections share a skeleton) → #eat the interactive plate (selectable real foods + aria-live macro panel with chrome bars + a DERIVED sentence) → #evo (kept: headline pair, steps, quota box, widget law) → #learn → #memberships now opens with the GROWTH LADDER (the memberships.ts repositioning: تجربة→إدارة→تكييف→مدرب بشري) above the three honest cards → coaches strip → #faq → final CTA (+ the quiet EVO door «أو تحدث مع EVO أولًا»).
+- SINGLE-SOURCE LAW: the calculator math extracted to NEW src/lib/fitness-math.ts; the /tools/calorie-calculator page refactored to import it (byte-identical results — verified 2,802 kcal for the 30/84/178/moderate/maintain case in both languages); prices/ladder tier names stay memberships.ts-derived (no literals).
+- Motion layer (globals.css HOME-EXPERIENCE-269 block): .rv (once-only reveal — armed ONLY post-mount in React state so SSR/no-JS always visible; transform/opacity only = zero CLS; 1.8s failsafe timer so NOTHING can stay hidden in any environment, incl. virtualized capture viewports), .home-tabs/.home-tab (44px rows), .macro-track/.macro-fill (chrome bars), .live-dot (--ai pulse, AI surfaces only), .swap-fade — every recipe gated by prefers-reduced-motion.
+- home-samples.ts: EXERCISE_SAMPLE_SLUGS 8→15 (2+ per family for the interactive filter) + categorySlug added to HomeExerciseSample.
+- Canaries re-pinned in the SAME frame: homepage-adoption.test.ts fully rewritten (HOME-EXPERIENCE-269: single-source pricing law kept verbatim · the living-product laws — fitness-math import + formula-fork ban · EVO demo must be labeled + widget hand-off · 3 tabpanels · 2+ samples per muscle family · motion-safety contract · the new order map + funnel guards) — the header/footer/VRD-V2 describes untouched; ai-meal-planner / marketing-msa / rtl-typography / library-counts pins verified intact without edits.
+- Docs in the SAME frame: DESIGN.md §7.1/§7.1.2 (NEW the living product)/§7.4 (+growth ladder)/§7.4.1 (NEW interactive plate)/§7.4.2 (NEW motion layer) + header date; STATE.md phase 269; README.md living-homepage entry.
+- Gates: tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 100/1704 (the +1 = the new motion-safety canary) · next build ✓ 2020/2020.
+- Live functional verification (local prod dev server): calculator EN + AR (correct Mifflin-St Jeor math both) · muscle switch (Chest→Bench/Pushups/Incline, Legs→Squat/Goblet/RDL) · «Continue this conversation» OPENS the real floating widget (10-messages-left shown) · food explorer (Chicken default → Salmon swaps the panel with real DB values) · cookie banner accepted then re-tested. Visual matrix: EN/AR × light/dark × 1440/390 full-page VLM-audited (RTL chat mirroring correct — user left, EVO right with avatar; dark mode machined not washed; tabs usable on touch; inputs stack) + programmatic zero-overflow check (scrollWidth 390/390/1440 = viewport at every breakpoint). Fixed during verification: the full-page-capture invisible-Reveal (→ the 1.8s failsafe).
+
+Stage Summary:
+- The homepage is now a product the visitor USES on first contact: real numbers computed, a real AI conversation shown then handed off to the real widget, a real library answering taps — with the free/paid story framed as the member's growth journey. All honesty laws intact (labeled demo, derived numbers only, single-source prices, no invented claims).
+- Commit SHA: this commit carries this entry
+- Push status: pending (pushed with this frame — live verification by a follow-up LIVE-VERIF entry)
+
+---
 Task ID: HOME-REBUILD-258-2026-09-24
 Agent: Super Z (owner session)
 Task: Rebuild the homepage from scratch as a global product interface (owner directive 2026-09-24) — research-driven UX/CRO, native EN/AR copy, honest free-vs-paid story.

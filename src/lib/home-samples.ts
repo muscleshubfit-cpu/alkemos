@@ -49,16 +49,39 @@ import {
 import { getExerciseImageUrl } from "@/lib/exercise-images";
 
 // ─── Curated real slugs (verified against the arrays by the drift test) ───
+//
+// HOME-EXPERIENCE-269: the curation grew from 8 (one per family) to 15
+// (2 per family + 3 for legs) because the homepage LIBRARY TAB is now
+// INTERACTIVE — the visitor taps a muscle group and the real sample
+// cards swap in-page. Two+ real entries per family make the interaction
+// honest (a filter with one result is a dead filter). Every slug is
+// hand-picked for contrast: a barbell/machine staple + a beginner
+// home-friendly movement, with level variety where the library allows.
 
 export const EXERCISE_SAMPLE_SLUGS = [
-  "barbell-bench-press-medium-grip", // chest · barbell
-  "pullups", // back · bodyweight
-  "barbell-squat", // legs · barbell
-  "dumbbell-shoulder-press", // shoulders · dumbbell
-  "romanian-deadlift", // posterior chain · barbell
-  "barbell-curl", // biceps · barbell
-  "triceps-pushdown", // triceps · cable
-  "plank", // core · bodyweight
+  // chest — the barbell staple + the home classic
+  "barbell-bench-press-medium-grip",
+  "pushups",
+  "incline-dumbbell-press",
+  // back — bodyweight + barbell
+  "pullups",
+  "bent-over-barbell-row",
+  // legs — barbell + home dumbbell + posterior chain
+  "barbell-squat",
+  "goblet-squat",
+  "romanian-deadlift",
+  // shoulders — dumbbell press + the isolation classic
+  "dumbbell-shoulder-press",
+  "side-lateral-raise",
+  // biceps — barbell + dumbbell hammer
+  "barbell-curl",
+  "alternate-hammer-curl",
+  // triceps — cable + bodyweight
+  "triceps-pushdown",
+  "bench-dips",
+  // core — the plank staple + the advanced hang
+  "plank",
+  "hanging-leg-raise",
 ] as const;
 
 export const FOOD_SAMPLE_SLUGS = [
@@ -86,6 +109,10 @@ export type HomeExerciseSample = {
   slug: string;
   nameAr: string;
   nameEn: string;
+  /** The raw category slug ("chest"… ) — drives the homepage interactive
+   *  muscle-group filter (HOME-EXPERIENCE-269). Client-safe: it is a plain
+   *  string, never a library import. */
+  categorySlug: string;
   categoryLabelAr: string;
   categoryLabelEn: string;
   levelLabelAr: string;
@@ -145,6 +172,7 @@ export function getHomeSamples(): HomeSamples {
         slug: ex.slug,
         nameAr: ex.nameAr,
         nameEn: ex.nameEn,
+        categorySlug: ex.category,
         categoryLabelAr: EX_CATEGORY_LABELS[ex.category].ar,
         categoryLabelEn: EX_CATEGORY_LABELS[ex.category].en,
         levelLabelAr: EX_LEVEL_LABELS[ex.level].ar,
