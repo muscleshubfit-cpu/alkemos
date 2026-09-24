@@ -81,10 +81,17 @@ export default function AiWorkoutPlannerPage() {
   const equipments = workoutEquipmentOptions(isAr ? "ar" : "en");
 
   // ── HYDRATION: restore the plan so navigation/refresh never loses it.
-  // Member → account copy (cross-device); guest → localStorage copy. ──
+  // Member → account copy (cross-device); guest → localStorage copy.
+  // HOME HAND-OFF (owner directive 2026-09-24: «الخطة المولده لا تظهر
+  // فى صفحة الأداة»): the homepage builders persist their generated
+  // plans via the SAME plan-persistence envelope — so the localStorage
+  // copy is now ALSO the member's floor when the account copy is
+  // absent or the fetch fails (a plan generated on the homepage must
+  // NEVER arrive at an empty tool). ──
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      let restored = false;
       if (profile) {
         try {
           const res = await fetch("/api/ai/planner-plan?kind=workout");
@@ -108,13 +115,16 @@ export default function AiWorkoutPlannerPage() {
                 if (typeof inputs.equipment === "string") setEquipment(inputs.equipment);
                 if (typeof inputs.notes === "string") setNotes(inputs.notes);
               }
+              restored = true;
             }
           }
         } catch {
           /* offline → localStorage fallback below */
         }
       }
-      if (!cancelled && !profile) {
+      // Guests always land here; members only when the account copy is
+      // absent/failed — the localStorage mirror is the persistence floor.
+      if (!cancelled && !restored) {
         const stored = loadGuestPlan("workout");
         if (stored) {
           setPlan(stored.plan as unknown as DemoPlan);

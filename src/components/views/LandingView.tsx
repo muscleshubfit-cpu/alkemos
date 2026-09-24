@@ -16,7 +16,7 @@ import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-share
 import { FOODS_COUNT } from "@/lib/foods-shared";
 import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
-import { ensureGuestId } from "@/lib/plan-persistence";
+import { ensureGuestId, saveGuestPlan } from "@/lib/plan-persistence";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getFallbackSVG } from "@/lib/exercise-images";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
@@ -868,7 +868,14 @@ function planSegmented(active: boolean) {
 // generating, the live split preview answers instantly from the real
 // planner vocabulary; after generating, changing any choice returns
 // the card to the preview so a rendered plan always matches the
-// CURRENT selections — never a stale generation.)
+// CURRENT selections — never a stale generation.
+// THE HAND-OFF LAW (owner directive 2026-09-24: «الخطة المولده لا تظهر
+// فى صفحة الأداة»): every successful generation is persisted via
+// saveGuestPlan — the SAME envelope the tool pages re-hydrate from
+// (plan-persistence.ts). Clicking «افتح الأداة الكاملة للحفظ والتصدير»
+// must land on a tool that ALREADY shows this exact plan (guests:
+// localStorage; members: the route's account auto-save + the local
+// mirror as offline cache — the same split the tool pages write).)
 function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: boolean }) {
   // The vocabulary arrives from the REAL planner module (single
   // source — the homepage labels can never drift from the tool).
@@ -923,8 +930,13 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
         setQuota(readQuota(data?.quota));
         return;
       }
-      setPlan(data?.plan as HomeWorkoutPlan);
+      const generated = data?.plan as HomeWorkoutPlan;
+      setPlan(generated);
       setQuota(readQuota(data?.quota));
+      // THE HAND-OFF LAW: persist with the tool pages' envelope (the
+      // inputs ride along so the full tool opens with the SAME
+      // selections that produced this plan).
+      saveGuestPlan("workout", generated, { goal, level, days, equipment: equip });
     } catch {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
@@ -1149,6 +1161,10 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
 // kcal, the same engine as the tool. Before generating, the REAL
 // matrix split previews live; changing any choice returns the card
 // to the preview (a rendered plan always matches the choices).
+// THE HAND-OFF LAW (owner directive 2026-09-24): every successful
+// generation is persisted via saveGuestPlan — the same envelope the
+// ai-meal-planner page re-hydrates from, so «افتح الأداة الكاملة»
+// lands on the tool ALREADY showing this exact day.
 function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; isAr: boolean; isLoggedIn: boolean }) {
   const systems = samples.dietSystems;
   const levels = samples.dietLevels;
@@ -1195,8 +1211,12 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
         setQuota(readQuota(data?.quota));
         return;
       }
-      setPlan(data?.plan as HomeMealPlan);
+      const generated = data?.plan as HomeMealPlan;
+      setPlan(generated);
       setQuota(readQuota(data?.quota));
+      // THE HAND-OFF LAW: persist with the tool pages' envelope (the
+      // calorie level + system ride along as the tool's inputs).
+      saveGuestPlan("nutrition", generated, { calories, system: systemSlug });
     } catch {
       setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
     } finally {
@@ -2148,9 +2168,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       {/* ===================== 8. READY-MADE PROGRAMS — the carousel (271 F1) =====================
           The owner's correction: this pre-blog carousel slot carries
           the READY-MADE PROGRAMS (برامج التمارين الجاهزة) — the same
-          blog-style carousel treatment, real program artwork, and
-          the dual CTA kept (the interactive exercise library lives
-          in its own section above). */}
+          blog-style carousel treatment, real program artwork, and ONE
+          focused browse-all CTA (the AI-builder CTA retired 2026-09-24;
+          the interactive exercise library lives in its own section
+          above, the smart-planning builders in #plan). */}
       <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -2176,21 +2197,17 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               ))}
             </CarouselShell>
           </Reveal>
-          {/* Dual CTA: build your own with AI, or see all programs. */}
+          {/* ONE focused section CTA (owner directive 2026-09-24: the
+              AI-builder CTA is retired here — the smart-planning
+              builders own that job in #plan above). */}
           <Reveal delay={120} className="mt-10 text-center">
-            <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
-              <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
-                {isAr ? "ابنِ خطتك بالذكاء الاصطناعي" : "Build your plan with AI"}
-                <span className="rtl:rotate-180">›</span>
-              </a>
-              <a
-                href={isAr ? "/ar/programs" : "/programs"}
-                className="btn-outline px-6 py-2.5 text-sm font-medium"
-              >
-                {isAr ? "كل البرامج" : "All programs"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-            </div>
+            <a
+              href={isAr ? "/ar/programs" : "/programs"}
+              className="btn-outline px-7 py-3 text-sm font-medium md:text-base"
+            >
+              {isAr ? "كل البرامج" : "All programs"}
+              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+            </a>
           </Reveal>
         </div>
       </section>

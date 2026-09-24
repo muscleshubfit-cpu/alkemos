@@ -14,6 +14,10 @@ import {
 /**
  * HOME-REFINE-271 CANARIES — the four-point owner follow-up
  * (2026-09-24) on top of the HOME-REFINE-270 nine-point refinement.
+ * + the 2026-09-24 hand-off frame: the #train AI-builder CTA is
+ *   retired (ONE browse-all CTA) and the homepage builders persist
+ *   every generated plan via saveGuestPlan so «افتح الأداة الكاملة»
+ *   lands on a tool that ALREADY shows the plan.
  *
  * THE CORRECTED ARC (F1–F4):
  *   Promise (Hero, TWO CTAs: auth + memberships) → Proof (ONE compact
@@ -228,6 +232,14 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain('"/api/ai/workout-plan-demo"');
     expect(src).toContain('"/api/ai/meal-plan-demo"');
     expect(src).toContain("ensureGuestId");
+    // THE HAND-OFF LAW (owner directive 2026-09-24: «الخطة المولده لا
+    // تظهر فى صفحة الأداة»): both builders persist every successful
+    // generation with the SAME envelope the tool pages re-hydrate
+    // from — the homepage import carries saveGuestPlan and BOTH kinds
+    // are written with their inputs.
+    expect(src).toContain('import { ensureGuestId, saveGuestPlan } from "@/lib/plan-persistence"');
+    expect(src.match(/saveGuestPlan\("workout"/g)?.length).toBe(1);
+    expect(src.match(/saveGuestPlan\("nutrition"/g)?.length).toBe(1);
     // The honest quota chip register (same as the tool pages).
     expect(src).toContain("رصيد الشهر");
     expect(src).toContain("This month:");
@@ -278,11 +290,11 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "Pick a muscle group",
       "استكشف مكتبة التمارين كاملة",
       "Explore the full exercise library",
-      // The ready-made programs carousel (271 F1) + its dual CTA
+      // The ready-made programs carousel (271 F1) + its ONE focused
+      // browse-all CTA (the AI-builder CTA retired 2026-09-24 — the
+      // smart-planning builders in #plan own that job)
       "برامج التمارين الجاهزة",
       "Ready-made training programs",
-      "ابنِ خطتك بالذكاء الاصطناعي",
-      "Build your plan with AI",
       "كل البرامج",
       "All programs",
       // The Eat section (the interactive plate) + section CTA
@@ -342,6 +354,10 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "Start today. Build a routine that fits you.",
       "أو تحدث مع EVO أولًا",
       "Or talk to EVO first",
+      // The retired #train AI-builder CTA (owner directive
+      // 2026-09-24 — «امسحه»; #plan owns AI plan creation).
+      "ابنِ خطتك بالذكاء الاصطناعي",
+      "Build your plan with AI",
     ]) {
       expect(src, `retired block string returned: "${banned}"`).not.toContain(banned);
     }
@@ -510,11 +526,19 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
 
   // O-3 asymmetry (the compact memberships section): the coaching
   // card carries the section's ONE filled CTA; the quiet outline
-  // buttons live on the section-level browse CTAs.
+  // buttons live on the section-level browse CTAs. (2026-09-24: the
+  // #train browse-all CTA was promoted to the unified section-CTA
+  // recipe — px-7 py-3, like #library/#eat/#diet — when the section's
+  // AI-builder button was retired; the blog CTA keeps the quiet
+  // px-6 py-2.5 recipe, and exactly ONE filled px-6 py-2.5 CTA
+  // remains: the coaching card.)
   it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain(': "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
-    expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(1);
+    // The unified browse-all section-CTA recipe (48px touch floor):
+    // #library, #eat, #train, #diet — four single-CTA sections.
+    expect(src.match(/className="btn-outline px-7 py-3 text-sm font-medium md:text-base"/g)?.length).toBeGreaterThanOrEqual(4);
   });
 
   // The unified hover law: every INTERACTIVE homepage card family
