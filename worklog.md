@@ -23,8 +23,8 @@ Work Log:
 
 Stage Summary:
 - خطة التقرير المعتمدة منفذة بالكامل P0→P3 (ت-1..ت-16) مع تحصين آلي يمنع تكرار كل فئة انجراف رصدها التقرير — والمستودع خاص الآن.
-- Commit SHA: (يسجَّل بكوميت السجل التالي)
-- Push status: not-pushed (يُحدَّث بكوميت السجل)
+- Commit SHA: 488f7dad
+- Push status: pushed (533a5764..488f7dad على origin/main)
 
 ---
 Task ID: HOME-PARITY-273-2026-09-24
