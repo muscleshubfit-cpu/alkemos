@@ -57,6 +57,31 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      archive/QA_CHECKLIST.md) must have ZERO commits since the gate
      birthday (2026-09-16). The 2026-09-08 post-freeze edit (680833f9)
      predates the gate and is documented in the audit report.
+  D2. (Phase 274 — DOC-REMEDIATION, external audit م-03/م-10)
+     DEVELOPER_GUIDE-only widened number law: test-file/case counts,
+     dependency version table rows, and hard-coded hex colors fail
+     (the classes that actually drifted past the original 12 patterns).
+  H4. (Phase 274) every worklog Task ID must carry a date — the undated
+     bottom-append escaped H3 once (the 273 incident); documented
+     pre-hardening legacy ids are allowlisted.
+  L. (Phase 274 — external audit م-04) demo-account emails in the four
+     setup docs must match the seeds in src/lib/data/auth.ts.
+  M. (Phase 274 — external audit م-07) the docs/README.md registry is
+     enforced: every row's backticked paths exist, and the Last-updated
+     date never lags the file's last commit (STATE.md/worklog.md exempt
+     — they refresh by law every frame, same precedent as check I).
+  N. (Phase 274 — external audit م-08) docs/CI_GATES.md must mention
+     every file in .github/workflows/.
+  P. (Phase 274 — external audit م-09) README/DEVELOPER_GUIDE Node
+     claims may not undercut the package.json engines floor.
+  Q. (Phase 274 — external audit م-12) any doc naming the
+     "OpenRouter + Groq" pair must also carry NVIDIA (three-provider
+     law, AGENTS.md §8).
+  R. (Phase 274 — report §9) backticked repo paths in the five governed
+     docs must exist (prefixed paths literally; bare filenames anywhere
+     in git ls-files; retired/narrated + user-created files allowlisted).
+  T. (Phase 274 — report §9) every documented `bun/npm run <x>` command
+     must be a real package.json script.
 
 Usage:  python3 scripts/docs_audit.py            # human report
         python3 scripts/docs_audit.py --ci       # GitHub Actions
@@ -189,6 +214,29 @@ for rel in ("README.md", "DEVELOPER_GUIDE.md"):
                      f"pattern /{pat}/) — AGENTS.md §3.8 single-source "
                      f"law: numbers live in the code or INDEX.md only; "
                      f"line: {ln.strip()[:110]!r}")
+
+# ------------------------------------------------------------------ D2
+# Phase 274 (DOC-REMEDIATION — external audit م-03/م-10): the original
+# 12 patterns missed the drift classes that actually shipped in
+# DEVELOPER_GUIDE (18/191 test counts, the framer-motion dependency
+# table, the pre-VRD hex palette). Scoped to the GUIDE only — README's
+# marketing table stays under the original patterns.
+FORBIDDEN_GUIDE: list[tuple[str, str]] = [
+    (r"\d+\s*ملف(?:ات)?\s*(?:اختبار|تست)", "test-file count (Arabic)"),
+    (r"\d+\s+test\s+files?", "test-file count"),
+    (r"\d+\s*حال[ةات]\s*(?:اختبار|اختبارات)", "test-case count (Arabic)"),
+    (r"\|\s*`[\w@/.-]+`\s*\|\s*`?\^?\d", "dependency version table row"),
+    (r"#[0-9a-fA-F]{6}\b", "hard-coded hex color"),
+]
+guide_text = read("DEVELOPER_GUIDE.md")
+for ln_no, ln in enumerate(guide_text.splitlines(), 1):
+    for pat, label in FORBIDDEN_GUIDE:
+        if re.search(pat, ln):
+            fail("D2/guide-number-free",
+                 f"DEVELOPER_GUIDE.md:{ln_no} contains {label} "
+                 f"(pattern /{pat}/) — the GUIDE refers to its sources "
+                 f"(package.json / STATE.md / DESIGN.md), it never carries "
+                 f"these numbers or literals; line: {ln.strip()[:110]!r}")
 
 # ------------------------------------------------------------------ E
 agents = read("AGENTS.md")
@@ -357,6 +405,20 @@ if worklog and wl_tasks:
                  f"entries belong ON TOP, not appended to the history "
                  f"region")
 
+# H4 — (Phase 274) undated Task IDs are the bottom-append escape class:
+# the 273 frame appended a full entry BELOW the tail and H3 could not
+# see it (nothing to inherit a date from). Every live Task ID must now
+# carry a date. The two pre-hardening legacy ids below the window are
+# allowlisted until they rotate to the archive (same grandfather
+# precedent as check K's archive note).
+UNDATED_TASKID_ALLOWLIST = {"217-close", "SEO-GEO-15-BATCH1-LIVE-VERIFY"}
+for t in wl_tasks:
+    if not wl_date(t) and t not in UNDATED_TASKID_ALLOWLIST:
+        fail("H4/task-id-dated",
+             f"worklog entry «{t}» carries no date in its Task ID — every "
+             f"live entry must be dated (…-YYYY-MM-DD) so the newest-on-top "
+             f"law can see it (Phase 274: the undated bottom-append escape)")
+
 # ------------------------------------------------------------------ K
 # Phase 234 / migration Phase 2: close the two escape classes the
 # 2026-09-19 architecture audit caught (report F-02 + F-05's format
@@ -440,13 +502,212 @@ if touched:
          f"— frozen means frozen; an owner-ordered exception requires "
          f"updating this baseline in the same commit")
 
+# ==================================================================
+# Phase 274 (DOC-REMEDIATION) — the nine anti-drift checks born from
+# the 2026-09-24 external documentation audit (م-04/م-07/م-08/م-09/
+# م-12 + report §9 automation proposals). They run on every push via
+# the existing docs-parity-gate workflow — no new workflow needed.
+# ==================================================================
+
+# ------------------------------------------------------------------ L
+# م-04: the demo-account email must follow the seed in auth.ts (the
+# four setup docs once documented a coach@ prefix the code never had).
+auth_src = read("src/lib/data/auth.ts")
+if auth_src:
+    seeds = set(re.findall(
+        r'email:\s*"([A-Za-z0-9._%+-]+@(?:coach|demo)\.app)"', auth_src))
+    coach_seed = next((s for s in seeds if s.endswith("@coach.app")), None)
+    client_seed = next((s for s in seeds if s.endswith("@demo.app")), None)
+    for rel in ("README.md", "DEVELOPER_GUIDE.md", "SECURITY.md",
+                ".env.example"):
+        dtext = read(rel)
+        for lm in re.finditer(r"([A-Za-z0-9._%+-]+)@(coach|demo)\.app", dtext):
+            found = lm.group(0)
+            want = coach_seed if lm.group(2) == "coach" else client_seed
+            if want and found != want:
+                fail("L/demo-email",
+                     f"{rel} documents the demo email «{found}» but the seed "
+                     f"in src/lib/data/auth.ts is «{want}» — docs follow the "
+                     f"code (single source; Phase 274, external audit م-04)")
+
+# ------------------------------------------------------------------ M
+# م-07: the docs/README.md registry is enforced now. Every row's
+# backticked paths must exist, and the Last-updated column may never be
+# older than the file's last commit date. STATE.md and worklog.md are
+# exempt from the DATE half only — they refresh by law in every frame
+# (the same reason check I scopes them out); their paths still must
+# exist. This is the §12.5.2 audit turned into a per-push gate.
+registry = read("docs/README.md")
+if registry:
+    reg_lines = registry.splitlines()
+    _i = 0
+    while _i < len(reg_lines):
+        _ln = reg_lines[_i]
+        if _ln.startswith("|") and "Last updated" in _ln and "File" in _ln:
+            headers = [c.strip() for c in _ln.strip().strip("|").split("|")]
+            date_col = next((k for k, h in enumerate(headers)
+                             if "last updated" in h.lower()), None)
+            _j = _i + 2  # skip the |---| separator row
+            while _j < len(reg_lines) and reg_lines[_j].startswith("|"):
+                cells = [c.strip() for c in
+                         reg_lines[_j].strip().strip("|").split("|")]
+                paths = re.findall(r"`([^`]+)`", cells[0] if cells else "")
+                paths = [p for p in paths
+                         if re.match(r"^(?:[\w.-]+/)*[\w.-]+\.[\w.]+$", p)
+                         and not p.startswith("http")]
+                for p in paths:
+                    if not (REPO / p).exists():
+                        fail("M/registry-paths",
+                             f"docs/README.md row references «{p}» which "
+                             f"does not exist — registry rows point at real "
+                             f"files (moved? renamed? update the row in the "
+                             f"same commit)")
+                if (date_col is not None and date_col < len(cells) and paths
+                        and paths[0] not in ("STATE.md", "worklog.md")):
+                    dm = re.search(r"(\d{4}-\d{2}-\d{2})", cells[date_col])
+                    if dm:
+                        gdate = git_out(["log", "-1", "--format=%as",
+                                         "--", paths[0]])
+                        if gdate and dm.group(1) < gdate:
+                            fail("M/registry-dates",
+                                 f"docs/README.md row for «{paths[0]}» says "
+                                 f"{dm.group(1)} but the file's last commit "
+                                 f"is {gdate} — the registry must never lag "
+                                 f"its file (§12.5.2 turned per-push; "
+                                 f"Phase 274, external audit م-07)")
+                _j += 1
+            _i = _j
+        else:
+            _i += 1
+
+# ------------------------------------------------------------------ N
+# م-08: CI_GATES.md must cover every workflow file — its table once
+# drifted by four workflows (and a wrong purge cadence).
+ci_gates_text = read("docs/CI_GATES.md")
+if ci_gates_text:
+    for wf in sorted(p.name for p in
+                     (REPO / ".github/workflows").glob("*.yml")):
+        if wf not in ci_gates_text:
+            fail("N/ci-gates-coverage",
+                 f".github/workflows/{wf} is not mentioned in "
+                 f"docs/CI_GATES.md — every workflow ships its table row "
+                 f"in the same commit (Phase 274, external audit م-08)")
+
+# ------------------------------------------------------------------ P
+# م-09: documented Node requirement may never undercut package.json
+# engines (the 18+ claim survived a Next-16 upgrade).
+pkg_text = read("package.json")
+if pkg_text:
+    em = re.search(r'"engines"\s*:\s*\{[^}]*"node"\s*:\s*">=\s*([\d.]+)"',
+                   pkg_text)
+    if em:
+        floor = tuple(int(x) for x in (em.group(1).split(".") + ["0", "0"])[:3])
+        for rel in ("README.md", "DEVELOPER_GUIDE.md"):
+            ptext = read(rel)
+            for ln_no, ln in enumerate(ptext.splitlines(), 1):
+                for cm in re.finditer(
+                        r"Node(?:\.js)?\s*:?\s*(\d+)(?:\.(\d+))?\s*\+", ln):
+                    got = tuple(int(x) for x in
+                                (cm.group(1), cm.group(2) or "0", "0"))
+                    if got < floor:
+                        fail("P/node-requirement",
+                             f"{rel}:{ln_no} claims Node "
+                             f"{cm.group(1)}.{cm.group(2) or '0'}+ but "
+                             f"package.json engines floor is {em.group(1)} "
+                             f"— docs may not undercut the engines field "
+                             f"(Phase 274, external audit م-09)")
+
+# ------------------------------------------------------------------ Q
+# م-12: three-provider law — naming the OpenRouter + Groq pair without
+# NVIDIA is the metadata.json drift class.
+for rel in ("metadata.json", "README.md", "SECURITY.md",
+            "DEVELOPER_GUIDE.md", ".env.example"):
+    qtext = read(rel)
+    if re.search(r"OpenRouter\s*\+\s*Groq", qtext) and "NVIDIA" not in qtext:
+        fail("Q/ai-providers",
+             f"{rel} mentions the OpenRouter + Groq pair without NVIDIA NIM "
+             f"— the three-provider law (AGENTS.md §8 since Phase 161) "
+             f"requires all three or a pointer to src/lib/ai-provider.ts "
+             f"(Phase 274, external audit م-12)")
+
+# ------------------------------------------------------------------ R
+# Report §9 (dead-path guard): backticked repo paths in the five
+# governed docs must exist. Prefixed paths are checked literally; bare
+# filenames pass if ANY tracked file carries that basename. Allowlists:
+# user-created/generated files, naming-convention placeholders, and
+# files whose RETIREMENT is itself documented law/history.
+INTENTIONALLY_ABSENT = {".env.local", ".env", ".env.production",
+                        "next-env.d.ts"}
+NAMING_EXAMPLES = {"PascalCase.tsx", "use-kebab-case.tsx", "kebab-case.ts"}
+RETIRED_OR_RENAMED = {
+    "tailwind.config.ts",            # deleted by VRD-V5 (narrated in DESIGN)
+    "build_assets_v3.py", "build_assets_v127.py", "fix_hero_logo2.py",
+    "evo-partner.ts", "evo-embed-script.ts",   # EVO-6 removal law (AGENTS §8)
+    "docs/EVO-PARTNER-API.md",       # deleted with the EVO-6 surface
+    "0016_add_paypal_to_payment_method.sql",  # renamed RUN_ON_SUPABASE_ORIGINAL_0016_* (Phase 61)
+}
+PATH_RE = re.compile(
+    r"`((?:src|scripts|docs|supabase|archive|\.github|public)/"
+    r"[A-Za-z0-9_./-]+|[\w.-]+\.(?:md|ts|tsx|mts|mjs|js|sh|py|json|sql|"
+    r"yml|yaml|toml|css))`")
+tracked = git_out(["ls-files"]) or ""
+tracked_names = {line.rsplit("/", 1)[-1] for line in tracked.splitlines()}
+for rel in GOVERNED_DOCS:
+    gp = REPO / rel
+    if not gp.exists():
+        continue  # read() already failed for it
+    gtext = gp.read_text(errors="replace")
+    for ln_no, ln in enumerate(gtext.splitlines(), 1):
+        for pm in PATH_RE.finditer(ln):
+            cand = pm.group(1)
+            if (cand in INTENTIONALLY_ABSENT or cand in NAMING_EXAMPLES
+                    or cand in RETIRED_OR_RENAMED):
+                continue
+            if "*" in cand or "<" in cand or "{" in cand:
+                continue
+            if "/" in cand:
+                ok = (REPO / cand).exists()
+            else:
+                ok = (REPO / cand).exists() or cand in tracked_names
+            if not ok:
+                fail("R/doc-paths",
+                     f"{rel}:{ln_no} references «{cand}» which does not "
+                     f"exist in the repo — dead path references are drift "
+                     f"(fix the doc or the path; Phase 274, report §9)")
+
+# ------------------------------------------------------------------ T
+# Report §9: documented run-commands must be real package.json scripts.
+if pkg_text:
+    sm = re.search(r'"scripts"\s*:\s*\{(.*?)\}', pkg_text, re.S)
+    script_names = (set(re.findall(r'"([\w:-]+)"\s*:', sm.group(1)))
+                    if sm else set())
+    for rel in ("README.md", "DEVELOPER_GUIDE.md"):
+        ttext = read(rel)
+        for ln_no, ln in enumerate(ttext.splitlines(), 1):
+            for cm in re.finditer(r"(?:bun|npm)\s+run\s+([A-Za-z][\w:-]*)",
+                                  ln):
+                if cm.group(1) not in script_names:
+                    fail("T/doc-commands",
+                         f"{rel}:{ln_no} documents «{cm.group(0)}» but "
+                         f"«{cm.group(1)}» is not a package.json script — "
+                         f"documented commands must exist (Phase 274, "
+                         f"report §9)")
+            for cm in re.finditer(r"(?:bun|npm)\s+(dev|build|start|lint|"
+                                  r"test)\b", ln):
+                if cm.group(1) not in script_names:
+                    fail("T/doc-commands",
+                         f"{rel}:{ln_no} documents «{cm.group(0)}» but "
+                         f"«{cm.group(1)}» is not a package.json script — "
+                         f"documented commands must exist (Phase 274, "
+                         f"report §9)")
+
 # ------------------------------------------------------------------ report
 print("=" * 64)
 print(f"knowledge gate : STATE phase={state_phase} · STATE lines="
       f"{len(state.splitlines()) if state else '∅'} · bytes={state_bytes:,} "
       f"(hard cap 32,000) · merged law: root PROGRESS/QA absent, frozen "
       f"copies in archive/ · worklog entries={len(wl_tasks)} · truth checks "
-      f"H/I/J (Phase 215) · K schema hard (Phase 237)")
+      f"H/I/J/K (Phase 215/237) · Phase-274 anti-drift: D2/H4/L/M/N/P/Q/R/T")
 print("=" * 64)
 
 if failures:
@@ -460,5 +721,5 @@ if failures:
 print("\n✓ knowledge operating system consistent (STATE · merged single-"
       "source law · number-free docs · AGENTS structure · frozen archive "
       "· discoverability · worklog order · header truth · archive freeze "
-      "· byte cap + entry schema hard)")
+      "· byte cap + entry schema hard · Phase-274 anti-drift L/M/N/P/Q/R/T)")
 sys.exit(0)

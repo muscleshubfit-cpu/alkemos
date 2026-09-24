@@ -12,8 +12,9 @@ real content libraries, free planning tools, an AI coach (**EVO**), human
 coaching, and an automated bilingual blog — backed by membership tiers, an
 affiliate program, a complete B2B coach system, and a full admin platform.
 
-This repository holds the entire production platform. The code is **public for
-development transparency and auditing — the product itself is proprietary**
+This repository holds the entire production platform. The repository is
+**private** (owner decision 2026-09-24) — the code is **proprietary and
+confidential**, accessible only to owner-authorized collaborators
 (see [License](#-license)).
 
 ---
@@ -227,7 +228,7 @@ Full narrative — what each gate derives and why: [`docs/CI_GATES.md`](./docs/C
 ## 🚀 Getting started
 
 ### Prerequisites
-- **Node.js 18+** (or **Bun 1.3+**)
+- **Node.js 20.9+** (CI runs Node 22 — or **Bun 1.3+**)
 - A **Supabase** project (free tier works)
 - An **OpenRouter** API key (free tier works — the platform uses free models;
   Groq and NVIDIA NIM keys extend the fallback chain)
@@ -235,7 +236,7 @@ Full narrative — what each gate derives and why: [`docs/CI_GATES.md`](./docs/C
 ### Install & run
 
 ```bash
-git clone https://github.com/muscleshubfit-cpu/alkemos.git
+git clone https://github.com/muscleshubfit-cpu/alkemos.git   # private repo — requires owner-granted access
 cd alkemos
 bun install                  # or: npm install
 cp .env.example .env.local   # then fill in your keys
@@ -255,8 +256,8 @@ OPENROUTER_API=sk-or-v1-xxxxxxxxxxxxx
 ```
 
 **Demo mode:** without Supabase variables the app runs on localStorage —
-demo coach `coach@coach.app` / `coach123`, demo client
-`client@demo.app` / `client123`.
+demo coach `ahmed@coach.app` / `coach123`, demo client
+`client@demo.app` / `client123` (seeded in `src/lib/data/auth.ts`).
 
 ### Database setup
 Apply `supabase/migrations/` to your Supabase project (numeric files first,
@@ -295,11 +296,11 @@ dispatch). Site URL, analytics, and ads integrations are env-configured.
 
 This project is **proprietary**. All rights reserved.
 
-The repository is public for development transparency and auditing — the code
-is **NOT open source**. You may read and study it; you may **NOT** redistribute
-it, deploy a competing service, remove the license notice, or use it to train
-commercial code-generation models. Production infrastructure, customer data,
-financial data, and confidential business information are private and never
+The repository is **private** (owner decision 2026-09-24). Access is granted
+solely at the owner's discretion, and the code is **NOT open source** — you may
+NOT redistribute it, deploy a competing service, remove the license notice, or
+use it to train commercial code-generation models. Production infrastructure,
+customer data, financial data, and confidential business information never
 appear in this repository.
 
 Full terms: [`LICENSE`](./LICENSE) · security policy: [`SECURITY.md`](./SECURITY.md) ·

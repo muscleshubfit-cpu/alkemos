@@ -1,9 +1,10 @@
 ALKEMOS — PROPRIETARY SOFTWARE LICENSE
 
-Effective Date: 2026-08-19 (updated 2026-09-06 — brand renamed to Alkemos)
+Effective Date: 2026-08-19 (updated 2026-09-06 — brand renamed to Alkemos;
+updated 2026-09-24 — repository converted to PRIVATE by owner decision)
 Copyright Holder: muscleshubfit@gmail.com (the "Owner")
 Project: Alkemos (formerly MuscleHubEG, publicly branded "MuscleHub")
-Repository: https://github.com/muscleshubfit-cpu/musclehubeg
+Repository: https://github.com/muscleshubfit-cpu/alkemos (private)
 
 ----------------------------------------------------------------------
 
@@ -25,20 +26,23 @@ Repository: https://github.com/muscleshubfit-cpu/musclehubeg
 
 ----------------------------------------------------------------------
 
-2. PUBLIC REPOSITORY DOES NOT GRANT A LICENSE
+2. RESTRICTED ACCESS — NO LICENSE GRANTED
 
-   The Owner has chosen to publish the Software's source code in a
-   public Git repository at the URL listed above for the purposes of:
+   The Owner keeps the Software's source code in a PRIVATE Git
+   repository at the URL listed above. Access is granted by the Owner
+   at its sole discretion, for the purposes of:
 
      (a) Development collaboration with AI agents and human contributors
          explicitly authorized by the Owner;
-     (b) Transparency and auditing of the Software's behavior;
-     (c) Educational reference for the development community.
+     (b) Auditing and review of the Software's behavior;
+     (c) Reference for contributors authorized by the Owner.
 
-   The public availability of the source code does NOT constitute a
-   grant of any license or right to use, copy, modify, merge, publish,
-   distribute, sublicense, sell, or deploy the Software for any purpose
-   other than as expressly authorized in writing by the Owner.
+   Access to the source code does NOT constitute a grant of any license
+   or right to use, copy, modify, merge, publish, distribute,
+   sublicense, sell, or deploy the Software for any purpose other than
+   as expressly authorized in writing by the Owner. The repository was
+   public until 2026-09-24; that historical availability granted no
+   rights then and grants none now.
 
    The Software is NOT open source. No license is granted under any
    open-source license, including but not limited to the MIT License,
@@ -50,10 +54,11 @@ Repository: https://github.com/muscleshubfit-cpu/musclehubeg
 3. PERMITTED USES
 
    The following uses are permitted WITHOUT explicit written
-   authorization, subject to the conditions in §4 below:
+   authorization, subject to the conditions in §4 below, and solely
+   within the scope of the access granted by the Owner:
 
    (a) Reading, studying, and discussing the source code for
-       educational or evaluative purposes;
+       evaluative purposes by persons with authorized access;
    (b) Submitting issues, pull requests, or patches back to the
        original repository, which the Owner may accept or reject at
        its sole discretion;
@@ -168,6 +173,6 @@ For permission requests, questions, or to report unauthorized use,
 contact:
 
   Owner: muscleshubfit@gmail.com
-  Project: https://github.com/muscleshubfit-cpu/musclehubeg
+  Project: https://github.com/muscleshubfit-cpu/alkemos
 
 ----------------------------------------------------------------------

@@ -1,7 +1,11 @@
 # Developer Guide — Alkemos
 
-> **آخر تحديث:** 2026-09-20 (P2-7 من خطة تقوية الاستعادة — إصلاح انحراف B9: مثال المنطقة في §10 sin1→fra1 وفق الحاكم vercel.json · آخر إعادة هيكلة كبرى 2026-09-03 Phase 112)
+> **آخر تحديث:** 2026-09-24 (DOC-REMEDIATION-274 — تنفيذ خطة التقرير الخارجي: §5/§9/§11/§12 صارت إحالات لمصادرها الحاكمة، شجرة §2 لمجموعات المسارات، بريد الديمو ahmed@، متطلب Node 20.9+؛ سابقًا 2026-09-20 P2-7)
+> **وظيفة الملف:** onboarding المطور + المعمارية والتدفقات والمراجع السريعة فقط
 > **الجمهور المستهدف:** مطورين جدد ينضمون للمشروع، أو المطور الحالي كمرجع
+> **أين تعدَّل معلوماته:** أي تغيير معمارية/تدفق/متطلب يحدّث القسم المعني بنفس الفريم (AGENTS.md §3.8)
+> **مصادر الحقيقة المرتبطة:** `package.json` + `bun.lock` (الاعتماديات) · `src/lib/memberships.ts` + `src/lib/tier-limits.ts` (الباقات والحصص) · `DESIGN.md` (الهوية والألوان) · `AGENTS.md` §8 (طبقة AI) · `STATE.md` (الأرقام الحية)
+> **المالك:** muscleshubfit@gmail.com · **دورية المراجعة:** شهرية + بعد كل موجة تطوير كبيرة
 > **المرجع التقني العميق:** [`docs/TECH_REFERENCE.md`](./docs/TECH_REFERENCE.md) — بنية Supabase وقانون الميجريشنز وجداول القواعد الخاصة · شرح RLS التفصيلي (predicates · نمط الأدوار v2 · عوالم المال) · قائمة Shadcn كاملة بأسمائها · كل أكواد SQL المعقدة منظمة. الملف ده بيفضل مختصص: الإعداد والتدفقات والمراجع السريعة فقط.
 > **Note (Phase 7):** Several stale claims in this file were reconciled
 > against the actual source code. Look for `> **Phase 7 correction:**`
@@ -32,7 +36,7 @@
 ### المتطلبات
 
 ```bash
-node --version   # 18+ أو استخدم Bun
+node --version   # 20.9+ (بوابة الجودة تعمل بـ Node 22 — أو استخدم Bun)
 bun --version    # 1.3+
 git --version    # أي إصدار حديث
 ```
@@ -44,6 +48,10 @@ git clone https://github.com/muscleshubfit-cpu/alkemos.git
 cd alkemos
 bun install
 ```
+
+> **المستودع خاص** (قرار المالك 2026-09-24): الاستنساخ يتطلب حسابًا بصلاحية وصول من المالك على GitHub.
+
+> **المستودع خاص** (قرار المالك 2026-09-24): الاستنساخ يتطلب حسابًا بصراحة وصول من المالك على GitHub.
 
 ### متغيرات البيئة
 
@@ -63,7 +71,7 @@ OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxx
 ```
 
 بدون هذه المتغيرات، يعمل الموقع في **demo mode** (localStorage):
-- Coach تجريبي: `coach@coach.app` / `coach123`
+- Coach تجريبي: `ahmed@coach.app` / `coach123` (المصدر: البذر في `src/lib/data/auth.ts`)
 - Client تجريبي: `client@demo.app` / `client123`
 
 ### تشغيل البيئة التطويرية
@@ -107,51 +115,32 @@ bun run lint     # ESLint
 
 ```
 src/
-├── app/                         # Next.js App Router
-│   ├── (app)/                   # Route group — محمي بـ auth gate
-│   │   ├── layout.tsx           # Auth gate: يتحقق من تسجيل الدخول
-│   │   ├── dashboard/           # لوحة تحكم العضو
-│   │   ├── coach/               # لوحة الكوتش (العملاء + صفحة عامة + محفظة + أفيليت + إعلانات + دعم)
-│   │   ├── plans/               # خطط العضو
-│   │   ├── progress/            # تتبع التقدم
-│   │   ├── questionnaires/      # الاستبيانات
-│   │   ├── referral/           # لوحة أرباح الإحالات
-│   │   └── support/            # الدعم الفني
-│   ├── admin/                   # لوحة الأدمن — محمية بـ AdminGate (admin-only، المدرب يُحوّل لـ /coach)
-│   │   ├── admin-gate.tsx       # حارس الواجهة: غير الأدمن يُردّ لمكانه + API نفسه requireAdmin (403)
-│   │   ├── external-plans/      # توليد خطط بالـAI لغير الأعضاء + إعادة توليد (وجبة/صنف/يوم/تمرين) + سجل نسخ
-│   │   ├── accounts/            # تعليم حسابات الاختبار + حذف متسلسل
-│   │   ├── assignments/         # تعيين عملاء للمدربين + سجل التفعيلات
-│   │   ├── blog/                # CMS المدونة
-│   │   ├── coach-pages/         # مراجعة صفحات المدربين
-│   │   ├── coach-support/       # صندوق دعم المدربين
-│   │   ├── coach-system/        # مركز موحد لإدارة نظام المدربين
-│   │   ├── leads/               # Leads من الأدوات
-│   │   ├── payments/            # عضويات الموقع (طلبات الدفع اليدوي + استردادات 7 أيام)
-│   │   ├── referrals/           # إدارة الإحالات
-│   │   ├── saved-results/       # نتائج محفوظة لكل المستخدمين
-│   │   └── wallets/             # محافظ المدربين (طلبات الشحن + تعديل يدوي)
+├── app/                         # Next.js App Router — أربع مجموعات مسارات
+│   ├── (en)/                    # الموقع العام الإنجليزي (المرجع)
+│   │   ├── (home)/              # الرئيسية (LandingView)
+│   │   ├── tools/               # الحاسبات المجانية (قائمة الأدوات وعددها بمصدرها الوحيد src/lib/tools-shared.ts)
+│   │   ├── meal-planner/ · ai-meal-planner/ · ai-workout-planner/
+│   │   ├── exercises/ · foods/ · programs/ · diet-plan/
+│   │   ├── blog/ · authors/ · compare/ · collections/
+│   │   ├── muscles/ · equipment/ · faq/ · for-coaches/ · coaches/ · coaching/ · evo/
+│   │   ├── memberships/ · affiliate/ · about/ · contact/ · privacy/ · terms/
+│   │   └── layout.tsx · not-found.tsx
+│   ├── (ar)/ar/                 # المرآة العربية الكاملة RTL (نفس شجرة (en) تحت /ar)
+│   ├── (app)/                   # منطقة التطبيق — layout بـ auth gate
+│   │   ├── (authed)/            # العضو المسجل: dashboard · coach · plans · progress · questionnaires · referral · support
+│   │   ├── admin/               # لوحة الأدمن (AdminGate — أدمن فقط): dashboard · members · clients · coaches · assignments · finances · payments · blog · coach-system · coach-pages · coach-support · external-plans · accounts · leads · referrals · saved-results · wallets · evo-analytics
+│   │   ├── auth/                # تسجيل الدخول/التسجيل/الاستعادة
+│   │   └── checkout/ · profile/ · preview/
 │   ├── api/                     # API Routes (count = code truth — see §8)
-│   │   ├── ai/                  # AI (chat, jobs الطابير + quota, queue-health)
+│   │   ├── ai/                  # AI (chat, jobs الطابور + quota, queue-health)
 │   │   ├── admin/               # Admin (external-plans, accounts, wallets, refunds, staff, blog, …)
 │   │   ├── coach/               # B2B (clients/invite, wallet, subscriptions/activate, support, …)
 │   │   ├── tools/               # Tool endpoints (save-result, save-meal-plan, lead, …)
 │   │   ├── cron/                # Cron (dispatch-pipelines 23:40 UTC + blog p0-p5 + progress-reminder)
 │   │   ├── paypal/              # PayPal (create-order, capture-order, webhook)
 │   │   └── …                    # send-email, food-search, og-image, build-info, …
-│   ├── ar/                      # النسخة العربية (mirror)
-│   ├── blog/                    # المدونة (EN)
-│   ├── checkout/                # صفحة الدفع
-│   ├── coaching/                # صفحة الكوتشينج التسويقية
-│   ├── evo/                     # صفحة EVO التسويقية
-│   ├── exercises/               # مكتبة التمارين
-│   ├── foods/                   # قاعدة الأكلات
-│   ├── meal-planner/            # مخطط الوجبات
-│   ├── memberships/             # صفحة العضويات
-│   ├── tools/                   # 5 حاسبات
-│   ├── profile/                 # الملف الشخصي
-│   ├── layout.tsx               # Root layout (providers + analytics + PWA)
-│   └── metadata.ts              # SEO metadata شاملة
+│   ├── globals.css              # رموز النظام البصري (الحاكم: DESIGN.md)
+│   └── metadata.ts              # SEO metadata شاملة (+ خرائط sitemap*/rss في جذر app/)
 ├── components/
 │   ├── ui/                      # shadcn/ui primitives — القائمة الكاملة بالأسماء في docs/TECH_REFERENCE.md §3
 │   ├── views/                   # page-level views (منها AdminExternalPlansView — توليد غير الأعضاء)
@@ -297,14 +286,15 @@ the membership_tier field.
 > `src/lib/auth-server.ts`). The `MembershipTier` type is
 > `"free" | "premium" | "pro" | "coaching"` — four tiers only.
 
-### العضويات (4 مستويات)
+### العضويات (الباقات والحصص)
 
-| Tier | شهري | سنوي | EVO | خطط/شهر | حفظ نتائج | PDF | إعلانات |
-|---|---|---|---|---|---|---|---|
-| Free | $0 | $0 | 10/يوم | 0 | 3 | ❌ | ✅ |
-| Premium | $14.99 | $119 | غير محدود | 3 | 50 | ✅ | ✅ |
-| Pro | $29.99 | $239 | غير محدود | 6 | 200 | ✅ | ❌ |
-| Coaching | $39.99 | $359 | غير محدود | غير محدود | غير محدود | ✅ | ❌ |
+> **قانون المصدر الواحد (AGENTS.md §3.8):** هذا الدليل لا يحمل أي رقم متغير —
+> الأسعار والباقات والحصص بيتها الوحيد:
+> **[`src/lib/memberships.ts`](src/lib/memberships.ts)** (تعريف الباقات والأسعار)
+> + **[`src/lib/tier-limits.ts`](src/lib/tier-limits.ts)** (محرّك الحصص: البوول
+> الشهري الموحد لتوليد الخطط — تغذية وتمارين من رصيد واحد نجاح-فقط — + حصص
+> التبديلات وحدود حفظ النتائج). الجدول المكافئ في `README.md` يُشتق منهما
+> أيضًا. أي سؤال «كم حصة/كم سعر؟» جوابه المباشر من هذين الملفين.
 
 ---
 
@@ -341,20 +331,14 @@ EvoFloatingWidget / ChatView (UI)
 > (توجيه المالك #4). كان يسمح بمسح صفوف chat_messages التي كان العداد
 > القديم يعتمد عليها → تجاوز الحد اليومي.
 
-### السلسلة المتشابكة (أقوى نموذج أولاً)
+### السلسلة المتشابكة
 
-1. `openrouter nvidia/nemotron-3-ultra-550b-a55b:free` (الأضخم — 550B)
-2. `groq openai/gpt-oss-120b`
-3. `openrouter google/gemma-4-31b-it` (عربي ممتاز)
-4. `groq openai/gpt-oss-20b`
-5. `openrouter google/gemma-4-26b-a4b-it`
-6. `groq qwen/qwen3.6-27b`
-7. `openrouter nvidia/nemotron-3-super-120b-a12b:free`
-8. `openrouter nvidia/nemotron-3.5-lightning:free`
-9. `groq compound-beta`
-
-المحادثة تستخدم maxModels=3؛ باقي المسارات maxModels=2 مع ضمانة أن
-maxModels × timeoutMs ≤ 52 ثانية داخلياً في `ai-provider.ts`.
+> **قائمة الموديلات الحية بيتها الوحيد:** `src/lib/ai-provider.ts` (سلسلة
+> متشابكة openrouter ↔ groq ↔ nvidia، أقوى نموذج أولاً) — والقانون الكامل
+> بمزوديه الثلاثة ومسارَيه القانونيين: `AGENTS.md` §8. البنية الثابتة فقط
+> موثقة هنا: المحادثة تستخدم maxModels=3؛ باقي المسارات maxModels=2 مع
+> ضمانة أن maxModels × timeoutMs ≤ 52 ثانية داخلياً في `ai-provider.ts`
+> (سقف دوال Vercel serverless).
 
 ### Subscriber Gating (المرحلة 183 «البوول الموحد»)
 
@@ -503,50 +487,17 @@ State tracked in blog_generation_queue table (one row per language).
 
 ---
 
-## 9. الاعتماديات الكاملة (Dependencies)
+## 9. الاعتماديات (Dependencies)
 
-### Production Dependencies
+> **قانون المصدر الواحد (AGENTS.md §3.8):** حُذف جدولا الاعتماديات من هذا
+> الدليل (كانا قد انجرفا عن الحقيقة — إصلاح م-03/ت-4). البيت الوحيد
+> للاعتماديات وإصداراتها: **[`package.json`](package.json)** و`bun.lock`
+> (التثبيت المقفل — نفس الشجرة التي تبني منها CI وVercel). ملاحظات قراءة:
+> primitives ‏Radix UI تُستورد كحزم مستقلة تحت `@radix-ui/*` (عددها الحي
+> بpackage.json)، وجرد طبقة shadcn/ui الكامل بأسمائه في
+> `docs/TECH_REFERENCE.md` §3، والتثبيت في CI/التشغيل دائمًا
+> `bun install --frozen-lockfile`.
 
-| الحزمة | الإصدار | الوظيفة |
-|---|---|---|
-| `next` | ^16.1.1 | Framework |
-| `react` / `react-dom` | ^19.0.0 | UI |
-| `@supabase/ssr` | ^0.12.4 | Supabase auth (cookie-based) |
-| `@supabase/supabase-js` | ^2.111.0 | Supabase client + admin |
-| `tailwindcss` | ^4 | Styling |
-| `@radix-ui/*` | 28 packages | Headless UI primitives |
-| `framer-motion` | ^13.1.0 | Animations (مُعطّلة حالياً) |
-| `recharts` | ^3.10.1 | Charts (lazy-loaded) |
-| `lucide-react` | ^0.525.0 | Icons |
-| `react-hook-form` | ^7.60.0 | Forms |
-| `zod` | ^4.0.2 | Schema validation |
-| `react-markdown` | ^10.1.0 | Blog markdown rendering |
-| `@vercel/analytics` | ^2.0.1 | Pageview analytics |
-| `sonner` | ^2.0.6 | Toast notifications |
-| `zustand` | ^5.0.6 | State management |
-| `@tanstack/react-query` | ^5.82.0 | Async data fetching |
-| `@tanstack/react-table` | ^8.21.3 | Data tables |
-| `date-fns` | ^4.1.0 | Date utilities |
-| `embla-carousel-react` | ^8.6.0 | Testimonials carousel |
-| `vaul` | ^1.1.2 | Drawer component |
-| `cmdk` | ^1.1.1 | Command palette |
-| `class-variance-authority` | ^0.7.1 | Component variants |
-| `clsx` | ^2.1.1 | Class merging |
-| `@fontsource/inter` | ^5.3.0 | Inter font |
-| `@fontsource/cairo` | ^5.3.0 | Cairo font (Arabic) |
-| `next-themes` | ^0.4.6 | Theme switching |
-| `z-ai-web-dev-sdk` | ^0.0.18 | Z.AI SDK |
-
-### Dev Dependencies
-
-| الحزمة | الإصدار | الوظيفة |
-|---|---|---|
-| `typescript` | ^5 | Type checking |
-| `eslint` / `eslint-config-next` | ^9 / ^16 | Linting |
-| `@tailwindcss/postcss` | ^4 | Tailwind PostCSS plugin |
-| `@types/react` / `@types/react-dom` | ^19 | React types |
-| `bun-types` | ^1.3.4 | Bun runtime types |
-| `tw-animate-css` | ^1.3.5 | Tailwind animation utilities |
 
 ---
 
@@ -593,7 +544,7 @@ State tracked in blog_generation_queue table (one row per language).
 
 | النوع | الحالة |
 |---|---|
-| Unit tests (vitest) | ✅ 18 ملف اختبار / 191 حالة — `npx vitest run` (منقح 2026-09-02) |
+| Unit tests (vitest) | ✅ تعمل — `npx vitest run` (عدد الملفات/الحالات الحية ببيتها الوحيد STATE.md «ملخص جودة المرحلة» — ممنوع تثبيتها هنا بقانون الأرقام §3.8) |
 | Integration tests | ❌ غير موجود |
 | E2E tests | ❌ غير موجود |
 | Type checking | ✅ مُفعّل (0 errors — `tsc --noEmit` clean, `@ts-nocheck` removed, `ignoreBuildErrors` NOT in `next.config.ts`) |
@@ -627,89 +578,46 @@ bun run build
 - **Hooks:** `use-kebab-case.tsx` (مثل `use-auth.tsx`, `use-membership-tier.ts`)
 - **Libs:** `kebab-case.ts` (مثل `ai-provider.ts`, `blog-pipeline.ts`)
 
-### الـ Colors المستخدمة (Tailwind CSS 4)
+### الـ Colors (نظام الهوية)
 
-```css
-/* Primary palette — Apple-inspired */
---primary: #0071e3;     /* أزرق Apple */
---background: #ffffff;
---foreground: #1d1d1f;
---card: #f5f5f7;
---muted: #6e6e73;
---border: #d2d2d7;
---success: #34c759;     /* أخضر */
---warning: #ff9500;     /* برتقالي */
---danger: #ff3b30;      /* أحمر */
---purple: #8b5cf6;      /* بنفسجي (Coaching) */
-```
+> **حُذف قسم الألوان الثابتة من هذا الدليل** (كان لنظام Apple الأزرق ما قبل
+> إعادة التصميم البصري — إصلاح م-03/ت-6، وكان يحمل إحالة ميتة إلى
+> DESIGN.md §2.2). النظام الحالي **«Marble & Chrome»** برموز CSS متغيرة في
+> `src/app/globals.css`، وبيته الحاكم: **[`DESIGN.md`](DESIGN.md)** — السلم
+> اللوني الكامل (عاجي دافئ/غرافيتي/كروم دافئ)، الوضعان الداكن والفاتح
+> مواطنان متساويان، والاستثناء اللوني الوحيد `--ai` سيان لأسطح مساعد
+> الذكاء الاصطناعي. أي قيمة لونية في كود جديد تُشتق من رموز `globals.css`
+> لا من قيم ثابتة.
 
-### الـ `PALETTE` Const — Landing page (Phase 12 — 2026-08-26)
+### الـ AI Layer (المسار الموحد)
 
-`src/components/views/LandingView.tsx` يحتوي على `const PALETTE = { ... }`
-مستقل عن `globals.css`. هذا ليس بديلاً عن الـ Primary palette، بل
-**مكمِّل** له — يُستخدم فقط للعناصر التي تحتاج `inline style={{}}`
-(hover effects, dynamic shadows, badges, price pills).
-
-| Token | Hex | الاستخدام | الـ contrast |
-|---|---|---|---|
-| `PALETTE.surface` | `#FDFCFE` | خلفية الكروت (أبيض نقي) | — |
-| `PALETTE.tint` | `#F5F7FC` | خلفية الكروت الثانوية | — |
-| `PALETTE.textPrim` | `#1D252E` | h1/h2/h3 (أزرق داكن بديل الأسود) | 15:1 AAA |
-| `PALETTE.textSec` | `#4A5260` | النص الوصفي/الـ body | 7.5:1 AAA |
-| `PALETTE.textMuted` | `#6E6E73` | footer/legal فقط (AA مقبول) | 4.5:1 AA |
-| `PALETTE.brand` | `#0071e3` | خلفية الأزرار الصلبة فقط | — |
-| `PALETTE.brandDeep` | `#0F5BB5` | روابط نصية على خلفية فاتحة | 7.3:1 AAA |
-| `PALETTE.brandSoft` | `#E9F2FD` | خلفية badges/pills | — |
-| `PALETTE.border` | `#D2D2D7` | حدود Apple الرمادية | — |
-
-**قاعدة:** إذا العنصر على landing page ويحتاج hover effect أو box-shadow
-ديناميكي → استخدم `PALETTE.*` عبر `style={{}}`. إذا العنصر ثابت
-(`bg-white`, `text-[#1d1d1f]`) → استخدم Tailwind classes العادية.
-
-**مرجع كامل:** `DESIGN.md` §2.2 (الجدول الكامل + الـ contrast ratios).
-
-### الـ AI Model Selection
-
-مبدأ موحد في كل الموقع: `callAIWithFallback` يجرب النماذج بالترتيب من الأكبر للأصغر:
-1. nvidia/nemotron-3-ultra-550b (الأضخم)
-2. → fallback إلى 5 نماذج أصغر
-
-> **Phase 7 note (2026-08-19):** `src/lib/ai-provider.ts` supports
-> SIX providers, not just OpenRouter: openrouter, openai, gemini,
-> anthropic, groq, deepseek. Switching providers is a config change
-> (env var or in-app AI Settings page) — no code changes required.
-> The default is `openrouter`. Provider-specific quirks (Anthropic
-> and Gemini don't support `response_format`, some reasoning models
-> put text in `reasoning_details` instead of `content`) are handled
-> in `callAI()`.
-
-### الـ AI Provider Pattern (Phase 6 — 2026-08-19)
-
-طبقة AI موحدة (`callAI` هي المدخل العام) — أهم الدوال وحالات استخدامها (منقح 2026-09-02):
+> **المزودون ثلاثة فقط:** OpenRouter + Groq + NVIDIA NIM — القانون الكامل
+> (المساران القانونيان، تدوير المزود الرائد، ميزانية الـ52 ثانية) بيتُه
+> **`AGENTS.md` §8**، والتنفيذ وخريطة الموديلات الحية بيتُها
+> **`src/lib/ai-provider.ts`**. خلاصة الدوال:
 
 | الدالة | متى تستخدمها | السلوك |
 |---|---|---|
-| `callAI(prompt, options)` | المدخل العام الموحد | يوجّه لمزود OpenRouter/Groq بحسب الإعدادات |
-| `callAIWithFallback(prompt, options)` | **Plans, Articles, Research** — جودة عالية | Sequential — يجرب النموذج الأكبر الأول ثم ينتقل للتالي عند الفشل |
-| `callFreeOpenRouterRace(prompt, options, raceCount)` | **EVO chat, Swap** — سرعة فائقة | Parallel — يستدعي نماذج بالتوازي ويرجع أول رد ناجح |
-| `callFreeAIFallbackChain()` | Local fallback | مولّد محلي حتمي عند فشل كل المزودات |
+| `callAI(prompt, options)` | المدخل العام الموحد | موجّه لمزود واحد بالإعدادات — أخطاء صادقة (لا تبديل صامت بين المزودين) |
+| `callAIWithFallback(prompt, options)` | **Plans, Articles, Research** — جودة عالية | Sequential — أقوى نموذج أولاً ثم التالي عند الفشل |
+| `callFreeAIFallbackChain(prompt, options)` | **EVO chat وكل المسارات المجانية** | سلسلة متشابكة ثلاثية المزودين (openrouter ↔ groq ↔ nvidia) بميزانية مقيدة ≤52s |
+| `callFreeOpenRouterRace(prompt, options, raceCount)` | **التبديلات (Swap) فقط** — سرعة | سباق توازي — أول رد ناجح يفوز |
+| local fallback (`src/lib/ai-local.ts`) | فشل كل المزودات | مولّد محلي حتمي لتدهور رشيق |
 
 ```typescript
-import { callAIWithFallback, callFreeOpenRouterRace } from "@/lib/ai-provider";
-
-// للسرعة (chat, swap):
-const { text, model } = await callFreeOpenRouterRace(prompt, {
-  temperature: 0.6,
-  maxTokens: 500,
-  timeoutMs: 15_000,  // أقل من 60s عشان Vercel Hobby
-}, 3);  // race count
-
 // للجودة (plans, articles):
+import { callAIWithFallback } from "@/lib/ai-provider";
 const { text, model } = await callAIWithFallback(prompt, {
   temperature: 0.7,
   maxTokens: 4000,
   jsonMode: true,
   timeoutMs: 52_000,  // clamp ≤52s
+});
+
+// للمحادثة (EVO chat — سلسلة متشابكة، ليس سباقًا):
+import { callFreeAIFallbackChain } from "@/lib/ai-provider";
+const { text, model } = await callFreeAIFallbackChain(prompt, {
+  maxModels: 3,        // budget: maxModels × timeoutMs ≤ 52s (داخلي)
 });
 ```
 
@@ -823,4 +731,4 @@ hop — منذ pipeline v2/v3)، لكن إعادة المحاولة ما زال�
 
 ---
 
-سياسة الأرشفة: يتم نقل أي مرحلة (Phase) أقدم من 6 مراحل إلى مجلد archive/ بشكل دوري تلقائي.
+سياسة الأرشفة: النافذة الحية بworklog.md (أحدث 12 مدخلًا + ذيل التاريخ المتدحرج) والذيل الأقدم يدور حرفيًا إلى `archive/WORKLOG_ARCHIVE.md` (المرحلة 237)؛ ولقطات docs/ التاريخية المتقاعدة تنزل إلى `docs/archive/`.

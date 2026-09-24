@@ -1,4 +1,4 @@
-# Migration Index — MuscleHub EG
+# Migration Index — Alkemos
 
 > **قاعدة ملزمة:** كل تهجيرة جديدة تُضاف هنا في نفس الـ commit.
 > الفحص المرجعي: `scripts/migration_audit.py` (Phase 96) يقارن

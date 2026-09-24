@@ -5,8 +5,9 @@
 > (plan: `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md`).
 > **Law:** any new documentation file lands WITH its row here in the SAME commit (§3.8 parity);
 > a status that stops being true is a bug — the §12.5.2 audit re-verifies this table.
+> **Ph 274 (2026-09-24 — DOC-REMEDIATION):** every row's Last-updated was re-derived against `git log` for its file; the two HISTORICAL snapshots relocated to `docs/archive/`; `scripts/docs_audit.py` now ENFORCES this table (paths exist · row date never older than the file's last commit) — registry drift fails the push.
 > **Agent session reading budget (§3.6, sized after the Phase-235 de-dup):**
-> `STATE.md` (~22 KB) → `AGENTS.md` §1–§4 + §12 (~39 KB) → top-3 `worklog.md` entries (~130 lines)
+> `STATE.md` (~30 KB) → `AGENTS.md` §1–§4 + §12 (~39 KB) → top-3 `worklog.md` entries (~130 lines)
 > → everything else ON DEMAND via STATE's source-of-truth map. Do not read this file top-to-bottom
 > in a normal session — jump to the row you need.
 
@@ -14,14 +15,14 @@
 
 | File | Role | Status | Last updated | Law-ref |
 |---|---|---|---|---|
-| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-19 (Ph 237) | §3.6/§3.8 |
-| `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-19 (Ph 237) | §1–§12.10 |
-| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-19 (Ph 237 rotation) | §12.5.1 |
-| `README.md` | Front door + feature law surface | LIVE | 2026-09-19 (Ph 239 — public-interface rewrite: current-Alkemos-only, number-law + STATE-link preserved) | §3.8 |
-| `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-19 (Ph 233) | — |
-| `SECURITY.md` | Security policy | LIVE | 2026-09-18 | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-23 (VRD-V5 — full rewrite to the post-redesign system: single-token architecture, C-18 closure) | — |
-| `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-08-21 | §12.5 exception |
+| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-24 (Ph 274) | §3.6/§3.8 |
+| `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-24 (Ph 274 — §1 visibility law: PRIVATE · §12.5.2 archive pointer) | §1–§12.10 |
+| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-24 (Ph 274 — 273 entry relocated to top + dated; undated-ID escape closed by docs_audit) | §12.5.1 |
+| `README.md` | Front door + feature law surface | LIVE | 2026-09-24 (Ph 274 — private-repo wording · Node 20.9+ · demo email ahmed@) | §3.8 |
+| `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
+| `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-24 (269 §7.1/§7.4 homepage updates · VRD-V5 full rewrite 2026-09-23: single-token architecture, C-18 closure) | — |
+| `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-09-05 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |
 | `archive/PROGRESS_ARCHIVE.md` · `archive/WORKLOG_ARCHIVE.md` · `archive/QA_CHECKLIST_ARCHIVE.md` | Append-only history overflow | ARCHIVE — append-only (received the pre-2026-09-10 worklog tail — Phase-237 rotation, verbatim) | — | §3.8 |
@@ -30,19 +31,19 @@
 
 | File | Role | Status | Last updated |
 |---|---|---|---|
-| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-19 (Ph 236) |
-| `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-18 |
-| `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-19 (Ph 234 + 237 hardening) |
+| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-24 (Ph 274 — dates re-derived vs git + archive moves + gate enforcement) |
+| `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-20 |
+| `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan + §12 execution log (log is append-only) | LIVE | 2026-09-16 |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE | 2026-08-25 |
 | `docs/SEO-SCHEMA-REFERENCE.md` | SEO schema reference | LIVE | 2026-09-15 |
 | `docs/SEO-CWV-THRESHOLDS.md` | CWV thresholds reference (static) | LIVE | 2026-08-25 |
 | `docs/EVO-MASTER-PLAN.md` | EVO plan (EVO-6 partner API removed; decisions §7) | LIVE | 2026-09-10 |
-| `docs/_AUDIT.md` | Historical audit snapshot | **HISTORICAL** (2026-08-25) — retired as the operative procedure by Ph 236 (§12.5.2 now points here) | 2026-09-01 |
-| `docs/_NAV_MAP.md` | Historical navigation snapshot | **HISTORICAL** (2026-08-25) | 2026-09-01 |
-| `docs/DEEP-AUDIT-PLAN-2026-09-16.md` | Point-in-time remediation plan | **EXECUTED** (waves 215–217) | 2026-09-13 |
+| `docs/archive/_AUDIT.md` | Historical audit snapshot | **HISTORICAL** (2026-08-25) — retired as the operative procedure by Ph 236; relocated to docs/archive/ by Ph 274 | 2026-09-24 |
+| `docs/archive/_NAV_MAP.md` | Historical navigation snapshot | **HISTORICAL** (2026-08-25) — relocated to docs/archive/ by Ph 274 | 2026-09-24 |
+| `docs/DEEP-AUDIT-PLAN-2026-09-16.md` | Point-in-time remediation plan | **EXECUTED** (waves 215–217) | 2026-09-16 |
 | `docs/DEEP-AUDIT-REPORT-2026-09-16.md` | Point-in-time deep audit | **EXECUTED** (findings 4–24 remediated 215–217) | 2026-09-16 |
-| `docs/VERCEL-USAGE-AUDIT-2026-09-16.md` | Point-in-time Vercel usage audit | **EXECUTED** (items 1–4; §5.4/§9 updated by VERCEL-USAGE-4 2026-09-19) | 2026-09-19 |
+| `docs/VERCEL-USAGE-AUDIT-2026-09-16.md` | Point-in-time Vercel usage audit | **EXECUTED** (items 1–4; §5.4/§9 updated by VERCEL-USAGE-4 2026-09-19) | 2026-09-21 |
 | `docs/DEEP-UX-AUDIT-REPORT-2026-09-18.md` | Point-in-time UX audit | **EXECUTED/CLOSED** (items closed by Phases 225–229) | 2026-09-18 |
 | `docs/UI-AUDIT-HOMEPAGE.md` | Point-in-time UI audit | **EXECUTED** (STATE entry 198) | 2026-09-14 |
 | `docs/UI-IMPLEMENTATION-PLAN.md` | Point-in-time UI plan | **EXECUTED** | 2026-09-14 |
@@ -69,7 +70,7 @@
 | `docs/RECOVERY-OTP-MODE-2026-09-22.md` | OTP recovery mode (owner order «نفذ خيار otp»): 6-digit code entry on /auth/reset (device-independent, survives SafeLinks), recovery-otp.ts normalization/validation +11 tests, GoTrue live error-string mapping, bilingual ready-to-paste Supabase email template §2 + owner test guide §5 | **EXECUTED** (app b53ad590+69d56619; template applied programmatically via owner sbp_ PAT — reverse-read verified, otp_length 8→6 aligned) | 2026-09-22 |
 | `docs/ADMIN-DASH-246-2026-09-22.md` | Owner 4-item report (dashboard-vs-table client count · dead receipt button · admin sees every notification · dashboards reorg «مريح ومنظم بلا تكرار»): canonical getAdminClientsStats everywhere, receipt viewing via authorized /api/file proxy (receipt-view.ts), GET /api/notifications/admin filtered feed + role-aware bell + 3 broadcast redirects, admin dashboard attention-strip + grouped KPIs, live-proven with a real admin session | **EXECUTED** (f08d263a + 101a3559; live-verified) | 2026-09-22 |
 | `docs/DASH-WAVE-247-2026-09-22.md` | Remaining-improvements wave over 246 (owner order «راجع خطة التنفيذ ثم ابدأ المتبقى من قائمة التحسينات»): member dashboard to the admin standard (conditional attention strip · honest sub status pills · first-run 3-step card · daily quick actions incl. deep-linked weight logging · member-side HealthMetricsDashboard · skeleton+error states) + subscription-view/weight-summary pure laws (were written 4×/3× with clashing colors) + CoachView canonical pending banner & honest «…» stats & missing/error split (no silent N+1 downgrade) + remaining silent-failure sweep (admin bell hang · dead plan-file click · refund degraded note · payments tab badge · coaches subtitle) + WeightChart twin merge | **EXECUTED** (92e0977d; live-verified EN/AR member session + admin session — LIVE-VERIF entry) | 2026-09-22 |
-| `docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md` | Visual redesign audit + implementation plan (owner order 2026-09-23, fresh session): full visual/UX/UI/copy audit of the live homepage (EN/AR × light/dark × 1440/390, DOM measurements, network evidence, VLM passes) — 18 confirmed problems (incl. the AR hero H1 font-fallback live bug), Gemini-claim verification matrix (5 confirmed / 4 partial / 3 refuted), preserve-vs-replace triage (dual light/dark asset system proven zero-waste → preserved; marble textures + meander dividers → replaced), color proposal (light+dark equal citizens, full token table), RTL typography systemic fix, card/grid/header/footer/CTA/copy strategies, waves V0–V5 with gates, risks/rollback, explicit NOT-to-implement list + §25 owner decisions record (bronze O-4 REJECTED → monochrome Chrome/Silver + Graphite + Ivory, no new accent; marble removal pulled into V1) | LIVE (V0 EXECUTED 2026-09-23 phase 259 — RTL Cairo fix + a11y, canary rtl-typography.test.ts · V1 EXECUTED 2026-09-23 phase 261 — warm ivory/graphite tokens + chrome warm retune + button restyle + marble removal + dark shim + `scripts/v1_contrast_matrix.py` gate · **V2 EXECUTED 2026-09-23 phase 262** — footer mobile 1,273→668px via two native <details> groups + href-sync canary + header nav spacing + cookie-bar glass w/ worst-case contrast gates; meander KEPT per §25 · **V3 EXECUTED 2026-09-23 phase 263** — hero 56vh stage + stacked CTAs · chips scroll-snap row · path-cards density (818→547px) · CTA standard 48/52·44/48 · memberships asymmetry O-3 · unified .card-lift hover + mobile rhythm (static core 9,474px EN/9,257px AR at 390px); V4–V5 await the owner's order) | 2026-09-23 (V1) |
+| `docs/VISUAL-REDESIGN-AUDIT-2026-09-23.md` | Visual redesign audit + implementation plan (owner order 2026-09-23, fresh session): full visual/UX/UI/copy audit of the live homepage (EN/AR × light/dark × 1440/390, DOM measurements, network evidence, VLM passes) — 18 confirmed problems (incl. the AR hero H1 font-fallback live bug), Gemini-claim verification matrix (5 confirmed / 4 partial / 3 refuted), preserve-vs-replace triage (dual light/dark asset system proven zero-waste → preserved; marble textures + meander dividers → replaced), color proposal (light+dark equal citizens, full token table), RTL typography systemic fix, card/grid/header/footer/CTA/copy strategies, waves V0–V5 with gates, risks/rollback, explicit NOT-to-implement list + §25 owner decisions record (bronze O-4 REJECTED → monochrome Chrome/Silver + Graphite + Ivory, no new accent; marble removal pulled into V1) | LIVE (V0 EXECUTED 2026-09-23 phase 259 — RTL Cairo fix + a11y, canary rtl-typography.test.ts · V1 EXECUTED 2026-09-23 phase 261 — warm ivory/graphite tokens + chrome warm retune + button restyle + marble removal + dark shim + `scripts/v1_contrast_matrix.py` gate · **V2 EXECUTED 2026-09-23 phase 262** — footer mobile 1,273→668px via two native <details> groups + href-sync canary + header nav spacing + cookie-bar glass w/ worst-case contrast gates; meander KEPT per §25 · **V3 EXECUTED 2026-09-23 phase 263** — hero 56vh stage + stacked CTAs · chips scroll-snap row · path-cards density (818→547px) · CTA standard 48/52·44/48 · memberships asymmetry O-3 · unified .card-lift hover + mobile rhythm (static core 9,474px EN/9,257px AR at 390px); V4 EXECUTED 2026-09-23 phase 265 · V5 EXECUTED 2026-09-23 phase 267 — the VRD program V0–V5 is COMPLETE, see STATE «المفتوح الآن» and DESIGN.md) | 2026-09-23 (V1) |
 
 Other registries (outside `docs/`): `supabase/migrations/INDEX.md` — binding migration ledger (LIVE, guarded by `docs_parity.py`) · `.env.example` — environment reference (LIVE).
 

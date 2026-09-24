@@ -1,6 +1,6 @@
 # SECURITY.md — Alkemos Security Policy
 
-> **Last updated:** 2026-09-22 (improvements batch 245 — FIRST self-serve password-recovery path (forgot-password → /auth/reset) + coach invite-resend route; §7 approval trail: §9-15 · H1-2026 fix — complete-invite adoption auth-flow change: §9-13 · 2026-09-20: Storage privacy-class split — three private buckets /api/file-proxy-only by law, member avatars to the new PUBLIC `avatars` bucket (migration 0090; questionnaire-photos flips private in 0091) — §5 · 2026-09-18: Phase 229 audit m7 «fixed pricing only» + P3-3 deep-audit fixes + Phase 216/217 notes)
+> **Last updated:** 2026-09-24 (DOC-REMEDIATION-274 — repo visibility: PRIVATE by owner decision (§1/§8 updated) · §10 cache table re-derived from `vercel.json` (image-family split) · §11 `is_coach()` corrected to the migration-0029 role model v2 + demo email aligned with `src/lib/data/auth.ts` · previously 2026-09-22 improvements batch 245)
 > **Owner:** muscleshubfit@gmail.com
 > **Reporting security issues:** see §8 below.
 
@@ -12,8 +12,9 @@ for AI agents working on the Alkemos codebase. It complements
 
 ## 1. Threat Model Summary
 
-Alkemos is a public-codebase, production-deployed web app that
-handles:
+Alkemos is a private-codebase (owner decision 2026-09-24 — the repository
+was PUBLIC before that date, so history retains the public era),
+production-deployed web app that handles:
 
 - User authentication (email/password + Google OAuth).
 - Personally identifiable information: email, phone, body metrics,
@@ -23,8 +24,10 @@ handles:
 - AI-generated content (blog articles, plans, chat).
 - A coach-side admin surface with access to all clients' data.
 
-The public repository means **attackers can read all the code**. The
-security model must therefore rely on:
+The repository is private, but defense-in-depth still assumes the code
+COULD leak (it was public until 2026-09-24, and authorized collaborators
+and AI-agent sessions read it). The security model must therefore rely
+on:
 
 1. Server-side enforcement (RLS, route handlers, auth helpers) —
    never trust the client.
@@ -95,8 +98,9 @@ Any of the following:
 1. Stop. Do not push.
 2. Notify the owner immediately.
 3. Rotate the leaked credential at the provider.
-4. Owner cleans git history if needed (rare — usually rotation is
-   sufficient because the repo is public anyway).
+4. Owner cleans git history if needed (rare — rotation is mandatory
+   regardless: the repository was public until 2026-09-24, so any
+   secret that ever touched history must be treated as exposed).
 
 ---
 
@@ -217,7 +221,7 @@ Any of the following:
 ## 6. Production Database Policy
 
 - The production Supabase project URL is hardcoded in
-  `supabase/migrations/RUN_ON_SUPABASE.sql` header comment as
+  `archive/RUN_ON_SUPABASE.sql` header comment as
   `https://supabase.com/dashboard/project/wyopqryzfjifyeyvyxfy/sql/new`.
   This is the dashboard URL, not a connection string — it's safe to
   keep in the repo.
@@ -270,7 +274,8 @@ Alkemos processes the following categories of personal data:
   withdrawal-as-easy-as-giving via the privacy page's "Cookie settings"
   button (`alkemos:consent-reopen`).
 - **GA/AdSense gating (Consent Mode v2):** the `consent-mode-v2` script in
-  `src/app/layout.tsx` renders ALWAYS (independent of `GA_ID` — AdSense is
+  `src/components/root-shell.tsx` renders ALWAYS (independent of
+  `GA_ID` — AdSense is
   the live Google tag in production) and declares
   `gtag('consent', 'default', …denied)` BEFORE any Google tag loads — the
   order Google requires — then applies the visitor's STORED choice
@@ -299,7 +304,7 @@ Alkemos processes the following categories of personal data:
 
 - Supabase region: configured at project creation (the production
   project ref is `wyopqryzfjifyeyvyxfy` — see
-  `supabase/migrations/RUN_ON_SUPABASE.sql` header).
+  `archive/RUN_ON_SUPABASE.sql` header).
 - Vercel deployment region: `fra1` (Frankfurt) — see `vercel.json`
   (P3-3, deep-audit confirmed 20, Phase 217: this line claimed `sin1`
   for months — the doc now matches the actual `regions` field).
@@ -312,9 +317,10 @@ Alkemos processes the following categories of personal data:
 
 If you discover a security vulnerability in Alkemos:
 
-1. **DO NOT open a public GitHub issue.** The repository is public
-   and an attacker could exploit the vulnerability before a fix is
-   deployed.
+1. **DO NOT open a public GitHub issue.** The repository is private
+   (2026-09-24), but disclosure must still stay out of any tracked
+   surface — report privately so a fix can ship before anyone could
+   exploit the vulnerability.
 2. Email the owner directly at `muscleshubfit@gmail.com` with the
    subject line `[SECURITY] Alkemos — <short summary>`.
 3. Include:
@@ -451,13 +457,15 @@ Enforced via `vercel.json`:
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limit referrer leakage to cross-origin requests |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()` | Disable browser APIs the app doesn't use |
 
-Cache headers (set in `vercel.json` + `next.config.ts`):
+Cache headers (set in `vercel.json` + `next.config.ts` — image-family
+split since the VERCEL-USAGE waves):
 
-- `/images/*` → `public, max-age=31536000, immutable` (1 year)
+- `/images/*` → `public, max-age=86400` (24 hours)
+- `/images/exercises/*` → `public, max-age=31536000, immutable` (1 year)
+- `/images/brand/*` → `public, max-age=300, stale-while-revalidate=604800`
 - `/_next/static/*` → `public, max-age=31536000, immutable` (1 year)
 - `/_next/image*` → `public, max-age=86400` (24 hours)
-- Root static files (`sitemap.xml`, `robots.txt`, `manifest.json`,
-  `sw.js`, favicons, etc.) → `public, max-age=86400, must-revalidate`
+- `/sw.js` → `public, max-age=0, must-revalidate` (always revalidated)
 
 ### Cloudflare — the OFFICIAL production HTML cache layer (P1-5, owner decision 2026-09-16 «اعتمد الخيار (ب)»)
 
@@ -522,8 +530,9 @@ source):
   the failure mode if middleware is missing).
 - Session refresh handled in middleware on every request.
 - Demo mode (no Supabase env vars): two seeded demo accounts
-  (`coach@coach.app` / `coach123`, `client@demo.app` / `client123`)
-  backed by localStorage.
+  (`ahmed@coach.app` / `coach123`, `client@demo.app` / `client123`)
+  backed by localStorage (single source: the seed in
+  `src/lib/data/auth.ts`).
 
 ### Authorization
 
@@ -555,8 +564,12 @@ source):
 - **RLS:** every table in the database has RLS policies enforced.
   See `DEVELOPER_GUIDE.md` §4 for the per-table policy summary.
 - **`is_coach()` SQL function:** SECURITY DEFINER function used by
-  RLS policies to check `profiles.role = 'coach'`. Defined in
-  migration `0002_blog_posts_and_is_coach_grant.sql`.
+  RLS policies to check staff status: `profiles.role IN ('coach',
+  'admin')` (ROLE MODEL v2 — migration 0029 redefined it from the v1
+  coach-only form; migration 0002 only granted EXECUTE). NEVER rewrite
+  policies back to `= 'coach'` only. Full predicate set
+  (`is_coach`/`is_admin`/`is_coach_over`/`coach_of`):
+  `docs/TECH_REFERENCE.md` §2.2.
 
 ### Coach Self-Registration (2026-08-29, migration 0036)
 

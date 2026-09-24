@@ -1,7 +1,7 @@
 # AGENTS.md — Alkemos AI Agent Operating System
 
 > **Status:** Active — required reading for every AI agent (and human contributor) before any commit, PR, or production change.
-> **Last updated:** 2026-09-21 (VERCEL-USAGE-6: §10 gains the deploy-skip law — docs-only commits carry `[vercel skip]` so Vercel skips the build; rationale + owner backstops in audit doc §10.7).
+> **Last updated:** 2026-09-24 (DOC-REMEDIATION-274 — §1 repo visibility law: PRIVATE by owner decision (was public) · §12.5.2 audit pointer follows `_AUDIT.md` to `docs/archive/`; previously 2026-09-21 VERCEL-USAGE-6 deploy-skip law §10).
 > **Owner:** muscleshubfit@gmail.com (project owner + human supervisor).
 > **Deep technical detail** (Supabase · full RLS · migration law · special-rules tables · storage · Shadcn inventory · SQL snippets) lives in [`docs/TECH_REFERENCE.md`](docs/TECH_REFERENCE.md); the CI-gates narrative lives in [`docs/CI_GATES.md`](docs/CI_GATES.md). This file stays the LAW file.
 
@@ -9,7 +9,7 @@
 
 ## 1. Purpose
 
-Operating rules for AI agents on Alkemos: the repo is **public** as code, **proprietary** as a product, **production-deployed** (real customers, payments, PII) and **agent-assisted**. Agents are implementers and reviewers — never autonomous product owners: they execute well-scoped tasks, document the work, and hand control back to a human supervisor.
+Operating rules for AI agents on Alkemos: the repo is **private** (owner decision 2026-09-24 — it was public before; history retains the public era, and the code is still treated as leakable), **proprietary** as a product, **production-deployed** (real customers, payments, PII) and **agent-assisted**. Agents are implementers and reviewers — never autonomous product owners: they execute well-scoped tasks, document the work, and hand control back to a human supervisor.
 
 ---
 
@@ -252,7 +252,7 @@ Rules: the `---` separator before each entry is mandatory (append-only log); `Ta
 
 #### 12.5.2 Periodic Documentation Audit (Cadence)
 
-A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
+A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/archive/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
 
 ### 12.6 Duplicate Tasks
 
