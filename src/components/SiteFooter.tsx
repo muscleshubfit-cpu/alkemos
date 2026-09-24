@@ -33,6 +33,16 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  * tagline is the owner's pair: EN "Built with care for the fitness
  * community" · AR "صُنع بعناية لمجتمع اللياقة".
  *
+ * HOME-REFINE-271 (owner order 2026-09-24: «الفوتر محتاج اختصار ما يمكن
+ * اختصاره» — shorten what can be shortened): every list is trimmed to
+ * its PRIMARY entry points (27 → 18 links). The dropped surfaces are
+ * all still one tap away — the header's desktop nav + drawer carry
+ * the muscle/equipment hubs, the meal planner, the food collections,
+ * the five individual tools, and EVO — while the footer-only pages
+ * (About / Contact / FAQ / Privacy / Terms) and the compare vertical
+ * stay. The five individual tool links collapse into ONE «كل الأدوات»
+ * hub link.
+ *
  * Placement law: render AFTER the page's <main> inside the
  * min-h-screen flex-col wrapper (mt-auto keeps it pinned to the bottom).
  *
@@ -49,7 +59,7 @@ export function SiteFooter() {
   const isAr = lang === "ar";
 
   return (
-    <footer className="footer-marble relative mt-auto px-4 pb-10 pt-12 text-[var(--muted-foreground)]">
+    <footer className="footer-marble relative mt-auto px-4 pb-8 pt-10 text-[var(--muted-foreground)]">
       {/* mt-auto: inside the flex-col min-h-screen page shells (static
           pages, blog, contact, compare) the footer sticks to the bottom
           when content is short; inside plain block containers (homepage,
@@ -105,60 +115,50 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* List 1: TRAINING (Phase 202 service map — same links as the
-              old Resources list, grouped under the service the visitor
-              comes to use). */}
+          {/* List 1: TRAINING (HOME-REFINE-271: trimmed to the two primary
+              entry points — the muscle/equipment hub families live in the
+              header's Training nav, one tap away). */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
-              <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="block py-1 hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
-              <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="block py-1 hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
-              {/* Access-point fix (2026-09-14 audit): locale-aware programs
-                  link. */}
               <li><a href={isAr ? "/ar/programs" : "/programs"} className="block py-1 hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
             </ul>
           </div>
 
-          {/* List 2: NUTRITION (Phase 202 service map — foods, meal
-              planner, diet plans, collections). */}
+          {/* List 2: NUTRITION (HOME-REFINE-271: trimmed — the meal
+              planner and the food collections live in the header's
+              Nutrition nav). */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
-              {/* §12.27: locale-aware mirrors + the diet-plan matrix entry. */}
-              <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
+              {/* §12.27: the diet-plan matrix entry. */}
               <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="block py-1 hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
-              <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="block py-1 hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
             </ul>
           </div>
 
-          {/* List 3: TOOLS & AI (Phase 202 service map — the free tools
-              cluster + the AI planners; exact same links as the old Tools
-              list). */}
+          {/* List 3: TOOLS & AI (HOME-REFINE-271: the five individual
+              tool links collapse into ONE hub link — the header's Tools
+              nav carries each tool directly; the two AI planners stay
+              as the flagship services). */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
-              <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
-              <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع شرب الماء" : "Water Tracker"}</a></li>
+              <li><a href={isAr ? "/ar/tools" : "/tools"} className="block py-1 hover:underline">{isAr ? "كل الأدوات المجانية" : "All Free Tools"}</a></li>
               <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
               <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="block py-1 hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
             </ul>
           </div>
 
-          {/* List 4: COACHING & SERVICES (Phase 202 service map — the
-              coaching service + the secondary surfaces: memberships,
-              EVO, affiliate, for-coaches; exact same links as the old
-              sales + partners lists). */}
+          {/* List 4: COACHING & SERVICES (HOME-REFINE-271: EVO dropped
+              here — the floating widget on every page + the header's AI
+              nav + the homepage EVO section carry it; the rest stays). */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
-              <li><a href={isAr ? "/ar/evo" : "/evo"} className="block py-1 hover:underline">EVO AI Coach</a></li>
               {/* §12.53 item 11 (2026-09-16): locale-aware affiliate link —
                   the AR mirror exists now. */}
               <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
@@ -188,11 +188,11 @@ export function SiteFooter() {
             homepage body into the SHARED footer; this is now the SINGLE
             newsletter surface, present on every public page (same form,
             same /api/tools/lead pipeline, tool_slug="newsletter"). */}
-        <div className="mx-auto mt-10 max-w-md border-t border-[var(--edge)] pt-8">
+        <div className="mx-auto mt-8 max-w-md border-t border-[var(--edge)] pt-6">
           <NewsletterForm variant="footer" />
         </div>
 
-        <div className="mt-8 border-t border-[var(--edge)] pt-4 text-center text-[10px] text-[var(--muted-foreground)]">
+        <div className="mt-6 border-t border-[var(--edge)] pt-3 text-center text-[10px] text-[var(--muted-foreground)]">
           {/* Phase 202 (owner order 2026-09-15): the footer tagline —
               EN "Built with care for the fitness community" ·
               AR "صُنع بعناية لمجتمع اللياقة" (VRD-V4 K-4 — «بحب» ← «بعناية»

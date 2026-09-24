@@ -491,6 +491,56 @@
 }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+/* HOME-REFINE-271 F1 — .chips-row (RESTORED from the 269 living-product
+   rebuild, verbatim recipe): the interactive library browser's muscle
+   chips. Desktop: centered wrap row. Touch (below md): the chips collapse
+   to ONE horizontal scroll-snap rail — no wrapping, no orphaned last chip,
+   symmetric edge fade masks (RTL-safe — both edges fade identically), snap
+   targets on each chip, and .scrollbar-none's sibling rules keep the rail
+   invisible. Chips never shrink and never break their label internally. */
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+@media (max-width: 767.98px) {
+  .chips-row {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-inline: 0.25rem;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 24px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .chips-row > * {
+    scroll-snap-align: start;
+    /* The row never wraps, so a chip must neither shrink (the count
+       pill would squeeze) nor break its label internally — the muscle
+       chip (VRD-V3's «بطن/كور», renamed «كور» by VRD-V4 K-5) measured
+       wrapping to 2 lines inside a 74px pill without this. */
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
 /* HOME-REDESIGN-256 — EVO section warrior-art mask (revives the Phase 127
    .evo-hero-card recipe for the new homepage EVO section): the art sits on
    the INLINE-END side of the card and dissolves into the marble on its

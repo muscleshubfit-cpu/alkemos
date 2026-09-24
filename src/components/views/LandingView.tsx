@@ -12,10 +12,13 @@ import {
 } from "@/components/ui/accordion";
 import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPostCard } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
-import { EXERCISES_COUNT } from "@/lib/exercises-shared";
+import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
 import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
+import { ensureGuestId } from "@/lib/plan-persistence";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { getFallbackSVG } from "@/lib/exercise-images";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import {
   workoutEquipmentOptions,
@@ -70,6 +73,19 @@ const PALETTE = {
 const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
+// The seven muscle families the interactive library browser exposes
+// (labels mirror the hub's own vocabulary; «كور» keeps the plain
+// transliterated register — VRD-V4 K-5). HOME-REFINE-271 F1: restored.
+const MUSCLE_TABS = [
+  { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
+  { labelAr: "ظهر", labelEn: "Back", slug: "back" },
+  { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
+  { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
+  { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
+  { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
+  { labelAr: "كور", labelEn: "Core", slug: "core" },
+] as const;
+
 // ============================================================
 // HOME-REFINE-270 (owner directive 2026-09-24 — the nine-point
 // homepage refinement of the living-product rebuild):
@@ -101,6 +117,25 @@ const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 //   R8. The repetitive final CTA band is removed entirely.
 //   R9. The footer is flat: no disclosure groups — every link
 //       visible and organized at every breakpoint (SiteFooter).
+//
+// HOME-REFINE-271 (owner follow-up 2026-09-24 — four corrections on
+// top of the nine):
+//   F1. The exercise-library directive was a misorder: the
+//       INTERACTIVE muscle-group browser (مكتبة التمارين) is RESTORED
+//       as its own section (#library, where the programs grid was),
+//       and the READY-MADE PROGRAMS (برامج التمارين الجاهزة) take the
+//       pre-blog carousel slot (#train).
+//   F2. The EVO section is CONCISE: a two-turn demo, and NO artwork
+//       under the copy (the desktop warrior side-art stays).
+//   F3. #plan is TRULY interactive like the tools («حقيقى تفاعلى مثل
+//       الادوات»): both builders call the REAL generation endpoints
+//       (/api/ai/workout-plan-demo · /api/ai/meal-plan-demo — the
+//       unified free pool, guests included) and render the generated
+//       plan in-page; changing any choice returns the card to its
+//       live preview (a rendered plan always matches the choices).
+//   F4. The footer is SHORTENED (SiteFooter): every list trimmed to
+//       its primary entry points — the header nav already carries
+//       the dropped surfaces (27 → 18 links).
 //
 // The 269 laws that still hold: fitness-math.ts stays the single
 // calculator source; the EVO demo stays labeled + hands off to the
@@ -503,29 +538,22 @@ function HomeCalculator({ isAr }: { isAr: boolean }) {
 //    hands off to the REAL floating widget — the EVO CHAT SURFACE
 //    LAW holds (this is a demonstration, never a second input).
 function EvoConversation({ isAr }: { isAr: boolean }) {
+  // HOME-REFINE-271 F2: the demo is CONCISE — one question, one
+  // answer that carries real numbers (the owner's «مختصر» directive;
+  // the four-turn exchange is retired).
   const turns = isAr
     ? [
         { who: "user", text: "هدفي خسارة الدهون مع الحفاظ على العضلات. ما الذي يصلح لعشائي الليلة؟" },
         {
           who: "evo",
-          text: "وجبة تناسب هدفك: 200 جرام صدر دجاج مشوي مع 150 جرام أرز أبيض وسلطة خضراء — نحو 520 سعرة و52 جرام بروتين. أخبرني بوزنك وأيام تدريبك وسأبني لك خطة الأسبوع كاملة.",
-        },
-        { who: "user", text: "وزني 84 كجم، وأتدرب أربعة أيام في الأسبوع." },
-        {
-          who: "evo",
-          text: "تم. سعراتك اليومية الآن 2,150 سعرة مع 170 جرام بروتين — تكفي للحفاظ على عضلاتك أثناء خسارة الدهون. خطتك جاهزة، ويمكنك تعديل أي وجبة بتبديل ذكي.",
+          text: "وجبة تناسب هدفك: 200 جرام صدر دجاج مشوي مع 150 جرام أرز وسلطة خضراء — نحو 520 سعرة و52 جرام بروتين. أخبرني بوزنك وأيام تدريبك وسأبني لك خطة الأسبوع كاملة.",
         },
       ]
     : [
         { who: "user", text: "I want to lose fat without losing muscle. What works for tonight's dinner?" },
         {
           who: "evo",
-          text: "A meal that fits your goal: 200 g grilled chicken breast with 150 g white rice and a green salad — roughly 520 kcal and 52 g protein. Tell me your weight and training days and I'll build your whole week.",
-        },
-        { who: "user", text: "I'm 84 kg and I train four days a week." },
-        {
-          who: "evo",
-          text: "Done. Your daily target is now 2,150 kcal with 170 g protein — enough to protect muscle while you cut. Your plan is ready, and you can adjust any meal with a smart swap.",
+          text: "A meal that fits your goal: 200 g grilled chicken breast with 150 g rice and a green salad — roughly 520 kcal and 52 g protein. Tell me your weight and training days and I'll build your whole week.",
         },
       ];
 
@@ -793,33 +821,34 @@ const WORKOUT_SPLITS: Record<
   },
 };
 
-// The nutrition goal → calorie direction, mirroring the REAL goal
-// adjustment of the plan generator (plan-generator.ts: weight loss
-// −20% · muscle gain +10% · maintain 0%) — stated as direction,
-// never as an invented number.
-const MEAL_GOAL_DIRECTIONS: Record<
-  FitnessGoal,
-  { labelAr: string; labelEn: string; dirAr: string; dirEn: string }
-> = {
-  lose: {
-    labelAr: "خسارة وزن",
-    labelEn: "Lose weight",
-    dirAr: "حوالي 20% تحت سعرات صيانة وزنك",
-    dirEn: "roughly 20% below your maintenance calories",
-  },
-  maintain: {
-    labelAr: "تثبيت الوزن",
-    labelEn: "Maintain",
-    dirAr: "على سعرات صيانة وزنك تقريبًا",
-    dirEn: "right around your maintenance calories",
-  },
-  gain: {
-    labelAr: "زيادة وزن",
-    labelEn: "Gain weight",
-    dirAr: "حوالي 10% فوق سعرات صيانة وزنك",
-    dirEn: "roughly 10% above your maintenance calories",
-  },
-};
+// ── The REAL generation payload shapes (HOME-REFINE-271 F3) —
+//    mirrors of the validated API responses, kept local and plain
+//    (the homepage renders them; it never imports the server
+//    modules). ──
+type HomeLibraryMatch = { slug: string; name: string; category: string; image: string };
+type HomeWorkoutExercise = { name: string; sets: number; reps: number | string; library?: HomeLibraryMatch | null };
+type HomeWorkoutDay = { name: string; focus?: string; exercises: HomeWorkoutExercise[] };
+type HomeWorkoutPlan = { days: HomeWorkoutDay[] };
+type HomeMealItem = { food: string; grams: number; kcal: number };
+type HomeMeal = { name: string; items: HomeMealItem[]; kcal: number };
+type HomeMealPlan = { meals: HomeMeal[]; kcal: number };
+type HomeQuota = { used: number; limit: number; remaining: number };
+
+// Reads the quota object the demo routes return (never throws — a
+// missing quota is simply not displayed).
+function readQuota(raw: unknown): HomeQuota | null {
+  if (!raw || typeof raw !== "object") return null;
+  const q = raw as { used?: unknown; limit?: unknown; remaining?: unknown };
+  if (typeof q.limit !== "number" || typeof q.remaining !== "number") return null;
+  return { used: typeof q.used === "number" ? q.used : 0, limit: q.limit, remaining: q.remaining };
+}
+
+// The quota chip line (the same honest register as the tool pages).
+function quotaLine(quota: HomeQuota, isAr: boolean) {
+  return isAr
+    ? `رصيد الشهر: ${quota.remaining} متبقٍ من ${quota.limit}`
+    : `This month: ${quota.remaining} of ${quota.limit} left`;
+}
 
 // The small segmented control used across both builders (the same
 // visual register as the calculator's controls — one product).
@@ -831,8 +860,16 @@ function planSegmented(active: boolean) {
   }`;
 }
 
-// Card A — the interactive WORKOUT-plan builder.
-function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
+// Card A — the REAL workout-plan builder (HOME-REFINE-271 F3: «قسم
+// التخطيط الذكى اجعله حقيقى تفاعلى مثل الادوات» — the card runs the
+// SAME generation engine as the tool: the button calls
+// /api/ai/workout-plan-demo (the unified free pool — guests included,
+// no signup wall) and the generated week renders HERE in-page. Before
+// generating, the live split preview answers instantly from the real
+// planner vocabulary; after generating, changing any choice returns
+// the card to the preview so a rendered plan always matches the
+// CURRENT selections — never a stale generation.)
+function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: boolean }) {
   // The vocabulary arrives from the REAL planner module (single
   // source — the homepage labels can never drift from the tool).
   const goals = workoutGoalOptions(isAr ? "ar" : "en");
@@ -843,11 +880,57 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
   const [level, setLevel] = useState(levels[0]?.slug ?? "beginner");
   const [days, setDays] = useState(3);
   const [equip, setEquip] = useState(equipment[2]?.slug ?? "full-gym");
+  // The REAL generation state (same semantics as the tool page).
+  const [plan, setPlan] = useState<HomeWorkoutPlan | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [quota, setQuota] = useState<HomeQuota | null>(null);
 
   const split = WORKOUT_SPLITS[days] ?? WORKOUT_SPLITS[3];
   const goalLabel = goals.find((g) => g.slug === goal)?.label ?? "";
   const levelLabel = levels.find((l) => l.slug === level)?.label ?? "";
   const equipLabel = equipment.find((e) => e.slug === equip)?.label ?? "";
+
+  // Any selection change returns the card to the live preview.
+  const pickGoal = (v: typeof goal) => { setGoal(v); setPlan(null); setError(null); };
+  const pickLevel = (v: typeof level) => { setLevel(v); setPlan(null); setError(null); };
+  const pickDays = (v: number) => { setDays(v); setPlan(null); setError(null); };
+  const pickEquip = (v: typeof equip) => { setEquip(v); setPlan(null); setError(null); };
+
+  const generate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const guestId = isLoggedIn ? undefined : ensureGuestId() || undefined;
+      const res = await fetch("/api/ai/workout-plan-demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          goal,
+          level,
+          days,
+          equipment: equip,
+          language: isAr ? "ar" : "en",
+          guestId,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(
+          data?.error ||
+            (isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again."),
+        );
+        setQuota(readQuota(data?.quota));
+        return;
+      }
+      setPlan(data?.plan as HomeWorkoutPlan);
+      setQuota(readQuota(data?.quota));
+    } catch {
+      setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="marble-card flex h-full flex-col p-5 md:p-7">
@@ -859,8 +942,8 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
       </div>
       <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
-          ? "حدّد اختياراتك وشاهد هيكل أسبوعك يتشكل فورًا."
-          : "Set your choices and watch your week take shape instantly."}
+          ? "حدّد اختياراتك ثم أنشئ خطتك — تتولّد هنا في الصفحة في ثوانٍ."
+          : "Set your choices and generate — it builds right here in seconds."}
       </p>
 
       {/* Controls — the real planner vocabulary */}
@@ -871,7 +954,7 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
           </p>
           <div className="flex flex-wrap gap-2">
             {goals.map((g) => (
-              <button key={g.slug} type="button" onClick={() => setGoal(g.slug)} className={planSegmented(goal === g.slug)}>
+              <button key={g.slug} type="button" onClick={() => pickGoal(g.slug)} className={planSegmented(goal === g.slug)}>
                 {g.label}
               </button>
             ))}
@@ -884,7 +967,7 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
             </p>
             <div className="flex flex-wrap gap-2">
               {levels.map((l) => (
-                <button key={l.slug} type="button" onClick={() => setLevel(l.slug)} className={planSegmented(level === l.slug)}>
+                <button key={l.slug} type="button" onClick={() => pickLevel(l.slug)} className={planSegmented(level === l.slug)}>
                   {l.label}
                 </button>
               ))}
@@ -899,7 +982,7 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
                 <button
                   key={d}
                   type="button"
-                  onClick={() => setDays(d)}
+                  onClick={() => pickDays(d)}
                   aria-pressed={days === d}
                   className={`grid min-w-11 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
                     days === d
@@ -919,7 +1002,7 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
           </p>
           <div className="flex flex-wrap gap-2">
             {equipment.map((e) => (
-              <button key={e.slug} type="button" onClick={() => setEquip(e.slug)} className={planSegmented(equip === e.slug)}>
+              <button key={e.slug} type="button" onClick={() => pickEquip(e.slug)} className={planSegmented(equip === e.slug)}>
                 {e.label}
               </button>
             ))}
@@ -927,61 +1010,199 @@ function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
         </div>
       </div>
 
-      {/* The live preview — the structure answers instantly */}
+      {/* The answer area — the generated week once it exists, the
+          live structure preview before that. */}
       <div
         className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
         aria-live="polite"
       >
-        <div key={`${days}-${goal}`} className="swap-fade">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "هيكل أسبوعك" : "Your week's structure"}
-          </p>
-          <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-            {isAr ? `${days} أيام — ${split.nameAr}` : `${days} days — ${split.nameEn}`}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {(isAr ? split.daysAr : split.daysEn).map((d, i) => (
-              <span key={i} className="seal-chip py-1! text-[11px]!">
-                {isAr ? `اليوم ${i + 1}` : `Day ${i + 1}`}
-                <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-                {d}
-              </span>
-            ))}
+        {plan ? (
+          <div key="generated" className="swap-fade">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+              {isAr ? `خطتك المولّدة — ${plan.days.length} أيام` : `Your generated week — ${plan.days.length} days`}
+            </p>
+            <div className="mt-3 space-y-3">
+              {plan.days.map((d) => (
+                <div key={d.name} className="rounded-xl border border-[var(--edge)] bg-[var(--card)] p-3.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                      {d.name}
+                    </p>
+                    {d.focus && (
+                      <span className="text-xs font-normal" style={{ color: PALETTE.textSec }}>
+                        {d.focus}
+                      </span>
+                    )}
+                  </div>
+                  <ul className="mt-1.5 divide-y divide-[var(--edge)]/60">
+                    {d.exercises.map((ex, i) => {
+                      const lib = ex.library ?? null;
+                      const href = lib ? `${isAr ? "/ar" : ""}/exercises/${lib.slug}` : null;
+                      return (
+                        <li key={`${ex.name}-${i}`} className="flex items-center gap-3 py-2 text-sm font-normal">
+                          {lib && href ? (
+                            <>
+                              <a href={href} className="shrink-0" tabIndex={-1} aria-hidden="true">
+                                <span className="block h-11 w-11 overflow-hidden rounded-lg border border-[var(--edge)]/60 bg-[var(--card)]">
+                                  <ImageWithFallback
+                                    src={lib.image}
+                                    alt=""
+                                    width={44}
+                                    height={44}
+                                    className="h-11 w-11 object-contain"
+                                    fallbackSrc={getFallbackSVG(lib.category)}
+                                  />
+                                </span>
+                              </a>
+                              <a
+                                href={href}
+                                className="min-w-0 flex-1 font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+                                style={{ color: PALETTE.textPrim }}
+                              >
+                                {ex.name}
+                              </a>
+                            </>
+                          ) : (
+                            <span className="min-w-0 flex-1" style={{ color: PALETTE.textSec }}>
+                              {ex.name}
+                            </span>
+                          )}
+                          <span className="whitespace-nowrap text-xs font-semibold" style={{ color: PALETTE.textSec }} dir="ltr">
+                            {ex.sets} × {ex.reps}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+              {isAr
+                ? "الحركات المرتبطة من مكتبة التمارين تفتح صفحة شرحها الكامل — والنظام تقدير تعليمي قابل للنسخ."
+                : "Linked movements open their full how-to page in the exercise library — the split is a copyable educational estimate."}
+            </p>
+            <a
+              href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}
+              className="mt-2 inline-flex text-xs font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: PALETTE.textPrim }}
+            >
+              {isAr ? "افتح الأداة الكاملة للحفظ والتصدير ›" : "Open the full tool to save & export ›"}
+            </a>
           </div>
-          <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-            {isAr
-              ? `${goalLabel} · ${levelLabel} · ${equipLabel}`
-              : `${goalLabel} · ${levelLabel} · ${equipLabel}`}
+        ) : (
+          <div key={`${days}-${goal}`} className="swap-fade">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "هيكل أسبوعك" : "Your week's structure"}
+            </p>
+            <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+              {isAr ? `${days} أيام — ${split.nameAr}` : `${days} days — ${split.nameEn}`}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(isAr ? split.daysAr : split.daysEn).map((d, i) => (
+                <span key={i} className="seal-chip py-1! text-[11px]!">
+                  {isAr ? `اليوم ${i + 1}` : `Day ${i + 1}`}
+                  <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
+                  {d}
+                </span>
+              ))}
+            </div>
+            <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+              {`${goalLabel} · ${levelLabel} · ${equipLabel}`}
+            </p>
+          </div>
+        )}
+        {/* The generate row — the REAL engine call (unified pool). */}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={generate}
+            disabled={loading}
+            className="btn-chrome px-6 py-3 text-sm disabled:opacity-50 md:text-base"
+          >
+            {loading
+              ? isAr ? "جارٍ إنشاء خطتك…" : "Building your plan…"
+              : plan
+                ? isAr ? "ولّد خطة أخرى" : "Generate another"
+                : isAr ? "أنشئ خطة التمارين" : "Create my workout plan"}
+          </button>
+          {quota && quota.limit > 0 && (
+            <span className="text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+              {quotaLine(quota, isAr)}
+            </span>
+          )}
+        </div>
+        {error && (
+          <p role="alert" className="mt-3 text-sm font-medium text-[#ff3b30]">
+            {error}
           </p>
-        </div>
-        <p className="mt-4 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-          {isAr
-            ? "الخطة الكاملة — التمارين والمجموعات والتكرارات — يبنيها الذكاء الاصطناعي حول هذه الاختيارات في الأداة."
-            : "The full plan — exercises, sets, and reps — is built by AI around these choices inside the tool."}
-        </p>
-        <div className="mt-4">
-          <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
-            {isAr ? "أنشئ خطة التمارين" : "Create my workout plan"}
-            <span className="rtl:rotate-180" aria-hidden="true">›</span>
-          </a>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Card B — the interactive NUTRITION-plan builder.
-function MealPlanBuilder({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
+// Card B — the REAL nutrition-plan builder (HOME-REFINE-271 F3):
+// calorie level (the REAL matrix levels, 1200→3000) + diet system →
+// the button calls /api/ai/meal-plan-demo (the unified free pool)
+// and the generated DAY renders in-page — meals, items, grams, and
+// kcal, the same engine as the tool. Before generating, the REAL
+// matrix split previews live; changing any choice returns the card
+// to the preview (a rendered plan always matches the choices).
+function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; isAr: boolean; isLoggedIn: boolean }) {
   const systems = samples.dietSystems;
-  const [goal, setGoal] = useState<FitnessGoal>("lose");
+  const levels = samples.dietLevels;
+  const [calories, setCalories] = useState(levels.includes(2000) ? 2000 : (levels[3] ?? levels[0] ?? 2000));
   const [systemSlug, setSystemSlug] = useState(systems[0]?.slug ?? "balanced");
+  // The REAL generation state (same semantics as the tool page).
+  const [plan, setPlan] = useState<HomeMealPlan | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [quota, setQuota] = useState<HomeQuota | null>(null);
+
   const system: HomeDietSystemSample | undefined =
     systems.find((s) => s.slug === systemSlug) ?? systems[0];
-  const goalInfo = MEAL_GOAL_DIRECTIONS[goal];
 
   const maxSplit = system
     ? Math.max(system.split.protein, system.split.carbs, system.split.fat)
     : 1;
+
+  // Any selection change returns the card to the live preview.
+  const pickCalories = (v: number) => { setCalories(v); setPlan(null); setError(null); };
+  const pickSystem = (v: string) => { setSystemSlug(v); setPlan(null); setError(null); };
+
+  const generate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const guestId = isLoggedIn ? undefined : ensureGuestId() || undefined;
+      const res = await fetch("/api/ai/meal-plan-demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          calories,
+          system: systemSlug,
+          language: isAr ? "ar" : "en",
+          guestId,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(
+          data?.error ||
+            (isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again."),
+        );
+        setQuota(readQuota(data?.quota));
+        return;
+      }
+      setPlan(data?.plan as HomeMealPlan);
+      setQuota(readQuota(data?.quota));
+    } catch {
+      setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="marble-card flex h-full flex-col p-5 md:p-7">
@@ -993,20 +1214,31 @@ function MealPlanBuilder({ samples, isAr }: { samples: HomeSamples; isAr: boolea
       </div>
       <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
-          ? "اختر هدفك ونظامك الغذائي وشاهد توزيع ماكروزك."
-          : "Pick your goal and your diet system, and watch your macro split."}
+          ? "اختر سعراتك ونظامك الغذائي ثم أنشئ خطتك — يوم كامل بالوجبات والغرامات."
+          : "Pick your calories and diet system, then generate — a full day of meals in grams."}
       </p>
 
       {/* Controls */}
       <div className="mt-5 space-y-4">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "هدفك" : "Your goal"}
+            {isAr ? "سعراتك اليومية" : "Your daily calories"}
           </p>
           <div className="flex flex-wrap gap-2">
-            {(Object.keys(MEAL_GOAL_DIRECTIONS) as FitnessGoal[]).map((g) => (
-              <button key={g} type="button" onClick={() => setGoal(g)} className={planSegmented(goal === g)}>
-                {isAr ? MEAL_GOAL_DIRECTIONS[g].labelAr : MEAL_GOAL_DIRECTIONS[g].labelEn}
+            {levels.map((lv) => (
+              <button
+                key={lv}
+                type="button"
+                onClick={() => pickCalories(lv)}
+                aria-pressed={calories === lv}
+                className={`grid min-w-14 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+                  calories === lv
+                    ? "bg-[var(--text)] text-[var(--bg)]"
+                    : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
+                }`}
+                dir="ltr"
+              >
+                {lv.toLocaleString("en-US")}
               </button>
             ))}
           </div>
@@ -1017,7 +1249,7 @@ function MealPlanBuilder({ samples, isAr }: { samples: HomeSamples; isAr: boolea
           </p>
           <div className="flex flex-wrap gap-2">
             {systems.map((s) => (
-              <button key={s.slug} type="button" onClick={() => setSystemSlug(s.slug)} className={planSegmented(systemSlug === s.slug)}>
+              <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
                 {isAr ? s.nameAr : s.nameEn}
               </button>
             ))}
@@ -1025,63 +1257,130 @@ function MealPlanBuilder({ samples, isAr }: { samples: HomeSamples; isAr: boolea
         </div>
       </div>
 
-      {/* The live preview — the REAL matrix split answers instantly */}
+      {/* The answer area — the generated day once it exists, the
+          real matrix split preview before that. */}
       <div
         className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
         aria-live="polite"
       >
-        {system && (
-          <div key={system.slug} className="swap-fade">
+        {plan ? (
+          <div key="generated" className="swap-fade">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "توزيع ماكروزك" : "Your macro split"}
+              {isAr ? "يومك المولّد" : "Your generated day"}
             </p>
-            <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-              {isAr ? `النظام ${system.nameAr}` : `The ${system.nameEn} system`}
-            </p>
-            <div className="mt-4 space-y-3">
-              {(
-                [
-                  { key: "protein", labelAr: "بروتين", labelEn: "Protein", pct: system.split.protein },
-                  { key: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", pct: system.split.carbs },
-                  { key: "fat", labelAr: "دهون", labelEn: "Fat", pct: system.split.fat },
-                ] as const
-              ).map((m) => (
-                <div key={m.key}>
-                  <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                    <span className="font-medium" style={{ color: PALETTE.textPrim }}>
-                      {isAr ? m.labelAr : m.labelEn}
-                    </span>
-                    <span className="font-semibold" style={{ color: PALETTE.textSec }}>
-                      {m.pct}%
+            <div className="mt-3 space-y-3">
+              {plan.meals.map((m) => (
+                <div key={m.name} className="rounded-xl border border-[var(--edge)] bg-[var(--card)] p-3.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-sm font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                      {m.name}
+                    </p>
+                    <span className="text-xs font-semibold" style={{ color: PALETTE.textSec }} dir="ltr">
+                      {m.kcal} kcal
                     </span>
                   </div>
-                  <div className="macro-track">
-                    <div
-                      className="macro-fill"
-                      style={{ width: `${Math.max(4, Math.round((m.pct / maxSplit) * 100))}%` }}
-                    />
-                  </div>
+                  <ul className="mt-1.5 divide-y divide-[var(--edge)]/60">
+                    {m.items.map((item, i) => (
+                      <li key={`${item.food}-${i}`} className="flex items-baseline justify-between gap-3 py-1.5 text-sm font-normal">
+                        <span style={{ color: PALETTE.textSec }}>{item.food}</span>
+                        <span className="whitespace-nowrap text-xs" style={{ color: PALETTE.textMuted }} dir="ltr">
+                          {item.grams} g · {item.kcal} kcal
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? `هدفك (${goalInfo.labelAr}): سعراتك المستهدفة ${goalInfo.dirAr}.`
-                : `Your goal (${goalInfo.labelEn}): your target calories sit ${goalInfo.dirEn}.`}
+            <p className="mt-3 flex items-baseline justify-between gap-3 text-sm">
+              <span className="font-semibold" style={{ color: PALETTE.textPrim }}>
+                {isAr ? "إجمالي اليوم" : "Day total"}
+              </span>
+              <span className="chrome-text font-bold" dir="ltr">
+                {plan.kcal} kcal
+              </span>
             </p>
+            <p className="mt-2 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+              {isAr
+                ? "الخطة تقدير تعليمي قابل للنسخ — راجع الكميات وعدّلها على مائدتك، وقِس أثرها بالاتجاه الأسبوعي."
+                : "This plan is a copyable educational estimate — review the portions, adjust them to your table, and measure the weekly trend."}
+            </p>
+            <a
+              href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}
+              className="mt-2 inline-flex text-xs font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: PALETTE.textPrim }}
+            >
+              {isAr ? "افتح الأداة الكاملة للحفظ والتصدير ›" : "Open the full tool to save & export ›"}
+            </a>
           </div>
+        ) : (
+          system && (
+            <div key={system.slug} className="swap-fade">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+                {isAr ? "توزيع ماكروزك" : "Your macro split"}
+              </p>
+              <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                {isAr ? `النظام ${system.nameAr}` : `The ${system.nameEn} system`}
+              </p>
+              <div className="mt-4 space-y-3">
+                {(
+                  [
+                    { key: "protein", labelAr: "بروتين", labelEn: "Protein", pct: system.split.protein },
+                    { key: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", pct: system.split.carbs },
+                    { key: "fat", labelAr: "دهون", labelEn: "Fat", pct: system.split.fat },
+                  ] as const
+                ).map((m) => (
+                  <div key={m.key}>
+                    <div className="mb-1.5 flex items-baseline justify-between text-sm">
+                      <span className="font-medium" style={{ color: PALETTE.textPrim }}>
+                        {isAr ? m.labelAr : m.labelEn}
+                      </span>
+                      <span className="font-semibold" style={{ color: PALETTE.textSec }}>
+                        {m.pct}%
+                      </span>
+                    </div>
+                    <div className="macro-track">
+                      <div
+                        className="macro-fill"
+                        style={{ width: `${Math.max(4, Math.round((m.pct / maxSplit) * 100))}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                {isAr
+                  ? `خطة يوم كامل بالغرامات تُبنى حول ${calories.toLocaleString("en-US")} سعرة عند الضغط على الزر. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه.`
+                  : `A full day of food in grams builds around ${calories.toLocaleString("en-US")} kcal when you press the button. Don't know your number? Use the calculator above.`}
+              </p>
+            </div>
+          )
         )}
-        <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-          {isAr
-            ? "هذا التوزيع هو توزيع النظام الفعلي في المنصة — وخطة وجباتك الكاملة بالغرامات يبنيها الذكاء الاصطناعي في الأداة. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه."
-            : "This split is the system's real split on the platform — and your full meal plan, in grams, is built by AI inside the tool. Don't know your number? Use the calculator above."}
-        </p>
-        <div className="mt-4">
-          <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
-            {isAr ? "أنشئ خطتي" : "Create My Plan"}
-            <span className="rtl:rotate-180" aria-hidden="true">›</span>
-          </a>
+        {/* The generate row — the REAL engine call (unified pool). */}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={generate}
+            disabled={loading}
+            className="btn-chrome px-6 py-3 text-sm disabled:opacity-50 md:text-base"
+          >
+            {loading
+              ? isAr ? "جارٍ إنشاء خطتك…" : "Building your plan…"
+              : plan
+                ? isAr ? "ولّد خطة أخرى" : "Generate another"
+                : isAr ? "أنشئ خطتي" : "Create My Plan"}
+          </button>
+          {quota && quota.limit > 0 && (
+            <span className="text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+              {quotaLine(quota, isAr)}
+            </span>
+          )}
         </div>
+        {error && (
+          <p role="alert" className="mt-3 text-sm font-medium text-[#ff3b30]">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -1354,6 +1653,80 @@ function LandingProgramCard({ prog, isAr }: { prog: HomeProgramSample; isAr: boo
         <p className="chrome-text mt-4 text-sm font-semibold">{isAr ? "استكشف البرنامج ›" : "Explore program ›"}</p>
       </div>
     </a>
+  );
+}
+
+// ── The interactive muscle-group library browser (HOME-REFINE-271
+//    F1 — RESTORED from the living-product rebuild): real curated
+//    samples filtered in-page by muscle group, with a quiet
+//    crossfade on every swap. The chips mirror the hub vocabulary
+//    and carry the VERIFIED per-family counts (the drift-tested
+//    EXERCISE_CATEGORY_COUNTS); the CTA opens the full library. ──
+function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
+  const [cat, setCat] = useState<string>("chest");
+  const filtered = samples.exercises.filter((e) => e.categorySlug === cat);
+
+  return (
+    <div>
+      {/* The muscle chips — the SAME hub vocabulary, now answering */}
+      <div>
+        <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+          {isAr ? "اختر مجموعة عضلية" : "Pick a muscle group"}
+        </p>
+        <div className="chips-row mt-3">
+          {MUSCLE_TABS.map((c) => {
+            const active = c.slug === cat;
+            return (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => setCat(c.slug)}
+                aria-pressed={active}
+                className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
+                style={
+                  active
+                    ? {
+                        background: "var(--text)",
+                        color: "var(--bg)",
+                        borderColor: "var(--text)",
+                      }
+                    : undefined
+                }
+                title={isAr ? `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} exercises`}
+              >
+                {isAr ? c.labelAr : c.labelEn}
+                <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* The live swap — real cards re-render per selection */}
+      {filtered.length > 0 ? (
+        <div key={cat} className="swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {filtered.map((ex) => (
+            <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-7 text-center text-sm" style={{ color: PALETTE.textSec }}>
+          {isAr ? "لا عينات منسقة لهذه المجموعة بعد — افتح المكتبة الكاملة." : "No curated samples for this group yet — open the full library."}
+        </p>
+      )}
+
+      <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? `كل بطاقة تمرين حقيقي من مكتبة ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحته.`
+          : `Every card is a real exercise from the ${EX_PLUS} library — with form photos and clear instructions one tap away.`}
+      </p>
+      <div className="mt-5 text-center">
+        <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
+          {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
+          <span className="rtl:rotate-180" aria-hidden="true">›</span>
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -1663,28 +2036,19 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   <EvoConversation isAr={isAr} />
                 </div>
               </div>
-              {/* Mobile warrior art — a quiet centered cutout under the
-                  copy (the absolute treatment is md+ only, so phone text
-                  never competes with the artwork). */}
-              <div className="mt-8 flex justify-center md:hidden" aria-hidden="true">
-                <ThemeImg
-                  light="/images/brand/evo-hero-light.webp"
-                  dark="/images/brand/evo-hero-dark.webp"
-                  alt=""
-                  width={640}
-                  height={675}
-                  className="h-auto w-40 object-contain opacity-90"
-                />
-              </div>
+              {/* HOME-REFINE-271 F2: the mobile warrior-art cutout under
+                  the copy is REMOVED (the owner's «بدون صورة فى الاسفل»
+                  directive) — the desktop inline-end side art stays. */}
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* ===================== 5. SMART PLANNING — interactive (R5) =====================
-          The rebuilt planning section, exactly as the owner directed:
-          INTERACTIVE like the tools — a workout-plan builder + a
-          nutrition-plan builder, both answering live. EVO is not
+      {/* ===================== 5. SMART PLANNING — REAL generation (R5 + 271 F3) =====================
+          The owner's follow-up directive: the section is TRULY
+          interactive like the tools — both builders call the REAL
+          generation endpoints (the unified free pool, guests
+          included) and render the generated plan in-page. EVO is not
           mentioned here (it owns #evo above) and no coach is
           referenced (online coaching is a separate paid membership —
           the old «مدرب يواكب تقدّمك» framing was wrong and is gone). */}
@@ -1696,12 +2060,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               {isAr ? "التخطيط الذكي" : "SMART PLANNING"}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "خطتك تُبنى حول اختياراتك." : "Your plan is built around your choices."}
+              {isAr ? "خطتك تُبنى هنا — فعلًا." : "Your plan is built right here."}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "جرّبها الآن: حدّد هدفك ومستواك ووقتك ونظامك الغذائي وشاهد خطتك تتشكل هنا — ثم أنشئها كاملة بالذكاء الاصطناعي في ثوانٍ."
-                : "Try it now: set your goal, level, schedule, and diet system, and watch your plan take shape here — then generate the full thing with AI in seconds."}
+                ? "حدّد اختياراتك واضغط زر الإنشاء — خطة كاملة بالتمارين والمجموعات أو بالوجبات والغرامات تتولّد هنا في الصفحة، بنفس محرك الأدوات."
+                : "Set your choices and hit generate — a full plan (exercises and sets, or meals in grams) is created right on this page by the same engine as the tools."}
             </p>
             <p className="mx-auto mt-3 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
               {isAr
@@ -1711,57 +2075,39 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </Reveal>
           <div className="mt-8 grid gap-5 md:mt-10 lg:grid-cols-2">
             <Reveal className="h-full">
-              <WorkoutPlanBuilder isAr={isAr} />
+              <WorkoutPlanBuilder isAr={isAr} isLoggedIn={isLoggedIn} />
             </Reveal>
             <Reveal delay={80} className="h-full">
-              <MealPlanBuilder samples={samples} isAr={isAr} />
+              <MealPlanBuilder samples={samples} isAr={isAr} isLoggedIn={isLoggedIn} />
             </Reveal>
           </div>
         </div>
       </section>
 
-      {/* ===================== 6. TRAIN — the plan world =====================
-          Programs lead: a complete schedule that carries a beginner
-          from day one. The AI-planner CTA pair stays (it reinforces
-          #plan directly above). */}
-      <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      {/* ===================== 6. THE EXERCISE LIBRARY — interactive (271 F1) =====================
+          The RESTORED muscle-group browser (the owner's correction:
+          the interactive مكتبة التمارين returns as its own section — a
+          real filter answering in-page, not a carousel). The chips
+          mirror the hub vocabulary and carry the VERIFIED per-family
+          counts; every card is a real exercise page entry point. */}
+      <section id="library" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "برامج جاهزة" : "READY-MADE PROGRAMS"}
+              {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "خطة كاملة تقودك، أسبوعًا بأسبوع." : "A complete plan to guide you, week by week."}
+              {isAr ? "مكتبة التمارين" : "The exercise library"}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "برامج جاهزة بجدول وتمارين ومجموعات وتكرارات — اتبعها كما هي، أو اجعلها نقطة انطلاق وعدّلها بحسب وقتك ومعداتك."
-                : "Ready-made programs with a schedule, exercises, sets, and reps — follow one as-is, or make it your starting point and adapt it to your time and equipment."}
+                ? "عينة حقيقية من المكتبة — اختر مجموعة عضلية وشاهد البطاقات تتبدل أمامك، وكل تمرين بصفحته وصور الأداء الصحيح."
+                : "A real slice of the library — pick a muscle group and watch the cards swap; every exercise opens its own page with form photos."}
             </p>
           </Reveal>
-          <div className="mt-8 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-3">
-            {samples.programs.map((prog, i) => (
-              <Reveal key={prog.slug} delay={i * 80}>
-                <LandingProgramCard prog={prog} isAr={isAr} />
-              </Reveal>
-            ))}
-          </div>
-          {/* Dual CTA: build your own with AI, or see all programs. */}
-          <Reveal delay={120} className="mt-10 text-center">
-            <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
-              <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
-                {isAr ? "ابنِ خطتك بالذكاء الاصطناعي" : "Build your plan with AI"}
-                <span className="rtl:rotate-180">›</span>
-              </a>
-              <a
-                href={isAr ? "/ar/programs" : "/programs"}
-                className="btn-outline px-6 py-2.5 text-sm font-medium"
-              >
-                {isAr ? "كل البرامج" : "All programs"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-            </div>
+          <Reveal delay={80} className="mt-8 md:mt-10">
+            <LibraryBrowser samples={samples} isAr={isAr} />
           </Reveal>
         </div>
       </section>
@@ -1799,40 +2145,52 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 8. THE EXERCISE LIBRARY — carousel (R4) =====================
-          A blog-style carousel of the real curated exercise samples —
-          every card is a real exercise page entry point. Moved to sit
-          right before the blog (the owner's placement directive). */}
-      <section id="library" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      {/* ===================== 8. READY-MADE PROGRAMS — the carousel (271 F1) =====================
+          The owner's correction: this pre-blog carousel slot carries
+          the READY-MADE PROGRAMS (برامج التمارين الجاهزة) — the same
+          blog-style carousel treatment, real program artwork, and
+          the dual CTA kept (the interactive exercise library lives
+          in its own section above). */}
+      <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
-              {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
+              {isAr ? "برامج جاهزة" : "READY-MADE PROGRAMS"}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "مكتبة التمارين" : "The exercise library"}
+              {isAr ? "برامج التمارين الجاهزة" : "Ready-made training programs"}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "عينة حقيقية من المكتبة — كل تمرين بصفحته وصور الأداء الصحيح وشرح واضح."
-                : "A real slice of the library — every exercise opens its own page with form photos and clear instructions."}
+                ? "برامج جاهزة بجدول وتمارين ومجموعات وتكرارات — اتبعها كما هي، أو اجعلها نقطة انطلاق وعدّلها بحسب وقتك ومعداتك."
+                : "Ready-made programs with a schedule, exercises, sets, and reps — follow one as-is, or make it your starting point and adapt it to your time and equipment."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
-            <CarouselShell isAr={isAr} ariaLabel={isAr ? "عينة من مكتبة التمارين" : "A slice of the exercise library"}>
-              {samples.exercises.map((ex) => (
-                <div key={ex.slug} className="w-60 shrink-0 sm:w-64">
-                  <LandingExerciseCard ex={ex} isAr={isAr} />
+            <CarouselShell isAr={isAr} ariaLabel={isAr ? "برامج التمارين الجاهزة" : "Ready-made training programs"}>
+              {samples.programs.map((prog) => (
+                <div key={prog.slug} className="w-72 shrink-0 md:w-80">
+                  <LandingProgramCard prog={prog} isAr={isAr} />
                 </div>
               ))}
             </CarouselShell>
           </Reveal>
-          <Reveal delay={120} className="mt-8 text-center">
-            <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-              {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
-              <span className="rtl:rotate-180" aria-hidden="true">›</span>
-            </a>
+          {/* Dual CTA: build your own with AI, or see all programs. */}
+          <Reveal delay={120} className="mt-10 text-center">
+            <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
+              <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
+                {isAr ? "ابنِ خطتك بالذكاء الاصطناعي" : "Build your plan with AI"}
+                <span className="rtl:rotate-180">›</span>
+              </a>
+              <a
+                href={isAr ? "/ar/programs" : "/programs"}
+                className="btn-outline px-6 py-2.5 text-sm font-medium"
+              >
+                {isAr ? "كل البرامج" : "All programs"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </a>
+            </div>
           </Reveal>
         </div>
       </section>

@@ -12,19 +12,21 @@ import {
 } from "@/lib/home-samples";
 
 /**
- * HOME-REFINE-270 CANARIES — the nine-point homepage refinement (owner
- * directive 2026-09-24), superseding the HOME-EXPERIENCE-269 pins
- * (the tabbed living-product wrapper).
+ * HOME-REFINE-271 CANARIES — the four-point owner follow-up
+ * (2026-09-24) on top of the HOME-REFINE-270 nine-point refinement.
  *
- * THE REFINED ARC:
+ * THE CORRECTED ARC (F1–F4):
  *   Promise (Hero, TWO CTAs: auth + memberships) → Proof (ONE compact
  *   row) → #start (the calculator, independent) → #evo (EVO, its own
- *   section, warrior art) → #plan (the INTERACTIVE smart-planning
- *   builders: workout + nutrition) → #train (programs) → #eat (the
- *   interactive plate) → #library (exercise CAROUSEL) → #diet (the
- *   ready-made diet-plan library CAROUSEL) → #learn (أحدث المقالات,
- *   latest-first) → #memberships (small cards + coaching card) →
- *   featured coaches → #faq → footer (flat, fully displayed).
+ *   CONCISE section — two-turn demo, no artwork under the copy, the
+ *   desktop warrior side-art stays) → #plan (the smart-planning
+ *   builders, now running the REAL generation endpoints in-page) →
+ *   #library (the RESTORED interactive muscle-group exercise
+ *   browser) → #eat (the interactive plate) → #train (the READY-MADE
+ *   PROGRAMS carousel) → #diet (the ready-made diet-plan library
+ *   carousel) → #learn (أحدث المقالات, latest-first) → #memberships
+ *   (small cards + coaching card) → featured coaches → #faq → footer
+ *   (flat, fully displayed, SHORTENED — 18 primary links).
  *
  * Guards pin:
  *   1) SINGLE-SOURCE PRICING — unchanged law: prices derive from
@@ -34,10 +36,13 @@ import {
  *      (single source; the homepage may never fork the formulas).
  *   3) THE EVO SECTION owns EVO alone: the demo is LABELED illustrative
  *      and hands off to the floating widget (the CHAT SURFACE LAW).
- *   4) THE SMART-PLANNING SECTION (#plan) is interactive and clean:
- *      real planner vocabulary (ai-workout-planner.ts), real matrix
- *      splits, live previews, BOTH planner CTAs — and ZERO EVO or
- *      coach references inside the section (the owner's explicit law).
+ *   4) THE SMART-PLANNING SECTION (#plan) is REAL: both builders call
+ *      the REAL demo endpoints (/api/ai/workout-plan-demo ·
+ *      /api/ai/meal-plan-demo — the unified pool) and render the
+ *      generated plan in-page — real planner vocabulary (ai-
+ *      workout-planner.ts), real matrix levels, live previews, BOTH
+ *      tool CTAs — and ZERO EVO or coach references inside the
+ *      section (the owner's explicit law).
  *   5) The curated samples exist in the LIVE libraries (drift guard)
  *      — 15 exercises, 8 foods, 3 programs, 4 diet systems.
  *   6) The hero drives the account action + the memberships page (the
@@ -51,7 +56,7 @@ const LANDING = "src/components/views/LandingView.tsx";
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
 
-describe("HOME-REFINE-270 — the refined homepage canaries", () => {
+describe("HOME-REFINE-271 — the refined homepage canaries", () => {
   // (1) The memberships section derives every price from the SINGLE
   //     source (memberships.ts) — no price literals, no tier grid, no
   //     subscribe-now sales CTA. The refund line states the REAL policy.
@@ -199,10 +204,12 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
     expect(src).toContain("evo-hero-light.webp");
   });
 
-  // (6) THE SMART-PLANNING SECTION (#plan) — interactive like the
-  //     tools (R5): real planner vocabulary, real matrix splits, live
-  //     previews, both planner CTAs — and NO EVO / NO coach inside.
-  it("the #plan section is the interactive AI planner (workout + nutrition), clean of EVO and coach references", () => {
+  // (6) THE SMART-PLANNING SECTION (#plan) — REAL generation like the
+  //     tools (271 F3): both builders call the REAL demo endpoints and
+  //     render the generated plan in-page — real planner vocabulary,
+  //     real matrix levels, live previews, both tool CTAs — and NO EVO /
+  //     NO coach inside.
+  it("the #plan section runs the REAL AI generation (workout + nutrition), clean of EVO and coach references", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src, "the #plan section is missing").toContain('id="plan"');
     // The vocabulary single source: the homepage imports the REAL
@@ -214,17 +221,24 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
     // Both builders exist.
     expect(src).toContain("function WorkoutPlanBuilder");
     expect(src).toContain("function MealPlanBuilder");
-    // The honest preview law: the copy SAYS the full plan is built by
-    // AI in the tool (never a fake in-page generation).
-    expect(src).toContain("يبنيها الذكاء الاصطناعي");
-    expect(src).toContain("is built by AI");
-    // Both planner CTAs (locale-aware) + the pinned meal-planner pair.
-    expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
-    expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
+    // The REAL engine: both demo endpoints are called in-page (the
+    // unified free pool — guests included), with the guest id minted
+    // by the shared plan-persistence module (same identity as the
+    // tools — the incognito-reset hole stays closed).
+    expect(src).toContain('"/api/ai/workout-plan-demo"');
+    expect(src).toContain('"/api/ai/meal-plan-demo"');
+    expect(src).toContain("ensureGuestId");
+    // The honest quota chip register (same as the tool pages).
+    expect(src).toContain("رصيد الشهر");
+    expect(src).toContain("This month:");
+    // The generate buttons (initial labels pinned) + both tool CTAs
+    // (locale-aware, on the generated plan + the section).
     expect(src).toContain("أنشئ خطتي");
     expect(src).toContain("Create My Plan");
     expect(src).toContain("أنشئ خطة التمارين");
     expect(src).toContain("Create my workout plan");
+    expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
+    expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     // The free-pool honesty line.
     expect(src).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
     expect(src).toContain("free monthly plan allowance");
@@ -232,10 +246,10 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
     // coach/مدرب reference (the owner's explicit directive — EVO owns
     // #evo; human coaching is a separate paid membership).
     const planStart = src.indexOf('id="plan"');
-    const trainStart = src.indexOf('id="train"');
+    const nextStart = src.indexOf('id="library"');
     expect(planStart).toBeGreaterThan(-1);
-    expect(trainStart).toBeGreaterThan(planStart);
-    const planRegion = src.slice(planStart, trainStart);
+    expect(nextStart).toBeGreaterThan(planStart);
+    const planRegion = src.slice(planStart, nextStart);
     expect(planRegion, "EVO leaked into the #plan region").not.toContain("EVO");
     expect(planRegion, "a coach reference leaked into the #plan region").not.toContain("مدرب");
     expect(planRegion, "a coach reference leaked into the #plan region").not.toContain("coach");
@@ -245,20 +259,28 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
   it("the refined block map and its browse-all links exist", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
-      // The section ids, in the refined order
+      // The section ids, in the corrected 271 order
       'id="start"',
       'id="evo"',
       'id="plan"',
-      'id="train"',
-      'id="eat"',
       'id="library"',
+      'id="eat"',
+      'id="train"',
       'id="diet"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
-      // The Train section (the plan world) + its dual CTA
-      "خطة كاملة تقودك، أسبوعًا بأسبوع.",
-      "A complete plan to guide you, week by week.",
+      // The RESTORED interactive exercise library (271 F1): the
+      // muscle-group picker + its browse-all CTA.
+      "مكتبة التمارين",
+      "The exercise library",
+      "اختر مجموعة عضلية",
+      "Pick a muscle group",
+      "استكشف مكتبة التمارين كاملة",
+      "Explore the full exercise library",
+      // The ready-made programs carousel (271 F1) + its dual CTA
+      "برامج التمارين الجاهزة",
+      "Ready-made training programs",
       "ابنِ خطتك بالذكاء الاصطناعي",
       "Build your plan with AI",
       "كل البرامج",
@@ -268,11 +290,6 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
       "Know your plate's numbers before you eat it.",
       "استكشف قاعدة الأطعمة",
       "Explore the food database",
-      // The exercise-library carousel + its CTA
-      "مكتبة التمارين",
-      "The exercise library",
-      "استكشف مكتبة التمارين كاملة",
-      "Explore the full exercise library",
       // The diet-plan library carousel + its CTA
       "مكتبة الخطط الغذائية الجاهزة",
       "The ready-made diet-plan library",
@@ -306,9 +323,13 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
       "LIVE ON THIS PAGE — NO SIGNUP",
       "ثلاثة أسطح حقيقية",
       "Three real Alkemos surfaces",
-      // The retired muscle-filter chips vocabulary.
-      "Pick a muscle group",
-      "اختر مجموعة عضلية",
+      // The retired programs-grid headline (the carousel replaced it).
+      "خطة كاملة تقودك، أسبوعًا بأسبوع.",
+      "A complete plan to guide you, week by week.",
+      // The retired four-turn EVO demo lines (the concise two-turn
+      // demo replaced them — 271 F2).
+      "وزني 84 كجم، وأتدرب أربعة أيام في الأسبوع.",
+      "تم. سعراتك اليومية الآن 2,150 سعرة",
       // The big free-vs-paid section.
       "مجاني فعلًا. والترقية قرارك.",
       "Free, for real. Upgrading is your call.",
@@ -334,38 +355,41 @@ describe("HOME-REFINE-270 — the refined homepage canaries", () => {
     expect(src).not.toContain("posts={[...featuredPosts, ...latestPosts]");
   });
 
-  // (9) The section ORDER: calculator → EVO → plan → train → eat →
-  //     library → diet → learn → memberships → faq (the refined arc).
-  it("the sections render in the refined order", () => {
+  // (9) The section ORDER: calculator → EVO → plan → library → eat →
+  //     train → diet → learn → memberships → faq (the corrected arc —
+  //     the interactive library sits right after the planners, and
+  //     the programs carousel joins the diet carousel right before
+  //     the blog).
+  it("the sections render in the corrected order", () => {
     const src = readFileSync(LANDING, "utf8");
     const order = [
       'id="start"',
       'id="evo"',
       'id="plan"',
-      'id="train"',
-      'id="eat"',
       'id="library"',
+      'id="eat"',
+      'id="train"',
       'id="diet"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
-      expect(order[i], `section ${i} out of the refined order`).toBeGreaterThan(order[i - 1]);
+      expect(order[i], `section ${i} out of the corrected order`).toBeGreaterThan(order[i - 1]);
     }
     // The proof strip sits between the hero and the calculator
     // (proof directly under the promise).
     const proofAt = src.indexOf('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
     expect(proofAt).toBeGreaterThan(-1);
     expect(proofAt).toBeLessThan(order[0]);
-    // The exercise-library + diet carousels sit right before the blog
-    // (the owner's placement directive).
+    // The programs + diet carousels sit right before the blog (the
+    // owner's placement directive — 271 F1 corrected the pair).
     expect(order[5]).toBeLessThan(order[7]);
     expect(order[6]).toBeLessThan(order[7]);
   });
 });
 
-describe("HOME-REFINE-270 — header/footer contract", () => {
+describe("HOME-REFINE-271 — header/footer contract", () => {
   // (10) The header carries the five core services as VISIBLE navigation
   //      (desktop nav) with the secondary services demoted to the
   //      drawer's «More» group.
@@ -391,9 +415,9 @@ describe("HOME-REFINE-270 — header/footer contract", () => {
     expect(src).not.toContain("الخدمات المدفوعة");
   });
 
-  // (11) The footer is the flat fully-displayed service map (R9): NO
-  //      disclosure groups, every link visible at every breakpoint,
-  //      ONE copy of each link.
+  // (11) The footer is the flat fully-displayed service map (R9),
+  //      now SHORTENED (271 F4): every list trimmed to its PRIMARY
+  //      entry points — the header nav carries the dropped surfaces.
   it("the footer is the flat fully-displayed service map", () => {
     const src = readFileSync(FOOTER, "utf8");
     for (const required of [
@@ -403,6 +427,9 @@ describe("HOME-REFINE-270 — header/footer contract", () => {
       '"Tools & AI"',
       '"Coaching & Services"',
       '"Company"',
+      // The collapsed tools hub link (the five individual tool links
+      // became ONE — 271 F4).
+      'href={isAr ? "/ar/tools" : "/tools"}',
       // The flat responsive grid (2 cols touch · 3 md · 6 lg).
       "grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6",
       // The tagline (verbatim).
@@ -428,11 +455,13 @@ describe("HOME-REFINE-270 — header/footer contract", () => {
 
   // (12) HREF-ONCE LAW (the flat footer): every locale-aware footer
   //      href appears EXACTLY ONCE (single copy — no mobile/desktop
-  //      duplication anymore).
+  //      duplication anymore). 271 F4: the trimmed map carries 18
+  //      primary links (was 27 — the header nav absorbed the rest).
   it("href-once: every footer link href appears exactly once", () => {
     const src = readFileSync(FOOTER, "utf8");
     const hrefs = src.match(/href=\{isAr \? "[^"]+" : "[^"]+"\}/g) ?? [];
-    expect(hrefs.length).toBeGreaterThanOrEqual(27);
+    expect(hrefs.length).toBeGreaterThanOrEqual(18);
+    expect(hrefs.length).toBeLessThanOrEqual(20);
     const counts = new Map<string, number>();
     for (const h of hrefs) counts.set(h, (counts.get(h) ?? 0) + 1);
     const offenders = [...counts.entries()].filter(([, n]) => n !== 1);
@@ -456,7 +485,7 @@ describe("HOME-REFINE-270 — header/footer contract", () => {
   });
 });
 
-describe("HOME-REFINE-270 — density, CTA & card contract", () => {
+describe("HOME-REFINE-271 — density, CTA & card contract", () => {
   // The CTA sizing standard — primary 48px touch / 52px md+, secondary
   // 44px touch / 48px md+ (rtl-typography re-pins the recipes too).
   it("CTA standard: btn-chrome 48/52 · btn-outline 44/48", () => {
@@ -508,7 +537,7 @@ describe("HOME-REFINE-270 — density, CTA & card contract", () => {
   });
 });
 
-describe("HOME-REFINE-270 — the motion-safety contract", () => {
+describe("HOME-REFINE-271 — the motion-safety contract", () => {
   // The living-page motion layer: every animation is once-only,
   // transform/opacity-only, and gated by prefers-reduced-motion. The
   // .rv reveal recipe must never hide content from no-JS users (the
@@ -546,7 +575,7 @@ describe("HOME-REFINE-270 — the motion-safety contract", () => {
   });
 });
 
-describe("HOME-REFINE-270 — copy voice canaries", () => {
+describe("HOME-REFINE-271 — copy voice canaries", () => {
   // K-1: «توليدات» is a mechanical pseudo-plural — the natural MSA
   // verbal noun is the only register. After the compact-card rebuild
   // the phrase survives in the two membership FAQ answers.
@@ -584,7 +613,7 @@ describe("HOME-REFINE-270 — copy voice canaries", () => {
   });
 });
 
-describe("HOME-REFINE-270 — FAQ canaries", () => {
+describe("HOME-REFINE-271 — FAQ canaries", () => {
   // The FIVE questions (Arabic anchors + independent English). Every
   // claim mirrors the implementation.
   it("the homepage FAQ answers the five hesitation-remover questions", () => {
@@ -620,7 +649,7 @@ describe("HOME-REFINE-270 — FAQ canaries", () => {
   });
 });
 
-describe("HOME-REFINE-270 — homepage sample drift guard (real content, curated)", () => {
+describe("HOME-REFINE-271 — homepage sample drift guard (real content, curated)", () => {
   // The curated homepage samples must exist in the LIVE libraries —
   // if a data file renames/retires a curated entry, this fails so the
   // curation is consciously updated (library-counts pattern).
