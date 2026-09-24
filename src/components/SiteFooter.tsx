@@ -1,7 +1,5 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-
 import { useI18n } from "@/lib/i18n";
 import { ThemeImg } from "@/components/ThemeImg";
 import { SOCIAL_PROFILES } from "@/lib/social";
@@ -18,29 +16,22 @@ import { NewsletterForm } from "@/components/NewsletterForm";
  * entry point outside the homepage. This component extracts the EXACT same
  * markup so every public route renders the identical footer.
  *
- * PHASE 202 (owner order 2026-09-15: «Footer: اجعله Navigation فعليًا إلى
- * منظومة Alkemos وخدماتها، وليس مجرد نهاية شكلية»): the link grid is now
- * organized as the platform's SERVICE MAP — Training / Nutrition / Tools &
- * AI / Coaching & Services / Company — matching the header's five core
- * services, so the footer reads as a real navigation to the ecosystem.
- * REORGANIZATION ONLY: every link that existed before still exists with its
- * exact href and locale-awareness (access-point laws preserved — diet-plan,
- * compare, hub families, EVO entry untouched).
+ * PHASE 202 (owner order 2026-09-15): the link grid is organized as the
+ * platform's SERVICE MAP — Training / Nutrition / Tools & AI / Coaching &
+ * Services / Company — matching the header's five core services, so the
+ * footer reads as a real navigation to the ecosystem. Every link keeps its
+ * exact href and locale-awareness (access-point laws preserved —
+ * diet-plan, compare, hub families, EVO entry untouched).
  *
- * The bottom tagline is the owner's new pair (owner order 2026-09-15;
- * AR refined VRD-V4 K-4 2026-09-23 — «بعناية» aligns with the EN "care"):
- * EN "Built with care for the fitness community" · AR "صُنع بعناية لمجتمع اللياقة"
- * (the old geographically-scoped pair is retired).
- *
- * VRD-V2 §12 (owner order 2026-09-23 «اكمل المرحلة التالية», audit C-8:
- * the mobile footer measured 1,273px at 390px): below lg the five
- * service lists collapse into TWO native <details> disclosure groups
- * («الخدمات / Services» + «المنصة / Platform», 44px summary rows) while
- * lg+ keeps the six-column service map — the header's own desktop-nav +
- * drawer responsive pattern. Every link lives in BOTH copies with the
- * exact same href (href-sync law, canary-pinned: each footer href
- * exactly ×2) so the Phase-202 service map, locale-awareness, and
- * access-point laws survive the rebuild verbatim.
+ * HOME-REFINE-270 (owner order 2026-09-24: «الفوتر الغى القوائم المنسدلة
+ * واجعلة منظم ومعروض بالكامل» — remove the dropdowns; make it organized
+ * and FULLY displayed): the VRD-V2 §12 mobile disclosure groups are
+ * GONE. One flat organized grid serves EVERY breakpoint — 2 columns on
+ * touch (the brand row full-width), 3 from md, the full 6-column service
+ * map from lg — and every link is always visible with a single copy
+ * (the href-sync law is now ×1: one link, one href, one place). The bottom
+ * tagline is the owner's pair: EN "Built with care for the fitness
+ * community" · AR "صُنع بعناية لمجتمع اللياقة".
  *
  * Placement law: render AFTER the page's <main> inside the
  * min-h-screen flex-col wrapper (mt-auto keeps it pinned to the bottom).
@@ -66,15 +57,18 @@ export function SiteFooter() {
       {/* Meander divider on the top edge (mission §14) */}
       <div className="footer-meander-top absolute inset-x-0 top-0" aria-hidden="true" />
       <div className="mx-auto max-w-6xl">
-        <div className="lg:grid lg:grid-cols-6 lg:gap-x-8">
+        {/* THE FLAT SERVICE MAP — HOME-REFINE-270: one organized grid at
+            every breakpoint, every list fully displayed (no disclosure
+            groups, no duplicated mobile/desktop copies). 2 columns on
+            touch · 3 from md · 6 (brand + the five services) from lg. */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
           {/* Brand — theme-aware lockup (Phase 132): the black footer
               lockup on the light band / the white one on the dark band
               (VRD-V1: the marble slab became a clean structural band —
               tint/hairline light, deeper step dark), rendered as a
               ThemeImg pair so CSS swaps it with zero hydration flicker.
-              Full-width block below lg (the disclosure groups follow),
-              first column of the grid at lg. */}
-          <div className="lg:col-span-1">
+              Full-width row below lg; first column of the grid at lg. */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <ThemeImg
               light="/images/brand/logo-footer-black.png"
               dark="/images/brand/logo-footer-white.png"
@@ -111,92 +105,6 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* MOBILE (below lg) — VRD-V2 §12 disclosure groups (audit
-              C-8): the footer measured 1,273px at 390px because five
-              full link lists stack between the brand and the
-              newsletter. Two native <details> groups with 44px summary
-              rows collapse them; zero JS, SSR-rendered, keyboard-native
-              (Enter/Space toggle). Lists mirror the desktop copy below
-              — href-sync law: every footer href exactly ×2
-              (canary-pinned in homepage-adoption.test.ts). */}
-          <div className="mt-8 divide-y divide-[var(--edge)] border-y border-[var(--edge)] lg:hidden">
-            <details className="footer-disc group">
-              <summary className="flex min-h-11 items-center justify-between py-2">
-                <span className="text-sm font-medium text-[var(--text)]">{isAr ? "الخدمات" : "Services"}</span>
-                <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
-              </summary>
-              <div className="grid grid-cols-2 gap-x-6 pb-4 pt-1">
-                {/* Mirrors the desktop Training list (href-sync law). */}
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
-                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
-                    <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
-                    <li><a href={isAr ? "/ar/muscles/chest" : "/muscles/chest"} className="block py-1 hover:underline">{isAr ? "حسب المجموعة العضلية" : "By Muscle Group"}</a></li>
-                    <li><a href={isAr ? "/ar/equipment/bodyweight" : "/equipment/bodyweight"} className="block py-1 hover:underline">{isAr ? "حسب المعدات" : "By Equipment"}</a></li>
-                    <li><a href={isAr ? "/ar/programs" : "/programs"} className="block py-1 hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
-                  </ul>
-                </div>
-                {/* Mirrors the desktop Nutrition list (href-sync law). */}
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
-                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
-                    <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
-                    <li><a href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات" : "Meal Planner"}</a></li>
-                    <li><a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="block py-1 hover:underline">{isAr ? "مكتبة الخطط الغذائية الجاهزة" : "Diet Plans"}</a></li>
-                    <li><a href={isAr ? "/ar/collections/high-protein-foods" : "/collections/high-protein-foods"} className="block py-1 hover:underline">{isAr ? "مجموعات الأطعمة" : "Food Collections"}</a></li>
-                  </ul>
-                </div>
-                {/* Mirrors the desktop Tools & AI list (href-sync law). */}
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
-                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
-                    <li><a href={isAr ? "/ar/tools/bmi-calculator" : "/tools/bmi-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة مؤشر كتلة الجسم" : "BMI Calculator"}</a></li>
-                    <li><a href={isAr ? "/ar/tools/body-fat-calculator" : "/tools/body-fat-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة نسبة الدهون" : "Body Fat Calculator"}</a></li>
-                    <li><a href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة السعرات" : "Calorie Calculator"}</a></li>
-                    <li><a href={isAr ? "/ar/tools/macro-calculator" : "/tools/macro-calculator"} className="block py-1 hover:underline">{isAr ? "حاسبة الماكروز" : "Macro Calculator"}</a></li>
-                    <li><a href={isAr ? "/ar/tools/water-tracker" : "/tools/water-tracker"} className="block py-1 hover:underline">{isAr ? "متتبع شرب الماء" : "Water Tracker"}</a></li>
-                    <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
-                    <li><a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="block py-1 hover:underline">{isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}</a></li>
-                  </ul>
-                </div>
-                {/* Mirrors the desktop Coaching & Services list (href-sync law). */}
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
-                  <ul className="mt-3 space-y-2 text-[13px] leading-7">
-                    <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
-                    <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
-                    <li><a href={isAr ? "/ar/evo" : "/evo"} className="block py-1 hover:underline">EVO AI Coach</a></li>
-                    <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
-                    <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="block py-1 hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
-                  </ul>
-                </div>
-              </div>
-            </details>
-            <details className="footer-disc group">
-              <summary className="flex min-h-11 items-center justify-between py-2">
-                <span className="text-sm font-medium text-[var(--text)]">{isAr ? "المنصة" : "Platform"}</span>
-                <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
-              </summary>
-              {/* Mirrors the desktop Company list; the summary IS the
-                  heading here, so the list carries no <p> of its own. */}
-              <div className="grid grid-cols-2 gap-x-6 pb-4 pt-1">
-                <ul className="mt-3 space-y-2 text-[13px] leading-7">
-                  <li><a href={isAr ? "/ar/blog" : "/blog"} className="block py-1 hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
-                  <li><a href={isAr ? "/ar/compare" : "/compare"} className="block py-1 hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
-                  <li><a href={isAr ? "/ar/about" : "/about"} className="block py-1 hover:underline">{isAr ? "من نحن" : "About"}</a></li>
-                  <li><a href={isAr ? "/ar/contact" : "/contact"} className="block py-1 hover:underline">{isAr ? "تواصل معنا" : "Contact"}</a></li>
-                  <li><a href={isAr ? "/ar/faq" : "/faq"} className="block py-1 hover:underline">{isAr ? "أسئلة شائعة" : "FAQ"}</a></li>
-                  <li><a href={isAr ? "/ar/privacy" : "/privacy"} className="block py-1 hover:underline">{isAr ? "الخصوصية" : "Privacy"}</a></li>
-                  <li><a href={isAr ? "/ar/terms" : "/terms"} className="block py-1 hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
-                </ul>
-              </div>
-            </details>
-          </div>
-
-          {/* DESKTOP (lg+) — the six-column service map, structurally
-              unchanged since Phase 202; VRD-V2 §12 only moves the type
-              ramp (13px links / leading-7 rows / 11px headings). */}
-          <div className="hidden gap-x-8 lg:col-span-5 lg:grid lg:grid-cols-5">
           {/* List 1: TRAINING (Phase 202 service map — same links as the
               old Resources list, grouped under the service the visitor
               comes to use). */}
@@ -274,7 +182,6 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/terms" : "/terms"} className="block py-1 hover:underline">{isAr ? "الشروط" : "Terms"}</a></li>
             </ul>
           </div>
-          </div>
         </div>
 
         {/* Newsletter — restructure order 2026-09-15: moved from the
@@ -317,7 +224,7 @@ function SocialIcon({ name }: { name: (typeof SOCIAL_PROFILES)[number]["name"] }
     case "instagram":
       return (
         <svg className={cls} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
+          <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.267 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
         </svg>
       );
     case "x":

@@ -12,11 +12,16 @@ import {
 } from "@/components/ui/accordion";
 import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPostCard } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
-import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
+import { EXERCISES_COUNT } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
 import { TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
+import {
+  workoutEquipmentOptions,
+  workoutGoalOptions,
+  workoutLevelOptions,
+} from "@/lib/ai-workout-planner";
 import {
   calculateCalorieTargets,
   isValidCalculatorInput,
@@ -31,6 +36,7 @@ import { getFAQSchema, jsonLd } from "@/lib/seo";
 import Image from "next/image";
 import { ThemeImg, EngravedIcon } from "@/components/ThemeImg";
 import type {
+  HomeDietSystemSample,
   HomeExerciseSample,
   HomeFoodSample,
   HomeProgramSample,
@@ -64,75 +70,46 @@ const PALETTE = {
 const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
-// The seven muscle families the interactive library tab exposes
-// (labels mirror the hub's own vocabulary; «كور» keeps the plain
-// transliterated register — VRD-V4 K-5).
-const MUSCLE_TABS = [
-  { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
-  { labelAr: "ظهر", labelEn: "Back", slug: "back" },
-  { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
-  { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
-  { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
-  { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-  { labelAr: "كور", labelEn: "Core", slug: "core" },
-] as const;
-
 // ============================================================
-// HOME-EXPERIENCE-269 (owner directive 2026-09-24: «الصفحة تبدو
-// كصفحة تعرض وتشرح منتجًا، وليست كمنتج عالمي حي يجعل المستخدم
-// يفهم القيمة ويشعر بها ويتفاعل معها» — rebuild the homepage as
-// a LIVING product, not a presentation of one).
+// HOME-REFINE-270 (owner directive 2026-09-24 — the nine-point
+// homepage refinement of the living-product rebuild):
+//   R1. Hero carries exactly TWO side-by-side CTAs: login/signup
+//       (→ /auth) + the premium-memberships page (→ /memberships).
+//   R2. The proof strip under the hero is a compact ONE-ROW band
+//       (small type, numbers + labels inline, count-up preserved).
+//   R3. The «تجربة حية» tab wrapper is GONE — its three surfaces
+//       live as INDEPENDENT sections, each with its own headline:
+//       the calculator (#start), EVO (#evo, warrior art kept), and
+//       the exercise library (now a blog-style CAROUSEL).
+//   R4. The exercise library renders as a carousel (like the blog)
+//       and moved to sit right before the blog; the ready-made
+//       diet-plan library (مكتبة الخطط الغذائية الجاهزة) joins it
+//       there as its own carousel section.
+//   R5. The old planning-plus-EVO section was WRONG (it mixed
+//       the planners with EVO and implied a human coach). It is now
+//       #plan — an INTERACTIVE planner section like the tools: a
+//       workout-plan builder + a nutrition-plan builder (real
+//       planner vocabulary + real matrix splits, live previews).
+//       EVO is NOT mentioned there (it owns #evo) and NO coach is
+//       referenced (online coaching is a separate paid membership).
+//   R6. The blog section title is the simple «أحدث المقالات» and
+//       the carousel is LATEST-FIRST (the newest posts actually
+//       lead the row).
+//   R7. The big free-vs-paid section is replaced by SMALL
+//       attractive membership cards (prices still derive from
+//       memberships.ts — single source) + one online-coaching card.
+//   R8. The repetitive final CTA band is removed entirely.
+//   R9. The footer is flat: no disclosure groups — every link
+//       visible and organized at every breakpoint (SiteFooter).
 //
-// DIAGNOSIS this rebuild answers (research: Freeletics / Hevy /
-// MyFitnessPal / Whoop live audits + UX/CRO patterns 2025-26):
-//   D1. Nothing on the old page could be USED — every section
-//       presented content and routed away; the visitor never
-//       touched the product on the homepage itself.
-//   D2. Three sections shared one skeleton (heading → subtext →
-//       card grid → button) — catalog rhythm, "grid fatigue".
-//   D3. EVO — the differentiator — was explained in steps but
-//       never SHOWN working.
-//   D4. Zero motion: the page was a static document.
-//   D5. Free-vs-paid landed as a pricing table, not a journey.
-//
-// THE NEW ARC — «الصفحة هي أول خمس دقائق من المنتج» (the page IS
-// the product's first five minutes): FEEL → TOUCH → SEE → TRUST →
-// GROW.
-//   1. Hero (promise, owner artwork + account CTA law) →
-//   2. Proof strip (auditable numbers, now count-up ALIVE) →
-//   3. THE LIVING PRODUCT #start — three REAL product surfaces
-//      running in-page: the calorie/macro calculator (same math
-//      as the app tool via fitness-math.ts), an EVO conversation
-//      demo (labeled example; the CTA opens the REAL floating
-//      widget — the chat-surface law), and the interactive
-//      muscle-group library browser (real curated samples swap
-//      as you tap) →
-//   4. #train — the PLAN world (programs lead; the exercise
-//      grid moved into the living tab so no two sections share
-//      a skeleton) →
-//   5. #eat — the interactive plate: pick a real food, watch
-//      its macros move →
-//   6. #evo — the intelligence moment (planners + EVO + quota
-//      transparency, warrior art) →
-//   7. #learn → 8. #memberships — now framed by the growth
-//   ladder (the memberships.ts repositioning) above the three
-//   honest cards → 9. featured coaches → 10. #faq → final CTA
-//   (+ a quiet "talk to EVO first" door).
-//
-// Copy laws: EN and AR are independent native pairs (never a
-// translation); counts ride the verified constants; prices ride
-// memberships.ts (single source — no literals); EVO quota facts
-// mirror the unified pool; zero emoji; MSA-clean Arabic.
-//
-// PRESERVED VERBATIM from the previous phases: the Marble &
-// Chrome identity (recipes + engraved icons + zero emoji), the
-// Phase 202 real content entry points (getHomeSamples server
-// slices), the Phase 203 account-driven CTA law, the EVO CHAT
-// SURFACE LAW (the floating widget stays the only chat surface),
-// the blog selection logic (selectHomeBlogCarousels), the paid
-// featured-coaches strip (0037), and the FAQ JSON-LD single
-// source. Motion is once-only, transform/opacity-only (zero
-// CLS), and fully gated by prefers-reduced-motion.
+// The 269 laws that still hold: fitness-math.ts stays the single
+// calculator source; the EVO demo stays labeled + hands off to the
+// floating widget (chat-surface law); prices derive from
+// memberships.ts (never literals); EN/AR are independent native
+// pairs; counts ride the verified constants; zero emoji; MSA-clean
+// Arabic; motion stays once-only + reduced-motion-safe.
+// ============================================================
+
 // ============================================================
 
 // ── Reveal — the living-page motion primitive ──
@@ -519,11 +496,13 @@ function HomeCalculator({ isAr }: { isAr: boolean }) {
   );
 }
 
-// Tab B — the EVO conversation demo. A labeled illustrative
-// exchange (honesty law: it SAYS it is an example), and the CTA
-// hands off to the REAL floating widget — the EVO CHAT SURFACE
-// LAW holds (this is a demonstration, never a second input).
-function EvoTeaser({ isAr }: { isAr: boolean }) {
+// ── The EVO conversation demo — the content of the standalone #evo
+//    section (HOME-REFINE-270 R3/R5: EVO owns its own section; the
+//    planners live separately in #plan). A labeled illustrative
+//    exchange (honesty law: it SAYS it is an example), and the CTA
+//    hands off to the REAL floating widget — the EVO CHAT SURFACE
+//    LAW holds (this is a demonstration, never a second input).
+function EvoConversation({ isAr }: { isAr: boolean }) {
   const turns = isAr
     ? [
         { who: "user", text: "هدفي خسارة الدهون مع الحفاظ على العضلات. ما الذي يصلح لعشائي الليلة؟" },
@@ -551,9 +530,15 @@ function EvoTeaser({ isAr }: { isAr: boolean }) {
       ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-8">
+    <div>
+      {/* The honest label — directly above the exchange */}
+      <span className="seal-chip">
+        <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
+        {isAr ? "نموذج توضيحي لمحادثة" : "AN ILLUSTRATIVE EXCHANGE"}
+      </span>
+
       {/* The conversation */}
-      <div className="space-y-3.5">
+      <div className="mt-5 space-y-3.5">
         {turns.map((t, i) =>
           t.who === "user" ? (
             <div key={i} className="flex justify-end">
@@ -585,121 +570,47 @@ function EvoTeaser({ isAr }: { isAr: boolean }) {
         )}
       </div>
 
-      {/* The hand-off */}
-      <div className="flex flex-col justify-center rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-5 md:p-7">
-        <span className="seal-chip">
-          <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-          {isAr ? "نموذج توضيحي لمحادثة" : "AN ILLUSTRATIVE EXCHANGE"}
-        </span>
-        <p className="mt-4 text-base font-semibold leading-relaxed" style={{ color: PALETTE.textPrim }}>
-          {isAr
-            ? "هكذا يعمل EVO: يفهم هدفك، يجيب بأرقام، ثم يبني ويعدّل خطتك."
-            : "This is how EVO works: it understands your goal, answers with numbers, then builds and adjusts your plan."}
-        </p>
-        <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-          {isAr
-            ? "اسأله بالعربية أو الإنجليزية عن التدريب والتغذية، أو اطلب خطة كاملة حول بياناتك — ثم عدّلها بتبديلات ذكية."
-            : "Ask it in Arabic or English about training or nutrition, or request a full plan around your data — then fine-tune it with smart swaps."}
-        </p>
+      {/* The hand-off — the widget law (the ONLY chat surface) */}
+      <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <button
           type="button"
           onClick={openEvoFloatingChat}
-          className="btn-chrome mt-6 px-6 py-3 text-sm md:text-base"
+          className="btn-chrome px-6 py-3 text-sm md:text-base"
         >
           <span className="live-dot" aria-hidden="true" />
           {isAr ? "أكمل المحادثة مع EVO" : "Continue this conversation"}
         </button>
-        <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-          {isAr
-            ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — دون تسجيل."
-            : "Visitors get 10 messages a day with EVO — no signup."}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// Tab C — the interactive library browser. Real curated samples
-// (the server-provided slices — the bundle law holds) filtered
-// in-page by muscle group, with a quiet crossfade on every swap.
-function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
-  const [cat, setCat] = useState<string>("chest");
-  const filtered = samples.exercises.filter((e) => e.categorySlug === cat);
-
-  return (
-    <div>
-      {/* The muscle chips — the SAME hub vocabulary, now answering */}
-      <div>
-        <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-          {isAr ? "اختر مجموعة عضلية" : "Pick a muscle group"}
-        </p>
-        <div className="chips-row scrollbar-none mt-3">
-          {MUSCLE_TABS.map((c) => {
-            const active = c.slug === cat;
-            return (
-              <button
-                key={c.slug}
-                type="button"
-                onClick={() => setCat(c.slug)}
-                aria-pressed={active}
-                className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
-                style={
-                  active
-                    ? {
-                        background: "var(--text)",
-                        color: "var(--bg)",
-                        borderColor: "var(--text)",
-                      }
-                    : undefined
-                }
-                title={isAr ? `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} exercises`}
-              >
-                {isAr ? c.labelAr : c.labelEn}
-                <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* The live swap — real cards re-render per selection */}
-      {filtered.length > 0 ? (
-        <div key={cat} className="swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((ex) => (
-            <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
-          ))}
-        </div>
-      ) : (
-        <p className="mt-7 text-center text-sm" style={{ color: PALETTE.textSec }}>
-          {isAr ? "لا عينات منسقة لهذه المجموعة بعد — افتح المكتبة الكاملة." : "No curated samples for this group yet — open the full library."}
-        </p>
-      )}
-
-      <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-        {isAr
-          ? `كل بطاقة تمرين حقيقي من مكتبة ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحته.`
-          : `Every card is a real exercise from the ${EX_PLUS} library — with form photos and clear instructions one tap away.`}
-      </p>
-      <div className="mt-5 text-center">
-        <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-          {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
-          <span className="rtl:rotate-180" aria-hidden="true">›</span>
+        <a
+          href={isAr ? "/ar/evo" : "/evo"}
+          className="self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+          style={{ color: PALETTE.textSec }}
+        >
+          {isAr ? "اعرف المزيد عن EVO ›" : "Learn more about EVO ›"}
         </a>
       </div>
+      <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+        {isAr
+          ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — دون تسجيل."
+          : "Visitors get 10 messages a day with EVO — no signup."}
+      </p>
     </div>
   );
 }
 
-function BlogCarousel({
-  posts,
-  featuredSlugs = [],
+// ── CarouselShell — the shared blog-style carousel scaffolding
+//    (HOME-REFINE-270 R4: the exercise library + the diet-plan
+//    library ride the SAME pattern as the blog row: a smooth
+//    horizontal scroller with the RTL-aware arrow pair). The exact
+//    arrow recipe the blog carousel used since Phase 257 — 44px
+//    touch targets (rtl-typography leg) — lives here once.
+function CarouselShell({
   isAr,
+  children,
+  ariaLabel,
 }: {
-  posts: BlogPostCard[];
-  /** Featured slugs render as the dark lead card; ONE carousel since
-      Phase 198 Batch 2 (selection logic untouched). */
-  featuredSlugs?: string[];
   isAr: boolean;
+  children: React.ReactNode;
+  ariaLabel: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -711,8 +622,6 @@ function BlogCarousel({
       behavior: "smooth",
     });
   };
-
-  const featuredSet = new Set(featuredSlugs);
 
   return (
     <div className="relative">
@@ -749,13 +658,35 @@ function BlogCarousel({
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        aria-label={ariaLabel}
       >
         <style jsx>{`
           div::-webkit-scrollbar { display: none; }
         `}</style>
-        {posts.map((post) => {
-          const isFeatured = featuredSet.has(post.slug);
-          return (
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function BlogCarousel({
+  posts,
+  featuredSlugs = [],
+  isAr,
+}: {
+  posts: BlogPostCard[];
+  /** Featured slugs render as the dark lead card; ONE carousel since
+      Phase 198 Batch 2 (selection logic untouched). */
+  featuredSlugs?: string[];
+  isAr: boolean;
+}) {
+  const featuredSet = new Set(featuredSlugs);
+
+  return (
+    <CarouselShell isAr={isAr} ariaLabel={isAr ? "أحدث المقالات" : "Latest articles"}>
+      {posts.map((post) => {
+        const isFeatured = featuredSet.has(post.slug);
+        return (
           <a
             key={post.id}
             href={`${isAr ? "/ar" : ""}/blog/${encodeURIComponent(post.slug)}`}
@@ -801,10 +732,392 @@ function BlogCarousel({
               </p>
             </div>
           </a>
-          );
-        })}
+        );
+      })}
+    </CarouselShell>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// THE SMART PLANNING SECTION (#plan) — HOME-REFINE-270 R5.
+// The owner directive: the old planning-plus-EVO section was
+// completely wrong — the correct design is an INTERACTIVE section
+// like the tools, building a plan with AI: one surface for WORKOUTS
+// and one for NUTRITION. EVO is NOT mentioned here (it owns #evo)
+// and no human COACH is referenced (online coaching is a separate
+// paid membership — a different world).
+//
+// Honesty law: these are LIVE PREVIEWS, clearly labeled — the
+// structure/split derives deterministically from the REAL planner
+// vocabulary (ai-workout-planner.ts — imported, single source) and
+// the REAL matrix splits (server-provided samples.dietSystems), and
+// the FULL plan (exercises/sets/reps · meals/grams) is generated by
+// the AI inside the real tools the CTAs open.
+// ══════════════════════════════════════════════════════════════
+
+// The weekly split structure per days-per-week — the standard
+// training splits the AI planner builds around (2-6 days).
+const WORKOUT_SPLITS: Record<
+  number,
+  { nameAr: string; nameEn: string; daysAr: string[]; daysEn: string[] }
+> = {
+  2: {
+    nameAr: "جسم كامل ×2",
+    nameEn: "Full body ×2",
+    daysAr: ["جسم كامل", "جسم كامل"],
+    daysEn: ["Full body", "Full body"],
+  },
+  3: {
+    nameAr: "جسم كامل ×3",
+    nameEn: "Full body ×3",
+    daysAr: ["جسم كامل", "جسم كامل", "جسم كامل"],
+    daysEn: ["Full body", "Full body", "Full body"],
+  },
+  4: {
+    nameAr: "أعلى / أسفل ×2",
+    nameEn: "Upper / Lower ×2",
+    daysAr: ["أعلى الجسم", "أسفل الجسم", "أعلى الجسم", "أسفل الجسم"],
+    daysEn: ["Upper body", "Lower body", "Upper body", "Lower body"],
+  },
+  5: {
+    nameAr: "دفع / سحب / أرجل + أعلى / أسفل",
+    nameEn: "Push / Pull / Legs + Upper / Lower",
+    daysAr: ["دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل", "أعلى الجسم", "أسفل الجسم"],
+    daysEn: ["Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs", "Upper body", "Lower body"],
+  },
+  6: {
+    nameAr: "دفع / سحب / أرجل ×2",
+    nameEn: "Push / Pull / Legs ×2",
+    daysAr: ["دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل", "دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل"],
+    daysEn: ["Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs", "Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs"],
+  },
+};
+
+// The nutrition goal → calorie direction, mirroring the REAL goal
+// adjustment of the plan generator (plan-generator.ts: weight loss
+// −20% · muscle gain +10% · maintain 0%) — stated as direction,
+// never as an invented number.
+const MEAL_GOAL_DIRECTIONS: Record<
+  FitnessGoal,
+  { labelAr: string; labelEn: string; dirAr: string; dirEn: string }
+> = {
+  lose: {
+    labelAr: "خسارة وزن",
+    labelEn: "Lose weight",
+    dirAr: "حوالي 20% تحت سعرات صيانة وزنك",
+    dirEn: "roughly 20% below your maintenance calories",
+  },
+  maintain: {
+    labelAr: "تثبيت الوزن",
+    labelEn: "Maintain",
+    dirAr: "على سعرات صيانة وزنك تقريبًا",
+    dirEn: "right around your maintenance calories",
+  },
+  gain: {
+    labelAr: "زيادة وزن",
+    labelEn: "Gain weight",
+    dirAr: "حوالي 10% فوق سعرات صيانة وزنك",
+    dirEn: "roughly 10% above your maintenance calories",
+  },
+};
+
+// The small segmented control used across both builders (the same
+// visual register as the calculator's controls — one product).
+function planSegmented(active: boolean) {
+  return `flex-1 rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+    active
+      ? "bg-[var(--text)] text-[var(--bg)]"
+      : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
+  }`;
+}
+
+// Card A — the interactive WORKOUT-plan builder.
+function WorkoutPlanBuilder({ isAr }: { isAr: boolean }) {
+  // The vocabulary arrives from the REAL planner module (single
+  // source — the homepage labels can never drift from the tool).
+  const goals = workoutGoalOptions(isAr ? "ar" : "en");
+  const levels = workoutLevelOptions(isAr ? "ar" : "en");
+  const equipment = workoutEquipmentOptions(isAr ? "ar" : "en");
+
+  const [goal, setGoal] = useState(goals[1]?.slug ?? "muscle");
+  const [level, setLevel] = useState(levels[0]?.slug ?? "beginner");
+  const [days, setDays] = useState(3);
+  const [equip, setEquip] = useState(equipment[2]?.slug ?? "full-gym");
+
+  const split = WORKOUT_SPLITS[days] ?? WORKOUT_SPLITS[3];
+  const goalLabel = goals.find((g) => g.slug === goal)?.label ?? "";
+  const levelLabel = levels.find((l) => l.slug === level)?.label ?? "";
+  const equipLabel = equipment.find((e) => e.slug === equip)?.label ?? "";
+
+  return (
+    <div className="marble-card flex h-full flex-col p-5 md:p-7">
+      <div className="flex items-center gap-2.5">
+        <EngravedIcon name="rack" alt="" size={20} className="h-5 w-5" />
+        <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+          {isAr ? "خطة التمارين" : "The workout plan"}
+        </h3>
+      </div>
+      <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? "حدّد اختياراتك وشاهد هيكل أسبوعك يتشكل فورًا."
+          : "Set your choices and watch your week take shape instantly."}
+      </p>
+
+      {/* Controls — the real planner vocabulary */}
+      <div className="mt-5 space-y-4">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "هدفك" : "Your goal"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {goals.map((g) => (
+              <button key={g.slug} type="button" onClick={() => setGoal(g.slug)} className={planSegmented(goal === g.slug)}>
+                {g.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "مستواك" : "Your level"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {levels.map((l) => (
+                <button key={l.slug} type="button" onClick={() => setLevel(l.slug)} className={planSegmented(level === l.slug)}>
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "أيام التدريب أسبوعيًا" : "Days per week"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[2, 3, 4, 5, 6].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setDays(d)}
+                  aria-pressed={days === d}
+                  className={`grid min-w-11 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+                    days === d
+                      ? "bg-[var(--text)] text-[var(--bg)]"
+                      : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "معداتك المتاحة" : "Your equipment"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {equipment.map((e) => (
+              <button key={e.slug} type="button" onClick={() => setEquip(e.slug)} className={planSegmented(equip === e.slug)}>
+                {e.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* The live preview — the structure answers instantly */}
+      <div
+        className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
+        aria-live="polite"
+      >
+        <div key={`${days}-${goal}`} className="swap-fade">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "هيكل أسبوعك" : "Your week's structure"}
+          </p>
+          <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+            {isAr ? `${days} أيام — ${split.nameAr}` : `${days} days — ${split.nameEn}`}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(isAr ? split.daysAr : split.daysEn).map((d, i) => (
+              <span key={i} className="seal-chip py-1! text-[11px]!">
+                {isAr ? `اليوم ${i + 1}` : `Day ${i + 1}`}
+                <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
+                {d}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+            {isAr
+              ? `${goalLabel} · ${levelLabel} · ${equipLabel}`
+              : `${goalLabel} · ${levelLabel} · ${equipLabel}`}
+          </p>
+        </div>
+        <p className="mt-4 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+          {isAr
+            ? "الخطة الكاملة — التمارين والمجموعات والتكرارات — يبنيها الذكاء الاصطناعي حول هذه الاختيارات في الأداة."
+            : "The full plan — exercises, sets, and reps — is built by AI around these choices inside the tool."}
+        </p>
+        <div className="mt-4">
+          <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
+            {isAr ? "أنشئ خطة التمارين" : "Create my workout plan"}
+            <span className="rtl:rotate-180" aria-hidden="true">›</span>
+          </a>
+        </div>
       </div>
     </div>
+  );
+}
+
+// Card B — the interactive NUTRITION-plan builder.
+function MealPlanBuilder({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
+  const systems = samples.dietSystems;
+  const [goal, setGoal] = useState<FitnessGoal>("lose");
+  const [systemSlug, setSystemSlug] = useState(systems[0]?.slug ?? "balanced");
+  const system: HomeDietSystemSample | undefined =
+    systems.find((s) => s.slug === systemSlug) ?? systems[0];
+  const goalInfo = MEAL_GOAL_DIRECTIONS[goal];
+
+  const maxSplit = system
+    ? Math.max(system.split.protein, system.split.carbs, system.split.fat)
+    : 1;
+
+  return (
+    <div className="marble-card flex h-full flex-col p-5 md:p-7">
+      <div className="flex items-center gap-2.5">
+        <EngravedIcon name="mealplanner" alt="" size={20} className="h-5 w-5" />
+        <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+          {isAr ? "خطة التغذية" : "The nutrition plan"}
+        </h3>
+      </div>
+      <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? "اختر هدفك ونظامك الغذائي وشاهد توزيع ماكروزك."
+          : "Pick your goal and your diet system, and watch your macro split."}
+      </p>
+
+      {/* Controls */}
+      <div className="mt-5 space-y-4">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "هدفك" : "Your goal"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(MEAL_GOAL_DIRECTIONS) as FitnessGoal[]).map((g) => (
+              <button key={g} type="button" onClick={() => setGoal(g)} className={planSegmented(goal === g)}>
+                {isAr ? MEAL_GOAL_DIRECTIONS[g].labelAr : MEAL_GOAL_DIRECTIONS[g].labelEn}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "نظامك الغذائي" : "Your diet system"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {systems.map((s) => (
+              <button key={s.slug} type="button" onClick={() => setSystemSlug(s.slug)} className={planSegmented(systemSlug === s.slug)}>
+                {isAr ? s.nameAr : s.nameEn}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* The live preview — the REAL matrix split answers instantly */}
+      <div
+        className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
+        aria-live="polite"
+      >
+        {system && (
+          <div key={system.slug} className="swap-fade">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+              {isAr ? "توزيع ماكروزك" : "Your macro split"}
+            </p>
+            <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+              {isAr ? `النظام ${system.nameAr}` : `The ${system.nameEn} system`}
+            </p>
+            <div className="mt-4 space-y-3">
+              {(
+                [
+                  { key: "protein", labelAr: "بروتين", labelEn: "Protein", pct: system.split.protein },
+                  { key: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", pct: system.split.carbs },
+                  { key: "fat", labelAr: "دهون", labelEn: "Fat", pct: system.split.fat },
+                ] as const
+              ).map((m) => (
+                <div key={m.key}>
+                  <div className="mb-1.5 flex items-baseline justify-between text-sm">
+                    <span className="font-medium" style={{ color: PALETTE.textPrim }}>
+                      {isAr ? m.labelAr : m.labelEn}
+                    </span>
+                    <span className="font-semibold" style={{ color: PALETTE.textSec }}>
+                      {m.pct}%
+                    </span>
+                  </div>
+                  <div className="macro-track">
+                    <div
+                      className="macro-fill"
+                      style={{ width: `${Math.max(4, Math.round((m.pct / maxSplit) * 100))}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? `هدفك (${goalInfo.labelAr}): سعراتك المستهدفة ${goalInfo.dirAr}.`
+                : `Your goal (${goalInfo.labelEn}): your target calories sit ${goalInfo.dirEn}.`}
+            </p>
+          </div>
+        )}
+        <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+          {isAr
+            ? "هذا التوزيع هو توزيع النظام الفعلي في المنصة — وخطة وجباتك الكاملة بالغرامات يبنيها الذكاء الاصطناعي في الأداة. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه."
+            : "This split is the system's real split on the platform — and your full meal plan, in grams, is built by AI inside the tool. Don't know your number? Use the calculator above."}
+        </p>
+        <div className="mt-4">
+          <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
+            {isAr ? "أنشئ خطتي" : "Create My Plan"}
+            <span className="rtl:rotate-180" aria-hidden="true">›</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── The diet-system card (the ready-made diet-plan library
+//    carousel, HOME-REFINE-270 R4). Every value is the REAL matrix
+//    data (server slice) — the card links into a real leaf page of
+//    the library (the mid 2000-kcal level of that system). ──
+function LandingDietCard({ system, levelCount, isAr }: { system: HomeDietSystemSample; levelCount: number; isAr: boolean }) {
+  const name = isAr ? system.nameAr : system.nameEn;
+  return (
+    <a
+      href={`${isAr ? "/ar" : ""}/diet-plan/2000/${system.slug}`}
+      className="marble-card card-lift group flex w-72 shrink-0 flex-col p-5 text-start md:w-80"
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+          {isAr ? `النظام ${system.nameAr}` : `${system.nameEn}`}
+        </h3>
+        <span className="whitespace-nowrap text-xs font-normal" style={{ color: PALETTE.textMuted }} dir="ltr">
+          {system.split.protein}/{system.split.carbs}/{system.split.fat}
+        </span>
+      </div>
+      <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {isAr ? system.lineAr : system.lineEn}
+      </p>
+      <p className="mt-3 text-xs font-medium" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? `${levelCount} مستويات سعرات — من 1200 إلى 3000 سعرة`
+          : `${levelCount} calorie levels — from 1200 to 3000 kcal`}
+      </p>
+      <p className="chrome-text mt-3 text-xs font-semibold">
+        {isAr ? "افتح خطة 2000 سعرة ›" : "Open the 2000-kcal plan ›"}
+      </p>
+    </a>
   );
 }
 
@@ -1048,8 +1361,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   const { lang } = useI18n();
   const { isCoach, isAdmin, profile } = useAuth();
   const isAr = lang === "ar";
-  // The hero/final CTA stays account-driven (Phase 203 law): guests get
-  // signup/login, signed-in members get their own console.
+  // The hero CTA stays account-driven for the PRIMARY action; the
+  // secondary CTA is the memberships page (HOME-REFINE-270 R1 — the
+  // owner's two-button directive overrides the old funnel-free-hero
+  // law): guests get login/signup + memberships, signed-in members
+  // get their console + memberships.
   const isLoggedIn = !!profile;
   const memberHref = isAdmin ? "/admin" : isCoach ? "/coach" : "/dashboard";
 
@@ -1058,8 +1374,6 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   // 0037 «أعلن معنا» — coaches with a running ad (homepage featured strip)
   type FeaturedCoach = { slug: string | null; name: string; headline: string; photo: string | null };
   const [featuredCoaches, setFeaturedCoaches] = useState<FeaturedCoach[]>([]);
-  // The living product's active tab (calculator / EVO / library).
-  const [startTab, setStartTab] = useState<"calc" | "evo" | "lib">("calc");
 
   useEffect(() => {
     // Silent fetch — the strip only renders when active ads exist, so a
@@ -1093,11 +1407,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   const premiumTier = MEMBERSHIPS.find((t) => t.id === "premium");
   const proTier = MEMBERSHIPS.find((t) => t.id === "pro");
   const coachingTier = MEMBERSHIPS.find((t) => t.id === "coaching");
-  const paidFromMonthly = Math.min(
-    premiumTier?.priceMonthly ?? Number.POSITIVE_INFINITY,
-    proTier?.priceMonthly ?? Number.POSITIVE_INFINITY,
-  );
-  const paidFromLabel = `$${paidFromMonthly.toFixed(2)}`;
+  const premiumPriceLabel = `$${(premiumTier?.priceMonthly ?? 0).toFixed(2)}`;
+  const proPriceLabel = `$${(proTier?.priceMonthly ?? 0).toFixed(2)}`;
   const coachingPriceLabel = `$${(coachingTier?.priceMonthly ?? 0).toFixed(2)}`;
   const freePriceLabel = `$${(freeTier?.priceMonthly ?? 0).toFixed(0)}`;
 
@@ -1121,53 +1432,53 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   ];
   const faqSchema = getFAQSchema(faqs);
 
-  // Proof strip — the four auditable platform numbers (Freeletics/MFP
-  // pattern: proof lives directly under the promise). Every value rides
-  // a verified constant or a documented quota; nothing invented.
-  // HOME-EXPERIENCE-269: the numbers now COUNT UP on first view —
-  // the first "alive" beat of the page (reduced-motion safe).
+  // Proof strip — the four auditable platform numbers, now as ONE
+  // compact row directly under the promise (HOME-REFINE-270 R2: small
+  // type, numbers + labels inline). Every value rides a verified
+  // constant or a documented quota; nothing invented. The count-up
+  // beat survives (SSR renders the truth; motion is a bonus).
   const proofStats = [
     {
-      icon: "dumbbell",
       value: EXERCISES_COUNT,
       suffix: "+",
-      labelAr: "تمرينًا بصور الأداء الصحيح",
-      labelEn: "exercises with form photos",
+      labelAr: "تمرينًا",
+      labelEn: "exercises",
     },
     {
-      icon: "fruits",
       value: FOODS_COUNT,
       suffix: "+",
-      labelAr: "صنفًا غذائيًا بالسعرات والماكروز",
-      labelEn: "foods with full macros",
+      labelAr: "صنفًا غذائيًا",
+      labelEn: "foods",
     },
     {
-      icon: "calories",
       value: TOOLS_COUNT,
       suffix: "",
-      labelAr: "أدوات مجانية بلا حساب",
-      labelEn: "free tools — no account needed",
+      labelAr: "أدوات مجانية",
+      labelEn: "free tools",
     },
     {
-      icon: "evo",
       value: 10,
       suffix: "",
-      labelAr: "رسائل مع EVO يوميًا — مجانًا",
-      labelEn: "EVO messages a day, free",
+      labelAr: "رسائل EVO يوميًا",
+      labelEn: "daily EVO messages",
     },
   ];
 
-  // The growth ladder — the memberships.ts repositioning ladder
-  // (Free = Experience → Premium = Manage → Pro = Adapt & Optimize →
-  // Coaching = Human Coach + AI) rendered as the JOURNEY the member
-  // walks. Tier names derive from MEMBERSHIPS (single source); the
-  // one-word stages are the repositioning vocabulary.
-  const ladder = [
-    { tier: freeTier, stageAr: "تجربة", stageEn: "Experience" },
-    { tier: premiumTier, stageAr: "إدارة", stageEn: "Manage" },
-    { tier: proTier, stageAr: "تكييف وتحسين", stageEn: "Adapt & optimize" },
-    { tier: coachingTier, stageAr: "مدرب بشري مع الذكاء", stageEn: "Human coach + AI" },
-  ];
+  // The ready-made plans count derives from the real matrix slice
+  // (systems × levels = 4 × 6 = 24) — never a literal.
+  const dietPlansCount = samples.dietSystems.length * samples.dietLevels.length;
+
+  // The dark-marble + chrome-ring card recipe (the /memberships visual
+  // language — one concept, one recipe).
+  const darkMarbleStyle = {
+    backgroundColor: "#0B0B0D",
+    color: "#F5F5F7",
+    border: "2px solid transparent",
+    backgroundImage:
+      "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
+    backgroundOrigin: "border-box",
+    backgroundClip: "padding-box, border-box",
+  } as const;
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -1181,11 +1492,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
       {/* ===================== 1. HERO — Promise =====================
           The Phase 131 overlay scene stays (owner artwork + chrome logo
-          + H1 + subtitle + account CTA). The supporting line now points
-          AT the living experience below («جرّبها في هذه الصفحة») — the
-          promise and the proof live on the same screen. The primary CTA
-          stays account-driven (Phase 203); the secondary now scrolls
-          INTO the product instead of routing away. */}
+          + H1 + subtitle). HOME-REFINE-270 R1: exactly TWO CTAs side by
+          side — login/signup (primary) + the premium-memberships page
+          (secondary); signed-in members keep their console as the
+          primary. On touch the actions STACK full-width (no mis-tap
+          risk beside the artwork); md+ keeps the single centered row. */}
       <section className="hero-art relative w-full">
         {/* Artwork layer — absolute cover, theme-swapped pair, eager (LCP). */}
         <div className="hero-bg" aria-hidden="true">
@@ -1228,36 +1539,34 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               : "One platform for training, nutrition, and smart planning — with EVO, your AI coach, built in. Try it right on this page, in Arabic and English."}
           </p>
 
-          {/* Account-action CTA pair (Phase 203 law): guests get ONE
-              primary chrome button → signup + ONE quiet login link;
-              signed-in members get their own console. On touch the
-              actions STACK full-width (no mis-tap risk beside the
-              artwork); md+ keeps the single centered row. */}
+          {/* The two-button pair (R1). */}
           <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
             {isLoggedIn ? (
-              <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
-                {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
-                <span className="rtl:rotate-180">›</span>
-              </a>
-            ) : (
               <>
-                <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
-                  {isAr ? "ابدأ مجانًا" : "Start free"}
+                <a href={memberHref} className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
+                  {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
                   <span className="rtl:rotate-180">›</span>
                 </a>
                 <a
-                  href="#start"
+                  href={isAr ? "/ar/memberships" : "/memberships"}
                   className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
-                  {isAr ? "جرّبها الآن في الصفحة" : "Try it on this page"}
+                  {isAr ? "العضويات المميزة" : "Premium memberships"}
                   <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
+              </>
+            ) : (
+              <>
+                <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
+                  {isAr ? "تسجيل الدخول / حساب جديد" : "Log in / Sign up"}
+                  <span className="rtl:rotate-180">›</span>
+                </a>
                 <a
-                  href="/auth?mode=login"
-                  className="mt-4 self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70 md:mt-0"
-                  style={{ color: PALETTE.textSec }}
+                  href={isAr ? "/ar/memberships" : "/memberships"}
+                  className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
-                  {isAr ? "تسجيل الدخول" : "Log in"}
+                  {isAr ? "العضويات المميزة" : "Premium memberships"}
+                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </>
             )}
@@ -1265,120 +1574,162 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 2. PROOF — the platform in numbers =====================
-          Auditable proof directly under the promise — the pattern every
-          leader in the category uses. All four values ride verified
-          constants or documented quotas (EXERCISES_COUNT / FOODS_COUNT /
-          TOOLS_COUNT / the EVO fair-use daily limit); the page invents
-          nothing. HOME-EXPERIENCE-269: the numbers COUNT UP once when
-          the strip enters the view — the page's first heartbeat. */}
-      <section aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"} className="border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-8 md:py-10">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-y-8 md:grid-cols-4">
+      {/* ===================== 2. PROOF — one compact row =====================
+          The four auditable numbers as a single slim band (R2). All values
+          ride verified constants or documented quotas
+          (EXERCISES_COUNT / FOODS_COUNT / TOOLS_COUNT / the EVO
+          fair-use daily limit); the page invents nothing. The count-up
+          beat survives — reduced-motion safe, SSR-honest. */}
+      <section aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"} className="border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-3.5 md:py-4">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10">
           {proofStats.map((stat) => (
-            <div key={stat.labelEn} className="flex flex-col items-center px-3 text-center">
-              <EngravedIcon name={stat.icon} alt="" size={28} className="h-7 w-7" />
-              <span className="chrome-text mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+            <span key={stat.labelEn} className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
+              <span className="chrome-text text-base font-bold tracking-tight md:text-lg">
                 <CountUp value={stat.value} suffix={stat.suffix} />
               </span>
-              <span className="mt-1 max-w-[18ch] text-xs font-normal leading-snug md:text-sm" style={{ color: PALETTE.textSec }}>
+              <span className="text-xs font-normal md:text-sm" style={{ color: PALETTE.textSec }}>
                 {isAr ? stat.labelAr : stat.labelEn}
               </span>
-            </div>
+            </span>
           ))}
         </div>
       </section>
 
-      {/* ===================== 3. THE LIVING PRODUCT =====================
-          The heart of HOME-EXPERIENCE-269: three REAL product surfaces
-          running in-page — the answer to «الصفحة تعرض المنتج ولا تجعلك
-          تعيشه». A visitor CALCULATES their real numbers with the app's
-          own math, SEES an EVO conversation unfold, and BROWSES the
-          real library by muscle group — all before any signup. The
-          three tabs are the three product engines (numbers ·
-          intelligence · content). */}
+      {/* ===================== 3. THE CALCULATOR — independent (R3) =====================
+          The first of the three former tab surfaces, now its own section:
+          the REAL calorie/macro calculator running the app's own math
+          (fitness-math.ts single source) — the visitor gets their real
+          numbers on the homepage itself. */}
       <section id="start" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
-              <span className="live-dot" aria-hidden="true" />
-              {isAr ? "تجربة حية — دون تسجيل" : "LIVE ON THIS PAGE — NO SIGNUP"}
+              <EngravedIcon name="calories" alt="" size={12} className="h-3 w-3" />
+              {isAr ? "حاسبة السعرات والماكروز" : "THE CALORIE & MACRO CALCULATOR"}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "لا تقرأ عن المنصة. استخدمها الآن." : "Don't read about it. Use it right now."}
+              {isAr ? "اعرف أرقامك قبل أي خطوة." : "Know your numbers before anything else."}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "ثلاثة أسطح حقيقية من Alkemos تعمل هنا في الصفحة — نفس المعادلات، ونفس البيانات، ونفس الذكاء الذي ستجده داخل حسابك."
-                : "Three real Alkemos surfaces running live on this page — the same math, the same data, and the same intelligence waiting inside your account."}
+                ? "سعراتك اليومية وتوزيع ماكروزك حول هدفك — بنفس معادلات المنصة، ودون أي تسجيل."
+                : "Your daily calories and macro split around your goal — the platform's own formulas, no signup."}
             </p>
           </Reveal>
-
-          {/* The tabs — the three product engines */}
           <Reveal delay={80} className="mt-8 md:mt-10">
-            <div className="home-tabs mx-auto max-w-2xl" role="tablist" aria-label={isAr ? "أسطح المنتج" : "Product surfaces"}>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={startTab === "calc"}
-                onClick={() => setStartTab("calc")}
-                className="home-tab"
-              >
-                <EngravedIcon name="calories" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "احسب أرقامك" : "Calculate your numbers"}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={startTab === "evo"}
-                onClick={() => setStartTab("evo")}
-                className="home-tab"
-              >
-                <EngravedIcon name="evo" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "اسأل EVO" : "Ask EVO"}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={startTab === "lib"}
-                onClick={() => setStartTab("lib")}
-                className="home-tab"
-              >
-                <EngravedIcon name="dumbbell" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "تصفّح التمارين" : "Browse exercises"}
-              </button>
+            <div className="marble-card marble-card--unclipped p-4 md:p-8 lg:p-10">
+              <HomeCalculator isAr={isAr} />
             </div>
+          </Reveal>
+        </div>
+      </section>
 
-            {/* The panels — inactive surfaces stay in the DOM (hidden
-                attribute only) so crawlers and screen readers keep the
-                full content; only ONE surface is interactive at a time. */}
-            <div className="marble-card marble-card--unclipped mt-6 p-4 md:mt-8 md:p-8 lg:p-10">
-              <div role="tabpanel" hidden={startTab !== "calc"}>
-                <HomeCalculator isAr={isAr} />
+      {/* ===================== 4. EVO — independent (R3/R5) =====================
+          EVO owns its own section (the owner directive: it is a SEPARATE
+          thing from the smart-planning world). The Phase 127 warrior-art
+          recipe stays: text on the inline-start, warrior art dissolving
+          into the marble on the inline-end (.evo-art-mask, mirrored in
+          RTL). The demo conversation stays LABELED illustrative and the
+          CTA dispatches openEvoFloatingChat — the EVO CHAT SURFACE LAW. */}
+      <section id="evo" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
+              {/* Desktop warrior art — inline-end, masked into the marble. */}
+              <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[46%] items-end justify-center md:flex" aria-hidden="true">
+                <ThemeImg
+                  light="/images/brand/evo-hero-light.webp"
+                  dark="/images/brand/evo-hero-dark.webp"
+                  alt=""
+                  width={640}
+                  height={675}
+                  className="evo-art-mask h-full w-auto object-contain object-bottom"
+                />
               </div>
-              <div role="tabpanel" hidden={startTab !== "evo"}>
-                <EvoTeaser isAr={isAr} />
+              <div className="relative max-w-xl">
+                <span className="seal-chip">
+                  <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
+                  {isAr ? "EVO — مدربك الذكي داخل المنصة" : "EVO — YOUR AI COACH"}
+                </span>
+                <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+                  {isAr ? "تحدّث مع EVO — بالعربية أو الإنجليزية." : "Talk to EVO — in Arabic or English."}
+                </h2>
+                <p className="mt-3 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
+                  {isAr
+                    ? "يفهم هدفك، يجيب بأرقام، ثم يبني خطتك ويعدّلها بتبديلات ذكية — والفقاعة أسفل الصفحة تفتح المحادثة الحقيقية الآن."
+                    : "It understands your goal, answers with numbers, then builds and adjusts your plan with smart swaps — the bubble at the bottom of this page opens the real chat now."}
+                </p>
+                <div className="mt-7">
+                  <EvoConversation isAr={isAr} />
+                </div>
               </div>
-              <div role="tabpanel" hidden={startTab !== "lib"}>
-                <LibraryBrowser samples={samples} isAr={isAr} />
+              {/* Mobile warrior art — a quiet centered cutout under the
+                  copy (the absolute treatment is md+ only, so phone text
+                  never competes with the artwork). */}
+              <div className="mt-8 flex justify-center md:hidden" aria-hidden="true">
+                <ThemeImg
+                  light="/images/brand/evo-hero-light.webp"
+                  dark="/images/brand/evo-hero-dark.webp"
+                  alt=""
+                  width={640}
+                  height={675}
+                  className="h-auto w-40 object-contain opacity-90"
+                />
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* ===================== 4. TRAIN — the plan world =====================
-          HOME-EXPERIENCE-269: the exercise GRID moved into the living
-          tab (above) so this section tells a DIFFERENT story — the PLAN
-          world. Programs lead: a complete schedule that carries a
-          beginner from day one, and the AI planner for the ones who
-          want theirs built from scratch. No two sections on this page
-          share a skeleton anymore. */}
+      {/* ===================== 5. SMART PLANNING — interactive (R5) =====================
+          The rebuilt planning section, exactly as the owner directed:
+          INTERACTIVE like the tools — a workout-plan builder + a
+          nutrition-plan builder, both answering live. EVO is not
+          mentioned here (it owns #evo above) and no coach is
+          referenced (online coaching is a separate paid membership —
+          the old «مدرب يواكب تقدّمك» framing was wrong and is gone). */}
+      <section id="plan" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
+              {isAr ? "التخطيط الذكي" : "SMART PLANNING"}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "خطتك تُبنى حول اختياراتك." : "Your plan is built around your choices."}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? "جرّبها الآن: حدّد هدفك ومستواك ووقتك ونظامك الغذائي وشاهد خطتك تتشكل هنا — ثم أنشئها كاملة بالذكاء الاصطناعي في ثوانٍ."
+                : "Try it now: set your goal, level, schedule, and diet system, and watch your plan take shape here — then generate the full thing with AI in seconds."}
+            </p>
+            <p className="mx-auto mt-3 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
+              {isAr
+                ? "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط — دون تسجيل."
+                : "Every visitor carries a free monthly plan allowance — no signup."}
+            </p>
+          </Reveal>
+          <div className="mt-8 grid gap-5 md:mt-10 lg:grid-cols-2">
+            <Reveal className="h-full">
+              <WorkoutPlanBuilder isAr={isAr} />
+            </Reveal>
+            <Reveal delay={80} className="h-full">
+              <MealPlanBuilder samples={samples} isAr={isAr} />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== 6. TRAIN — the plan world =====================
+          Programs lead: a complete schedule that carries a beginner
+          from day one. The AI-planner CTA pair stays (it reinforces
+          #plan directly above). */}
       <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
-              {isAr ? `${EX_PLUS} تمرينًا في المكتبة` : `${EX_PLUS} EXERCISES IN THE LIBRARY`}
+              {isAr ? "برامج جاهزة" : "READY-MADE PROGRAMS"}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
               {isAr ? "خطة كاملة تقودك، أسبوعًا بأسبوع." : "A complete plan to guide you, week by week."}
@@ -1415,7 +1766,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 5. EAT — the interactive plate =====================
+      {/* ===================== 7. EAT — the interactive plate =====================
           The food database made TOUCHABLE: pick a real food and watch
           its real per-100g numbers move (the same semantics as the
           /foods explorer — now answering in-page). */}
@@ -1448,146 +1799,103 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 6. INTELLIGENCE — AI planners + EVO =====================
-          The two AI surfaces tell ONE story — the planners build the
-          plan, EVO keeps it moving. The quota facts are stated plainly
-          (unified pool decree + EVO fair-use limit): transparency here
-          is the conversion pattern, and honesty is the brand. The EVO
-          CHAT SURFACE LAW stays untouched: the floating widget is the
-          only chat surface and this section's EVO CTA dispatches
-          openEvoFloatingChat. The card keeps the Phase 127 warrior-art
-          recipe: text on the inline-start, warrior art dissolving into
-          the marble on the inline-end (.evo-art-mask, mirrored in RTL). */}
-      <section id="evo" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      {/* ===================== 8. THE EXERCISE LIBRARY — carousel (R4) =====================
+          A blog-style carousel of the real curated exercise samples —
+          every card is a real exercise page entry point. Moved to sit
+          right before the blog (the owner's placement directive). */}
+      <section id="library" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
-              {/* Desktop warrior art — inline-end, masked into the marble. */}
-              <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[46%] items-end justify-center md:flex" aria-hidden="true">
-                <ThemeImg
-                  light="/images/brand/evo-hero-light.webp"
-                  dark="/images/brand/evo-hero-dark.webp"
-                  alt=""
-                  width={640}
-                  height={675}
-                  className="evo-art-mask h-full w-auto object-contain object-bottom"
-                />
-              </div>
-              <div className="relative max-w-xl">
-                <span className="seal-chip">
-                  <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-                  {isAr ? "التخطيط الذكي و EVO" : "SMART PLANNING + EVO"}
-                </span>
-                <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                  {isAr ? "خطة مبنية حولك — ومدرب يواكب تقدّمك." : "A plan built around you — and a coach who keeps it moving."}
-                </h2>
-                {/* The three steps mirror how the planners + EVO actually
-                    flow: inputs → plan → adjustments. */}
-                <div className="mt-7 space-y-5">
-                  {(isAr
-                    ? [
-                        { n: "01", t: "حدّد هدفك ومستواك", d: "معداتك المتاحة ووقتك وتفضيلاتك — التخطيط يُبنى حول واقعك." },
-                        { n: "02", t: "استلم خطتك", d: "خطة تغذية وتمارين مبنية على إجاباتك — لا قوالب عامة." },
-                        { n: "03", t: "عدّلها كلما تقدّمت", d: "تبديلات ذكية للوجبات والتمارين تُبقي خطتك تتحرك مع حياتك." },
-                      ]
-                    : [
-                        { n: "01", t: "Tell it where you are", d: "Your goal, level, equipment, and schedule — the planners build around what's real." },
-                        { n: "02", t: "Get your plan", d: "A nutrition and workout plan shaped by your answers — not generic templates." },
-                        { n: "03", t: "Adjust as you go", d: "Smart meal and exercise swaps keep the plan moving as your life does." },
-                      ]
-                  ).map((step) => (
-                    <div key={step.n} className="flex gap-4">
-                      <span className="chrome-text shrink-0 text-lg font-semibold">{step.n}</span>
-                      <div>
-                        <p className="text-base font-semibold" style={{ color: PALETTE.textPrim }}>{step.t}</p>
-                        <p className="mt-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>{step.d}</p>
-                      </div>
-                    </div>
-                  ))}
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
+              {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "مكتبة التمارين" : "The exercise library"}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? "عينة حقيقية من المكتبة — كل تمرين بصفحته وصور الأداء الصحيح وشرح واضح."
+                : "A real slice of the library — every exercise opens its own page with form photos and clear instructions."}
+            </p>
+          </Reveal>
+          <Reveal delay={80} className="mt-8 md:mt-10">
+            <CarouselShell isAr={isAr} ariaLabel={isAr ? "عينة من مكتبة التمارين" : "A slice of the exercise library"}>
+              {samples.exercises.map((ex) => (
+                <div key={ex.slug} className="w-60 shrink-0 sm:w-64">
+                  <LandingExerciseCard ex={ex} isAr={isAr} />
                 </div>
-                {/* Quota transparency — the real limits, stated as fact
-                    (memberships.ts free tier + the unified pool decree). */}
-                <p className="mt-6 rounded-[10px] border border-[var(--edge)] bg-[var(--tint)] p-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "مجاني من أول لحظة: كل زائر يملك رصيدًا شهريًا لخطط الذكاء الاصطناعي و10 رسائل يوميًا مع EVO — والتجربة لا تحتاج حسابًا. وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
-                    : "Free from the first minute: every visitor carries a monthly AI-plan allowance and 10 messages a day with EVO — no account needed to try. A free account saves your plans and syncs them across devices."}
-                </p>
-                {/* CTA rows: the planners (one primary each) + EVO (the
-                    widget law — the button OPENS THE WIDGET, never a chat
-                    page link; the /chat route is retired). */}
-                <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
-                  <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-chrome px-6 py-3 text-sm md:text-base">
-                    {isAr ? "أنشئ خطتي" : "Create My Plan"}
-                  </a>
-                  <a href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                    {isAr ? "مخطط التمارين الذكي ›" : "AI Workout Planner ›"}
-                  </a>
-                </div>
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-                  <button
-                    type="button"
-                    onClick={openEvoFloatingChat}
-                    className="btn-outline inline-flex cursor-pointer items-center gap-3 px-5 py-2.5 text-sm font-medium"
-                  >
-                    <ThemeImg
-                      light="/images/brand/evo-widget-light.webp"
-                      dark="/images/brand/evo-widget-dark.webp"
-                      alt="EVO"
-                      width={32}
-                      height={32}
-                      className="h-7 w-7 rounded-full object-cover"
-                    />
-                    <span>{isAr ? "جرّب EVO" : "Try EVO"}</span>
-                  </button>
-                  <a
-                    href={isAr ? "/ar/evo" : "/evo"}
-                    className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-                    style={{ color: PALETTE.textSec }}
-                  >
-                    {isAr ? "اعرف المزيد عن EVO ›" : "Learn more about EVO ›"}
-                  </a>
-                </div>
-                {/* Mobile warrior art — a quiet centered cutout under the
-                    copy (the absolute treatment is md+ only, so phone text
-                    never competes with the artwork). */}
-                <div className="mt-8 flex justify-center md:hidden" aria-hidden="true">
-                  <ThemeImg
-                    light="/images/brand/evo-hero-light.webp"
-                    dark="/images/brand/evo-hero-dark.webp"
-                    alt=""
-                    width={640}
-                    height={675}
-                    className="h-auto w-40 object-contain opacity-90"
-                  />
-                </div>
-              </div>
-            </div>
+              ))}
+            </CarouselShell>
+          </Reveal>
+          <Reveal delay={120} className="mt-8 text-center">
+            <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
+              {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
+              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+            </a>
           </Reveal>
         </div>
       </section>
 
-      {/* ===================== 7. LEARN =====================
-          A focused selection of real articles — the blog stays a
-          first-class part of the experience (Phase 202 owner order).
-          Selection logic (selectHomeBlogCarousels) untouched; the whole
-          section renders only when posts loaded (the needsPosts law). */}
+      {/* ===================== 9. THE READY-MADE DIET LIBRARY — carousel (R4) =====================
+          The owner directive: add the ready-made diet-plan library
+          (مكتبة الخطط الغذائية الجاهزة) to the homepage, beside the
+          exercise library. Real matrix data (server slice) — every card
+          links into a real leaf page of the /diet-plan library. */}
+      <section id="diet" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="mealplanner" alt="" size={12} className="h-3 w-3" />
+              {isAr ? `${dietPlansCount} خطة جاهزة` : `${dietPlansCount} READY-MADE PLANS`}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "مكتبة الخطط الغذائية الجاهزة" : "The ready-made diet-plan library"}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {isAr
+                ? "أنظمة جاهزة بالغرامات والسعرات لكل صنف، من مطبخ عربي مألوف — من 1200 إلى 3000 سعرة."
+                : "Ready-made systems with grams and calories per food, from a familiar Arabic kitchen — from 1200 to 3000 kcal."}
+            </p>
+          </Reveal>
+          <Reveal delay={80} className="mt-8 md:mt-10">
+            <CarouselShell isAr={isAr} ariaLabel={isAr ? "الأنظمة الغذائية الجاهزة" : "The ready-made diet systems"}>
+              {samples.dietSystems.map((system) => (
+                <LandingDietCard
+                  key={system.slug}
+                  system={system}
+                  levelCount={samples.dietLevels.length}
+                  isAr={isAr}
+                />
+              ))}
+            </CarouselShell>
+          </Reveal>
+          <Reveal delay={120} className="mt-8 text-center">
+            <a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
+              {isAr ? "افتح مكتبة الخطط الغذائية" : "Open the diet-plan library"}
+              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+            </a>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ===================== 10. LEARN — the latest articles (R6) =====================
+          The simple title the owner asked for («أحدث المقالات»), and
+          the carousel is LATEST-FIRST: the newest posts actually lead
+          the row (featured posts fill the rest; featured slugs keep
+          the dark lead-card styling). The section renders only when
+          posts loaded (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
           <div className="mx-auto max-w-6xl">
             <Reveal className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "تعلّم. طبّق. تقدّم." : "Learn. Apply. Progress."}
+                {isAr ? "أحدث المقالات" : "Latest Articles"}
               </h2>
-              <p className="mx-auto mt-3 max-w-xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? "مقالات بالعربية والإنجليزية تشرح التدريب والتغذية بأسلوب واضح — اقرأ ما يخص هدفك وطبّقه في تدريبك وفي طبقك."
-                  : "Articles in English and Arabic that explain training and nutrition in plain terms — read what matters for your goal and put it to work."}
-              </p>
             </Reveal>
-            {/* ONE carousel — featured posts lead the row as dark cards. */}
             <div className="mt-10">
               <BlogCarousel
-                posts={[...featuredPosts, ...latestPosts].slice(0, 10)}
+                posts={[...latestPosts, ...featuredPosts].slice(0, 10)}
                 featuredSlugs={featuredPosts.map((p) => p.slug)}
                 isAr={isAr}
               />
@@ -1606,163 +1914,141 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           ends here, the services act begins. */}
       <div className="meander-divider" aria-hidden="true" />
 
-      {/* ===================== 8. FREE vs PAID — the growth journey =====================
-          HOME-EXPERIENCE-269: the section OPENS with the growth ladder
-          (the memberships.ts repositioning — Free = Experience →
-          Premium = Manage → Pro = Adapt & Optimize → Coaching = Human
-          Coach + AI) so the money moment reads as the member's JOURNEY,
-          not a price sheet. The three cards below stay exactly the
-          honest 258 design: prices derived from memberships.ts (single
-          source — no literals), the middle card is the visual hero
-          (dark marble + chrome ring + laurel), and the refund line
-          states the REAL 7-day conditional refund (src/lib/refund.ts). */}
+      {/* ===================== 11. MEMBERSHIPS — small cards (R7) =====================
+          The compact treatment the owner asked for: SMALL attractive
+          membership cards + one online-coaching card. Prices derive
+          from memberships.ts (single source — no literals); the free
+          card routes to signup, premium/pro to the memberships page;
+          the coaching card (the dark marble + chrome ring) carries the
+          section's single filled CTA. */}
       <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "مجاني فعلًا. والترقية قرارك." : "Free, for real. Upgrading is your call."}
+              {isAr ? "العضويات المميزة" : "Premium memberships"}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "لن تصطدم بجدار دفع كي تتدرّب أو تتغذّى جيدًا — الباقات المدفوعة لمن تجاوز حدود المستوى المجاني: تخطيط أوسع، وEVO بلا حدود، وتصدير، أو مدرب بشري."
-                : "You never hit a paywall to train or eat well here — paid plans exist for when you outgrow the free tier: more AI planning, unlimited EVO, export, or a human coach."}
+                ? "المستوى المجاني دائم — والترقية حين تحتاج سعة أكبر ومزايا أوسع."
+                : "The free tier is permanent — upgrade when you need more room and wider features."}
             </p>
           </Reveal>
 
-          {/* The growth ladder — the journey strip (tier names derive
-              from memberships.ts; stages are the repositioning words). */}
-          <Reveal delay={60} className="mt-8 md:mt-10">
-            <ol className="mx-auto flex max-w-4xl flex-col gap-3 sm:grid sm:grid-cols-4 sm:gap-0">
-              {ladder.map((step, i) => (
-                <li
-                  key={step.tier?.id ?? i}
-                  className="relative flex items-center gap-3 rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] px-4 py-3 sm:flex-col sm:items-center sm:gap-1 sm:border-0 sm:bg-transparent sm:px-2 sm:py-0 sm:text-center"
-                >
-                  {/* The connector (desktop) — the road between stages. */}
-                  {i > 0 && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-y-0 start-0 hidden w-px sm:block sm:h-px sm:w-auto sm:inset-x-auto sm:inset-y-0 sm:top-[-50%] sm:left-auto sm:right-[-50%]"
-                      style={{ backgroundColor: "var(--edge)" }}
-                    />
-                  )}
-                  <span className="chrome-text text-sm font-bold">{`0${i + 1}`}</span>
-                  <div>
-                    <p className="text-sm font-semibold leading-tight" style={{ color: PALETTE.textPrim }}>
-                      {isAr ? step.tier?.nameAr : step.tier?.nameEn}
-                    </p>
-                    <p className="mt-0.5 text-xs font-normal" style={{ color: PALETTE.textSec }}>
-                      {isAr ? step.stageAr : step.stageEn}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 md:mt-8 md:grid-cols-3">
-            {/* Card 1 — FREE: the real free tier (memberships.ts). */}
+          {/* The small membership cards (Free · Premium · Pro). */}
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 md:mt-10">
+            {/* Free — routes to signup. */}
             <Reveal className="h-full">
-              <div className="marble-card flex h-full flex-col p-5 md:p-8">
+              <a href="/auth?mode=signup" className="marble-card card-lift group flex h-full flex-col p-5 text-start">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                  <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
                     {isAr ? freeTier?.nameAr : freeTier?.nameEn}
                   </h3>
                   <span className="chrome-text text-lg font-bold">{freePriceLabel}</span>
                 </div>
-                <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                   {isAr
-                    ? "كل ما جربته في هذه الصفحة: المكتبات كاملة، وكل أداة، وحاسبتك الآن، ورصيدك الشهري من الخطط الذكية، وEVO — مجانًا ودائمًا."
-                    : "Everything you just tried on this page: the full libraries, every tool, the calculator you just used, your monthly AI plans, and EVO — free forever."}
+                    ? "كل المكتبات والأدوات، ورصيد شهري للخطط الذكية."
+                    : "Every library and tool, plus a monthly AI-plan allowance."}
                 </p>
-                <div className="mt-6">
-                  <a href="/auth?mode=signup" className="btn-outline px-6 py-2.5 text-sm font-medium">
-                    {isAr ? "ابدأ مجانًا" : "Start free"}
-                    <span className="rtl:rotate-180" aria-hidden="true">›</span>
-                  </a>
-                </div>
-              </div>
+                <p className="chrome-text mt-4 text-sm font-semibold">
+                  {isAr ? "ابدأ مجانًا ›" : "Start free ›"}
+                </p>
+              </a>
             </Reveal>
-            {/* Card 2 — PREMIUM & PRO: the management delta, the ONE
-                filled CTA of the section (O-3 asymmetry law). */}
+            {/* Premium — the recommended card (dark marble + chrome ring). */}
             <Reveal delay={80} className="h-full">
-              <div
-                className="relative flex h-full flex-col p-5 md:p-8"
-                style={{
-                  backgroundColor: "#0B0B0D",
-                  color: "#F5F5F7",
-                  border: "2px solid transparent",
-                  backgroundImage:
-                    "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
-                  backgroundOrigin: "border-box",
-                  backgroundClip: "padding-box, border-box",
-                }}
-              >
-                {/* The /memberships Pro-card recipe: the seal straddles the
-                    top border, centered (same label as the pricing page —
-                    one concept, one wording). */}
-                <span className="seal-chip absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0B0B0D]" style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}>
+              <div className="relative h-full" style={darkMarbleStyle}>
+                <span
+                  className="seal-chip absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0B0B0D]"
+                  style={{ color: "#F5F5F7", borderColor: "#3A3F45" }}
+                >
                   <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
                   {isAr ? "موصى بها" : "Recommended"}
                 </span>
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: "#F5F5F7" }}>
+                <a
+                  href={isAr ? "/ar/memberships" : "/memberships"}
+                  className="flex h-full flex-col p-5 pt-6 text-start"
+                  style={{ color: "#F5F5F7" }}
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#F5F5F7" }}>
+                      {isAr ? premiumTier?.nameAr : premiumTier?.nameEn}
+                    </h3>
+                    <span className="chrome-text-on-dark text-lg font-bold">
+                      {premiumPriceLabel}
+                      <span className="text-xs font-medium" style={{ color: "rgba(245,245,247,0.6)" }}>
+                        {isAr ? " / شهريًا" : " /mo"}
+                      </span>
+                    </span>
+                  </div>
+                  <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
                     {isAr
-                      ? `${premiumTier?.nameAr ?? ""} و${proTier?.nameAr ?? ""}`
-                      : `${premiumTier?.nameEn ?? ""} & ${proTier?.nameEn ?? ""}`}
-                  </h3>
-                  <span className="chrome-text-on-dark text-lg font-bold">{paidFromLabel}</span>
-                </div>
-                <p className="mt-1 text-xs font-medium" style={{ color: "rgba(245,245,247,0.6)" }}>
-                  {isAr ? `ابتداءً من ${paidFromLabel} شهريًا` : `From ${paidFromLabel}/mo`}
-                </p>
-                <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
-                  {isAr
-                    ? "توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات مع برو."
-                    : "More AI plan generations, unlimited EVO chat, full export, and an ad-free experience on Pro."}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {MEMBERSHIPS.filter((tier) => tier.id === "premium" || tier.id === "pro").map((tier) => (
-                    <span key={tier.id} className="seal-chip py-1! text-[10px]!" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#F5F5F7", borderColor: "rgba(255,255,255,0.25)" }}>{isAr ? tier.nameAr : tier.nameEn}</span>
-                  ))}
-                </div>              <div className="mt-6">
-                  <a href={isAr ? "/ar/memberships" : "/memberships"} className="btn-chrome px-6 py-2.5 text-sm font-medium">
-                    {isAr ? "تفاصيل الباقات ›" : "See memberships ›"}
-                    <span className="rtl:rotate-180" aria-hidden="true">›</span>
-                  </a>
-                </div>
+                      ? "EVO بلا حدود، و4 خطط شهريًا، وتصدير كامل."
+                      : "Unlimited EVO, 4 plans a month, full export."}
+                  </p>
+                  <p className="mt-4 text-sm font-semibold" style={{ color: "#F5F5F7" }}>
+                    {isAr ? "التفاصيل ›" : "See details ›"}
+                  </p>
+                </a>
               </div>
             </Reveal>
-            {/* Card 3 — COACHING: the human-coach promise (memberships.ts
-                coaching entry), the quiet path by design. */}
+            {/* Pro. */}
             <Reveal delay={160} className="h-full">
-              <div className="marble-card flex h-full flex-col p-5 md:p-8">
+              <a href={isAr ? "/ar/memberships" : "/memberships"} className="marble-card card-lift group flex h-full flex-col p-5 text-start">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? coachingTier?.nameAr : coachingTier?.nameEn}
+                  <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                    {isAr ? proTier?.nameAr : proTier?.nameEn}
                   </h3>
-                  <span className="chrome-text text-lg font-bold">{coachingPriceLabel}</span>
-                </div>
-                <p className="mt-4 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "مدرب بشري يبني خططك، ويتابع تقدّمك أسبوعًا بأسبوع، ويبقى على تواصل مباشر معك — مع كل مزايا برو."
-                    : "A human coach builds your plans, follows your progress week by week, and stays in direct contact — every Pro feature included."}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="seal-chip py-1! text-[10px]!">
-                    <EngravedIcon name="checkseal" alt="" size={11} className="h-3 w-3" />
-                    {isAr ? "يشمل كل مزايا برو" : "ALL PRO FEATURES INCLUDED"}
+                  <span className="chrome-text text-lg font-bold">
+                    {proPriceLabel}
+                    <span className="text-xs font-medium" style={{ color: PALETTE.textMuted }}>
+                      {isAr ? " / شهريًا" : " /mo"}
+                    </span>
                   </span>
                 </div>
-                <div className="mt-6">
-                  <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                    {isAr ? "استكشف الكوتشينج ›" : "Explore coaching ›"}
-                    <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                  {isAr
+                    ? "8 خطط شهريًا، وتجربة بلا إعلانات."
+                    : "8 plans a month, and an ad-free experience."}
+                </p>
+                <p className="chrome-text mt-4 text-sm font-semibold">
+                  {isAr ? "التفاصيل ›" : "See details ›"}
+                </p>
+              </a>
+            </Reveal>
+          </div>
+
+          {/* The online-coaching card — the human service, separate from
+              the memberships (the terminology law), carrying the
+              section's ONE filled CTA. */}
+          <Reveal delay={200} className="mt-4 md:mt-5">
+            <div className="relative overflow-hidden rounded-[var(--radius-chrome)] p-5 md:p-7" style={darkMarbleStyle}>
+              <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: "#F5F5F7" }}>
+                    {isAr ? "التدريب الأونلاين (الكوتشينج)" : "Online Coaching"}
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
+                    {isAr
+                      ? "مدرب بشري يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — ويشمل كل مزايا برو."
+                      : "A human coach builds your plans personally, follows your progress weekly, and stays in direct contact — all Pro features included."}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-start gap-3 md:items-end">
+                  <span className="chrome-text-on-dark text-2xl font-bold">
+                    {coachingPriceLabel}
+                    <span className="text-xs font-medium" style={{ color: "rgba(245,245,247,0.6)" }}>
+                      {isAr ? " / شهريًا" : " /mo"}
+                    </span>
+                  </span>
+                  <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium">
+                    {isAr ? "استكشف التدريب الأونلاين ›" : "Explore online coaching ›"}
                   </a>
                 </div>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
+
           {/* The REAL refund policy, stated as fact (refund.ts: 7-day
               conditional, no-features-used). */}
           <p className="mx-auto mt-6 max-w-2xl text-center text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
@@ -1773,7 +2059,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 6.5 FEATURED COACHES («أعلن معنا» ads) =====================
+      {/* ===================== 11.5 FEATURED COACHES («أعلن معنا» ads) =====================
           Kept verbatim (0037 paid-ad strip — a real service surface;
           renders only when active ads exist). Labeled as promo spots,
           not an endorsement. */}
@@ -1825,7 +2111,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </section>
       )}
 
-      {/* ===================== 9. FAQ — hesitation-removers =====================
+      {/* ===================== 12. FAQ — hesitation-removers =====================
           The FIVE questions; every claim mirrors the implementation. The
           FAQPage JSON-LD derives from the same array above (single
           source law). */}
@@ -1852,84 +2138,9 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 10. FINAL CTA =====================
-          One quiet dark-marble band closes the page. HOME-EXPERIENCE-269:
-          alongside the account action, the band opens the EVO DOOR —
-          «تحدث مع EVO أولًا» — because for many visitors the most
-          natural first step into a fitness product is a conversation,
-          not a form. The button opens the floating widget (the
-          chat-surface law); the account action stays the single primary. */}
-      <section className="bg-[var(--bg)] px-4 py-10 md:py-20">
-        <div
-          className="relative mx-auto max-w-6xl overflow-hidden rounded-[var(--radius-chrome)]"
-          style={{
-            backgroundColor: "#0B0B0D",
-            color: "#F5F5F7",
-            border: "2px solid transparent",
-            backgroundImage:
-              "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
-            backgroundOrigin: "border-box",
-            backgroundClip: "padding-box, border-box",
-          }}
-        >
-          {/* Faded stadium backdrop — the same decorative layer as the
-              program cards, one step quieter on the dark surface. */}
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.07] blur-[2px]"
-            aria-hidden="true"
-            style={{
-              backgroundImage: "var(--prog-backdrop)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="relative flex flex-col items-center px-6 py-10 text-center md:py-16">
-            <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
-              {isAr ? "ابدأ اليوم. وابنِ روتينًا يناسبك." : "Start today. Build a routine that fits you."}
-            </h2>
-            <p className="mt-3 max-w-xl text-sm font-normal leading-relaxed md:text-base" style={{ color: "rgba(245,245,247,0.72)" }}>
-              {isAr
-                ? "حساب مجاني يحفظ خططك ونتائجك ويتابع تقدمك — والترقية قرارك متى احتجتها."
-                : "A free account saves your plans and results and follows your progress — upgrading stays your call, whenever you need it."}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
-              {isLoggedIn ? (
-                <a href={memberHref} className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
-                  {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
-                  <span className="rtl:rotate-180">›</span>
-                </a>
-              ) : (
-                <>
-                  <a href="/auth?mode=signup" className="btn-chrome px-7 py-3 text-sm md:px-8 md:py-3 md:text-base">
-                    {isAr ? "ابدأ مجانًا" : "Start free"}
-                    <span className="rtl:rotate-180">›</span>
-                  </a>
-                  <a
-                    href="/auth?mode=login"
-                    className="text-sm font-medium underline decoration-[#3A3F45] underline-offset-4 transition-opacity hover:opacity-70"
-                    style={{ color: "#B9BEC4" }}
-                  >
-                    {isAr ? "تسجيل الدخول" : "Log in"}
-                  </a>
-                </>
-              )}
-            </div>
-            {/* The EVO door — the conversational way in. */}
-            <button
-              type="button"
-              onClick={openEvoFloatingChat}
-              className="mt-6 inline-flex cursor-pointer items-center gap-2.5 text-sm font-medium underline decoration-[#3A3F45] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: "#B9BEC4" }}
-            >
-              <span className="live-dot" aria-hidden="true" />
-              {isAr ? "أو تحدث مع EVO أولًا" : "Or talk to EVO first"}
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* ===================== FOOTER — the SHARED SiteFooter component;
-          every public page renders the identical footer. ===================== */}
+          every public page renders the identical footer (HOME-REFINE-270
+          R9: flat, fully displayed — no disclosure groups). ===================== */}
       <SiteFooter />
     </div>
   );

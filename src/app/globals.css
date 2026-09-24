@@ -411,53 +411,6 @@
   .marble-card.card-lift:hover { transform: none; }
 }
 
-/* VRD-V3 (§16.3, fixes C-11 — the ragged chip wrap): the muscle-group
-   browse chips collapse to ONE horizontal scroll-snap row on touch — no
-   wrapping, no orphaned last chip. Symmetric edge fade masks on the scroll
-   container itself (RTL-safe — both edges fade identically), snap targets
-   on each chip, and the existing .scrollbar-none keeps the rail invisible.
-   From md+ the row reverts to the centered wrap (7 chips fit in one line
-   at every desktop width anyway). */
-.chips-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-@media (max-width: 767.98px) {
-  .chips-row {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    padding-inline: 0.25rem;
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      #000 24px,
-      #000 calc(100% - 24px),
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      #000 24px,
-      #000 calc(100% - 24px),
-      transparent 100%
-    );
-  }
-  .chips-row > * {
-    scroll-snap-align: start;
-    /* The row never wraps, so a chip must neither shrink (the count
-       pill would squeeze) nor break its label internally — the muscle
-       chip (VRD-V3's «بطن/كور», renamed «كور» by VRD-V4 K-5) measured
-       wrapping to 2 lines inside a 74px pill without this. */
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-}
-
 /* Greek meander divider band — mission §4 */
 .meander-divider {
   height: 28px;
@@ -668,23 +621,6 @@ html:not([data-mhe-consent-ok]) body {
   transition: color 0.2s ease;
 }
 .footer-marble a:hover { color: var(--text); }
-
-/* VRD-V2 §12 (audit C-8, mobile footer 1,273px → ≤ ~750px): below lg the
-   five service lists collapse into TWO native <details> disclosure
-   groups — «الخدمات / Services» and «المنصة / Platform» — with 44px
-   summary rows. Zero JS, SSR-rendered, keyboard-native (Enter/Space
-   toggle), and the closed state removes the links from the a11y tree
-   cleanly (that is why the desktop copy is a SEPARATE lg-only grid —
-   the header's own desktop-nav + drawer pattern — instead of a CSS
-   force-open hack that would desync sighted vs screen-reader users).
-   The href-sync law (every footer href exactly ×2 in SiteFooter.tsx)
-   is canary-pinned in homepage-adoption.test.ts. */
-.footer-disc summary {
-  cursor: pointer;
-  list-style: none;
-}
-.footer-disc summary::-webkit-details-marker { display: none; }
-.footer-disc summary::marker { content: ""; }
 
 /* ====================================================================
  * DARK-COMPATIBILITY SHIM (Phase 126) — the identity conversion covered
@@ -1115,48 +1051,6 @@ textarea:disabled {
   .rv {
     transition: none;
   }
-}
-
-/* (2) .home-tabs — the three product-surface tabs of the interactive
-   core (calculator / EVO / library). Apple-style underline tabs on a
-   hairline rail; the active tab carries the ink + a 2px machined
-   indicator; the rail scrolls on touch (chips-row snap pattern, RTL
-   safe via logical properties). Min 44px touch rows per the CTA law. */
-.home-tabs {
-  display: flex;
-  align-items: stretch;
-  gap: 0.25rem;
-  border-bottom: 1px solid var(--edge);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.home-tabs::-webkit-scrollbar { display: none; }
-.home-tab {
-  appearance: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  min-height: 44px;
-  white-space: nowrap;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  box-shadow: inset 0 -2px 0 0 transparent;
-  transition: color 0.2s ease, box-shadow 0.2s ease;
-}
-.home-tab:hover { color: var(--muted-2); }
-.home-tab[aria-selected="true"] {
-  color: var(--text);
-  box-shadow: inset 0 -2px 0 0 var(--text);
-}
-@media (prefers-reduced-motion: reduce) {
-  .home-tab { transition: none; }
 }
 
 /* (3) .macro-track / .macro-fill — the animated macro bars (calculator

@@ -273,13 +273,17 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(landing).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
     expect(landing).toContain("أنشئ خطتي");
     expect(landing).toContain("Create My Plan");
-    // HOME-REBUILD-258 (owner directive 2026-09-24): the retired
-    // connector card + the blueprint Plan section merged into the
-    // INTELLIGENCE section (#evo) — the headline pins the new anchor
-    // line «خطة مبنية حولك — ومدرب يواكب تقدّمك.» with its independent
-    // native English; the CTA labels and hrefs below stay pinned.
-    expect(landing).toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
-    expect(landing).toContain("A plan built around you — and a coach who keeps it moving.");
+    // HOME-REFINE-270 (owner directive 2026-09-24): the planning
+    // section is now the INTERACTIVE #plan builder pair (workout +
+    // nutrition) — the retired mixed headline (planners + EVO + an
+    // implied human coach) is pinned DEAD; the meal-planner CTA pair
+    // «أنشئ خطتي / Create My Plan» stays pinned, now on the nutrition
+    // builder card.
+    expect(landing).toContain('id="plan"');
+    expect(landing).toContain("أنشئ خطتي");
+    expect(landing).toContain("Create My Plan");
+    expect(landing).not.toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
+    expect(landing).not.toContain("A plan built around you — and a coach who keeps it moving.");
     // Access-point fix (2026-09-14): the footer (with its locale-aware
     // AI-planner links) moved from LandingView into the SHARED
     // SiteFooter component — the contract follows the markup.

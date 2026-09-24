@@ -47,6 +47,7 @@ import {
   LOCATION_LABELS,
 } from "@/lib/workout-programs";
 import { getExerciseImageUrl } from "@/lib/exercise-images";
+import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 
 // ─── Curated real slugs (verified against the arrays by the drift test) ───
 //
@@ -154,10 +155,53 @@ export type HomeProgramSample = {
   imageAltEn: string;
 };
 
+/** One ready-made diet system (HOME-REFINE-270: the homepage diet-plan
+ *  library carousel). The split is the REAL matrix split (single source:
+ *  diet-plan-matrix.ts DIET_SYSTEMS) — the slice keeps the 31KB matrix
+ *  module server-side (the bundle law pattern). */
+export type HomeDietSystemSample = {
+  slug: string;
+  nameAr: string;
+  nameEn: string;
+  /** Real macro split (percent of calories) from DIET_SYSTEMS. */
+  split: { protein: number; carbs: number; fat: number };
+  lineAr: string;
+  lineEn: string;
+};
+
 export type HomeSamples = {
   exercises: HomeExerciseSample[];
   foods: HomeFoodSample[];
   programs: HomeProgramSample[];
+  dietSystems: HomeDietSystemSample[];
+  /** Real calorie levels of the matrix (1200→3000) — drives the honest
+   *  count line (levels × systems = 24 ready plans). */
+  dietLevels: number[];
+};
+
+// The one-honest-line pair per system — AR mirrors the hub's SYSTEM_LINES
+// (diet-plan hub page); EN is the independent native pair (the §12.19
+// «no literal translation» law, applied in both directions).
+const DIET_SYSTEM_LINES: Record<
+  string,
+  { lineAr: string; lineEn: string }
+> = {
+  balanced: {
+    lineAr: "نقطة البداية الآمنة للجميع — توزيع 30/40/30 من السعرات.",
+    lineEn: "The safe starting point for everyone — a 30/40/30 calorie split.",
+  },
+  "high-protein": {
+    lineAr: "ذراع مرحلة الخسارة وبناء العضلة — 45/35/20 ببروتين أعلى.",
+    lineEn: "Built for fat loss and muscle building — 45/35/20 with more protein.",
+  },
+  keto: {
+    lineAr: "دهون عالية وكربوهيدرات شبه معدومة — 25/5/70.",
+    lineEn: "High fat, near-zero carbs — 25/5/70.",
+  },
+  vegetarian: {
+    lineAr: "بقول وحبوب وألبان وبيض — 25/50/25.",
+    lineEn: "Legumes, grains, dairy, and eggs — 25/50/25.",
+  },
 };
 
 // ─── Selection (server-side, from the REAL arrays) ───
@@ -226,5 +270,17 @@ export function getHomeSamples(): HomeSamples {
     ];
   });
 
-  return { exercises, foods, programs };
+  // The diet-plan matrix is complete by construction (not curated slugs):
+  // every system ships with its REAL split + one honest line. The levels
+  // ride along so the homepage count line derives (6 × 4 = 24).
+  const dietSystems: HomeDietSystemSample[] = DIET_SYSTEMS.map((s) => ({
+    slug: s.slug,
+    nameAr: s.nameAr,
+    nameEn: s.nameEn,
+    split: { protein: s.split.protein, carbs: s.split.carbs, fat: s.split.fat },
+    lineAr: DIET_SYSTEM_LINES[s.slug]?.lineAr ?? "",
+    lineEn: DIET_SYSTEM_LINES[s.slug]?.lineEn ?? "",
+  }));
+
+  return { exercises, foods, programs, dietSystems, dietLevels: [...DIET_LEVELS] };
 }
