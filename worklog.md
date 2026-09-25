@@ -25,7 +25,7 @@ Stage Summary:
 - قاعدة 21st.dev مطبقة حرفيًا: «نسخ المصدر لا تثبيت الحزمة» — الشيني والأورب والشعاع أفكار منسوخة/معاد تأليفها داخليًا بوصفات النظام وتوكناته (بلا أي لون جديد).
 - بنود P2 (طلاء البطاقات · هيئة العضويات · شهادات/فوتر) لم تُمس بقرار المالك.
 - Commit SHA: e61fbf93 (كوميت التنفيذ) · 3ca0dec5 (كوميت التوثيق وسجل التواريخ)
-- Push status: pushed (aa717b5..3ca0dec5 على origin/main) — CI على 3ca0dec5: Quality ✓ · docs-parity ✓ · stale-refs ✓ — كوميت التوثيق التالي يفتح نشر Vercel (سابقا حمل [vercel skip])
+- Push status: pushed (aa717b5..3ca0dec5 ثم be56d33 على origin/main) — CI أخضر على الشطرين (Quality · docs-parity · stale-refs · Vercel-cleanup) — الإنتاج يخدم الموجة (تحقق حي: كل أصناف V7 في HTML والـCSS: chrome-shiny · evo-orb-swirl · evo-beam-rotor · count-sizer · navbar-chrome:after)
 
 ---
 Task ID: VRD-V6-2026-09-25
