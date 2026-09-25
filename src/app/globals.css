@@ -593,6 +593,161 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* VRD-V8 (2026-09-26 — the platform CONVERGENCE, V8-1/V8-2): the hero
+   trio graduates from static chips to a visual product story — the
+   three glass pillars keep their row, and beneath them a compact
+   symmetric SVG draws THREE chrome streams converging into ONE
+   platform node («ONE PLATFORM» / «منصة واحدة»): Training + Nutrition
+   visibly FEED the smart-planning core, so the page reads as one
+   integrated product in seconds (V8-2), and the pillars become a
+   light interactive experience (V8-1: hover lift, entrance beat).
+
+   Source idea: 21st.dev/MagicUI «Animated Beam» — copied as CONCEPT,
+   re-authored internally with zero dependencies: the canonical
+   component measures rects with ResizeObserver and animates a
+   gradient window via a JS animation library; here the layout is a
+   FIXED symmetric composition, so the three paths are hardcoded, and
+   the traveling pulse is a pathLength=100 dash (stroke-dasharray +
+   animated stroke-dashoffset — universal SVG/CSS, no JS at all).
+   Direction-symmetric by construction: mirrored composition + mirrored
+   dash flow, so RTL needs NO flip rule (the V8 direction-agnostic
+   motion law). Motion rides stroke-dashoffset/transform/opacity only.
+
+   The two-button law is untouched: the pills remain a semantic
+   non-link list — hover is styling, never navigation; the SVG is
+   aria-hidden. */
+.platform-trio {
+  width: 100%;
+}
+/* The interactive beat (V8-1): a quiet machined lift on hover/focus —
+   transform + border + shadow only (no repaint of the artwork). The
+   transition lives on the base class; the hover response sits under
+   no-preference so reduced-motion users get zero movement. */
+.hero-pill {
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .platform-trio .hero-pill:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--text) 52%, transparent);
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    box-shadow: var(--shadow-lift);
+  }
+}
+/* One-time entrance beat — staggered rise for the pillars, then the
+   flow fades in. Transform/opacity only (compositor); `backwards`
+   fill keeps the pre-animation state invisible with zero CLS. */
+@keyframes trio-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .platform-trio .hero-pill {
+    animation: trio-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .platform-trio .hero-pill:nth-child(1) { animation-delay: 0.05s; }
+  .platform-trio .hero-pill:nth-child(2) { animation-delay: 0.16s; }
+  .platform-trio .hero-pill:nth-child(3) { animation-delay: 0.27s; }
+  .trio-flow {
+    animation: trio-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.38s backwards;
+  }
+}
+
+.trio-flow {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.trio-svg {
+  width: min(360px, 82vw);
+  height: auto;
+  display: block;
+  overflow: visible;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+}
+/* The static wire — one quiet chrome line per pillar (always visible,
+   both themes, motion-free fallback). */
+.trio-base {
+  fill: none;
+  stroke: color-mix(in srgb, currentColor 58%, transparent);
+  stroke-width: 1.25;
+}
+/* The traveling pulse — two comet dashes per stream (dasharray period
+   50 = half the pathLength, so two ride each path); offset 100→0 is
+   exactly two periods = a seamless infinite loop flowing from the
+   pillars (path start) into the node (path end). Round caps bead the
+   dash like liquid chrome. */
+.trio-pulse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 12 38;
+  stroke-dashoffset: 100;
+}
+@keyframes trio-dash {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .trio-pulse {
+    animation: trio-dash 5s linear infinite;
+  }
+  .trio-pulse--1 { animation-delay: 0s; }
+  .trio-pulse--2 { animation-delay: 1.65s; }
+  .trio-pulse--3 { animation-delay: 3.3s; }
+}
+/* The convergence node — a small chrome disc the three streams land
+   in: a glass backing plate grounds it on the busy artwork (same
+   glass language as .hero-pill — no new color), a static core, and a
+   breathing halo (scale pulse, transform-box so the origin is the
+   circle itself). */
+.trio-node-disc {
+  fill: color-mix(in srgb, var(--card) 78%, transparent);
+}
+.trio-node-core {
+  fill: currentColor;
+}
+.trio-node-halo {
+  fill: none;
+  stroke: color-mix(in srgb, currentColor 50%, transparent);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes trio-halo {
+  0% { transform: scale(0.62); opacity: 0.9; }
+  70% { transform: scale(1.45); opacity: 0; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .trio-node-halo {
+    animation: trio-halo 3s ease-out infinite;
+  }
+}
+.trio-node-label {
+  margin-top: 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text) 74%, transparent);
+  /* Legibility halo on the artwork — the .hero-copy glyph-edge
+     recipe, not a veil. */
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--bg) 60%, transparent),
+    0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
+}
+
 /* Phase 198 Batch 3 (audit H4/M-mobile): hidden-scrollbar utility for the
    mobile single-row quick-nav (chips) — keeps the row visually clean while
    staying natively scrollable (and swipeable) in both directions. */
@@ -794,6 +949,124 @@
 }
 [data-theme="dark"] .evo-console {
   background: color-mix(in srgb, var(--tint) 72%, transparent);
+}
+
+/* VRD-V8 (2026-09-26 — the EVO HAND-OFF, V8-3): the demo answer no
+   longer dead-ends — it visibly FLOWS into the product outcome. A
+   slim rail (the --ai cyan, still scoped INSIDE the console per the
+   AI-surface law) carries three pulsing dots + a dashed drop line
+   from the EVO turn down to a compact hand-off card holding two REAL
+   in-page destinations: the workout / nutrition builders in #plan
+   (deep anchors — navigation only, zero logic change). EVO stops
+   being a feature card and reads as the front door of the actual
+   planning product.
+   Motion: opacity/transform dots + a static dashed rail (no paint
+   loops); reduced-motion stills the dots to a quiet constant glow.
+   The rail hangs under the EVO avatar column (36px avatar → center
+   18px in from the console padding edge) — logical
+   padding-inline-start keeps the alignment mirrored in RTL. */
+.evo-handoff {
+  display: flex;
+  align-items: stretch;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+  padding-inline-start: 11px; /* rail center lands on the avatar axis */
+}
+.evo-handoff-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 14px;
+  flex-shrink: 0;
+  padding-top: 3px;
+}
+.evo-handoff-rail::after {
+  content: "";
+  flex: 1;
+  width: 1.5px;
+  margin-top: 3px;
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ai) 60%, transparent) 0 4px,
+    transparent 4px 9px
+  );
+}
+.evo-dots {
+  display: flex;
+  gap: 3px;
+}
+.evo-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ai);
+  box-shadow: 0 0 6px -1px color-mix(in srgb, var(--ai) 70%, transparent);
+}
+@keyframes evo-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .evo-dot {
+    animation: evo-dot-pulse 1.5s ease-in-out infinite;
+  }
+  .evo-dot:nth-child(2) { animation-delay: 0.2s; }
+  .evo-dot:nth-child(3) { animation-delay: 0.4s; }
+}
+.evo-handoff-card {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--edge);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--card) 76%, transparent);
+  padding: 0.7rem 0.9rem;
+  box-shadow: var(--card-inner-hl);
+}
+.evo-handoff-title {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--text) 58%, transparent);
+}
+.evo-handoff-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text) 26%, transparent);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.evo-handoff-chip:hover {
+  border-color: color-mix(in srgb, var(--text) 48%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .evo-handoff-chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.25);
+  }
+}
+.evo-handoff-chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* VRD-V8 — presence investment on the existing pair (V8-3): the orb
+   breathes DEEPER when the console itself is hovered — the surface
+   answers the pointer without adding any new element or color. */
+.evo-orb {
+  transition: box-shadow 0.3s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .evo-console:hover .evo-orb {
+    box-shadow: 0 0 16px -2px color-mix(in srgb, var(--ai) 80%, transparent);
+  }
 }
 
 /* VRD-V6 — the macro split rail (diet-plan cards): the P/C/F split

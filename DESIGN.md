@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-26 (**المرحلة 276 — VRD-V7 «لحظات حية»**: §5 وصفات V7 — navbar-chrome شفافية 0.94 + تدرج سفلي + إحياء الـblur الميت (ترتيب ‎-webkit‎) + اللمعة الشيني داخل btn-chrome بقلب RTL + evo-orb/evo-beam على لوحة EVO + قشرة count بلا CLS + وحدات البانتو (#plan) في §7.3)
+> **Last updated:** 2026-09-26 (**المرحلة 277 — VRD-V8 «الوو البصري»**: §5 وصفات V8 — تقارب المنصة في الهيرو (.platform-trio/.trio-* بتدفق SVG داخلي) + تسليم EVO إلى الخطة (.evo-handoff-*) + رفع hover للأقراص الزجاجية — و§7.1/§7.3 محدثان بقصة المنتج)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
@@ -224,7 +224,9 @@ prices/stat numbers.
 | `.evo-orb` | **VRD-V7** (P1-3; source idea: 21st.dev «Siri Orb» — re-authored, zero deps) — the 22px AI presence sphere: white specular cap + `--ai` core + graphite depth + slow conic swirl (transform-only); decorative, aria-hidden, reduced-motion-safe | EVO console header |
 | `.evo-beam` / `.evo-beam-rotor` | **VRD-V7** (P1-3; source idea: 21st.dev/MagicUI «Border Beam» — copied as pure CSS, zero deps) — a masked 1.25px ring on the console border whose bright `--ai` head + chrome tail travels via transform rotation; `@supports (mask-composite)` gated (hidden elsewhere); reduced-motion-safe | EVO console border |
 | `.count-shell` / `.count-sizer` / `.count-live` | **VRD-V7** (P1-4) — the zero-CLS count-up shell: the ghost sizer reserves the FINAL width (in-flow) while the animating digits paint in an absolute overlay (the LandingView `<CountUp>` rAF — spring settle + blur materialize, filter/opacity only; digits aria-hidden, final announced via `.sr-only`); the wrapper's `chrome-text` must ride BOTH layers (`paintClass`) — a parent's background-clip:text never clips to out-of-flow children | Proof-strip numbers |
-| `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive (two-button law intact) | Hero platform chips |
+| `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive semantically (two-button law intact). **VRD-V8**: quiet hover beat (2px lift + firmer hairline + `--shadow-lift`, under `no-preference`) + one-time staggered entrance (`trio-rise`, backwards fill — zero CLS) | Hero platform chips |
+| `.platform-trio` / `.trio-flow` / `.trio-*` | **VRD-V8** (V8-1/V8-2; source idea: 21st.dev/MagicUI «Animated Beam» — re-authored internally, zero deps/JS) — the hero product-story diagram: three symmetric chrome streams (hardcoded SVG `Q`-curves) flow from the pillars into ONE glass node («ONE PLATFORM» / «منصة واحدة»). Static wire (`.trio-base`) always visible; the pulse is a `pathLength=100` dash (`stroke-dasharray 12 38` + `stroke-dashoffset` keyframes — two comets per stream, staggered) + breathing node halo (`trio-halo`, `transform-box: fill-box`); all motion inside `no-preference` guards. Direction-symmetric by construction — no RTL flip rule; the diagram is `aria-hidden` | Hero convergence diagram |
+| `.evo-handoff` / `-rail` / `-card` / `-chip` | **VRD-V8** (V8-3) — the EVO demo answer flows into the product outcome: a slim rail under the EVO-avatar column (logical `padding-inline-start` — mirrors in RTL) with three pulsing `--ai` dots + a static dashed drop-line, landing on a compact card holding two REAL deep-anchor chips (`#plan-workout` / `#plan-nutrition`). Cyan stays scoped INSIDE the console (AI-surface law); dots pulse under `no-preference` only | EVO console → #plan hand-off |
 | `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
 | `.card-hover` | 4px lift + soft shadow (300ms, reduced-motion-safe) | Food/exercise/program explorer cards |
 | `.scrollbar-thin` | Warm-graphite thin scrollbar (6px) | Long in-app lists |
@@ -324,13 +326,19 @@ side-by-side CTAs — `.btn-chrome` «Log in / Sign up» →
 pair STACKS full-width (no mis-tap risk beside the artwork); md+
 keeps the single centered row.
 
-**Platform trio (VRD-V6):** between the subtitle and the CTA pair,
-three NON-interactive `.hero-pill` glass chips — Training /
+**Platform trio + convergence (VRD-V6 + VRD-V8):** between the subtitle
+and the CTA pair, three `.hero-pill` glass chips — Training /
 التدريب (dumbbell) · Nutrition / التغذية (protein) · Smart Planning /
 التخطيط الذكي (macros) — so the hero reads as the integrated
 Fitness + Nutrition + AI platform, never as an EVO service page. The
 pills are a semantic list (NOT links): the two-button law stays
-exact. Labels mirror the header SERVICE_NAV vocabulary.
+exact. Labels mirror the header SERVICE_NAV vocabulary. **VRD-V8
+(V8-1/V8-2):** beneath the pills, the `.platform-trio` convergence
+diagram turns the claim into a story — three chrome streams flow from
+the pillars into one glass node («ONE PLATFORM»), a hover lift beats
+on each pill, and a one-time staggered entrance greets the fold. Pure
+SVG/CSS (Animated-Beam idea re-authored — zero deps), symmetric so
+RTL needs no flip; reduced-motion freezes to the static wire.
 
 ### 7.1.2 The living product (`#start` — HOME-EXPERIENCE-269)
 
@@ -382,8 +390,11 @@ subline. Works in server components (plain `<img>` pair).
 merged Plan card was retired by 270): text column inline-start — seal
 chip «EVO — YOUR AI COACH» → H2 → paragraph → the LABELED illustrative
 exchange inside `.evo-console` (VRD-V7 presence header: `.evo-orb` +
-wordmark + live-dot; the `.evo-beam` ring travels the border) → chrome
-CTA «Continue this conversation» (opens the floating widget — the CHAT
+wordmark + live-dot; the `.evo-beam` ring travels the border) → **the
+VRD-V8 HAND-OFF (V8-3)**: the answer visibly flows (rail + cyan dots)
+into a compact card linking the REAL builders (`#plan-workout` /
+`#plan-nutrition` deep anchors — navigation only) → chrome CTA
+«Continue this conversation» (opens the floating widget — the CHAT
 SURFACE LAW) → quiet link → /evo. Warrior art absolutely positioned on
 the inline-end side fading in via `.evo-art-mask`; `[dir=rtl]` flips
 the mask (image never flipped).

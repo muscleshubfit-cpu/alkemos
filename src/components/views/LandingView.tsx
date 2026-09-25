@@ -661,6 +661,39 @@ function EvoConversation({ isAr }: { isAr: boolean }) {
             ),
           )}
         </div>
+        {/* VRD-V8 — the HAND-OFF (V8-3): the demo answer visibly flows
+            into the product outcome — the two REAL in-page builders in
+            #plan (deep anchors #plan-workout / #plan-nutrition — pure
+            navigation, zero logic change). The rail + dots carry the
+            --ai cyan, still scoped INSIDE the console (AI-surface
+            law); reduced-motion stills the dots. The border beam stays
+            the console's last child (its paint layer). */}
+        <div className="evo-handoff">
+          <span className="evo-handoff-rail" aria-hidden="true">
+            <span className="evo-dots">
+              <span className="evo-dot" />
+              <span className="evo-dot" />
+              <span className="evo-dot" />
+            </span>
+          </span>
+          <div className="evo-handoff-card">
+            <p className="evo-handoff-title mb-2 uppercase tracking-[0.14em] rtl:tracking-normal">
+              {isAr ? "ثم تُبنى خطتك هنا" : "THEN YOUR PLAN BUILDS HERE"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <a href="#plan-workout" className="evo-handoff-chip">
+                <EngravedIcon name="rack" alt="" size={14} className="h-3.5 w-3.5" />
+                {isAr ? "خطة التمارين" : "Workout plan"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </a>
+              <a href="#plan-nutrition" className="evo-handoff-chip">
+                <EngravedIcon name="protein" alt="" size={14} className="h-3.5 w-3.5" />
+                {isAr ? "خطة التغذية" : "Nutrition plan"}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </a>
+            </div>
+          </div>
+        </div>
         {/* The border beam — masked ring, rotor spins inside (last child:
             paints above the panel fill but under nothing interactive). */}
         <span className="evo-beam" aria-hidden="true">
@@ -1031,7 +1064,9 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
   };
 
   return (
-    <div className="marble-card flex h-full flex-col p-5 md:p-6">
+    // VRD-V8: the deep anchor #plan-workout — the EVO console's
+    // hand-off chip scrolls HERE (navigation only, zero logic change).
+    <div id="plan-workout" className="marble-card flex h-full scroll-mt-24 flex-col p-5 md:p-6">
       <div className="flex items-center gap-2.5">
         <EngravedIcon name="rack" alt="" size={20} className="h-5 w-5" />
         <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
@@ -1340,7 +1375,9 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
   };
 
   return (
-    <div className="marble-card flex h-full flex-col p-5 md:p-6">
+    // VRD-V8: the deep anchor #plan-nutrition — the EVO console's
+    // hand-off chip scrolls HERE (navigation only, zero logic change).
+    <div id="plan-nutrition" className="marble-card flex h-full scroll-mt-24 flex-col p-5 md:p-6">
       <div className="flex items-center gap-2.5">
         <EngravedIcon name="mealplanner" alt="" size={20} className="h-5 w-5" />
         <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
@@ -2095,30 +2132,57 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               : "One platform for training, nutrition, and smart planning — with EVO, your AI coach, built in. Try it right on this page, in Arabic and English."}
           </p>
 
-          {/* VRD-V6 — the platform trio: the hero must read as ONE
-              integrated platform (Fitness + Nutrition + AI planning),
-              not an EVO service page. Three NON-interactive glass
-              pills (semantic list — NOT links, NOT CTAs): the
-              two-button law stays exact. Icons ride the existing
-              EngravedIcon pairs; the labels mirror the header's
-              SERVICE_NAV vocabulary (single-voice law). */}
-          <ul
-            className="mt-4 flex flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3"
-            aria-label={isAr ? "أعمدة المنصة" : "The platform pillars"}
-          >
-            <li className="hero-pill">
-              <EngravedIcon name="dumbbell" alt="" size={16} className="h-4 w-4" />
-              {isAr ? "التدريب" : "Training"}
-            </li>
-            <li className="hero-pill">
-              <EngravedIcon name="protein" alt="" size={16} className="h-4 w-4" />
-              {isAr ? "التغذية" : "Nutrition"}
-            </li>
-            <li className="hero-pill">
-              <EngravedIcon name="macros" alt="" size={16} className="h-4 w-4" />
-              {isAr ? "التخطيط الذكي" : "Smart Planning"}
-            </li>
-          </ul>
+          {/* VRD-V8 — the platform CONVERGENCE (V8-1 + V8-2): the trio
+              graduates from static chips to a visual product story.
+              The glass pills keep their semantic row, and beneath them
+              three chrome streams flow down into ONE platform node —
+              Training + Nutrition visibly feed the smart-planning
+              core, so «one integrated platform» reads in seconds.
+              Source idea: 21st.dev/MagicUI «Animated Beam», re-authored
+              internally as a fixed symmetric SVG with a pathLength=100
+              dash pulse (zero deps, zero JS; direction-symmetric by
+              construction — no RTL flip needed; reduced-motion freezes
+              to the static wire). STILL a semantic non-interactive
+              list: the two-button law stays exact — hover is styling,
+              never navigation, and the diagram is aria-hidden. */}
+          <div className="platform-trio mt-4 md:mt-5">
+            <ul
+              className="flex flex-wrap items-center justify-center gap-2 md:gap-3"
+              aria-label={isAr ? "أعمدة المنصة" : "The platform pillars"}
+            >
+              <li className="hero-pill">
+                <EngravedIcon name="dumbbell" alt="" size={16} className="h-4 w-4" />
+                {isAr ? "التدريب" : "Training"}
+              </li>
+              <li className="hero-pill">
+                <EngravedIcon name="protein" alt="" size={16} className="h-4 w-4" />
+                {isAr ? "التغذية" : "Nutrition"}
+              </li>
+              <li className="hero-pill">
+                <EngravedIcon name="macros" alt="" size={16} className="h-4 w-4" />
+                {isAr ? "التخطيط الذكي" : "Smart Planning"}
+              </li>
+            </ul>
+            <div className="trio-flow" aria-hidden="true">
+              <svg className="trio-svg" viewBox="0 0 360 64" fill="none" focusable="false">
+                {/* The static wire — three quiet streams into the node */}
+                <path className="trio-base" d="M46 4 Q46 40 180 56" />
+                <path className="trio-base" d="M180 4 V56" />
+                <path className="trio-base" d="M314 4 Q314 40 180 56" />
+                {/* The traveling pulses (comet dashes, staggered) */}
+                <path className="trio-pulse trio-pulse--1" d="M46 4 Q46 40 180 56" pathLength={100} />
+                <path className="trio-pulse trio-pulse--2" d="M180 4 V56" pathLength={100} />
+                <path className="trio-pulse trio-pulse--3" d="M314 4 Q314 40 180 56" pathLength={100} />
+                {/* The convergence node — glass plate + core + halo */}
+                <circle className="trio-node-disc" cx="180" cy="56" r="13" />
+                <circle className="trio-node-halo" cx="180" cy="56" r="12" />
+                <circle className="trio-node-core" cx="180" cy="56" r="4.5" />
+              </svg>
+              <span className="trio-node-label tracking-[0.18em] rtl:tracking-normal">
+                {isAr ? "منصة واحدة" : "ONE PLATFORM"}
+              </span>
+            </div>
+          </div>
 
           {/* The two-button pair (R1). */}
           <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
