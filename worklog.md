@@ -25,9 +25,9 @@ Stage Summary:
 - قاعدة 21st.dev طبقت بحروفها: «Animated Beam» أُعيد تأليفه داخليًا كوصفة نظام (بلا مكتبة الحركة الكنسية ولا ResizeObserver — التكوين مثبت فلا قياس مطلوب)، وكل مرشح آخر قُيّم ورُفض لعدم قفزته.
 - الممنوعات الملكية محفوظة: لا P2 · لا Marble overhaul · لا مساس بالعضويات/الشهادات/الألوان/المحتوى/الأرقام · Server Components كما هي (التغيير كله CSS + JSX تصييري بنفس المكونات).
 - ملفات الموجة: src/components/views/LandingView.tsx (الهيرو + التسليم + المراسي) · src/app/globals.css (وصفات V8) · DESIGN.md · docs/README.md · STATE.md · worklog.
-- Commit SHA: b27e1417 (كوميت التنفيذ والتوثيق موحّدان)
-- Push status: pushed (dd43e98..b27e1417 على origin/main) — CI 5/5 خضراء عليه (quality · parity · guard · Supabase Preview · cleanup) — نشر الإنتاج تأخر عن الدفعة (نمط V7 الموثق: سجل الحافة ظل يخدم قديمًا بلا deployment مسجل) فشُغّل بكوميت التشغيل 02b5608 — التحقق الحي أسفل.
-- (التحقق الحي بعد الدفع — 02b5608): الإنتاج alkemos.com يخدم الموجة (HTML: platform-trio + trio-node-disc ×3 + evo-handoff + ‎#plan-workout · CSS المقدَّم: trio-dash/trio-halo/evo-dot-pulse/hero-pill:hover) · build-info = 277 · الحي EN: التقارب يقرأ والنبضات الثلاث تعمل والتسليم حاضر وصفر overflow — CI على b27e1415 خضراء كاملة 5/5.
+- Commit SHA: b27e1411 (كوميت التنفيذ والتوثيق موحّدان)
+- Push status: pushed (dd43e98..b27e1411 على origin/main) — CI 5/5 خضراء عليه (quality · parity · guard · Supabase Preview · cleanup) — نشر الإنتاج تأخر عن الدفعة (نمط V7 الموثق: سجل الحافة ظل يخدم قديمًا بلا deployment مسجل) فشُغّل بكوميت التشغيل 02b5608 — التحقق الحي أسفل.
+- (التحقق الحي بعد الدفع — 02b5608): الإنتاج alkemos.com يخدم الموجة (HTML: platform-trio + trio-node-disc ×3 + evo-handoff + ‎#plan-workout · CSS المقدَّم: trio-dash/trio-halo/evo-dot-pulse/hero-pill:hover) · build-info = b27e1411 (277) · الحي EN: التقارب يقرأ والنبضات الثلاث تعمل والتسليم حاضر وصفر overflow — CI على b27e1411 خضراء كاملة 5/5.
 
 ---
 Task ID: VRD-V7-2026-09-26
