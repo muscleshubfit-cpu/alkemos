@@ -21,7 +21,7 @@
 | `README.md` | Front door + feature law surface | LIVE | 2026-09-24 (Ph 274 — private-repo wording · Node 20.9+ · demo email ahmed@) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-24 (269 §7.1/§7.4 homepage updates · VRD-V5 full rewrite 2026-09-23: single-token architecture, C-18 closure) | — |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-25 (Ph 275 — VRD-V6: §2 mirrors · §5 V6 recipes · §7.1/§7.4 homepage reality) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-09-05 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |
@@ -31,7 +31,7 @@
 
 | File | Role | Status | Last updated |
 |---|---|---|---|
-| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-24 (Ph 274 — dates re-derived vs git + archive moves + gate enforcement) |
+| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-25 (Ph 275 — VRD-V6: DESIGN_SYSTEM row + DESIGN row date sync) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-20 |
 | `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-25 (Ph 275 — VRD-V6) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |

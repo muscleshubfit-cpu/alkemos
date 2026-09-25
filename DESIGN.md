@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-24 (HOME-EXPERIENCE-269, phase 269 — the
+> **Last updated:** 2026-09-25 (**المرحلة 275 — VRD-V6**: §2 مرآتا design-tokens.ts/DESIGN_SYSTEM.md + §5 وصفات V6 (btn-chrome bevel · btn-outline 72% · hero-pill · evo-console · split-rail) + §7.1 زرا 270 وثلاثية المنصة + §7.4 العضويات الفعلية بشريط الكوتشينج الفاتح)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
