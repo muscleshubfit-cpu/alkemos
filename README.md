@@ -36,8 +36,10 @@ blog-style carousels for the exercise library and the ready-made
 diet-plan library (both fed by the server-provided curated samples).
 The hero carries exactly two CTAs (login/signup + the memberships
 page) over a compact one-row proof strip; memberships render as small
-cards (prices derive from `memberships.ts` — never literals) plus one
-online-coaching card. Motion is once-only, transform/opacity-only, and
+cards (prices derive from `memberships.ts` — never literals; each
+card lists its tier's REAL limit-derived feature rows with the same
+checkseal mark the memberships page uses) plus one online-coaching
+card. Motion is once-only, transform/opacity-only, and
 fully `prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2).
 
 ### Free content & tools — no account needed

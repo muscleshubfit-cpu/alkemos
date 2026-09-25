@@ -21,7 +21,7 @@
 | `README.md` | Front door + feature law surface | LIVE | 2026-09-24 (Ph 274 — private-repo wording · Node 20.9+ · demo email ahmed@) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-26 (Ph 277 — VRD-V8: §5 V8 recipes — platform-trio convergence (Animated-Beam idea, zero deps) + hero-pill hover/entrance + evo-handoff → #plan deep anchors · §7.1/§7.3 product-story) | — |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: §5 .theme-img-pin-dark surface-follow rule · §7.4 memberships real feature rows · §7.4.3 tint-band frames + FAQ closer) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-09-05 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |

@@ -1752,11 +1752,11 @@ function FoodExplorer({ samples, isAr }: { samples: HomeSamples; isAr: boolean }
                   <span style={{ color: PALETTE.textMuted }}>{isAr ? "سعرة" : "kcal"}</span>
                 </div>
                 <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-                  <span className="block font-semibold text-[#34c759]">{isAr ? `${food.protein} جم` : `${food.protein}g`}</span>
+                  <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{isAr ? `${food.protein} جم` : `${food.protein}g`}</span>
                   <span style={{ color: PALETTE.textMuted }}>{isAr ? "بروتين" : "protein"}</span>
                 </div>
                 <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-                  <span className="block font-semibold text-[#ff9500]">{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</span>
+                  <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</span>
                   <span style={{ color: PALETTE.textMuted }}>{isAr ? "كربوهيدرات" : "carbs"}</span>
                 </div>
               </div>
@@ -1947,6 +1947,34 @@ function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean
         </a>
       </div>
     </div>
+  );
+}
+
+// ── VRD-V8R — the membership cards' REAL feature rows ──
+// Two–three scannable facts per tier, each mirroring the tier's
+// documented limits in memberships.ts (the single source — the page
+// invents nothing): the free pool (2/4/8), the EVO daily fair-use
+// limit, the export/ad-free deltas. The checkseal icon is the SAME
+// engraved mark the /memberships feature lists render — one data
+// language across both surfaces. `pinDark` forces the dark engraving
+// variant on the ALWAYS-dark Premium card (the theme pair normally
+// follows the page; on a fixed-dark surface it must follow the card).
+function TierFeatureRows({ rows, pinDark = false }: { rows: readonly string[]; pinDark?: boolean }) {
+  return (
+    <ul className="mt-4 flex-1 space-y-2.5">
+      {rows.map((row) => (
+        <li
+          key={row}
+          className="flex items-start gap-2 text-sm font-normal leading-relaxed"
+          style={{ color: pinDark ? "rgba(245,245,247,0.72)" : PALETTE.textSec }}
+        >
+          <span className="theme-img-pin-dark mt-0.5 inline-flex h-4 w-4 shrink-0">
+            <EngravedIcon name="checkseal" alt="" size={16} className="h-4 w-4" />
+          </span>
+          <span>{row}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -2276,7 +2304,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           into the marble on the inline-end (.evo-art-mask, mirrored in
           RTL). The demo conversation stays LABELED illustrative and the
           CTA dispatches openEvoFloatingChat — the EVO CHAT SURFACE LAW. */}
-      <section id="evo" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      <section id="evo" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
@@ -2377,7 +2405,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           real filter answering in-page, not a carousel). The chips
           mirror the hub vocabulary and carry the VERIFIED per-family
           counts; every card is a real exercise page entry point. */}
-      <section id="library" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      <section id="library" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
@@ -2439,7 +2467,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           focused browse-all CTA (the AI-builder CTA retired 2026-09-24;
           the interactive exercise library lives in its own section
           above, the smart-planning builders in #plan). */}
-      <section id="train" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      <section id="train" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
@@ -2528,7 +2556,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           the dark lead-card styling). The section renders only when
           posts loaded (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+        <section id="learn" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
           <div className="mx-auto max-w-6xl">
             <Reveal className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -2566,7 +2594,14 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       <section id="memberships" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            {/* VRD-V8R: the section gains the page's eyebrow rhythm —
+                and names the WHOLE services act (memberships + the
+                coaching band below). */}
+            <span className="seal-chip">
+              <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
+              {isAr ? "العضويات والكوتشينج" : "MEMBERSHIPS & COACHING"}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
               {isAr ? "العضويات المميزة" : "Premium memberships"}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
@@ -2587,11 +2622,16 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                   </h3>
                   <span className="chrome-text text-lg font-bold">{freePriceLabel}</span>
                 </div>
-                <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "كل المكتبات والأدوات، ورصيد شهري للخطط الذكية."
-                    : "Every library and tool, plus a monthly AI-plan allowance."}
-                </p>
+                {/* VRD-V8R: the tier's REAL facts (memberships.ts limits)
+                    replace the free-prose one-liner — scannable value,
+                    zero invented claims. */}
+                <TierFeatureRows
+                  rows={
+                    isAr
+                      ? ["كل المكتبات والأدوات", "توليدان شهريًا للخطط الذكية", "EVO: 10 رسائل/يوم"]
+                      : ["Every library and tool", "2 AI plans a month", "EVO: 10 messages/day"]
+                  }
+                />
                 <p className="chrome-text mt-4 text-sm font-semibold">
                   {isAr ? "ابدأ مجانًا ›" : "Start free ›"}
                 </p>
@@ -2623,11 +2663,14 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                       </span>
                     </span>
                   </div>
-                  <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
-                    {isAr
-                      ? "EVO بلا حدود، و4 خطط شهريًا، وتصدير كامل."
-                      : "Unlimited EVO, 4 plans a month, full export."}
-                  </p>
+                  <TierFeatureRows
+                    pinDark
+                    rows={
+                      isAr
+                        ? ["كل مزايا المستوى المجاني", "EVO بلا حدود ومحادثة متزامنة", "4 خطط شهريًا وتصدير كامل"]
+                        : ["Everything in the Free tier", "Unlimited EVO, synced chat", "4 plans a month, full export"]
+                    }
+                  />
                   <p className="mt-4 text-sm font-semibold" style={{ color: "#F5F5F7" }}>
                     {isAr ? "التفاصيل ›" : "See details ›"}
                   </p>
@@ -2648,11 +2691,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                     </span>
                   </span>
                 </div>
-                <p className="mt-3 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "8 خطط شهريًا، وتجربة بلا إعلانات."
-                    : "8 plans a month, and an ad-free experience."}
-                </p>
+                <TierFeatureRows
+                  rows={
+                    isAr
+                      ? ["كل مزايا البريميوم", "8 خطط شهريًا", "تجربة بلا إعلانات"]
+                      : ["Everything in Premium", "8 plans a month", "Ad-free experience"]
+                  }
+                />
                 <p className="chrome-text mt-4 text-sm font-semibold">
                   {isAr ? "التفاصيل ›" : "See details ›"}
                 </p>
@@ -2763,12 +2808,26 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           The FIVE questions; every claim mirrors the implementation. The
           FAQPage JSON-LD derives from the same array above (single
           source law). */}
-      <section id="faq" className="scroll-mt-20 bg-[var(--tint)] px-4 py-10 md:py-20">
+      <section id="faq" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">
-            {isAr ? "أسئلة قبل أن تبدأ." : "Questions, answered."}
-          </h2>
-          <Accordion type="single" collapsible className="mt-8 md:mt-12">
+          {/* VRD-V8R: the closer section gains the page's eyebrow rhythm
+              and a finished surface — the accordion sits inside a
+              marble-card instead of floating on the band. */}
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="scroll" alt="" size={12} className="h-3 w-3" />
+              {isAr ? "الأسئلة الشائعة" : "COMMON QUESTIONS"}
+            </span>
+            <h2 className="mt-5 text-center text-3xl font-semibold tracking-tight md:text-4xl">
+              {isAr ? "أسئلة قبل أن تبدأ." : "Questions, answered."}
+            </h2>
+          </Reveal>
+          <Reveal delay={80}>
+            <Accordion
+              type="single"
+              collapsible
+              className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"
+            >
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
                 {/* Full-row hover + a bigger, higher-contrast chevron
@@ -2783,6 +2842,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               </AccordionItem>
             ))}
           </Accordion>
+          </Reveal>
         </div>
       </section>
 

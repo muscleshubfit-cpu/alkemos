@@ -1,6 +1,7 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-26 (**المرحلة 277 — VRD-V8 «الوو البصري»**: §5 وصفات V8 — تقارب المنصة في الهيرو (.platform-trio/.trio-* بتدفق SVG داخلي) + تسليم EVO إلى الخطة (.evo-handoff-*) + رفع hover للأقراص الزجاجية — و§7.1/§7.3 محدثان بقصة المنتج)
+> **Last updated:** 2026-09-26 (**المرحلة 278 — VRD-V8R «إكمال الخطة»**: §5 قاعدة .theme-img-pin-dark (الأيقونة تتبع السطح الداكن الدائم) + §7.4 عرض العضويات بصفات المزايا الحقيقية من memberships.ts + §7.4.3 قانون أشرطة tint المؤطرة وFAQ الختامية — تكملة عرض ما بعد الهيرو بلا مساس بالهوية أو المنطق)
+> **Last updated (277):** 2026-09-26 (VRD-V8 «الوو البصري»: §5 وصفات V8 — تقارب المنصة في الهيرو (.platform-trio/.trio-* بتدفق SVG داخلي) + تسليم EVO إلى الخطة (.evo-handoff-*) + رفع hover للأقراص الزجاجية — و§7.1/§7.3 محدثان بقصة المنتج)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
@@ -225,6 +226,7 @@ prices/stat numbers.
 | `.evo-beam` / `.evo-beam-rotor` | **VRD-V7** (P1-3; source idea: 21st.dev/MagicUI «Border Beam» — copied as pure CSS, zero deps) — a masked 1.25px ring on the console border whose bright `--ai` head + chrome tail travels via transform rotation; `@supports (mask-composite)` gated (hidden elsewhere); reduced-motion-safe | EVO console border |
 | `.count-shell` / `.count-sizer` / `.count-live` | **VRD-V7** (P1-4) — the zero-CLS count-up shell: the ghost sizer reserves the FINAL width (in-flow) while the animating digits paint in an absolute overlay (the LandingView `<CountUp>` rAF — spring settle + blur materialize, filter/opacity only; digits aria-hidden, final announced via `.sr-only`); the wrapper's `chrome-text` must ride BOTH layers (`paintClass`) — a parent's background-clip:text never clips to out-of-flow children | Proof-strip numbers |
 | `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive semantically (two-button law intact). **VRD-V8**: quiet hover beat (2px lift + firmer hairline + `--shadow-lift`, under `no-preference`) + one-time staggered entrance (`trio-rise`, backwards fill — zero CLS) | Hero platform chips |
+| `.theme-img-pin-dark` | **VRD-V8R** — surface-follow pin for engraved icon PAIRS on ALWAYS-dark surfaces (the homepage Premium card is dark in BOTH themes): inside the host, the light variant is hidden and the dark one forced — the pair follows the CARD, not the page theme. Declared after the theme pair rules so it wins the equal-specificity cascade | Icons on fixed-dark cards |
 | `.platform-trio` / `.trio-flow` / `.trio-*` | **VRD-V8** (V8-1/V8-2; source idea: 21st.dev/MagicUI «Animated Beam» — re-authored internally, zero deps/JS) — the hero product-story diagram: three symmetric chrome streams (hardcoded SVG `Q`-curves) flow from the pillars into ONE glass node («ONE PLATFORM» / «منصة واحدة»). Static wire (`.trio-base`) always visible; the pulse is a `pathLength=100` dash (`stroke-dasharray 12 38` + `stroke-dashoffset` keyframes — two comets per stream, staggered) + breathing node halo (`trio-halo`, `transform-box: fill-box`); all motion inside `no-preference` guards. Direction-symmetric by construction — no RTL flip rule; the diagram is `aria-hidden` | Hero convergence diagram |
 | `.evo-handoff` / `-rail` / `-card` / `-chip` | **VRD-V8** (V8-3) — the EVO demo answer flows into the product outcome: a slim rail under the EVO-avatar column (logical `padding-inline-start` — mirrors in RTL) with three pulsing `--ai` dots + a static dashed drop-line, landing on a compact card holding two REAL deep-anchor chips (`#plan-workout` / `#plan-nutrition`). Cyan stays scoped INSIDE the console (AI-surface law); dots pulse under `no-preference` only | EVO console → #plan hand-off |
 | `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
@@ -409,7 +411,7 @@ card's loudest tile, then ONE full-width allowance bar closes the grid
 Zero functionality change — same fields, endpoints, persistence, CTAs
 (all canary-pinned).
 
-### 7.4 Memberships cards (homepage — HOME-REFINE-270 R7 + VRD-V6)
+### 7.4 Memberships cards (homepage — HOME-REFINE-270 R7 + VRD-V6 + VRD-V8R)
 
 The compact treatment: THREE small cards in an `sm:grid-cols-3` row
 — **Free** (`marble-card card-lift` → signup; «Start free ›») /
@@ -421,6 +423,16 @@ card-lift` «See details ›»)
 (`--tint` + `--edge` hairline, VRD-V6 — the old dark-marble fill was
 retired so Premium stays the single dark anchor) carrying the
 section's ONE filled `.btn-chrome` CTA → `/coaching`.
+**VRD-V8R:** the section gains the page's eyebrow rhythm («MEMBERSHIPS
+& COACHING» — it names the whole services act), and each card trades
+its free-prose one-liner for 2–3 REAL feature rows
+(`TierFeatureRows`): the tier's documented limits from memberships.ts
+(the 2/4/8 unified pool · the EVO daily fair-use · the export/ad-free
+deltas) rendered with the checkseal mark the /memberships lists use —
+one data language, zero invented claims, no prices in rows (the
+literals ban holds). Premium's rows pin the dark engraving variant
+via `.theme-img-pin-dark` (§5) so its icons follow the CARD's
+fixed-dark surface in both themes.
 **Prices derive from memberships.ts lookups — never literals** (the
 single-source law the canaries pin). A quiet refund line closes the
 section (the REAL 7-day conditional refund, refund.ts).
@@ -448,6 +460,24 @@ bars), `.live-dot` (the `--ai` presence pulse — AI surfaces only),
 stands down under `prefers-reduced-motion` (the vestibular-safety
 law); the retired pre-258 jarring reveal is structurally impossible
 here (no layout animation, no re-trigger, no SSR-hidden state).
+
+### 7.4.3 Section frames + the FAQ closer (VRD-V8R)
+
+The proof strip's machined band language (tint + `--edge` hairlines)
+extends to the page's tint bands: **evo / library / train ride
+`border-y`** — both their seams face bare ground bands — while
+**learn / faq ride `border-t` only** (their lower seams are already
+marked by the meander band: the services act and the footer). Ground
+bg sections stay frameless: tint = framed band, bg = open ground.
+
+**#faq** closes the page as a finished surface: the COMMON QUESTIONS
+seal-chip eyebrow joins the page's header rhythm, and the five-row
+accordion (copy + JSON-LD untouched — the single-source law holds;
+the pinned C-15 trigger classes stay) sits inside a `marble-card`
+(last divider stripped) instead of floating on the band. The
+final-CTA band stays retired (270 R8 — the hero pair + the services
+act own conversion; a third CTA beat would be the repetition the
+owner removed).
 
 ### 7.5 Comparison tables
 

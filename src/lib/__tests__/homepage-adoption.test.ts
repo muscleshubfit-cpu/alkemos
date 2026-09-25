@@ -351,6 +351,24 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "samples.foods",
       "samples.programs",
       "samples.dietSystems",
+      // VRD-V8R: the memberships section gains the page's eyebrow
+      // rhythm naming the WHOLE services act, and the three cards read
+      // REAL feature rows (memberships.ts limits — the checkseal mark
+      // the /memberships lists render; zero invented claims).
+      "العضويات والكوتشينج",
+      "MEMBERSHIPS & COACHING",
+      "توليدان شهريًا للخطط الذكية",
+      "2 AI plans a month",
+      "كل مزايا المستوى المجاني",
+      "Everything in the Free tier",
+      "تجربة بلا إعلانات",
+      "Ad-free experience",
+      "theme-img-pin-dark",
+      // VRD-V8R: the FAQ closer gains the eyebrow + a finished
+      // marble-card surface (the pinned AccordionTrigger classes stay).
+      "الأسئلة الشائعة",
+      "COMMON QUESTIONS",
+      'className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"',
     ]) {
       expect(src, `content entry point missing: ${required}`).toContain(required);
     }
@@ -386,6 +404,14 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       // 2026-09-24 — «امسحه»; #plan owns AI plan creation).
       "ابنِ خطتك بالذكاء الاصطناعي",
       "Build your plan with AI",
+      // VRD-V8R: the free-prose card one-liners are retired — replaced
+      // by the REAL limit-derived feature rows (they never return).
+      "كل المكتبات والأدوات، ورصيد شهري للخطط الذكية.",
+      "Every library and tool, plus a monthly AI-plan allowance.",
+      "EVO بلا حدود، و4 خطط شهريًا، وتصدير كامل.",
+      "Unlimited EVO, 4 plans a month, full export.",
+      "8 خطط شهريًا، وتجربة بلا إعلانات.",
+      "8 plans a month, and an ad-free experience.",
     ]) {
       expect(src, `retired block string returned: "${banned}"`).not.toContain(banned);
     }
@@ -586,6 +612,45 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     ]) {
       expect(css, `card-lift recipe missing: ${required}`).toContain(required);
     }
+  });
+
+  // VRD-V8R — the monochrome identity on the #eat selector chips: the
+  // legacy green/orange value accents are retired (DESIGN.md §10.3 —
+  // #34c759 must never appear on a marketing surface); the pinned
+  // aligned-rows recipe stays byte-identical.
+  it("food selector chips: legacy accent colors stay dead, mono ramp rules", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).not.toContain("text-[#34c759]");
+    expect(src).not.toContain("text-[#ff9500]");
+    expect(src).toContain('className="block font-semibold" style={{ color: PALETTE.textPrim }}');
+  });
+
+  // VRD-V8R — the tint bands carry the proof strip's machined edge
+  // language: framed tint bands (evo/library/train) ride border-y,
+  // meander-adjacent bands (learn/faq) ride border-t.
+  it("section transitions: tint bands carry the hairline frame", () => {
+    const src = readFileSync(LANDING, "utf8");
+    for (const required of [
+      'id="evo" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="library" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="train" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="learn" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="faq" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+    ]) {
+      expect(src, `tint-band frame missing: ${required.slice(0, 60)}`).toContain(required);
+    }
+  });
+
+  // VRD-V8R — the pinned-dark icon pair for the ALWAYS-dark Premium
+  // card: the surface-follow rule lives in globals.css (after the
+  // theme pair so it wins the cascade).
+  it("theme-img-pin-dark: the surface-follow pair rule exists in css", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    const pinAt = css.indexOf(".theme-img-pin-dark .theme-img-light { display: none; }");
+    const pairAt = css.indexOf('[data-theme="dark"] .theme-img-dark { display: block; }');
+    expect(pinAt).toBeGreaterThan(-1);
+    expect(pairAt).toBeGreaterThan(-1);
+    expect(pinAt).toBeGreaterThan(pairAt);
   });
 });
 
