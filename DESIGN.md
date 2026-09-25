@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-25 (**المرحلة 275 — VRD-V6**: §2 مرآتا design-tokens.ts/DESIGN_SYSTEM.md + §5 وصفات V6 (btn-chrome bevel · btn-outline 72% · hero-pill · evo-console · split-rail) + §7.1 زرا 270 وثلاثية المنصة + §7.4 العضويات الفعلية بشريط الكوتشينج الفاتح)
+> **Last updated:** 2026-09-26 (**المرحلة 276 — VRD-V7 «لحظات حية»**: §5 وصفات V7 — navbar-chrome شفافية 0.94 + تدرج سفلي + إحياء الـblur الميت (ترتيب ‎-webkit‎) + اللمعة الشيني داخل btn-chrome بقلب RTL + evo-orb/evo-beam على لوحة EVO + قشرة count بلا CLS + وحدات البانتو (#plan) في §7.3)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
 > **Status:** Active — binding reference for all UI/UX decisions
@@ -204,7 +204,7 @@ prices/stat numbers.
 
 | Class | Recipe | Use |
 |---|---|---|
-| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; **VRD-V6 machined bevel**: `inset 0 1px 0` bright top edge + `inset 0 -1px 0` dark bottom edge (pressed-metal affordance), hover deepens to `--shadow-lift`; dark mode adds a hairline warm-white ring. **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
+| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; **VRD-V6 machined bevel**: `inset 0 1px 0` bright top edge + `inset 0 -1px 0` dark bottom edge (pressed-metal affordance), hover deepens to `--shadow-lift`; dark mode adds a hairline warm-white ring. **VRD-V7 shiny sweep** (P0-2, source: 21st.dev «Shiny Button» copied as pure CSS — zero deps): a diagonal specular band crosses the metal every ~4.5s (transform-only, keyframed pause, `[dir=rtl]` mirrors the direction; hidden under `prefers-reduced-motion`). **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
 | `.btn-outline` | translucent `--card` fill (**VRD-V6: 72%** + blur 6px — survives hero artwork) + 1px `--text` border + `--text` + radius 999px. **44px touch / 48px md+** | Secondary CTAs |
 | `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + 1px machined inner top-edge highlight (`--card-inner-hl`). Name is historical (marble is gone); 123+ usages | Every card surface |
 | `.marble-card--unclipped` | `overflow: visible` escape hatch for cards hosting absolute popovers (Phase 154) | Popover hosts |
@@ -213,14 +213,17 @@ prices/stat numbers.
 | `.chrome-text` | Light theme = dark warm-steel ramp (lightest stop ≈ 10:1 on ivory); dark theme = lightened warm ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
 | `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 (light Greek identity — kept by owner direction) | Section separators |
 | `.footer-meander-top` | Same band as the footer's top strip | Footer top |
-| `.navbar-chrome` | sticky, `--navbar-bg` (alpha 0.85) + blur(12px) + chrome bottom border; desktop nav items px-3.5 + gap-1 — 64px bar | Site header |
+| `.navbar-chrome` | sticky, **VRD-V7 (P0-1): `--navbar-bg` alpha 0.94** (was 0.85 — the audit's top defect: scrolled text competed with the bar row) + blur(12px)+saturate(150%) **(the blur was SILENTLY DEAD in production — Lightning CSS keeps the LAST of the prefixed/standard pair, so `-webkit-backdrop-filter` MUST be declared first; fixed) + the 24px bottom-edge scrim** (`.navbar-chrome::after`, theme-aware `--bg` fade dissolving content at the seam); desktop nav items px-3.5 + gap-1 — 64px bar | Site header |
 | `.hero-art` / `.hero-bg` | Unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it. Phones: `max(56vh, natural)` stage floor; tablet→wide: natural artwork height; aspect > 1501/1000: 92vh | Homepage hero |
 | `.hero-copy` | Theme-aware text-shadow halo for copy over artwork details — a glyph edge, NOT a veil | Hero H1 + subtitle |
 | `.chips-row` | ONE horizontal scroll-snap row on touch — `nowrap` + `scroll-snap-type: x proximity` + symmetric 24px edge fade masks (RTL-safe) + chips `flex-shrink: 0 · white-space: nowrap`; md+ reverts to the centered wrap | Muscle-group browse chips |
 | `.footer-marble` | Structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (name historical) | Site footer |
 | `.mhe-cookie-bar` | Theme-aware GLASS — `color-mix(--card 92% light / 88% dark, transparent)` + `backdrop-filter: blur(16px)`; solid-card `@supports` fallback; SSR-first-paint + `data-mhe-consent-ok` pre-paint hide + body no-cover padding | Cookie consent bar |
 | `.evo-hero-card` / `.evo-art-mask` | EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask (image never flipped) | Homepage EVO section |
-| `.evo-console` | **VRD-V6** — the homepage EVO demo exchange as an IN-PRODUCT surface: tint-glass panel (60% wash) + `--edge` hairline + inner highlight; bubbles inside pop to card level; cyan stays off the panel (`.ai-ring` on the avatar only) | Homepage EVO demo |
+| `.evo-console` | **VRD-V6** — the homepage EVO demo exchange as an IN-PRODUCT surface: tint-glass panel (60% wash; **VRD-V7: 72% in dark**) + `--edge` hairline + inner highlight; bubbles inside pop to card level; a presence header (orb + wordmark + live-dot) opens it; cyan stays off the panel fill | Homepage EVO demo |
+| `.evo-orb` | **VRD-V7** (P1-3; source idea: 21st.dev «Siri Orb» — re-authored, zero deps) — the 22px AI presence sphere: white specular cap + `--ai` core + graphite depth + slow conic swirl (transform-only); decorative, aria-hidden, reduced-motion-safe | EVO console header |
+| `.evo-beam` / `.evo-beam-rotor` | **VRD-V7** (P1-3; source idea: 21st.dev/MagicUI «Border Beam» — copied as pure CSS, zero deps) — a masked 1.25px ring on the console border whose bright `--ai` head + chrome tail travels via transform rotation; `@supports (mask-composite)` gated (hidden elsewhere); reduced-motion-safe | EVO console border |
+| `.count-shell` / `.count-sizer` / `.count-live` | **VRD-V7** (P1-4) — the zero-CLS count-up shell: the ghost sizer reserves the FINAL width (in-flow) while the animating digits paint in an absolute overlay (the LandingView `<CountUp>` rAF — spring settle + blur materialize, filter/opacity only; digits aria-hidden, final announced via `.sr-only`); the wrapper's `chrome-text` must ride BOTH layers (`paintClass`) — a parent's background-clip:text never clips to out-of-flow children | Proof-strip numbers |
 | `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive (two-button law intact) | Hero platform chips |
 | `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
 | `.card-hover` | 4px lift + soft shadow (300ms, reduced-motion-safe) | Food/exercise/program explorer cards |
@@ -373,20 +376,27 @@ theme toggle lives on the MENU side; RTL mirrors automatically.
 (a 1280×477 owner artwork strip in a marble-card frame, `mb-10`) → h1 +
 subline. Works in server components (plain `<img>` pair).
 
-### 7.3 Intelligence section (AI planners + EVO)
+### 7.3 Intelligence: the EVO section + the smart-planning bento (270/271 + VRD-V7)
 
-One full-width `marble-card.evo-hero-card` (merged by HOME-REBUILD-258
-— the retired standalone Plan section folded into the EVO card): text
-column left — seal chip «SMART PLANNING + EVO» → H2 → the three
-numbered steps (inputs → plan → adjustments) → the quota-transparency
-box (the real free-tier facts: monthly AI-plan allowance + 10 EVO
-messages/day, no account needed to try) → CTA rows (chrome «Create My
-Plan» → /ai-meal-planner · outline «AI Workout Planner ›» · the
-widget-opening «Try EVO» with the avatar bust · quiet link → /evo) —
-warrior art absolutely positioned on the inline-end side fading into
-the surface via `.evo-art-mask`; `[dir=rtl]` flips the mask (image
-never flipped). Card min-height 220px mobile / 260px desktop. The
-floating EVO widget stays the chat entry point.
+**#evo** — one full-width `marble-card` (EVO owns EVO alone; the old
+merged Plan card was retired by 270): text column inline-start — seal
+chip «EVO — YOUR AI COACH» → H2 → paragraph → the LABELED illustrative
+exchange inside `.evo-console` (VRD-V7 presence header: `.evo-orb` +
+wordmark + live-dot; the `.evo-beam` ring travels the border) → chrome
+CTA «Continue this conversation» (opens the floating widget — the CHAT
+SURFACE LAW) → quiet link → /evo. Warrior art absolutely positioned on
+the inline-end side fading in via `.evo-art-mask`; `[dir=rtl]` flips
+the mask (image never flipped).
+
+**#plan** — the TRULY interactive planning section (271 F3: real demo
+endpoints, in-page rendering, `saveGuestPlan` hand-off). **VRD-V7
+(P1-5) bento**: each builder card reads as quiet hairline modules
+(`planTile`) — workout: goal / level | days / equipment / notes;
+meal: calories | system / notes — with the tinted answer zone as the
+card's loudest tile, then ONE full-width allowance bar closes the grid
+(the free monthly quota note + the «REAL IN-PAGE GENERATION» seal).
+Zero functionality change — same fields, endpoints, persistence, CTAs
+(all canary-pinned).
 
 ### 7.4 Memberships cards (homepage — HOME-REFINE-270 R7 + VRD-V6)
 

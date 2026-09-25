@@ -216,14 +216,39 @@ function Reveal({
   );
 }
 
-// ── CountUp — the proof numbers come ALIVE ──
+// ── CountUp — the proof numbers come ALIVE (VRD-V7 P1-4) ──
 // SSR renders the final value (no-JS/hydration always shows the
 // truth); when the strip scrolls into view and motion is allowed,
-// the number counts up once over ~0.9s (ease-out cubic). The
-// value stays derived from the verified constants.
-function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
+// the number counts up once with a SPRING settle and a light BLUR
+// materialization (21st.dev-style count-up re-authored internally —
+// zero dependencies, rAF-only):
+//   · spring — a gentle easeOutBack overshoot (~5%) that settles back
+//     onto the true value (the «living platform» beat);
+//   · blur — the digits start softly defocused and sharpen as they
+//     land (filter+opacity only — compositor-friendly, no layout);
+//   · ZERO CLS — the final string renders as an in-flow ghost sizer
+//     (.count-sizer) while the animating digits ride an absolute
+//     overlay (.count-live), so the strip never wobbles;
+//   · accessibility — the animated digits are aria-hidden and the
+//     final value is announced once via .sr-only;
+// The value stays derived from the verified constants.
+function CountUp({
+  value,
+  suffix = "",
+  paintClass = "",
+}: {
+  value: number;
+  suffix?: string;
+  /** The wrapper's text-paint class (e.g. chrome-text). It must ride
+   * the in-flow sizer AND the absolute overlay SEPARATELY: a parent's
+   * background-clip:text never clips to out-of-flow descendants, so
+   * the overlay has to own its own gradient or its digits vanish. */
+  paintClass?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState<number | null>(null);
+  // Settle progress 0→1 (SSR = 1 — fully landed, zero blur).
+  const [prog, setProg] = useState(1);
 
   useEffect(() => {
     const el = ref.current;
@@ -237,11 +262,16 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
         started = true;
         io.disconnect();
         const t0 = performance.now();
-        const dur = 900;
+        const dur = 1100;
+        // EaseOutBack with a modest overshoot constant — the spring
+        // reads as a settle, never a bounce (c1 = 0.7 → ≈5% peak).
+        const c1 = 0.7;
+        const c3 = c1 + 1;
         const tick = (t: number) => {
           const p = Math.min(1, (t - t0) / dur);
-          const eased = 1 - Math.pow(1 - p, 3);
-          setDisplay(Math.round(value * eased));
+          const eased = 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2);
+          setDisplay(Math.max(0, Math.round(value * eased)));
+          setProg(p);
           if (p < 1) raf = requestAnimationFrame(tick);
         };
         raf = requestAnimationFrame(tick);
@@ -256,10 +286,24 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   }, [value]);
 
   const shown = display ?? value;
+  const final = `${value.toLocaleString("en-US")}${suffix}`;
+  // The blur peaks at liftoff and fully resolves on landing — the
+  // number materializes INTO focus (paint-only; the strip is small).
+  const blur = prog < 1 ? `blur(${(3 * Math.pow(1 - prog, 1.5)).toFixed(2)}px)` : undefined;
   return (
-    <span ref={ref}>
-      {shown.toLocaleString("en-US")}
-      {suffix}
+    <span ref={ref} className="count-shell">
+      <span className={`count-sizer ${paintClass}`} aria-hidden="true">
+        {final}
+      </span>
+      <span
+        className={`count-live ${paintClass}`}
+        aria-hidden="true"
+        style={{ filter: blur }}
+      >
+        {shown.toLocaleString("en-US")}
+        {suffix}
+      </span>
+      <span className="sr-only">{final}</span>
     </span>
   );
 }
@@ -569,8 +613,23 @@ function EvoConversation({ isAr }: { isAr: boolean }) {
           CONSOLE (.evo-console), an in-product surface instead of two
           floating bubbles. Bubbles pop to card level inside the tint
           glass; the EVO avatar carries .ai-ring (the cyan AI-surface
-          law — the ONLY place cyan touches this section). */}
+          law — the ONLY place cyan touches this section).
+          VRD-V7 (P1-3): the console gains the AI PRESENCE PAIR —
+          a Siri-Orb-style presence sphere (.evo-orb) heading the
+          console, and a Border-Beam ring (.evo-beam) traveling its
+          border. Both are pure CSS/SVG-light recipes (transform-only,
+          zero dependencies, reduced-motion-safe); the --ai cyan stays
+          scoped to this AI surface. */}
       <div className="evo-console mt-5">
+        {/* The presence header — orb + wordmark + the live pulse (the
+            floating widget IS live on this page). */}
+        <div className="mb-3.5 flex items-center gap-2.5 border-b border-[var(--edge)]/70 pb-3">
+          <span className="evo-orb" aria-hidden="true" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
+            EVO
+          </span>
+          <span className="live-dot ms-auto" aria-hidden="true" />
+        </div>
         <div className="space-y-3.5">
           {turns.map((t, i) =>
             t.who === "user" ? (
@@ -602,6 +661,11 @@ function EvoConversation({ isAr }: { isAr: boolean }) {
             ),
           )}
         </div>
+        {/* The border beam — masked ring, rotor spins inside (last child:
+            paints above the panel fill but under nothing interactive). */}
+        <span className="evo-beam" aria-hidden="true">
+          <span className="evo-beam-rotor" />
+        </span>
       </div>
 
       {/* The hand-off — the widget law (the ONLY chat surface) */}
@@ -866,6 +930,14 @@ function planSegmented(active: boolean) {
   }`;
 }
 
+// VRD-V7 (P1-5) — the quiet bento tile hosting ONE control group
+// inside the plan-builder cards: a hairline module (no fill) that
+// makes each choice scannable, while the tinted answer zone stays
+// the loudest tile of the card. Touch targets inside are untouched.
+function planTile(extra = "") {
+  return `rounded-[var(--radius-chrome)] border border-[var(--edge)]/70 p-3.5 ${extra}`;
+}
+
 // Card A — the REAL workout-plan builder (HOME-REFINE-271 F3: «قسم
 // التخطيط الذكى اجعله حقيقى تفاعلى مثل الادوات» — the card runs the
 // SAME generation engine as the tool: the button calls
@@ -959,22 +1031,24 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
   };
 
   return (
-    <div className="marble-card flex h-full flex-col p-5 md:p-7">
+    <div className="marble-card flex h-full flex-col p-5 md:p-6">
       <div className="flex items-center gap-2.5">
         <EngravedIcon name="rack" alt="" size={20} className="h-5 w-5" />
         <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
           {isAr ? "خطة التمارين" : "The workout plan"}
         </h3>
       </div>
-      <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+      <p className="mt-1.5 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
           ? "حدّد اختياراتك ثم أنشئ خطتك — تتولّد هنا في الصفحة في ثوانٍ."
           : "Set your choices and generate — it builds right here in seconds."}
       </p>
 
-      {/* Controls — the real planner vocabulary */}
-      <div className="mt-5 space-y-4">
-        <div>
+      {/* Controls — the real planner vocabulary, as quiet bento
+          modules (VRD-V7 P1-5): one hairline tile per choice, the
+          card reads at a glance. Same fields, same handlers. */}
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className={planTile("sm:col-span-2")}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
             {isAr ? "هدفك" : "Your goal"}
           </p>
@@ -986,43 +1060,41 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "مستواك" : "Your level"}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {levels.map((l) => (
-                <button key={l.slug} type="button" onClick={() => pickLevel(l.slug)} className={planSegmented(level === l.slug)}>
-                  {l.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "أيام التدريب أسبوعيًا" : "Days per week"}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[2, 3, 4, 5, 6].map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => pickDays(d)}
-                  aria-pressed={days === d}
-                  className={`grid min-w-11 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-                    days === d
-                      ? "bg-[var(--text)] text-[var(--bg)]"
-                      : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
+        <div className={planTile()}>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "مستواك" : "Your level"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {levels.map((l) => (
+              <button key={l.slug} type="button" onClick={() => pickLevel(l.slug)} className={planSegmented(level === l.slug)}>
+                {l.label}
+              </button>
+            ))}
           </div>
         </div>
-        <div>
+        <div className={planTile()}>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "أيام التدريب أسبوعيًا" : "Days per week"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {[2, 3, 4, 5, 6].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => pickDays(d)}
+                aria-pressed={days === d}
+                className={`grid min-w-11 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+                  days === d
+                    ? "bg-[var(--text)] text-[var(--bg)]"
+                    : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className={planTile("sm:col-span-2")}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
             {isAr ? "معداتك المتاحة" : "Your equipment"}
           </p>
@@ -1036,7 +1108,7 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
         </div>
         {/* PARITY: the tool's optional notes field — rides the request
             and the hand-off envelope exactly like the tool's copy. */}
-        <div>
+        <div className={planTile("sm:col-span-2")}>
           <label
             htmlFor="home-workout-notes"
             className="mb-2 block text-xs font-semibold uppercase tracking-wider"
@@ -1059,7 +1131,7 @@ function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: b
       {/* The answer area — the generated week once it exists, the
           live structure preview before that. */}
       <div
-        className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
+        className="mt-4 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
         aria-live="polite"
       >
         {plan ? (
@@ -1268,72 +1340,72 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
   };
 
   return (
-    <div className="marble-card flex h-full flex-col p-5 md:p-7">
+    <div className="marble-card flex h-full flex-col p-5 md:p-6">
       <div className="flex items-center gap-2.5">
         <EngravedIcon name="mealplanner" alt="" size={20} className="h-5 w-5" />
         <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
           {isAr ? "خطة التغذية" : "The nutrition plan"}
         </h3>
       </div>
-      <p className="mt-2 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+      <p className="mt-1.5 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
           ? "حدّد سعراتك ونظامك الغذائي وملاحظاتك ثم أنشئ خطتك — يوم كامل بالوجبات والغرامات."
           : "Set your calories, diet system and preferences, then generate — a full day of meals in grams."}
       </p>
 
-      {/* Controls — PARITY with the tool page's generation fields */}
-      <div className="mt-5 space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="home-meal-calories"
-              className="mb-2 block text-xs font-semibold uppercase tracking-wider"
-              style={{ color: PALETTE.textMuted }}
+      {/* Controls — PARITY with the tool page's generation fields, as
+          quiet bento modules (VRD-V7 P1-5): same fields, same
+          handlers, scannable hairline tiles. */}
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className={planTile()}>
+          <label
+            htmlFor="home-meal-calories"
+            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
+            style={{ color: PALETTE.textMuted }}
+          >
+            {isAr ? "سعرات اليوم المستهدفة" : "Daily calorie target"}
+          </label>
+          {/* The tool's free calorie input — any integer 1200→4000
+              (the API validates the same range). */}
+          <input
+            id="home-meal-calories"
+            type="number"
+            inputMode="numeric"
+            min={1200}
+            max={4000}
+            step={50}
+            value={calories}
+            onChange={(e) => pickCalories(e.target.value)}
+            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
+            dir="ltr"
+          />
+          <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "من 1200 إلى 4000 — لا تعرف رقمك؟ " : "From 1200 to 4000 — don't know yours? "}
+            <a
+              href={`${isAr ? "/ar" : ""}/tools/calorie-calculator`}
+              className="underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: PALETTE.textSec }}
             >
-              {isAr ? "سعرات اليوم المستهدفة" : "Daily calorie target"}
-            </label>
-            {/* The tool's free calorie input — any integer 1200→4000
-                (the API validates the same range). */}
-            <input
-              id="home-meal-calories"
-              type="number"
-              inputMode="numeric"
-              min={1200}
-              max={4000}
-              step={50}
-              value={calories}
-              onChange={(e) => pickCalories(e.target.value)}
-              className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
-              dir="ltr"
-            />
-            <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "من 1200 إلى 4000 — لا تعرف رقمك؟ " : "From 1200 to 4000 — don't know yours? "}
-              <a
-                href={`${isAr ? "/ar" : ""}/tools/calorie-calculator`}
-                className="underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-                style={{ color: PALETTE.textSec }}
-              >
-                {isAr ? "حاسبة السعرات" : "the calorie calculator"}
-              </a>
-            </p>
-          </div>
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "نظامك الغذائي" : "Your diet system"}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {systems.map((s) => (
-                <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
-                  {isAr ? s.nameAr : s.nameEn}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "أنظمة مطابقة لمكتبة الخطط الغذائية الجاهزة." : "The site's own systems — matching the diet plan library."}
-            </p>
-          </div>
+              {isAr ? "حاسبة السعرات" : "the calorie calculator"}
+            </a>
+          </p>
         </div>
-        <div>
+        <div className={planTile()}>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "نظامك الغذائي" : "Your diet system"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {systems.map((s) => (
+              <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
+                {isAr ? s.nameAr : s.nameEn}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
+            {isAr ? "أنظمة مطابقة لمكتبة الخطط الغذائية الجاهزة." : "The site's own systems — matching the diet plan library."}
+          </p>
+        </div>
+        <div className={planTile("sm:col-span-2")}>
           <label
             htmlFor="home-meal-notes"
             className="mb-2 block text-xs font-semibold uppercase tracking-wider"
@@ -1356,7 +1428,7 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
       {/* The answer area — the generated day once it exists, the
           real matrix split preview before that. */}
       <div
-        className="mt-5 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
+        className="mt-4 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
         aria-live="polite"
       >
         {plan ? (
@@ -2093,8 +2165,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <div className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10">
           {proofStats.map((stat) => (
             <span key={stat.labelEn} className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
-              <span className="chrome-text text-base font-bold tracking-tight md:text-lg">
-                <CountUp value={stat.value} suffix={stat.suffix} />
+              <span className="text-base font-bold tracking-tight md:text-lg">
+                <CountUp value={stat.value} suffix={stat.suffix} paintClass="chrome-text" />
               </span>
               <span className="text-xs font-normal md:text-sm" style={{ color: PALETTE.textSec }}>
                 {isAr ? stat.labelAr : stat.labelEn}
@@ -2180,14 +2252,19 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         </div>
       </section>
 
-      {/* ===================== 5. SMART PLANNING — REAL generation (R5 + 271 F3) =====================
+      {/* ===================== 5. SMART PLANNING — REAL generation (R5 + 271 F3 + VRD-V7 bento) =====================
           The owner's follow-up directive: the section is TRULY
           interactive like the tools — both builders call the REAL
           generation endpoints (the unified free pool, guests
-          included) and render the generated plan in-page. EVO is not
-          mentioned here (it owns #evo above) and no coach is
-          referenced (online coaching is a separate paid membership —
-          the old «مدرب يواكب تقدّمك» framing was wrong and is gone). */}
+          included) and render the generated plan in-page. Nothing
+          else is referenced here (it owns nothing beyond the
+          planners).
+          VRD-V7 (P1-5): the section re-reads as a BENTO — the two
+          builder cards, then ONE full-width allowance bar closing the
+          grid (the transactional note moved from the header prose to
+          the point of action; the header got lighter, the grid got a
+          clear modular close). ZERO functionality changed: same
+          fields, same endpoints, same persistence, same tool CTAs. */}
       <section id="plan" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -2203,18 +2280,28 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 ? "حدّد اختياراتك واضغط زر الإنشاء — خطة كاملة بالتمارين والمجموعات أو بالوجبات والغرامات تتولّد هنا في الصفحة، بنفس محرك الأدوات."
                 : "Set your choices and hit generate — a full plan (exercises and sets, or meals in grams) is created right on this page by the same engine as the tools."}
             </p>
-            <p className="mx-auto mt-3 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-              {isAr
-                ? "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط — دون تسجيل."
-                : "Every visitor carries a free monthly plan allowance — no signup."}
-            </p>
           </Reveal>
-          <div className="mt-8 grid gap-5 md:mt-10 lg:grid-cols-2">
+          <div className="mt-8 grid gap-4 md:mt-10 md:gap-5 lg:grid-cols-2">
             <Reveal className="h-full">
               <WorkoutPlanBuilder isAr={isAr} isLoggedIn={isLoggedIn} />
             </Reveal>
             <Reveal delay={80} className="h-full">
               <MealPlanBuilder samples={samples} isAr={isAr} isLoggedIn={isLoggedIn} />
+            </Reveal>
+            {/* The bento close — the free allowance, at the point of
+                action (full-width bar, one quiet module). */}
+            <Reveal delay={120} className="lg:col-span-2">
+              <div className="marble-card flex flex-col items-center justify-between gap-3 px-5 py-4 text-center md:flex-row md:gap-4 md:text-start">
+                <p className="text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                  {isAr
+                    ? "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط — دون تسجيل."
+                    : "Every visitor carries a free monthly plan allowance — no signup."}
+                </p>
+                <span className="seal-chip shrink-0 py-1! text-[11px]!">
+                  <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
+                  {isAr ? "توليد حقيقي داخل الصفحة" : "REAL IN-PAGE GENERATION"}
+                </span>
+              </div>
             </Reveal>
           </div>
         </div>

@@ -180,10 +180,15 @@
   --tint: #F1EDE7;
   /* VRD-V1 §9.1: replaces the marble texture — 1px machined top edge */
   --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  /* Phase 198 (UI audit C5): 0.72 let high-contrast artwork bleed through
-     the sticky bar on tablet/mobile — 0.85 keeps the translucent blur
-     character while content behind stops competing with the navbar row. */
-  --navbar-bg: rgba(250, 248, 245, 0.85);
+  /* VRD-V7 (P0-1, 2026-09-26 — the scroll-leak fix, audit top defect):
+     Phase 198 raised the sticky-bar fill 0.72 → 0.85; the VRD-V7 audit
+     measured that dense section text STILL competes with the navbar row
+     at 0.85 (the blur(12px) alone cannot wash a high-contrast heading
+     under the bar). 0.94 keeps the translucent glass character while
+     scrolled content fully stops leaking through the bar; the residual
+     6% is what keeps it a glass surface, not a slab. The bottom-edge
+     fade lives on .navbar-chrome::after. */
+  --navbar-bg: rgba(250, 248, 245, 0.94);
   --meander-img: url("/images/brand/divider-meander-light.webp");
   --prog-backdrop: url("/images/brand/evo-card-light.webp");
   /* shadcn mapping — existing components theme automatically */
@@ -227,8 +232,8 @@
   --card: #1B1815;
   /* VRD-V1 §9.1: machined inner highlight at dark-mode strength */
   --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  /* Phase 198 (UI audit C5): see the light-theme note above */
-  --navbar-bg: rgba(18, 16, 14, 0.85);
+  /* VRD-V7 (P0-1): see the light-theme note above */
+  --navbar-bg: rgba(18, 16, 14, 0.94);
   --meander-img: url("/images/brand/divider-meander-dark.webp");
   --prog-backdrop: url("/images/brand/evo-card-dark.webp");
   /* shadcn mapping — dark */
@@ -276,6 +281,13 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  /* VRD-V7 (P0-2): the Shiny sweep host — the pill clips its own
+     specular band (position: relative anchors the ::before; overflow
+     clips the sweep to the metal). Box-shadows (bevel + focus ring)
+     paint OUTSIDE the box and are never clipped by the element's own
+     overflow. */
+  position: relative;
+  overflow: hidden;
   /* VRD-V6 (2026-09-25 — hero CTA affordance, VLM audit #1): the pill
      gains MACHINED INNER RINGS — a 1px bright top edge + a 1px dark
      bottom edge inside the metal. The gradient alone read as
@@ -287,6 +299,54 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     inset 0 -1px 0 rgba(28, 23, 16, 0.18),
     var(--shadow);
+}
+/* VRD-V7 (P0-2, 2026-09-26) — the SHINY SWEEP inside .btn-chrome.
+   Source idea: the 21st.dev «Shiny Button» (MagicUI) — copied as
+   source into pure CSS per the wave law (copy the source, never the
+   package): a soft diagonal specular band crosses the chrome every
+   ~4.5s like light catching polished metal. Zero dependencies, zero
+   JS; the animation rides transform ONLY (compositor layer — INP
+   safe), paints nothing but one small pseudo-element, and stands
+   down entirely under prefers-reduced-motion. The pause between
+   sweeps is inside the keyframe (band crosses in the first 38% of
+   the cycle, then rests) so the shine reads as an occasion, not a
+   strobe. RTL: the sweep direction mirrors via [dir="rtl"] — the
+   light always enters from the reading-start edge. */
+.btn-chrome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 68%
+  );
+  transform: translateX(-130%);
+  animation: chrome-shiny 4.5s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+@keyframes chrome-shiny {
+  0% { transform: translateX(-130%); }
+  38%, 100% { transform: translateX(130%); }
+}
+[dir="rtl"] .btn-chrome::before {
+  background: linear-gradient(
+    260deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 68%
+  );
+  animation-name: chrome-shiny-rtl;
+}
+@keyframes chrome-shiny-rtl {
+  0% { transform: translateX(130%); }
+  38%, 100% { transform: translateX(-130%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-chrome::before { animation: none; opacity: 0; }
 }
 @media (min-width: 768px) {
   .btn-chrome { min-height: 52px; }
@@ -321,8 +381,10 @@
      weaker element washing out; the firmer glass keeps it a confident
      secondary without ever competing with the chrome primary. */
   background: color-mix(in srgb, var(--card) 72%, transparent);
-  backdrop-filter: blur(6px);
+  /* -webkit- first — see the .navbar-chrome note (the pipeline keeps
+     the LAST of the prefixed/standard pair). */
   -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   border: 1px solid var(--text);
   color: var(--text);
   border-radius: 999px;
@@ -611,9 +673,11 @@
    A quiet tint-glass panel with a hairline edge + the machined inner
    highlight — the same structural-separation language as
    .marble-card, one level quieter. The bubbles inside pop to card
-   level. The --ai cyan stays OFF the console itself (AI-surface law:
-   cyan only on the EVO avatar ring via .ai-ring). */
+   level. The --ai cyan stays OFF the panel FILL (AI-surface law:
+   the panel tint is neutral; cyan rides the orb/beam pair + .ai-ring
+   below — VRD-V7). position: relative anchors the .evo-beam ring. */
 .evo-console {
+  position: relative;
   border: 1px solid var(--edge);
   border-radius: var(--radius-chrome);
   background: color-mix(in srgb, var(--tint) 60%, transparent);
@@ -622,6 +686,114 @@
 }
 @media (min-width: 768px) {
   .evo-console { padding: 1.25rem; }
+}
+
+/* VRD-V7 (P1-3, 2026-09-26) — the EVO presence pair, on the demo
+   console ONLY (the cyan AI-surface law holds: --ai touches nothing
+   outside this pair + .ai-ring/.live-dot).
+
+   (1) .evo-orb — the Siri-Orb-style presence sphere, re-authored in
+   the Marble & Chrome language (source idea: 21st.dev «Siri Orb» —
+   copied as concept, zero deps): a layered glass ball — white
+   specular cap, --ai core, graphite depth — with a slow conic swirl
+   (::before, transform-only rotation) breathing inside it. 22px,
+   decorative, aria-hidden.
+
+   (2) .evo-beam — the Border-Beam ring on the console border (source
+   idea: 21st.dev/MagicUI «Border Beam» — copied as source, zero
+   deps): a masked 1.25px ring whose bright --ai head + chrome tail
+   travels the console border via transform rotation of an oversized
+   rotor. Compositor-only motion; the ring window hides itself under
+   prefers-reduced-motion, and the whole recipe only activates when
+   the browser supports mask-composite (progressive enhancement). */
+.evo-orb {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ai) 35%, var(--chrome-edge));
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 50% 58%, var(--ai) 0%, color-mix(in srgb, var(--ai) 32%, transparent) 46%, transparent 72%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--text) 22%, transparent) 0%, transparent 76%);
+  box-shadow: 0 0 10px -2px color-mix(in srgb, var(--ai) 55%, transparent);
+}
+.evo-orb::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0turn 10%,
+    color-mix(in srgb, var(--ai) 55%, transparent) 20%,
+    rgba(255, 255, 255, 0.5) 28%,
+    transparent 38%,
+    transparent 60%,
+    color-mix(in srgb, var(--ai) 30%, transparent) 72%,
+    transparent 84%
+  );
+  animation: evo-orb-swirl 7s linear infinite;
+}
+.evo-orb::after {
+  content: "";
+  position: absolute;
+  top: 16%;
+  inset-inline-start: 20%;
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 72%);
+}
+@keyframes evo-orb-swirl {
+  to { transform: rotate(1turn); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evo-orb::before { animation: none; }
+}
+
+.evo-beam {
+  display: none;
+}
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .evo-beam {
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    padding: 1.25px;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+}
+.evo-beam-rotor {
+  position: absolute;
+  /* Oversized square centered on the console — its rotation sweeps
+     the bright arc along every border segment. */
+  inset: -75%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0turn 72%,
+    color-mix(in srgb, var(--ai) 75%, transparent) 84%,
+    color-mix(in srgb, var(--ai) 95%, white 5%) 90%,
+    color-mix(in srgb, var(--text) 25%, transparent) 95%,
+    transparent 99%
+  );
+  animation: evo-beam-spin 7s linear infinite;
+}
+@keyframes evo-beam-spin {
+  to { transform: rotate(1turn); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evo-beam { display: none; }
+}
+[data-theme="dark"] .evo-console {
+  background: color-mix(in srgb, var(--tint) 72%, transparent);
 }
 
 /* VRD-V6 — the macro split rail (diet-plan cards): the P/C/F split
@@ -644,12 +816,38 @@
 .split-seg--carbs { background: color-mix(in srgb, var(--text) 58%, transparent); }
 .split-seg--fat { background: color-mix(in srgb, var(--text) 32%, transparent); }
 
-/* Navbar chrome — mission §1 */
+/* Navbar chrome — mission §1. NOTE (VRD-V7 P0-1): the -webkit-
+   declaration MUST come FIRST — the CSS pipeline (Lightning CSS)
+   merges the prefixed + standard pair and keeps the LAST one, so a
+   standard-first order ships ONLY the -webkit- form, which this
+   Chromium computes as `none` (the silent blur death that made the
+   audit's scroll-leak defect far worse than the 0.85 alpha alone).
+   Webkit-first keeps the STANDARD property in the output (the same
+   order .hero-pill / .mhe-cookie-bar already use). */
 .navbar-chrome {
   background: var(--navbar-bg);
-  backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
   border-bottom: var(--border-chrome);
+}
+/* VRD-V7 (P0-1, 2026-09-26) — the bottom-edge scrim: a 24px theme-aware
+   fade that dissolves scrolled content exactly AT the bar's boundary,
+   where the 1px border alone left a hard seam (the audit's «تسرب
+   المحتوى أثناء التمرير»). Pure paint on a fixed-size strip — no
+   layout, no JS, no CLS; rides the sticky bar in both themes via --bg
+   (zero new colors — the token law). */
+.navbar-chrome::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  height: 24px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 42%, transparent),
+    transparent
+  );
 }
 
 /* Theme-switched image pairs (render both, CSS picks — zero JS flicker) */
@@ -1260,4 +1458,19 @@ textarea:disabled {
 }
 @media (prefers-reduced-motion: reduce) {
   .swap-fade { animation: none; }
+}
+
+/* (6) VRD-V7 (P1-4) — the CountUp zero-CLS shell. The strip's numbers
+   now count up with a spring + blur settle (the LandingView <CountUp>
+   rAF — same component, richer tick). The shell reserves the FINAL
+   rendered width first (the ghost sizer is the in-flow box) while the
+   animating digits paint in an absolute overlay — the strip never
+   wobbles, CLS stays 0. The overlay rides filter+opacity only; SSR
+   and no-JS render the truth statically (the honesty law). */
+.count-shell { position: relative; display: inline-block; }
+.count-sizer { visibility: hidden; }
+.count-live {
+  position: absolute;
+  inset: 0;
+  will-change: filter, opacity;
 }
