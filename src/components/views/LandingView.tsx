@@ -565,37 +565,43 @@ function EvoConversation({ isAr }: { isAr: boolean }) {
         {isAr ? "نموذج توضيحي لمحادثة" : "AN ILLUSTRATIVE EXCHANGE"}
       </span>
 
-      {/* The conversation */}
-      <div className="mt-5 space-y-3.5">
-        {turns.map((t, i) =>
-          t.who === "user" ? (
-            <div key={i} className="flex justify-end">
-              <p
-                className="max-w-[85%] rounded-2xl rounded-es-md border border-[var(--edge)] bg-[var(--tint)] px-4 py-3 text-sm font-normal leading-relaxed"
-                style={{ color: PALETTE.textPrim }}
-              >
-                {t.text}
-              </p>
-            </div>
-          ) : (
-            <div key={i} className="flex items-end justify-start gap-2.5">
-              <ThemeImg
-                light="/images/brand/evo-widget-light.webp"
-                dark="/images/brand/evo-widget-dark.webp"
-                alt="EVO"
-                width={64}
-                height={64}
-                className="h-9 w-9 shrink-0 rounded-full border border-[var(--edge)] object-cover"
-              />
-              <p
-                className="marble-card max-w-[85%] px-4 py-3 text-sm font-normal leading-relaxed"
-                style={{ color: PALETTE.textPrim, borderRadius: "1rem 1rem 1rem 0.25rem" }}
-              >
-                {t.text}
-              </p>
-            </div>
-          ),
-        )}
+      {/* The conversation — VRD-V6: the exchange sits inside the EVO
+          CONSOLE (.evo-console), an in-product surface instead of two
+          floating bubbles. Bubbles pop to card level inside the tint
+          glass; the EVO avatar carries .ai-ring (the cyan AI-surface
+          law — the ONLY place cyan touches this section). */}
+      <div className="evo-console mt-5">
+        <div className="space-y-3.5">
+          {turns.map((t, i) =>
+            t.who === "user" ? (
+              <div key={i} className="flex justify-end">
+                <p
+                  className="max-w-[85%] rounded-2xl rounded-es-md border border-[var(--edge)] bg-[var(--card)] px-4 py-3 text-sm font-normal leading-relaxed"
+                  style={{ color: PALETTE.textPrim }}
+                >
+                  {t.text}
+                </p>
+              </div>
+            ) : (
+              <div key={i} className="flex items-end justify-start gap-2.5">
+                <ThemeImg
+                  light="/images/brand/evo-widget-light.webp"
+                  dark="/images/brand/evo-widget-dark.webp"
+                  alt="EVO"
+                  width={64}
+                  height={64}
+                  className="ai-ring h-9 w-9 shrink-0 rounded-full border border-[var(--edge)] object-cover"
+                />
+                <p
+                  className="marble-card max-w-[85%] px-4 py-3 text-sm font-normal leading-relaxed"
+                  style={{ color: PALETTE.textPrim, borderRadius: "1rem 1rem 1rem 0.25rem" }}
+                >
+                  {t.text}
+                </p>
+              </div>
+            ),
+          )}
+        </div>
       </div>
 
       {/* The hand-off — the widget law (the ONLY chat surface) */}
@@ -1481,20 +1487,35 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
 //    data (server slice) — the card links into a real leaf page of
 //    the library (the mid 2000-kcal level of that system). ──
 function LandingDietCard({ system, levelCount, isAr }: { system: HomeDietSystemSample; levelCount: number; isAr: boolean }) {
-  const name = isAr ? system.nameAr : system.nameEn;
+  // VRD-V6 — the macro split as ONE machined rail (.split-rail): the
+  // SAME system.split data, now in the platform's data-viz language
+  // (visual parity with the #eat macro bars) instead of a bare
+  // «P/C/F» text run. Segment widths are the real ratio; the numbers
+  // stay visible beneath for precision readers.
+  const splitTotal =
+    system.split.protein + system.split.carbs + system.split.fat || 1;
+  const segWidth = (g: number) => `${Math.max(6, Math.round((g / splitTotal) * 100))}%`;
   return (
     <a
       href={`${isAr ? "/ar" : ""}/diet-plan/2000/${system.slug}`}
       className="marble-card card-lift group flex w-72 shrink-0 flex-col p-5 text-start md:w-80"
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-          {isAr ? `النظام ${system.nameAr}` : `${system.nameEn}`}
-        </h3>
-        <span className="whitespace-nowrap text-xs font-normal" style={{ color: PALETTE.textMuted }} dir="ltr">
+      <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+        {isAr ? `النظام ${system.nameAr}` : `${system.nameEn}`}
+      </h3>
+      {/* The macro split rail — aria-hidden (the ratio is decorative;
+        the exact numbers are announced by the row below). */}
+      <div className="split-rail mt-3" aria-hidden="true">
+        <span className="split-seg split-seg--protein" style={{ width: segWidth(system.split.protein) }} />
+        <span className="split-seg split-seg--carbs" style={{ width: segWidth(system.split.carbs) }} />
+        <span className="split-seg split-seg--fat" style={{ width: segWidth(system.split.fat) }} />
+      </div>
+      <p className="mt-2 flex items-center justify-between text-[10px] font-medium" style={{ color: PALETTE.textMuted }}>
+        <span>{isAr ? "توزيع الماكروز" : "Macro split"}</span>
+        <span dir="ltr">
           {system.split.protein}/{system.split.carbs}/{system.split.fat}
         </span>
-      </div>
+      </p>
       <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr ? system.lineAr : system.lineEn}
       </p>
@@ -2002,6 +2023,31 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               : "One platform for training, nutrition, and smart planning — with EVO, your AI coach, built in. Try it right on this page, in Arabic and English."}
           </p>
 
+          {/* VRD-V6 — the platform trio: the hero must read as ONE
+              integrated platform (Fitness + Nutrition + AI planning),
+              not an EVO service page. Three NON-interactive glass
+              pills (semantic list — NOT links, NOT CTAs): the
+              two-button law stays exact. Icons ride the existing
+              EngravedIcon pairs; the labels mirror the header's
+              SERVICE_NAV vocabulary (single-voice law). */}
+          <ul
+            className="mt-4 flex flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3"
+            aria-label={isAr ? "أعمدة المنصة" : "The platform pillars"}
+          >
+            <li className="hero-pill">
+              <EngravedIcon name="dumbbell" alt="" size={16} className="h-4 w-4" />
+              {isAr ? "التدريب" : "Training"}
+            </li>
+            <li className="hero-pill">
+              <EngravedIcon name="protein" alt="" size={16} className="h-4 w-4" />
+              {isAr ? "التغذية" : "Nutrition"}
+            </li>
+            <li className="hero-pill">
+              <EngravedIcon name="macros" alt="" size={16} className="h-4 w-4" />
+              {isAr ? "التخطيط الذكي" : "Smart Planning"}
+            </li>
+          </ul>
+
           {/* The two-button pair (R1). */}
           <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
             {isLoggedIn ? (
@@ -2465,24 +2511,30 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
           {/* The online-coaching card — the human service, separate from
               the memberships (the terminology law), carrying the
-              section's ONE filled CTA. */}
+              section's ONE filled CTA. VRD-V6 (hierarchy fix, VLM
+              audit #7): the card drops the dark-marble fill for a
+              LIGHT service band (--tint + --edge hairline) so the
+              PREMIUM card becomes the section's single dark anchor —
+              the «two black surfaces, muddy hierarchy» blur is gone.
+              Copy, links, price source, and the chrome CTA stay
+              byte-identical (the 273 canary pins the CTA recipe). */}
           <Reveal delay={200} className="mt-4 md:mt-5">
-            <div className="relative overflow-hidden rounded-[var(--radius-chrome)] p-5 md:p-7" style={darkMarbleStyle}>
+            <div className="relative overflow-hidden rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-5 md:p-7">
               <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
                 <div>
-                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: "#F5F5F7" }}>
+                  <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
                     {isAr ? "التدريب الأونلاين (الكوتشينج)" : "Online Coaching"}
                   </h3>
-                  <p className="mt-2 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: "rgba(245,245,247,0.72)" }}>
+                  <p className="mt-2 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                     {isAr
                       ? "مدرب بشري يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — ويشمل كل مزايا برو."
                       : "A human coach builds your plans personally, follows your progress weekly, and stays in direct contact — all Pro features included."}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-start gap-3 md:items-end">
-                  <span className="chrome-text-on-dark text-2xl font-bold">
+                  <span className="chrome-text text-2xl font-bold">
                     {coachingPriceLabel}
-                    <span className="text-xs font-medium" style={{ color: "rgba(245,245,247,0.6)" }}>
+                    <span className="text-xs font-medium" style={{ color: PALETTE.textMuted }}>
                       {isAr ? " / شهريًا" : " /mo"}
                     </span>
                   </span>

@@ -58,7 +58,15 @@ deleted (nothing ever set `class="dark"` — the theme engine is the
 **Tailwind is CSS-first (v4).** `tailwind.config.ts` was deleted in V5
 (dead-by-construction: no `@config` anywhere; `components.json` points at
 `globals.css`). Do NOT recreate a config file — extend via `@theme` /
-`@utility` in `globals.css` only. (`tailwindcss-animate` in
+`@utility` in `globals.css` only.
+
+**VRD-V6 mirrors (owner directive 2026-09-25):** the typed token registry
+lives at `src/styles/design-tokens.ts` and the full implementation-facing
+design-system reference at `src/docs/DESIGN_SYSTEM.md` — both mirror this
+architecture; `globals.css` stays the runtime single source (drift between
+the three is a defect — fix in the same commit).
+
+(`tailwindcss-animate` in
 package.json is likewise vestigial — the live plugin import is
 `tw-animate-css` at the top of globals.css.)
 
@@ -196,8 +204,8 @@ prices/stat numbers.
 
 | Class | Recipe | Use |
 |---|---|---|
-| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; dark mode adds a hairline warm-white ring. **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
-| `.btn-outline` | translucent `--card` fill (65% + blur 6px — survives hero artwork) + 1px `--text` border + `--text` + radius 999px. **44px touch / 48px md+** | Secondary CTAs |
+| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; **VRD-V6 machined bevel**: `inset 0 1px 0` bright top edge + `inset 0 -1px 0` dark bottom edge (pressed-metal affordance), hover deepens to `--shadow-lift`; dark mode adds a hairline warm-white ring. **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
+| `.btn-outline` | translucent `--card` fill (**VRD-V6: 72%** + blur 6px — survives hero artwork) + 1px `--text` border + `--text` + radius 999px. **44px touch / 48px md+** | Secondary CTAs |
 | `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + 1px machined inner top-edge highlight (`--card-inner-hl`). Name is historical (marble is gone); 123+ usages | Every card surface |
 | `.marble-card--unclipped` | `overflow: visible` escape hatch for cards hosting absolute popovers (Phase 154) | Popover hosts |
 | `.marble-card.card-lift` | Unified INTERACTIVE-card hover: 2px lift + `--shadow-lift` + firmer warm-graphite hairline (`color-mix(--text 22%)`) · 200ms ease · disabled under `prefers-reduced-motion`. Only on truly interactive cards — static containers never lift | Interactive cards' hover |
@@ -210,9 +218,11 @@ prices/stat numbers.
 | `.hero-copy` | Theme-aware text-shadow halo for copy over artwork details — a glyph edge, NOT a veil | Hero H1 + subtitle |
 | `.chips-row` | ONE horizontal scroll-snap row on touch — `nowrap` + `scroll-snap-type: x proximity` + symmetric 24px edge fade masks (RTL-safe) + chips `flex-shrink: 0 · white-space: nowrap`; md+ reverts to the centered wrap | Muscle-group browse chips |
 | `.footer-marble` | Structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (name historical) | Site footer |
-| `.footer-disc` | Below lg the five service lists collapse into two native `<details>` groups («الخدمات/Services» + «المنصة/Platform», 44px summary rows, zero JS); lg+ shows the flat 6-column map — href-sync law ×2 (canary-pinned) | Mobile footer |
 | `.mhe-cookie-bar` | Theme-aware GLASS — `color-mix(--card 92% light / 88% dark, transparent)` + `backdrop-filter: blur(16px)`; solid-card `@supports` fallback; SSR-first-paint + `data-mhe-consent-ok` pre-paint hide + body no-cover padding | Cookie consent bar |
 | `.evo-hero-card` / `.evo-art-mask` | EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask (image never flipped) | Homepage EVO section |
+| `.evo-console` | **VRD-V6** — the homepage EVO demo exchange as an IN-PRODUCT surface: tint-glass panel (60% wash) + `--edge` hairline + inner highlight; bubbles inside pop to card level; cyan stays off the panel (`.ai-ring` on the avatar only) | Homepage EVO demo |
+| `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive (two-button law intact) | Hero platform chips |
+| `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
 | `.card-hover` | 4px lift + soft shadow (300ms, reduced-motion-safe) | Food/exercise/program explorer cards |
 | `.scrollbar-thin` | Warm-graphite thin scrollbar (6px) | Long in-app lists |
 
@@ -304,13 +314,20 @@ HOME-EXPERIENCE-269: the numbers COUNT UP once when the strip enters
 the view (`.CountUp` — rAF ease-out, SSR renders the final value,
 reduced-motion stands down) — the page's first heartbeat.
 
-**CTA pair (Phase 203 account law):** `.btn-chrome` «Start free» →
-/auth?mode=signup + translucent `.btn-outline` «Try it on this page»
-→ `#start` (the living product — the secondary CTA now scrolls INTO
-the experience instead of routing away), plus the quiet centered
-«Log in» link. On phones the pair STACKS full-width — primary →
-secondary → the quiet centered «Log in» link with a 28px clearance
-(no mis-tap risk); md+ keeps the single centered row.
+**CTA pair (HOME-REFINE-270 R1 — the current law):** exactly TWO
+side-by-side CTAs — `.btn-chrome` «Log in / Sign up» →
+`/auth?mode=signup` (signed-in members: their dashboard) +
+`.btn-outline` «Premium memberships» → `/memberships`. On touch the
+pair STACKS full-width (no mis-tap risk beside the artwork); md+
+keeps the single centered row.
+
+**Platform trio (VRD-V6):** between the subtitle and the CTA pair,
+three NON-interactive `.hero-pill` glass chips — Training /
+التدريب (dumbbell) · Nutrition / التغذية (protein) · Smart Planning /
+التخطيط الذكي (macros) — so the hero reads as the integrated
+Fitness + Nutrition + AI platform, never as an EVO service page. The
+pills are a semantic list (NOT links): the two-button law stays
+exact. Labels mirror the header SERVICE_NAV vocabulary.
 
 ### 7.1.2 The living product (`#start` — HOME-EXPERIENCE-269)
 
@@ -371,21 +388,18 @@ the surface via `.evo-art-mask`; `[dir=rtl]` flips the mask (image
 never flipped). Card min-height 220px mobile / 260px desktop. The
 floating EVO widget stays the chat entry point.
 
-### 7.4 Free-vs-Paid cards (homepage)
+### 7.4 Memberships cards (homepage — HOME-REFINE-270 R7 + VRD-V6)
 
-Homepage (HOME-EXPERIENCE-269): the section OPENS with the **growth
-ladder** — a 4-step journey strip (Free = Experience → Premium =
-Manage → Pro = Adapt & Optimize → Coaching = Human Coach + AI; tier
-NAMES derive from memberships.ts lookups, the stages are the
-repositioning vocabulary) — so the money moment reads as the member's
-JOURNEY, not a price sheet. Below it, THREE `marble-card`s in an
-`md:grid-cols-3` row — **Free** ($0, name from memberships.ts,
-`btn-outline` → signup; the copy ties back to what the visitor just
-TRIED on the page) / **Premium & Pro** (the visual hero: dark
-`#0B0B0D` card, 2px chrome gradient ring, the «Recommended» seal
-straddling the top border — the exact /memberships Pro recipe —
-`.btn-chrome`; price line «From $X/mo») / **Coaching** (`btn-outline`;
-$X/mo + the checkseal «ALL PRO FEATURES INCLUDED» chip).
+The compact treatment: THREE small cards in an `sm:grid-cols-3` row
+— **Free** (`marble-card card-lift` → signup; «Start free ›») /
+**Premium** (the RECOMMENDED anchor: dark `#0B0B0D` + 2px chrome
+gradient ring + the «Recommended» seal straddling the top border —
+the section's ONLY dark card, VRD-V6) / **Pro** (`marble-card
+card-lift` «See details ›»)
+— followed by the **online-coaching service band**: a LIGHT band
+(`--tint` + `--edge` hairline, VRD-V6 — the old dark-marble fill was
+retired so Premium stays the single dark anchor) carrying the
+section's ONE filled `.btn-chrome` CTA → `/coaching`.
 **Prices derive from memberships.ts lookups — never literals** (the
 single-source law the canaries pin). A quiet refund line closes the
 section (the REAL 7-day conditional refund, refund.ts).

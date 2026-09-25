@@ -276,7 +276,17 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: var(--shadow);
+  /* VRD-V6 (2026-09-25 — hero CTA affordance, VLM audit #1): the pill
+     gains MACHINED INNER RINGS — a 1px bright top edge + a 1px dark
+     bottom edge inside the metal. The gradient alone read as
+     «flat/washed-out, possibly disabled»; the inner bevel restores
+     the pressed-metal affordance of a real machined button without
+     leaving the Chrome/Silver identity (owner: enhance, don't
+     change). The outer drop stays --shadow. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(28, 23, 16, 0.18),
+    var(--shadow);
 }
 @media (min-width: 768px) {
   .btn-chrome { min-height: 52px; }
@@ -284,6 +294,12 @@
 .btn-chrome:hover {
   filter: brightness(1.04) contrast(1.02);
   transform: translateY(-1px);
+  /* VRD-V6: the lift deepens the drop (the same --shadow-lift stop
+     .card-lift uses) — the button now visibly «rises» on hover. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(28, 23, 16, 0.18),
+    var(--shadow-lift);
 }
 .btn-chrome:active { transform: translateY(0); }
 /* VRD-V1 (audit C-12, dark washout — monochrome fix): the chrome pill
@@ -300,8 +316,11 @@
   /* VRD-V1 (plan §8.3 secondary recipe, fixes audit C-12): translucent
      --card fill + backdrop blur keeps the text border button readable
      over busy hero artwork in BOTH modes; on plain sections it reads
-     as a quiet secondary — two-button law intact. */
-  background: color-mix(in srgb, var(--card) 65%, transparent);
+     as a quiet secondary — two-button law intact. VRD-V6: fill 65% →
+     72% — the VLM pass read the ghost over the hero artwork as the
+     weaker element washing out; the firmer glass keeps it a confident
+     secondary without ever competing with the chrome primary. */
+  background: color-mix(in srgb, var(--card) 72%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--text);
@@ -482,6 +501,36 @@
     0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
 }
 
+/* VRD-V6 (2026-09-25 — the platform trio): the hero carries Alkemos as
+   ONE integrated platform — Training + Nutrition + Smart Planning —
+   as three compact GLASS pills between the subtitle and the CTA pair
+   (the owner directive: the hero must read as the full platform, not
+   an EVO service page). NON-interactive by design: the two-button law
+   stays exact (no third CTA); the pills are a semantic list, not
+   links. Same glass recipe as .btn-outline (translucent card + blur +
+   hairline), one step quieter — they sit ON the artwork in both
+   themes and must never fight the CTAs. No letter-spacing (Cairo is a
+   connected script — the VRD-V0 RTL law applies to every run, not
+   just headings). */
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+[data-theme="dark"] .hero-pill {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 /* Phase 198 Batch 3 (audit H4/M-mobile): hidden-scrollbar utility for the
    mobile single-row quick-nav (chips) — keeps the row visually clean while
    staying natively scrollable (and swipeable) in both directions. */
@@ -555,6 +604,45 @@
   -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 45%);
   mask-image: linear-gradient(to left, transparent 0%, #000 45%);
 }
+
+/* VRD-V6 (2026-09-25 — the EVO console): the homepage demo exchange
+   becomes an IN-PRODUCT surface instead of two floating bubbles (VLM:
+   «reads like a generic SaaS widget screenshot, breaks immersion»).
+   A quiet tint-glass panel with a hairline edge + the machined inner
+   highlight — the same structural-separation language as
+   .marble-card, one level quieter. The bubbles inside pop to card
+   level. The --ai cyan stays OFF the console itself (AI-surface law:
+   cyan only on the EVO avatar ring via .ai-ring). */
+.evo-console {
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-chrome);
+  background: color-mix(in srgb, var(--tint) 60%, transparent);
+  padding: 1rem;
+  box-shadow: var(--card-inner-hl);
+}
+@media (min-width: 768px) {
+  .evo-console { padding: 1.25rem; }
+}
+
+/* VRD-V6 — the macro split rail (diet-plan cards): the P/C/F split
+   as ONE machined horizontal rail instead of a bare «35/45/20» text
+   run — the same data (system.split), now in the platform's data-viz
+   language (the #eat macro bars' little brother). Segments derive
+   from --text via color-mix so the rail auto-inverts with the theme
+   (dark graphite on ivory cards / warm silver on graphite cards) —
+   zero new hexes, zero accent colors. */
+.split-rail {
+  display: flex;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--tint) 70%, var(--card));
+  border: 1px solid var(--edge);
+}
+.split-seg { height: 100%; }
+.split-seg--protein { background: color-mix(in srgb, var(--text) 88%, transparent); }
+.split-seg--carbs { background: color-mix(in srgb, var(--text) 58%, transparent); }
+.split-seg--fat { background: color-mix(in srgb, var(--text) 32%, transparent); }
 
 /* Navbar chrome — mission §1 */
 .navbar-chrome {
