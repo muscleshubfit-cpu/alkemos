@@ -48,18 +48,20 @@ function baseLayerBlock(css: string): string {
 }
 
 describe("VRD-V0 — RTL typography canaries (audit C-1/C-2/C-3)", () => {
-  it("leg 1 — Cairo sits inside the --font-display stack, after Playfair", () => {
+  it("leg 1 — Cairo sits inside the --font-display stack, after Sora", () => {
     const css = readFileSync(CSS, "utf8");
     const m = css.match(/--font-display:\s*([^;]+);/);
     expect(m, "--font-display token not found").toBeTruthy();
     const stack = m![1];
-    expect(stack).toContain("var(--font-playfair)");
+    // EMBER-INK-279 re-pin: the display face is Sora (the template's
+    // family); Cairo still resolves Arabic glyphs before Outfit.
+    expect(stack).toContain("var(--font-sora)");
     expect(stack).toContain("var(--font-cairo)");
     expect(
       stack.indexOf("var(--font-cairo)"),
-      "Cairo must come after Playfair but before Inter, so Arabic glyphs never fall through to a Latin-only face",
-    ).toBeGreaterThan(stack.indexOf("var(--font-playfair)"));
-    expect(stack.indexOf("var(--font-cairo)")).toBeLessThan(stack.indexOf("var(--font-inter)"));
+      "Cairo must come after Sora but before Outfit, so Arabic glyphs never fall through to a Latin-only face",
+    ).toBeGreaterThan(stack.indexOf("var(--font-sora)"));
+    expect(stack.indexOf("var(--font-cairo)")).toBeLessThan(stack.indexOf("var(--font-outfit)"));
   });
 
   it("leg 2 — the RTL heading rules live OUTSIDE @layer base (unlayered beats utilities)", () => {
@@ -94,9 +96,10 @@ describe("VRD-V0 — RTL typography canaries (audit C-1/C-2/C-3)", () => {
     const m = src.match(/<h1 className="([^"]*)"/);
     expect(m, "hero h1 not found").toBeTruthy();
     const cls = m![1];
-    // EN stays exactly as designed (tight tracking/leading for Playfair)…
+    // EN stays exactly as designed (tight tracking + the template's
+    // 0.95 display leading for Sora)…
     expect(cls).toContain("tracking-tight");
-    expect(cls).toContain("leading-tight");
+    expect(cls).toContain("leading-[0.95]");
     // …while Arabic gets explicit non-negative counterparts at the
     // utility layer (belt and braces with legs 1-2).
     expect(cls).toContain("rtl:tracking-normal");
@@ -153,11 +156,13 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     const block = src.slice(src.indexOf("export const viewport"));
     expect(block).not.toContain('"#0071e3"');
     expect(block).toContain('(prefers-color-scheme: light)');
-    // VRD-V1 re-pin (canary law §21.3 — same commit as the token change):
-    // the pair tracks the LIVE --bg tokens — warm ivory / warm graphite.
-    expect(block).toContain('"#FAF8F5"');
+    // EMBER-INK-279 re-pin (canary law §21.3 — same commit as the token
+    // change): the identity is dark-only — both branches carry the LIVE
+    // ink ground #08080A (globals.css resolves both modes to one look).
+    expect(block).toContain('"#08080A"');
     expect(block).toContain('(prefers-color-scheme: dark)');
-    expect(block).toContain('"#12100E"');
+    expect(block).not.toContain('"#FAF8F5"');
+    expect(block).not.toContain('"#12100E"');
     expect(block).not.toContain('"#FFFFFF"');
     expect(block).not.toContain('"#0B0B0D"');
   });

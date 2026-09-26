@@ -55,12 +55,14 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
 
-  /* VRD-V0 (audit C-1, §10.2 leg 1): Cairo appended after Playfair so any
-     Arabic glyph inside a font-display element resolves to Cairo even when
-     a Tailwind utility re-asserts this stack (EN pages never fetch Cairo —
-     next/font unicode-range keeps the pair zero-cost; see root-shell D-01). */
-  --font-display: var(--font-playfair), var(--font-cairo), var(--font-inter), ui-serif, Georgia, serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* EMBER-INK-279 (2026-09-26 — the 1devtool landing-fitness-studio
+     transplant): the display/body pair moves to the TEMPLATE families —
+     Sora (display) + Outfit (sans). Cairo stays appended after Sora so
+     any Arabic glyph inside a font-display element still resolves to
+     Cairo (the VRD-V0 RTL law rides the new pair unchanged); Outfit
+     closes the stack. */
+  --font-display: var(--font-sora), var(--font-cairo), var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-outfit), var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
   --font-arabic: var(--font-cairo), "Arabic Fallback", ui-sans-serif, system-ui, sans-serif;
 
@@ -161,114 +163,145 @@
  * are equal citizens (plan §15). Contrast gates: scripts/v1_contrast_matrix.py.
  * ==================================================================== */
 :root {
-  --bg: #FAF8F5;
-  --text: #201D1A;
-  --muted: #6E675E;
-  --muted-2: #4E4840;
-  --radius-chrome: 14px;
-  --chrome: linear-gradient(145deg, #FDFDFD 0%, #CFCBC3 35%, #8E8A82 50%, #E9E6E0 70%, #A09C94 100%);
-  --chrome-hover: linear-gradient(145deg, #FFFFFF 0%, #D8D4CC 35%, #98948C 50%, #F0EDE7 70%, #A8A49C 100%);
-  --border-chrome: 1px solid #CEC9C0;
-  --edge: #E5DFD6;
-  --chrome-edge: #837F77;
-  --shadow: 0 8px 24px rgba(32, 29, 26, 0.07);
+  /* EMBER-INK-279 (owner order 2026-09-26): the marketing identity is
+     the 1devtool landing-fitness-studio template, transplanted at the
+     TOKEN layer — ink #08080a ground, cream #f7f3ec text, ember
+     #ff4d26/#ff9353 accents, acid #d7ff4d reserved for tiny live-state
+     marks. The template is DARK-ONLY, so both data-theme values resolve
+     to the same palette (the toggle keeps working, the identity has one
+     look). Light mode now carries color-scheme: dark so native UI
+     (scrollbars, form controls) matches the ink ground. Contrast gates:
+     scripts/v1_contrast_matrix.py — text tokens >= 6:1, btn ink 5.7-8.6:1
+     over every ember stop, alternation dL* 5.67. */
+  --bg: #08080A;
+  --text: #F7F3EC;
+  --muted: #9A968F;
+  --muted-2: #C2BEB6;
+  --radius-chrome: 24px;
+  --chrome: linear-gradient(90deg, #FF4D26 0%, #FF9353 100%);
+  --chrome-hover: linear-gradient(90deg, #FF5E3A 0%, #FFA36C 100%);
+  --border-chrome: 1px solid rgba(255, 255, 255, 0.10);
+  --edge: #26262D;
+  --chrome-edge: rgba(255, 147, 83, 0.35);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   /* VRD-V3 (§11 unified card hover): the lifted-shadow stop for
      .card-lift — a deeper, slightly tighter drop than --shadow so the
      2px lift reads as elevation, not blur. */
-  --shadow-lift: 0 14px 32px -8px rgba(32, 29, 26, 0.16);
+  --shadow-lift: 0 14px 32px -8px rgba(0, 0, 0, 0.55);
   --ai: #38C7FF;
-  --tint: #F1EDE7;
-  /* VRD-V1 §9.1: replaces the marble texture — 1px machined top edge */
-  --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  /* VRD-V7 (P0-1, 2026-09-26 — the scroll-leak fix, audit top defect):
-     Phase 198 raised the sticky-bar fill 0.72 → 0.85; the VRD-V7 audit
-     measured that dense section text STILL competes with the navbar row
-     at 0.85 (the blur(12px) alone cannot wash a high-contrast heading
-     under the bar). 0.94 keeps the translucent glass character while
-     scrolled content fully stops leaking through the bar; the residual
-     6% is what keeps it a glass surface, not a slab. The bottom-edge
-     fade lives on .navbar-chrome::after. */
-  --navbar-bg: rgba(250, 248, 245, 0.94);
-  --meander-img: url("/images/brand/divider-meander-light.webp");
-  --prog-backdrop: url("/images/brand/evo-card-light.webp");
+  --tint: #17171C;
+  /* machined inner highlight — 1px ember-lit top edge on dark cards */
+  --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* the sticky bar: ink glass (VRD-V7 scroll-leak law rides the token) */
+  --navbar-bg: rgba(8, 8, 10, 0.94);
+  --meander-img: url("/images/brand/divider-meander-dark.webp");
+  --prog-backdrop: url("/images/brand/evo-card-dark.webp");
+  /* Template ember tokens (for direct template-recipe reuse in JSX) */
+  --ember: #FF4D26;
+  --ember-2: #FF9353;
+  --acid: #D7FF4D;
+  --ink: #08080A;
+  --surface: #0F0F12;
+  --surface-2: #17171C;
+  --line: #26262D;
+  --cream: #F7F3EC;
+  color-scheme: dark;
   /* shadcn mapping — existing components theme automatically */
-  --background: #FAF8F5;
-  --foreground: #201D1A;
-  --card: #ffffff;
-  --card-foreground: #201D1A;
-  --popover: #ffffff;
-  --popover-foreground: #201D1A;
-  --secondary: #F1EDE7;
-  --secondary-foreground: #201D1A;
-  --muted: #F1EDE7;
-  --muted-foreground: #6E675E;
-  --accent: #F1EDE7;
-  --accent-foreground: #201D1A;
-  --border: #E5DFD6;
-  --input: #E5DFD6;
-  --ring: #38C7FF;
-  --sidebar: #FAF8F5;
-  --sidebar-foreground: #201D1A;
-  --sidebar-accent: #F1EDE7;
-  --sidebar-accent-foreground: #201D1A;
-  --sidebar-border: #E5DFD6;
-  --sidebar-ring: #38C7FF;
+  --background: #08080A;
+  --foreground: #F7F3EC;
+  --card: #0F0F12;
+  --card-foreground: #F7F3EC;
+  --popover: #17171C;
+  --popover-foreground: #F7F3EC;
+  --secondary: #17171C;
+  --secondary-foreground: #F7F3EC;
+  --muted: #17171C;
+  --muted-foreground: #9A968F;
+  --accent: #17171C;
+  --accent-foreground: #F7F3EC;
+  --border: #26262D;
+  --input: #26262D;
+  --ring: #FF9353;
+  --sidebar: #0F0F12;
+  --sidebar-foreground: #F7F3EC;
+  --sidebar-accent: #17171C;
+  --sidebar-accent-foreground: #F7F3EC;
+  --sidebar-border: #26262D;
+  --sidebar-ring: #FF9353;
 }
 
 [data-theme="dark"] {
-  --bg: #12100E;
-  --text: #F4F1EC;
-  --muted: #A8A199;
-  --muted-2: #C6C0B8;
-  --border-chrome: 1px solid #3A362F;
-  --edge: #2E2A25;
-  --chrome-edge: #4A463F;
-  --shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 32px rgba(0, 0, 0, 0.5);
-  /* VRD-V3 (§11 unified card hover): dark-mode lift — keeps the hairline
-     ring (the dark .marble-card separation) while deepening the drop. */
-  --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 40px -10px rgba(0, 0, 0, 0.65);
+  /* EMBER-INK-279: the template is dark-only — the dark attribute
+     resolves to the SAME ink/ember palette as :root (documented
+     decision, not an omission). The engine keeps switching data-theme
+     (ThemeToggle, pre-paint script, ThemeImg pairs): the pinned-dark
+     image pairs simply always win, and app surfaces hold one look. */
+  --bg: #08080A;
+  --text: #F7F3EC;
+  --muted: #9A968F;
+  --muted-2: #C2BEB6;
+  --border-chrome: 1px solid rgba(255, 255, 255, 0.10);
+  --edge: #26262D;
+  --chrome-edge: rgba(255, 147, 83, 0.35);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 14px 32px -8px rgba(0, 0, 0, 0.55);
   --ai: #45D6FF;
-  --tint: #1A1714;
-  --card: #1B1815;
-  /* VRD-V1 §9.1: machined inner highlight at dark-mode strength */
+  --tint: #17171C;
+  --card: #0F0F12;
   --card-inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  /* VRD-V7 (P0-1): see the light-theme note above */
-  --navbar-bg: rgba(18, 16, 14, 0.94);
+  --navbar-bg: rgba(8, 8, 10, 0.94);
   --meander-img: url("/images/brand/divider-meander-dark.webp");
   --prog-backdrop: url("/images/brand/evo-card-dark.webp");
-  /* shadcn mapping — dark */
-  --background: #12100E;
-  --foreground: #F4F1EC;
-  --card: #1B1815;
-  --card-foreground: #F4F1EC;
-  --popover: #1B1815;
-  --popover-foreground: #F4F1EC;
-  --secondary: #1A1714;
-  --secondary-foreground: #F4F1EC;
-  --muted: #1A1714;
-  --muted-foreground: #A8A199;
-  --accent: #1A1714;
-  --accent-foreground: #F4F1EC;
-  --border: #3A362F;
-  --input: #3A362F;
-  --ring: #45D6FF;
-  --sidebar: #12100E;
-  --sidebar-foreground: #F4F1EC;
-  --sidebar-accent: #1A1714;
-  --sidebar-accent-foreground: #F4F1EC;
-  --sidebar-border: #3A362F;
-  --sidebar-ring: #45D6FF;
+  --ember: #FF4D26;
+  --ember-2: #FF9353;
+  --acid: #D7FF4D;
+  --ink: #08080A;
+  --surface: #0F0F12;
+  --surface-2: #17171C;
+  --line: #26262D;
+  --cream: #F7F3EC;
+  /* shadcn mapping — identical to :root (one identity, both modes) */
+  --background: #08080A;
+  --foreground: #F7F3EC;
+  --card: #0F0F12;
+  --card-foreground: #F7F3EC;
+  --popover: #17171C;
+  --popover-foreground: #F7F3EC;
+  --secondary: #17171C;
+  --secondary-foreground: #F7F3EC;
+  --muted: #17171C;
+  --muted-foreground: #9A968F;
+  --accent: #17171C;
+  --accent-foreground: #F7F3EC;
+  --border: #26262D;
+  --input: #26262D;
+  --ring: #FF9353;
+  --sidebar: #0F0F12;
+  --sidebar-foreground: #F7F3EC;
+  --sidebar-accent: #17171C;
+  --sidebar-accent-foreground: #F7F3EC;
+  --sidebar-border: #26262D;
+  --sidebar-ring: #FF9353;
   color-scheme: dark;
 }
 
-/* === Marble & Chrome primitives (mission §15 + shared surfaces) === */
+/* === Ember & Ink primitives (EMBER-INK-279 — the 1devtool
+   landing-fitness-studio recipes, transplanted verbatim-in-values;
+   class names keep their 123+ call sites) === */
 
+/* PRIMARY — the template's ember-gradient pill: bg-gradient from #ff4d26
+   to #ff9353, dark-ink label (#1A0E0A — the template's text-on-ember),
+   the template's ember drop shadow. Touch floors ride the VRD-V3
+   standard (48px touch / 52px md+). The VRD-V7 chrome-shiny sweep is
+   RETIRED with the metal recipe (the template button is a clean
+   gradient shift — a white specular band crossing ember reads as a
+   different material; dead keyframes deleted in this same phase). */
 .btn-chrome {
   background: var(--chrome);
-  /* VRD-V1: warm ink label (#1C1710) — ≥5.2:1 on every warm-silver
-     stop, both modes (scripts/v1_contrast_matrix.py gate 2). */
-  color: #1C1710;
-  border: 1px solid var(--chrome-edge);
+  /* template ink on ember — 5.7:1 over #FF4D26, 8.6:1 over #FF9353
+     (scripts/v1_contrast_matrix.py gate 2). */
+  color: #1A0E0A;
+  border: none;
   border-radius: 999px;
   font-weight: 600;
   /* VRD-V3 (§13.2 sizing standard, fixes C-15): PRIMARY buttons are
@@ -281,111 +314,36 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  /* VRD-V7 (P0-2): the Shiny sweep host — the pill clips its own
-     specular band (position: relative anchors the ::before; overflow
-     clips the sweep to the metal). Box-shadows (bevel + focus ring)
-     paint OUTSIDE the box and are never clipped by the element's own
-     overflow. */
   position: relative;
-  overflow: hidden;
-  /* VRD-V6 (2026-09-25 — hero CTA affordance, VLM audit #1): the pill
-     gains MACHINED INNER RINGS — a 1px bright top edge + a 1px dark
-     bottom edge inside the metal. The gradient alone read as
-     «flat/washed-out, possibly disabled»; the inner bevel restores
-     the pressed-metal affordance of a real machined button without
-     leaving the Chrome/Silver identity (owner: enhance, don't
-     change). The outer drop stays --shadow. */
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -1px 0 rgba(28, 23, 16, 0.18),
-    var(--shadow);
-}
-/* VRD-V7 (P0-2, 2026-09-26) — the SHINY SWEEP inside .btn-chrome.
-   Source idea: the 21st.dev «Shiny Button» (MagicUI) — copied as
-   source into pure CSS per the wave law (copy the source, never the
-   package): a soft diagonal specular band crosses the chrome every
-   ~4.5s like light catching polished metal. Zero dependencies, zero
-   JS; the animation rides transform ONLY (compositor layer — INP
-   safe), paints nothing but one small pseudo-element, and stands
-   down entirely under prefers-reduced-motion. The pause between
-   sweeps is inside the keyframe (band crosses in the first 38% of
-   the cycle, then rests) so the shine reads as an occasion, not a
-   strobe. RTL: the sweep direction mirrors via [dir="rtl"] — the
-   light always enters from the reading-start edge. */
-.btn-chrome::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    100deg,
-    transparent 32%,
-    rgba(255, 255, 255, 0.5) 50%,
-    transparent 68%
-  );
-  transform: translateX(-130%);
-  animation: chrome-shiny 4.5s ease-in-out infinite;
-  animation-delay: 1.4s;
-}
-@keyframes chrome-shiny {
-  0% { transform: translateX(-130%); }
-  38%, 100% { transform: translateX(130%); }
-}
-[dir="rtl"] .btn-chrome::before {
-  background: linear-gradient(
-    260deg,
-    transparent 32%,
-    rgba(255, 255, 255, 0.5) 50%,
-    transparent 68%
-  );
-  animation-name: chrome-shiny-rtl;
-}
-@keyframes chrome-shiny-rtl {
-  0% { transform: translateX(130%); }
-  38%, 100% { transform: translateX(-130%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .btn-chrome::before { animation: none; opacity: 0; }
+  /* the template's ember glow drop */
+  box-shadow: 0 20px 60px -20px rgba(255, 77, 38, 0.7);
 }
 @media (min-width: 768px) {
   .btn-chrome { min-height: 52px; }
 }
+/* Template hover: the ramp shifts brighter (#FF5E3A→#FFA36C) with the
+   same glow — a clean gradient shift, no sweep. */
 .btn-chrome:hover {
-  filter: brightness(1.04) contrast(1.02);
+  background: var(--chrome-hover);
   transform: translateY(-1px);
-  /* VRD-V6: the lift deepens the drop (the same --shadow-lift stop
-     .card-lift uses) — the button now visibly «rises» on hover. */
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -1px 0 rgba(28, 23, 16, 0.18),
-    var(--shadow-lift);
+  box-shadow: 0 24px 64px -20px rgba(255, 77, 38, 0.8);
 }
 .btn-chrome:active { transform: translateY(0); }
-/* VRD-V1 (audit C-12, dark washout — monochrome fix): the chrome pill
-   reads washed-out on the warm-graphite bg; a hairline warm-white ring
-   + deeper drop shadow restore the machined-metal separation without
-   leaving the Chrome/Silver identity (owner: enhance, don't change). */
-[data-theme="dark"] .btn-chrome {
-  box-shadow:
-    0 0 0 1px rgba(244, 241, 236, 0.08),
-    0 10px 28px -14px rgba(0, 0, 0, 0.7);
+/* focus affordance on the ink ground (neutral, zero-blue law) */
+.btn-chrome:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text) 70%, transparent);
+  outline-offset: 2px;
 }
 
 .btn-outline {
-  /* VRD-V1 (plan §8.3 secondary recipe, fixes audit C-12): translucent
-     --card fill + backdrop blur keeps the text border button readable
-     over busy hero artwork in BOTH modes; on plain sections it reads
-     as a quiet secondary — two-button law intact. VRD-V6: fill 65% →
-     72% — the VLM pass read the ghost over the hero artwork as the
-     weaker element washing out; the firmer glass keeps it a confident
-     secondary without ever competing with the chrome primary. */
-  background: color-mix(in srgb, var(--card) 72%, transparent);
-  /* -webkit- first — see the .navbar-chrome note (the pipeline keeps
-     the LAST of the prefixed/standard pair). */
+  /* EMBER-INK-279: the template's secondary — a transparent pill with a
+     white/20 hairline; hover strengthens the hairline to white/50 and
+     washes white/5 behind the label (the template's exact transition
+     targets). Touch floors ride the VRD-V3 standard (44px / 48px md+). */
+  background: transparent;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  border: 1px solid var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.20);
   color: var(--text);
   border-radius: 999px;
   /* VRD-V3 (§13.2 sizing standard, fixes C-15): SECONDARY buttons are
@@ -397,356 +355,204 @@
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 @media (min-width: 768px) {
   .btn-outline { min-height: 48px; }
 }
-.btn-outline:hover { opacity: 0.72; }
+.btn-outline:hover {
+  border-color: rgba(255, 255, 255, 0.50);
+  background: rgba(255, 255, 255, 0.05);
+}
+.btn-outline:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text) 70%, transparent);
+  outline-offset: 2px;
+}
 
-/* Chrome-gradient text (numbers, prices) — mission §7/§12.
-   Phase 198 (UI audit C3 — docs/UI-AUDIT-HOMEPAGE.md): the light-theme
-   ramp was the raw chrome gradient whose mid-stops failed WCAG AA on
-   white (~2.1:1). The light ramp is DARK STEEL — same engraved metal
-   identity, lightest stop ≥4.5:1 (≈10:1, AAA-grade on warm ivory).
-   VRD-V1 (§8.4/R-6): both ramps re-warmed to the warm graphite/silver
-   family so the metallic numerals belong to the warm neutral ramp.
-   Surfaces that are dark in BOTH themes (Pro/Coaching black cards) pin
-   the light ramp via .chrome-text-on-dark so light mode keeps a
-   readable price. */
+/* Ember-gradient text (numbers, prices) — EMBER-INK-279: the metallic
+   numeral treatment becomes the template's ember ramp. Both modes share
+   ONE ramp (the identity is dark-only): worst stop #FF4D26 measures
+   6.0:1 on the ink ground and 6.0:1 on the pinned-black #0B0B0D card —
+   the contrast-matrix gate 3 pair, measured not assumed. */
 .chrome-text {
-  background: linear-gradient(145deg, #2B2722 0%, #1C1A16 35%, #423E37 50%, #211E1A 70%, #322E28 100%);
+  background: linear-gradient(145deg, #FF9353 0%, #FF4D26 50%, #FF9353 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 [data-theme="dark"] .chrome-text {
-  /* درج كرومي فاتح دافئ على الداكن — يظل قابلاً للقراءة */
-  background: linear-gradient(145deg, #F4F1EC 0%, #BDB8AF 35%, #949087 50%, #E0DCD5 70%, #A29E95 100%);
+  background: linear-gradient(145deg, #FF9353 0%, #FF4D26 50%, #FF9353 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
 .chrome-text.chrome-text-on-dark,
 [data-theme="dark"] .chrome-text.chrome-text-on-dark {
-  background: linear-gradient(145deg, #F4F1EC 0%, #BDB8AF 35%, #949087 50%, #E0DCD5 70%, #A29E95 100%);
+  background: linear-gradient(145deg, #FF9353 0%, #FF4D26 50%, #FF9353 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
 
-/* Engraved seal chip (stats) — mission §3/§13 */
+/* Seal chip (stats/eyebrows) — EMBER-INK-279: the template's glass
+   badge — rounded-full, white/15 hairline, white/5 fill, backdrop
+   blur, uppercase micro-label in --muted-2 (>=6:1 on the wash). */
 .seal-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.875rem;
-  border: var(--border-chrome);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 999px;
-  color: var(--muted-foreground);
+  color: var(--muted-2);
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--card) 55%, transparent);
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
-/* Surface card — mission §6/§12. VRD-V1 (owner order 2026-09-23): the
-   marble ::before texture overlay is REMOVED (5%/7% opacity was a
-   decorative dead weight — audit C-6, and the footer slab fought link
-   readability — C-7). Separation now comes from structure: --card
-   surface + --edge-style hairline + soft shadow + a 1px machined
-   inner top-edge highlight (--card-inner-hl) — the «machined metal
-   edge» depth at zero asset cost (plan §9.1). Class NAME keeps
-   `marble-card` (123 usages) — recipe-level change only. */
+/* Surface card — EMBER-INK-279: the template's card recipe —
+   surface #0F0F12 under a white/[0.04]→transparent gradient wash, a
+   white/10 hairline (the template's border-white/10), 24px radius (the
+   template's rounded-3xl) and a soft ember-tinged drop. Class NAME
+   keeps `marble-card` (123 usages) — recipe-level change only. */
 .marble-card {
   position: relative;
   background-color: var(--card);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
   border: var(--border-chrome);
   border-radius: var(--radius-chrome);
-  box-shadow: var(--shadow), var(--card-inner-hl);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.55);
   overflow: hidden;
 }
 
-/* Phase 154 — popover escape hatch (owner live report: meal-planner food
-   search dropdown lost 271/288px behind overflow:hidden — the card «يحجب
-   رؤية البحث عن الاكل»). Cards hosting absolute popovers opt out of the
-   clip. Unlayered, same cascade tier as .marble-card (Phase 136b lesson:
-   unlayered beats @layer utilities). */
 .marble-card--unclipped { overflow: visible; }
 
-/* VRD-V3 (§11 unified hover — fixes the «anemic» hover gap): interactive
-   cards get ONE recipe — 2px lift + shadow deepening + a firmer warm-graphite
-   hairline (the bronze --accent-deep border shift from the original plan is
-   DEAD: owner rejected bronze — §25; the shift stays inside the warm neutral
-   family via a color-mix toward --text). 200ms ease, and the lift itself is
-   disabled under prefers-reduced-motion (vestibular safety). Applied ONLY to
-   truly interactive cards (§23.4 — static containers never lift). */
+/* EMBER-INK-279 — unified card hover: the template's hover response —
+   the hairline strengthens to white/30 (the template's
+   hover:border-white/30) + the 2px lift with a deeper drop (VRD-V3's
+   elevation law rides the new values). 200ms ease; the lift itself is
+   disabled under prefers-reduced-motion (vestibular safety). Applied
+   ONLY to truly interactive cards (§23.4). */
 .marble-card.card-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .marble-card.card-lift:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lift), var(--card-inner-hl);
-  border-color: color-mix(in srgb, var(--text) 22%, transparent);
+  box-shadow: 0 24px 56px -20px rgba(0, 0, 0, 0.65);
+  border-color: rgba(255, 255, 255, 0.30);
 }
 @media (prefers-reduced-motion: reduce) {
   .marble-card.card-lift:hover { transform: none; }
 }
 
-/* Greek meander divider band — mission §4 */
-.meander-divider {
-  height: 28px;
-  background-image: var(--meander-img);
-  background-repeat: repeat-x;
-  background-size: auto 28px;
-  background-position: center;
-  opacity: 0.85;
+/* ═══ EMBER-INK-279 — the template's hero & atmosphere recipes ═══
+   (ported from 1devtool landing-fitness-studio app/globals.css; the
+   retired Marble-era recipes — .meander-divider, .hero-art/.hero-bg,
+   .hero-copy, .platform-trio/.trio-* — were deleted in this same
+   phase: the hero becomes the template's text-left/card-right grid and
+   the meander band conflicted with the template's border-y rhythm).
+
+   (1) .glow-ember — the template's page-level radial ember wash. */
+.glow-ember {
+  background:
+    radial-gradient(600px circle at 20% 10%, rgba(255, 77, 38, 0.35), transparent 60%),
+    radial-gradient(500px circle at 80% 30%, rgba(255, 147, 83, 0.22), transparent 55%);
 }
 
-/* === Hero artwork — Phase 131 unified overlay (owner feedback
-   2026-09-06: «تصغير اللوجو والنص والازرار قليلا ثم نقلهم داخل الصورة») ===
-   The artwork is an absolutely-positioned cover layer (.hero-bg — the
-   ThemeImg pair in LandingView, theme-swapped + eager LCP) with the
-   content (chrome logo + H1 + seal chips) centered INSIDE it at every
-   viewport. Height floors keep the artwork effectively complete:
-     • every viewport: min-height = natural artwork height
-       (100vw × 713/1280) — phones/tablets render the full scene, sides
-       intact; the compact content only grows the box a few px (cover
-       then trims ≤ ~6% of the decorative side margins, imperceptible);
-     • wide viewports (aspect > 1501/1000): the classic 92vh hero.
-   Luminance-verified: the artwork's center band is clean in BOTH
-   themes (bright in light / near-black in dark) → full text contrast,
-   no veil. Replaces the Phase 128 two-mode switch (content used to
-   flow BELOW the artwork on phones — the owner moved it onto it). */
-.hero-art {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  min-height: calc(100vw * 713 / 1280);
+/* (2) .noise — the template's SVG fractal-noise film (opacity rides
+   the call site, mix-blend-overlay there). */
+.noise {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-/* VRD-V3 (§16.2, fixes C-9): on phones the hero gets a real stage — a
-   max(56vh, natural-artwork) floor (was the 100vw×713/1280 band alone,
-   which cover-cropped the 1280×713 landscape art to a thin 332px strip
-   at 390px). The taller box + object-fit: cover keeps the central
-   barbell/columns focal band intact while the decorative side margins
-   absorb the crop; the stacked full-width CTAs (LandingView) ride the
-   reclaimed room. Tablet/desktop floors unchanged. */
-@media (max-width: 767.98px) {
-  .hero-art { min-height: max(56vh, calc(100vw * 713 / 1280)); }
-}
-@media (min-aspect-ratio: 1501/1000) {
-  .hero-art { min-height: 92vh; }
-}
-.hero-bg {
+
+/* (3) .hero-glow — the ember blur blob behind the hero aside card
+   (the template's `bg-[#ff4d26]/20 blur-2xl` wash, translated off-axis). */
+.hero-glow {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-}
-.hero-bg img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  transform: translate(-16px, 24px);
+  border-radius: 32px;
+  background: rgba(255, 77, 38, 0.20);
+  filter: blur(40px);
 }
 
-/* Phase 198 (UI audit C4): legibility edge for hero copy that overlaps
-   artwork details (the dumbbell band behind the subtitle). A theme-aware
-   text-shadow HALO — deliberately NOT a veil/overlay, so the DESIGN.md
-   luminance law («the artwork center is clean → no veil ever») stays
-   intact: the artwork itself is untouched, only the glyphs gain an edge. */
-.hero-copy {
-  text-shadow:
-    0 1px 2px color-mix(in srgb, var(--bg) 60%, transparent),
-    0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
-}
-
-/* VRD-V6 (2026-09-25 — the platform trio): the hero carries Alkemos as
-   ONE integrated platform — Training + Nutrition + Smart Planning —
-   as three compact GLASS pills between the subtitle and the CTA pair
-   (the owner directive: the hero must read as the full platform, not
-   an EVO service page). NON-interactive by design: the two-button law
-   stays exact (no third CTA); the pills are a semantic list, not
-   links. Same glass recipe as .btn-outline (translucent card + blur +
-   hairline), one step quieter — they sit ON the artwork in both
-   themes and must never fight the CTAs. No letter-spacing (Cairo is a
-   connected script — the VRD-V0 RTL law applies to every run, not
-   just headings). */
+/* (4) .hero-pill — the template's glass badge pill (the hero eyebrow /
+   platform pillars): white/15 hairline + white/5 fill + blur. No
+   letter-spacing by law (Cairo is a connected script — VRD-V0 applies
+   to every run). */
 .hero-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4375rem;
-  padding: 0.4375rem 0.875rem;
+  padding: 0.375rem 0.875rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
-  background: color-mix(in srgb, var(--card) 72%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--muted-2);
   font-size: 0.8125rem;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-[data-theme="dark"] .hero-pill {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* VRD-V8 (2026-09-26 — the platform CONVERGENCE, V8-1/V8-2): the hero
-   trio graduates from static chips to a visual product story — the
-   three glass pillars keep their row, and beneath them a compact
-   symmetric SVG draws THREE chrome streams converging into ONE
-   platform node («ONE PLATFORM» / «منصة واحدة»): Training + Nutrition
-   visibly FEED the smart-planning core, so the page reads as one
-   integrated product in seconds (V8-2), and the pillars become a
-   light interactive experience (V8-1: hover lift, entrance beat).
-
-   Source idea: 21st.dev/MagicUI «Animated Beam» — copied as CONCEPT,
-   re-authored internally with zero dependencies: the canonical
-   component measures rects with ResizeObserver and animates a
-   gradient window via a JS animation library; here the layout is a
-   FIXED symmetric composition, so the three paths are hardcoded, and
-   the traveling pulse is a pathLength=100 dash (stroke-dasharray +
-   animated stroke-dashoffset — universal SVG/CSS, no JS at all).
-   Direction-symmetric by construction: mirrored composition + mirrored
-   dash flow, so RTL needs NO flip rule (the V8 direction-agnostic
-   motion law). Motion rides stroke-dashoffset/transform/opacity only.
-
-   The two-button law is untouched: the pills remain a semantic
-   non-link list — hover is styling, never navigation; the SVG is
-   aria-hidden. */
-.platform-trio {
-  width: 100%;
-}
-/* The interactive beat (V8-1): a quiet machined lift on hover/focus —
-   transform + border + shadow only (no repaint of the artwork). The
-   transition lives on the base class; the hover response sits under
-   no-preference so reduced-motion users get zero movement. */
-.hero-pill {
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .platform-trio .hero-pill:hover {
+  .hero-pill {
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .hero-pill:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--text) 52%, transparent);
-    background: color-mix(in srgb, var(--card) 88%, transparent);
-    box-shadow: var(--shadow-lift);
-  }
-}
-/* One-time entrance beat — staggered rise for the pillars, then the
-   flow fades in. Transform/opacity only (compositor); `backwards`
-   fill keeps the pre-animation state invisible with zero CLS. */
-@keyframes trio-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .platform-trio .hero-pill {
-    animation: trio-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-  .platform-trio .hero-pill:nth-child(1) { animation-delay: 0.05s; }
-  .platform-trio .hero-pill:nth-child(2) { animation-delay: 0.16s; }
-  .platform-trio .hero-pill:nth-child(3) { animation-delay: 0.27s; }
-  .trio-flow {
-    animation: trio-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.38s backwards;
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
   }
 }
 
-.trio-flow {
-  margin-top: 0.4rem;
+/* (5) .dot-pulse — the template's live-presence dot. */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.9); }
+}
+.dot-pulse { animation: pulse-dot 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .dot-pulse { animation: none; }
+}
+
+/* (6) .tpl-marquee — the template's marquee ticker (duplicated content
+   set, translateX 0 → -50%, 36s linear). RTL reverses the direction so
+   the flow reads start-to-end; reduced-motion freezes the row (the
+   terms remain fully visible — the row is one duplicated set, static
+   overflow hidden). */
+@keyframes tpl-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.tpl-marquee { animation: tpl-marquee 36s linear infinite; }
+[dir="rtl"] .tpl-marquee { animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .tpl-marquee { animation: none; }
+}
+
+/* (7) .ember-panel — the template's big-split-feature surface: the
+   #ff4d26 → #ff9353 gradient box with dark-ink text (rounded-[32px]). */
+.ember-panel {
+  border-radius: 32px;
+  background: linear-gradient(135deg, #FF4D26 0%, #FF6D3D 55%, #FF9353 100%);
+  color: #1A0E0A;
+}
+
+/* (8) .hero-row — the template's aside-card session row: the rounded-2xl
+   ink row with the icon chip (used by the hero platform-pillars list). */
+.hero-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.30);
+  transition: border-color 0.2s ease;
 }
-.trio-svg {
-  width: min(360px, 82vw);
-  height: auto;
-  display: block;
-  overflow: visible;
-  color: color-mix(in srgb, var(--text) 80%, transparent);
-}
-/* The static wire — one quiet chrome line per pillar (always visible,
-   both themes, motion-free fallback). */
-.trio-base {
-  fill: none;
-  stroke: color-mix(in srgb, currentColor 58%, transparent);
-  stroke-width: 1.25;
-}
-/* The traveling pulse — two comet dashes per stream (dasharray period
-   50 = half the pathLength, so two ride each path); offset 100→0 is
-   exactly two periods = a seamless infinite loop flowing from the
-   pillars (path start) into the node (path end). Round caps bead the
-   dash like liquid chrome. */
-.trio-pulse {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-dasharray: 12 38;
-  stroke-dashoffset: 100;
-}
-@keyframes trio-dash {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: 0; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .trio-pulse {
-    animation: trio-dash 5s linear infinite;
-  }
-  .trio-pulse--1 { animation-delay: 0s; }
-  .trio-pulse--2 { animation-delay: 1.65s; }
-  .trio-pulse--3 { animation-delay: 3.3s; }
-}
-/* The convergence node — a small chrome disc the three streams land
-   in: a glass backing plate grounds it on the busy artwork (same
-   glass language as .hero-pill — no new color), a static core, and a
-   breathing halo (scale pulse, transform-box so the origin is the
-   circle itself). */
-.trio-node-disc {
-  fill: color-mix(in srgb, var(--card) 78%, transparent);
-}
-.trio-node-core {
-  fill: currentColor;
-}
-.trio-node-halo {
-  fill: none;
-  stroke: color-mix(in srgb, currentColor 50%, transparent);
-  stroke-width: 1;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-@keyframes trio-halo {
-  0% { transform: scale(0.62); opacity: 0.9; }
-  70% { transform: scale(1.45); opacity: 0; }
-  100% { transform: scale(1.45); opacity: 0; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .trio-node-halo {
-    animation: trio-halo 3s ease-out infinite;
-  }
-}
-.trio-node-label {
-  margin-top: 0.4rem;
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--text) 74%, transparent);
-  /* Legibility halo on the artwork — the .hero-copy glyph-edge
-     recipe, not a veil. */
-  text-shadow:
-    0 1px 2px color-mix(in srgb, var(--bg) 60%, transparent),
-    0 0 18px color-mix(in srgb, var(--bg) 45%, transparent);
-}
+.hero-row:hover { border-color: rgba(255, 255, 255, 0.20); }
 
 /* Phase 198 Batch 3 (audit H4/M-mobile): hidden-scrollbar utility for the
    mobile single-row quick-nav (chips) — keeps the row visually clean while
@@ -1209,25 +1015,15 @@ html:not([data-mhe-consent-ok]) body {
 [data-theme="dark"] .evo-bubble-ring {
   box-shadow: 0 0 0 2px var(--ai), 0 0 18px rgba(69, 214, 255, 0.45);
 }
-/* Footer band — Phase 132 made the footer theme-aware; VRD-V1 (owner
-   order 2026-09-23) removes the marble slab (audit C-7 readability):
-   the footer is now a clean STRUCTURAL band — light mode --tint with
-   an --edge top hairline; dark mode a slightly deeper step (#0E0C0A)
-   so the page closes firmly (plan §9.1). Class name keeps
-   `footer-marble` (markup untouched). The meander top band stays —
-   the light Greek identity is preserved per the owner's direction. */
+/* Footer band — EMBER-INK-279: the template's footer surface — a
+   near-ink step over the page ground with a white/5 top hairline (the
+   template's border-t border-white/5 rhythm). Class name keeps
+   `footer-marble` (markup untouched). The Greek meander top band is
+   RETIRED with the Marble identity (template has no such band; the
+   .footer-meander-top recipe is deleted in this same phase). */
 .footer-marble {
-  background-color: var(--tint);
-  border-top: 1px solid var(--edge);
-}
-[data-theme="dark"] .footer-marble { background-color: #0E0C0A; }
-.footer-meander-top {
-  height: 28px;
-  background-image: var(--meander-img);
-  background-repeat: repeat-x;
-  background-size: auto 28px;
-  background-position: center;
-  opacity: 0.85;
+  background-color: #0A0A0C;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Footer links — black-on-light / white-on-dark via tokens; the global `a`
@@ -1240,25 +1036,26 @@ html:not([data-mhe-consent-ok]) body {
 .footer-marble a:hover { color: var(--text); }
 
 /* ====================================================================
- * DARK-COMPATIBILITY SHIM (Phase 126) — the identity conversion covered
- * the landing/navbar/widget/footer with proper CSS vars; hundreds of
- * secondary app surfaces still use the old Apple-light utility classes
- * (bg-white / bg-[#f5f5f7] / text-[#1d1d1f] …). Re-styling every view is
- * out of this phase's scope, so in DARK mode we remap those utility
- * class names to the Marble & Chrome tokens. Light mode: untouched.
+ * LIGHT-UTILITY SHIM (Phase 126 → EMBER-INK-279): app surfaces still
+ * carry Apple-light utility classes (bg-white / bg-[#f5f5f7] /
+ * text-[#1d1d1f] …). The identity is now dark-only in BOTH modes, so
+ * the remaps are MODE-INVARIANT (the old [data-theme="dark"] prefix is
+ * dropped): every such utility resolves to the ink tokens everywhere —
+ * the app surface keeps ONE consistent look and no white flash can
+ * appear for light-mode visitors.
  * ==================================================================== */
-[data-theme="dark"] .bg-white,
-[data-theme="dark"] .bg-\[\#ffffff\] { background-color: var(--card); }
-[data-theme="dark"] .bg-\[\#f5f5f7\] { background-color: var(--tint); }
-[data-theme="dark"] .text-\[\#1d1d1f\] { color: var(--text); }
-[data-theme="dark"] .text-\[\#6e6e73\],
-[data-theme="dark"] .text-\[\#6E6E73\] { color: var(--muted-foreground); }
-[data-theme="dark"] .text-\[\#8e8e93\] { color: var(--muted-foreground); }
-[data-theme="dark"] .border-\[\#d2d2d7\] { border-color: var(--edge); }
-[data-theme="dark"] .bg-\[\#f5f5f7\]\/30,
-[data-theme="dark"] .bg-\[\#f5f5f7\]\/50 { background-color: color-mix(in srgb, var(--tint) 55%, transparent); }
-[data-theme="dark"] .hover\:bg-\[\#f5f5f7\]:hover { background-color: var(--tint); }
-[data-theme="dark"] .hover\:bg-\[\#e5e5e7\]:hover { background-color: var(--edge); }
+.bg-white,
+.bg-\[\#ffffff\] { background-color: var(--card); }
+.bg-\[\#f5f5f7\] { background-color: var(--tint); }
+.text-\[\#1d1d1f\] { color: var(--text); }
+.text-\[\#6e6e73\],
+.text-\[\#6E6E73\] { color: var(--muted-foreground); }
+.text-\[\#8e8e93\] { color: var(--muted-foreground); }
+.border-\[\#d2d2d7\] { border-color: var(--edge); }
+.bg-\[\#f5f5f7\]\/30,
+.bg-\[\#f5f5f7\]\/50 { background-color: color-mix(in srgb, var(--tint) 55%, transparent); }
+.hover\:bg-\[\#f5f5f7\]:hover { background-color: var(--tint); }
+.hover\:bg-\[\#e5e5e7\]:hover { background-color: var(--edge); }
 
 /* AI accent surfaces — cyan ONLY on AI elements (mission: --ai) */
 .ai-accent { color: var(--ai); }
@@ -1282,19 +1079,22 @@ html:not([data-mhe-consent-ok]) body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
-    /* Apple uses letter-spacing slightly tighter */
-    letter-spacing: -0.01em;
+    /* EMBER-INK-279: the template's body settings — Sora/Outfit
+       stylistic sets (ss01/cv11), no extra tracking. */
+    font-feature-settings: "ss01", "cv11";
   }
 
-  /* Apple-style typography — large, light weight, tight tracking */
+  /* Template display typography — Sora bold with the template's
+     -0.02em display tracking (the unlayered RTL block below zeroes
+     the tracking and re-leads for Cairo — untouched law). */
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.03em; /* Apple's tight tracking */
-    font-weight: 600; /* Apple uses semibold, not bold */
-    line-height: 1.08; /* Apple's tight line height for headlines */
+    letter-spacing: -0.02em; /* the template's .font-display value */
+    font-weight: 700; /* the template rides bold display headings */
+    line-height: 1.05; /* the template's section-title leading */
   }
 
-  h1 { font-weight: 600; }
+  h1 { font-weight: 700; }
 
   /* Arabic / RTL typography — the html element rides Cairo here (base
      layer; nothing competes on <html>). The HEADING/body overrides moved
@@ -1312,11 +1112,10 @@ html:not([data-mhe-consent-ok]) body {
      in dark mode (the old single dark blend was near-invisible on the
      warm-graphite bg). */
   ::selection {
-    background-color: rgba(32, 29, 26, 0.14);
+    /* EMBER-INK-279: cream-tint selection on the ink ground (both
+       modes resolve to the same palette). */
+    background-color: rgba(247, 243, 236, 0.18);
     color: inherit;
-  }
-  [data-theme="dark"] ::selection {
-    background-color: rgba(244, 241, 236, 0.18);
   }
 
   /* Link defaults — Phase 132 (owner feedback: «باقي الموقع إعادة التنسيق

@@ -149,8 +149,11 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain("TOOLS_COUNT");
     // The SSR-honest fallback (no-JS users see the truth).
     expect(src).toContain("const shown = display ?? value;");
-    // The compact one-row classes (R2: numbers + labels inline).
-    expect(src).toContain("flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10");
+    // EMBER-INK-279 re-pin: the stats row rides INSIDE the template
+    // hero (the 2/4-col border-t grid under the CTA pair).
+    expect(src).toContain("mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-white/10 pt-8 md:grid-cols-4");
+    // The retired centered-band classes stay dead.
+    expect(src).not.toContain("flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10");
     // The retired BIG-stat markup stays dead (no icon-tile stat grid).
     expect(src).not.toContain("grid max-w-5xl grid-cols-2 gap-y-8 md:grid-cols-4");
   });
@@ -368,7 +371,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       // marble-card surface (the pinned AccordionTrigger classes stay).
       "الأسئلة الشائعة",
       "COMMON QUESTIONS",
-      'className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"',
+      'className="marble-card p-2 md:p-4 [&>*:last-child]:border-b-0"',
     ]) {
       expect(src, `content entry point missing: ${required}`).toContain(required);
     }
@@ -605,8 +608,10 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     for (const required of [
       ".marble-card.card-lift:hover {",
       "transform: translateY(-2px)",
-      "var(--shadow-lift), var(--card-inner-hl)",
-      "border-color: color-mix(in srgb, var(--text) 22%, transparent)",
+      // EMBER-INK-279 re-pin: the template hover — the hairline
+      // strengthens to white/30 + the deeper drop.
+      "border-color: rgba(255, 255, 255, 0.30)",
+      "0 24px 56px -20px rgba(0, 0, 0, 0.65)",
       ".marble-card.card-lift:hover { transform: none; }",
       "--shadow-lift:",
     ]) {
@@ -651,6 +656,88 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     expect(pinAt).toBeGreaterThan(-1);
     expect(pairAt).toBeGreaterThan(-1);
     expect(pinAt).toBeGreaterThan(pairAt);
+  });
+});
+
+describe("EMBER-INK-279 — the template transplant canaries", () => {
+  // The 1devtool landing-fitness-studio baseline: the structural
+  // recipes the homepage now rides (marquee band, page atmosphere,
+  // ember panel, hero glass card, the closing CTA box).
+  it("the template recipes exist in css and ride the homepage", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    const src = readFileSync(LANDING, "utf8");
+    for (const required of [
+      ".tpl-marquee { animation: tpl-marquee 36s linear infinite; }",
+      "@keyframes tpl-marquee",
+      ".glow-ember {",
+      ".noise {",
+      ".dot-pulse { animation: pulse-dot 1.8s ease-in-out infinite; }",
+      ".hero-glow {",
+      ".hero-row {",
+      ".ember-panel {",
+      '[dir="rtl"] .tpl-marquee { animation-direction: reverse; }',
+    ]) {
+      expect(css, `template recipe missing from css: ${required}`).toContain(required);
+    }
+    for (const required of [
+      "tpl-marquee",
+      "hero-glow",
+      "glow-ember",
+      "noise",
+      "dot-pulse",
+      "ember-panel",
+      "MARQUEE_TERMS_AR",
+      "MARQUEE_TERMS_EN",
+    ]) {
+      expect(src, `template recipe missing from the homepage: ${required}`).toContain(required);
+    }
+    // The retired Marble-era recipes stay dead — in the MARKUP by bare
+    // name, in the CSS by SELECTOR (the retirement comments that name
+    // the dead recipes are documentation, not usage).
+    for (const banned of [
+      "platform-trio",
+      "trio-flow",
+      "hero-art",
+      "hero-bg",
+      "meander-divider",
+      "footer-meander-top",
+    ]) {
+      expect(src, `retired Marble recipe returned to the homepage: ${banned}`).not.toContain(banned);
+      expect(css, `retired Marble recipe rule returned to css: .${banned}`).not.toContain(`.${banned} {`);
+    }
+    expect(css, "the chrome-shiny sweep keyframes returned").not.toContain("@keyframes chrome-shiny");
+  });
+
+  // The closing CTA box (EMBER-INK-279 supersedes the 270-R8 retirement
+  // — the NEW owner order makes the template the baseline): it carries
+  // the REAL account action + the EVO hand-off (no faked email capture).
+  it("the closing CTA box carries the signup action + the EVO hand-off", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain("ابدأ مجانًا.");
+    expect(src).toContain("Start free.");
+    expect(src).toContain("وقرّر لاحقًا.");
+    expect(src).toContain("Decide later.");
+    expect(src).toContain("أنشئ حسابك المجاني");
+    expect(src).toContain("Create your free account");
+    expect(src).toContain("اسأل EVO أولًا");
+    expect(src).toContain("Ask EVO first");
+    expect(src).toContain("onClick={openEvoFloatingChat}");
+    // The retired Marble-era CTA copy stays dead.
+    expect(src).not.toContain("ابدأ اليوم. وابنِ روتينًا يناسبك.");
+    expect(src).not.toContain("Start today. Build a routine that fits you.");
+    expect(src).not.toContain("أو تحدث مع EVO أولًا");
+    expect(src).not.toContain("Or talk to EVO first");
+  });
+
+  // The programs + diet sections render the template GRIDS (the
+  // carousel retirement — numbered cards / 4-col system cards).
+  it("the programs and diet sections render the template grids", () => {
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain('mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3');
+    expect(src).toContain("mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4");
+    expect(src).toContain('tag={`0${i + 1}`}');
+    expect(src).not.toContain('CarouselShell isAr={isAr} ariaLabel={isAr ? "برامج التمارين الجاهزة"');
+    expect(src).not.toContain('CarouselShell isAr={isAr} ariaLabel={isAr ? "الأنظمة الغذائية الجاهزة"');
   });
 });
 

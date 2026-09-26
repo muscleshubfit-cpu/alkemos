@@ -35,11 +35,11 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <link
         rel="preload"
         as="image"
-        href="/images/brand/hero-light.webp"
+        href="/images/brand/hero-dark.webp"
         media="(prefers-color-scheme: light)"
         fetchPriority="high"
-        imageSrcSet="/images/brand/hero-light-640.webp 640w, /images/brand/hero-light-828.webp 828w, /images/brand/hero-light.webp 1280w"
-        imageSizes="100vw"
+        imageSrcSet="/images/brand/hero-dark-640.webp 640w, /images/brand/hero-light-828.webp 828w, /images/brand/hero-light.webp 1280w"
+        imageSizes="(min-width: 768px) 40vw, 100vw"
       />
       <link
         rel="preload"
@@ -53,10 +53,10 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <link
         rel="preload"
         as="image"
-        href="/images/brand/logo-hero-light.webp"
+        href="/images/brand/logo-hero-dark.webp"
         media="(prefers-color-scheme: light)"
-        imageSrcSet="/images/brand/logo-hero-light-256.webp 256w, /images/brand/logo-hero-light-512.webp 512w, /images/brand/logo-hero-light.webp 760w"
-        imageSizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
+        imageSrcSet="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-light-512.webp 512w, /images/brand/logo-hero-light.webp 760w"
+        imageSizes="(max-width: 768px) 128px, 176px"
       />
       <link
         rel="preload"
@@ -64,7 +64,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
         href="/images/brand/logo-hero-dark.webp"
         media="(prefers-color-scheme: dark)"
         imageSrcSet="/images/brand/logo-hero-dark-256.webp 256w, /images/brand/logo-hero-dark-512.webp 512w, /images/brand/logo-hero-dark.webp 760w"
-        imageSizes="(max-width: 768px) 128px, (max-width: 1024px) 208px, 256px"
+        imageSizes="(max-width: 768px) 128px, 176px"
       />
       {children}
     </>

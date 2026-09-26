@@ -1,6 +1,6 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-26 (**المرحلة 278 — VRD-V8R «إكمال الخطة»**: §5 قاعدة .theme-img-pin-dark (الأيقونة تتبع السطح الداكن الدائم) + §7.4 عرض العضويات بصفات المزايا الحقيقية من memberships.ts + §7.4.3 قانون أشرطة tint المؤطرة وFAQ الختامية — تكملة عرض ما بعد الهيرو بلا مساس بالهوية أو المنطق)
+> **Last updated:** 2026-09-26 (**المرحلة 279 — EMBER-INK-279 «زرع قالب 1devtool landing-fitness-studio»**: أمر المالك — القالب أساس التصميم الفعلي: هوية Ember & Ink الداكنة (ink #08080A / cream / ember) بكل الرموز والوصفات · خطوط Sora/Outfit (Cairo للعربية) · هيرو القالب بشبكته وماركيه وأجواء glow/noise · لوحة EVO المتدرجة · ترويسات الأقسام المقسمة · شبكات البرامج/الأنظمة · بطاقات أسعار القالب وCTA الختامي — الماربل والكروم والميندر وسويب chrome-shiny وتقارب trio تقاعدت، والهوية الآن dark-only) · آخر تحديث قبلها 278 (VRD-V8R)
 > **Last updated (277):** 2026-09-26 (VRD-V8 «الوو البصري»: §5 وصفات V8 — تقارب المنصة في الهيرو (.platform-trio/.trio-* بتدفق SVG داخلي) + تسليم EVO إلى الخطة (.evo-handoff-*) + رفع hover للأقراص الزجاجية — و§7.1/§7.3 محدثان بقصة المنتج)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
@@ -13,19 +13,25 @@
 
 ## 1. Design Philosophy
 
-Alkemos runs the **«Marble & Chrome»** identity (owner directive, Phase
-126; warm retune VRD-V1 2026-09-23): a monochrome warm-neutral system —
-warm ivory / warm graphite surfaces, chrome-gradient metal accents,
-machined 1px card edges — rendered with modern layout discipline. Light
-and dark are equal citizens. The ONLY chromatic exception is `--ai`
-cyan, reserved strictly for AI-assistant surfaces.
+Alkemos runs the **«Ember & Ink»** identity (owner directive
+2026-09-26, EMBER-INK-279): the 1devtool **landing-fitness-studio**
+template transplanted as the ACTUAL design baseline — a near-black ink
+stage (`#08080A`) with cream text (`#F7F3EC`), ember-gradient accents
+(`#FF4D26 → #FF9353`), acid live-marks (`#D7FF4D`), Sora/Outfit
+typography (Cairo for Arabic), rounded-3xl glass cards, the marquee /
+glow-ember / noise / dot-pulse recipes. The identity is DARK-ONLY (both
+`data-theme` values resolve to it). The ONLY other chromatic exception
+is `--ai` cyan, reserved strictly for AI-assistant surfaces. The Alkemos
+logo pair + the hero artwork pair are the only carried-over brand
+assets.
 
 Core laws:
 
-1. **Monochrome by default** — `--bg` / `--text` / `--muted` + the chrome
-   gradient carry the whole design. No blue/green/purple UI accents
-   outside semantic status colors deep inside the app
-   (destructive/success/warning on authenticated surfaces only).
+1. **Ember on ink by default** — `--bg` / `--text` / `--muted` + the
+   ember gradient pair carry the whole design. No blue/green/purple UI
+   accents outside semantic status colors deep inside the app
+   (destructive/success/warning on authenticated surfaces only). Acid
+   `#D7FF4D` appears only as tiny live-state marks.
 2. **Zero emoji in DOM** on marketing + hub surfaces — icons come from the
    owner's engraved icon sheets (see §6).
 3. **Theme parity** — light and dark are the SAME structure, only tokens
@@ -91,42 +97,44 @@ with the grep standard: a selector ships only with a consumer.
 
 ## 3. Identity Tokens (globals.css — single source of truth)
 
-### 3.1 Core palette (VRD-V1 warm retune)
+### 3.1 Core palette (EMBER-INK-279 — the template tokens)
 
-| Variable | Light | Dark | Usage |
-|---|---|---|---|
-| `--bg` | `#FAF8F5` | `#12100E` | Page background (warm ivory / warm graphite) |
-| `--text` | `#201D1A` | `#F4F1EC` | Primary text / solid action color (warm ink) |
-| `--muted` / `--muted-foreground` | `#6E675E` | `#A8A199` | Secondary text |
-| `--muted-2` | `#4E4840` | `#C6C0B8` | Body copy on tinted surfaces |
-| `--tint` | `#F1EDE7` | `#1A1714` | Soft section / chip background (perceptible alternation in BOTH modes — ΔL* 3.75/3.18) |
-| `--card` | `#ffffff` | `#1B1815` | Card surface |
-| `--edge` | `#E5DFD6` | `#2E2A25` | Hairline borders |
-| `--card-inner-hl` | `inset 0 1px 0 rgba(255,255,255,.5)` | `inset 0 1px 0 rgba(255,255,255,.06)` | 1px machined top edge (marble replacement) |
-| `--shadow` | `0 8px 24px rgba(32,29,26,.07)` | `0 0 0 1px rgba(255,255,255,.04), 0 12px 32px rgba(0,0,0,.5)` | Card / chrome-pill base shadow |
-| `--shadow-lift` | `0 14px 32px -8px rgba(32,29,26,.16)` | `0 0 0 1px rgba(255,255,255,.06), 0 18px 40px -10px rgba(0,0,0,.65)` | Interactive-card hover deepening (VRD-V3) |
-| `--ai` | `#38C7FF` | `#45D6FF` | **AI-assistant elements ONLY** |
+| Variable | Value (BOTH modes — dark-only identity) | Usage |
+|---|---|---|
+| `--bg` | `#08080A` | Page background (the template's ink) |
+| `--text` | `#F7F3EC` | Primary text (the template's cream) |
+| `--muted` / `--muted-foreground` | `#9A968F` | Secondary text (≥6:1 on every surface) |
+| `--muted-2` | `#C2BEB6` | Body copy / footer links |
+| `--tint` | `#17171C` | Alternating section band (perceptible alternation — ΔL* 5.71) |
+| `--card` | `#0F0F12` | Card surface (the template's surface) |
+| `--edge` | `#26262D` | Hairline borders (the template's line) |
+| `--card-inner-hl` | `inset 0 1px 0 rgba(255,255,255,.06)` | 1px machined top edge |
+| `--shadow` | `0 8px 24px rgba(0,0,0,.35)` | Card base shadow |
+| `--shadow-lift` | `0 14px 32px -8px rgba(0,0,0,.55)` | Interactive-card hover deepening |
+| `--ember` / `--ember-2` | `#FF4D26` / `#FF9353` | The template accent pair |
+| `--acid` | `#D7FF4D` | Live-state marks ONLY |
+| `--ai` | `#38C7FF` | **AI-assistant elements ONLY** |
 
 The shadcn-mapped names (`--background/--card/--popover/--secondary/
 --muted/--accent/--border/--input/--ring/--sidebar*`) carry the same
-values inside the Marble & Chrome generation (light) and its dark block
-— so `ui/*` components theme automatically with the identity.
+values in BOTH blocks (the dark block mirrors :root — one identity) —
+so `ui/*` components theme automatically with the identity.
 
-### 3.2 Chrome system
+### 3.2 Ember system (EMBER-INK-279)
 
-| Variable | Light | Dark |
-|---|---|---|
-| `--chrome` | `linear-gradient(145deg,#FDFDFD 0%,#CFCBC3 35%,#8E8A82 50%,#E9E6E0 70%,#A09C94 100%)` | same (mode-invariant) |
-| `--chrome-hover` | `linear-gradient(145deg,#FFFFFF 0%,#D8D4CC 35%,#98948C 50%,#F0EDE7 70%,#A8A49C 100%)` | same |
-| `--chrome-edge` | `#837F77` | `#4A463F` |
-| `--border-chrome` | `1px solid #CEC9C0` | `1px solid #3A362F` |
-| `--radius-chrome` | `14px` | `14px` |
+| Variable | Value (BOTH modes) |
+|---|---|
+| `--chrome` | `linear-gradient(90deg,#FF4D26 0%,#FF9353 100%)` (the template's ember pill) |
+| `--chrome-hover` | `linear-gradient(90deg,#FF5E3A 0%,#FFA36C 100%)` |
+| `--chrome-edge` | `rgba(255,147,83,.35)` |
+| `--border-chrome` | `1px solid rgba(255,255,255,.10)` (the template card hairline) |
+| `--radius-chrome` | `24px` (the template's rounded-3xl) |
 
-Every chrome stop is warm (coldest `#8E8A82`), so the metal belongs to
-the same family as the ivory/graphite ramp. The `.btn-chrome` label ink
-is `#1C1710` (≥5.18:1 on every stop, both modes); dark mode adds a
-hairline warm-white ring + deeper drop so the pill reads machined — not
-washed out — on graphite.
+The `.btn-chrome` label ink is `#1A0E0A` (5.71:1 over the worst stop
+`#FF4D26`, 8.6:1 over `#FF9353` — contrast-matrix gated) with the
+template's ember glow drop `0 20px 60px -20px rgba(255,77,38,.7)`. The
+VRD-V7 chrome-shiny sweep and the VRD-V6 machined bevel are RETIRED
+with the metal recipe (the template button is a clean gradient shift).
 
 ### 3.3 Artwork-backed tokens
 
@@ -142,7 +150,11 @@ cache-law window (§6).
   `#alkemos-theme-init` inline script (root layout) — manual choice
   (localStorage `alkemos-theme`) or OS `prefers-color-scheme`.
 - `ThemeToggle` cycles light → dark → system and follows the OS live
-  while in system mode.
+  while in system mode. **EMBER-INK-279: both values resolve to the
+  SAME ink/ember palette** (the template is dark-only — one identity;
+  the engine keeps switching so ThemeImg pairs, pinned-dark icons and
+  app surfaces hold one consistent look; `color-scheme: dark` rides
+  both blocks so native UI matches the ink ground).
 - Tailwind's `dark:` variant is keyed to a `.dark` class
   (`@custom-variant`) that nothing sets — do NOT rely on `dark:`
   utilities for theming; use `data-theme` selectors or tokens. (Legacy
@@ -154,9 +166,10 @@ cache-law window (§6).
 
 Legacy Apple-light utility classes on secondary surfaces
 (`bg-white`, `bg-[#f5f5f7]`, `text-[#1d1d1f]`, `text-[#6e6e73]`,
-`border-[#d2d2d7]`) are remapped to identity tokens **in dark mode only**
-(globals.css). Light mode is untouched. New code MUST NOT use these
-classes — use the `var(--…)` tokens directly.
+`border-[#d2d2d7]`) are remapped to identity tokens **MODE-INVARIANTLY**
+(EMBER-INK-279: the old dark-only prefix is dropped — both modes are the
+ink identity, so no white flash can appear for light-mode visitors).
+New code MUST NOT use these classes — use the `var(--…)` tokens directly.
 
 ---
 
@@ -166,13 +179,15 @@ classes — use the `var(--…)` tokens directly.
 
 | Context | Font Family | Source |
 |---|---|---|
-| Display (headings, EN) | **Playfair Display** 500/600/700 | `next/font/google` → `--font-display` |
-| Body (EN) | **Inter** | `next/font/google` → `--font-sans` |
-| Arabic | **Cairo** | `next/font/google` → `--font-arabic` (Arabic never uses the serif) |
+| Display (headings, EN) | **Sora** (the template's display face; 400–800 variable) | `next/font/google` → `--font-display` |
+| Body (EN) | **Outfit** (the template's body face; feature settings `ss01`/`cv11`) | `next/font/google` → `--font-sans` |
+| Arabic | **Cairo** | `next/font/google` → `--font-arabic` (Arabic never uses a Latin-only face) |
 
-The lapidary serif (`font-display` / default `h1–h4`) is the "engraved in
-stone" voice. Arabic headings keep Cairo per owner directive — Arabic
-readability beats stylistic mirroring.
+EMBER-INK-279: the display pair moved Playfair→Sora / Inter→Outfit (the
+template's families — one variable file each, preloaded, exactly like the
+pair they replaced; the Phase-136 CLS law rides unchanged). Arabic
+headings keep Cairo per owner directive — Arabic readability beats
+stylistic mirroring.
 
 > **RTL typography law (VRD-V0, audit C-1/C-2/C-3):** the RTL heading
 > rules live in **UNLAYERED CSS** in `globals.css` (after `@layer
@@ -180,7 +195,7 @@ readability beats stylistic mirroring.
 > beats `@layer base`. Unlayered rules win by cascade position: Cairo
 > 700, `letter-spacing: 0`, line-height 1.35 (h1) / 1.4 (h2) / 1.45
 > (h3-h4). Cairo is also appended to the `--font-display` stack (after
-> Playfair, before Inter) so any Arabic glyph inside a display element
+> Sora, before Outfit) so any Arabic glyph inside a display element
 > resolves to Cairo. EN/LTR rendering is untouched. Guarded by
 > `src/lib/__tests__/rtl-typography.test.ts`.
 
@@ -188,46 +203,59 @@ readability beats stylistic mirroring.
 
 | Element | Mobile | Desktop |
 |---|---|---|
-| Hero title | `text-4xl` | `md:text-6xl lg:text-7xl` |
+| Hero title (H1) | `clamp(2.5rem,6vw,4.75rem)` bold, `leading-[0.95]` | same (the template's hero scale) |
 | Page title (h1) | `text-3xl` | `md:text-5xl` |
-| Section title (h2) | `text-2xl/3xl` | `md:text-4xl` (36px — do NOT shrink; §23.1 of the audit) |
+| Section title (h2) | `text-3xl` | `md:text-5xl` bold `leading-[1.05]` (the template's section scale) |
 | Card title (h3) | `text-lg` | `text-lg` |
 | Body text | `text-sm/base` | `text-base/lg` |
 
 ### Font Weights
 
-Normal (400) body · Semibold (600) titles & chrome buttons · Bold (700)
-prices/stat numbers.
+Normal (400) body · Bold (700) display headings (the template's bold
+Sora voice — the old 600 "Apple semibold" law retired) · Semibold (600)
+buttons/pill labels.
 
 ---
 
 ## 5. Core Recipes (CSS classes in globals.css)
 
+> **EMBER-INK-279:** the recipes below were re-valued to the template's
+> ember/ink look (class NAMES keep their 123+ call sites — recipe-level
+> changes only). RETIRED with the Marble identity: `.meander-divider`,
+> `.footer-meander-top`, `.hero-art`/`.hero-bg`/`.hero-copy`,
+> `.platform-trio`/`.trio-*`, the `chrome-shiny` sweep keyframes. ADDED:
+> `.tpl-marquee`, `.glow-ember`, `.noise`, `.dot-pulse`, `.hero-glow`,
+> `.hero-row`, `.ember-panel` (the template recipes — see
+> `src/docs/DESIGN_SYSTEM.md` §5 for the full updated table).
+
 | Class | Recipe | Use |
 |---|---|---|
-| `.btn-chrome` | chrome gradient bg + `#1C1710` warm-ink text + 1px `--chrome-edge` + radius 999px + 600 weight + `--shadow`; **VRD-V6 machined bevel**: `inset 0 1px 0` bright top edge + `inset 0 -1px 0` dark bottom edge (pressed-metal affordance), hover deepens to `--shadow-lift`; dark mode adds a hairline warm-white ring. **VRD-V7 shiny sweep** (P0-2, source: 21st.dev «Shiny Button» copied as pure CSS — zero deps): a diagonal specular band crosses the metal every ~4.5s (transform-only, keyframed pause, `[dir=rtl]` mirrors the direction; hidden under `prefers-reduced-motion`). **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors in the recipe — paddings only feed the floor) | ALL primary CTAs |
-| `.btn-outline` | translucent `--card` fill (**VRD-V6: 72%** + blur 6px — survives hero artwork) + 1px `--text` border + `--text` + radius 999px. **44px touch / 48px md+** | Secondary CTAs |
-| `.marble-card` | `--card` bg + `--border-chrome` + radius 14 + `--shadow` + 1px machined inner top-edge highlight (`--card-inner-hl`). Name is historical (marble is gone); 123+ usages | Every card surface |
+| `.btn-chrome` | **EMBER-INK-279**: the template's ember-gradient pill — `--chrome` fill + `#1A0E0A` ink label (5.7–8.6:1 over every stop, gated) + the ember glow drop `0 20px 60px -20px rgba(255,77,38,.7)`; hover shifts to `--chrome-hover` + 1px lift. The VRD-V6 bevel and the VRD-V7 shiny sweep are RETIRED with the metal recipe. **Sizing standard (VRD-V3 §13.2): 48px touch / 52px md+** (min-height floors kept) | ALL primary CTAs |
+| `.btn-outline` | **EMBER-INK-279**: the template's outline pill — transparent + `white/20` hairline; hover strengthens to `white/50` + `white/5` wash. **44px touch / 48px md+** floors kept | Secondary CTAs |
+| `.marble-card` | **EMBER-INK-279**: the template's card — `--card` under a `white/[0.04]→[0.01]` gradient wash + `--border-chrome` (white/10 hairline) + radius 24 (`rounded-3xl`) + soft drop. Name is historical; 123+ usages | Every card surface |
 | `.marble-card--unclipped` | `overflow: visible` escape hatch for cards hosting absolute popovers (Phase 154) | Popover hosts |
-| `.marble-card.card-lift` | Unified INTERACTIVE-card hover: 2px lift + `--shadow-lift` + firmer warm-graphite hairline (`color-mix(--text 22%)`) · 200ms ease · disabled under `prefers-reduced-motion`. Only on truly interactive cards — static containers never lift | Interactive cards' hover |
-| `.seal-chip` | chrome-border pill, small-caps tracking, `--muted-foreground`, translucent card bg (55% wash; 85% when directly on artwork) | Stat seals, tags, badges |
-| `.chrome-text` | Light theme = dark warm-steel ramp (lightest stop ≈ 10:1 on ivory); dark theme = lightened warm ramp. `.chrome-text-on-dark` pins the light ramp on both-theme dark cards (Pro/Coaching) | Numbers, prices, "Learn more ›" links |
-| `.meander-divider` | Greek-key band, repeat-x, 28px, opacity .85 (light Greek identity — kept by owner direction) | Section separators |
-| `.footer-meander-top` | Same band as the footer's top strip | Footer top |
+| `.marble-card.card-lift` | **EMBER-INK-279**: the template's hover — hairline strengthens to `white/30` + 2px lift + the deeper drop · 200ms ease · disabled under `prefers-reduced-motion`. Only on truly interactive cards | Interactive cards' hover |
+| `.seal-chip` | **EMBER-INK-279**: the template's glass badge — `white/15` hairline + `white/5` fill + blur(8px), uppercase micro-label in `--muted-2` (no letter-spacing in AR runs — Cairo law) | Stat seals, tags, badges |
+| `.chrome-text` | **EMBER-INK-279**: the ember 145° ramp (`#FF9353 → #FF4D26 → #FF9353`), worst stop 6.0:1 on the ink ground AND on the pinned `#0B0B0D` cards (gated); `.chrome-text-on-dark` pins the same ramp | Numbers, prices, stat values |
+| *(retired)* `.meander-divider` | **RETIRED (EMBER-INK-279)** — the Greek meander conflicted with the template's border-y rhythm; deleted | — |
+| *(retired)* `.footer-meander-top` | **RETIRED (EMBER-INK-279)** — same decision; the footer opens with the `white/5` hairline | — |
 | `.navbar-chrome` | sticky, **VRD-V7 (P0-1): `--navbar-bg` alpha 0.94** (was 0.85 — the audit's top defect: scrolled text competed with the bar row) + blur(12px)+saturate(150%) **(the blur was SILENTLY DEAD in production — Lightning CSS keeps the LAST of the prefixed/standard pair, so `-webkit-backdrop-filter` MUST be declared first; fixed) + the 24px bottom-edge scrim** (`.navbar-chrome::after`, theme-aware `--bg` fade dissolving content at the seam); desktop nav items px-3.5 + gap-1 — 64px bar | Site header |
-| `.hero-art` / `.hero-bg` | Unified overlay — artwork = absolute cover layer (ThemeImg pair), content centered INSIDE it. Phones: `max(56vh, natural)` stage floor; tablet→wide: natural artwork height; aspect > 1501/1000: 92vh | Homepage hero |
-| `.hero-copy` | Theme-aware text-shadow halo for copy over artwork details — a glyph edge, NOT a veil | Hero H1 + subtitle |
+| `.tpl-marquee` | **EMBER-INK-279**: the template's marquee ticker — duplicated content set, `translateX(0→-50%)` 36s linear; `[dir=rtl]` reverses; frozen under reduced-motion | The hero marquee band |
+| `.glow-ember` / `.noise` | **EMBER-INK-279**: the template's page atmosphere — dual radial ember wash + the SVG fractal-noise film (fixed, `-z-10`, pointer-events-none) | Homepage root overlays |
+| `.dot-pulse` | **EMBER-INK-279**: the template's live-presence dot (1.8s opacity/scale pulse; reduced-motion safe) | Live badges |
+| `.hero-glow` / `.hero-row` | **EMBER-INK-279**: the hero aside card's ember blur blob + the template's session-row recipe (the platform pillars) | The hero glass card |
+| `.ember-panel` | **EMBER-INK-279**: the template's big-split-feature box — the `#FF4D26→#FF6D3D→#FF9353` gradient, `rounded-[32px]`, dark-ink copy | The EVO section |
 | `.chips-row` | ONE horizontal scroll-snap row on touch — `nowrap` + `scroll-snap-type: x proximity` + symmetric 24px edge fade masks (RTL-safe) + chips `flex-shrink: 0 · white-space: nowrap`; md+ reverts to the centered wrap | Muscle-group browse chips |
-| `.footer-marble` | Structural band: light = `--tint` + `--edge` top hairline; dark = deeper step `#0E0C0A` (name historical) | Site footer |
+| `.footer-marble` | **EMBER-INK-279**: near-ink `#0A0A0C` band + `white/5` top hairline (the template's border-t footer) | Site footer |
 | `.mhe-cookie-bar` | Theme-aware GLASS — `color-mix(--card 92% light / 88% dark, transparent)` + `backdrop-filter: blur(16px)`; solid-card `@supports` fallback; SSR-first-paint + `data-mhe-consent-ok` pre-paint hide + body no-cover padding | Cookie consent bar |
 | `.evo-hero-card` / `.evo-art-mask` | EVO section card — text left, warrior art right with a mask fade into the card; `[dir=rtl]` flips the mask (image never flipped) | Homepage EVO section |
 | `.evo-console` | **VRD-V6** — the homepage EVO demo exchange as an IN-PRODUCT surface: tint-glass panel (60% wash; **VRD-V7: 72% in dark**) + `--edge` hairline + inner highlight; bubbles inside pop to card level; a presence header (orb + wordmark + live-dot) opens it; cyan stays off the panel fill | Homepage EVO demo |
 | `.evo-orb` | **VRD-V7** (P1-3; source idea: 21st.dev «Siri Orb» — re-authored, zero deps) — the 22px AI presence sphere: white specular cap + `--ai` core + graphite depth + slow conic swirl (transform-only); decorative, aria-hidden, reduced-motion-safe | EVO console header |
 | `.evo-beam` / `.evo-beam-rotor` | **VRD-V7** (P1-3; source idea: 21st.dev/MagicUI «Border Beam» — copied as pure CSS, zero deps) — a masked 1.25px ring on the console border whose bright `--ai` head + chrome tail travels via transform rotation; `@supports (mask-composite)` gated (hidden elsewhere); reduced-motion-safe | EVO console border |
 | `.count-shell` / `.count-sizer` / `.count-live` | **VRD-V7** (P1-4) — the zero-CLS count-up shell: the ghost sizer reserves the FINAL width (in-flow) while the animating digits paint in an absolute overlay (the LandingView `<CountUp>` rAF — spring settle + blur materialize, filter/opacity only; digits aria-hidden, final announced via `.sr-only`); the wrapper's `chrome-text` must ride BOTH layers (`paintClass`) — a parent's background-clip:text never clips to out-of-flow children | Proof-strip numbers |
-| `.hero-pill` | **VRD-V6** — the hero platform-trio glass pills (Training / Nutrition / Smart Planning): `--card` 72% + blur(6px) + `color-mix(--text 30%)` hairline, 13px/600, NON-interactive semantically (two-button law intact). **VRD-V8**: quiet hover beat (2px lift + firmer hairline + `--shadow-lift`, under `no-preference`) + one-time staggered entrance (`trio-rise`, backwards fill — zero CLS) | Hero platform chips |
+| `.hero-pill` | **EMBER-INK-279** — the template's glass badge pill (`white/15` + `white/5` + blur): the hero's live-presence badge (dot-pulse + the EVO label); quiet hover beat kept. NON-interactive (two-button law intact) | Hero badge + pillar chips |
 | `.theme-img-pin-dark` | **VRD-V8R** — surface-follow pin for engraved icon PAIRS on ALWAYS-dark surfaces (the homepage Premium card is dark in BOTH themes): inside the host, the light variant is hidden and the dark one forced — the pair follows the CARD, not the page theme. Declared after the theme pair rules so it wins the equal-specificity cascade | Icons on fixed-dark cards |
-| `.platform-trio` / `.trio-flow` / `.trio-*` | **VRD-V8** (V8-1/V8-2; source idea: 21st.dev/MagicUI «Animated Beam» — re-authored internally, zero deps/JS) — the hero product-story diagram: three symmetric chrome streams (hardcoded SVG `Q`-curves) flow from the pillars into ONE glass node («ONE PLATFORM» / «منصة واحدة»). Static wire (`.trio-base`) always visible; the pulse is a `pathLength=100` dash (`stroke-dasharray 12 38` + `stroke-dashoffset` keyframes — two comets per stream, staggered) + breathing node halo (`trio-halo`, `transform-box: fill-box`); all motion inside `no-preference` guards. Direction-symmetric by construction — no RTL flip rule; the diagram is `aria-hidden` | Hero convergence diagram |
+| *(retired)* `.platform-trio` / `.trio-*` | **RETIRED (EMBER-INK-279)** — the convergence diagram gave way to the template's hero grid; the pillar story now rides the aside card's `.hero-row` list. Recipes deleted | — |
 | `.evo-handoff` / `-rail` / `-card` / `-chip` | **VRD-V8** (V8-3) — the EVO demo answer flows into the product outcome: a slim rail under the EVO-avatar column (logical `padding-inline-start` — mirrors in RTL) with three pulsing `--ai` dots + a static dashed drop-line, landing on a compact card holding two REAL deep-anchor chips (`#plan-workout` / `#plan-nutrition`). Cyan stays scoped INSIDE the console (AI-surface law); dots pulse under `no-preference` only | EVO console → #plan hand-off |
 | `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
 | `.card-hover` | 4px lift + soft shadow (300ms, reduced-motion-safe) | Food/exercise/program explorer cards |
@@ -297,10 +325,21 @@ filenames — so they must NEVER be long-cached in browsers:
 
 ### 7.1 Homepage hero
 
-ONE mode at every viewport: the artwork is an absolutely-positioned
-COVER layer (`.hero-bg`, ThemeImg pair, eager LCP) with the content —
-chrome logo lockup (`w-32` mobile → `w-64` desktop) → serif H1
-(`.hero-copy` halo) → subtitle → CTA pair — centered INSIDE it.
+**EMBER-INK-279 — the TEMPLATE GRID:** the hero becomes the
+landing-fitness-studio layout — a text column (start side) beside an
+aside glass card (end side) on `md:grid-cols-[1.15fr_0.85fr]`, closed
+by the marquee band:
+
+- **Text column:** `.hero-pill` badge (dot-pulse + «EVO — YOUR AI COACH ·
+  LIVE NOW») → the KEPT chrome logo lockup (`w-32` mobile → `w-44` md) →
+  Sora H1 (`clamp(2.5rem,6vw,4.75rem)` bold, `leading-[0.95]` EN /
+  unlayered 1.35 AR) → subtitle → the CTA pair → the STATS ROW (the
+  folded proof strip: `border-t border-white/10` grid, CountUp numbers).
+- **Aside card:** the KEPT hero artwork (ThemeImg pair, eager LCP) in
+  the template's `rounded-3xl` glass frame + `.hero-glow` ember blob +
+  the three platform pillar rows (`.hero-row`) + the ONE PLATFORM row.
+- **Marquee band:** `border-y border-white/10 bg-black/40` + `.tpl-marquee`
+  (aria-hidden; the platform vocabulary in both languages).
 
 **Hero copy pair (HOME-EXPERIENCE-269 — the H1 message-matches the SERP
 snippets; the subtitle points AT the living experience):**
@@ -311,36 +350,31 @@ snippets; the subtitle points AT the living experience):**
   والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي.
   جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية.»
 
-**Proof strip (§7.1.1):** directly under the hero — an `--tint` band
-with a hairline top/bottom edge carrying FOUR auditable stat tiles
-(engraved icon + `.chrome-text` number + label): EX_PLUS exercises /
-FOODS_PLUS foods / TOOLS_COUNT free tools / the 10-message daily EVO
-limit. Every value rides a verified constant — the page invents
-nothing (the Freeletics/MyFitnessPal proof-under-promise pattern).
-HOME-EXPERIENCE-269: the numbers COUNT UP once when the strip enters
-the view (`.CountUp` — rAF ease-out, SSR renders the final value,
-reduced-motion stands down) — the page's first heartbeat.
+**Proof stats (§7.1.1 → EMBER-INK-279):** folded INTO the hero's text
+column — the template's stats row (`border-t border-white/10` +
+`grid-cols-2 md:grid-cols-4`) carrying FOUR auditable numbers
+(CountUp + `.chrome-text`): EX_PLUS exercises / FOODS_PLUS foods /
+TOOLS_COUNT free tools / the 10-message daily EVO limit. Every value
+rides a verified constant — the page invents nothing. The numbers
+COUNT UP once when the row enters the view (`.CountUp` — rAF
+ease-out, SSR renders the final value, reduced-motion stands down).
 
 **CTA pair (HOME-REFINE-270 R1 — the current law):** exactly TWO
 side-by-side CTAs — `.btn-chrome` «Log in / Sign up» →
 `/auth?mode=signup` (signed-in members: their dashboard) +
 `.btn-outline` «Premium memberships» → `/memberships`. On touch the
-pair STACKS full-width (no mis-tap risk beside the artwork); md+
-keeps the single centered row.
+pair STACKS full-width (no mis-tap risk); md+ keeps the single
+start-aligned row (the template's row direction).
 
-**Platform trio + convergence (VRD-V6 + VRD-V8):** between the subtitle
-and the CTA pair, three `.hero-pill` glass chips — Training /
-التدريب (dumbbell) · Nutrition / التغذية (protein) · Smart Planning /
-التخطيط الذكي (macros) — so the hero reads as the integrated
-Fitness + Nutrition + AI platform, never as an EVO service page. The
-pills are a semantic list (NOT links): the two-button law stays
-exact. Labels mirror the header SERVICE_NAV vocabulary. **VRD-V8
-(V8-1/V8-2):** beneath the pills, the `.platform-trio` convergence
-diagram turns the claim into a story — three chrome streams flow from
-the pillars into one glass node («ONE PLATFORM»), a hover lift beats
-on each pill, and a one-time staggered entrance greets the fold. Pure
-SVG/CSS (Animated-Beam idea re-authored — zero deps), symmetric so
-RTL needs no flip; reduced-motion freezes to the static wire.
+**Platform pillars (VRD-V6 → EMBER-INK-279 restyle):** the three
+pillars — Training / التدريب (dumbbell) · Nutrition / التغذية
+(protein) · Smart Planning / التخطيط الذكي (macros) — now ride the
+aside card as `.hero-row` list rows (icon chip + label + honest count
+line), so the hero still reads as the integrated platform, never as an
+EVO service page. The rows are a semantic list (NOT links): the
+two-button law stays exact. Labels mirror the header SERVICE_NAV
+vocabulary. The VRD-V8 convergence SVG is RETIRED (the template hero
+carries the story with the card + stats row instead).
 
 ### 7.1.2 The living product (`#start` — HOME-EXPERIENCE-269)
 

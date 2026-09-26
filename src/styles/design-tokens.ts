@@ -117,17 +117,19 @@ export const MOTION = {
 } as const;
 
 export const TYPOGRAPHY = {
-  /** EN display — Playfair Display (next/font, metric-adjusted fallback). */
+  /** EMBER-INK-279 — the template families: EN display = Sora, EN body =
+   * Outfit (next/font, metric-adjusted fallback). */
   displayEn: "var(--font-display)",
-  /** EN body — Inter (next/font). */
   bodyEn: "var(--font-sans)",
   /** AR — Cairo for EVERYTHING (display + body; the VRD-V0 unlayered RTL law:
    *  headings pin Cairo 700, letter-spacing 0, leading 1.35/1.4/1.45). */
   arabic: "var(--font-arabic)",
-  /** Section H2 scale: text-3xl mobile → text-4xl desktop (do not shrink). */
-  h2: { mobile: "1.875rem", desktop: "2.25rem", weight: 600 },
-  /** Hero H1: text-2xl → lg:text-6xl, semibold, tight EN tracking / 0 AR. */
-  h1: { mobile: "1.5rem", desktop: "3.75rem", weight: 600 },
+  /** Section H2 scale (the template's section titles): 3xl mobile →
+   * 5xl desktop, BOLD display weight (Sora 700). */
+  h2: { mobile: "1.875rem", desktop: "3rem", weight: 700 },
+  /** Hero H1: the template's clamp(2.5rem,6vw,4.75rem), bold, 0.95 EN
+   * leading (the unlayered RTL law re-leads Arabic at 1.35). */
+  h1: { mobile: "2.5rem", desktop: "4.75rem", weight: 700 },
 } as const;
 
 // ────────────────────────────────────────────────────────────
