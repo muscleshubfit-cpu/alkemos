@@ -31,7 +31,7 @@
 
 | File | Role | Status | Last updated |
 |---|---|---|---|
-| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-25 (Ph 275 — VRD-V6: DESIGN_SYSTEM row + DESIGN row date sync) |
+| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: DESIGN row 278 + registry-dates re-derivation per م-07) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-20 |
 | `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-25 (Ph 275 — VRD-V6) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |
