@@ -33,7 +33,7 @@
 |---|---|---|---|
 | `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: DESIGN row 278 + registry-dates re-derivation per م-07) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-20 |
-| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-25 (Ph 275 — VRD-V6) |
+| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-26 (Ph 279R — EMBER-INK-279 rollback: file restored byte-exact to the 278 tree; row date re-derived per م-07) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan + §12 execution log (log is append-only) | LIVE | 2026-09-16 |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE | 2026-08-25 |
