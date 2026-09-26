@@ -823,3 +823,79 @@ describe("HOME-REFINE-271 — homepage sample drift guard (real content, curated
     }
   });
 });
+
+describe("TPL-REF-280 — the selective template-reference contract", () => {
+  // Owner order 2026-09-26 (second frame — after the EMBER-INK-279
+  // rollback): the 1devtool landing-fitness-studio template is a
+  // VISUAL REFERENCE ONLY. Four quiet techniques adapted INTO the
+  // Marble & Chrome language; the guards below pin the scope fence —
+  // the template's identity must never cross over, and the Alkemos
+  // UX architecture (structure/order/hero/two-button law/light+dark
+  // equality/semantic app-view macro colors) must never move.
+  const css = readFileSync("src/app/globals.css", "utf8");
+  const src = readFileSync(LANDING, "utf8");
+
+  it("(1) .chev: the CTA chevron micro-slide recipe + RTL mirror + reduced-motion guard", () => {
+    for (const required of [
+      ".chev { transition: translate 0.2s ease; }",
+      ".btn-chrome:hover .chev,",
+      ".btn-outline:hover .chev { translate: 4px 0; }",
+      '[dir="rtl"] .btn-chrome:hover .chev,',
+      '[dir="rtl"] .btn-outline:hover .chev { translate: -4px 0; }',
+    ]) {
+      expect(css, `chev recipe missing: ${required}`).toContain(required);
+    }
+    const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    expect(reduced.join("\n")).toContain(".chev { transition: none; }");
+    // Opt-in scope: every .chev span in the view is a pill-CTA chevron
+    // (the evo-handoff chips are excluded by design).
+    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
+    expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
+  });
+
+  it("(2) .ghost-num: the diet-card ghost index numeral recipe (mono ramp, zero new hexes)", () => {
+    for (const required of [
+      ".ghost-num {",
+      "font-family: var(--font-display);",
+      "color: color-mix(in srgb, var(--text) 10%, transparent);",
+    ]) {
+      expect(css, `ghost-num recipe missing: ${required}`).toContain(required);
+    }
+    // The numeral is decorative (aria-hidden) and indexed from the map.
+    expect(src).toContain('className="ghost-num" aria-hidden="true"');
+    expect(src).toContain('String(index + 1).padStart(2, "0")');
+    expect(src).toContain("index={i}");
+    // The ghost derives from --text only — the template's white/10
+    // ghost ink never ships (dark-only identity fence).
+    expect(css).not.toContain("text-white/10");
+  });
+
+  it("(3) featured Premium card: the template's featured-pricing depth, re-toned warm", () => {
+    expect(src).toContain('boxShadow: "0 24px 60px -28px rgba(11, 11, 13, 0.55)"');
+    // The ember featured treatments never cross over.
+    expect(src).not.toContain("#ff4d26");
+    expect(src).not.toContain("#ff9353");
+    expect(src).not.toContain("#d7ff4d");
+  });
+
+  it("(4) display numerals: proof band + plate kcal ride the display face", () => {
+    expect(src).toContain('className="font-display text-lg font-semibold tracking-tight md:text-xl"');
+    expect(src).toContain('className="chrome-text font-display text-5xl font-bold tracking-tight"');
+  });
+
+  it("scope fence: the template identity never ships (Ember & Ink / Sora / Outfit / tpl- prefixes)", () => {
+    // Guards assert shipped DECLARATIONS, not comment narration (the
+    // provenance comments quote the retired names by law — AGENTS.md
+    // §8: comments may narrate history, code may not reference it).
+    expect(css).not.toMatch(/font-family:[^;\n]*Sora/);
+    expect(css).not.toMatch(/font-family:[^;\n]*Outfit/);
+    expect(css).not.toMatch(/\.tpl-/);
+    expect(css).not.toMatch(/--ember[^-]/);
+    expect(css).not.toContain("#FF4D26");
+    expect(src).not.toMatch(/font-family:[^;\n"]*Sora/);
+    // Light + dark stay equal citizens: both theme blocks still author
+    // the full token set (the mode-invariant shim never returns).
+    expect(css).toContain('[data-theme="dark"] {');
+    expect(css.match(/--muted-2:/g)?.length).toBe(2);
+  });
+});

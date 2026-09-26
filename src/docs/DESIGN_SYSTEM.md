@@ -1,7 +1,7 @@
 # Alkemos Design System — «Marble & Chrome»
 
 > **Status:** LIVE — the binding design-system reference for implementation work.
-> **Provenance:** owner directive 2026-09-25 (VRD-V6) — «حدّث/أنشئ `src/styles/design-tokens.ts` و `src/docs/DESIGN_SYSTEM.md`».
+> **Provenance:** owner directive 2026-09-25 (VRD-V6) — «حدّث/أنشئ `src/styles/design-tokens.ts` و `src/docs/DESIGN_SYSTEM.md`». Updated 2026-09-26 (TPL-REF-280: +`.chev` / +`.ghost-num` recipes — template-informed techniques re-authored in the Marble & Chrome language; the 1devtool template is a visual REFERENCE only).
 > **Hierarchy:** this file documents the REAL implementation. The runtime single
 > source of truth is `src/app/globals.css` (tokens) + the recipe classes; the
 > typed mirror is `src/styles/design-tokens.ts`. `DESIGN.md` (repo root) remains
@@ -97,6 +97,8 @@ never negative (connected-script law).
 | `.chrome-text` / `.chrome-text-on-dark` | metallic numerals | price, counts, section numbers |
 | `.evo-console` | EVO demo panel | VRD-V6 — tint-glass in-product console; cyan only on the avatar `.ai-ring` |
 | `.split-rail` + `.split-seg--*` | macro split visual | VRD-V6 — diet cards; segments derive from `--text` via color-mix (auto theme-inverting) |
+| `.chev` | pill-CTA chevron micro-slide | TPL-REF-280 — 4px nudge toward reading direction on `.btn-*` hover; individual `translate` property (composes with `rtl:rotate-180`); RTL-mirrored; reduced-motion frozen; opt-in per span |
+| `.ghost-num` | diet-card ghost index numeral | TPL-REF-280 — `font-display` 44px/600 in `color-mix(--text 10%)` (zero new hexes, auto theme-inverting); aria-hidden, decorative, no rank meaning |
 | `.macro-track` / `.macro-fill` | animated macro bars | the calculator + `#eat` explorer |
 | `.chips-row` | muscle chips rail | scroll-snap single row on touch, edge fades, RTL-safe |
 | `.navbar-chrome` | sticky navbar | `--navbar-bg` translucent + blur(12px) saturate(150%) |
@@ -119,7 +121,8 @@ never negative (connected-script law).
 6. `#library` **Exercise library** — interactive muscle-group browser.
 7. `#eat` **Food explorer** — pick a food, per-100g numbers move.
 8. `#train` / `#diet` **Ready-made programs & diet plans** — carousel pair;
-   diet cards carry the macro split rail (VRD-V6).
+   diet cards carry the macro split rail (VRD-V6) + the ghost index
+   numeral (TPL-REF-280).
 9. `#learn` **Latest articles** — latest-first carousel (renders only when
    posts loaded).
 10. **Meander divider** → `#memberships` **Memberships** — three small cards

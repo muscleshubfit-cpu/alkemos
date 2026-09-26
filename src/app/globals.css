@@ -404,6 +404,34 @@
 }
 .btn-outline:hover { opacity: 0.72; }
 
+/* ====================================================================
+ * TPL-REF-280 (2026-09-26) — SELECTIVE template-informed micro-polish.
+ * Owner order: the 1devtool landing-fitness-studio template is a VISUAL
+ * REFERENCE ONLY (patterns/techniques), never the design baseline —
+ * nothing of its identity crosses over (no Ember & Ink palette, no
+ * Sora/Outfit, no dark-only surfaces, none of its homepage structure).
+ * The Alkemos UX architecture, section order, hero, two-button law,
+ * light/dark equality, and the monochrome token law are untouched.
+ *
+ * (1) .chev — the CTA chevron micro-slide: the pill chevron nudges 4px
+ *     toward the reading direction on hover (template technique:
+ *     group-hover:translate-x-0.5 on arrow glyphs — re-authored here
+ *     as a recipe). OPT-IN per span, never a bare `> span` rule: the
+ *     btn-* recipes ship on app surfaces with non-chevron spans.
+ *     Rides the individual `translate` property so it composes with
+ *     Tailwind's rtl:rotate-180 (translate applies, then rotate). RTL
+ *     mirrors via [dir="rtl"] (the rotated chevron nudges left).
+ * ==================================================================== */
+.chev { transition: translate 0.2s ease; }
+.btn-chrome:hover .chev,
+.btn-outline:hover .chev { translate: 4px 0; }
+[dir="rtl"] .btn-chrome:hover .chev,
+[dir="rtl"] .btn-outline:hover .chev { translate: -4px 0; }
+@media (prefers-reduced-motion: reduce) {
+  .chev { transition: none; }
+}
+
+
 /* Chrome-gradient text (numbers, prices) — mission §7/§12.
    Phase 198 (UI audit C3 — docs/UI-AUDIT-HOMEPAGE.md): the light-theme
    ramp was the raw chrome gradient whose mid-stops failed WCAG AA on
@@ -1088,6 +1116,29 @@
 .split-seg--protein { background: color-mix(in srgb, var(--text) 88%, transparent); }
 .split-seg--carbs { background: color-mix(in srgb, var(--text) 58%, transparent); }
 .split-seg--fat { background: color-mix(in srgb, var(--text) 32%, transparent); }
+
+/* TPL-REF-280 (2) — .ghost-num: the ghost index numeral on the diet-
+   plan cards. Template technique (its program cards' numbered tags:
+   font-display, oversized, ~10% ink) re-toned into the Alkemos ghost
+   ramp: color-mix from --text — ZERO new hexes, auto-inverts with the
+   theme (10% graphite on ivory cards / 10% ivory on graphite cards).
+   In-flow (the template's own placement, above the title) so it can
+   never overlap live text; the negative margin tucks the title into
+   the digits' below-baseline whitespace. Decorative by law: aria-
+   hidden in JSX, unselectable, and the numbering carries NO meaning
+   (not a rank, not an order — the section CTAs stay the only way in).
+   font-display resolves to Cairo for any Arabic context via the
+   --font-display stack (VRD-V0 leg 1). */
+.ghost-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  line-height: 1;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text) 10%, transparent);
+  margin-bottom: -0.625rem;
+  user-select: none;
+}
 
 /* Navbar chrome — mission §1. NOTE (VRD-V7 P0-1): the -webkit-
    declaration MUST come FIRST — the CSS pipeline (Lightning CSS)

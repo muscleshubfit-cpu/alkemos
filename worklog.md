@@ -6,6 +6,30 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: TPL-REF-280-2026-09-26
+Agent: Super Z (owner session)
+Task: أمر المالك 2026-09-26 (بعد EMBER-INK-279): «أرجع آخر إعادة تصميم/تنفيذ قالب كاملةً إلى آخر حالة معروفة جيدة، ثم ابنِ التحديث البصري صحيحًا — القالب مرجع بصري/component فقط؛ UX Alkemos هو مصدر الحقيقة: الهيكل والترتيب والهيرو الأصلي والوضعان الفاتح/الداكن وألوان الماكرو الدلالية محفوظة؛ لا نسخ بنية القالب ولا هويته Ember & Ink ولا تصميمه الداكن فقط؛ النتيجة Alkemos بنظام بصري fitness-tech أرقى لا القالب بمحتوى Alkemos».
+
+Work Log:
+- (السحب 279R أولًا) git restore --source=97c07252 --staged --worktree . — الشجرة رجعت بايت-بايت لآخر حالة معروفة جيدة (VRD-V8R، نهاية 278): الهيرو الأصلي رئيسًا فوق صورته، الهيكل والترتيب (Hero→proof→#start→#evo→#plan→#library→#eat→#train→#diet→#learn→#memberships→#faq)، الخطوط الأصلية (Playfair/Inter/Cairo)، manifest themeColor الأصلي، وصفات الرخام والكروم كاملة — كوميت b228425d.
+- (بوابات الشجرة المرجعة) tsc 0 · eslint 0 · vitest 1705/1705 · next build 2020/2020 — ثم push فوري للتراجع الإنتاجي + إصلاح صف السجل (DESIGN_SYSTEM 25→26 بعد كوميت السحب — درس م-07) بكوميت cd4a428e.
+- (تحليل القالب كمرجع) قراءة قالب 1devtool landing-fitness-studio كاملًا وفصل التقنيات عن الهوية: المرفوض حكمًا (هوية Ember & Ink #FF4D26/#FF9353/#D7FF4D — Sora/Outfit — dark-only — بنيته: هيرو الشبكة/الماركيه/ترويسات مقسمة/أرقام مرقمة بأبيض-10/أسعاره الملونة) والمقبول كتقنيات (micro-interaction السهم translate-x عند hover · الfeatured glow العميق · نمط أرقام display على الإحصاءات · نمط الرقم الشبحي على الكروت النصية).
+- (1 .chev) قوس CTA ينزلق 4px نحو اتجاه القراءة عند hover — وصفة CSS خالصة بtranslate property الفردية (تتآلف مع rotate-180 لـTailwind بلا مصفوفة) · [dir=rtl] مرآة · opt-in على 10 مواضع (زيرا الهيرو بالحالتين + CTAs الأقسام الخمسة + CTA الحاسبة) — رقائق evo-handoff مستثناة عمدًا (أبها ليس btn-*) · سكون تحت reduced-motion.
+- (2 .ghost-num) رقم شبحي font-display (Playfair/كايرو عبر الستاك) 44px/600 فوق عنوان كروت الأنظمة الغذائية داخل التدفق (وضع القالب نفسه فلا تداخل نصي أبدًا) بلون color-mix(--text 10%) — صفر هكسات جديدة، انعكاس تلقائي مع الثيم، aria-hidden بلا معنى ترتيبي.
+- (3 ظل بريميوم) 0 24px 60px -28px rgba(11,11,13,.55) على الكارت الداكن المثبت (darkMarbleStyle) — عمق الfeatured pricing من القالب معاد التلوين دافئًا أحاديًا (بلا حدود ember ولا غسلة لونية).
+- (4 أرقام display) شريط الإثبات: الأرقام بfont-display 18→20px (نمط إحصاءات القالب بخط العرض Alkemos نفسه — الصف يبقى مضغوطًا) · سعرة الطبق ب#eat: font-display على رقم 48px القائم — اللون الكرومي والأرقام الحقيقية كما هي.
+- (الكاناري +5 نفس الفريم) homepage-adoption.test.ts: عقد TPL-REF-280 — وصفة .chev حرفيًا + مرآة RTL + حارس reduced-motion + العدد 10 · وصفة .ghost-num + aria-hidden + index من الmap · الظل الحرفي + حظر #ff4d26/#ff9353/#d7ff4d · الأرقام الحرفية للعرض · سياج النطاق: صفر font-family بSora/Outfit وصفر .tpl- وصفر --ember وكلا الوضعين يوثقان التوكنات كاملة ( Guards على التصريحات لا على سرد التعليقات — قانون AGENTS §8) — 35/35.
+- (البوابات) tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 100/1710 (+5) · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ · docs_parity ✓ · docs_audit ✓ (الصفوف محدثة بنفس الفريم) · contrast matrix ✓ كلا الوضعين (لم تُمس أي ألوان نص) · next build ✓ 2020/2020.
+- (التحقق الحي محليًا) EN/AR × Light/Dark × 1440/390 — أدناه.
+- (التوثيق) DESIGN.md: ترويسة 280 + صفّا .chev/.ghost-num ب§5 + TPL-REF-280 ب§7.1.1/§7.4/§7.4.1 · DESIGN_SYSTEM.md: ترويسة + صفّا الوصفتين + ملاحظة كروت الأنظمة · docs/README.md: صفا DESIGN/DESIGN_SYSTEM بتاريخ 280 · STATE.md: مرحلة 280 + صف 279R (دمج 270-273 للحفاظ على السقفين).
+
+Stage Summary:
+- السحب نظيف وموثق: الشجرة الحية = 97c07252 + تكامل انتقائي فوقها فقط؛ Ember & Ink لم يعد له أي أثر (كاناري يمنع عودته) والإنتاج رجع لحالة 278 لحظة كوميت السحب.
+- النتيجة: Alkemos نفسه بأربع لمسات premium مكتسبة من القالب كمرجع تقني فقط — صفر أقسام جديدة، صفر تغيير بنية/ترتيب/هيرو/أزرار/منطق/أسعار/مسارات، الوضعان الفاتح/الداكن متساويان، ألوان الماكرو الدلالية بأسطح التطبيق (#34c759/#0071e3/#ff9500 في meal-planner/food-detail وغيرها) لم تُمس ولم تُستبدل بأحادية — وصفات الرئيسية الأحادية (macro-track/split-seg) بقيت كما كانت بقانونها وكاناريها.
+- ملفات الفريم: src/app/globals.css · src/components/views/LandingView.tsx · src/lib/__tests__/homepage-adoption.test.ts · DESIGN.md · src/docs/DESIGN_SYSTEM.md · docs/README.md · STATE.md · worklog.md.
+- Commit: (التنفيذ — يُدفع بعد البوابات) فوق b228425d (السحب) + cd4a428e (parity السجل).
+
+---
 Task ID: VRD-V8R-2026-09-26
 Agent: Super Z (owner session)
 Task: إكمال البنود المتبقية من الخطة المعتمدة بعد موجتي V7/V8 (عرض ما بعد الهيرو/EVO/التخطيط) — عضويات/كوتشينج أكثر premium · اتساق Chrome/Silver للبطاقات · FAQ والانتقالات · معالجة المناطق template-like — بلا موجة جديدة ولا مساس بالمنطق/الهوية/الأسعار/الترتيب.

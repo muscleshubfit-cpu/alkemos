@@ -549,7 +549,7 @@ function HomeCalculator({ isAr }: { isAr: boolean }) {
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-outline px-5 py-2.5 text-sm font-medium">
                 {isAr ? "ابنِ خطتي حول هذه الأرقام" : "Build my plan around these"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
               </a>
               <a
                 href="/auth?mode=signup"
@@ -1595,12 +1595,15 @@ function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; 
 //    carousel, HOME-REFINE-270 R4). Every value is the REAL matrix
 //    data (server slice) — the card links into a real leaf page of
 //    the library (the mid 2000-kcal level of that system). ──
-function LandingDietCard({ system, levelCount, isAr }: { system: HomeDietSystemSample; levelCount: number; isAr: boolean }) {
+function LandingDietCard({ system, levelCount, isAr, index }: { system: HomeDietSystemSample; levelCount: number; isAr: boolean; index: number }) {
   // VRD-V6 — the macro split as ONE machined rail (.split-rail): the
   // SAME system.split data, now in the platform's data-viz language
   // (visual parity with the #eat macro bars) instead of a bare
   // «P/C/F» text run. Segment widths are the real ratio; the numbers
   // stay visible beneath for precision readers.
+  // TPL-REF-280 — the ghost index numeral rides above the title
+  // (template card technique re-toned to the Alkemos ghost ramp —
+  // decorative, aria-hidden, carries no rank meaning).
   const splitTotal =
     system.split.protein + system.split.carbs + system.split.fat || 1;
   const segWidth = (g: number) => `${Math.max(6, Math.round((g / splitTotal) * 100))}%`;
@@ -1609,6 +1612,9 @@ function LandingDietCard({ system, levelCount, isAr }: { system: HomeDietSystemS
       href={`${isAr ? "/ar" : ""}/diet-plan/2000/${system.slug}`}
       className="marble-card card-lift group flex w-72 shrink-0 flex-col p-5 text-start md:w-80"
     >
+      <span className="ghost-num" aria-hidden="true">
+        {String(index + 1).padStart(2, "0")}
+      </span>
       <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
         {isAr ? `النظام ${system.nameAr}` : `${system.nameEn}`}
       </h3>
@@ -1676,7 +1682,10 @@ function FoodExplorer({ samples, isAr }: { samples: HomeSamples; isAr: boolean }
               {isAr ? selected.nameAr : selected.nameEn}
             </h3>
             <p className="mt-3 flex items-baseline gap-2">
-              <span className="chrome-text text-5xl font-bold tracking-tight">
+              {/* TPL-REF-280 — display numerals: the plate's kcal figure
+                  takes the display face (Playfair) at its existing scale —
+                  the template's big-number pattern in Alkemos's type. */}
+              <span className="chrome-text font-display text-5xl font-bold tracking-tight">
                 {selected.calories.toLocaleString("en-US")}
               </span>
               <span className="text-sm font-semibold" style={{ color: PALETTE.textSec }}>
@@ -1943,7 +1952,7 @@ function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean
       <div className="mt-5 text-center">
         <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
           {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
-          <span className="rtl:rotate-180" aria-hidden="true">›</span>
+          <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
         </a>
       </div>
     </div>
@@ -2091,6 +2100,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
 
   // The dark-marble + chrome-ring card recipe (the /memberships visual
   // language — one concept, one recipe).
+  // TPL-REF-280 — featured-card depth: the template's featured pricing
+  // shadow (deep, tight, under the featured card only) re-toned to the
+  // pinned-black surface — a warm-graphite drop that reads as machined
+  // elevation in light mode and quietly grounds the card in dark.
   const darkMarbleStyle = {
     backgroundColor: "#0B0B0D",
     color: "#F5F5F7",
@@ -2099,6 +2112,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       "linear-gradient(#0B0B0D, #0B0B0D), linear-gradient(145deg, #FDFDFD 0%, #C9CED3 35%, #878E94 50%, #E6E9EC 70%, #9AA0A6 100%)",
     backgroundOrigin: "border-box",
     backgroundClip: "padding-box, border-box",
+    boxShadow: "0 24px 60px -28px rgba(11, 11, 13, 0.55)",
   } as const;
 
   return (
@@ -2218,28 +2232,28 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <>
                 <a href={memberHref} className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                   {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
-                  <span className="rtl:rotate-180">›</span>
+                  <span className="chev rtl:rotate-180">›</span>
                 </a>
                 <a
                   href={isAr ? "/ar/memberships" : "/memberships"}
                   className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
                   {isAr ? "العضويات المميزة" : "Premium memberships"}
-                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                  <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </>
             ) : (
               <>
                 <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                   {isAr ? "تسجيل الدخول / حساب جديد" : "Log in / Sign up"}
-                  <span className="rtl:rotate-180">›</span>
+                  <span className="chev rtl:rotate-180">›</span>
                 </a>
                 <a
                   href={isAr ? "/ar/memberships" : "/memberships"}
                   className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
                   {isAr ? "العضويات المميزة" : "Premium memberships"}
-                  <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                  <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </>
             )}
@@ -2257,7 +2271,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <div className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10">
           {proofStats.map((stat) => (
             <span key={stat.labelEn} className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
-              <span className="text-base font-bold tracking-tight md:text-lg">
+              {/* TPL-REF-280 — display numerals: the band's numbers take
+                  the display face (template stats pattern, in Alkemos's
+                  own Playfair) — same compact row, same chrome paint. */}
+              <span className="font-display text-lg font-semibold tracking-tight md:text-xl">
                 <CountUp value={stat.value} suffix={stat.suffix} paintClass="chrome-text" />
               </span>
               <span className="text-xs font-normal md:text-sm" style={{ color: PALETTE.textSec }}>
@@ -2454,7 +2471,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal delay={120} className="mt-8 text-center">
             <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
               {isAr ? "استكشف قاعدة الأطعمة" : "Explore the food database"}
-              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
         </div>
@@ -2501,7 +2518,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               className="btn-outline px-7 py-3 text-sm font-medium md:text-base"
             >
               {isAr ? "كل البرامج" : "All programs"}
-              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
         </div>
@@ -2530,12 +2547,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
             <CarouselShell isAr={isAr} ariaLabel={isAr ? "الأنظمة الغذائية الجاهزة" : "The ready-made diet systems"}>
-              {samples.dietSystems.map((system) => (
+              {samples.dietSystems.map((system, i) => (
                 <LandingDietCard
                   key={system.slug}
                   system={system}
                   levelCount={samples.dietLevels.length}
                   isAr={isAr}
+                  index={i}
                 />
               ))}
             </CarouselShell>
@@ -2543,7 +2561,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal delay={120} className="mt-8 text-center">
             <a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
               {isAr ? "افتح مكتبة الخطط الغذائية" : "Open the diet-plan library"}
-              <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
         </div>
@@ -2573,7 +2591,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             <div className="mt-6 text-center">
               <a href={blogHref} className="btn-outline px-6 py-2.5 text-sm font-medium">
                 {isAr ? "استكشف المحتوى" : "Explore the articles"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+                <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
               </a>
             </div>
           </div>

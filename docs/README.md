@@ -21,7 +21,7 @@
 | `README.md` | Front door + feature law surface | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: memberships feature-row sentence · row date re-derived per م-07) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: §5 .theme-img-pin-dark surface-follow rule · §7.4 memberships real feature rows · §7.4.3 tint-band frames + FAQ closer) | — |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-26 (Ph 280 — TPL-REF-280: §5 +`.chev`/`.ghost-num` recipes + §7.1.1/§7.4/§7.4.1 template-reference notes — selective visual integration on the rolled-back 278 tree) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-09-05 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |
@@ -31,9 +31,9 @@
 
 | File | Role | Status | Last updated |
 |---|---|---|---|
-| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-26 (Ph 278 — VRD-V8R: DESIGN row 278 + registry-dates re-derivation per م-07) |
+| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-26 (Ph 280 — TPL-REF-280: DESIGN/DESIGN_SYSTEM rows 280) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-20 |
-| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-26 (Ph 279R — EMBER-INK-279 rollback: file restored byte-exact to the 278 tree; row date re-derived per م-07) |
+| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-26 (Ph 280 — TPL-REF-280: +`.chev`/`.ghost-num` recipe rows + ghost-numeral note on the diet cards) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan + §12 execution log (log is append-only) | LIVE | 2026-09-16 |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE | 2026-08-25 |

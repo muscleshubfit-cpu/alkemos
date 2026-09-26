@@ -1,6 +1,7 @@
 # Alkemos — Design System Documentation
 
-> **Last updated:** 2026-09-26 (**المرحلة 278 — VRD-V8R «إكمال الخطة»**: §5 قاعدة .theme-img-pin-dark (الأيقونة تتبع السطح الداكن الدائم) + §7.4 عرض العضويات بصفات المزايا الحقيقية من memberships.ts + §7.4.3 قانون أشرطة tint المؤطرة وFAQ الختامية — تكملة عرض ما بعد الهيرو بلا مساس بالهوية أو المنطق)
+> **Last updated:** 2026-09-26 (**المرحلة 280 — TPL-REF-280 «التكامل البصري الانتقائي»**: §5 وصفات .chev و.ghost-num — تقنيات القالب المرجعي (1devtool fitness-studio) مُعاد تأليفها بلغة الرخام والكروم: قوس CTA ينزلق ٤ بكسل نحو اتجاه القراءة عند hover (مرآة RTL + سكون تحت reduced-motion) + رقم شبحي display فوق عنوان كروت الأنظمة الغذائية (ramr أحادي مشتق من --text، صفر هكسات جديدة) · §7.1.1/§7.4/§7.4.1 — أرقام العرض (شريط الإثبات + سعرة الطبق) بfont-display، وكارت بريميوم المميز يحصل على ظل عميق دافئ — القالب مرجع بصري فقط: بلا هويته ولا بنيته، والوضعان الفاتح/الداكن متساويان كما هما)
+> **Last updated (278):** 2026-09-26 (VRD-V8R «إكمال الخطة»: §5 قاعدة .theme-img-pin-dark (الأيقونة تتبع السطح الداكن الدائم) + §7.4 عرض العضويات بصفات المزايا الحقيقية من memberships.ts + §7.4.3 قانون أشرطة tint المؤطرة وFAQ الختامية — تكملة عرض ما بعد الهيرو بلا مساس بالهوية أو المنطق)
 > **Last updated (277):** 2026-09-26 (VRD-V8 «الوو البصري»: §5 وصفات V8 — تقارب المنصة في الهيرو (.platform-trio/.trio-* بتدفق SVG داخلي) + تسليم EVO إلى الخطة (.evo-handoff-*) + رفع hover للأقراص الزجاجية — و§7.1/§7.3 محدثان بقصة المنتج)
 > living-product homepage: in-page calculator + EVO demo + interactive
 > library; §7.1/§7.1.2/§7.4/§7.4.1/§7.4.2 added or updated to the new page)
@@ -230,6 +231,8 @@ prices/stat numbers.
 | `.platform-trio` / `.trio-flow` / `.trio-*` | **VRD-V8** (V8-1/V8-2; source idea: 21st.dev/MagicUI «Animated Beam» — re-authored internally, zero deps/JS) — the hero product-story diagram: three symmetric chrome streams (hardcoded SVG `Q`-curves) flow from the pillars into ONE glass node («ONE PLATFORM» / «منصة واحدة»). Static wire (`.trio-base`) always visible; the pulse is a `pathLength=100` dash (`stroke-dasharray 12 38` + `stroke-dashoffset` keyframes — two comets per stream, staggered) + breathing node halo (`trio-halo`, `transform-box: fill-box`); all motion inside `no-preference` guards. Direction-symmetric by construction — no RTL flip rule; the diagram is `aria-hidden` | Hero convergence diagram |
 | `.evo-handoff` / `-rail` / `-card` / `-chip` | **VRD-V8** (V8-3) — the EVO demo answer flows into the product outcome: a slim rail under the EVO-avatar column (logical `padding-inline-start` — mirrors in RTL) with three pulsing `--ai` dots + a static dashed drop-line, landing on a compact card holding two REAL deep-anchor chips (`#plan-workout` / `#plan-nutrition`). Cyan stays scoped INSIDE the console (AI-surface law); dots pulse under `no-preference` only | EVO console → #plan hand-off |
 | `.split-rail` / `.split-seg--*` | **VRD-V6** — the diet-card macro split as one 6px machined rail; segments = `color-mix(--text 88/58/32%)` (auto theme-inverting), widths from the real `system.split` ratio; the exact numbers stay as text beneath | Diet-plan cards |
+| `.chev` | **TPL-REF-280** — the pill-CTA chevron micro-slide: the `›` glyph nudges 4px toward the reading direction on `.btn-chrome`/`.btn-outline` hover (technique from the 1devtool fitness-studio template — reference ONLY, re-authored in-house; template is a visual reference, never the baseline). Opt-in per span; rides the individual `translate` property (composes with Tailwind's `rtl:rotate-180`); `[dir="rtl"]` mirrors; reduced-motion freezes the transition | Pill-CTA chevrons (hero pair + section browse-all CTAs) |
+| `.ghost-num` | **TPL-REF-280** — the ghost index numeral: `font-display` (Playfair/Cairo) 44px/600 in the Alkemos ghost ramp (`color-mix(--text 10%)` — zero new hexes, auto theme-inverting), in-flow above the card title (the template's numbered-card technique, re-toned monochrome). Decorative by law: aria-hidden, unselectable, no rank meaning | Diet-plan library cards |
 | `.card-hover` | 4px lift + soft shadow (300ms, reduced-motion-safe) | Food/exercise/program explorer cards |
 | `.scrollbar-thin` | Warm-graphite thin scrollbar (6px) | Long in-app lists |
 
@@ -320,6 +323,10 @@ nothing (the Freeletics/MyFitnessPal proof-under-promise pattern).
 HOME-EXPERIENCE-269: the numbers COUNT UP once when the strip enters
 the view (`.CountUp` — rAF ease-out, SSR renders the final value,
 reduced-motion stands down) — the page's first heartbeat.
+**TPL-REF-280:** the numerals ride the DISPLAY face (`font-display`
+Playfair 600, 18→20px — the reference template's display-stats
+pattern in Alkemos's own type); the row stays compact, the labels
+and chrome paint unchanged.
 
 **CTA pair (HOME-REFINE-270 R1 — the current law):** exactly TWO
 side-by-side CTAs — `.btn-chrome` «Log in / Sign up» →
@@ -433,6 +440,13 @@ one data language, zero invented claims, no prices in rows (the
 literals ban holds). Premium's rows pin the dark engraving variant
 via `.theme-img-pin-dark` (§5) so its icons follow the CARD's
 fixed-dark surface in both themes.
+**TPL-REF-280:** the Premium anchor gains the template's
+featured-pricing depth — a deep warm drop
+(`0 24px 60px -28px rgba(11,11,13,.55)` on the pinned-black surface)
+that reads as machined elevation in light and quietly grounds the
+card in dark. The Featured treatment stays monochrome (no ember
+border, no colored gradient wash — the reference's identity never
+crosses).
 **Prices derive from memberships.ts lookups — never literals** (the
 single-source law the canaries pin). A quiet refund line closes the
 section (the REAL 7-day conditional refund, refund.ts).
@@ -446,6 +460,10 @@ the real per-100g numbers — never hand-written claims) beside a grid
 of tappable food selector cards (the §11 macro-grid recipe; the
 selected card carries the ink ring + `--shadow-lift`). Selection
 swaps with `.swap-fade`; the panel CTA opens the food's detail page.
+**TPL-REF-280:** the panel's kcal figure takes the display face
+(`font-display` on the existing 48px `.chrome-text` numeral — the
+reference's big-number pattern in Alkemos's type; the macro bars and
+all real numbers unchanged).
 
 ### 7.4.2 Living-page motion + interaction layer (HOME-EXPERIENCE-269)
 
