@@ -2057,8 +2057,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
       : "No. There's a permanent free tier alongside tools that work without an account in the first place. Memberships are optional — they unlock more AI plan generations, unlimited EVO chat, full export, and an ad-free experience, for when you actually want them." },
     { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم. كل تمرين يأتي بشرح واضح وصور تُريك الأداء الصحيح، وبرامج جاهزة تبدأ من المستوى المبتدئ ويمكن تنفيذها في المنزل، وخطط الذكاء الاصطناعي تُبنى حول مستواك الحالي ومعداتك المتاحة."
       : "Yes. Every exercise comes with clear instructions and images that show proper form, the ready-made programs start at beginner level and can be done at home, and the AI planners build around your current level and the equipment you actually have." },
-    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير، وتجربة بلا إعلانات. أما الكوتشينج فيضيف مدربًا بشريًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
-      : "A membership widens what you can do inside the platform — more AI plan generations, unlimited EVO chat, export, and no ads. Online coaching adds a human coach who builds your plans personally, follows your progress weekly, and stays in direct contact with you — with all Pro features included." },
+    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات. أما التدريب الأونلاين فيضيف مدربًا شخصيًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
+      : "A membership widens what you can do inside the platform — more AI plan generations, unlimited EVO chat, full export, and an ad-free experience. Online coaching pairs you with a dedicated coach who builds your custom plans personally, reviews your progress weekly, and stays in direct contact — with all Pro features included." },
   ];
   const faqSchema = getFAQSchema(faqs);
 
@@ -2170,8 +2170,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? "منصة واحدة تجمع التدريب والتغذية والتخطيط الذكي — ومعها EVO، مدربك بالذكاء الاصطناعي. جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية."
-              : "One platform for training, nutrition, and smart planning — with EVO, your AI coach, built in. Try it right on this page, in Arabic and English."}
+              ? "منصة متكاملة تجمع تمارينك، وتغذيتك، وحساب سعراتك بدقة — ومعها EVO، مدربك بالذكاء الاصطناعي لمساعدتك وتعديل خطتك باستمرار. جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية."
+              : "The all-in-one platform for your workouts, nutrition, and exact macro targets — powered by EVO, your 24/7 AI coach. Try it right on this page, in Arabic and English."}
           </p>
 
           {/* VRD-V8 — the platform CONVERGENCE (V8-1 + V8-2): the trio
@@ -2302,8 +2302,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "سعراتك اليومية وتوزيع ماكروزك حول هدفك — بنفس معادلات المنصة، ودون أي تسجيل."
-                : "Your daily calories and macro split around your goal — the platform's own formulas, no signup."}
+                ? "احسب سعراتك اليومية وتوزيع الماكروز المثالي لهدفك بدقة — بنفس معادلات المنصة المعتمدة علمياً، ودون أي تسجيل."
+                : "Calculate your exact daily calories and macro split tailored to your goal — using the platform's own validated formulas, free with no signup."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2346,8 +2346,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 </h2>
                 <p className="mt-3 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
                   {isAr
-                    ? "يفهم هدفك، يجيب بأرقام، ثم يبني خطتك ويعدّلها بتبديلات ذكية — والفقاعة أسفل الصفحة تفتح المحادثة الحقيقية الآن."
-                    : "It understands your goal, answers with numbers, then builds and adjusts your plan with smart swaps — the bubble at the bottom of this page opens the real chat now."}
+                    ? "يفهم هدفك الرياضي، ويجيبك بأرقام وحلول عملية، ثم يبني خطتك ويعدّلها ببدائل ذكية تناسب نمط حياتك — والفقاعة أسفل الصفحة تفتح المحادثة الحقيقية الآن."
+                    : "Understands your fitness goals, delivers clear numbers, and tailors your plan with smart swaps suited to your lifestyle — the bubble at the bottom of this page opens the real chat now."}
                 </p>
                 <div className="mt-7">
                   <EvoConversation isAr={isAr} />
@@ -2434,8 +2434,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "عينة حقيقية من المكتبة — اختر مجموعة عضلية وشاهد البطاقات تتبدل أمامك، وكل تمرين بصفحته وصور الأداء الصحيح."
-                : "A real slice of the library — pick a muscle group and watch the cards swap; every exercise opens its own page with form photos."}
+                ? "عينة تفاعلية من المكتبة — اختر مجموعة عضلية واستكشف التمارين الموجهة المشروحة بصور الأداء الصحيح لتفادي الإصابات."
+                : "An interactive slice of the library — pick a muscle group to explore targeted exercises with proper form photos and technique cues."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2460,8 +2460,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام — اختر صنفًا من القاعدة وشاهد أرقامه تتحرك."
-                : "Calories, protein, carbs, and fat for every 100 g — pick a food from the database and watch its numbers move."}
+                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام تشمل المطبخ العربي والعالمي — اختر صنفًا من القاعدة وشاهد أرقامه تتحرك."
+                : "Accurate calories, protein, carbs, and fat for every 100 g across regional and global staples — pick a food and watch its numbers move."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2496,8 +2496,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "برامج جاهزة بجدول وتمارين ومجموعات وتكرارات — اتبعها كما هي، أو اجعلها نقطة انطلاق وعدّلها بحسب وقتك ومعداتك."
-                : "Ready-made programs with a schedule, exercises, sets, and reps — follow one as-is, or make it your starting point and adapt it to your time and equipment."}
+                ? "برامج تدريبية متكاملة بالجداول والتمارين والمجموعات والتكرارات — اتبعها كما هي، أو اجعلها نقطة انطلاق وعدّلها بحسب وقتك ومعداتك."
+                : "Structured workout routines with schedules, exercises, sets, and reps — follow one as-is, or make it your starting point and adapt it to your gear."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2541,8 +2541,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "أنظمة جاهزة بالغرامات والسعرات لكل صنف، من مطبخ عربي مألوف — من 1200 إلى 3000 سعرة."
-                : "Ready-made systems with grams and calories per food, from a familiar Arabic kitchen — from 1200 to 3000 kcal."}
+                ? "أنظمة غذائية متوازنة بالغرامات والسعرات لكل صنف، من مطبخ عربي مألوف بمكونات يومية — من 1200 إلى 3000 سعرة."
+                : "Balanced diet plans with exact grams and calories per food, from real-world kitchens — from 1,200 to 3,000 kcal."}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2624,8 +2624,8 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "المستوى المجاني دائم — والترقية حين تحتاج سعة أكبر ومزايا أوسع."
-                : "The free tier is permanent — upgrade when you need more room and wider features."}
+                ? "المستوى المجاني دائم لكافة الأدوات — والترقية اختيارية حين ترغب في سعات أوسع ومزايا متقدمة."
+                : "The free tier is permanent for all core tools — upgrade only when you need higher allowances and advanced features."}
             </p>
           </Reveal>
 
@@ -2737,12 +2737,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
                 <div>
                   <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "التدريب الأونلاين (الكوتشينج)" : "Online Coaching"}
+                    {isAr ? "التدريب الأونلاين الشخصي" : "1-on-1 Online Coaching"}
                   </h3>
                   <p className="mt-2 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
                     {isAr
-                      ? "مدرب بشري يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، ويبقى على تواصل مباشر معك — ويشمل كل مزايا برو."
-                      : "A human coach builds your plans personally, follows your progress weekly, and stays in direct contact — all Pro features included."}
+                      ? "مدرب شخصي معتمد يصمم خطتك التدريبية والغذائية، ويتابع تقدمك أسبوعياً، مع تواصل مباشر ومستمر — شاملاً جميع مزايا باقة برو."
+                      : "A dedicated certified coach builds your training and nutrition plans, tracks your weekly progress, and stays in direct contact — with all Pro features included."}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-start gap-3 md:items-end">
