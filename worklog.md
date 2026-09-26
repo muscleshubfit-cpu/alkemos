@@ -29,7 +29,9 @@ Stage Summary:
 - القالب منقول كأساس فعلي: الرموز والوصفات والخطوط وبنية الأقسام والأجواء (glow/noise/marquee) هي لغة landing-fitness-studio حرفيًا فوق بنية Alkemos — لا نظام مصمم يدويًا ولا تبعية جديدة (صفر حزم، صفر Framer/JS حركة؛ كل الحركات CSS محروس prefers-reduced-motion).
 - كل الوظائف محفوظة: نفس المسارات ونقاط API (workout-plan-demo/meal-plan-demo/saveGuestPlan/openEvoFloatingChat) ونفس مصادر الأسعار والأعداد ونفس قوانين الزرين/surface الAI/needsPosts · Supabase/EVO/PWA/SEO لم يُمسّا (manifest وthemeColor فقط لونا).
 - الملفات: src/components/root-shell.tsx · src/app/globals.css · src/components/views/LandingView.tsx · src/components/SiteFooter.tsx · src/app/metadata.ts · public/manifest.json · (en)/(ar) home layouts · src/styles/design-tokens.ts · src/docs/DESIGN_SYSTEM.md · DESIGN.md · README.md · docs/README.md · STATE.md · worklog.md · الكاناريان (homepage-adoption/rtl-typography).
-- الكاناري يعكس القالب الآن (33+9) والبوابات الأربع خضراء محليًا؛ الفريم جاهز للدفع.
+- الكاناري يعكس القالب الآن (33+9) والبوابات خضراء محليًا.
+- (الدفع) Commit: 69cc31fb (الكود+التوثيق) → فشلت parity وحدها على CI (صف DESIGN_SYSTEM أعلاه) → فريم المتابعة b4f24bc2 (صفوف السجل) — **CI 4/4 خضراء عليه: quality (tsc/eslint/vitest 1708) · parity · guard · cleanup**.
+- (التحقق الحي بعد الدفع — b4f24bc2): **الإنتاج alkemos.com يخدم القالب**: HTML الرئيسية تحمل hero-glow + ember-panel + glow-ember + hero-row×3 + tpl-marquee + dot-pulse + «Start free/Decide later/LIVE NOW» و/ar كاملة بالعربية («منصة واحدة — جرّبها في الصفحة») · CSS المقدَّم يحمل التوكنات (--ember:#ff4d26/--ink:#08080a/--acid:#d7ff4d) ووصفات tpl-marquee (بالعكس RTL) وember-panel/glow-ember/pulse-dot وستاك var(--font-sora) — لم يلزم deployment-trigger (النشر سجّل على كوميت التنفيذ 69cc31fb).
 
 ---
 Task ID: VRD-V8R-2026-09-26
