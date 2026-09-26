@@ -48,18 +48,18 @@ function baseLayerBlock(css: string): string {
 }
 
 describe("VRD-V0 — RTL typography canaries (audit C-1/C-2/C-3)", () => {
-  it("leg 1 — Cairo sits inside the --font-display stack, after Sora", () => {
+  it("leg 1 — Cairo sits inside the --font-display stack, after Playfair", () => {
     const css = readFileSync(CSS, "utf8");
     const m = css.match(/--font-display:\s*([^;]+);/);
     expect(m, "--font-display token not found").toBeTruthy();
     const stack = m![1];
-    expect(stack).toContain("var(--font-sora)");
+    expect(stack).toContain("var(--font-playfair)");
     expect(stack).toContain("var(--font-cairo)");
     expect(
       stack.indexOf("var(--font-cairo)"),
-      "Cairo must come after Sora but before Outfit, so Arabic glyphs never fall through to a Latin-only face",
-    ).toBeGreaterThan(stack.indexOf("var(--font-sora)"));
-    expect(stack.indexOf("var(--font-cairo)")).toBeLessThan(stack.indexOf("var(--font-outfit)"));
+      "Cairo must come after Playfair but before Inter, so Arabic glyphs never fall through to a Latin-only face",
+    ).toBeGreaterThan(stack.indexOf("var(--font-playfair)"));
+    expect(stack.indexOf("var(--font-cairo)")).toBeLessThan(stack.indexOf("var(--font-inter)"));
   });
 
   it("leg 2 — the RTL heading rules live OUTSIDE @layer base (unlayered beats utilities)", () => {
@@ -94,8 +94,9 @@ describe("VRD-V0 — RTL typography canaries (audit C-1/C-2/C-3)", () => {
     const m = src.match(/<h1 className="([^"]*)"/);
     expect(m, "hero h1 not found").toBeTruthy();
     const cls = m![1];
-    // EN stays exactly as designed (tight tracking/leading for Sora)…
+    // EN stays exactly as designed (tight tracking/leading for Playfair)…
     expect(cls).toContain("tracking-tight");
+    expect(cls).toContain("leading-tight");
     // …while Arabic gets explicit non-negative counterparts at the
     // utility layer (belt and braces with legs 1-2).
     expect(cls).toContain("rtl:tracking-normal");
@@ -137,13 +138,14 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     }
   });
 
-  it("the FAQ rows carry the template's open-state ember treatment", () => {
+  it("the FAQ rows gained a full-row hover + bigger higher-contrast chevron", () => {
     const src = readFileSync(LANDING, "utf8");
-    // TPL-BASE: the FAQ is the template's native details/summary pattern
-    // (rounded-3xl hairline card, + badge rotating to ember on open).
-    expect(src).toContain("group-open:rotate-45");
-    expect(src).toContain("group-open:border-[var(--ember)]");
-    expect(src).toContain("group-open:text-[var(--ember-text)]");
+    const m = src.match(/<AccordionTrigger className="([^"]*)"/);
+    expect(m, "FAQ AccordionTrigger not found").toBeTruthy();
+    const cls = m![1];
+    expect(cls).toContain("hover:bg-[var(--bg)]");
+    expect(cls).toContain("[&>svg]:size-5");
+    expect(cls).toContain("[&>svg]:text-[var(--muted-2)]");
   });
 
   it("viewport themeColor is the two-value theme pair, not Apple blue", () => {
@@ -151,11 +153,11 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     const block = src.slice(src.indexOf("export const viewport"));
     expect(block).not.toContain('"#0071e3"');
     expect(block).toContain('(prefers-color-scheme: light)');
-    // TPL-BASE re-pin — the pair tracks the LIVE --bg tokens (the
-    // template's cream / ink).
-    expect(block).toContain('"#f7f3ec"');
+    // VRD-V1 re-pin (canary law §21.3 — same commit as the token change):
+    // the pair tracks the LIVE --bg tokens — warm ivory / warm graphite.
+    expect(block).toContain('"#FAF8F5"');
     expect(block).toContain('(prefers-color-scheme: dark)');
-    expect(block).toContain('"#08080a"');
+    expect(block).toContain('"#12100E"');
     expect(block).not.toContain('"#FFFFFF"');
     expect(block).not.toContain('"#0B0B0D"');
   });

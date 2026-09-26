@@ -121,29 +121,27 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain("Log in / Sign up");
     expect(src).toContain("العضويات المميزة");
     expect(src).toContain("Premium memberships");
-    // TPL-BASE: the two-button pair rides the template's pill sizes
-    // (px-6/py-3.5 primary, px-5/py-3.5 secondary).
-    expect(src).toContain('className="btn-chrome px-6 py-3.5 text-sm md:text-base"');
-    expect(src).toContain('className="btn-outline px-5 py-3.5 text-sm font-medium md:text-base"');
-    // The quiet standalone login link stays dead (one signup button
-    // covers both actions — the auth page carries the toggle).
+    // BOTH hero CTAs keep the VRD-V3 stacking classes (full-width on
+    // touch, auto on md+).
+    expect(src).toContain('className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base"');
+    expect(src).toContain('className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"');
+    // The retired hero extras stay dead: the #start secondary CTA and
+    // the quiet standalone login link.
+    expect(src).not.toContain('href="#start"');
     expect(src).not.toContain("/auth?mode=login");
-    // The hero H1 + subtitle pairs (native anchors; the H1 accent word
-    // rides the template's ember span).
-    expect(src).toContain("تدرّب بذكاء.");
-    expect(src).toContain("وتغذَّ");
-    expect(src).toContain("Train smarter.");
-    expect(src).toContain("Eat with");
+    // The hero H1 + subtitle pairs (native anchors).
+    expect(src).toContain("تدرّب بذكاء. وتغذَّ بدقة.");
+    expect(src).toContain("Train smarter. Eat with precision.");
     expect(src).toContain("جرّبها الآن في هذه الصفحة");
     expect(src).toContain("Try it right on this page");
   });
 
-  // (3) THE PROOF STATS — TPL-BASE: the template's hero 3-stat row
-  //     (grid-cols-3, border-t, display numerals) carrying the verified
-  //     platform counts with the count-up beat preserved.
-  it("the hero stats row renders auditable numbers with count-up preserved", () => {
+  // (3) THE PROOF STRIP — one compact row (R2): the four auditable
+  //     numbers, small type, numbers + labels inline, count-up alive.
+  it("the proof strip is one compact row of auditable numbers (count-up preserved)", () => {
     const src = readFileSync(LANDING, "utf8");
-    expect(src).toContain("proofStats.slice(0, 3)");
+    expect(src).toContain('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
+    expect(src).toContain("proofStats");
     expect(src).toContain("<CountUp");
     // The dynamic count constants (library-counts law).
     expect(src).toContain("EX_PLUS");
@@ -151,8 +149,10 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain("TOOLS_COUNT");
     // The SSR-honest fallback (no-JS users see the truth).
     expect(src).toContain("const shown = display ?? value;");
-    // The template's stat row recipe (grid-cols-3 + top hairline).
-    expect(src).toContain("mt-12 grid grid-cols-3 gap-6 border-t border-[color-mix(in_srgb,var(--text)_10%,transparent)] pt-8");
+    // The compact one-row classes (R2: numbers + labels inline).
+    expect(src).toContain("flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10");
+    // The retired BIG-stat markup stays dead (no icon-tile stat grid).
+    expect(src).not.toContain("grid max-w-5xl grid-cols-2 gap-y-8 md:grid-cols-4");
   });
 
   // (4) THE CALCULATOR SECTION (#start) — the app's own math, never
@@ -190,13 +190,9 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src, "the EVO section is missing").toContain('id="evo"');
     expect(src).toContain("openEvoFloatingChat");
-    // TPL-BASE: the section is the template's ember split-feature —
-    // the headline pair + the metric tiles carry the real fair-use
-    // numbers, and the demo conversation follows in its own card.
-    expect(src).toContain("EVO يجيب بأرقام، ويبني خطتك حول بياناتك.");
-    expect(src).toContain("EVO answers with numbers, and builds your plan around your data.");
-    expect(src).toContain("bg-gradient-to-br from-[#ff4d26] via-[#ff6d3d] to-[#ff9353]");
-    expect(src).toContain('v: "10"');
+    // The section headline pair.
+    expect(src).toContain("تحدّث مع EVO — بالعربية أو الإنجليزية.");
+    expect(src).toContain("Talk to EVO — in Arabic or English.");
     // The demo is HONEST: labeled illustrative, and its CTA opens
     // the floating widget (the chat-surface law).
     expect(src).toContain("نموذج توضيحي لمحادثة");
@@ -214,9 +210,9 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).not.toContain("SMART PLANNING + EVO");
     expect(src).not.toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
     expect(src).not.toContain("A plan built around you — and a coach who keeps it moving.");
-    // TPL-BASE: the retired warrior-art cutout stays retired (the
-    // template's ember gradient panel owns the section's visual).
-    expect(src).not.toContain("evo-art-mask");
+    // The warrior-art recipe stays (the Phase 127 owner artwork).
+    expect(src).toContain("evo-art-mask");
+    expect(src).toContain("evo-hero-light.webp");
   });
 
   // (6) THE SMART-PLANNING SECTION (#plan) — REAL generation like the
@@ -322,10 +318,11 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "Pick a muscle group",
       "استكشف مكتبة التمارين كاملة",
       "Explore the full exercise library",
-      // TPL-BASE: the programs section is the template's 4-card grid
-      // (3 real programs + the AI-builder slot) + its browse-all CTA.
-      "برامج جاهزة لكل مستوى وهدف.",
-      "Ready-made cycles for every level and goal.",
+      // The ready-made programs carousel (271 F1) + its ONE focused
+      // browse-all CTA (the AI-builder CTA retired 2026-09-24 — the
+      // smart-planning builders in #plan own that job)
+      "برامج التمارين الجاهزة",
+      "Ready-made training programs",
       "كل البرامج",
       "All programs",
       // The Eat section (the interactive plate) + section CTA
@@ -339,7 +336,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       'href={isAr ? "/ar/diet-plan" : "/diet-plan"}',
       // The blog section (simple title) + CTA
       "أحدث المقالات",
-      "Latest articles",
+      "Latest Articles",
       "استكشف المحتوى",
       "Explore the articles",
       // The memberships + coaching endpoints
@@ -354,23 +351,24 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "samples.foods",
       "samples.programs",
       "samples.dietSystems",
-      // TPL-BASE: the memberships section is the template's pricing
-      // card trio — real feature rows (memberships.ts limits), the
-      // featured Premium treatment, and the coaching band after.
+      // VRD-V8R: the memberships section gains the page's eyebrow
+      // rhythm naming the WHOLE services act, and the three cards read
+      // REAL feature rows (memberships.ts limits — the checkseal mark
+      // the /memberships lists render; zero invented claims).
+      "العضويات والكوتشينج",
+      "MEMBERSHIPS & COACHING",
       "توليدان شهريًا للخطط الذكية",
       "2 AI plans a month",
       "كل مزايا المستوى المجاني",
       "Everything in the Free tier",
       "تجربة بلا إعلانات",
       "Ad-free experience",
-      "الأكثر شعبية",
-      "Most popular",
-      // TPL-BASE: the FAQ closer is the template's native
-      // details/summary accordion (the open state rotates the + badge
-      // to ember).
-      "الأسئلة",
-      "Questions",
-      "group-open:rotate-45",
+      "theme-img-pin-dark",
+      // VRD-V8R: the FAQ closer gains the eyebrow + a finished
+      // marble-card surface (the pinned AccordionTrigger classes stay).
+      "الأسئلة الشائعة",
+      "COMMON QUESTIONS",
+      'className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"',
     ]) {
       expect(src, `content entry point missing: ${required}`).toContain(required);
     }
@@ -427,36 +425,37 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).not.toContain("posts={[...featuredPosts, ...latestPosts]");
   });
 
-  // (9) TPL-BASE section ORDER: the template's arc — hero → marquee →
-  //     programs grid → EVO ember feature → the interactive product
-  //     sections (calculator → planners → library → eat → diet →
-  //     learn) → coaches → memberships → faq → CTA.
-  it("the sections render in the template order", () => {
+  // (9) The section ORDER: calculator → EVO → plan → library → eat →
+  //     train → diet → learn → memberships → faq (the corrected arc —
+  //     the interactive library sits right after the planners, and
+  //     the programs carousel joins the diet carousel right before
+  //     the blog).
+  it("the sections render in the corrected order", () => {
     const src = readFileSync(LANDING, "utf8");
     const order = [
-      'id="train"',
-      'id="evo"',
       'id="start"',
+      'id="evo"',
       'id="plan"',
       'id="library"',
       'id="eat"',
+      'id="train"',
       'id="diet"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
-      expect(order[i], `section ${i} out of the template order`).toBeGreaterThan(order[i - 1]);
+      expect(order[i], `section ${i} out of the corrected order`).toBeGreaterThan(order[i - 1]);
     }
-    // The hero stats row sits inside the hero (before the programs
-    // section — proof directly under the promise).
-    const statsAt = src.indexOf("mt-12 grid grid-cols-3 gap-6 border-t");
-    expect(statsAt).toBeGreaterThan(-1);
-    expect(statsAt).toBeLessThan(order[0]);
-    // The marquee strip sits between the hero and the programs grid.
-    const marqueeAt = src.indexOf("animate-marquee-tpl");
-    expect(marqueeAt).toBeGreaterThan(statsAt);
-    expect(marqueeAt).toBeLessThan(order[0]);
+    // The proof strip sits between the hero and the calculator
+    // (proof directly under the promise).
+    const proofAt = src.indexOf('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
+    expect(proofAt).toBeGreaterThan(-1);
+    expect(proofAt).toBeLessThan(order[0]);
+    // The programs + diet carousels sit right before the blog (the
+    // owner's placement directive — 271 F1 corrected the pair).
+    expect(order[5]).toBeLessThan(order[7]);
+    expect(order[6]).toBeLessThan(order[7]);
   });
 });
 
@@ -519,10 +518,9 @@ describe("HOME-REFINE-271 — header/footer contract", () => {
     expect(src).not.toContain("مجتمع اللياقة العربي");
     expect(src).not.toContain("Paid Services");
     expect(src).not.toContain("الخدمات المدفوعة");
-    // TPL-BASE: the §12 link ramp stays 13px; the column headings
-    // ride the template's uppercase tracking-[0.18em] kicker.
+    // The §12 type ramp stays (13px links / 11px headings).
     expect(src).toContain("text-[13px] leading-7");
-    expect(src).toContain("text-xs font-semibold uppercase tracking-[0.18em]");
+    expect(src).toContain("text-[11px] font-semibold");
   });
 
   // (12) HREF-ONCE LAW (the flat footer): every locale-aware footer
@@ -588,37 +586,29 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
   // AI-builder button was retired; the blog CTA keeps the quiet
   // px-6 py-2.5 recipe, and exactly ONE filled px-6 py-2.5 CTA
   // remains: the coaching card.)
-  it("memberships CTAs: the coaching card keeps the filled pill; the pricing cards ride the template's own CTA pair", () => {
+  it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card", () => {
     const src = readFileSync(LANDING, "utf8");
-    // The coaching band keeps its filled chrome pill.
     expect(src).toContain(': "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
+    expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(1);
     // The unified browse-all section-CTA recipe (48px touch floor):
-    // #train, #eat, #diet + the library browser — four single-CTA
-    // sections.
+    // #library, #eat, #train, #diet — four single-CTA sections.
     expect(src.match(/className="btn-outline px-7 py-3 text-sm font-medium md:text-base"/g)?.length).toBeGreaterThanOrEqual(4);
-    // TPL-BASE: the featured Premium card carries the template's ember
-    // gradient CTA; the quiet cards carry the outline pill that
-    // fills on hover (the template's own pricing recipe).
-    expect(src).toContain("bg-gradient-to-r from-[#ff4d26] to-[#ff9353] px-5 py-3 text-sm font-semibold text-[#1a0e0a]");
-    expect(src).toContain("hover:border-[var(--text)] hover:bg-[var(--text)] hover:text-[var(--bg)]");
   });
 
-  // TPL-BASE hover law: interactive cards deepen their hairline on
-  // hover (the template's hover:border-white/30), themed via --text
-  // mixes; the paid-ad coach strip keeps the .card-lift recipe.
-  it("unified card hover: hairline deepen on the interactive card families", () => {
+  // The unified hover law: every INTERACTIVE homepage card family
+  // rides the .card-lift recipe — HOME-REFINE-270: EIGHT families
+  // (exercise, food, program, blog, coach, free-card, pro-card, diet).
+  it("unified card hover: card-lift on all eight interactive card families; recipe + reduced-motion guard in css", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
-    // The featured-coaches ad strip keeps card-lift.
-    expect(src).toContain("marble-card card-lift");
-    // The template hover recipes ride the view: the 30% deepen (programs
-    // grid) and the 25% deepen (coaches + pricing cards).
-    expect(src).toContain("hover:border-[color-mix(in_srgb,var(--text)_30%,transparent)]");
-    expect(src).toContain("hover:border-[color-mix(in_srgb,var(--text)_25%,transparent)]");
+    expect(src.match(/marble-card card-lift/g)?.length).toBe(8);
     for (const required of [
-      ".marble-card.card-lift {",
       ".marble-card.card-lift:hover {",
-      "border-color: color-mix(in srgb, var(--text) 30%, transparent)",
+      "transform: translateY(-2px)",
+      "var(--shadow-lift), var(--card-inner-hl)",
+      "border-color: color-mix(in srgb, var(--text) 22%, transparent)",
+      ".marble-card.card-lift:hover { transform: none; }",
+      "--shadow-lift:",
     ]) {
       expect(css, `card-lift recipe missing: ${required}`).toContain(required);
     }
@@ -635,18 +625,20 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     expect(src).toContain('className="block font-semibold" style={{ color: PALETTE.textPrim }}');
   });
 
-  // TPL-BASE — the template's section rhythm: one ground color with
-  // hairline border-t separators (border-white/5 themed), the ember
-  // feature panel and the CTA closing the page without borders.
-  it("section transitions: the template's hairline separators on the shared ground", () => {
+  // VRD-V8R — the tint bands carry the proof strip's machined edge
+  // language: framed tint bands (evo/library/train) ride border-y,
+  // meander-adjacent bands (learn/faq) ride border-t.
+  it("section transitions: tint bands carry the hairline frame", () => {
     const src = readFileSync(LANDING, "utf8");
-    // The template section shell: max-w-7xl px-6 py-24.
-    expect(src.match(/mx-auto max-w-7xl px-6 py-24/g)?.length).toBeGreaterThanOrEqual(10);
-    // The hairline separators (5% --text mix = the template's
-    // border-white/5) ride the between sections.
-    expect(
-      src.match(/border-t border-\[color-mix\(in_srgb,var\(--text\)_5%,transparent\)\]/g)?.length ?? 0,
-    ).toBeGreaterThanOrEqual(8);
+    for (const required of [
+      'id="evo" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="library" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="train" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="learn" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="faq" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+    ]) {
+      expect(src, `tint-band frame missing: ${required.slice(0, 60)}`).toContain(required);
+    }
   });
 
   // VRD-V8R — the pinned-dark icon pair for the ALWAYS-dark Premium
@@ -856,10 +848,8 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     expect(reduced.join("\n")).toContain(".chev { transition: none; }");
     // Opt-in scope: every .chev span in the view is a pill-CTA chevron
-    // (the evo-handoff chips are excluded by design). TPL-BASE count:
-    // hero pair (4 branches), quick-start card, programs, EVO panel,
-    // #eat, #diet, #learn, coaching + the library browser's own.
-    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(13);
+    // (the evo-handoff chips are excluded by design).
+    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
     expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
   });
 
@@ -880,48 +870,32 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     expect(css).not.toContain("text-white/10");
   });
 
-  it("(3) featured Premium card: the template's featured-pricing treatment ships verbatim", () => {
-    // TPL-BASE: the featured card is the template's own recipe — ember
-    // border, ember-soft fill, the deep ember drop, and the chip.
-    expect(src).toContain("border-[var(--ember)]");
-    expect(src).toContain("from-[var(--ember-soft)]");
-    expect(src).toContain("shadow-[0_30px_80px_-40px_rgba(255,77,38,0.5)]");
-    expect(src).toContain("bg-[var(--ember)] px-3 py-1 text-[10px] font-bold");
+  it("(3) featured Premium card: the template's featured-pricing depth, re-toned warm", () => {
+    expect(src).toContain('boxShadow: "0 24px 60px -28px rgba(11, 11, 13, 0.55)"');
+    // The ember featured treatments never cross over.
+    expect(src).not.toContain("#ff4d26");
+    expect(src).not.toContain("#ff9353");
+    expect(src).not.toContain("#d7ff4d");
   });
 
-  it("(4) display numerals: the hero stats + the pricing prices ride the display face", () => {
-    // TPL-BASE: the template's stat numerals (font-display bold) and
-    // the 5xl pricing price.
-    expect(src).toContain('className="font-display text-2xl font-bold text-[var(--text)] md:text-3xl"');
-    expect(src).toContain('className="font-display text-5xl font-bold"');
+  it("(4) display numerals: proof band + plate kcal ride the display face", () => {
+    expect(src).toContain('className="font-display text-lg font-semibold tracking-tight md:text-xl"');
+    expect(src).toContain('className="chrome-text font-display text-5xl font-bold tracking-tight"');
   });
 
-  it("identity contract: the template identity ships (Sora/Outfit fonts + the Ember & Ink tokens), light + dark stay equal citizens", () => {
-    // TPL-BASE (owner directive 2026-09-26): the landing-fitness-studio
-    // template is the EXACT visual foundation — its identity ships.
-    const shell = readFileSync("src/components/root-shell.tsx", "utf8");
-    // The template's fonts load via next/font and wire the stacks.
-    expect(shell).toContain("Sora");
-    expect(shell).toContain("Outfit");
-    expect(css).toContain("--color-ember: #ff4d26");
-    expect(css).toContain("--color-ember-2: #ff9353");
-    expect(css).toContain("--color-acid: #d7ff4d");
-    expect(css).toContain("--color-ink: #08080a");
-    expect(css).toContain("--color-cream: #f7f3ec");
-    // The template's own effects ship (marquee / glow / noise / dot).
-    expect(css).toContain(".animate-marquee-tpl");
-    expect(css).toContain(".glow-ember");
-    expect(css).toContain(".noise");
-    expect(css).toContain(".dot-pulse");
-    // The view speaks the template's tokens.
-    expect(src).toContain("var(--ember)");
-    expect(src).toContain("var(--ember-text)");
+  it("scope fence: the template identity never ships (Ember & Ink / Sora / Outfit / tpl- prefixes)", () => {
+    // Guards assert shipped DECLARATIONS, not comment narration (the
+    // provenance comments quote the retired names by law — AGENTS.md
+    // §8: comments may narrate history, code may not reference it).
+    expect(css).not.toMatch(/font-family:[^;\n]*Sora/);
+    expect(css).not.toMatch(/font-family:[^;\n]*Outfit/);
+    expect(css).not.toMatch(/\.tpl-/);
+    expect(css).not.toMatch(/--ember[^-]/);
+    expect(css).not.toContain("#FF4D26");
+    expect(src).not.toMatch(/font-family:[^;\n"]*Sora/);
     // Light + dark stay equal citizens: both theme blocks still author
     // the full token set (the mode-invariant shim never returns).
     expect(css).toContain('[data-theme="dark"] {');
     expect(css.match(/--muted-2:/g)?.length).toBe(2);
-    // The dark values are the template's own ink/cream pair.
-    expect(css).toContain("--bg: #08080a;");
-    expect(css).toContain("--text: #f7f3ec;");
   });
 });

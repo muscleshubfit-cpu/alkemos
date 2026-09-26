@@ -1,5 +1,5 @@
 import Script from "next/script";
-import { Sora, Outfit, Cairo } from "next/font/google";
+import { Inter, Playfair_Display, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -42,16 +42,16 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
  * instantly from cache). Inter/Playfair stay swap — Latin fallbacks here
  * are metric-adjusted by next/font itself and their swap never measably
  * shifted layout (Phase 136 evidence). */
-const sora = Sora({
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-sora",
+  variable: "--font-inter",
   preload: true,
 });
-const outfit = Outfit({
+const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-outfit",
+  variable: "--font-playfair",
   preload: true,
 });
 const cairo = Cairo({
@@ -135,7 +135,7 @@ export default function RootShell({
     <html
       lang={lang}
       dir={dir}
-      className={`${sora.variable} ${outfit.variable} ${cairo.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${cairo.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -180,7 +180,7 @@ export default function RootShell({
         <script
           id="alkemos-theme-init"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('alkemos-theme');var d=m==='dark'||m==='light'?m:(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',d);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`,
+            __html: `(function(){try{var m=localStorage.getItem('alkemos-theme');var d=m==='dark'||m==='light'?m:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',d);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`,
           }}
         />
         <a href="#main-content-skip" className="sr-only-focusable">

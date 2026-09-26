@@ -126,12 +126,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // TPL-BASE (2026-09-26): two-value format tracking the REAL theme
-  // surfaces — light --bg cream #f7f3ec, dark --bg ink #08080a
-  // (the landing-fitness-studio template's own tokens).
+  // VRD-V0 (audit C-4): the legacy Apple-blue #0071e3 clashed with the
+  // Marble & Chrome identity (zero-blue law). VRD-V1 (owner direction
+  // 2026-09-23 «تحسين الهوية الحالية دون تغييرها»): two-value format
+  // tracking the REAL theme surfaces — light --bg warm ivory #FAF8F5,
+  // dark --bg warm graphite #12100E (globals.css VRD-V1 tokens).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f3ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#08080a" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F5" },
+    { media: "(prefers-color-scheme: dark)", color: "#12100E" },
   ],
   width: "device-width",
   initialScale: 1,

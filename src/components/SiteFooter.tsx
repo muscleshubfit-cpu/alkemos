@@ -59,38 +59,35 @@ export function SiteFooter() {
   const isAr = lang === "ar";
 
   return (
-    <footer className="footer-marble relative mt-auto px-6 pb-8 pt-14 text-[var(--muted-foreground)]">
+    <footer className="footer-marble relative mt-auto px-4 pb-8 pt-10 text-[var(--muted-foreground)]">
       {/* mt-auto: inside the flex-col min-h-screen page shells (static
           pages, blog, contact, compare) the footer sticks to the bottom
           when content is short; inside plain block containers (homepage,
           tools) auto margins are zero — zero visual difference. */}
-      {/* TPL-BASE: the template's footer — one top hairline (footer-marble),
-          max-w-7xl, the brand lockup with the ember logo chip, uppercase
-          tracking-[0.18em] column labels, and the bottom © bar. Every link
-          keeps its exact href (access-point law). */}
-      <div className="mx-auto max-w-7xl">
-        {/* THE FLAT SERVICE MAP — one organized grid at every breakpoint,
-            every list fully displayed. 2 columns on touch · 3 from md ·
-            6 (brand + the five services) from lg. */}
+      {/* Meander divider on the top edge (mission §14) */}
+      <div className="footer-meander-top absolute inset-x-0 top-0" aria-hidden="true" />
+      <div className="mx-auto max-w-6xl">
+        {/* THE FLAT SERVICE MAP — HOME-REFINE-270: one organized grid at
+            every breakpoint, every list fully displayed (no disclosure
+            groups, no duplicated mobile/desktop copies). 2 columns on
+            touch · 3 from md · 6 (brand + the five services) from lg. */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
-          {/* Brand — the template's lockup: ember logo chip + wordmark +
-              tagline + the owned-profile social row. */}
+          {/* Brand — theme-aware lockup (Phase 132): the black footer
+              lockup on the light band / the white one on the dark band
+              (VRD-V1: the marble slab became a clean structural band —
+              tint/hairline light, deeper step dark), rendered as a
+              ThemeImg pair so CSS swaps it with zero hydration flicker.
+              Full-width row below lg; first column of the grid at lg. */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
-            <span className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-[var(--text)] rtl:tracking-normal">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#ff4d26] to-[#ff9353]">
-                <ThemeImg
-                  light="/images/brand/mark-helmet-light.png"
-                  dark="/images/brand/mark-helmet-dark.png"
-                  alt=""
-                  width={128}
-                  height={128}
-                  eager
-                  className="h-6 w-6 object-contain"
-                />
-              </span>
-              Alkemos
-            </span>
-            <p className="mt-4 max-w-xs text-sm">{isAr ? "اصنع قوّتك الأسطورية." : "Forge Your Legendary Strength."}</p>
+            <ThemeImg
+              light="/images/brand/logo-footer-black.png"
+              dark="/images/brand/logo-footer-white.png"
+              alt="Alkemos"
+              width={140}
+              height={110}
+              className="h-10 w-auto object-contain"
+            />
+            <p className="mt-3 text-xs font-normal">{isAr ? "اصنع قوّتك الأسطورية." : "Forge Your Legendary Strength."}</p>
             <p className="mt-3 text-[10px] font-normal text-[var(--muted-foreground)]">{isAr ? `© ${new Date().getFullYear()} جميع الحقوق محفوظة` : `© ${new Date().getFullYear()} All rights reserved`}</p>
             {/* Phase SEO-GEO-4.6 (2026-09-09): owned-profile icon row — the
                 human counterpart of Organization.sameAs (src/lib/social.ts).
@@ -118,9 +115,11 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* List 1: TRAINING (trimmed to the two primary entry points). */}
+          {/* List 1: TRAINING (HOME-REFINE-271: trimmed to the two primary
+              entry points — the muscle/equipment hub families live in the
+              header's Training nav, one tap away). */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--text)_40%,transparent)] rtl:tracking-normal">{isAr ? "التدريب" : "Training"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب" : "Training"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/exercises" : "/exercises"} className="block py-1 hover:underline">{isAr ? "مكتبة التمارين" : "Exercises"}</a></li>
               <li><a href={isAr ? "/ar/programs" : "/programs"} className="block py-1 hover:underline">{isAr ? "برامج التدريب" : "Programs"}</a></li>
@@ -131,7 +130,7 @@ export function SiteFooter() {
               planner and the food collections live in the header's
               Nutrition nav). */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--text)_40%,transparent)] rtl:tracking-normal">{isAr ? "التغذية" : "Nutrition"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التغذية" : "Nutrition"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/foods" : "/foods"} className="block py-1 hover:underline">{isAr ? "مكتبة الأطعمة" : "Foods"}</a></li>
               {/* §12.27: the diet-plan matrix entry. */}
@@ -144,7 +143,7 @@ export function SiteFooter() {
               nav carries each tool directly; the two AI planners stay
               as the flagship services). */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--text)_40%,transparent)] rtl:tracking-normal">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الأدوات والذكاء الاصطناعي" : "Tools & AI"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/tools" : "/tools"} className="block py-1 hover:underline">{isAr ? "كل الأدوات المجانية" : "All Free Tools"}</a></li>
               <li><a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="block py-1 hover:underline">{isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}</a></li>
@@ -156,7 +155,7 @@ export function SiteFooter() {
               here — the floating widget on every page + the header's AI
               nav + the homepage EVO section carry it; the rest stays). */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--text)_40%,transparent)] rtl:tracking-normal">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
@@ -172,7 +171,7 @@ export function SiteFooter() {
               remaining public surface is reachable; exact same links as
               the old Legal & Basic list + Blog + Comparisons). */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--text)_40%,transparent)] rtl:tracking-normal">{isAr ? "المنصة" : "Company"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "المنصة" : "Company"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
               <li><a href={isAr ? "/ar/blog" : "/blog"} className="block py-1 hover:underline">{isAr ? "المدونة" : "Blog"}</a></li>
               <li><a href={isAr ? "/ar/compare" : "/compare"} className="block py-1 hover:underline">{isAr ? "المقارنات" : "Comparisons"}</a></li>
