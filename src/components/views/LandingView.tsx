@@ -2049,16 +2049,16 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   // and NO variable counts. The FAQPage JSON-LD derives from the same
   // array (single source law).
   const faqs = [
-    { q: isAr ? "هل يمكنني استخدام Alkemos مجانًا؟" : "Can I use Alkemos for free?", a: isAr ? "نعم. التصفح مجاني بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل دون تسجيل، وكل زائر يملك رصيدًا شهريًا لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، وEVO متاح للجميع ضمن حدود الاستخدام. وبحساب مجاني تُحفظ خططك وتتزامن عبر أجهزتك."
-      : "Yes. Browsing is completely free — the exercises, foods, programs, and tools all work without an account. Every visitor gets a monthly allowance for AI nutrition and workout plans, and EVO is open to everyone within fair-use limits. A free account saves your plans and syncs them across your devices." },
-    { q: isAr ? "كيف يعمل EVO؟" : "How does EVO work?", a: isAr ? "EVO هو المدرب الذكي داخل المنصة، وتجده في فقاعة محادثة أسفل كل صفحة. اسأله عن التدريب والتغذية، أو اطلب منه بناء خطة حول بياناتك وأهدافك، ثم عدّلها بتبديلات ذكية للوجبات والتمارين. وهو متاح للزوار والأعضاء معًا وفق حدود كل باقة."
-      : "EVO is the smart coach built into Alkemos, living in the chat bubble at the bottom of every page. Ask it about training or nutrition, have it build a plan around your data and goals, then fine-tune it with smart meal and exercise swaps. It stays available to visitors and members alike, within each tier's limits." },
-    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا. يوجد مستوى مجاني دائم إلى جانب أدوات تعمل دون حساب أصلًا. الاشتراكات اختيارية: تفتح توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصديرًا كاملًا، وتجربة بلا إعلانات — عندما تحتاجها فعلًا."
-      : "No. There's a permanent free tier alongside tools that work without an account in the first place. Memberships are optional — they unlock more AI plan generations, unlimited EVO chat, full export, and an ad-free experience, for when you actually want them." },
-    { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم. كل تمرين يأتي بشرح واضح وصور تُريك الأداء الصحيح، وبرامج جاهزة تبدأ من المستوى المبتدئ ويمكن تنفيذها في المنزل، وخطط الذكاء الاصطناعي تُبنى حول مستواك الحالي ومعداتك المتاحة."
-      : "Yes. Every exercise comes with clear instructions and images that show proper form, the ready-made programs start at beginner level and can be done at home, and the AI planners build around your current level and the equipment you actually have." },
-    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات. أما التدريب الأونلاين فيضيف مدربًا شخصيًا يبني خططك بنفسه، ويتابع تقدمك أسبوعيًا، وتبقى معه قناة تواصل مباشرة — ويشمل كل مزايا برو."
-      : "A membership widens what you can do inside the platform — more AI plan generations, unlimited EVO chat, full export, and an ad-free experience. Online coaching pairs you with a dedicated coach who builds your custom plans personally, reviews your progress weekly, and stays in direct contact — with all Pro features included." },
+    { q: isAr ? "هل يمكنني استخدام Alkemos مجانًا؟" : "Can I use Alkemos for free?", a: isAr ? "نعم. المنصة مجانية بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل مباشرة ودون الحاجة لتسجيل، مع رصيد شهري لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، ومحادثات يومية مع EVO. وعند إنشاء حساب مجاني، تُحفظ خططك وتتزامن عبر جميع أجهزتك."
+      : "Yes. Access is completely free — exercises, food database, routines, and smart calculators work instantly without signup. Every visitor receives a monthly allowance for AI meal and workout plans, plus daily coaching with EVO. Creating a free account syncs and saves your plans across devices." },
+    { q: isAr ? "كيف يعمل EVO؟" : "How does EVO work?", a: isAr ? "EVO هو رفيقك الذكي المخصص للياقة والتغذية، تجده في أسفل كل صفحة. يمكنك استشارته في التمارين والأنظمة، أو طلب خطة مصممة خصيصاً لأهدافك وظروفك، مع تبديل ذكي وفوري لأي تمرين أو وجبة."
+      : "EVO is your specialized AI fitness and nutrition coach, accessible from the bubble on every page. Ask questions, request custom workout and meal splits tailored to your stats, and make smart instant swaps for foods and exercises." },
+    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا يلزمك أي اشتراك لاستخدام المنصة والاستفادة من ميزاتها الأساسية. العضويات اختيارية تماماً، وتمنحك سعة توليد أكبر للخطط الذكية، ومحادثات غير محدودة مع EVO، وتجربة خالية من الإعلانات."
+      : "No subscription is required to enjoy the core platform. Memberships are completely optional, unlocking higher AI plan limits, unlimited EVO coaching conversations, full exports, and an ad-free experience." },
+    { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم بالتأكيد. كل تمرين مزود بصور توضيحية وتعليمات الأداء الصحيح لحمايتك من الإصابات، وتوفر المنصة برامج تدريبية وتغذوية تبدأ من مستوى الصفر والتمارين المنزلية وتتطور معك تدريجياً."
+      : "Absolutely. Every movement is paired with clear visual form cues to keep you safe and injury-free, while our structured programs start from zero-equipment home basics and progress alongside you." },
+    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة رقمياً: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات. أما التدريب الأونلاين فيضيف مدربًا شخصيًا معتمدًا يصمم خططك بنفسه، ويتابع تطورك أسبوعيًا مع تواصل مباشر ومستمر — ويشمل كل مزايا برو."
+      : "A membership expands your digital toolkit with unlimited EVO chat, more AI plans, and an ad-free workspace. Online coaching pairs you with a dedicated certified coach who personally designs your routine, tracks your weekly progress, and stays in direct touch — with all Pro perks included." },
   ];
   const faqSchema = getFAQSchema(faqs);
 
@@ -2778,12 +2778,12 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "مدربون مميزون على Alkemos" : "Featured Coaches on Alkemos"}
+              {isAr ? "مدربون معتمدون على Alkemos" : "Featured Coaches on Alkemos"}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-base font-normal" style={{ color: PALETTE.textSec }}>
               {isAr
-                ? "مساحات ترويجية مدفوعة لمدربين تمت مراجعة صفحاتهم — اضغط على أي مدرب لزيارة صفحته."
-                : "Paid promotional spots for coaches with admin-reviewed pages — tap any coach to visit his page."}
+                ? "نخبة من المدربين المحترفين المعتمدين لمتابعتك خطوة بخطوة — اضغط على أي مدرب للاطلاع على ملفه وخبراته."
+                : "Certified professional coaches ready to guide you step by step — tap any coach to visit their profile."}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
               {featuredCoaches.map((coach, i) => {
