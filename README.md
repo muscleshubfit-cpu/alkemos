@@ -4,7 +4,7 @@
 > **Stack:** Next.js 16 · React 19 · TypeScript · Supabase · Tailwind CSS 4 · OpenRouter + Groq + NVIDIA NIM (AI) · Vercel
 > **Quality:** every push is audited by automated CI gates — types, lint, tests, schema-drift, docs parity, anti-regression
 > **Status:** in production · current live status: [`STATE.md`](./STATE.md)
-> **Last updated:** 2026-09-26 (Ph 279 — EMBER-INK-279: the 1devtool landing-fitness-studio template transplant — «Ember & Ink» dark identity)
+> **Last updated:** 2026-09-26 (Ph 278 — VRD-V8R: memberships real feature-row sentence)
 
 Alkemos is a bilingual (English + full Arabic RTL mirror) fitness and nutrition
 platform that unifies training, nutrition, and AI planning in one product:
@@ -34,16 +34,9 @@ with live previews — real planner vocabulary from
 `src/lib/home-samples.ts`), an interactive food macro explorer, and
 blog-style carousels for the exercise library and the ready-made
 diet-plan library (both fed by the server-provided curated samples).
-Since Ph 279 the whole interface runs the «Ember & Ink» identity —
-the 1devtool landing-fitness-studio template as the actual design
-baseline (ink ground, ember-gradient accents, Sora/Outfit + Cairo,
-rounded glass cards, a marquee band, the ember EVO feature panel,
-template pricing cards and a closing CTA box; the logo pair + hero
-artwork are the carried-over brand assets). The hero is the template's
-text-left/card-right grid with exactly two CTAs (login/signup + the
-memberships page) and the stats row folded under them; memberships
-render as the template's pricing cards (prices derive from
-`memberships.ts` — never literals; each
+The hero carries exactly two CTAs (login/signup + the memberships
+page) over a compact one-row proof strip; memberships render as small
+cards (prices derive from `memberships.ts` — never literals; each
 card lists its tier's REAL limit-derived feature rows with the same
 checkseal mark the memberships page uses) plus one online-coaching
 card. Motion is once-only, transform/opacity-only, and

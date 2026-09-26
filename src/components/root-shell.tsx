@@ -1,5 +1,5 @@
 import Script from "next/script";
-import { Sora, Outfit, Cairo } from "next/font/google";
+import { Inter, Playfair_Display, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -39,26 +39,19 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
  * owner accepted by reopening the item: on a first cold+slow visit the
  * Arabic text may render in the metric-adjusted system face (Cairo is
  * downloaded in the background for FUTURE visits, which then render it
- * instantly from cache). Sora/Outfit stay swap — Latin fallbacks here
+ * instantly from cache). Inter/Playfair stay swap — Latin fallbacks here
  * are metric-adjusted by next/font itself and their swap never measably
- * shifted layout (Phase 136 evidence).
- *
- * EMBER-INK-279 (owner order 2026-09-26 — the 1devtool landing-fitness-
- * studio template transplant): the display/body pair moves to the
- * template's families — Sora (display) + Outfit (sans), both variable
- * latin faces preloaded exactly like the pair they replace; Cairo keeps
- * its arabic role + the optional/preload:false D-01 decision. The
- * --font-sora / --font-outfit variables feed the @theme stacks. */
-const sora = Sora({
+ * shifted layout (Phase 136 evidence). */
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-sora",
+  variable: "--font-inter",
   preload: true,
 });
-const outfit = Outfit({
+const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-outfit",
+  variable: "--font-playfair",
   preload: true,
 });
 const cairo = Cairo({
@@ -142,7 +135,7 @@ export default function RootShell({
     <html
       lang={lang}
       dir={dir}
-      className={`${sora.variable} ${outfit.variable} ${cairo.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${cairo.variable}`}
       suppressHydrationWarning
     >
       <head>

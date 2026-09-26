@@ -64,9 +64,8 @@ export function SiteFooter() {
           pages, blog, contact, compare) the footer sticks to the bottom
           when content is short; inside plain block containers (homepage,
           tools) auto margins are zero — zero visual difference. */}
-      {/* EMBER-INK-279: the meander top band is retired with the Marble
-          identity — the band now opens with the template's white/5
-          hairline (see .footer-marble in globals.css). */}
+      {/* Meander divider on the top edge (mission §14) */}
+      <div className="footer-meander-top absolute inset-x-0 top-0" aria-hidden="true" />
       <div className="mx-auto max-w-6xl">
         {/* THE FLAT SERVICE MAP — HOME-REFINE-270: one organized grid at
             every breakpoint, every list fully displayed (no disclosure
