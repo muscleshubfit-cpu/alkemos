@@ -25,8 +25,8 @@ Stage Summary:
 - البنود المتبقية من الخطة منفذة بأخف حل يحفظ الهدف: العضويات صارت تُقرأ كقيمة حقيقية قابلة للمسح (صفات مشتقة من المصدر الوحيد) بدل بطاقة تسعير جافة، و#eat عادت للأحادية الكرومية (نزع آخر انتهاك لوني ممنوع على سطح تسويقي)، وFAQ صارت سطحًا ختاميًا مكتملًا، والأشرطة اكتسبت لغة الحواف المشرطنة — صفر اعتماديات، صفر JS جديد، صفر حركة جديدة (لا يحتاج حراسًا)، صفر مساس بالمنطق/المسارات/الأسعار/الترتيب/card-lift الثمانية/أرقام عضويات memberships.ts.
 - قائمة ما لا يُفعل حفُظت حروفًا: لا P2/Marble/ألوان جديدة/أرقام مخترعة/شهادات مؤلفة — الشهادات غير موجودة فعلًا فلا شيء أضيف (Trustpilot ينتظر تقييمات حقيقية بقرار STATE).
 - ملفات الفريم: src/components/views/LandingView.tsx · src/app/globals.css · src/lib/__tests__/homepage-adoption.test.ts · DESIGN.md · README.md · docs/README.md · STATE.md · worklog.
-- Commit SHA: 7b01de1 (كوميت التنفيذ والتوثيق موحّدان — الكود والوثائق في فريم واحد)
-- Push status: pushed (1afee2b..آخر docs fill على origin/main)
+- Commit SHA: 7b01de1 (كوميت التنفيذ — الكود والوثائق) + سلسلة التوثيق: 3ad7d66 (تسجيل SHA) · d29e469 (إصلاح صفوف السجل الأربعة — M/registry-dates) · fe7b415b (تواريخ الحقيقة: ترويسة README + الصف الذاتي للسجل)
+- Push status: pushed (1afee2b..fe7b415b على origin/main) — CI 4/4 خضراء على fe7b415b (quality · parity · guard · cleanup) — تشغيلان توثيقيان متوسطان فشلت فيهما parity وأُغلقا بنفس الجلسة (3ad7d66/d29e469 — قياس تواريخ السجل) — **الإنتاج alkemos.com يخدم الموجة متحققًا حيًا**: HTML يحمل theme-img-pin-dark ×9 + صفات المزايا + COMMON QUESTIONS (+AR بالعربية كاملة) · CSS المقدّم يحمل قاعدة pin-dark · صفر #34c759/#ff9500 بDOM الرئيسية — لم يلزم deployment-trigger (النشر تسجل على كوميت التنفيذ).
 
 ---
 Task ID: VRD-V8-2026-09-26
