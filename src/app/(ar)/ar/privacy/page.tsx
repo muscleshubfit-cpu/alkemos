@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
 import { StaticPageView } from "@/components/views/StaticPageView";
+import { fetchSiteContentOverrides } from "@/lib/site-content/server";
+
+// SITE-CONTENT-281: admin-editable page copy — Supabase overrides fetched
+// server-side (anon key + RLS public-read, migration 0094) and passed down;
+// the code defaults in site-content/static-pages.ts are the eternal fallback.
+// The SAME 300 s ISR window the blog article pages use: an admin save is
+// live within ~5 minutes with ZERO deploys, and a failed fetch renders the
+// defaults verbatim (the fallback law).
+export const revalidate = 300;
 import { SiteFooter } from "@/components/SiteFooter";
 
 const SITE_URL = "https://alkemos.com";
@@ -49,6 +58,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
-  return <StaticPageView page="privacy" />;
+export default async function Page() {
+  const content = await fetchSiteContentOverrides();
+  return <StaticPageView page="privacy" content={content} />;
 }

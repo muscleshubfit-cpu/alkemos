@@ -97,9 +97,13 @@ describe("m4: the profile Tools stat derives from the single source", () => {
 // libraries grow (Phase 195 owner directive: derive counts from the data
 // source). Same source-canary style as marketing-msa-surface.test.ts.
 describe("Phase 217 م4+م5: marketing surfaces derive library counts", () => {
+  // SITE-CONTENT-281 re-pin: StaticPageView no longer interpolates the
+  // counts itself — its copy carries {exercises}/{foods} TOKENS resolved
+  // by the site-content token engine, which imports the SAME shared
+  // count constants. The derivation law holds end-to-end; the pins
+  // follow the new pipeline (view → static-pages defaults → core engine).
   const SURFACES = [
     "src/components/views/LandingView.tsx",
-    "src/components/views/StaticPageView.tsx",
     "src/components/blog/BlogComponents.tsx",
   ];
 
@@ -113,6 +117,22 @@ describe("Phase 217 م4+م5: marketing surfaces derive library counts", () => {
         "foods-shared",
       );
     }
+    // The static pages ride the token pipeline (the 281 re-pin above).
+    const staticView = readFileSync(
+      "src/components/views/StaticPageView.tsx",
+      "utf8",
+    );
+    expect(staticView).toContain("site-content/static-pages");
+    const staticDefaults = readFileSync(
+      "src/lib/site-content/static-pages.ts",
+      "utf8",
+    );
+    expect(staticDefaults).toContain("{exercises}");
+    expect(staticDefaults).toContain("{foods}");
+    // The token engine derives from the shared count constants.
+    const core = readFileSync("src/lib/site-content/core.ts", "utf8");
+    expect(core).toContain("exercises-shared");
+    expect(core).toContain("foods-shared");
   });
 
   it("no hardcoded library counts survive outside comments (م4) and AR lines keep ONE numeral system (م5)", () => {
@@ -123,7 +143,8 @@ describe("Phase 217 م4+م5: marketing surfaces derive library counts", () => {
       s
         .replace(/\/\*[\s\S]*?\*\//g, " ")
         .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
-    for (const rel of SURFACES) {
+    const SCAN = [...SURFACES, "src/components/views/StaticPageView.tsx", "src/lib/site-content/static-pages.ts", "src/lib/site-content/home.ts"];
+    for (const rel of SCAN) {
       const src = stripComments(readFileSync(rel, "utf8"));
       expect(src, `${rel}: hardcoded exercise count returned`).not.toContain(
         "868+",

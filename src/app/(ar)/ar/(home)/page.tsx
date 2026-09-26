@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { LandingView } from "@/components/views/LandingView";
 import { AuthErrorToast } from "@/components/AuthErrorToast";
 import { getHomeSamples } from "@/lib/home-samples";
+import { fetchSiteContentOverrides } from "@/lib/site-content/server";
+
+// SITE-CONTENT-281: ISR freshness for the admin-editable homepage copy —
+// the SAME 300 s window the blog article pages use (their precedent,
+// revalidate = 300). The page re-render and the site-content cache
+// (unstable_cache @ 300 s) expire together: an admin save is live within
+// ~5 minutes with ZERO deploys/commits.
+export const revalidate = 300;
 
 const SITE_URL = "https://alkemos.com";
 
@@ -69,15 +77,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page() {
   // Phase 202: the AR mirror passes the same curated REAL samples as the
   // EN homepage (server-side selection — see (home)/page.tsx), plus the
   // shared OAuth-error toast island (EN/AR parity).
+  // SITE-CONTENT-281: admin-editable marketing copy (Supabase overrides,
+  // 5-min ISR window — the blog precedent; the code defaults are the
+  // fallback). Adding the fetch converts this page from fully-static to
+  // ISR, so wording changes go live WITHOUT a deploy.
   const samples = getHomeSamples();
+  const content = await fetchSiteContentOverrides();
   return (
     <>
       <AuthErrorToast />
-      <LandingView samples={samples} />
+      <LandingView samples={samples} content={content} />
     </>
   );
 }

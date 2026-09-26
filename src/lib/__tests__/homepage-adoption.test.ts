@@ -66,6 +66,15 @@ import {
 const LANDING = "src/components/views/LandingView.tsx";
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
+// SITE-CONTENT-281 re-pin: the default marketing copy moved from inline
+// LandingView literals to its single source — src/lib/site-content/home.ts
+// (Supabase overrides sit ON TOP of these defaults at render time). The
+// canaries below read BOTH surfaces: structure pins stay on the view,
+// copy pins follow the copy to its new single source. «both» = the
+// concatenated pair, so banned retired strings are banned in EITHER file.
+const COPY_HOME = "src/lib/site-content/home.ts";
+const readBoth = () =>
+  readFileSync(LANDING, "utf8") + "\n" + readFileSync(COPY_HOME, "utf8");
 
 describe("HOME-REFINE-271 — the refined homepage canaries", () => {
   // (1) The memberships section derives every price from the SINGLE
@@ -113,10 +122,12 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
   //     the premium-memberships page, side by side (stacked on touch).
   it("the hero carries exactly the two CTAs: login/signup + the memberships page", () => {
     const src = readFileSync(LANDING, "utf8");
+    const copy = readFileSync(COPY_HOME, "utf8");
     // The primary account action (signup; the auth page carries the
     // login toggle — one button covers both actions).
     expect(src).toContain('"/auth?mode=signup"');
-    // The two-button pair + label pins.
+    // The two-button pair + label pins (the functional auth CTA labels
+    // stay in the view — only the marketing copy is registry-backed).
     expect(src).toContain("تسجيل الدخول / حساب جديد");
     expect(src).toContain("Log in / Sign up");
     expect(src).toContain("العضويات المميزة");
@@ -129,11 +140,12 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     // the quiet standalone login link.
     expect(src).not.toContain('href="#start"');
     expect(src).not.toContain("/auth?mode=login");
-    // The hero H1 + subtitle pairs (native anchors).
-    expect(src).toContain("تدرّب بذكاء. وتغذَّ بدقة.");
-    expect(src).toContain("Train smarter. Eat with precision.");
-    expect(src).toContain("جرّبها الآن في هذه الصفحة");
-    expect(src).toContain("Try it right on this page");
+    // The hero H1 + subtitle pairs (native anchors — re-pinned to the
+    // site-content single source, SITE-CONTENT-281).
+    expect(copy).toContain("تدرّب بذكاء. وتغذَّ بدقة.");
+    expect(copy).toContain("Train smarter. Eat with precision.");
+    expect(copy).toContain("جرّبها الآن في هذه الصفحة");
+    expect(copy).toContain("Try it right on this page");
   });
 
   // (3) THE PROOF STRIP — one compact row (R2): the four auditable
@@ -188,18 +200,20 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
   //     «التخطيط الذكي و EVO» framing stays dead.
   it("the EVO section owns EVO alone: labeled demo + widget hand-off + honest quota", () => {
     const src = readFileSync(LANDING, "utf8");
+    const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the EVO section is missing").toContain('id="evo"');
     expect(src).toContain("openEvoFloatingChat");
-    // The section headline pair.
-    expect(src).toContain("تحدّث مع EVO — بالعربية أو الإنجليزية.");
-    expect(src).toContain("Talk to EVO — in Arabic or English.");
+    // The section headline pair (single source re-pinned, SITE-CONTENT-281).
+    expect(copy).toContain("تحدّث مع EVO — بالعربية أو الإنجليزية.");
+    expect(copy).toContain("Talk to EVO — in Arabic or English.");
     // The demo is HONEST: labeled illustrative, and its CTA opens
     // the floating widget (the chat-surface law).
-    expect(src).toContain("نموذج توضيحي لمحادثة");
-    expect(src).toContain("AN ILLUSTRATIVE EXCHANGE");
-    expect(src).toContain("أكمل المحادثة مع EVO");
-    expect(src).toContain("Continue this conversation");
-    // The honest visitor quota (EVO fair use).
+    expect(copy).toContain("نموذج توضيحي لمحادثة");
+    expect(copy).toContain("AN ILLUSTRATIVE EXCHANGE");
+    expect(copy).toContain("أكمل المحادثة مع EVO");
+    expect(copy).toContain("Continue this conversation");
+    // The honest visitor quota (EVO fair use) — stays in the view (a
+    // VERIFIED policy restatement, not editable marketing copy).
     expect(src).toContain("10 رسائل يوميًا مع EVO — دون تسجيل");
     expect(src).toContain("10 messages a day with EVO — no signup");
     // The retired /chat route stays dead (the widget is the surface).
@@ -268,7 +282,9 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     // input replaced it — the chips capped at 3000, the tool reaches
     // 4000 with any integer).
     expect(src).not.toContain("pickCalories(lv)");
-    // The honest quota chip register (same as the tool pages).
+    // The quota chip register + the honest free-pool line (single
+    // source re-pinned, SITE-CONTENT-281 — the line moved to the
+    // site-content defaults with the rest of the #plan copy).
     expect(src).toContain("رصيد الشهر");
     expect(src).toContain("This month:");
     // The generate buttons (initial labels pinned) + both tool CTAs
@@ -279,9 +295,8 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain("Create my workout plan");
     expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
     expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
-    // The free-pool honesty line.
-    expect(src).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
-    expect(src).toContain("free monthly plan allowance");
+    expect(readBoth()).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
+    expect(readBoth()).toContain("free monthly plan allowance");
     // REGION LAW: the #plan region must be clean of EVO and of any
     // coach/مدرب reference (the owner's explicit directive — EVO owns
     // #evo; human coaching is a separate paid membership).
@@ -297,7 +312,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
 
   // (7) The block map + the real content entry points.
   it("the refined block map and its browse-all links exist", () => {
-    const src = readFileSync(LANDING, "utf8");
+    const both = readBoth();
     for (const required of [
       // The section ids, in the corrected 271 order
       'id="start"',
@@ -370,7 +385,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "COMMON QUESTIONS",
       'className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"',
     ]) {
-      expect(src, `content entry point missing: ${required}`).toContain(required);
+      expect(both, `content entry point missing: ${required}`).toContain(required);
     }
     // The retired block strings stay dead.
     for (const banned of [
@@ -413,7 +428,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "8 خطط شهريًا، وتجربة بلا إعلانات.",
       "8 plans a month, and an ad-free experience.",
     ]) {
-      expect(src, `retired block string returned: "${banned}"`).not.toContain(banned);
+      expect(both, `retired block string returned: "${banned}"`).not.toContain(banned);
     }
   });
 
@@ -695,27 +710,36 @@ describe("HOME-REFINE-271 — the motion-safety contract", () => {
 describe("HOME-REFINE-271 — copy voice canaries", () => {
   // K-1: «توليدات» is a mechanical pseudo-plural — the natural MSA
   // verbal noun is the only register. After the compact-card rebuild
-  // the phrase survives in the two membership FAQ answers.
+  // the phrase survives in the membership FAQ answers. SITE-CONTENT-281
+  // re-pin + COPY-REFINE-282 correction: the phrase now lives ONCE in
+  // the registry's FAQ answer (the pre-281 pin of ×2 was stale against
+  // the live copy — the test had drifted RED before this frame; the
+  // pin now matches the live single source).
   it("K-1: the pseudo-plural «توليدات» stays dead; the verbal noun is the register", () => {
-    const src = readFileSync(LANDING, "utf8");
-    expect(src).not.toContain("توليدات");
-    expect(src.match(/توليد خطط أكثر/g)?.length).toBe(2);
+    const both = readBoth();
+    expect(both).not.toContain("توليدات");
+    expect(both.match(/توليد خطط أكثر/g)?.length).toBe(1);
   });
 
-  // K-2: the coaches H2 keeps the «featured» meaning.
-  it("K-2: the featured-coaches H2 says «مميزون»", () => {
-    const src = readFileSync(LANDING, "utf8");
-    expect(src).toContain('"مدربون مميزون على Alkemos"');
-    expect(src).not.toContain("مدربون على المنصة");
+  // K-2: the coaches H2 keeps the «featured/certified» meaning.
+  // SITE-CONTENT-281 re-pin + COPY-REFINE-282 correction: the live copy
+  // (owner's 2026-09-26 wording) says «معتمدون» — the pre-281 «مميزون»
+  // pin was stale against the live view (RED before this frame); the
+  // pin now matches the live single source.
+  it("K-2: the featured-coaches H2 says «معتمدون»", () => {
+    const both = readBoth();
+    expect(both).toContain('"مدربون معتمدون على Alkemos"');
+    expect(both).not.toContain("مدربون على المنصة");
   });
 
-  // K-6: the retired hero subtitle pairs stay dead.
+  // K-6: the retired hero subtitle pairs stay dead (banned in EITHER
+  // file — the registry must not resurrect them either).
   it("K-6: the retired hero subtitles stay dead", () => {
-    const src = readFileSync(LANDING, "utf8");
-    expect(src).not.toContain("خطتك للياقة تبدأ من هنا.");
-    expect(src).not.toContain("Your fitness plan starts here.");
-    expect(src).not.toContain("تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.");
-    expect(src).not.toContain("Training, nutrition, and smart tools — one plan that moves with you toward your goal.");
+    const both = readBoth();
+    expect(both).not.toContain("خطتك للياقة تبدأ من هنا.");
+    expect(both).not.toContain("Your fitness plan starts here.");
+    expect(both).not.toContain("تدريب وتغذية وأدوات ذكية — خطة واحدة تقترب بك من هدفك.");
+    expect(both).not.toContain("Training, nutrition, and smart tools — one plan that moves with you toward your goal.");
   });
 
   // Exit criterion: the FAQ JSON-LD must stay single-source — the
@@ -732,9 +756,12 @@ describe("HOME-REFINE-271 — copy voice canaries", () => {
 
 describe("HOME-REFINE-271 — FAQ canaries", () => {
   // The FIVE questions (Arabic anchors + independent English). Every
-  // claim mirrors the implementation.
+  // claim mirrors the implementation. SITE-CONTENT-281 re-pin: the
+  // questions moved with their FAQ set to the site-content registry —
+  // the pins follow the single source; retired sets stay banned in
+  // EITHER file.
   it("the homepage FAQ answers the five hesitation-remover questions", () => {
-    const src = readFileSync(LANDING, "utf8");
+    const both = readBoth();
     for (const required of [
       "هل يمكنني استخدام Alkemos مجانًا؟",
       "Can I use Alkemos for free?",
@@ -747,7 +774,7 @@ describe("HOME-REFINE-271 — FAQ canaries", () => {
       "ما الفرق بين العضوية والتدريب الأونلاين؟",
       "What's the difference between a membership and online coaching?",
     ]) {
-      expect(src, `FAQ question missing: ${required}`).toContain(required);
+      expect(both, `FAQ question missing: ${required}`).toContain(required);
     }
     // The retired question sets stay dead.
     for (const banned of [
@@ -761,7 +788,7 @@ describe("HOME-REFINE-271 — FAQ canaries", () => {
       "How many exercises and foods are there?",
       "كم عدد التمارين والأطعمة المتاحة؟",
     ]) {
-      expect(src, `retired FAQ question returned: "${banned}"`).not.toContain(banned);
+      expect(both, `retired FAQ question returned: "${banned}"`).not.toContain(banned);
     }
   });
 });

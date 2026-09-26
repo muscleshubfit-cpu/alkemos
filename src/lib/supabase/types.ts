@@ -1768,6 +1768,35 @@ export type Database = {
           { foreignKeyName: "site_coach_assignments_assigned_by_fkey"; columns: ["assigned_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
         ];
       };
+      // SITE-CONTENT-281 — mirrors migration 0094 (site_content_editor).
+      // value_* jsonb is NULL when the key falls back to its code-default
+      // (the fallback law: a missing row can never blank a page).
+      site_content: {
+        Row: {
+          key: string;
+          value_en: Json | null;
+          value_ar: Json | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          key: string;
+          value_en?: Json | null;
+          value_ar?: Json | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          key?: string;
+          value_en?: Json | null;
+          value_ar?: Json | null;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          { foreignKeyName: "site_content_updated_by_fkey"; columns: ["updated_by"]; isOneToOne: false; referencedRelation: "users"; referencedColumns: ["id"] },
+        ];
+      };
       subscription_requests: {
         Row: {
           id: string;

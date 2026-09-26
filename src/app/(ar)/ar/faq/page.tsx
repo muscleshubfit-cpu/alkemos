@@ -1,7 +1,16 @@
 import { jsonLd } from "@/lib/seo";
 import type { Metadata } from "next";
 import { StaticPageView } from "@/components/views/StaticPageView";
-import { FAQS_EN, FAQS_AR } from "@/lib/faq-content";
+import { fetchSiteContentOverrides } from "@/lib/site-content/server";
+import { resolveFaqPage } from "@/lib/site-content/static-pages";
+
+// SITE-CONTENT-281: admin-editable FAQ copy — Supabase overrides fetched
+// server-side (anon key + RLS public-read, migration 0094); the faq-content.ts
+// arrays remain the code defaults (single source preserved — the JSON-LD and
+// the visible page derive from the SAME resolved arrays). The SAME 300 s ISR
+// window the blog article pages use: an admin save is live within ~5 minutes
+// with ZERO deploys, and a failed fetch renders the defaults verbatim.
+export const revalidate = 300;
 
 const SITE_URL = "https://alkemos.com";
 
@@ -56,13 +65,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page() {
+  // SITE-CONTENT-281: resolve the admin-editable FAQ items first — the
+  // JSON-LD below and the visible page below derive from the SAME
+  // resolved arrays (single source law, now one editable source).
+  const content = await fetchSiteContentOverrides();
+  const faqAr = resolveFaqPage(content, true).items;
+  const faqEn = resolveFaqPage(content, false).items;
+
   // FAQPage JSON-LD — Arabic-first (this is the URL AI engines and Google
   // should quote for Arabic questions), with the EN set riding along.
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [...FAQS_AR, ...FAQS_EN].map((faq) => ({
+    mainEntity: [...faqAr, ...faqEn].map((faq) => ({
       "@type": "Question",
       name: faq.q,
       acceptedAnswer: {
@@ -78,7 +94,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
       />
-      <StaticPageView page="faq" />
+      <StaticPageView page="faq" content={content} />
     </>
   );
 }

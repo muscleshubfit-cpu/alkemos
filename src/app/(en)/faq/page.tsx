@@ -2,7 +2,16 @@ import { jsonLd } from "@/lib/seo";
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StaticPageView } from "@/components/views/StaticPageView";
-import { FAQS_EN, FAQS_AR } from "@/lib/faq-content";
+import { fetchSiteContentOverrides } from "@/lib/site-content/server";
+import { resolveFaqPage } from "@/lib/site-content/static-pages";
+
+// SITE-CONTENT-281: admin-editable FAQ copy — Supabase overrides fetched
+// server-side (anon key + RLS public-read, migration 0094); the faq-content.ts
+// arrays remain the code defaults (single source preserved — the JSON-LD and
+// the visible page derive from the SAME resolved arrays). The SAME 300 s ISR
+// window the blog article pages use: an admin save is live within ~5 minutes
+// with ZERO deploys, and a failed fetch renders the defaults verbatim.
+export const revalidate = 300;
 
 /**
  * FAQ page — server component so we can attach metadata + FAQPage JSON-LD
@@ -60,12 +69,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page() {
+  // SITE-CONTENT-281: resolve the admin-editable FAQ items first — the
+  // JSON-LD below and the visible page below derive from the SAME
+  // resolved arrays (single source law, now one editable source).
+  const content = await fetchSiteContentOverrides();
+  const faqEn = resolveFaqPage(content, false).items;
+  const faqAr = resolveFaqPage(content, true).items;
+
   // FAQPage JSON-LD — both EN + AR versions for SEO
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [...FAQS_EN, ...FAQS_AR].map((faq) => ({
+    mainEntity: [...faqEn, ...faqAr].map((faq) => ({
       "@type": "Question",
       name: faq.q,
       acceptedAnswer: {
@@ -81,7 +97,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
       />
-      <StaticPageView page="faq" />
+      <StaticPageView page="faq" content={content} />
     </>
   );
 }

@@ -110,6 +110,15 @@ const SECTIONS: AdminNavSection[] = [
     en: "Content",
     items: [
       { href: "/admin/blog", emoji: "📝", ar: "المدونة", en: "Blog" },
+      // SITE-CONTENT-281: the static marketing-copy editor — homepage
+      // sections + about/privacy/terms/FAQ, bilingual, saves straight to
+      // the site_content table (ISR picks it up within ~5 min).
+      {
+        href: "/admin/site-content",
+        emoji: "✍️",
+        ar: "نصوص الموقع",
+        en: "Site content",
+      },
       {
         href: "/admin/external-plans",
         emoji: "📋",

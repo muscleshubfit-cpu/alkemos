@@ -188,6 +188,23 @@ alkemos/
 - Daily automated JSON backups run to a **private** repository
   (`.github/workflows/db-backup.yml`) — user data never lands in this repo
 
+### Admin-editable site copy (no deploy needed)
+The site's static marketing copy — the homepage sections and the
+about / privacy / terms / FAQ pages, in **Arabic and English separately** —
+is editable by the site owner from the admin panel at
+`/admin/site-content` («نصوص الموقع», in the Content section of the admin
+sidebar). A save writes the `site_content` table (RLS: public read,
+admin-only writes, migration `0094`) and the pages pick it up within ~5
+minutes through ISR (the same 300 s window the blog uses) — **no git commit,
+no CI run, no Vercel deploy**. The copy that ships in the code
+(`src/lib/site-content/`) is the built-in default for every field, so a
+missing or malformed row always renders the current wording verbatim — the
+page can never go blank. Clearing a field in the editor restores its
+built-in text; `{exercises}` / `{foods}` inside paragraphs keep showing the
+live library sizes. Prices, plan limits, quota lines, and other
+policy/number restatements are deliberately **not** editable there — they
+derive from their single sources (`memberships.ts`, `refund.ts`, …).
+
 ### AI layer
 One unified provider layer (`src/lib/ai-provider.ts`) is the only path to any
 model — OpenRouter, Groq, and NVIDIA NIM — offering sequential

@@ -1,6 +1,7 @@
 import { LandingView } from "@/components/views/LandingView";
 import { AuthErrorToast } from "@/components/AuthErrorToast";
 import { getHomeSamples } from "@/lib/home-samples";
+import { fetchSiteContentOverrides } from "@/lib/site-content/server";
 
 /**
  * HOMEPAGE (EN canonical "/") — Phase 202 «Product-Website Homepage»
@@ -17,13 +18,25 @@ import { getHomeSamples } from "@/lib/home-samples";
  *
  * Metadata (canonical + hreflang cluster) is owned by this route
  * group's server layout.tsx — unchanged.
+ *
+ * SITE-CONTENT-281: the page additionally fetches the admin-editable
+ * marketing-copy overrides (anon-key read + RLS public-read, migration
+ * 0094) and passes them to LandingView. `revalidate = 300` is the SAME
+ * ISR window the blog article pages use — an admin wording save goes
+ * live within ~5 minutes WITHOUT a deploy, and a missing/failed fetch
+ * renders the code defaults (the fallback law). The fetch converts this
+ * page from fully-static to ISR (one regeneration per 5-min window at
+ * most, the blog's accepted trade).
  */
-export default function Page() {
+export const revalidate = 300;
+
+export default async function Page() {
   const samples = getHomeSamples();
+  const content = await fetchSiteContentOverrides();
   return (
     <>
       <AuthErrorToast />
-      <LandingView samples={samples} />
+      <LandingView samples={samples} content={content} />
     </>
   );
 }

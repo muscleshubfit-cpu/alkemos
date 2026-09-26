@@ -59,6 +59,10 @@ const MARKETING_SURFACE_FILES = [
   // banned-phrase canary below.
   "src/components/views/AffiliateToolkit.tsx",
   "src/components/views/StaticPageView.tsx",
+  // SITE-CONTENT-281: the extracted copy sources are marketing surfaces
+  // (the same text that used to live inline in the views, verbatim).
+  "src/lib/site-content/static-pages.ts",
+  "src/lib/site-content/home.ts",
   "src/lib/faq-content.ts",
   "src/lib/tools-shared.ts",
   "src/lib/foods-shared.ts",
@@ -425,6 +429,8 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "src/app/(en)/memberships/layout.tsx",
       "src/lib/faq-content.ts",
       "src/components/views/StaticPageView.tsx",
+      "src/lib/site-content/static-pages.ts",
+      "src/lib/site-content/home.ts",
       "src/lib/comparisons.ts",
     ]) {
       const src = readFileSync(rel, "utf8");
@@ -605,13 +611,23 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "src/components/views/StaticPageView.tsx",
       "utf8",
     );
-    expect(staticView).toContain("FAQS_AR, FAQS_EN");
-    const aboutVisible = staticView;
+    // SITE-CONTENT-281 re-pin: the visible copy source moved from inline
+    // StaticPageView literals to site-content/static-pages.ts (which keeps
+    // importing FAQS_AR/FAQS_EN from faq-content.ts — the single source
+    // law holds, one import hop deeper).
+    const staticDefaults = readFileSync(
+      "src/lib/site-content/static-pages.ts",
+      "utf8",
+    );
+    expect(staticDefaults).toContain("FAQS_AR, FAQS_EN");
+    expect(staticView).toContain("site-content/static-pages");
+    const aboutVisible = staticDefaults;
+    // token form: the about counts ride {exercises}/{foods} now
     // PHASE 217 (P3-10/م4) + content-strategy v1: the about counts derive
     // from FOODS_COUNT — the pin follows the derived template (still proves
     // the AR about copy carries the food-library size claim), in the
     // rewritten About wording.
-    expect(aboutVisible).toContain("وقاعدة أطعمة تضم ${FOOD_LIB} صنفًا غذائيًا");
+    expect(aboutVisible).toContain("وقاعدة أطعمة تضم {foods} صنفًا غذائيًا");
     expect(aboutVisible).toContain("وبرو $29.99 شهريًا أو $239 سنويًا");
     const arCoaches = readFileSync("src/app/(ar)/ar/coaches/[slug]/page.tsx", "utf8");
     expect(arCoaches).toContain("اشترك في متابعة خاصة");

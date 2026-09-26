@@ -36,6 +36,7 @@ import {
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getFAQSchema, jsonLd } from "@/lib/seo";
+import { resolveHomeCopy, resolveHomeFaq, type HomeCopy, type SiteCopyMap } from "@/lib/site-content/home";
 import Image from "next/image";
 import { ThemeImg, EngravedIcon } from "@/components/ThemeImg";
 import type {
@@ -581,32 +582,23 @@ function HomeCalculator({ isAr }: { isAr: boolean }) {
 //    exchange (honesty law: it SAYS it is an example), and the CTA
 //    hands off to the REAL floating widget — the EVO CHAT SURFACE
 //    LAW holds (this is a demonstration, never a second input).
-function EvoConversation({ isAr }: { isAr: boolean }) {
+function EvoConversation({ isAr, copy }: { isAr: boolean; copy: HomeCopy }) {
   // HOME-REFINE-271 F2: the demo is CONCISE — one question, one
   // answer that carries real numbers (the owner's «مختصر» directive;
-  // the four-turn exchange is retired).
-  const turns = isAr
-    ? [
-        { who: "user", text: "هدفي خسارة الدهون مع الحفاظ على العضلات. ما الذي يصلح لعشائي الليلة؟" },
-        {
-          who: "evo",
-          text: "وجبة تناسب هدفك: 200 جرام صدر دجاج مشوي مع 150 جرام أرز وسلطة خضراء — نحو 520 سعرة و52 جرام بروتين. أخبرني بوزنك وأيام تدريبك وسأبني لك خطة الأسبوع كاملة.",
-        },
-      ]
-    : [
-        { who: "user", text: "I want to lose fat without losing muscle. What works for tonight's dinner?" },
-        {
-          who: "evo",
-          text: "A meal that fits your goal: 200 g grilled chicken breast with 150 g rice and a green salad — roughly 520 kcal and 52 g protein. Tell me your weight and training days and I'll build your whole week.",
-        },
-      ];
+  // the four-turn exchange is retired). SITE-CONTENT-281: the demo
+  // turns are admin-editable copy (resolved by the parent — same
+  // fallback law as every other string on this page).
+  const turns = [
+    { who: "user" as const, text: copy.evoDemoUser },
+    { who: "evo" as const, text: copy.evoDemoEvo },
+  ];
 
   return (
     <div>
       {/* The honest label — directly above the exchange */}
       <span className="seal-chip">
         <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-        {isAr ? "نموذج توضيحي لمحادثة" : "AN ILLUSTRATIVE EXCHANGE"}
+        {copy.evoDemoLabel}
       </span>
 
       {/* The conversation — VRD-V6: the exchange sits inside the EVO
@@ -709,7 +701,7 @@ function EvoConversation({ isAr }: { isAr: boolean }) {
           className="btn-chrome px-6 py-3 text-sm md:text-base"
         >
           <span className="live-dot" aria-hidden="true" />
-          {isAr ? "أكمل المحادثة مع EVO" : "Continue this conversation"}
+          {copy.evoContinueCta}
         </button>
         <a
           href={isAr ? "/ar/evo" : "/evo"}
@@ -1987,10 +1979,15 @@ function TierFeatureRows({ rows, pinDark = false }: { rows: readonly string[]; p
   );
 }
 
-export function LandingView({ samples }: { samples: HomeSamples }) {
+export function LandingView({ samples, content }: { samples: HomeSamples; content?: SiteCopyMap }) {
   const { lang } = useI18n();
   const { isCoach, isAdmin, profile } = useAuth();
   const isAr = lang === "ar";
+  // SITE-CONTENT-281: the admin-editable marketing copy for the active
+  // locale — Supabase overrides (passed down by the server route) win,
+  // the code defaults in site-content/home.ts are the eternal fallback
+  // (the fallback law: the page can never render empty or crash).
+  const c = resolveHomeCopy(content, isAr);
   // The hero CTA stays account-driven for the PRIMARY action; the
   // secondary CTA is the memberships page (HOME-REFINE-270 R1 — the
   // owner's two-button directive overrides the old funnel-free-hero
@@ -2047,19 +2044,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
   // free tier — memberships.ts; guest AI pool — unified pool decree; EVO
   // availability with tier limits; the coaching promise) with NO prices
   // and NO variable counts. The FAQPage JSON-LD derives from the same
-  // array (single source law).
-  const faqs = [
-    { q: isAr ? "هل يمكنني استخدام Alkemos مجانًا؟" : "Can I use Alkemos for free?", a: isAr ? "نعم. المنصة مجانية بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل مباشرة ودون الحاجة لتسجيل، مع رصيد شهري لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، ومحادثات يومية مع EVO. وعند إنشاء حساب مجاني، تُحفظ خططك وتتزامن عبر جميع أجهزتك."
-      : "Yes. Access is completely free — exercises, food database, routines, and smart calculators work instantly without signup. Every visitor receives a monthly allowance for AI meal and workout plans, plus daily coaching with EVO. Creating a free account syncs and saves your plans across devices." },
-    { q: isAr ? "كيف يعمل EVO؟" : "How does EVO work?", a: isAr ? "EVO هو رفيقك الذكي المخصص للياقة والتغذية، تجده في أسفل كل صفحة. يمكنك استشارته في التمارين والأنظمة، أو طلب خطة مصممة خصيصاً لأهدافك وظروفك، مع تبديل ذكي وفوري لأي تمرين أو وجبة."
-      : "EVO is your specialized AI fitness and nutrition coach, accessible from the bubble on every page. Ask questions, request custom workout and meal splits tailored to your stats, and make smart instant swaps for foods and exercises." },
-    { q: isAr ? "هل أحتاج إلى اشتراك؟" : "Do I need a subscription?", a: isAr ? "لا يلزمك أي اشتراك لاستخدام المنصة والاستفادة من ميزاتها الأساسية. العضويات اختيارية تماماً، وتمنحك سعة توليد أكبر للخطط الذكية، ومحادثات غير محدودة مع EVO، وتجربة خالية من الإعلانات."
-      : "No subscription is required to enjoy the core platform. Memberships are completely optional, unlocking higher AI plan limits, unlimited EVO coaching conversations, full exports, and an ad-free experience." },
-    { q: isAr ? "هل يناسبني Alkemos إذا كنت مبتدئًا؟" : "Does Alkemos suit beginners?", a: isAr ? "نعم بالتأكيد. كل تمرين مزود بصور توضيحية وتعليمات الأداء الصحيح لحمايتك من الإصابات، وتوفر المنصة برامج تدريبية وتغذوية تبدأ من مستوى الصفر والتمارين المنزلية وتتطور معك تدريجياً."
-      : "Absolutely. Every movement is paired with clear visual form cues to keep you safe and injury-free, while our structured programs start from zero-equipment home basics and progress alongside you." },
-    { q: isAr ? "ما الفرق بين العضوية والتدريب الأونلاين؟" : "What's the difference between a membership and online coaching?", a: isAr ? "العضوية توسّع ما تفعله داخل المنصة رقمياً: توليد خطط أكثر، ومحادثة غير محدودة مع EVO، وتصدير كامل، وتجربة بلا إعلانات. أما التدريب الأونلاين فيضيف مدربًا شخصيًا معتمدًا يصمم خططك بنفسه، ويتابع تطورك أسبوعيًا مع تواصل مباشر ومستمر — ويشمل كل مزايا برو."
-      : "A membership expands your digital toolkit with unlimited EVO chat, more AI plans, and an ad-free workspace. Online coaching pairs you with a dedicated certified coach who personally designs your routine, tracks your weekly progress, and stays in direct touch — with all Pro perks included." },
-  ];
+  // array (single source law). SITE-CONTENT-281: the array resolves
+  // from site-content/home.ts defaults + admin overrides — same law,
+  // one editable source.
+  const faqs = resolveHomeFaq(content, isAr);
   const faqSchema = getFAQSchema(faqs);
 
   // Proof strip — the four auditable platform numbers, now as ONE
@@ -2166,12 +2154,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           {/* RTL law: the H1 keeps the EN tight utilities + explicit rtl:
               counterparts (rtl-typography.test.ts leg 3). */}
           <h1 className="hero-copy font-display mt-3 text-2xl font-semibold leading-tight tracking-tight rtl:leading-snug rtl:tracking-normal md:mt-5 md:text-5xl lg:text-6xl" style={{ color: PALETTE.textPrim }}>
-            {isAr ? "تدرّب بذكاء. وتغذَّ بدقة." : "Train smarter. Eat with precision."}
+            {c.heroTitle}
           </h1>
           <p className="hero-copy mx-auto mt-3 max-w-xl text-sm font-normal leading-relaxed md:mt-4 md:text-base" style={{ color: PALETTE.textSec }}>
-            {isAr
-              ? "منصة متكاملة تجمع تمارينك، وتغذيتك، وحساب سعراتك بدقة — ومعها EVO، مدربك بالذكاء الاصطناعي لمساعدتك وتعديل خطتك باستمرار. جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية."
-              : "The all-in-one platform for your workouts, nutrition, and exact macro targets — powered by EVO, your 24/7 AI coach. Try it right on this page, in Arabic and English."}
+            {c.heroSubtitle}
           </p>
 
           {/* VRD-V8 — the platform CONVERGENCE (V8-1 + V8-2): the trio
@@ -2194,15 +2180,15 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             >
               <li className="hero-pill">
                 <EngravedIcon name="dumbbell" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "التدريب" : "Training"}
+                {c.heroPillTraining}
               </li>
               <li className="hero-pill">
                 <EngravedIcon name="protein" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "التغذية" : "Nutrition"}
+                {c.heroPillNutrition}
               </li>
               <li className="hero-pill">
                 <EngravedIcon name="macros" alt="" size={16} className="h-4 w-4" />
-                {isAr ? "التخطيط الذكي" : "Smart Planning"}
+                {c.heroPillPlanning}
               </li>
             </ul>
             <div className="trio-flow" aria-hidden="true">
@@ -2221,7 +2207,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 <circle className="trio-node-core" cx="180" cy="56" r="4.5" />
               </svg>
               <span className="trio-node-label tracking-[0.18em] rtl:tracking-normal">
-                {isAr ? "منصة واحدة" : "ONE PLATFORM"}
+                {c.heroNode}
               </span>
             </div>
           </div>
@@ -2295,15 +2281,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="calories" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "حاسبة السعرات والماكروز" : "THE CALORIE & MACRO CALCULATOR"}
+              {c.startEyebrow}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "اعرف أرقامك قبل أي خطوة." : "Know your numbers before anything else."}
+              {c.startTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "احسب سعراتك اليومية وتوزيع الماكروز المثالي لهدفك بدقة — بنفس معادلات المنصة المعتمدة علمياً، ودون أي تسجيل."
-                : "Calculate your exact daily calories and macro split tailored to your goal — using the platform's own validated formulas, free with no signup."}
+              {c.startBody}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2339,18 +2323,16 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <div className="relative max-w-xl">
                 <span className="seal-chip">
                   <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-                  {isAr ? "EVO — مدربك الذكي داخل المنصة" : "EVO — YOUR AI COACH"}
+                  {c.evoEyebrow}
                 </span>
                 <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                  {isAr ? "تحدّث مع EVO — بالعربية أو الإنجليزية." : "Talk to EVO — in Arabic or English."}
+                  {c.evoTitle}
                 </h2>
                 <p className="mt-3 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "يفهم هدفك الرياضي، ويجيبك بأرقام وحلول عملية، ثم يبني خطتك ويعدّلها ببدائل ذكية تناسب نمط حياتك — والفقاعة أسفل الصفحة تفتح المحادثة الحقيقية الآن."
-                    : "Understands your fitness goals, delivers clear numbers, and tailors your plan with smart swaps suited to your lifestyle — the bubble at the bottom of this page opens the real chat now."}
+                  {c.evoBody}
                 </p>
                 <div className="mt-7">
-                  <EvoConversation isAr={isAr} />
+                  <EvoConversation isAr={isAr} copy={c} />
                 </div>
               </div>
               {/* HOME-REFINE-271 F2: the mobile warrior-art cutout under
@@ -2379,15 +2361,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "التخطيط الذكي" : "SMART PLANNING"}
+              {c.planEyebrow}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "خطتك تُبنى هنا — فعلًا." : "Your plan is built right here."}
+              {c.planTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "حدّد اختياراتك واضغط زر الإنشاء — خطة كاملة بالتمارين والمجموعات أو بالوجبات والغرامات تتولّد هنا في الصفحة، بنفس محرك الأدوات."
-                : "Set your choices and hit generate — a full plan (exercises and sets, or meals in grams) is created right on this page by the same engine as the tools."}
+              {c.planBody}
             </p>
           </Reveal>
           <div className="mt-8 grid gap-4 md:mt-10 md:gap-5 lg:grid-cols-2">
@@ -2402,13 +2382,11 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             <Reveal delay={120} className="lg:col-span-2">
               <div className="marble-card flex flex-col items-center justify-between gap-3 px-5 py-4 text-center md:flex-row md:gap-4 md:text-start">
                 <p className="text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {isAr
-                    ? "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط — دون تسجيل."
-                    : "Every visitor carries a free monthly plan allowance — no signup."}
+                  {c.planAllowance}
                 </p>
                 <span className="seal-chip shrink-0 py-1! text-[11px]!">
                   <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
-                  {isAr ? "توليد حقيقي داخل الصفحة" : "REAL IN-PAGE GENERATION"}
+                  {c.planAllowanceChip}
                 </span>
               </div>
             </Reveal>
@@ -2430,12 +2408,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               {isAr ? `${EX_PLUS} تمرينًا` : `${EX_PLUS} EXERCISES`}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "مكتبة التمارين" : "The exercise library"}
+              {c.libraryTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "عينة تفاعلية من المكتبة — اختر مجموعة عضلية واستكشف التمارين الموجهة المشروحة بصور الأداء الصحيح لتفادي الإصابات."
-                : "An interactive slice of the library — pick a muscle group to explore targeted exercises with proper form photos and technique cues."}
+              {c.libraryBody}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2456,12 +2432,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               {isAr ? `${FOODS_PLUS} صنفًا غذائيًا` : `${FOODS_PLUS} FOODS`}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "اعرف أرقام طبقك قبل أن تأكله." : "Know your plate's numbers before you eat it."}
+              {c.eatTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام تشمل المطبخ العربي والعالمي — اختر صنفًا من القاعدة وشاهد أرقامه تتحرك."
-                : "Accurate calories, protein, carbs, and fat for every 100 g across regional and global staples — pick a food and watch its numbers move."}
+              {c.eatBody}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2470,7 +2444,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           {/* ONE focused section CTA. */}
           <Reveal delay={120} className="mt-8 text-center">
             <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-              {isAr ? "استكشف قاعدة الأطعمة" : "Explore the food database"}
+              {c.eatCta}
               <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
@@ -2489,15 +2463,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="dumbbell" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "برامج جاهزة" : "READY-MADE PROGRAMS"}
+              {c.trainEyebrow}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "برامج التمارين الجاهزة" : "Ready-made training programs"}
+              {c.trainTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "برامج تدريبية متكاملة بالجداول والتمارين والمجموعات والتكرارات — اتبعها كما هي، أو اجعلها نقطة انطلاق وعدّلها بحسب وقتك ومعداتك."
-                : "Structured workout routines with schedules, exercises, sets, and reps — follow one as-is, or make it your starting point and adapt it to your gear."}
+              {c.trainBody}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2517,7 +2489,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               href={isAr ? "/ar/programs" : "/programs"}
               className="btn-outline px-7 py-3 text-sm font-medium md:text-base"
             >
-              {isAr ? "كل البرامج" : "All programs"}
+              {c.trainCta}
               <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
@@ -2537,12 +2509,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               {isAr ? `${dietPlansCount} خطة جاهزة` : `${dietPlansCount} READY-MADE PLANS`}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "مكتبة الخطط الغذائية الجاهزة" : "The ready-made diet-plan library"}
+              {c.dietTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "أنظمة غذائية متوازنة بالغرامات والسعرات لكل صنف، من مطبخ عربي مألوف بمكونات يومية — من 1200 إلى 3000 سعرة."
-                : "Balanced diet plans with exact grams and calories per food, from real-world kitchens — from 1,200 to 3,000 kcal."}
+              {c.dietBody}
             </p>
           </Reveal>
           <Reveal delay={80} className="mt-8 md:mt-10">
@@ -2560,7 +2530,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           </Reveal>
           <Reveal delay={120} className="mt-8 text-center">
             <a href={isAr ? "/ar/diet-plan" : "/diet-plan"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-              {isAr ? "افتح مكتبة الخطط الغذائية" : "Open the diet-plan library"}
+              {c.dietCta}
               <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
             </a>
           </Reveal>
@@ -2578,7 +2548,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <div className="mx-auto max-w-6xl">
             <Reveal className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {isAr ? "أحدث المقالات" : "Latest Articles"}
+                {c.learnTitle}
               </h2>
             </Reveal>
             <div className="mt-10">
@@ -2590,7 +2560,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
             </div>
             <div className="mt-6 text-center">
               <a href={blogHref} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                {isAr ? "استكشف المحتوى" : "Explore the articles"}
+                {c.learnCta}
                 <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
               </a>
             </div>
@@ -2617,15 +2587,13 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                 coaching band below). */}
             <span className="seal-chip">
               <EngravedIcon name="laurel" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "العضويات والكوتشينج" : "MEMBERSHIPS & COACHING"}
+              {c.membershipsEyebrow}
             </span>
             <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "العضويات المميزة" : "Premium memberships"}
+              {c.membershipsTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "المستوى المجاني دائم لكافة الأدوات — والترقية اختيارية حين ترغب في سعات أوسع ومزايا متقدمة."
-                : "The free tier is permanent for all core tools — upgrade only when you need higher allowances and advanced features."}
+              {c.membershipsBody}
             </p>
           </Reveal>
 
@@ -2737,12 +2705,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
               <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
                 <div>
                   <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                    {isAr ? "التدريب الأونلاين الشخصي" : "1-on-1 Online Coaching"}
+                    {c.coachingTitle}
                   </h3>
                   <p className="mt-2 max-w-2xl text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                    {isAr
-                      ? "مدرب شخصي معتمد يصمم خطتك التدريبية والغذائية، ويتابع تقدمك أسبوعياً، مع تواصل مباشر ومستمر — شاملاً جميع مزايا باقة برو."
-                      : "A dedicated certified coach builds your training and nutrition plans, tracks your weekly progress, and stays in direct contact — with all Pro features included."}
+                    {c.coachingBody}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-start gap-3 md:items-end">
@@ -2753,7 +2719,7 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
                     </span>
                   </span>
                   <a href={isAr ? "/ar/coaching" : "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium">
-                    {isAr ? "استكشف التدريب الأونلاين ›" : "Explore online coaching ›"}
+                    {c.coachingCta}
                   </a>
                 </div>
               </div>
@@ -2778,12 +2744,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
         <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "مدربون معتمدون على Alkemos" : "Featured Coaches on Alkemos"}
+              {c.coachesTitle}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-base font-normal" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "نخبة من المدربين المحترفين المعتمدين لمتابعتك خطوة بخطوة — اضغط على أي مدرب للاطلاع على ملفه وخبراته."
-                : "Certified professional coaches ready to guide you step by step — tap any coach to visit their profile."}
+              {c.coachesBody}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
               {featuredCoaches.map((coach, i) => {
@@ -2834,10 +2798,10 @@ export function LandingView({ samples }: { samples: HomeSamples }) {
           <Reveal className="text-center">
             <span className="seal-chip">
               <EngravedIcon name="scroll" alt="" size={12} className="h-3 w-3" />
-              {isAr ? "الأسئلة الشائعة" : "COMMON QUESTIONS"}
+              {c.faqEyebrow}
             </span>
             <h2 className="mt-5 text-center text-3xl font-semibold tracking-tight md:text-4xl">
-              {isAr ? "أسئلة قبل أن تبدأ." : "Questions, answered."}
+              {c.faqTitle}
             </h2>
           </Reveal>
           <Reveal delay={80}>
