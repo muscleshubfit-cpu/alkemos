@@ -24,7 +24,7 @@ Stage Summary:
 - التسليم: سكريبت مسح جاهز للتشغيل اليدوي من Supabase Dashboard → SQL Editor — ذرّي/متكرر/محصور بالبريدين نصًا (مستحيل يمس حسابًا آخر) وصفر تغيير هيكلي.
 - الرابط الخام للمالك: https://raw.githubusercontent.com/muscleshubfit-cpu/alkemos/main/supabase/migrations/RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql
 - التشغيل يطبع إشعارًا لكل بريد (جاري المسح/تم/غير موجود) ويغلق بـNOTIFY pgrst + استعلام التحقق النهائي (auth_users_left / profiles_left / leads_left = 0/0/0).
-- Commit SHA: (يُسجَّل بكوميت التوثيق التالي مباشرة بعد الدفع)
+- Commit SHA: 9c6defef (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
 - Push status: pushed
 
 ---
