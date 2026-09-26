@@ -35,6 +35,7 @@ import {
   Wallet,
   ShieldQuestion,
   Briefcase,
+  ArrowRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -566,7 +567,10 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         >
           {/* Start side: hamburger + helmet mark — Phase 138. Mark pair
               (light/dark, ~5.7KB each) ThemeImg CSS-switches with the
-              theme; tap → home. */}
+              theme; tap → home. TPL-BASE: the mark rides the template's
+              logo chip (grid h-9 w-9 rounded-xl bg-gradient-to-br
+              from-[#ff4d26] to-[#ff9353]) with the wordmark beside it
+              — the template's nav lockup. */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setOpen(true)}
@@ -577,21 +581,23 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
             </button>
             <button
               onClick={() => navigate("landing")}
-              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-[var(--tint)]"
+              className="group flex items-center gap-2 font-display text-lg font-bold tracking-tight text-[var(--text)] transition-opacity hover:opacity-80"
               aria-label="Alkemos"
             >
-              <ThemeImg
-                light="/images/brand/mark-helmet-light.png"
-                dark="/images/brand/mark-helmet-dark.png"
-                alt="Alkemos"
-                /* PHASE 138: helmet MARK (no wordmark) 128x128 shown at 36px
-                    (covers 3x DPR). Dark variant = luminosity-inverted
-                    engraving so the mark pops on dark chrome. */
-                width={128}
-                height={128}
-                eager
-                className="h-9 w-9 object-contain"
-              />
+              {/* TPL-BASE — the template's logo chip: ember gradient,
+                 rounded-xl, mark inside. */}
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#ff4d26] to-[#ff9353]">
+                <ThemeImg
+                  light="/images/brand/mark-helmet-light.png"
+                  dark="/images/brand/mark-helmet-dark.png"
+                  alt=""
+                  width={128}
+                  height={128}
+                  eager
+                  className="h-6 w-6 object-contain"
+                />
+              </span>
+              <span className="hidden sm:inline">Alkemos</span>
             </button>
 
             {/* DESKTOP SERVICE NAV (Phase 202): the five core services —
@@ -621,12 +627,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                         onClick={() =>
                           setOpenMenu((prev) => (prev === section.id ? null : section.id))
                         }
-                        className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                        className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-[color-mix(in_srgb,var(--text)_70%,transparent)] transition-colors hover:text-[var(--text)]"
                       >
-                        <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
                         {isAr ? section.labelAr : section.labelEn}
                         <ChevronDown
-                          className="h-3.5 w-3.5 text-[var(--muted-foreground)] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180"
+                          className="h-3.5 w-3.5 opacity-50 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180"
                           aria-hidden="true"
                         />
                       </button>
@@ -669,9 +674,8 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                   <a
                     key={section.id}
                     href={section.href}
-                    className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
+                    className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-[color-mix(in_srgb,var(--text)_70%,transparent)] transition-colors hover:text-[var(--text)]"
                   >
-                    <Icon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
                     {isAr ? section.labelAr : section.labelEn}
                   </a>
                 );
@@ -679,9 +683,26 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
             </nav>
           </div>
 
-          {/* End side: theme + language + notifications + account — Phase
-              138 tidy: ALL utility buttons grouped here, uniformly sized. */}
+          {/* End side: template CTA + theme + language + notifications +
+              account — Phase 138 tidy: ALL utility buttons grouped here,
+              uniformly sized. TPL-BASE: the landing variant gains the
+              template's nav pill (white bg → acid hover, arrow nudge) as
+              the “Book 7-day trial” analog: guests get «Start free» →
+              signup; members get their console. The app variant stays
+              navigation-only (its surfaces already own their CTAs). */}
           <div className="flex items-center gap-2 md:gap-3">
+            {variant === "landing" && (
+              <a
+                href={isLoggedIn ? accountHref : "/auth?mode=signup"}
+                className="group hidden items-center gap-2 rounded-full bg-[var(--text)] px-4 py-2 text-sm font-semibold text-[var(--bg)] transition-colors hover:bg-[#d7ff4d] hover:text-[#1a0e0a] md:inline-flex"
+              >
+                {isLoggedIn
+                  ? isAr ? "لوحتك" : "Your dashboard"
+                  : isAr ? "ابدأ مجانًا" : "Start free"}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
+              </a>
+            )}
+
             {/* Theme toggle — light/dark/auto (returned from the menu side:
                 Phase 128 moved it left only to un-crowd the centered logo,
                 which no longer exists). */}
