@@ -1433,3 +1433,4 @@ Owner ask: «افحص داشبورد الادمن لان محتاج تنسيق �
 - **(273 + 271+270) HOME-PARITY-273 وHOME-REFINE-271/270 (فريمات كود):** tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 100/1702 · build ✓ 2020/2020 لكل فريم (كاناري homepage-adoption أعيد تثبيته لكل هيكل) — التفاصيل بمدخلاتها بworklog
 - **(263/262/261 + 260/259/258/257/256/255/254/253/251/250) البوابات خضراء وقت كل فريم** (تفاصيلها بمدخلات worklog + LIVE-VERIF المستقلة)
 - **(288) ARCH-REMEDIATION-288 (فريم حوكمة/توثيق):** py_compile للسكريبتين ✓ · docs_audit ✓ (H5 أخضر بعد الدوران: 12 مدخلًا) · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (صفر كود تطبيق) — التفصيل بworklog
+- **(289) ARCH-REMEDIATION-289 (فريم توثيقي/بوابات):** docs_audit ✓ (بفحص M الثنائي الجديد وبدون I) · docs_parity ✓ · py_compile ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — التفصيل بworklog

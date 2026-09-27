@@ -7,6 +7,24 @@
 > Newest on top; append-only; one entry per task (§12.5.1).
 
 ---
+Task ID: ARCH-REMEDIATION-291-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P3-1+P3-3 من التقرير الحاكم: نقل التقارير المغلقة إلى docs/archive/ (التقارير تُولد مؤرشفة) + فصل سجل تنفيذ SEO-GEO عن الخطة — صفر مساس بالكود/المنطق/الواجهة.
+
+Work Log:
+- (P3-1 نقل) 24 تقرير point-in-time منفذ انتقل بgit mv (التاريخ محفوظ) إلى docs/archive/: تقارير التدقيق العميق 16/18 + VERCEL-USAGE + UI/UX (4+3) + ترحيل التوثيق (تقرير+خطة) + تعريب الأطعمة (تدقيق اللغة + 3 تقارير دفعات) + Drills (2) + RECOVERY-LINK/OTP + ADMIN-DASH/DASH-WAVE + CONTENT-REWRITE + NOTIF-I18N-250 + STAFF-BELL-I18N-251 — سطح docs/ الحي صار 18 ملف مراجع حية فقط (هدف التقرير ~17).
+- (P3-1 قانون) «التقارير تُولد مؤرشفة» بدخلتها بdocs/README.md (How to keep this registry true §1): أي تقرير/خطة/سجل جديد يهبط مباشرة بdocs/archive/ مع صفه بالسجل — لم يعد يوجد مسار «يُولد حيًا ثم يُنقل لاحقًا».
+- (P3-3 فصل السجل) سجل تنفيذ SEO-GEO §12 (200,012 حرفًا ≈ 300KB — 64% من الملف) انتقل حرفيًا إلى docs/archive/SEO-GEO-EXECUTION-LOG.md (مولود مؤرشف بصفه) — الخطة 341.8KB→45.4KB بقسم §12 كعبًا يشير للسجل؛ الإدخالات الجديدة تُلحق بملف السجل — صف خريطة مصادر الحقيقة بSTATE حُدث.
+- (مراجع) تحديث كل الإحالات للملفات المنقولة: AGENTS.md §12.5.2 (تقرير docs-context) · SECURITY.md (UX-TEST-REPORT ×3) · docs/CI_GATES.md (خطة الترحيل) · docs/README.md (كل الصفوف المنقولة) — صفر مسارات ميتة (فحص R/M أخضر).
+- (STATE) صف 291 + صف QA 291 — سلّم ≤2 (صف 289 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: ed8713b9 (CI أخضر).
+- (التحقق — فريم توثيقي) docs_audit ✓ (42→19 ملف docs/*.md حي كلها مسجلة — الفحص الثنائي يشمل docs/archive تلقائيًا لأن الصفوف تشير للمسارات الجديدة) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓.
+
+Stage Summary:
+- المواد التاريخية لم تعد تستهلك سياق التنفيذ: سطح docs/ الحي = مراجع فقط، وخطة SEO صارت قابلة للصيانة، وكل تقرير مستقبلي يُولد مؤرشفة من اليوم الأول.
+- الملفات الممسوسة: 24 git mv + docs/archive/SEO-GEO-EXECUTION-LOG.md (جديد) + docs/SEO-GEO-MASTER-PLAN.md (45KB) + docs/README.md (الصفوف + القانون) + AGENTS.md + SECURITY.md + docs/CI_GATES.md + STATE.md (إحالات + 291) + الأرشيفان (صف 289) + worklog.md (هذا المدخل).
+- Push status: pushed
+
+---
 Task ID: ARCH-REMEDIATION-290-FIXUP-2026-09-28
 Agent: Implementation Agent
 Task: إصلاح فوري: سكريبت الدوران scripts/worklog_rotate.py لم يُرفع أبدًا — .gitignore السطر `/scripts/*` ابتلعه (نفس فخ generate-og-cards.py الموثق بذيل الملف) فالبوابة خضراء محليًا (الملف على القرص) وحمراء بCI (غير موجود بالcheckout) — «حارس مش متكمّم مش حارس» بالمقلوب: حارس على القرص وغير مدفوع ليس حارسًا.
@@ -231,28 +249,4 @@ Stage Summary:
 - المحتوى البشري الطبيعي مطبّق بالكامل بالعربية الفصحى الجامعة والإنجليزية العالمية.
 - مصطلح «الكوتشينج» استُبدل في واجهات الزائر بـ «التدريب الأونلاين الشخصي».
 - كافة الوظائف والمسارات وقواعد البيانات ومفاتيح الكاناري محفوظة 100%.
-
----
-Task ID: TPL-REF-280-2026-09-26
-Agent: Super Z (owner session)
-Task: أمر المالك 2026-09-26 (بعد EMBER-INK-279): «أرجع آخر إعادة تصميم/تنفيذ قالب كاملةً إلى آخر حالة معروفة جيدة، ثم ابنِ التحديث البصري صحيحًا — القالب مرجع بصري/component فقط؛ UX Alkemos هو مصدر الحقيقة: الهيكل والترتيب والهيرو الأصلي والوضعان الفاتح/الداكن وألوان الماكرو الدلالية محفوظة؛ لا نسخ بنية القالب ولا هويته Ember & Ink ولا تصميمه الداكن فقط؛ النتيجة Alkemos بنظام بصري fitness-tech أرقى لا القالب بمحتوى Alkemos».
-
-Work Log:
-- (السحب 279R أولًا) git restore --source=97c07252 --staged --worktree . — الشجرة رجعت بايت-بايت لآخر حالة معروفة جيدة (VRD-V8R، نهاية 278): الهيرو الأصلي رئيسًا فوق صورته، الهيكل والترتيب (Hero→proof→#start→#evo→#plan→#library→#eat→#train→#diet→#learn→#memberships→#faq)، الخطوط الأصلية (Playfair/Inter/Cairo)، manifest themeColor الأصلي، وصفات الرخام والكروم كاملة — كوميت b228425d.
-- (بوابات الشجرة المرجعة) tsc 0 · eslint 0 · vitest 1705/1705 · next build 2020/2020 — ثم push فوري للتراجع الإنتاجي + إصلاح صف السجل (DESIGN_SYSTEM 25→26 بعد كوميت السحب — درس م-07) بكوميت cd4a428e.
-- (تحليل القالب كمرجع) قراءة قالب 1devtool landing-fitness-studio كاملًا وفصل التقنيات عن الهوية: المرفوض حكمًا (هوية Ember & Ink #FF4D26/#FF9353/#D7FF4D — Sora/Outfit — dark-only — بنيته: هيرو الشبكة/الماركيه/ترويسات مقسمة/أرقام مرقمة بأبيض-10/أسعاره الملونة) والمقبول كتقنيات (micro-interaction السهم translate-x عند hover · الfeatured glow العميق · نمط أرقام display على الإحصاءات · نمط الرقم الشبحي على الكروت النصية).
-- (1 .chev) قوس CTA ينزلق 4px نحو اتجاه القراءة عند hover — وصفة CSS خالصة بtranslate property الفردية (تتآلف مع rotate-180 لـTailwind بلا مصفوفة) · [dir=rtl] مرآة · opt-in على 10 مواضع (زيرا الهيرو بالحالتين + CTAs الأقسام الخمسة + CTA الحاسبة) — رقائق evo-handoff مستثناة عمدًا (أبها ليس btn-*) · سكون تحت reduced-motion.
-- (2 .ghost-num) رقم شبحي font-display (Playfair/كايرو عبر الستاك) 44px/600 فوق عنوان كروت الأنظمة الغذائية داخل التدفق (وضع القالب نفسه فلا تداخل نصي أبدًا) بلون color-mix(--text 10%) — صفر هكسات جديدة، انعكاس تلقائي مع الثيم، aria-hidden بلا معنى ترتيبي.
-- (3 ظل بريميوم) 0 24px 60px -28px rgba(11,11,13,.55) على الكارت الداكن المثبت (darkMarbleStyle) — عمق الfeatured pricing من القالب معاد التلوين دافئًا أحاديًا (بلا حدود ember ولا غسلة لونية).
-- (4 أرقام display) شريط الإثبات: الأرقام بfont-display 18→20px (نمط إحصاءات القالب بخط العرض Alkemos نفسه — الصف يبقى مضغوطًا) · سعرة الطبق ب#eat: font-display على رقم 48px القائم — اللون الكرومي والأرقام الحقيقية كما هي.
-- (الكاناري +5 نفس الفريم) homepage-adoption.test.ts: عقد TPL-REF-280 — وصفة .chev حرفيًا + مرآة RTL + حارس reduced-motion + العدد 10 · وصفة .ghost-num + aria-hidden + index من الmap · الظل الحرفي + حظر #ff4d26/#ff9353/#d7ff4d · الأرقام الحرفية للعرض · سياج النطاق: صفر font-family بSora/Outfit وصفر .tpl- وصفر --ember وكلا الوضعين يوثقان التوكنات كاملة ( Guards على التصريحات لا على سرد التعليقات — قانون AGENTS §8) — 35/35.
-- (البوابات) tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 100/1710 (+5) · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ · docs_parity ✓ · docs_audit ✓ (الصفوف محدثة بنفس الفريم) · contrast matrix ✓ كلا الوضعين (لم تُمس أي ألوان نص) · next build ✓ 2020/2020.
-- (التحقق الحي محليًا) EN/AR × Light/Dark × 1440/390 — أدناه.
-- (التوثيق) DESIGN.md: ترويسة 280 + صفّا .chev/.ghost-num ب§5 + TPL-REF-280 ب§7.1.1/§7.4/§7.4.1 · DESIGN_SYSTEM.md: ترويسة + صفّا الوصفتين + ملاحظة كروت الأنظمة · docs/README.md: صفا DESIGN/DESIGN_SYSTEM بتاريخ 280 · STATE.md: مرحلة 280 + صف 279R (دمج 270-273 للحفاظ على السقفين).
-
-Stage Summary:
-- السحب نظيف وموثق: الشجرة الحية = 97c07252 + تكامل انتقائي فوقها فقط؛ Ember & Ink لم يعد له أي أثر (كاناري يمنع عودته) والإنتاج رجع لحالة 278 لحظة كوميت السحب.
-- النتيجة: Alkemos نفسه بأربع لمسات premium مكتسبة من القالب كمرجع تقني فقط — صفر أقسام جديدة، صفر تغيير بنية/ترتيب/هيرو/أزرار/منطق/أسعار/مسارات، الوضعان الفاتح/الداكن متساويان، ألوان الماكرو الدلالية بأسطح التطبيق (#34c759/#0071e3/#ff9500 في meal-planner/food-detail وغيرها) لم تُمس ولم تُستبدل بأحادية — وصفات الرئيسية الأحادية (macro-track/split-seg) بقيت كما كانت بقانونها وكاناريها.
-- ملفات الفريم: src/app/globals.css · src/components/views/LandingView.tsx · src/lib/__tests__/homepage-adoption.test.ts · DESIGN.md · src/docs/DESIGN_SYSTEM.md · docs/README.md · STATE.md · worklog.md.
-- Commit: (التنفيذ — يُدفع بعد البوابات) فوق b228425d (السحب) + cd4a428e (parity السجل).
 

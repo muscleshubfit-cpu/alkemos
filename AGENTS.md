@@ -255,7 +255,7 @@ Rules: the `---` separator before each entry is mandatory (append-only log); `Ta
 
 #### 12.5.2 Periodic Documentation Audit (Cadence)
 
-A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/archive/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
+A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/archive/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/archive/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
 
 ### 12.6 Duplicate Tasks
 

@@ -398,7 +398,7 @@ These are in addition to the general operating rules in `AGENTS.md`:
     wiring. §7 pre-approval trail: the owner ordered «ابدأ تنفيذ
     الخطوة التالية» immediately after being shown the proposed next
     step «إصلاح H1-2026» (the auth signup deadlock documented in
-    `docs/UX-TEST-REPORT-2026-09-21.md` §3, reproduced live twice with
+    `docs/archive/UX-TEST-REPORT-2026-09-21.md` §3, reproduced live twice with
     SQL proof). Invariants: the password write is gated on
     `invited_at` set + `last_sign_in_at` null (pending invites ONLY —
     self-registered or activated accounts can never have their
