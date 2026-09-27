@@ -3,13 +3,13 @@
 > **قانون (AGENTS.md §3.6):** ده أول ملف أي وكيل يقرأه قبل أي شغل — وبيتحدث إلزاميًا في نفس الفريم اللي بيغيّر الحالة.
 > الملف محدود بـ 100 سطر و32,000 بايت بوابةً (`scripts/docs_audit.py`) — اكتب مضغوط؛ التاريخ الكامل بworklog + archive/.
 > **قانون التوحيد (Phase 115):** الملف ده هو **المصدر الرسمي والوحيد** لحالة المشروع الحية — `PROGRESS.md` و`QA_CHECKLIST.md` مجمدون في `archive/`.
-> **آخر تحديث:** 2026-09-28 (**المرحلة 291 — ARCH-REMEDIATION-291 «P3-1+P3-3: التقارير المغلقة تُولد مؤرشفة» — مدخل ARCH-REMEDIATION-291-2026-09-28 بworklog**)
-> **آخر كوميت متحقق منه:** ed8713b9 (فريم 290+FIXUP — دُفع وCI أخضر عليه: parity success)
+> **آخر تحديث:** 2026-09-28 (**المرحلة 292 — ARCH-REMEDIATION-292 «P3-2+P3-4: تخفيف §8 + توحيد مرايا DESIGN» — مدخل ARCH-REMEDIATION-292-2026-09-28 بworklog**)
+> **آخر كوميت متحقق منه:** 624ea53b (فريم 291 — دُفع وCI أخضر عليه)
 
 ## المرحلة الحالية
-- **المرحلة:** 291 (فوق 290 — ARCH-REMEDIATION-290 بworklog)
+- **المرحلة:** 292 (فوق 291 — ARCH-REMEDIATION-291 بworklog)
+- **(٠٠) 292 — ARCH-REMEDIATION-292 «P3-2+P3-4»: سرد قوانين §8 كاملًا انتقل حرفيًا إلى TECH_REFERENCE §6 (القانون يبقى اسمًا + جوهرًا ملزمًا + إحالة) وقراءة الجلسة صارت §1–§4+§12 فقط (~17KB — ترويسة AGENTS تحدد النطاق) + توحيد مرايا DESIGN: DESIGN.md = القانون وglobals.css = مصدر التشغيل وDESIGN_SYSTEM.md/design-tokens.ts صارا pointer-only (صفر مستوردين) — مدخل ARCH-REMEDIATION-292-2026-09-28 بworklog
 - **(٠٠) 291 — ARCH-REMEDIATION-291 «P3-1+P3-3»: 24 تقرير-point-in-time منفذ انتقلت إلى docs/archive/ (docs/ = مراجع حية فقط — 18 ملفًا) + قانون «التقارير تُولد مؤرشفة» + سجل تنفيذ SEO-GEO §12 (~300KB) انتقل حرفيًا إلى docs/archive/SEO-GEO-EXECUTION-LOG.md والخطة 341.8KB→45.4KB — مدخل ARCH-REMEDIATION-291-2026-09-28 بworklog
-- **(٠٠) 290 — ARCH-REMEDIATION-290 «P2: التحقق المحدد بالنطاق»: quality-gate.yml بpaths-ignore لدفعات docs-only (البطارية الكاملة للكود فقط — بوابات parity/guard على كل دفعة كما هي) + §3.5 التحقق المحلي المحدد بالنطاق (فريمات docs: docs_parity+docs_audit فقط — سابقة 223/283 قانونًا) + قانون تثبيت الكاناري (سلوك/بنية قبل الأعداد التجميلية) — مدخل ARCH-REMEDIATION-290-2026-09-28 بworklog
 - تاريخ المراحل كاملًا (234→287): سطر لكل مرحلة بworklog + صفوفها الحرفية بarchive/PROGRESS_ARCHIVE.md (انتقلت بفريم 289 — STATE حالة لا سجل)
 
 ## المفتوح الآن
@@ -31,9 +31,9 @@
 - **المولد القديم وبرميل data/ وparseJSONLoose ممنوعة الإحياء** (171) — 7 معرفات محظورة بحارس stale-refs
 - API/ويدجت الشركاء (EVO-6) ممنوع الإحياء (170) · `auth.users` يدويًا فقط · مزودو AI: OpenRouter + Groq + NVIDIA NIM فقط · ممنوع تعديل ميجريشنز مطبَّقة · ممنوع أرقام متغيرة داخل README/DEVELOPER_GUIDE · ممنوع إحياء PROGRESS/QA في الجذر · slug العمود لا يُمس أبدًا — workflow التنظيف يكتب content/reading_time/updated_at فقط (+faq_json في وضع FAQ_HYGIENE=1 الصريح اختياريًا 176)
 
-## ملخص جودة المرحلة (QA — المرحلة 291)
+## ملخص جودة المرحلة (QA — المرحلة 292)
+- **(292) ARCH-REMEDIATION-292 (فريم كود-توثيقي — بطارية كاملة لأنه يمس src/):** tsc ✓ 0 · eslint ✓ 0 · vitest ✓ كاملة · next build ✓ (التفصيل بworklog) · docs_audit ✓ · docs_parity ✓ — التفصيل بworklog
 - **(291) ARCH-REMEDIATION-291 (فريم توثيقي/أرشفة):** git mv ‏(تاريخ محفوظ) لكل التقارير · docs_audit ✓ (M ثنائي أخضر بعد تحديث كل الصفوف والمراجع) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · صفر مساس بأي ملف src — التفصيل بworklog
-- **(290) ARCH-REMEDIATION-290 (فريم CI+توثيق):** yaml صالح (تحقق بنية paths-ignore) ✓ · docs_audit ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ — التفصيل بworklog
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)
 

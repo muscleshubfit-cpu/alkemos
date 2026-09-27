@@ -1434,3 +1434,4 @@ Owner ask: «افحص داشبورد الادمن لان محتاج تنسيق �
 - **(263/262/261 + 260/259/258/257/256/255/254/253/251/250) البوابات خضراء وقت كل فريم** (تفاصيلها بمدخلات worklog + LIVE-VERIF المستقلة)
 - **(288) ARCH-REMEDIATION-288 (فريم حوكمة/توثيق):** py_compile للسكريبتين ✓ · docs_audit ✓ (H5 أخضر بعد الدوران: 12 مدخلًا) · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (صفر كود تطبيق) — التفصيل بworklog
 - **(289) ARCH-REMEDIATION-289 (فريم توثيقي/بوابات):** docs_audit ✓ (بفحص M الثنائي الجديد وبدون I) · docs_parity ✓ · py_compile ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — التفصيل بworklog
+- **(290) ARCH-REMEDIATION-290 (فريم CI+توثيق):** yaml صالح (تحقق بنية paths-ignore) ✓ · docs_audit ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ — التفصيل بworklog

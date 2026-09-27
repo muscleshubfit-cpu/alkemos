@@ -63,11 +63,13 @@ deleted (nothing ever set `class="dark"` — the theme engine is the
 `globals.css`). Do NOT recreate a config file — extend via `@theme` /
 `@utility` in `globals.css` only.
 
-**VRD-V6 mirrors (owner directive 2026-09-25):** the typed token registry
-lives at `src/styles/design-tokens.ts` and the full implementation-facing
-design-system reference at `src/docs/DESIGN_SYSTEM.md` — both mirror this
-architecture; `globals.css` stays the runtime single source (drift between
-the three is a defect — fix in the same commit).
+**Design-doc unification (Phase 292 — ARCH-REMEDIATION, audit P3-4):**
+`DESIGN.md` (this file) is the SINGLE binding design law; `src/app/
+globals.css` stays the runtime single source of truth for tokens and
+recipe classes. The former mirrors — `src/styles/design-tokens.ts` and
+`src/docs/DESIGN_SYSTEM.md` — are pointer-only since Phase 292 (their full
+content is preserved in git history through Phase 291): a UI change
+touches THIS file + `globals.css`, not three docs.
 
 (`tailwindcss-animate` in
 package.json is likewise vestigial — the live plugin import is

@@ -9,8 +9,9 @@
 > column is RETIRED — git is the single source of every date (`scripts/docs_audit.py` derives
 > and prints them in its report; nothing polices prose dates anymore). Check M is now
 > BIDIRECTIONAL: every row's paths exist AND every top-level `docs/*.md` carries a row.
-> **Agent session reading budget (§3.6, resized Phase 289):**
-> `STATE.md` (~11 KB) → `AGENTS.md` §1–§4 + §12 → top-3 `worklog.md` entries
+> **Agent session reading budget (§3.6, resized Phase 292):**
+> `STATE.md` (~11 KB) → `AGENTS.md` §1–§4 + §12 (~17 KB — the session read; §5–§11 are
+> on-demand binding law) → top-3 `worklog.md` entries
 > → everything else ON DEMAND via STATE's source-of-truth map. Do not read this file top-to-bottom
 > in a normal session — jump to the row you need.
 
@@ -24,7 +25,7 @@
 | `README.md` | Front door + feature law surface | LIVE | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | — |
 | `SECURITY.md` | Security policy | LIVE | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | — |
+| `DESIGN.md` | Design system — THE binding design law (single source; the former mirrors are pointer-only since Ph 292 — a UI change touches DESIGN.md + globals.css only) | LIVE | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | §3.8 |
@@ -36,8 +37,9 @@
 |---|---|---|
 | `docs/README.md` (this file) | Documentation lifecycle registry (bidirectional since Ph 289) | LIVE |
 | `docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md` | Repository architecture audit — documentation·testing·validation·Git·CI: verified facts (A1–A6) + root-cause map (RC-1..RC-7) + the minimum architecture (Part C) + remediation plan P0–P4 — the AUTHORITATIVE SPEC for the remediation session | LIVE (ACTIVE — authoritative reference; flips to EXECUTED when the remediation lands, per its Lifecycle-status line) |
-| `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE |
-| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE |
+| `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage + §6: the full AGENTS §8 law narratives relocated verbatim at Ph 292) | LIVE |
+| `src/docs/DESIGN_SYSTEM.md` | Design-system pointer — single-source unification (Ph 292, audit P3-4): DESIGN.md is the law, globals.css the runtime source; full content preserved in git history through Ph 291 | LIVE (pointer-only) |
+| `src/styles/design-tokens.ts` | Typed token registry — retired pointer-only module (Ph 292): zero importers, duplicated globals.css by hand; do not re-add constants | LIVE (pointer-only) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan (§12 execution log extracted at Ph 291 — the plan is now a maintainable 45KB) | LIVE |
 | `docs/archive/SEO-GEO-EXECUTION-LOG.md` | The SEO/GEO §12 implementation log (§12.1→§12.53 + external-audit plan + P0 execution), extracted verbatim from the master plan at Ph 291 — new execution-log entries append HERE | LIVE (append-only log — born archived, Ph 291) |
