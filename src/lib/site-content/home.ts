@@ -9,16 +9,14 @@
  * homepage FAQ set here (5 hesitation-removers) stays SEPARATE from
  * the /faq page's 10-question set (static-pages.ts) exactly as before.
  *
- * HOME-PLATFORM-284 (owner order 2026-09-27 «الصفحة الرئيسية كواجهة
- * منصة حقيقية»): the registry follows the homepage restructure — the
- * calculator-section group (home.start) became the TOOLS-section group
- * (home.tools: one card → /tools, no embedded calculators), the EVO
- * demo group (home.evo) retired with the section (the EVO card's copy
- * is tool-entry copy, pinned in the view), the nutrition framing
- * (home.eat) now presents the THREE clearly-differentiated ways, and
- * the AI-planning group (home.plan) names what gets GENERATED. Retired
- * Supabase override rows under the old keys are simply ignored (the
- * fallback law: the code defaults always render).
+ * HOME-POLISH-285 (owner order 2026-09-27 «تحسين أقسام الرئيسية»): the
+ * nutrition framing (home.eat) became the FOOD LIBRARY preview title/body
+ * (mirroring the exercise-library pattern), the tools group (home.tools)
+ * now frames the TILE preview (the manual Meal Planner joined the tools
+ * tiles), and the free-allowance bar moved to just BEFORE the AI section
+ * (it introduces the AI planners). Retired Supabase override rows under
+ * the old keys are simply ignored (the fallback law: the code defaults
+ * always render).
  *
  * SCOPE GUARD (what is deliberately NOT here):
  *   - Interactive tool labels (planner buttons, quota chips) — tool
@@ -192,17 +190,17 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Accurate calculators that give you your numbers in seconds, plus a daily water tracker — the tools page gathers them all, free with no signup.",
+          "Accurate calculators that give you your numbers in seconds, the manual meal planner, and a daily water tracker — each tool opens on its own page, free with no signup.",
         defaultAr:
-          "حاسبات دقيقة تعطيك أرقامك في ثوانٍ، ومتتبع يومي لشرب الماء — صفحة الأدوات تجمعها كلها مجانًا، دون أي تسجيل.",
+          "حاسبات دقيقة تعطيك أرقامك في ثوانٍ، ومخطط وجبات يدوي تبني فيه وجباتك بنفسك، ومتتبع يومي لشرب الماء — كل أداة تعمل في صفحتها مباشرة، مجانًا ودون أي تسجيل.",
       },
       {
         prop: "toolsCta",
         key: "home.tools.cta",
-        labelEn: "Card CTA label",
-        labelAr: "تسمية زر البطاقة",
-        defaultEn: "Open the tools page",
-        defaultAr: "افتح صفحة الأدوات",
+        labelEn: "Section CTA button",
+        labelAr: "زر الدعوة للإجراء",
+        defaultEn: "All tools",
+        defaultAr: "كل الأدوات",
       },
     ],
   },
@@ -285,16 +283,16 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
   },
   {
     key: "home.eat",
-    labelEn: "Nutrition section (#eat)",
-    labelAr: "قسم التغذية (#eat)",
+    labelEn: "Food library section (#eat)",
+    labelAr: "قسم مكتبة الأطعمة (#eat)",
     fields: [
       {
         prop: "eatTitle",
         key: "home.eat.title",
         labelEn: "Section heading",
         labelAr: "عنوان القسم",
-        defaultEn: "Your nutrition, three clear ways",
-        defaultAr: "تغذيتك بثلاث طرق واضحة",
+        defaultEn: "The food library",
+        defaultAr: "مكتبة الأطعمة",
       },
       {
         prop: "eatBody",
@@ -303,9 +301,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Know your foods' numbers in a huge database, build your meals yourself in the manual planner, or start instantly from the ready-made plan library — and when you want a complete daily plan generated for you by AI, that's the AI Planning section below.",
+          "Browse the categories and six real foods from the {foods} food database — every card carries the food's per-100g calories and macros, one tap from its full page.",
         defaultAr:
-          "اعرف أرقام أطعمتك في قاعدة بيانات ضخمة، أو ابنِ وجباتك بنفسك في المخطط اليدوي، أو ابدأ فورًا من مكتبة الخطط الجاهزة — وإن أردت خطة يوم كاملة تتولد لك بالذكاء الاصطناعي فستجدها في قسم التخطيط الذكي أدناه.",
+          "تصفح الفئات وستة أصناف حقيقية من قاعدة تضم {foods} صنف غذائي — كل بطاقة تحمل سعرات الصنف وماكروزه لكل 100 جرام، وصفحته الكاملة على بُعد ضغطة.",
       },
     ],
   },

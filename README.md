@@ -24,27 +24,37 @@ confidential**, accessible only to owner-authorized collaborators
 ### The platform homepage (`src/components/views/LandingView.tsx`)
 The homepage is a true PLATFORM homepage — concise sections with CARDS
 that link to the real pages, mirroring the header's service nav
-(HOME-PLATFORM-284): a Training section (the muscle-group browser
-previewing SIX real exercises per family, fed by the server-provided
-curated samples), a Programs carousel, a Nutrition section with three
-clearly-differentiated cards (the food database · the MANUAL Meal
-Planner «ابنِها بنفسك» · the READY-MADE diet-plan library «جاهزة
-للتصفح»), the diet-systems carousel, a Tools section that is ONE wide
-card to the `/tools` hub (the calculators themselves are NOT embedded —
-their chips derive from `src/lib/tools-shared.ts`), and an AI Planning
-section — deliberately distinct from the tools — carrying the three AI
-surfaces as explicitly AI-powered cards: the AI Workout Planner, the
-AI Meal Planner (a STRUCTURED full-day plan with portions in grams —
-not mere suggestions), and EVO with a chat button that opens the real
-floating widget (the chat-surface law). NO tool runs on the homepage
-anymore — the pages own the doing; the homepage owns the navigation.
-The hero carries exactly two CTAs (login/signup + the memberships
-page) over a compact one-row proof strip; memberships render as small
-cards (prices derive from `memberships.ts` — never literals; each
-card lists its tier's REAL limit-derived feature rows with the same
-checkseal mark the memberships page uses) plus one online-coaching
-card. Motion is once-only, transform/opacity-only, and
-fully `prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2).
+(HOME-PLATFORM-284, polished by HOME-POLISH-285): a Training section
+(the muscle-group browser previewing SIX real exercises per family,
+fed by the server-provided curated samples), a Programs carousel, a
+FOOD LIBRARY section previewing the `/foods` hub the same way the
+exercise library is previewed (the nine category chips route into
+`/foods?cat=…` filtered views; SIX real curated food cards — each
+stating its real per-100g calories and macros — link into the food
+detail pages), the diet-systems carousel, a Tools section of VISUAL
+TILES (the five calculators/tracker PLUS the manual Meal Planner
+«ابنِها بنفسك», every tile linking to its tool page — the tools
+derive from `src/lib/tools-shared.ts` and never run on the homepage),
+the honest free-allowance band (the free monthly plan quota, placed
+right before the AI section so it introduces the planners), and an
+AI Planning section — deliberately distinct from the tools — carrying
+TWO strong explicitly-AI-powered planner cards with filled chrome
+CTAs (the AI Workout Planner, and the AI Meal Planner promising a
+STRUCTURED full-day plan with portions in grams — not mere
+suggestions) plus EVO as a full-width card with a chat button that
+opens the real floating widget (the chat-surface law). NO tool runs
+on the homepage — the pages own the doing; the homepage owns the
+navigation. The hero carries exactly two CTAs (login/signup + the
+memberships page) over a compact one-row proof strip; memberships
+render as small cards (prices derive from `memberships.ts` — never
+literals; each card lists its tier's REAL limit-derived feature rows
+with the same checkseal mark the memberships page uses) — PRO wears
+the section's single dark highlighted card — each tier carries a
+clear visible CTA (`.btn-outline` on the light cards,
+`.btn-outline-dark` on the dark Pro card), plus one online-coaching
+card. The FAQ closes the page as a directly-visible grid of Q&A
+cards (no accordion). Motion is once-only, transform/opacity-only,
+and fully `prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2).
 
 ### Free content & tools — no account needed
 - **Exercise library** — 868 exercises with start/end position images

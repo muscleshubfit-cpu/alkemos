@@ -19,8 +19,10 @@
  *     muscle family: chest / back / legs / shoulders / biceps /
  *     triceps / core), each with its real bilingual name,
  *     level, equipment, category label, and first real image URL.
- *   - 8 REAL foods (curated slugs spanning protein / carbs / fats /
- *     fruit / dairy), each with its real per-100g calories & macros.
+ *   - 6 REAL foods (HOME-POLISH-285 — the nutrition section became
+ *     the Food Library preview mirroring the exercise-library pattern:
+ *     SIX curated cards spanning protein / carbs / fats / fruit /
+ *     dairy), each with its real per-100g calories & macros.
  *   - 3 REAL programs (the same curated trio the homepage featured
  *     before, now from the real array: real images, duration, split,
  *     level, location).
@@ -116,8 +118,6 @@ export const FOOD_SAMPLE_SLUGS = [
   "chicken-breast", // protein
   "salmon", // protein
   "white-rice", // carb
-  "oats", // carb
-  "sweet-potato", // carb
   "avocado", // fat
   "banana", // fruit
   "greek-yogurt", // dairy

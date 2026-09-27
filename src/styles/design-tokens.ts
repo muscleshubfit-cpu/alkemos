@@ -147,12 +147,13 @@ export const LAYOUT = {
 export const RECIPES = [
   "btn-chrome",        // primary CTA — chrome pill + machined bevel (VRD-V6)
   "btn-outline",       // secondary CTA — glass pill over artwork
+  "btn-outline-dark",  // HOME-POLISH-285: the light-ink secondary for the dark Pro card
   "marble-card",       // the surface card (+ .card-lift for interactive)
   "seal-chip",         // engraved eyebrow chip
   "chrome-text",       // metallic numerals (dark-steel light / silver dark)
   "hero-pill",         // VRD-V6: the hero platform-trio glass pills
   "split-rail",        // VRD-V6: the diet-card macro split rail
-  "chips-row",         // the muscle-chip rail (scroll-snap on touch)
+  "chips-row",         // the muscle/food-category chip rail (scroll-snap on touch)
   "navbar-chrome",     // sticky translucent navbar
   "footer-marble",     // the footer structural band
   "meander-divider",   // the Greek meander narrative divider

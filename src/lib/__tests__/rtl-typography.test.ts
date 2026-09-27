@@ -138,14 +138,16 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
     }
   });
 
-  it("the FAQ rows gained a full-row hover + bigger higher-contrast chevron", () => {
+  it("the FAQ answers are directly visible — a grid of Q&A cards, no accordion (HOME-POLISH-285)", () => {
     const src = readFileSync(LANDING, "utf8");
-    const m = src.match(/<AccordionTrigger className="([^"]*)"/);
-    expect(m, "FAQ AccordionTrigger not found").toBeTruthy();
-    const cls = m![1];
-    expect(cls).toContain("hover:bg-[var(--bg)]");
-    expect(cls).toContain("[&>svg]:size-5");
-    expect(cls).toContain("[&>svg]:text-[var(--muted-2)]");
+    // The retired click-to-reveal surface stays dead…
+    expect(src).not.toContain("<Accordion");
+    expect(src).not.toContain("AccordionTrigger");
+    // …and the visible grid contract holds: a two-column md grid of
+    // marble Q&A cards (the last card spans both columns for balance).
+    expect(src).toContain("mt-8 grid gap-4 md:mt-10 md:grid-cols-2");
+    expect(src).toContain('className={i === faqs.length - 1 ? "md:col-span-2" : undefined}');
+    expect(src).toContain('className="marble-card h-full p-5 md:p-6"');
   });
 
   it("viewport themeColor is the two-value theme pair, not Apple blue", () => {

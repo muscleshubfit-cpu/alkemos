@@ -404,6 +404,31 @@
 }
 .btn-outline:hover { opacity: 0.72; }
 
+/* HOME-POLISH-285 — .btn-outline-dark: the SAME secondary pill recipe
+ * re-inked for the ALWAYS-dark Pro membership card (the pinned-black
+ * surface the owner moved from Premium to Pro). The light-outline
+ * treatment keeps the CTA clearly visible on #0B0B0D in BOTH page
+ * themes; shape/sizing mirror .btn-outline exactly so the three tier
+ * CTAs read as ONE consistent family (the coaching band keeps the
+ * section's single FILLED .btn-chrome). */
+.btn-outline-dark {
+  background: rgba(245, 245, 247, 0.06);
+  border: 1px solid rgba(245, 245, 247, 0.45);
+  color: #F5F5F7;
+  border-radius: 999px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+@media (min-width: 768px) {
+  .btn-outline-dark { min-height: 48px; }
+}
+.btn-outline-dark:hover { opacity: 0.8; }
+
 /* ====================================================================
  * TPL-REF-280 (2026-09-26) — SELECTIVE template-informed micro-polish.
  * Owner order: the 1devtool landing-fitness-studio template is a VISUAL
@@ -424,9 +449,11 @@
  * ==================================================================== */
 .chev { transition: translate 0.2s ease; }
 .btn-chrome:hover .chev,
-.btn-outline:hover .chev { translate: 4px 0; }
+.btn-outline:hover .chev,
+.btn-outline-dark:hover .chev { translate: 4px 0; }
 [dir="rtl"] .btn-chrome:hover .chev,
-[dir="rtl"] .btn-outline:hover .chev { translate: -4px 0; }
+[dir="rtl"] .btn-outline:hover .chev,
+[dir="rtl"] .btn-outline-dark:hover .chev { translate: -4px 0; }
 @media (prefers-reduced-motion: reduce) {
   .chev { transition: none; }
 }

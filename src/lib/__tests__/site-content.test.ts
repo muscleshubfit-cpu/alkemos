@@ -89,14 +89,18 @@ describe("SITE-CONTENT-281 — token engine (live library sizes)", () => {
 });
 
 describe("SITE-CONTENT-281 — homepage copy resolution", () => {
-  it("with no overrides, every field resolves to its default verbatim", () => {
+  it("with no overrides, every field resolves to its default verbatim (tokens substituted)", () => {
     const c = resolveHomeCopy(undefined, false);
     for (const field of HOME_TEXT_FIELDS) {
-      expect(c[field.prop]).toBe(field.defaultEn);
+      // HOME-POLISH-285: home.eat.body carries the {foods} token — the
+      // resolver substitutes the live library size at resolve time (the
+      // sanctioned static-pages pattern), so the "verbatim" expectation
+      // applies the SAME token pass to the default before comparing.
+      expect(c[field.prop]).toBe(applySiteTokens(field.defaultEn));
     }
     const cAr = resolveHomeCopy(undefined, true);
     for (const field of HOME_TEXT_FIELDS) {
-      expect(cAr[field.prop]).toBe(field.defaultAr);
+      expect(cAr[field.prop]).toBe(applySiteTokens(field.defaultAr));
     }
   });
 

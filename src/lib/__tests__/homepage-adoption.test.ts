@@ -216,19 +216,28 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     }
   });
 
-  // (5) THE TOOLS SECTION — ONE card linking to the /tools hub (the
-  //     owner's explicit directive: NOT the actual calculators). The
-  //     chips derive from the tools-shared single source; the three
-  //     planners are filtered out (they own their sections).
-  it("the tools section is one card to the /tools hub with derived chips", () => {
+  // (5) THE TOOLS SECTION — VISUAL TILES (HOME-POLISH-285 owner
+  //     directive: proper cards/tiles linking to the tool pages, NOT
+  //     a plain chip list, and never the actual calculators). The tiles
+  //     derive from the tools-shared single source: the five
+  //     calculators/tracker PLUS the MANUAL Meal Planner (it joined the
+  //     section per the owner order — its «ابنِها بنفسك» chip keeps the
+  //     manual/AI differentiation); the two AI planners stay EXCLUDED
+  //     (they own the AI Planning section).
+  it("the tools section renders visual tiles from the single source (meal planner in, AI planners out)", () => {
     const src = readFileSync(LANDING, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the #tools section is missing").toContain('id="tools"');
-    // ONE wide card → the tools hub (locale-aware).
-    expect(src).toContain('href={isAr ? "/ar/tools" : "/tools"}');
-    // The chips derive from the single source (never literals).
+    // The tile family (engraved icon + name + one-line desc + arrow).
+    expect(src).toContain("function ToolTile");
+    // The tiles derive from the single source (never literals) — the
+    // 285 filter: calculators/tracker + the manual Meal Planner.
     expect(src).toContain('import { TOOLS, TOOLS_COUNT } from "@/lib/tools-shared"');
-    expect(src).toContain("TOOLS.filter((t) => !t.slug.startsWith(\"/\")).map((t) =>");
+    expect(src).toContain('TOOLS.filter((t) => !t.slug.startsWith("/") || t.slug === "/meal-planner")');
+    // The manual Meal Planner tile keeps its differentiation chip.
+    expect(src).toContain('t.slug === "/meal-planner" ? (isAr ? "ابنِها بنفسك" : "YOU BUILD IT") : undefined');
+    // The ONE focused section CTA → the /tools hub (locale-aware).
+    expect(src).toContain('href={isAr ? "/ar/tools" : "/tools"}');
     // The section copy follows the registry (SITE-CONTENT-281).
     expect(copy).toContain("اعرف أرقامك قبل أي خطوة.");
     expect(copy).toContain("Know your numbers before anything else.");
@@ -239,18 +248,27 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
 
   // (6) THE AI PLANNING SECTION (#plan) — the AI family's navigation
   //     surface, deliberately distinct from #tools: the AI Workout
-  //     Planner + the AI Meal Planner (explicitly AI-powered cards —
-  //     the meal card promises a STRUCTURED full-day plan with
-  //     portions in grams, not mere suggestions) + EVO with the
-  //     chat-surface law, and NO human-coaching service inside.
-  it("the #plan section carries the three AI cards, clean of human-coaching services", () => {
+  //     Planner + the AI Meal Planner as TWO STRONG cards (HOME-POLISH-285:
+  //     visually heavier, explicitly AI-powered, with FILLED chrome CTA
+  //     buttons — the meal card promises a STRUCTURED full-day plan with
+  //     portions in grams, not mere suggestions) + EVO as the full-width
+  //     AI-coach band with the chat-surface law, and NO human-coaching
+  //     service inside. The honest free-allowance band moved to JUST
+  //     BEFORE the section (the 285 owner order — it introduces the AI
+  //     planners).
+  it("the #plan section carries the strong AI cards + EVO, clean of human-coaching services; the allowance band introduces the section", () => {
     const src = readFileSync(LANDING, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the #plan section is missing").toContain('id="plan"');
+    // The STRONG AI card family (filled chrome CTA + the cyan ai-ring
+    // on the engraved icons — the AI-surface law).
+    expect(src).toContain("function AiCard");
+    expect(src).toContain('className="btn-chrome mt-5 w-full px-6 py-3 text-sm md:text-base"');
+    expect(src).toContain('className="ai-ring h-12 w-12 shrink-0 rounded-full"');
     // The three AI surfaces — locale-aware card links.
     expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
     expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
-    expect(src).toContain('href={isAr ? "/ar/evo" : "/evo"}');
+    expect(src).toContain('href={isAr ? "/ar/evo" : "/evo"');
     // EXPLICITLY AI-POWERED: every planner card carries the AI chip and
     // its full AI name (the owner's directive).
     expect(src).toContain('"بالذكاء الاصطناعي" : "AI-POWERED"');
@@ -264,8 +282,8 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     expect(src).toContain("not just meal suggestions");
     expect(src).toContain("كمياتها بالغرامات وسعراتها المحسوبة");
     expect(src).toContain("portions in grams, and calculated calories");
-    // The generate CTAs (the pinned benefit-first labels, now on the
-    // AI cards).
+    // The generate CTAs (the pinned benefit-first labels, now FILLED
+    // buttons on the AI cards).
     expect(src).toContain("أنشئ خطتي");
     expect(src).toContain("Create My Plan");
     expect(src).toContain("أنشئ خطة التمارين");
@@ -273,12 +291,16 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     // The section framing follows the registry — AI, not calculators.
     expect(copy).toContain("التخطيط بالذكاء الاصطناعي");
     expect(copy).toContain("AI PLANNING");
-    // The honest free-allowance bar (single source re-pinned — the
-    // text lives in the registry, the bar lives in the view).
+    // THE ALLOWANCE BAND (HOME-POLISH-285: moved from AFTER the EVO card
+    // to IMMEDIATELY BEFORE the section — it introduces the AI planners).
+    // The text lives in the registry; the band renders before #plan.
     expect(readBoth()).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
     expect(readBoth()).toContain("free monthly plan allowance");
     expect(readBoth()).toContain("توليد بالذكاء الاصطناعي");
     expect(readBoth()).toContain("AI GENERATION");
+    const allowanceAt = src.indexOf('aria-label={isAr ? "رصيد الخطط المجاني" : "The free plan allowance"}');
+    expect(allowanceAt, "the free-allowance band is missing").toBeGreaterThan(-1);
+    expect(allowanceAt, "the allowance band must sit BEFORE the #plan section").toBeLessThan(src.indexOf('id="plan"'));
     // The EVO card: the chat surface stays the floating widget (the
     // law) + the honest visitor quota.
     expect(src).toContain("openEvoFloatingChat");
@@ -300,30 +322,49 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("Online Coaching");
   });
 
-  // (7) THE NUTRITION TRIO — Meal Planner / AI Meal Planner / ready-made
-  //     Diet Plans stay clearly differentiated: the manual planner chip,
-  //     the ready-made chip, and the AI cross-reference in the copy.
-  it("the nutrition section differentiates the manual planner, the AI planner, and the ready-made plans", () => {
+  // (7) THE FOOD LIBRARY PREVIEW (#eat) — HOME-POLISH-285 owner order:
+  //     the nutrition section mirrors the Exercise Library pattern
+  //     (the redundant «تغذيتك بثلاث طرق واضحة» trio retired). The nine
+  //     category chips route into /foods?cat=…; SIX real curated food
+  //     cards — each stating its REAL per-100g calories + macros — link
+  //     into the food detail pages. The trio differentiation survives,
+  //     redistributed to its owning sections: the MANUAL Meal Planner
+  //     chip lives in #tools, the READY-MADE diet plans live in #diet,
+  //     and the AI Meal Planner lives in #plan.
+  it("the nutrition section is the FOOD LIBRARY preview (categories + six real foods); the trio differentiation lives in its owning sections", () => {
     const src = readFileSync(LANDING, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the #eat section is missing").toContain('id="eat"');
-    // The three nutrition surfaces — locale-aware card links.
-    expect(src).toContain('href={isAr ? "/ar/foods" : "/foods"}');
-    expect(src).toContain('href={isAr ? "/ar/meal-planner" : "/meal-planner"}');
-    expect(src).toContain('href={isAr ? "/ar/diet-plan" : "/diet-plan"}');
-    // The explicit differentiation chips.
+    // The exercise-library pattern: the category chips derive from the
+    // foods-shared single source (vocabulary + images) and route into
+    // the hub's own filtered views (real crawlable links).
+    expect(src).toContain('import { FOODS_COUNT, CATEGORY_LABELS as FOOD_CATEGORY_LABELS, type FoodCategory } from "@/lib/foods-shared"');
+    expect(src).toContain("const FOOD_CATEGORIES: FoodCategory[]");
+    expect(src).toContain('href={`${isAr ? "/ar/foods" : "/foods"}?cat=${cat}`}');
+    // The six real food cards — the server-provided curated samples
+    // (bundle law), each linking into its food detail page.
+    expect(src).toContain("function LandingFoodCard");
+    expect(src).toContain('href={`${isAr ? "/ar/foods" : "/foods"}/${food.slug}`}');
+    expect(src).toContain("samples.foods.map");
+    // The 8,830+ database context + the browse-all CTA.
+    expect(src).toContain("استكشف مكتبة الأطعمة كاملة");
+    expect(src).toContain("Explore the full food library");
+    // The section copy follows the registry (the {foods} token rides
+    // the site-content engine).
+    expect(copy).toContain("مكتبة الأطعمة");
+    expect(copy).toContain("The food library");
+    expect(copy).toContain("{foods}");
+    // The TRIO DIFFERENTIATION, redistributed (the owner's law):
+    // manual planner chip in #tools (its href derives from the
+    // tools-shared slug — the tile link builder), ready-made plans in
+    // #diet, AI meal planner in #plan.
     expect(src).toContain('"ابنِها بنفسك" : "YOU BUILD IT"');
-    expect(src).toContain('"جاهزة للتصفح" : "READY TO BROWSE"');
-    // The manual planner's body states WHO builds the meal.
-    expect(src).toContain("أنت من يبني الوجبة");
-    expect(src).toContain("You build the meal");
-    // The AI cross-reference is explicit (the AI planner lives in the
-    // AI section below — the owner's differentiation directive).
-    expect(copy).toContain("قسم التخطيط الذكي أدناه");
-    expect(copy).toContain("the AI Planning section below");
-    // The section copy follows the registry.
-    expect(copy).toContain("تغذيتك بثلاث طرق واضحة");
-    expect(copy).toContain("Your nutrition, three clear ways");
+    expect(src).toContain("t.slug.startsWith(\"/\")");
+    expect(src).toContain("`/ar${t.slug}`");
+    expect(src).toContain('href={isAr ? "/ar/diet-plan" : "/diet-plan"}');
+    // The retired trio framing stays dead in EITHER file.
+    expect(readBoth()).not.toContain("تغذيتك بثلاث طرق واضحة");
+    expect(readBoth()).not.toContain("Your nutrition, three clear ways");
   });
 
   // (8) The block map + the real content entry points.
@@ -352,10 +393,13 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       "Ready-made training programs",
       "كل البرامج",
       "All programs",
-      // NUTRITION — the food-database card copy + the retired
-      // explorer framing replaced by the trio.
-      "استكشف قاعدة الأطعمة",
-      "Explore the food database",
+      // NUTRITION — the food-library preview + its browse-all CTA
+      // (HOME-POLISH-285: the trio cards retired with their CTAs).
+      "استكشف مكتبة الأطعمة كاملة",
+      "Explore the full food library",
+      // TOOLS — the tile preview's browse-all CTA.
+      "كل الأدوات",
+      "All tools",
       // DIET — the diet-plan library carousel + its CTA.
       "مكتبة الخطط الغذائية الجاهزة",
       "The ready-made diet-plan library",
@@ -373,6 +417,7 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       // The samples prop drives the content sections (server-provided
       // real data — the bundle law holds).
       "samples.exercises",
+      "samples.foods",
       "samples.programs",
       "samples.dietSystems",
       // VRD-V8R: the memberships section keeps the eyebrow rhythm +
@@ -387,10 +432,11 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       "Ad-free experience",
       "theme-img-pin-dark",
       // VRD-V8R: the FAQ closer keeps the eyebrow + the finished
-      // marble-card surface (the pinned AccordionTrigger classes stay).
+      // marble-card surface. HOME-POLISH-285: the answers are DIRECTLY
+      // VISIBLE — a clean two-column grid of Q&A cards, no accordion.
       "الأسئلة الشائعة",
       "COMMON QUESTIONS",
-      'className="marble-card mt-8 p-2 md:mt-10 md:p-4 [&>*:last-child]:border-b-0"',
+      'className="marble-card h-full p-5 md:p-6"',
     ]) {
       expect(both, `content entry point missing: ${required}`).toContain(required);
     }
@@ -439,6 +485,14 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       "توليد حقيقي داخل الصفحة",
       "REAL IN-PAGE GENERATION",
       "توليد حقيقي داخل الصفحة، بنفس محرك الأدوات",
+      // HOME-POLISH-285 retirements: the nutrition trio + its
+      // cross-reference, the wide tools card, and the FAQ accordion.
+      "استكشف قاعدة الأطعمة",
+      "Explore the food database",
+      "صفحة الأدوات المجانية",
+      "The free tools page",
+      "<Accordion",
+      "AccordionTrigger",
     ]) {
       expect(both, `retired block string returned: "${banned}"`).not.toContain(banned);
     }
@@ -596,29 +650,69 @@ describe("HOME-PLATFORM-284 — density, CTA & card contract", () => {
   });
 
   // O-3 asymmetry (the compact memberships section): the coaching
-  // card carries the section's ONE filled CTA; the quiet outline
-  // buttons live on the section-level browse CTAs. The unified
-  // browse-all section-CTA recipe (48px touch floor) covers the three
-  // single-CTA sections (#library, #train, #diet); the blog CTA keeps
-  // the quiet px-6 py-2.5 recipe.
-  it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card", () => {
+  // card carries the section's ONE filled CTA; the tier cards carry
+  // CLEAR visible CTAs in the SAME consistent recipe (HOME-POLISH-285
+  // owner order): .btn-outline on the light cards (Free + Premium) and
+  // .btn-outline-dark on the dark PRO card. The unified browse-all
+  // section-CTA recipe (48px touch floor) covers the single-CTA
+  // sections (#library, #eat, #train, #diet, #tools); the blog CTA
+  // keeps the quiet px-6 py-2.5 recipe. (The AI planner cards in
+  // #plan carry filled chrome CTAs by the same 285 owner order — a
+  // different section, sanctioned there.)
+  it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card; the tier CTAs are clear and consistent", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain(': "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
     expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(1);
+    // The three tier CTAs — visible buttons in the consistent family.
+    expect(src.match(/className="btn-outline mt-4 w-full px-6 py-2\.5 text-sm font-medium"/g)?.length).toBe(2);
+    expect(src).toContain('className="btn-outline-dark mt-4 w-full px-6 py-2.5 text-sm font-medium"');
     // The unified browse-all section-CTA recipe (48px touch floor):
-    // #library, #train, #diet — three single-CTA sections (the AI and
-    // nutrition cards carry their own chrome-text arrows).
+    // #library, #eat, #train, #diet, #tools — five single-CTA sections.
     expect(src.match(/className="btn-outline px-7 py-3 text-sm font-medium md:text-base"/g)?.length).toBeGreaterThanOrEqual(3);
   });
 
+  // HOME-POLISH-285 — the dark anchor swap: the pinned-black marble
+  // + chrome ring + Recommended seal belong to PRO (the owner's order);
+  // Premium returns to the light marble family. Prices, features, and
+  // links untouched.
+  it("memberships: the dark highlighted card is PRO, not Premium (the 285 owner order)", () => {
+    const src = readFileSync(LANDING, "utf8");
+    // The tier render order is Free → Premium → Pro; the dark recipe
+    // (chrome-text-on-dark + .btn-outline-dark + the Recommended seal)
+    // must sit inside the PRO card, and Premium's region must be back
+    // on the light marble family. The Pro card's opening wrapper
+    // (style={darkMarbleStyle}) precedes its tier name — the region
+    // anchors on the card's JSX comment, not the name render.
+    const premiumAt = src.indexOf("{isAr ? premiumTier?.nameAr : premiumTier?.nameEn}");
+    const proCardAt = src.indexOf("Pro — THE dark highlighted card");
+    const proNameAt = src.indexOf("{isAr ? proTier?.nameAr : proTier?.nameEn}");
+    expect(premiumAt).toBeGreaterThan(-1);
+    expect(proCardAt).toBeGreaterThan(premiumAt);
+    expect(proNameAt).toBeGreaterThan(proCardAt);
+    const premiumBlock = src.slice(premiumAt, proCardAt);
+    const proBlock = src.slice(proCardAt, proNameAt + 1800);
+    expect(premiumBlock).not.toContain("chrome-text-on-dark");
+    expect(premiumBlock).not.toContain("darkMarbleStyle");
+    expect(premiumBlock).not.toContain("pinDark");
+    expect(premiumBlock).toContain('className="btn-outline mt-4 w-full px-6 py-2.5 text-sm font-medium"');
+    expect(proBlock).toContain("darkMarbleStyle");
+    expect(proBlock).toContain("chrome-text-on-dark");
+    expect(proBlock).toContain('className="btn-outline-dark mt-4 w-full px-6 py-2.5 text-sm font-medium"');
+    expect(proBlock).toContain("pinDark");
+    // The Recommended seal — exactly one, and it sits inside the dark
+    // Pro card (the section's single dark anchor).
+    expect(src.match(/موصى بها" : "Recommended/g)?.length).toBe(1);
+    expect(proBlock).toContain('موصى بها" : "Recommended');
+  });
+
   // The unified hover law: every INTERACTIVE homepage card family
-  // rides the .card-lift recipe — HOME-PLATFORM-284: TEN families
-  // (platform-card, evo-card, tools-card, exercise, program, diet,
-  // blog, coach, free-card, pro-card).
-  it("unified card hover: card-lift on all ten interactive card families; recipe + reduced-motion guard in css", () => {
+  // rides the .card-lift recipe — HOME-POLISH-285: ELEVEN families
+  // (food-card, tool-tile, ai-card, evo-card, exercise, program,
+  // diet, blog, coach, free-card, premium-card).
+  it("unified card hover: card-lift on all eleven interactive card families; recipe + reduced-motion guard in css", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
-    expect(src.match(/marble-card card-lift/g)?.length).toBe(10);
+    expect(src.match(/marble-card card-lift/g)?.length).toBe(11);
     for (const required of [
       ".marble-card.card-lift:hover {",
       "transform: translateY(-2px)",
@@ -881,18 +975,23 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     for (const required of [
       ".chev { transition: translate 0.2s ease; }",
       ".btn-chrome:hover .chev,",
-      ".btn-outline:hover .chev { translate: 4px 0; }",
+      ".btn-outline:hover .chev,",
+      // HOME-POLISH-285: the dark Pro-card secondary joins the hover
+      // nudge (the .btn-outline-dark re-ink of the same recipe).
+      ".btn-outline-dark:hover .chev { translate: 4px 0; }",
       '[dir="rtl"] .btn-chrome:hover .chev,',
-      '[dir="rtl"] .btn-outline:hover .chev { translate: -4px 0; }',
+      '[dir="rtl"] .btn-outline:hover .chev,',
+      '[dir="rtl"] .btn-outline-dark:hover .chev { translate: -4px 0; }',
     ]) {
       expect(css, `chev recipe missing: ${required}`).toContain(required);
     }
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     expect(reduced.join("\n")).toContain(".chev { transition: none; }");
     // Opt-in scope: every .chev span in the view is a pill-CTA chevron
-    // (the 284 frame: the two hero CTAs ×2 + the three browse-all CTAs
-    // + the diet/library/platform card arrows — eight in all).
-    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(8);
+    // (the 285 frame: the two hero CTAs ×2 + the five browse-all CTAs
+    // (library/eat/train/diet/tools) + the blog CTA + the three tier
+    // CTAs + the AiCard CTA — fourteen in all).
+    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(14);
     expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
   });
 
@@ -913,7 +1012,7 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     expect(css).not.toContain("text-white/10");
   });
 
-  it("(3) featured Premium card: the template's featured-pricing depth, re-toned warm", () => {
+  it("(3) featured Pro card: the template's featured-pricing depth, re-toned warm (the 285 dark-anchor swap: PRO wears the pinned black)", () => {
     expect(src).toContain('boxShadow: "0 24px 60px -28px rgba(11, 11, 13, 0.55)"');
     // The ember featured treatments never cross over.
     expect(src).not.toContain("#ff4d26");

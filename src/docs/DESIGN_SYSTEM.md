@@ -91,6 +91,7 @@ never negative (connected-script law).
 |---|---|---|
 | `.btn-chrome` | PRIMARY action | chrome pill + machined bevel + warm ink `#1C1710` label (≥5.2:1 on every stop) |
 | `.btn-outline` | SECONDARY action | glass pill: `--card` 72% + blur(6px) + 1px `--text` border (VRD-V6 fill) |
+| `.btn-outline-dark` | secondary on pinned-black cards | HOME-POLISH-285 — the same pill re-inked light for the ALWAYS-dark Pro membership card (`rgba(245,245,247,.45)` border, `#F5F5F7` ink) |
 | `.hero-pill` | platform-trio chips (hero) | VRD-V6 — non-interactive glass pills; two-button law intact |
 | `.marble-card` (+`.card-lift`) | every surface card | `--card` fill + chrome hairline + shadow + inner highlight; 2px lift on interactive cards only, reduced-motion safe |
 | `.seal-chip` | eyebrow labels | uppercase micro-chip, chrome hairline |
@@ -98,7 +99,7 @@ never negative (connected-script law).
 | `.split-rail` + `.split-seg--*` | macro split visual | VRD-V6 — diet cards; segments derive from `--text` via color-mix (auto theme-inverting) |
 | `.chev` | pill-CTA chevron micro-slide | TPL-REF-280 — 4px nudge toward reading direction on `.btn-*` hover; individual `translate` property (composes with `rtl:rotate-180`); RTL-mirrored; reduced-motion frozen; opt-in per span |
 | `.ghost-num` | diet-card ghost index numeral | TPL-REF-280 — `font-display` 44px/600 in `color-mix(--text 10%)` (zero new hexes, auto theme-inverting); aria-hidden, decorative, no rank meaning |
-| `.chips-row` | muscle chips rail | scroll-snap single row on touch, edge fades, RTL-safe |
+| `.chips-row` | muscle/food-category chips rail | scroll-snap single row on touch, edge fades, RTL-safe; HOME-POLISH-285: the food categories ride the same rail |
 | `.navbar-chrome` | sticky navbar | `--navbar-bg` translucent + blur(12px) saturate(150%) |
 | `.footer-marble` | footer band | tint + hairline (light) / deeper step `#0E0C0A` (dark) |
 | `.hero-art` / `.hero-bg` / `.hero-copy` | hero stage | min-height floors per viewport; no veil ever — glyphs get a theme-aware halo instead |
@@ -113,23 +114,35 @@ never negative (connected-script law).
 3. `#library` **Training** — the muscle-group browser preview: SIX real
    exercise cards per family (HOME-PLATFORM-284).
 4. `#train` **Programs** — the ready-made programs carousel.
-5. `#eat` **Nutrition** — three clearly-differentiated cards: the food
-   database · the MANUAL Meal Planner («ابنِها بنفسك») · the READY-MADE
-   diet-plan library («جاهزة للتصفح»).
+5. `#eat` **Food library** (HOME-POLISH-285) — the exercise-library
+   pattern on the food database: the nine category chips (foods-shared
+   vocabulary + images) route into `/foods?cat=…`; SIX real curated food
+   cards with per-100g calories + macros link into the food pages.
 6. `#diet` **Diet plans** — the diet-systems carousel; diet cards carry
    the macro split rail (VRD-V6) + the ghost index numeral (TPL-REF-280).
-7. `#tools` **Tools** — ONE card to the `/tools` hub (the calculators are
-   NOT embedded on the homepage; tool chips derive from tools-shared.ts).
-8. `#plan` **AI Planning** — three AI cards (AI Workout Planner · AI Meal
-   Planner — a structured full-day plan with grams — · EVO with a
-   `openEvoFloatingChat()` chat button, the chat-surface law) + the honest
-   free-allowance bar. Deliberately distinct from `#tools`.
-9. `#learn` **Latest articles** — latest-first carousel (renders only when
-   posts loaded).
-10. **Meander divider** → `#memberships` **Memberships** — three small cards
-    (Free/Premium/Pro; Premium = the ONE dark anchor) + the LIGHT coaching
-    service band (VRD-V6) + the 7-day refund fact.
-11. Featured coaches (paid-ad strip, conditional) → `#faq` → **SiteFooter**.
+7. `#tools` **Tools** (HOME-POLISH-285) — VISUAL TILES preview: the five
+   calculators/tracker + the MANUAL Meal Planner («ابنِها بنفسك»), every
+   tile linking to its tool page (derived from tools-shared.ts; the tools
+   themselves are NOT embedded on the homepage).
+8. **Free-allowance band** (HOME-POLISH-285) — the honest free monthly
+   plan quota, placed immediately BEFORE the AI section so it introduces
+   the AI planners.
+9. `#plan` **AI Planning** — TWO strong AI planner cards (AI Workout
+   Planner · AI Meal Planner — a structured full-day plan with grams —
+   both explicitly AI-powered with filled `.btn-chrome` CTAs and the
+   cyan `.ai-ring` on their icons) + EVO as a full-width card with a
+   `openEvoFloatingChat()` chat button (the chat-surface law).
+   Deliberately distinct from `#tools`.
+10. `#learn` **Latest articles** — latest-first carousel (renders only when
+    posts loaded).
+11. **Meander divider** → `#memberships` **Memberships** — three small cards
+    (Free/Premium/Pro; **PRO = the ONE dark anchor** since HOME-POLISH-285,
+    wearing the Recommended seal and `.btn-outline-dark`; Premium is a light
+    marble card) + the LIGHT coaching service band (VRD-V6) + the 7-day
+    refund fact.
+12. Featured coaches (paid-ad strip, conditional) → `#faq` — a DIRECTLY
+    VISIBLE grid of Q&A cards (HOME-POLISH-285 — no accordion) →
+    **SiteFooter**.
 
 Prices always derive from `src/lib/memberships.ts` — never literals.
 Counts always ride `EXERCISES_COUNT` / `FOODS_COUNT` / `TOOLS_COUNT`.

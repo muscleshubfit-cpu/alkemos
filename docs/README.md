@@ -33,7 +33,7 @@
 |---|---|---|---|
 | `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-27 (Ph 283 — QA-PURGE-283: إصلاح تاريخ TECH_REFERENCE المتأخر من 281 + تحديث هذا الصف) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-26 (SITE-CONTENT-281: §1.4 صف site_content — أُصلح تاريخه المتأخر بفريم 283) |
-| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-26 (Ph 280 — TPL-REF-280: +`.chev`/`.ghost-num` recipe rows + ghost-numeral note on the diet cards) |
+| `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-27 (Ph 285 — HOME-POLISH-285: +`.btn-outline-dark` recipe row + the 12-step homepage page-recipe order: food library · tool tiles · allowance band · strong AI cards · PRO dark anchor · visible FAQ grid) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan + §12 execution log (log is append-only) | LIVE | 2026-09-16 |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE | 2026-08-25 |
