@@ -250,9 +250,15 @@ Rules: the `---` separator before each entry is mandatory (append-only log); `Ta
 
 **Entry budget + evidence (Phase 237 — migration Phase 5; hardened Phase 288 — ARCH-REMEDIATION):** each entry ≤ 60 lines (LIVE-VERIF entries ≤ 40); detail belongs in committed scripts or `docs/README.md` registry rows, not prose. An entry that cites a verification script or any evidence artifact must point at a **committed** path (`scripts/live-verify/<task>.sh` or similar) or state explicitly «local-only, not preserved» — a log referencing evidence that exists nowhere is a false log (audit F-11). **The live file IS the active window (Phase 288 hard law, audit P1-1): ≤ 12 entries AND ≤ 128 KB, enforced by `scripts/docs_audit.py` check H5** — anything below the window rotates verbatim to `archive/WORKLOG_ARCHIVE.md` in the SAME commit via `python3 scripts/worklog_rotate.py` (size-driven, never calendar-driven, never one-shot).
 
-#### 12.5.2 Periodic Documentation Audit (Cadence)
+#### 12.5.2 Documentation Audit (exception-driven — Phase 293)
 
-A full documentation audit MUST run: monthly (last week) · after any major feature addition (within 7 days) · after any force-push or major git operation (within 24 hours). The checklist (since Phase 236 — the frozen `docs/archive/_AUDIT.md` snapshot is retired as the operative procedure; audit-report F-09): re-verify every `docs/README.md` registry row (file exists · status still true · last-updated matches `git log -1 --format=%as -- <file>`) + re-run the Appendix-A verification one-liners of `docs/archive/DOCS-CONTEXT-AUDIT-REPORT-2026-09-19.md`. Results append to `worklog.md` under Task ID `DOC-AUDIT-YYYY-MM-DD`.
+> **Rewritten (2026-09-28 — ARCH-REMEDIATION, audit P4-3):** the mandatory MONTHLY full-registry pass is RETIRED — it audited what the per-push gate already verifies (check M re-validates every registry row's paths and coverage on EVERY push; check N re-verifies CI_GATES coverage), and its DOC-AUDIT worklog entries grew the worklog it was auditing (the audit-of-the-audit recursion, RC-5). The registry is now maintained EXCEPTION-DRIVEN:
+
+- **Per push (automatic):** checks M/N (registry bidirectional + workflow coverage) + the full `scripts/docs_audit.py` battery — a drift the old monthly pass could catch is caught at push time instead.
+- **Quarterly spot-check (first week of Jan/Apr/Jul/Oct):** review the gate itself, not the registry — per-check-family failure rates over the quarter (a check that never fails is a candidate to retire/merge; one that fails constantly is a fix-up generator), plus the check-family budget below. Log it as a `DOC-AUDIT-YYYY-MM-DD` worklog entry ONLY if it changes something.
+- **After any force-push or major git operation (within 24 hours):** one `docs_audit.py` + `docs_parity.py` run — the standing rule, unchanged.
+
+**Check-family budget (audit P4-2, law):** `scripts/docs_audit.py` is capped at its current check families; any NEW check must RETIRE or MERGE an existing one in the same commit (H5 merged into H and check I was retired to pay for it — the precedent). The gate governs the docs; this budget governs the gate.
 
 ### 12.6 Duplicate Tasks
 

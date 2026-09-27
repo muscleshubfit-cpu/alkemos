@@ -10516,3 +10516,29 @@ Stage Summary:
 - مصطلح «الكوتشينج» استُبدل في واجهات الزائر بـ «التدريب الأونلاين الشخصي».
 - كافة الوظائف والمسارات وقواعد البيانات ومفاتيح الكاناري محفوظة 100%.
 
+
+<!-- rotated 2026-09-27 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: SITE-CONTENT-281-2026-09-27
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-27: تنفيذ محرر نصوص الموقع الموصى به داخل لوحة الأدمن القائمة — Supabase + /admin فقط، بلا Decap/Payload/CMS خارجي/OAuth/خدمة جديدة؛ تحرير نصوص الرئيسية والصفحات الثابتة AR/EN يدويًا دون كوميت أو نشر لكل تعديل صياغي.
+
+Work Log:
+- (المعاينة) التزمت القوانين: AGENTS.md كاملًا (§3.5، §6، §10) + STATE.md أول الجلسة + fetch origin (HEAD = d13ebf0 = origin/main).
+- (الميجريشن 0094) جدول site_content: key PK + value_en/value_ar jsonb + updated_at/updated_by؛ RLS في نفس الملف (قراءة عامة anon/authenticated على نمط blog_posts المنشور + كتابة أدمن فقط عبر is_admin() الكنسية 0029B)؛ تريغر site_content_touch يختم التدقيق (security definer + search_path ثابت)؛ idempotent + VERIFY + notify pgrst.
+- (المرآة) types.ts: site_content Row/Insert/Update/Relationships في نفس الكوميت — migration_audit صفر انجراف جديد (مطابق قبل الدفع).
+- (طبقة المحتوى) src/lib/site-content/: core.ts (محرك الفولباك الصادق + tokens {exercises}/{foods}) · home.ts (~44 حقلًا نصعيًا في 12 مجموعة + أسئلة الرئيسية الخمسة — نقلًا حرفيًا من LandingView) · static-pages.ts (about/privacy/terms بنيويًا + FAQ من faq-content.ts كمصدر حرفي) · server.ts (unstable_cache 300s + anon — نمط blog-server) · admin.ts (عميل المتصفح + RLS على نمط blog-admin).
+- (الواجهات) LandingView يقبل content? ويحل عبر resolveHomeCopy (الفولباك دائمًا موجودًا) · StaticPageView عبر resolveStaticPage/resolveFaqPage · إفراغ الحقل = رجوع للنص المدمج (null لا يُخزن أبدًا).
+- (المسارات) / و/ar وabout/privacy/terms/faq بنسختي EN/AR: fetch سيرفر-سايد + revalidate=300 (سابقة المدونة) — JSON-LD للأسئلة يستمد من المصفوفات المحلولة نفسها.
+- (الأدمن) /admin/site-content (Content section في AdminShell — «نصوص الموقع ✍️») + AdminSiteContentView: تبويبات، تحرير ثنائي اللغة جنبًا لجنب، أسئلة/أقسام قابلة للإضافة والحذف، تحقق مطابق لقواعد المحلل، طابع تدقيق لكل حقل، Reset لل Defaults.
+- (الكاناري) homepage-adoption: أعيد تثبيت مفاتيح النصوص لمصدرها الواحد الجديد (copy=home.ts، both=view+registry للممنوعات) · أُصلح K-1/K-2 الأحمران سابقًا (انجراف COPY-REFINE-282: معتمدون/توليد خطط أكثر ×1) · library-counts أعيد تثبيته لخط الأنابيب الجديد (view→static-pages→core) · marketing-msa-surface: مصادر النصوص الجديدة داخل المانيفست.
+- (اختبارات جديدة) site-content.test.ts — 13 اختبارًا لمحرك الفولباك والتokens وسلامة السجل.
+- (البوابات §3.5) tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell القديم وحده) · vitest ✓ 1727/1727 · next build ✓ 2020/2020 (المسارات المتأثرة ISR 5m) · smoke الحي محليًا: 10 مسارات 200 والنصوص EN/AR تُصيَّر بالفولباك مع tokens (868+/8,830+) وJSON-LD سليم.
+- (توثيق) README (قانون README للميزات) · TECH_REFERENCE §1.4 صف site_content · INDEX.md صف 0094 + سجل التدقيق · STATE.md المرحلة 281 + QA (ضغط صفوف قديمة للسقف).
+
+Stage Summary:
+- محرر نصوص الموقع حي على البنية القائمة: صفر اعتماديات جديدة، صفر مسارات API جديدة، صفر مساس بمدونتي blog/coach، وصفر مساس بالأسعار/الحدود/الحصص (مصادرها الموحدة).
+- التعديل الصياغي يظهر خلال ~5 دقائق (ISR 300s) بلا كوميت/CI/نشر؛ الصفحة لا تفرغ أبدًا (فولباك صادق مُختبَر).
+- Commit SHA: acba03e7 (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
+- Push status: pushed
+

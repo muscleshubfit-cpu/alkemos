@@ -8,6 +8,12 @@ no single entry point, the law file itself carrying a duplicated §3.6)
 and this gate enforces the cure as code, on every push/PR.
 
 Checks (any failure = exit 1, ::error:: annotations in --ci):
+  CHECK-FAMILY BUDGET (Phase 293 — ARCH-REMEDIATION, audit P4-2, law):
+  the gate is capped at its current families; any NEW check must RETIRE
+  or MERGE an existing one in the same commit (precedent: H5 merged into
+  the H family and check I was retired to pay for it). The gate governs
+  the docs; this budget governs the gate (RC-5).
+
   A. STATE.md exists, ≤ 100 lines, ≤ 32,000 bytes (hard cap — Phase 237,
      migration Phase 5), contains the required sections
      (المرحلة الحالية · المفتوح الآن · بانتظار موافقة المالك ·

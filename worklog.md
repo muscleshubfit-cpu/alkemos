@@ -7,6 +7,25 @@
 > Newest on top; append-only; one entry per task (§12.5.1).
 
 ---
+Task ID: ARCH-REMEDIATION-293-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P4 من التقرير الحاكم وإغلاق جلسة إصلاح المعمارية كاملة (P0→P4، فريمات 287–293): تحصينات منظومة الحوكمة نفسها + قلب حالة التقرير إلى EXECUTED.
+
+Work Log:
+- (P4-1) external-mirror.yml: الجدولة الأسبوعية موقوفة (معلقة تعليقًا) حتى إتمام المالك إعداد docs/RECOVERY-MIRROR-SETUP.md — عاملان أحمران أسبوعيان بلا قيمة فعلية كانا يخفيان الصحة الحقيقية (تقرير A5.1 «FAILING BY DESIGN») — workflow_dispatch متاح والإعادة تتم بنفس كوميت إتمام الإعداد · صف CI_GATES حُدث.
+- (P4-2) قانون ميزانية عائلات الفحوص موثق بالثلاثة مواضع الحاكمة: ترويسة scripts/docs_audit.py (البوابة تحكم التوثيق والميزانية تحكم البوابة — منع RC-5) + AGENTS.md §12.5.2 + CI_GATES.md — مع مراجعة ربع سنوية لمعدلات فشل كل عائلة.
+- (P4-3) AGENTS.md §12.5.2 أعيدت كتابتها: المرور الشهري الكامل اعتُزل (كان يدقق ما تتحققه فحوصا M/N لكل دفعة أصلًا وينمّي worklog بتدقيق التدقيق — RC-5) — النظام الجديد: تحقق آلي لكل دفعة + مراجعة ربع سنوية للبوابة نفسها (معدلات الفشل لكل عائلة) + قاعدة الـ24 ساعة بعد أي force-push باقية.
+- (الإغلاق) تقرير التدقيق الحاكم: سطر Lifecycle انقلب EXECUTED بأرقام الإغلاق الكاملة (فريمات كل بند + القياسات: worklog ‏740.7KB→59.6KB · STATE ‏31,147B→10.7KB · docs/ الحية 42→18 ملفًا · قراءة AGENTS الإلزامية ~41KB→~17KB · دفعات docs-only بلا بطارية جودة (متحقق حيًا عبر API) · parity أخضر) + صف السجل انقلب EXECUTED + بند القياس التنفيذي P4-4 (≈2026-10-12) مسجل بالمفتوح بSTATE.
+- (STATE) صف 293 + صف QA 293 — سلّم ≤2 (صف 291 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: 44b9b312.
+- (التحقق — فريم توثيقي/CI) yaml صالح ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓.
+
+Stage Summary:
+- خطة إصلاح المعمارية الكاملة (P0→P4) منفذة ومغلقة بسبعة فريمات (287–293): السياق التنفيذي للتاريخ صار محصورًا بالأرشيف، التغيير العادي يمس التوثيق والتحقق الملائمين لنطاقه فقط، والحوكمة نفسها صارت محكومة بميزانية فحوص وقانون دوران.
+- البند الوحيد المتبقي على المالك (موثق بSTATE وبتقرير التدقيق): فحوصات إلزامية على main تتطلب GitHub Pro لريبو خاص (API يرفض 403) — أو تحويل الريبو عامًا — وكذلك إعداد الـMirror لإعادة تفعيل الجدولة.
+- الملفات الممسوسة: .github/workflows/external-mirror.yml · scripts/docs_audit.py (ترويسة الميزانية) · AGENTS.md (§12.5.2) · docs/CI_GATES.md · docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md (EXECUTED) · docs/README.md (الصف) · STATE.md (293 + إغلاق الجلسة) · الأرشيفان (+صف 291) · worklog.md (هذا المدخل).
+- Push status: pushed
+
+---
 Task ID: ARCH-REMEDIATION-292-2026-09-28
 Agent: Implementation Agent
 Task: أمر المالك 2026-09-28 — تنفيذ P3-2+P3-4 من التقرير الحاكم: تخفيف AGENTS §8 (السرد → TECH_REFERENCE) + توحيد مرايا DESIGN — الحفاظ على كل قيد ملزم حرفيًا.
@@ -224,29 +243,5 @@ Stage Summary:
 - الرابط الخام للمالك: https://raw.githubusercontent.com/muscleshubfit-cpu/alkemos/main/supabase/migrations/RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql
 - التشغيل يطبع إشعارًا لكل بريد (جاري المسح/تم/غير موجود) ويغلق بـNOTIFY pgrst + استعلام التحقق النهائي (auth_users_left / profiles_left / leads_left = 0/0/0).
 - Commit SHA: 9c6defef (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
-- Push status: pushed
-
----
-Task ID: SITE-CONTENT-281-2026-09-27
-Agent: Implementation Agent
-Task: أمر المالك 2026-09-27: تنفيذ محرر نصوص الموقع الموصى به داخل لوحة الأدمن القائمة — Supabase + /admin فقط، بلا Decap/Payload/CMS خارجي/OAuth/خدمة جديدة؛ تحرير نصوص الرئيسية والصفحات الثابتة AR/EN يدويًا دون كوميت أو نشر لكل تعديل صياغي.
-
-Work Log:
-- (المعاينة) التزمت القوانين: AGENTS.md كاملًا (§3.5، §6، §10) + STATE.md أول الجلسة + fetch origin (HEAD = d13ebf0 = origin/main).
-- (الميجريشن 0094) جدول site_content: key PK + value_en/value_ar jsonb + updated_at/updated_by؛ RLS في نفس الملف (قراءة عامة anon/authenticated على نمط blog_posts المنشور + كتابة أدمن فقط عبر is_admin() الكنسية 0029B)؛ تريغر site_content_touch يختم التدقيق (security definer + search_path ثابت)؛ idempotent + VERIFY + notify pgrst.
-- (المرآة) types.ts: site_content Row/Insert/Update/Relationships في نفس الكوميت — migration_audit صفر انجراف جديد (مطابق قبل الدفع).
-- (طبقة المحتوى) src/lib/site-content/: core.ts (محرك الفولباك الصادق + tokens {exercises}/{foods}) · home.ts (~44 حقلًا نصعيًا في 12 مجموعة + أسئلة الرئيسية الخمسة — نقلًا حرفيًا من LandingView) · static-pages.ts (about/privacy/terms بنيويًا + FAQ من faq-content.ts كمصدر حرفي) · server.ts (unstable_cache 300s + anon — نمط blog-server) · admin.ts (عميل المتصفح + RLS على نمط blog-admin).
-- (الواجهات) LandingView يقبل content? ويحل عبر resolveHomeCopy (الفولباك دائمًا موجودًا) · StaticPageView عبر resolveStaticPage/resolveFaqPage · إفراغ الحقل = رجوع للنص المدمج (null لا يُخزن أبدًا).
-- (المسارات) / و/ar وabout/privacy/terms/faq بنسختي EN/AR: fetch سيرفر-سايد + revalidate=300 (سابقة المدونة) — JSON-LD للأسئلة يستمد من المصفوفات المحلولة نفسها.
-- (الأدمن) /admin/site-content (Content section في AdminShell — «نصوص الموقع ✍️») + AdminSiteContentView: تبويبات، تحرير ثنائي اللغة جنبًا لجنب، أسئلة/أقسام قابلة للإضافة والحذف، تحقق مطابق لقواعد المحلل، طابع تدقيق لكل حقل، Reset لل Defaults.
-- (الكاناري) homepage-adoption: أعيد تثبيت مفاتيح النصوص لمصدرها الواحد الجديد (copy=home.ts، both=view+registry للممنوعات) · أُصلح K-1/K-2 الأحمران سابقًا (انجراف COPY-REFINE-282: معتمدون/توليد خطط أكثر ×1) · library-counts أعيد تثبيته لخط الأنابيب الجديد (view→static-pages→core) · marketing-msa-surface: مصادر النصوص الجديدة داخل المانيفست.
-- (اختبارات جديدة) site-content.test.ts — 13 اختبارًا لمحرك الفولباك والتokens وسلامة السجل.
-- (البوابات §3.5) tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell القديم وحده) · vitest ✓ 1727/1727 · next build ✓ 2020/2020 (المسارات المتأثرة ISR 5m) · smoke الحي محليًا: 10 مسارات 200 والنصوص EN/AR تُصيَّر بالفولباك مع tokens (868+/8,830+) وJSON-LD سليم.
-- (توثيق) README (قانون README للميزات) · TECH_REFERENCE §1.4 صف site_content · INDEX.md صف 0094 + سجل التدقيق · STATE.md المرحلة 281 + QA (ضغط صفوف قديمة للسقف).
-
-Stage Summary:
-- محرر نصوص الموقع حي على البنية القائمة: صفر اعتماديات جديدة، صفر مسارات API جديدة، صفر مساس بمدونتي blog/coach، وصفر مساس بالأسعار/الحدود/الحصص (مصادرها الموحدة).
-- التعديل الصياغي يظهر خلال ~5 دقائق (ISR 300s) بلا كوميت/CI/نشر؛ الصفحة لا تفرغ أبدًا (فولباك صادق مُختبَر).
-- Commit SHA: acba03e7 (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
 - Push status: pushed
 

@@ -36,7 +36,7 @@
 | File | Role | Status |
 |---|---|---|
 | `docs/README.md` (this file) | Documentation lifecycle registry (bidirectional since Ph 289) | LIVE |
-| `docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md` | Repository architecture audit — documentation·testing·validation·Git·CI: verified facts (A1–A6) + root-cause map (RC-1..RC-7) + the minimum architecture (Part C) + remediation plan P0–P4 — the AUTHORITATIVE SPEC for the remediation session | LIVE (ACTIVE — authoritative reference; flips to EXECUTED when the remediation lands, per its Lifecycle-status line) |
+| `docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md` | Repository architecture audit — documentation·testing·validation·Git·CI: verified facts (A1–A6) + root-cause map (RC-1..RC-7) + the minimum architecture (Part C) + remediation plan P0–P4 — was the AUTHORITATIVE SPEC for the remediation session | **EXECUTED** (2026-09-28 — remediation phases 287–293 landed; the one owner-pending item: P0-2 branch protection needs GitHub Pro for a private repo — API 403 both protection APIs; closing numbers in the report's Lifecycle-status line; P4-4 re-measure target 2026-10-12 in STATE) |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage + §6: the full AGENTS §8 law narratives relocated verbatim at Ph 292) | LIVE |
 | `src/docs/DESIGN_SYSTEM.md` | Design-system pointer — single-source unification (Ph 292, audit P3-4): DESIGN.md is the law, globals.css the runtime source; full content preserved in git history through Ph 291 | LIVE (pointer-only) |
 | `src/styles/design-tokens.ts` | Typed token registry — retired pointer-only module (Ph 292): zero importers, duplicated globals.css by hand; do not re-add constants | LIVE (pointer-only) |

@@ -10,9 +10,13 @@
 #   3. Variable MIRROR_REMOTE_BACKUPS   (external PRIVATE repo URL — snapshots+PII)
 # Until then the preflight step fails fast with the exact fix (the
 # vercel-cleanup precedent: a missing-secret workflow must say so loudly,
-# not fail cryptically). The weekly schedule doubles as a visible reminder
-# while setup is pending — disable the schedule trigger until setup is done
-# if the reminder is unwanted.
+# not fail cryptically). PHASE 293 (2026-09-28 — ARCH-REMEDIATION, audit
+# P4-1): the weekly schedule is PARKED (commented) until the owner setup
+# completes — two consecutive weekly RED runs with zero action value are
+# noise that hides real health (audit A5.1: "FAILING BY DESIGN … weekly red
+# noise"). The workflow stays fully functional via workflow_dispatch;
+# RE-ENABLE the schedule in the SAME commit/PR that completes the
+# docs/RECOVERY-MIRROR-SETUP.md setup.
 #
 # PRIVACY LAW: both external repositories MUST be PRIVATE — the snapshots
 # repository contains user PII. Public mirrors of the backups repo are
@@ -25,8 +29,10 @@
 name: External mirror (weekly both-repos mirror → external private remotes)
 
 on:
-  schedule:
-    - cron: "0 6 * * 0" # Sunday 06:00 UTC
+  # schedule: PARKED until the owner completes docs/RECOVERY-MIRROR-SETUP.md
+  # (Phase 293 — ARCH-REMEDIATION, audit P4-1). To re-enable, uncomment:
+  # schedule:
+  #   - cron: "0 6 * * 0" # Sunday 06:00 UTC
   workflow_dispatch:
 
 concurrency:
