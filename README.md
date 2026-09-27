@@ -4,7 +4,7 @@
 > **Stack:** Next.js 16 · React 19 · TypeScript · Supabase · Tailwind CSS 4 · OpenRouter + Groq + NVIDIA NIM (AI) · Vercel
 > **Quality:** every push is audited by automated CI gates — types, lint, tests, schema-drift, docs parity, anti-regression
 > **Status:** in production · current live status: [`STATE.md`](./STATE.md)
-> **Last updated:** 2026-09-26 (Ph 278 — VRD-V8R: memberships real feature-row sentence)
+> **Last updated:** 2026-09-27 (Ph 285 — HOME-POLISH-285: the platform-homepage section rewritten for the food-library preview, tool tiles, allowance band, stronger AI cards, PRO dark anchor, and the visible FAQ grid)
 
 Alkemos is a bilingual (English + full Arabic RTL mirror) fitness and nutrition
 platform that unifies training, nutrition, and AI planning in one product:
