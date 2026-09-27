@@ -557,6 +557,13 @@ if auth_src:
 # and prints git dates instead of policing prose.
 registry = read("docs/README.md")
 registry_paths: set[str] = set()
+# Phase 290-FIXUP: the truth set is GIT-DERIVED (tracked + staged + untracked-
+# non-ignored = what a commit would actually contain). The /scripts/* blanket
+# in .gitignore once swallowed a freshly written guard script — it existed on
+# disk (local gate green) but never landed (CI red). Filesystem existence
+# alone cannot see that class; git can.
+committable = set((git_out(["ls-files", "--cached", "--others",
+                            "--exclude-standard"]) or "").splitlines())
 if registry:
     for ln_no, ln in enumerate(registry.splitlines(), 1):
         if not ln.startswith("|"):
@@ -571,6 +578,12 @@ if registry:
                      f"docs/README.md row references «{pth}» which does not "
                      f"exist — registry rows point at real files (moved? "
                      f"renamed? update the row in the same commit)")
+            elif pth not in committable:
+                fail("M/registry-paths",
+                     f"docs/README.md row references «{pth}» which exists on "
+                     f"disk but is NOT committable (gitignored or deleted?) "
+                     f"— a guard that is not committed is not a guard; fix "
+                     f"the .gitignore exception in the SAME commit")
     # direction 2 — every top-level docs/*.md must be registered
     docs_md = sorted((REPO / "docs").glob("*.md"))
     for md in docs_md:
