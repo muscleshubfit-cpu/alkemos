@@ -92,8 +92,8 @@ export const MEMBERSHIPS: MembershipInfo[] = [
     nameEn: "Free",
     priceMonthly: 0,
     priceYearly: 0,
-    taglineAr: "جرّب المنتج كاملًا — تجربة حقيقية لا نسخة معطلة",
-    taglineEn: "Experience the full product — not a crippled demo",
+    taglineAr: "مجاني للأبد — مجموعة كاملة من الأدوات الأساسية",
+    taglineEn: "Free forever — a full set of essential tools",
     limits: {
       evoChatDailyLimit: 10,
       // Unified pool (2026-09-13 decree): free = 2 successful AI plan
@@ -118,7 +118,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       `${TOOLS_COUNT}+ أدوات لياقة وتغذية مجانية`,
       "خطط AI: توليدان شهريًا (تغذية أو تمرين) — رصيد مجاني لكل زائر، وتبقى خطتك على جهازك بدون حساب",
       "بالحساب المجاني: حفظ دائم لخططك ومزامنتها عبر أجهزتك",
-      "EVO: 10 رسائل/يوم",
+      "EVO: 10 رسائل يوميًا",
       "مخطط الوجبات (3 وجبات، حفظ 1 جدول)",
       "حفظ 3 نتائج أدوات",
     ],
@@ -129,7 +129,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       `${TOOLS_COUNT}+ free fitness & nutrition tools`,
       "AI plans: 2 generations/month (nutrition or workout) — a free allowance for every visitor; no account keeps your plan on this device",
       "With a free account: plans saved permanently & synced across your devices",
-      "EVO: 10 messages/day",
+      "EVO: 10 messages a day",
       "Meal Planner (3 meals, save 1 plan)",
       "Save 3 tool results",
     ],

@@ -441,8 +441,8 @@ export default function EvoPage() {
               {
                 featAr: "المحادثة",
                 featEn: "Chat",
-                freeAr: "✓ 10 رسائل/يوم",
-                freeEn: "✓ 10 msgs/day",
+                freeAr: "✓ 10 رسائل يوميًا",
+                freeEn: "✓ 10 messages a day",
                 subAr: "✓ غير محدود",
                 subEn: "✓ Unlimited",
               },

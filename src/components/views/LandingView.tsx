@@ -887,8 +887,8 @@ function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean
 
       <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
-          ? `ستة تمارين حقيقية من مكتبة ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحة كل تمرين.`
-          : `Six real exercises from the ${EX_PLUS} library — with form photos and clear instructions one tap away.`}
+          ? `تمارين حقيقية من مكتبة تضم ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحة كل تمرين.`
+          : `Real exercises from a library of ${EX_PLUS} — with form photos and clear instructions one tap away.`}
       </p>
       <div className="mt-5 text-center">
         <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
@@ -1332,8 +1332,8 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
           </div>
           <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
             {isAr
-              ? `ستة أصناف حقيقية من قاعدة ${FOODS_PLUS} صنف غذائي — سعرات كل صنف وماكروزه لكل 100 جرام داخل صفحته.`
-              : `Six real foods from the ${FOODS_PLUS} database — every food's calories and per-100g macros live on its page.`}
+              ? `أصناف حقيقية من قاعدة تضم ${FOODS_PLUS} صنف غذائي — سعرات كل صنف وماكروزه لكل 100 جرام داخل صفحته.`
+              : `Real foods from a database of ${FOODS_PLUS} — every food's calories and per-100g macros live on its page.`}
           </p>
           <div className="mt-5 text-center">
             <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
@@ -1622,8 +1622,8 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
                 <TierFeatureRows
                   rows={
                     isAr
-                      ? ["كل المكتبات والأدوات", "توليدان شهريًا للخطط الذكية", "EVO: 10 رسائل/يوم"]
-                      : ["Every library and tool", "2 AI plans a month", "EVO: 10 messages/day"]
+                      ? ["كل المكتبات والأدوات", "توليدان شهريًا للخطط الذكية", "EVO: 10 رسائل يوميًا"]
+                      : ["Every library and tool", "2 AI plans a month", "EVO: 10 messages a day"]
                   }
                 />
                 <a href="/auth?mode=signup" className="btn-outline mt-4 w-full px-6 py-2.5 text-sm font-medium">

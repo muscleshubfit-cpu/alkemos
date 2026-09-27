@@ -496,8 +496,13 @@ export default function AiMealPlannerPage() {
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "الحسبة الغذائية بسيطة، والاختيار هو الصعب: التوليد يحل مشكلة «ماذا آكل اليوم؟» بوضع يوم كامل مبني على رقمك ونظامك وملاحظاتك في ثوانٍ — بدل صفحة بيضاء أو نسخ خطة صديقك. النموذج يلتزم بقواعد صارمة (3–5 وجبات، أصناف بغرامات، إجمالي ضمن 20% من هدفك) وكل خطة تُفحص قبل عرضها؛ فإن خرجت عن الشكل تُرفض لا تُعرض — والمحاولة الفاشلة لا تُحسب من رصيدك."
-                : "Nutrition arithmetic is simple; the choosing is hard. Generation solves the \"what do I eat today?\" problem by laying out a whole day built on your number, your system, and your notes in seconds — instead of a blank page or copying a friend's plan. The model follows strict rules (3–5 meals, items in grams, a total within 20% of your target) and every plan is validated before display; a drifted one is rejected, never shown — and failed attempts never count against your quota."}
+                ? "حساب السعرات سهل. الصعب هو معرفة ماذا تأكل اليوم. التوليد بالذكاء الاصطناعي يحول هدفك وسعراتك ونظامك الغذائي إلى يوم كامل من الوجبات والكميات — في ثوانٍ."
+                : "Counting calories is easy. The hard part is knowing what to eat today. AI generation turns your goal, calories, and diet into a full day of meals and portions — in seconds."}
+            </p>
+            <p className="mt-2 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
+              {isAr
+                ? "لا يُخصم من رصيدك إلا التوليد الناجح — وكل خطة تُفحص قبل عرضها؛ فإن خرجت عن الشكل تُرفض لا تُعرض."
+                : "Only successful generations are deducted from your quota — every plan is validated before display; a drifted one is rejected, never shown."}
             </p>
           </div>
           <div>

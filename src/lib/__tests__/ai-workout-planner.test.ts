@@ -314,7 +314,7 @@ describe("ai workout planner trial (§12.32)", () => {
   it("HONEST COPY: the page states the unified-pool limits (2/month free, success-only, plans persist)", () => {
     const page = readFileSync(PAGE_FILE, "utf8");
     expect(page).toContain("2 generations per month");
-    expect(page).toContain("never count against your quota");
+    expect(page).toContain("only successful generations are deducted from your quota");
     expect(page).toContain("never disappears when the month's quota runs out");
     // Phase 183 persistence law: the page hydrates (localStorage +
     // account) and mirrors every generated plan — no more ephemeral.

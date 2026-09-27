@@ -634,7 +634,7 @@ export default function ProfilePage() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {[
-                { label: isAr ? "EVO رسائل/يوم" : "EVO msgs/day", value: limits.evoChatDailyLimit === null ? "∞" : `${limits.evoChatDailyLimit}` },
+                { label: isAr ? "EVO رسائل يوميًا" : "EVO messages a day", value: limits.evoChatDailyLimit === null ? "∞" : `${limits.evoChatDailyLimit}` },
                 // Unified pool (2026-09-13): ONE monthly budget for
                 // nutrition + workout AI generations combined.
                 { label: isAr ? "توليدات خطط AI/شهر" : "AI plan gens/mo", value: `${limits.aiPlanMonthlyLimit}` },

@@ -356,7 +356,7 @@ export default function AiWorkoutPlannerPage() {
             </div>
             <div>
               <label htmlFor="demo-equipment" className="text-sm font-medium text-[var(--text)]">
-                {isAr ? "تجهيزتك" : "Your equipment"}
+                {isAr ? "معداتك" : "Your equipment"}
               </label>
               <select
                 id="demo-equipment"
@@ -371,7 +371,7 @@ export default function AiWorkoutPlannerPage() {
                 ))}
               </select>
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {isAr ? "التمارين تُختار بما يناسب ما لديك فقط." : "Exercises are picked to match what you have."}
+                {isAr ? "نختار التمارين بما يناسب المعدات المتاحة لديك." : "Exercises are picked to match what you have."}
               </p>
             </div>
           </div>
@@ -586,8 +586,8 @@ export default function AiWorkoutPlannerPage() {
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "أي مدرب يعرف التمارين؛ والصعب هو تركيبها في أسبوع متوازن يطابق أيامك ومستواك وتجهيزتك. التوليد يحل مشكلة «من أين أبدأ هذا الأسبوع؟» بوضع نظام كامل أمامك في ثوانٍ — بدل نسخ نظام يوتيوب لم يُبنَ لك. النموذج يلتزم بقواعد صارمة (عدد الأيام يطابق طلبك بالضبط، 3 إلى 8 تمارين لكل يوم، مجموعات وتكرارات معقولة) وكل نظام يُفحص قبل عرضه؛ فإن خرج عن الشكل يُرفض لا يُعرض — والمحاولة الفاشلة لا تُحسب من رصيدك."
-                : "Any coach knows the exercises; the hard part is assembling them into a balanced week that fits your days, level, and equipment. Generation solves the \"where do I even start this week?\" problem by laying out a complete split in seconds — instead of copying a YouTube program never built for you. The model follows strict rules (the day count matches your request exactly, 3 to 8 exercises per day, sane sets and reps) and every split is validated before display; a drifted one is rejected, never shown — and failed attempts never count against your quota."}
+                ? "معرفة التمارين خطوة أولى؛ أما التحدي فهو تركيبها في أسبوع متوازن يطابق أهدافك ومستواك وأيامك ومعداتك. التوليد يحل مشكلة «من أين أبدأ هذا الأسبوع؟» بوضع نظام كامل أمامك في ثوانٍ — بدل الاعتماد على برنامج عام لم يُصمم لأهدافك. النموذج يلتزم بقواعد صارمة (عدد الأيام يطابق طلبك بالضبط، 3 إلى 8 تمارين لكل يوم، مجموعات وتكرارات معقولة) وكل نظام يُفحص قبل عرضه؛ فإن خرج عن الشكل يُرفض لا يُعرض — ولا يُخصم من رصيدك إلا التوليد الناجح."
+                : "Knowing the exercises is step one; the real challenge is assembling them into a balanced week that matches your goals, level, days, and equipment. Generation solves the \"where do I even start this week?\" problem by laying out a complete split in seconds — instead of leaning on a generic program never designed for your goals. The model follows strict rules (the day count matches your request exactly, 3 to 8 exercises per day, sane sets and reps) and every split is validated before display; a drifted one is rejected, never shown — and only successful generations are deducted from your quota."}
             </p>
           </div>
           <div>
@@ -624,7 +624,7 @@ export default function AiWorkoutPlannerPage() {
           </div>
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-[var(--text)]">
-              {isAr ? "تذكير السلامة المعتاد" : "The usual safety reminder"}
+              {isAr ? "ملاحظة مهمة حول الصحة والسلامة" : "An important health & safety note"}
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr

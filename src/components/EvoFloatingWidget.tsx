@@ -777,8 +777,8 @@ export function EvoFloatingWidget() {
                     <div className="rounded-2xl bg-[#ff9500]/10 p-4 text-center">
                       <p className="text-sm font-medium text-[#ff9500]">
                         {isAr
-                          ? `وصلت الحد المجاني (${dailyLimit} رسائل/يوم)`
-                          : `Free limit reached (${dailyLimit} messages/day)`}
+                          ? `وصلت الحد المجاني (${dailyLimit} رسائل يوميًا)`
+                          : `Free limit reached (${dailyLimit} messages a day)`}
                       </p>
                       <p className="mt-1 text-xs font-normal text-[#6e6e73]">
                         {isAr

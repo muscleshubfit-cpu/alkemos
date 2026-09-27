@@ -214,11 +214,11 @@ const DIET_SYSTEM_LINES: Record<
   { lineAr: string; lineEn: string }
 > = {
   balanced: {
-    lineAr: "نقطة البداية الآمنة للجميع — توزيع 30/40/30 من السعرات.",
-    lineEn: "The safe starting point for everyone — a 30/40/30 calorie split.",
+    lineAr: "نقطة بداية متوازنة — توزيع 30/40/30 من السعرات.",
+    lineEn: "A balanced starting point — a 30/40/30 calorie split.",
   },
   "high-protein": {
-    lineAr: "ذراع مرحلة الخسارة وبناء العضلة — 45/35/20 ببروتين أعلى.",
+    lineAr: "مصمم لخسارة الدهون وبناء العضلات — 45/35/20 ببروتين أعلى.",
     lineEn: "Built for fat loss and muscle building — 45/35/20 with more protein.",
   },
   keto: {

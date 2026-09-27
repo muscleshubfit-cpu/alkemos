@@ -60,8 +60,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ابدأ التجربة مجانًا — منتج حقيقي كامل، لا نسخة معطلة. ثم ارتقِ عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، والتدريب الأونلاين عندما تريد مدربًا بشريًا مع كل قوة الذكاء الاصطناعي."
-              : "Start free — the real product, not a crippled demo. Upgrade when your usage grows: Premium to manage your plans, Pro to adapt & optimize them, Coaching when you want a human coach with the full power of AI."}
+              ? "استخدم المنصة مجانًا مع مجموعة كاملة من الأدوات الأساسية. ثم ارتقِ عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، والتدريب الأونلاين عندما تريد مدربًا بشريًا يعمل معك، إلى جانب قوة الذكاء الاصطناعي."
+              : "Use the platform free with a full set of essential tools. Upgrade when your usage grows: Premium to manage your plans, Pro to adapt & optimize them, Coaching when you want a human coach working with you, alongside the full power of AI."}
           </p>
         </div>
 

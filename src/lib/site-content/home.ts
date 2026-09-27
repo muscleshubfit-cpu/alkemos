@@ -213,8 +213,8 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         key: "home.plan.title",
         labelEn: "Section heading",
         labelAr: "عنوان القسم",
-        defaultEn: "A complete plan — built for you by AI in seconds.",
-        defaultAr: "خطتك كاملة — يبنيها الذكاء الاصطناعي في ثوانٍ.",
+        defaultEn: "Your complete plan, in seconds.",
+        defaultAr: "خطتك كاملة، في ثوانٍ.",
       },
       {
         prop: "planBody",
@@ -223,9 +223,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "This is not the calculators: here AI generates your complete plan — a weekly workout split with its exercises and sets, or a full day of meals with quantities in grams — and EVO stays with you to answer and adjust anytime.",
+          "You don't just count numbers — AI builds your complete plan: a weekly workout split with its exercises and sets, or a full day of meals with quantities in grams — and EVO stays with you to answer and adjust anytime.",
         defaultAr:
-          "هذا ليس قسم الحاسبات: هنا يولّد الذكاء الاصطناعي خطتك كاملة — نظامًا تدريبيًا أسبوعيًا بتمارينه ومجموعاته، أو خطة وجبات ليوم كامل بكمياتها بالغرامات — ويظل EVO معك للإجابة والتعديل في أي وقت.",
+          "هنا لا تحسب الأرقام فقط — الذكاء الاصطناعي يبني لك الخطة كاملة: نظامًا تدريبيًا أسبوعيًا بتمارينه ومجموعاته، أو خطة وجبات ليوم كامل بكمياتها بالغرامات — ويظل EVO معك للإجابة والتعديل في أي وقت.",
       },
       {
         prop: "planAllowance",
@@ -266,9 +266,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Pick a muscle group and browse six real exercises per family — every card is a documented exercise with form photos and technique cues, one tap from its full page.",
+          "Pick a muscle group and browse real exercises from the {exercises} library — every card is a documented exercise with form photos and technique cues, one tap from its full page.",
         defaultAr:
-          "اختر مجموعة عضلية واستعرض ستة تمارين حقيقية من كل مجموعة — كل بطاقة تمرين موثق بصور الأداء الصحيح وشرح واضح، وينقلك مباشرة إلى صفحته.",
+          "اختر مجموعة عضلية واستعرض تمارين حقيقية من مكتبة تضم {exercises} تمرينًا — كل بطاقة تمرين موثق بصور الأداء الصحيح وشرح واضح، وينقلك مباشرة إلى صفحته.",
       },
     ],
   },
@@ -292,9 +292,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Browse the categories and six real foods from the {foods} food database — every card carries the food's per-100g calories and macros, one tap from its full page.",
+          "Browse the categories and real foods from the {foods} food database — every card carries the food's per-100g calories and macros, one tap from its full page.",
         defaultAr:
-          "تصفح الفئات وستة أصناف حقيقية من قاعدة تضم {foods} صنف غذائي — كل بطاقة تحمل سعرات الصنف وماكروزه لكل 100 جرام، وصفحته الكاملة على بُعد ضغطة.",
+          "تصفح الفئات وأصنافًا حقيقية من قاعدة تضم {foods} صنف غذائي — كل بطاقة تحمل سعرات الصنف وماكروزه لكل 100 جرام، وصفحته الكاملة على بُعد ضغطة.",
       },
     ],
   },
@@ -523,7 +523,7 @@ export const HOME_FAQ_DEFAULT: { en: SiteFaqItem[]; ar: SiteFaqItem[] } = {
   en: [
     {
       q: "Can I use Alkemos for free?",
-      a: "Yes. Access is completely free — exercises, food database, routines, and smart calculators work instantly without signup. Every visitor receives a monthly allowance for AI meal and workout plans, plus daily coaching with EVO. Creating a free account syncs and saves your plans across devices.",
+      a: "Yes. Access is completely free — exercises, food database, routines, and smart calculators work instantly without signup. Every visitor receives a monthly allowance for AI meal and workout plans, plus 10 messages a day with EVO. Creating a free account syncs and saves your plans across devices.",
     },
     {
       q: "How does EVO work?",
@@ -545,7 +545,7 @@ export const HOME_FAQ_DEFAULT: { en: SiteFaqItem[]; ar: SiteFaqItem[] } = {
   ar: [
     {
       q: "هل يمكنني استخدام Alkemos مجانًا؟",
-      a: "نعم. المنصة مجانية بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل مباشرة ودون الحاجة لتسجيل، مع رصيد شهري لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، ومحادثات يومية مع EVO. وعند إنشاء حساب مجاني، تُحفظ خططك وتتزامن عبر جميع أجهزتك.",
+      a: "نعم. المنصة مجانية بالكامل: التمارين والأطعمة والبرامج والأدوات تعمل مباشرة ودون الحاجة لتسجيل، مع رصيد شهري لتوليد خطط التغذية والتمارين بالذكاء الاصطناعي، و10 رسائل يوميًا مع EVO. وعند إنشاء حساب مجاني، تُحفظ خططك وتتزامن عبر جميع أجهزتك.",
     },
     {
       q: "كيف يعمل EVO؟",

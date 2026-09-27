@@ -21,8 +21,8 @@ const SITE_URL = "https://alkemos.com";
 
 /** One honest line per system — the card's subtitle (§12.34). */
 const SYSTEM_LINES: Record<string, string> = {
-  balanced: "The safe starting point for everyone — a 30/40/30 calorie split (protein/carbs/fat).",
-  "high-protein": "The fat-loss and muscle-building arm — 45/35/20 with protein leading.",
+  balanced: "A balanced starting point — a 30/40/30 calorie split (protein/carbs/fat).",
+  "high-protein": "Built for fat loss and muscle building — 45/35/20 with protein leading.",
   keto: "High fat, near-zero carbs — 25/5/70.",
   vegetarian: "Legumes, grains, dairy, and eggs — 25/50/25 (a library-only preset).",
 };
@@ -101,8 +101,8 @@ export default function DietPlanHubPageEn() {
             calorie options; if you do not, run the calorie calculator first —
             a 1500-calorie plan fits a person burning 2400 very differently
             than one burning 1800. Then choose the system that resembles your
-            life: balanced is the safe starting point for everyone,
-            high-protein serves the fat-loss and muscle-building phases, keto
+            life: balanced makes a balanced starting point,
+            high-protein is built for fat loss and muscle building, keto
             suits people who already live that way, and vegetarian is built
             for days of legumes, grains, dairy, and eggs.
           </p>
