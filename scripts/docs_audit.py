@@ -40,6 +40,14 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      (Phase 234: derived tail invariant — the hand-bumped baseline
      constant is retired; a window slide can never trip this, a
      bottom-append always will).
+  H5. (Phase 288 — ARCH-REMEDIATION, audit P1-1 / RC-4) the live
+     worklog IS the active window, hard-capped: ≤ 12 Task-ID entries
+     AND ≤ 128 KB. Anything below the window rotates verbatim to
+     archive/WORKLOG_ARCHIVE.md in the SAME commit via
+     scripts/worklog_rotate.py — size-driven, never calendar-driven,
+     never one-shot. (Merged into the H family on purpose: the check
+     budget is capped at 20 families — a new check must retire or
+     merge an existing one, Phase 288 law.)
   K. (Phase 234 — migration Phase 2; hard since Phase 237 / migration
      Phase 5) worklog entry schema: a «## Task ID:» line is a malformed
      header → hard fail (the F-02 escape class). Entries missing the
@@ -419,6 +427,32 @@ for t in wl_tasks:
              f"live entry must be dated (…-YYYY-MM-DD) so the newest-on-top "
              f"law can see it (Phase 274: the undated bottom-append escape)")
 
+# H5 — (Phase 288 — ARCH-REMEDIATION, audit P1-1 / RC-4) the live worklog
+# IS the active window: hard caps at 12 entries and 128 KB. The Phase-237
+# one-time rotation regrew the file to 740 KB in 9 days because nothing
+# enforced a size boundary (only ORDER was gated). Rotation is now
+# mechanical: run scripts/worklog_rotate.py in the same commit that
+# pushes the window past either cap. Merged into the H family (check
+# budget ≤ 20 families — Phase 288 law).
+WORKLOG_MAX_ENTRIES = 12
+WORKLOG_MAX_BYTES = 128 * 1024
+if worklog:
+    wl_bytes = len(worklog.encode("utf-8"))
+    if len(wl_tasks) > WORKLOG_MAX_ENTRIES:
+        fail("H5/worklog-window-cap",
+             f"worklog.md carries {len(wl_tasks)} Task-ID entries — the "
+             f"live window is hard-capped at {WORKLOG_MAX_ENTRIES} "
+             f"(Phase 288, ARCH-REMEDIATION): rotate the below-window "
+             f"tail verbatim with `python3 scripts/worklog_rotate.py` "
+             f"in the SAME commit (archive/WORKLOG_ARCHIVE.md)")
+    if wl_bytes > WORKLOG_MAX_BYTES:
+        fail("H5/worklog-window-cap",
+             f"worklog.md is {wl_bytes:,} bytes — the live window is "
+             f"hard-capped at {WORKLOG_MAX_BYTES:,} (Phase 288, "
+             f"ARCH-REMEDIATION): run `python3 "
+             f"scripts/worklog_rotate.py` in the SAME commit "
+             f"(archive/WORKLOG_ARCHIVE.md)")
+
 # ------------------------------------------------------------------ K
 # Phase 234 / migration Phase 2: close the two escape classes the
 # 2026-09-19 architecture audit caught (report F-02 + F-05's format
@@ -706,8 +740,10 @@ print("=" * 64)
 print(f"knowledge gate : STATE phase={state_phase} · STATE lines="
       f"{len(state.splitlines()) if state else '∅'} · bytes={state_bytes:,} "
       f"(hard cap 32,000) · merged law: root PROGRESS/QA absent, frozen "
-      f"copies in archive/ · worklog entries={len(wl_tasks)} · truth checks "
-      f"H/I/J/K (Phase 215/237) · Phase-274 anti-drift: D2/H4/L/M/N/P/Q/R/T")
+      f"copies in archive/ · worklog entries={len(wl_tasks)} "
+      f"(H5 caps: ≤{WORKLOG_MAX_ENTRIES} / ≤{WORKLOG_MAX_BYTES:,}B) · truth "
+      f"checks H/H4/H5/J/K (Phase 215/237/288) · Phase-274 anti-drift: "
+      f"D2/H4/L/M/N/P/Q/R/T")
 print("=" * 64)
 
 if failures:
@@ -720,6 +756,7 @@ if failures:
 
 print("\n✓ knowledge operating system consistent (STATE · merged single-"
       "source law · number-free docs · AGENTS structure · frozen archive "
-      "· discoverability · worklog order · header truth · archive freeze "
-      "· byte cap + entry schema hard · Phase-274 anti-drift L/M/N/P/Q/R/T)")
+      "· discoverability · worklog order + hard window cap (H5) · archive "
+      "freeze · byte cap + entry schema hard · Phase-274 anti-drift "
+      "L/M/N/P/Q/R/T)")
 sys.exit(0)

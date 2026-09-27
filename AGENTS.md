@@ -242,13 +242,13 @@ Work Log:
 
 Stage Summary:
 - <key results / important decisions / produced artifacts>
-- Commit SHA: <sha>
 - Push status: <pushed | not-pushed>
+- Commit SHA (optional, post-push): <sha>
 ```
 
-Rules: the `---` separator before each entry is mandatory (append-only log); `Task ID` MUST be unique across the file (search before adding); `Work Log` is bulleted, factual, chronological; `Stage Summary` includes the commit SHA and push status (matches §12.9).
+Rules: the `---` separator before each entry is mandatory (append-only log); `Task ID` MUST be unique across the file (search before adding); `Work Log` is bulleted, factual, chronological; `Stage Summary` records the push status (matches §12.9). **SHA law (Phase 288 — ARCH-REMEDIATION, audit RC-1):** the commit SHA is OPTIONAL post-push provenance only — `git log` is the authoritative ledger (check B already ancestor-verifies STATE's recorded commit). A commit can never contain its own SHA: the «تسجيل SHA بكوميت مستقل» follow-up-commit practice is RETIRED (it doubled every task's commits and re-ran 4 workflows + Supabase Preview per task). **One task = one commit.**
 
-**Entry budget + evidence (Phase 237 — migration Phase 5):** each entry ≤ 60 lines (LIVE-VERIF entries ≤ 40); detail belongs in committed scripts or `docs/README.md` registry rows, not prose. An entry that cites a verification script or any evidence artifact must point at a **committed** path (`scripts/live-verify/<task>.sh` or similar) or state explicitly «local-only, not preserved» — a log referencing evidence that exists nowhere is a false log (audit F-11). Live region = top-12 entry window + rolling date buffer; everything older rotates **verbatim** to `archive/WORKLOG_ARCHIVE.md` (Phase-237 rotation; boundary guarded by the derived tail invariant in `scripts/docs_audit.py`).
+**Entry budget + evidence (Phase 237 — migration Phase 5; hardened Phase 288 — ARCH-REMEDIATION):** each entry ≤ 60 lines (LIVE-VERIF entries ≤ 40); detail belongs in committed scripts or `docs/README.md` registry rows, not prose. An entry that cites a verification script or any evidence artifact must point at a **committed** path (`scripts/live-verify/<task>.sh` or similar) or state explicitly «local-only, not preserved» — a log referencing evidence that exists nowhere is a false log (audit F-11). **The live file IS the active window (Phase 288 hard law, audit P1-1): ≤ 12 entries AND ≤ 128 KB, enforced by `scripts/docs_audit.py` check H5** — anything below the window rotates verbatim to `archive/WORKLOG_ARCHIVE.md` in the SAME commit via `python3 scripts/worklog_rotate.py` (size-driven, never calendar-driven, never one-shot).
 
 #### 12.5.2 Periodic Documentation Audit (Cadence)
 
