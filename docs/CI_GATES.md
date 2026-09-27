@@ -5,6 +5,7 @@
 > **تحصين (2026-09-19 — المرحلة 234، خطة الترحيل Phase 2):** انسحب الثابت اليدوي `WORKLOG_TAIL_BASELINE` (ثلاث رفعات يدوية: 216/226/232 — فشل مرة كل ~10 مراحل: F-01/F-14) لصالح ثابت مشتق من النافذة ذاتها؛ فحص K جديد لمخطط مدخلات worklog؛ تقرير بايتات STATE.md في سطر التقرير. المصدر: `docs/DOCS-CONTEXT-MIGRATION-PLAN-2026-09-19.md` §5.
 > **تحصين II (2026-09-19 — المرحلة 237، خطة الترحيل Phase 5 — الدوران (ب)):** سقف بايتات STATE.md أصبح **فشلًا صلبًا عند 32,000 بايت** (كان تحذيرًا عند 48KB)؛ فحص K (هيكل §12.5.1) أصبح **فشلًا فوريًا** بعد تطبيع المنطقة الحية ودوران الذيل التاريخي إلى الأرشيف (143 مدخلاً حرفيًا). المصدر: الخطة §8.
 > **تحصين III (2026-09-24 — المرحلة 274، DOC-REMEDIATION):** استكمل جدول سجل الأعمال بأربعة workflows كانت غائبة (external-mirror · storage-backup · storage-inventory · storage-restore-drill) وصُحح تواتر تنقية Vercel (كل ساعة لا مرتين يوميًا — إصلاح م-08)؛ وبوابة المعرفة docs_audit.py توسعت بتسعة فحوص جديدة مضادة للانجراف (تفصيلها بمدخل worklog المرحلة 274).
+> **تحصين IV (2026-09-28 — المرحلة 290، ARCH-REMEDIATION):** بوابة الجودة صارت **محددة النطاق بالمسارات** — دفعات docs-only (أي `**.md` · `docs/**` · `archive/**` · `.github/**` · `scripts/**`) تتخطى tsc/eslint/vitest (لا يمكن لتغيير توثيقي أن يغير نتيجتها — 46 كوميت docs-only أحرقت البطارية كاملة سابقًا)، وبوابات التوثيق (parity + guard) تبقى على كل دفعة كما هي — هي بوابات التوثيق. المصدر: docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md ‏P2-1. كذلك فحص I اعتُزل وفحص M صار ثنائي الاتجاه (المرحلة 289).
 > **العلاقة بالقانون:** `README.md` يبقى الواجهة العامة للبوابات و`AGENTS.md` يبقى ملف القوانين — هذا الملف مرجع تجميعي تعليمي بنفس مبدأ TECH_REFERENCE.md، وأي تعارض يفصل فيه هرم §12.8 (الكود أولًا).
 
 ---
@@ -36,7 +37,7 @@
 
 | Workflow | الملف | الدور |
 |---|---|---|
-| **Quality gate** | `quality-gate.yml` | **Phase 141 (A-13):** أوامر AGENTS.md §3.5 الرسمية نفسها (tsc · eslint · vitest) على كل push/PR — تثبيت `bun install --frozen-lockfile` (شجرة الإنتاج) والتشغيل على Node 22 |
+| **Quality gate** | `quality-gate.yml` | **Phase 141 (A-13):** أوامر AGENTS.md §3.5 الرسمية نفسها (tsc · eslint · vitest) على كل push/PR — تثبيت `bun install --frozen-lockfile` (شجرة الإنتاج) والتشغيل على Node 22 · **Phase 290 (ARCH-REMEDIATION):** `paths-ignore` لدفعات docs-only (`**.md` · `docs/**` · `archive/**` · `.github/**` · `scripts/**`) — لا يمكن لتغيير توثيقي أن يغير نتيجة tsc/eslint/vitest؛ البوابة اليدوية متاحة دائمًا عبر workflow_dispatch |
 | Docs & schema parity gate | `docs-parity-gate.yml` | يشغّل `docs_parity.py` ثم `docs_audit.py` مع كل push/PR |
 | Anti-regression guard | `guard-stale-refs.yml` | يشغّل `check-stale-refs.sh` + `check-ui-wiring.sh` مع كل push/PR |
 | Supabase Preview | (تكامل Supabase GitHub، مش ملفنا) | تطبيق الميجريشنز على preview مع كل push — الفشل يوقف الخط |

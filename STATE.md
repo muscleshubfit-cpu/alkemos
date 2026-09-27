@@ -3,13 +3,13 @@
 > **قانون (AGENTS.md §3.6):** ده أول ملف أي وكيل يقرأه قبل أي شغل — وبيتحدث إلزاميًا في نفس الفريم اللي بيغيّر الحالة.
 > الملف محدود بـ 100 سطر و32,000 بايت بوابةً (`scripts/docs_audit.py`) — اكتب مضغوط؛ التاريخ الكامل بworklog + archive/.
 > **قانون التوحيد (Phase 115):** الملف ده هو **المصدر الرسمي والوحيد** لحالة المشروع الحية — `PROGRESS.md` و`QA_CHECKLIST.md` مجمدون في `archive/`.
-> **آخر تحديث:** 2026-09-28 (**المرحلة 289 — ARCH-REMEDIATION-289 «P1-3+P1-4: STATE حالة لا سجل + السجل بلا تواريخ يدوية» — مدخل ARCH-REMEDIATION-289-2026-09-28 بworklog**)
-> **آخر كوميت متحقق منه:** ed764ac1 (فريم 288 — دُفع وCI أخضر عليه)
+> **آخر تحديث:** 2026-09-28 (**المرحلة 290 — ARCH-REMEDIATION-290 «P2: التحقق المحدد بالنطاق» — مدخل ARCH-REMEDIATION-290-2026-09-28 بworklog**)
+> **آخر كوميت متحقق منه:** 4c0b2ba6 (فريم 289 — دُفع وCI أخضر عليه)
 
 ## المرحلة الحالية
-- **المرحلة:** 289 (فوق 288 — ARCH-REMEDIATION-288 بworklog)
+- **المرحلة:** 290 (فوق 289 — ARCH-REMEDIATION-289 بworklog)
+- **(٠٠) 290 — ARCH-REMEDIATION-290 «P2: التحقق المحدد بالنطاق»: quality-gate.yml بpaths-ignore لدفعات docs-only (البطارية الكاملة للكود فقط — بوابات parity/guard على كل دفعة كما هي) + §3.5 التحقق المحلي المحدد بالنطاق (فريمات docs: docs_parity+docs_audit فقط — سابقة 223/283 قانونًا) + قانون تثبيت الكاناري (سلوك/بنية قبل الأعداد التجميلية) — مدخل ARCH-REMEDIATION-290-2026-09-28 بworklog
 - **(٠٠) 289 — ARCH-REMEDIATION-289 «P1-3+P1-4»: نقل تاريخ المراحل (21 صفًا → archive/PROGRESS_ARCHIVE.md) وتاريخ QA (8 صفوف → archive/QA_CHECKLIST_ARCHIVE.md) حرفيًا — السلم صار صفّين فقط — + إلغاء عمود Last-updated من السجل (تواريخ git في تقرير البوابة) + فحص M ثنائي الاتجاه (كل docs/*.md له صف) + تسجيل الملفات الأربعة غير المسجلة + اعتزال فحص I (الترويسات بروفينانس اختياري) — مدخل ARCH-REMEDIATION-289-2026-09-28 بworklog
-- **(٠٠) 288 — ARCH-REMEDIATION-288 «P1-1+P1-2»: فحص H5 الصلب (نافذة worklog الحية ≤12 مدخلًا و≤128KB) + سكريبت الدوران الميكانيكي scripts/worklog_rotate.py + دوران 146 مدخلًا حرفيًا للأرشيف (758KB → نافذة فقط) + تعديل §12.5.1 (SHA اختياري بعد الدفع — اعتزال كوميتات «تسجيل SHA»؛ مهمة = كوميت) — البند P0-2 (فحوصات إلزامية على main) بقي مالكًا-معلقًا: API يرفض 403 (GitHub Pro مطلوب لريبو خاص) — مدخل ARCH-REMEDIATION-288-2026-09-28 بworklog
 - تاريخ المراحل كاملًا (234→287): سطر لكل مرحلة بworklog + صفوفها الحرفية بarchive/PROGRESS_ARCHIVE.md (انتقلت بفريم 289 — STATE حالة لا سجل)
 
 ## المفتوح الآن
@@ -31,9 +31,9 @@
 - **المولد القديم وبرميل data/ وparseJSONLoose ممنوعة الإحياء** (171) — 7 معرفات محظورة بحارس stale-refs
 - API/ويدجت الشركاء (EVO-6) ممنوع الإحياء (170) · `auth.users` يدويًا فقط · مزودو AI: OpenRouter + Groq + NVIDIA NIM فقط · ممنوع تعديل ميجريشنز مطبَّقة · ممنوع أرقام متغيرة داخل README/DEVELOPER_GUIDE · ممنوع إحياء PROGRESS/QA في الجذر · slug العمود لا يُمس أبدًا — workflow التنظيف يكتب content/reading_time/updated_at فقط (+faq_json في وضع FAQ_HYGIENE=1 الصريح اختياريًا 176)
 
-## ملخص جودة المرحلة (QA — المرحلة 289)
+## ملخص جودة المرحلة (QA — المرحلة 290)
+- **(290) ARCH-REMEDIATION-290 (فريم CI+توثيق):** yaml صالح (تحقق بنية paths-ignore) ✓ · docs_audit ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ — التفصيل بworklog
 - **(289) ARCH-REMEDIATION-289 (فريم توثيقي/بوابات):** docs_audit ✓ (بفحص M الثنائي الجديد وبدون I) · docs_parity ✓ · py_compile ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — التفصيل بworklog
-- **(288) ARCH-REMEDIATION-288 (فريم حوكمة/توثيق):** py_compile للسكريبتين ✓ · docs_audit ✓ (H5 أخضر بعد الدوران: 12 مدخلًا) · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (صفر كود تطبيق) — التفصيل بworklog
 
 ## خريطة مصادر الحقيقة (ممنوع الوثوق برقم من غير مصدره)
 

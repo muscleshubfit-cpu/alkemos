@@ -8,8 +8,17 @@ name: Quality gate (tsc • eslint • vitest)
 # main with only Vercel's build (which does NOT run tsc or the
 # unit suite) as a late, partial signal.
 #
-# This gate runs the EXACT canonical commands on every push to main
-# and every PR — GitHub-side, independent of any local workspace.
+# This gate runs the EXACT canonical commands on every CODE push to main
+# and every CODE PR — GitHub-side, independent of any local workspace.
+#
+# PHASE 290 (2026-09-28 — ARCH-REMEDIATION, audit P2-1 / Part C §5):
+# PATH-SCOPED — docs-only pushes skip this gate. A commit touching only
+# Markdown/docs/archive/workflows/scripts cannot change a tsc/eslint/
+# vitest outcome (Vercel runs no unit tests either), yet 46 docs-only
+# [vercel skip] commits each burned the full battery + a Supabase
+# Preview. The docs gates (docs-parity-gate.yml + guard-stale-refs.yml)
+# stay on EVERY push unchanged — they are cheap, static, and ARE the
+# docs gates. workflow_dispatch stays for manual runs of any commit.
 #
 # PHASE 141 (A-12) install discipline: dependencies come from
 # `bun install --frozen-lockfile` — the SAME bun.lock Vercel and
@@ -24,8 +33,20 @@ name: Quality gate (tsc • eslint • vitest)
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'archive/**'
+      - '.github/**'
+      - 'scripts/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'archive/**'
+      - '.github/**'
+      - 'scripts/**'
   workflow_dispatch: {}
 
 concurrency:

@@ -7,6 +7,24 @@
 > Newest on top; append-only; one entry per task (§12.5.1).
 
 ---
+Task ID: ARCH-REMEDIATION-290-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P2 من التقرير الحاكم (تحديد نطاق التحقق): paths-ignore لبوابة الجودة + توثيق التحقق المحلي المحدد بالنطاق بقانون §3.5 + قانون تثبيت الكاناري — صفر مساس بالكود/المنطق/الواجهة.
+
+Work Log:
+- (P2-1 CI) quality-gate.yml: paths-ignore على push وpull_request لـ(`**.md` · `docs/**` · `archive/**` · `.github/**` · `scripts/**`) وفق Part C §5 — دفعة docs-only لا يمكنها تغيير نتيجة tsc/eslint/vitest فتتخطى البطارية (46 كوميت docs-only أحرقتها سابقًا بلا أي أثر) — بوابات parity وguard بقيت على كل دفعة كما هي (هي بوابات التوثيق) وworkflow_dispatch متاح دائمًا — تعليق الرأس يوثق القانون.
+- (P2-2 محلي) AGENTS.md §3.5: فقرة «Scope-matched verification» — فريم docs-only (صفر src/supabase/build-config) يشغل محليًا docs_parity + docs_audit فقط (+ migration_audit والحراس عند مساس نطاقهم) — سابقة 223/283 صارت قانونًا مكتوبًا؛ فريم الكود يشغل المجموعة الكاملة.
+- (P2-3 كاناري) AGENTS.md §8: قانون CANARY PINNING POLICY — الكاناري يثبت السلوك والبنية أولًا؛ الأعداد الحرفية فقط حيث العدد نفسه هو القانون (image-safety v3 · MSA · slug law · ui-wiring)؛ تعديل نص تجميلي لا يستلزم تعديل اختبار بنفس الكوميت (فئة chev 14→10 بالمرحلة 286) — الحراس الحقيقيون لا يُضعفون أبدًا.
+- (توثيق تابع) CI_GATES.md: تحصين IV (رأس الملف) + صف بوابة الجودة بالجدول يوثق paths-ignore — فحص N (تغطية كل workflow) أخضر.
+- (STATE) صف 290 + صف QA 290 — سلّم ≤2 (صف 288 انتقل حرفيًا للأرشيف بنفس الفريم) — آخر كوميت متحقق منه: 4c0b2ba6.
+- (التحقق — فريم docs+CI فقط) بنية YAML صالحة (python yaml parse لquality-gate.yml) ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (القانون الجديد نفسه).
+
+Stage Summary:
+- التحقق صار مطابقًا للنطاق: دفعات التوثيق تدفع بوابات التوثيق فقط (محليًا وCI)، ودفعات الكود تدفع البطارية كاملة — وقانون الكاناري يمنع تزاوج الأسطح غير المرتبطة.
+- الملفات الممسوسة: .github/workflows/quality-gate.yml (paths-ignore) · AGENTS.md (§3.5 + §8) · docs/CI_GATES.md (تحصين IV) · STATE.md (290 + أرشفة صف 288) · archive/PROGRESS_ARCHIVE.md + QA_CHECKLIST_ARCHIVE.md (+صف 288 حرفيًا) · worklog.md (هذا المدخل).
+- Push status: pushed
+
+---
 Task ID: ARCH-REMEDIATION-289-2026-09-28
 Agent: Implementation Agent
 Task: أمر المالك 2026-09-28 — تنفيذ P1-3+P1-4 من التقرير الحاكم: نقل تاريخ STATE للأرشيف (حالة لا سجل) + إلغاء التواريخ اليدوية من سجل docs (اشتقاق لا تكرار) — صفر مساس بالكود/المنطق/الواجهة.
@@ -245,28 +263,4 @@ Stage Summary:
 - ملفات الفريم: src/components/views/LandingView.tsx · src/app/globals.css · src/lib/__tests__/homepage-adoption.test.ts · DESIGN.md · README.md · docs/README.md · STATE.md · worklog.
 - Commit SHA: 7b01de1 (كوميت التنفيذ — الكود والوثائق) + سلسلة التوثيق: 3ad7d66 (تسجيل SHA) · d29e469 (إصلاح صفوف السجل الأربعة — M/registry-dates) · fe7b415b (تواريخ الحقيقة: ترويسة README + الصف الذاتي للسجل)
 - Push status: pushed (1afee2b..fe7b415b على origin/main) — CI 4/4 خضراء على fe7b415b (quality · parity · guard · cleanup) — تشغيلان توثيقيان متوسطان فشلت فيهما parity وأُغلقا بنفس الجلسة (3ad7d66/d29e469 — قياس تواريخ السجل) — **الإنتاج alkemos.com يخدم الموجة متحققًا حيًا**: HTML يحمل theme-img-pin-dark ×9 + صفات المزايا + COMMON QUESTIONS (+AR بالعربية كاملة) · CSS المقدّم يحمل قاعدة pin-dark · صفر #34c759/#ff9500 بDOM الرئيسية — لم يلزم deployment-trigger (النشر تسجل على كوميت التنفيذ).
-
----
-Task ID: VRD-V8-2026-09-26
-Agent: Super Z (owner session)
-Task: تنفيذ موجة VRD-V8 «الوو البصري» على الرئيسية (أمر المالك 2026-09-26 بعد مراجعة حالة V7 في المستودع والموقع الحي: رفع الهيرو لأقوى جزء بصري + قصة منتج تُقرأ في ثوانٍ + جعل EVO والتخطيط الذكي قلب التجربة — دون إعادة تنفيذ ما نجح في V7، ودون مساس بBusiness Logic/APIs/Supabase/Routes/البيانات، ودون Framer Motion/GSAP/Three.js/WebGL/Canvas أو أي اعتمادية جديدة، ودون تغيير الألوان الأساسية أو المحتوى الحقيقي أو الأرقام، وبلا بنود P2 ولا Marble overhaul ولا إعادة تصميم العضويات/الشهادات).
-
-Work Log:
-- (المراجعة أولًا) git fetch — SYNCED على dd43e98 (نهاية V7) · قراءة STATE/DESIGN/AGENTS §3.5-3.7 + worklog · جولة حية على alkemos.com (هيرو/EVO/#plan) لتثبيت نقطة البداية: الثلاثية الزجاجية ساكنة عرضًا معلوماتيًا، وEVO بأوربه وشعاعه ينتهي بحديث توضيحي بلا وصول لنتيجة المستخدم.
-- (بحث 21st.dev — V8-4) فحص العائلات الأربع (Hero/storytelling/premium cards/AI): «Animated Beam» (MagicUI) هو الوحيد الذي يعطي قفزة حقيقية للقصة المطلوبة — تنفيذه الكنسي يقيس المستطيلات بResizeObserver ويحرك نافذة تدرج بمكتبة حركة؛ قرارهما: إعادة تأليف داخلي بمسارات Q مثبتة + نبض dash (pathLength=100 + stroke-dashoffset) — صفر JS صفر اعتماديات. المرشحون الآخرون (Shimmer/Typing/Orbiting/Spotlight) رُفضوا: إما مكتبة حركة أو كلفة بلا قفزة أو كسر لقوانين الشكل (typewriter عربي مكسور بعرض ch) — «لا component لمجرد الاستخدام».
-- (V8-1+V8-2 — الهيرو) .platform-trio: الثلاثية الزجاجية بقيت قائمة دلالية غير روابط (قانون الزرين حرفيًا) وتحصل على نبضة دخول متدرجة (trio-rise ثلاث مراحل backwards — صفر CLS) ورفع hover هادئ (2px + حدود أشد + --shadow-lift، تحت no-preference فقط)، وتحتها مخطط التقارب: ثلاثة تدفقات كرومية (trio-base سلك ثابت دائم + trio-pulse نبضتا مذنّب لكل مسار — dasharray 12/38 ودورة 5s بإزاحات ثلثية) تتقارب في عقدة زجاجية (قرص بطاقة شفاف + نواة + هالة تتنفس trio-halo بtransform-box: fill-box) وتحتها تسمية «ONE PLATFORM/منصة واحدة» — التكوين متماثل البناء فلا انعكاس RTL مطلوب (قانون الحركة عديمة الاتجاه)، والمخطط aria-hidden كليًا.
-- (V8-3 — EVO+التخطيط) التسليم داخل .evo-console: سكة سياية (.evo-handoff-rail) بثلاث نقاط نابضة (evo-dot-pulse بإزاحات 0/0.2/0.4s) وخط متقطع ثابت تنزل من عمود أفاتار EVO (padding-inline-start منطقي 11px ينعكس بالRTL بدقة تحت الأفاتار) إلى بطاقة تسليم (.evo-handoff-card) بعنوان «ثم تُبنى خطتك هنا» ورقاقتَي مرساة حقيقيتان ‎#plan-workout/#plan-nutrition‎ (EngravedIcon rack/protein + شيفرون معكوس) — البانيا في #plan حملها المعرفان + scroll-mt-24 (DOM فقط، صفر منطق) — السيان كله داخل الكونسول (قانون سطح AI محفوظ) + الأورب يتنفس أعمق عند hover الكونسول — الشعاع آخر ابن للوحة كما هو.
-- (الحرس) كل الحركات الجديدة الثلاث (trio-dash/trio-rise+trio-flow/trio-halo/evo-dot-pulse) داخل @media (prefers-reduced-motion: no-preference) بنيويًا — تحقق آلي بمفكك للملف أثبت أن كل إعلان animation محروس — الوضع المقيد يرى السلك الثابت والنقاط ساكنة.
-- (البوابات — §3.5 + حراس V7) tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell القديم بملف غير مساس) · vitest ✓ 100/1702 (الكاناري homepage-adoption حرفيًا بلا تعديل) · stale-refs ✓ · ui-wiring ✓ · migration_audit --ci ✓ صفر انحراف جديد · docs_parity ✓ · docs_audit: 30 مخالفة قديمة J/M كما هي (مطابقة خط الأساس قبل التعديل حرفيًا — صفر جديد) · next build ✓ كامل 2020/2020 بالـsandbox.
-- (الحي محليًا على بناء الإنتاج) EN/AR × Light/Dark × 1440/390: صفر overflow أفقي (scrollWidth=viewport في السياقات الأربعة) · صفر أخطاء console (فقط سجل Vercel Analytics المحلي المتوقع) · التقارب يقرأ بالوضعين (عاجي على الغرافيتي الداكن/غرافيتي على الرخام الفاتح) · hover حي بمؤشر حقيقي (matrix translateY(-2px) + حدود 52%) · نقرة رقاقة «Workout plan» نزلت الصفحة إلى ‎#plan-workout داخل الشاشة الأولى (scroll-mt يحسب الهيدر اللزج) · RTL: العنوان يبدأ من اليمين والرقاقات معكوسة والسكة تحت الأفاتار الأيمن والهالة/التدفق كما هي (تماثل) · الجوال: الثلاثية تلتف صفين والمخطط يتمدد 82vw والتسليم يكدّس الرقاقات — لقطات الجولة خارج المستودع.
-- (التوثيق — §3.8) DESIGN.md: ترويسة + §5 صفّا .platform-trio/.trio-* و.evo-handoff-* + تحديث صف .hero-pill + §7.1 «Platform trio + convergence» + §7.3 التسليم · docs/README.md صف DESIGN.md بتاريخ اليوم · STATE.md مرحلة 277 بإدخال مضغوط وضغط الإدخالات 270-276/257 (98 سطرًا/28,860 بايت داخل السقفين) + صف QA (277).
-
-Stage Summary:
-- موجة VRD-V8 منفذة: الهيرو صار قصة منتج مرئية (ثلاثة مسارات تتغذى في عقدة «منصة واحدة») وتجربة تفاعلية خفيفة (دخول متدرج + hover حي)، وEVO صار مدخل منتج حقيقي (المحادثة تصل حرفيًا إلى بانيّ الخطط بمراسي عميقة) — **كلها SVG/CSS خالصة على transform/filter/stroke-dashoffset، صفر اعتماديات، صفر مكتبات حركة، صفر JS جديد، صفر مساس بمنطق الأعمال/المسارات/API/Supabase/الأسرار، صفر ألوان جديدة**.
-- قاعدة 21st.dev طبقت بحروفها: «Animated Beam» أُعيد تأليفه داخليًا كوصفة نظام (بلا مكتبة الحركة الكنسية ولا ResizeObserver — التكوين مثبت فلا قياس مطلوب)، وكل مرشح آخر قُيّم ورُفض لعدم قفزته.
-- الممنوعات الملكية محفوظة: لا P2 · لا Marble overhaul · لا مساس بالعضويات/الشهادات/الألوان/المحتوى/الأرقام · Server Components كما هي (التغيير كله CSS + JSX تصييري بنفس المكونات).
-- ملفات الموجة: src/components/views/LandingView.tsx (الهيرو + التسليم + المراسي) · src/app/globals.css (وصفات V8) · DESIGN.md · docs/README.md · STATE.md · worklog.
-- Commit SHA: b27e1411 (كوميت التنفيذ والتوثيق موحّدان)
-- Push status: pushed (dd43e98..b27e1411 على origin/main) — CI 5/5 خضراء عليه (quality · parity · guard · Supabase Preview · cleanup) — نشر الإنتاج تأخر عن الدفعة (نمط V7 الموثق: سجل الحافة ظل يخدم قديمًا بلا deployment مسجل) فشُغّل بكوميت التشغيل 02b5608 — التحقق الحي أسفل.
-- (التحقق الحي بعد الدفع — 02b5608): الإنتاج alkemos.com يخدم الموجة (HTML: platform-trio + trio-node-disc ×3 + evo-handoff + ‎#plan-workout · CSS المقدَّم: trio-dash/trio-halo/evo-dot-pulse/hero-pill:hover) · build-info = b27e1411 (277) · الحي EN: التقارب يقرأ والنبضات الثلاث تعمل والتسليم حاضر وصفر overflow — CI على b27e1411 خضراء كاملة 5/5.
 
