@@ -73,9 +73,12 @@ export default async function ArabicAuthorProfilePage({
   if (!author) notFound();
 
   const profileSchema = getProfilePageSchema(author);
+  // SEO/GEO audit (2026-09-28): crumb «الكُتّاب» now targets the real
+  // /ar/authors index (was a self-link to the ahmed-zake profile).
+  // Visible nav + JSON-LD match.
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "الرئيسية", url: "/ar" },
-    { name: "الكُتّاب", url: "/ar/authors/ahmed-zake" },
+    { name: "الكُتّاب", url: "/ar/authors" },
     { name: author.nameAr, url: `/ar/authors/${author.slug}` },
   ]);
 
@@ -96,7 +99,7 @@ export default async function ArabicAuthorProfilePage({
         <nav className="mb-8 flex items-center gap-2 text-sm text-[var(--muted-foreground)]" aria-label="مسار التنقل">
           <Link href="/ar" className="hover:opacity-70">الرئيسية</Link>
           <span>/</span>
-          <Link href="/ar/authors/ahmed-zake" className="hover:opacity-70">الكُتّاب</Link>
+          <Link href="/ar/authors" className="hover:opacity-70">الكُتّاب</Link>
           <span>/</span>
           <span className="text-[var(--text)]">{author.nameAr}</span>
         </nav>

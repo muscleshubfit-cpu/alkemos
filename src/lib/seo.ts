@@ -629,11 +629,18 @@ export function renderJsonLd(schema: object) {
  * Scope: ONLY the `metadata.title` value fed to the AR template. The
  * og/twitter `title` fields bypass Next.js templates, so they keep the
  * original suffixed strings.
+ *
+ * SEO/GEO audit (2026-09-28): added the «، Alkemos» (Arabic comma)
+ * trailing pattern — the author profile titles are composed from
+ * `authors.ts` jobTitles that END with «، Alkemos» (e.g. «المؤسس
+ * والمدرب الرئيسي، Alkemos»), so the old three patterns left a
+ * «…، Alkemos — Alkemos» double brand on /ar/authors/ahmed-zake.
  */
 export function stripTrailingBrandForArTemplate(title: string): string {
   return title
     .replace(/\s*\|\s*Alkemos\s*$/u, "")
     .replace(/\s*—\s*Alkemos\s*$/u, "")
+    .replace(/\s*،\s*Alkemos\s*$/u, "")
     .replace(/\s+على\s+Alkemos\s*$/u, "");
 }
 

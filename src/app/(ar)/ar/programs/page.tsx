@@ -25,6 +25,32 @@ export const metadata: Metadata = {
       "x-default": `${SITE_URL}/programs`,
     },
   },
+  // SEO/GEO audit (2026-09-28): the EN twin pins an explicit OG block
+  // ((en)/programs/layout.tsx — same-family home card), but this page had
+  // none — Next.js field-level inheritance served the AR ROOT HOMEPAGE
+  // og:title/og:description on /ar/programs. Pins the AR home card — the
+  // mirror of the EN block.
+  openGraph: {
+    title: "برامج التدريب | Alkemos",
+    description:
+      "برامج تدريب جاهزة لكل المستويات والأهداف — منزلية، دمبل، ونادي رياضي.",
+    type: "website",
+    locale: "ar_EG",
+    url: `${SITE_URL}/ar/programs`,
+    siteName: "Alkemos",
+    images: [
+      {
+        url: "/images/og/og-home-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — منصة اللياقة والتغذية الذكية المتكاملة",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-ar.png"],
+  },
 };
 
 export default function Page() {

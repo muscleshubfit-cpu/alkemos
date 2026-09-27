@@ -89,6 +89,10 @@ export async function GET() {
     { loc: `${base}/ar/about`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/about`, ar: `${base}/ar/about` } },
     // Phase SEO-GEO-2 (2026-09-08): author profile pages — the @id URLs
     // referenced by every Article.author Person + Organization.founder.
+    // SEO/GEO audit (2026-09-28): /authors index pair added — the real
+    // target of the profile pages' "Authors" breadcrumb (was a 404).
+    { loc: `${base}/authors`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/authors`, ar: `${base}/ar/authors` } },
+    { loc: `${base}/ar/authors`, changefreq: "monthly", priority: 0.6, alternates: { en: `${base}/authors`, ar: `${base}/ar/authors` } },
     { loc: `${base}/authors/ahmed-zake`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/authors/ahmed-zake`, ar: `${base}/ar/authors/ahmed-zake` } },
     { loc: `${base}/ar/authors/ahmed-zake`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/authors/ahmed-zake`, ar: `${base}/ar/authors/ahmed-zake` } },
     { loc: `${base}/faq`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/faq`, ar: `${base}/ar/faq` } },

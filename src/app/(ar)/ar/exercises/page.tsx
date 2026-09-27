@@ -31,6 +31,33 @@ export const metadata: Metadata = {
       "x-default": `${SITE_URL}/exercises`,
     },
   },
+  // SEO/GEO audit (2026-09-28): the EN twin pins its own OG block
+  // ((en)/exercises/layout.tsx), but this page had none — Next.js
+  // field-level inheritance served the AR ROOT HOMEPAGE og:title/
+  // og:description/og:image on /ar/exercises. Same replace-not-inherit
+  // gap documented on the memberships/coaching layouts. Pins the AR
+  // exercises card (og-exercises-ar.png) — the mirror of the EN block.
+  openGraph: {
+    title: "مكتبة التمارين | Alkemos",
+    description:
+      "مكتبة 868+ تمرين بالصور والشرح ومستويات الصعوبة — عضلات، أجهزة، وتمارين منزلية.",
+    type: "website",
+    locale: "ar_EG",
+    url: `${SITE_URL}/ar/exercises`,
+    siteName: "Alkemos",
+    images: [
+      {
+        url: "/images/og/og-exercises-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "مكتبة تمارين Alkemos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-exercises-ar.png"],
+  },
 };
 
 export default async function Page({

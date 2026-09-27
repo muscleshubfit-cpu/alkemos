@@ -27,6 +27,31 @@ export const metadata: Metadata = {
       "x-default": `${SITE_URL}/foods`,
     },
   },
+  // SEO/GEO audit (2026-09-28): the EN twin pins its own OG block, but
+  // this page had none — Next.js field-level inheritance served the AR
+  // ROOT HOMEPAGE og:title/og:description/og:image on /ar/foods. Pins the
+  // AR foods card (og-foods-ar.png) — the mirror of the EN block.
+  openGraph: {
+    title: "مكتبة الأطعمة | Alkemos",
+    description:
+      "8,830+ صنفًا غذائيًا بالسعرات والماكروز لكل 100 جرام — ابحث، صفِّ النتائج، واحسب بالجرام.",
+    type: "website",
+    locale: "ar_EG",
+    url: `${SITE_URL}/ar/foods`,
+    siteName: "Alkemos",
+    images: [
+      {
+        url: "/images/og/og-foods-ar.png",
+        width: 1200,
+        height: 630,
+        alt: "مكتبة أطعمة Alkemos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-foods-ar.png"],
+  },
 };
 
 export default async function Page({

@@ -155,7 +155,12 @@ export default function CoachingPage() {
               {isAr ? "التدريب الأونلاين" : "Online Coaching"}
             </span>
             <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight md:text-6xl lg:text-7xl">
-              {isAr ? "مدربون وأخصائيو" : "Professional coaches"}
+              {/* SEO/GEO audit (2026-09-28): the trailing space keeps the
+                  H1 textContent "Professional coaches & nutrition
+                  specialists." — without it, crawlers/screen readers read
+                  the <br/>-split heading as "coaches& nutrition". Visual
+                  output (two lines) is unchanged. */}
+              {isAr ? "مدربون وأخصائيو " : "Professional coaches "}
               <br />
               {isAr ? "تغذية محترفون." : "& nutrition specialists."}
             </h1>

@@ -48,8 +48,15 @@ export async function generateMetadata({
     };
   }
   const url = `https://alkemos.com/authors/${author.slug}`;
+  // SEO/GEO audit (2026-09-28): the registry jobTitle ends with
+  // ", Alkemos" ("Founder & Head Coach, Alkemos"), so the composed title
+  // rendered the brand TWICE ("…, Alkemos | Alkemos"). Strip the
+  // jobTitle's own brand mention for the <title> — og/twitter keep the
+  // full jobTitle (no template appends a brand there). Same class of fix
+  // as stripTrailingBrandForArTemplate on the AR mirror.
+  const titleJobTitle = author.jobTitleEn.replace(/,\s*Alkemos\s*$/u, "");
   return {
-    title: `${author.nameEn} — ${author.jobTitleEn} | Alkemos`,
+    title: `${author.nameEn} — ${titleJobTitle} | Alkemos`,
     description: author.bioEn.slice(0, 160),
     alternates: {
       canonical: url,
@@ -86,6 +93,8 @@ export default async function AuthorProfilePage({
   if (!author) notFound();
 
   const profileSchema = getProfilePageSchema(author);
+  // SEO/GEO audit (2026-09-28): the "Authors" crumb now targets the real
+  // /authors index (was /authors — a 404). Visible nav + JSON-LD match.
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Authors", url: "/authors" },
@@ -109,7 +118,7 @@ export default async function AuthorProfilePage({
         <nav className="mb-8 flex items-center gap-2 text-sm text-[var(--muted-foreground)]" aria-label="Breadcrumb">
           <Link href="/" className="hover:opacity-70">Home</Link>
           <span>/</span>
-          <Link href="/authors/ahmed-zake" className="hover:opacity-70">Authors</Link>
+          <Link href="/authors" className="hover:opacity-70">Authors</Link>
           <span>/</span>
           <span className="text-[var(--text)]">{author.nameEn}</span>
         </nav>

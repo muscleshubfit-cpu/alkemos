@@ -33,6 +33,33 @@ export const metadata: Metadata = {
       "x-default": "https://alkemos.com/about",
     },
   },
+  // SEO/GEO audit (2026-09-28): this page had title/description but NO
+  // openGraph block — Next.js field-level inheritance served the ROOT
+  // homepage og:title/og:description/og:url ("Alkemos — The Smart…" and
+  // og:url = "/") on /about. Mirrors the AR twin's explicit block
+  // (src/app/(ar)/ar/about/page.tsx) — same replace-not-inherit law the
+  // memberships/coaching layouts already document.
+  openGraph: {
+    title: "About Alkemos — The Platform, the Founder, and the Model",
+    description:
+      "Alkemos is a bilingual fitness and nutrition platform: an exercise library, a food database, free tools, ready programs and diets, the EVO AI coach, and human coaching.",
+    url: "https://alkemos.com/about",
+    type: "website",
+    siteName: "Alkemos",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
+  },
 };
 
 export default async function Page() {

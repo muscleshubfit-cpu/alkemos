@@ -439,7 +439,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     name: { en: "AI Workout Planner", ar: "مخطط التمارين بالذكاء الاصطناعي" },
     description: {
       en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — free to try; your plan stays on your device, and a free account saves it permanently.",
-      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — مجانًا؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
+      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك ومعداتك في ثوانٍ — مجانًا؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
     },
     features: {
       en: [
@@ -468,7 +468,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
       },
       description: {
         en: "Turn your goal, level, days, and equipment into a generated weekly split with validated structure using the free Alkemos AI workout planner trial.",
-        ar: "حوّل هدفك ومستواك وأيامك وتجهيزتك إلى نظام أسبوعي مولّد ببنية مُتحققة باستخدام تجربة مخطط التمارين بالذكاء الاصطناعي المجانية من Alkemos.",
+        ar: "حوّل هدفك ومستواك وأيامك ومعداتك إلى نظام أسبوعي مولّد ببنية مُتحققة باستخدام تجربة مخطط التمارين بالذكاء الاصطناعي المجانية من Alkemos.",
       },
       steps: {
         en: [

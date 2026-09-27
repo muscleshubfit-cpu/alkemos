@@ -30,6 +30,31 @@ export const metadata: Metadata = {
       "x-default": "https://alkemos.com/terms",
     },
   },
+  // SEO/GEO audit (2026-09-28): without an openGraph block, Next.js
+  // field-level inheritance served the ROOT homepage og:title/description
+  // and og:url = "/" on /terms. Mirrors the AR twin's explicit block
+  // (src/app/(ar)/ar/terms/page.tsx).
+  openGraph: {
+    title: "Terms & Conditions | Alkemos — Rules of Using the Platform",
+    description:
+      "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
+    url: "https://alkemos.com/terms",
+    type: "website",
+    siteName: "Alkemos",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
+  },
 };
 
 export default async function Page() {

@@ -61,17 +61,22 @@ export default function ForCoachesPage() {
             {isAr ? "للمدربين وأخصائيي التغذية" : "For coaches & nutrition specialists"}
           </span>
           <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight md:text-5xl md:leading-tight">
+            {/* SEO/GEO audit (2026-09-28): explicit strings with a trailing
+                space keep the H1 textContent readable ("… at your prices —
+                and keep your money" / "درِّب عملاءك بأسعارك وأموالك بين
+                يديك") — raw JSX lines around <br/> collapse to no space
+                for crawlers and screen readers. Visual output unchanged. */}
             {isAr ? (
               <>
-                درِّب عملاءك بأسعارك
+                {"درِّب عملاءك بأسعارك "}
                 <br />
-                وأموالك بين يديك
+                {"وأموالك بين يديك"}
               </>
             ) : (
               <>
-                Train your clients at your prices —
+                {"Train your clients at your prices — "}
                 <br />
-                and keep your money
+                {"and keep your money"}
               </>
             )}
           </h1>

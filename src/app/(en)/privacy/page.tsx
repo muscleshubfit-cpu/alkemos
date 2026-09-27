@@ -30,6 +30,31 @@ export const metadata: Metadata = {
       "x-default": "https://alkemos.com/privacy",
     },
   },
+  // SEO/GEO audit (2026-09-28): without an openGraph block, Next.js
+  // field-level inheritance served the ROOT homepage og:title/description
+  // and og:url = "/" on /privacy. Mirrors the AR twin's explicit block
+  // (src/app/(ar)/ar/privacy/page.tsx).
+  openGraph: {
+    title: "Privacy Policy | Alkemos — How We Protect Your Data",
+    description:
+      "How Alkemos collects, uses, and protects your personal data: account details, health metrics, cookies, third-party services, and your rights over your information.",
+    url: "https://alkemos.com/privacy",
+    type: "website",
+    siteName: "Alkemos",
+    locale: "en_US",
+    images: [
+      {
+        url: "/images/og/og-home-en.png",
+        width: 1200,
+        height: 630,
+        alt: "Alkemos — The Smart Fitness & Nutrition Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og/og-home-en.png"],
+  },
 };
 
 export default async function Page() {
