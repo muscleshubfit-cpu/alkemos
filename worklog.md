@@ -29,7 +29,7 @@ Stage Summary:
 - الرئيسية صقلت كواجهة منصة: مكتبة الأطعمة بمعاينة حقيقية على نمط التمارين (9 فئات مربوطة + 6 بطاقات حقيقية بروابطها)، الأدوات بلاطات بصرية (مع مخطط الوجبات اليدوي)، شريط الرصيد يقدّم قسم AI، بطاقتا AI أقوى بأزرار ممتلئة ووسم AI صريح ووصف الوجبات بالغرامات محفوظ، PRO هو البطاقة الداكنة الموصى بها وأزرار كل البطاقات مرئية متسقة، FAQ مرئي مباشرة — صفر أقسام جديدة وصفر مساس بالمنطق/الأسعار/API/المسارات.
 - الملفات الممسوسة: src/components/views/LandingView.tsx (إعادة كتابة الأقسام 5/7/7.5/8/10/12) · src/lib/home-samples.ts (6 أطعمة) · src/lib/site-content/home.ts (eat/tools) · src/app/globals.css (.btn-outline-dark + انضمامها لchev-hover) · src/styles/design-tokens.ts · src/docs/DESIGN_SYSTEM.md · README.md · STATE.md · worklog.md (هذا) · الاختبارات: homepage-adoption + rtl-typography + site-content.
 - البوابات كلها خضراء: tsc 0 · eslint 0 · vitest 101/1729 · build 2020/2020 · تحقق حي EN/AR × 1440/390 + VLM نظيف.
-- (التسليم) يلي هذا المدخل كوميت feat على main → CI + نشر Vercel التلقائي؛ SHA يسجل بكوميت توثيقي مستقل (سابقة 281/283/284).
+- (التسليم) كوميت feat e4719c8 دُفع إلى origin/main · تبعته ورقة إصلاح توثيقية 5d7635b: ترويسة README «Last updated» وصف السجل لم يُحدّثا في فريم 284 حين عُدّل README (بوابة parity كشفته على دفعة 285 — تشغيلها على 6b020b83 كان ملغى بسرعة الدفع المتتابع) — أُصلحا بتاريخ 2026-09-27 (Ph 285) · **CI على 5d7635b: Supabase Preview/quality/guard/parity/cleanup كلها success + نشر Vercel على الكوميتين success** · SHA مسجل بهذا الكوميت التوثيقي المستقل (سابقة 281/283/284).
 
 ---
 Task ID: HOME-PLATFORM-284-2026-09-27
