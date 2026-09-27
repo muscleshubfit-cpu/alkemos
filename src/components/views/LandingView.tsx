@@ -14,25 +14,9 @@ import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPost
 import { deferIdle } from "@/lib/defer-idle";
 import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
 import { FOODS_COUNT } from "@/lib/foods-shared";
-import { TOOLS_COUNT } from "@/lib/tools-shared";
+import { TOOLS, TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
-import { ensureGuestId, saveGuestPlan } from "@/lib/plan-persistence";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { getFallbackSVG } from "@/lib/exercise-images";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
-import {
-  workoutEquipmentOptions,
-  workoutGoalOptions,
-  workoutLevelOptions,
-} from "@/lib/ai-workout-planner";
-import {
-  calculateCalorieTargets,
-  isValidCalculatorInput,
-  type CalorieTargets,
-  type FitnessActivity,
-  type FitnessGender,
-  type FitnessGoal,
-} from "@/lib/fitness-math";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getFAQSchema, jsonLd } from "@/lib/seo";
@@ -42,7 +26,6 @@ import { ThemeImg, EngravedIcon } from "@/components/ThemeImg";
 import type {
   HomeDietSystemSample,
   HomeExerciseSample,
-  HomeFoodSample,
   HomeProgramSample,
   HomeSamples,
 } from "@/lib/home-samples";
@@ -88,62 +71,42 @@ const MUSCLE_TABS = [
 ] as const;
 
 // ============================================================
-// HOME-REFINE-270 (owner directive 2026-09-24 — the nine-point
-// homepage refinement of the living-product rebuild):
-//   R1. Hero carries exactly TWO side-by-side CTAs: login/signup
-//       (→ /auth) + the premium-memberships page (→ /memberships).
-//   R2. The proof strip under the hero is a compact ONE-ROW band
-//       (small type, numbers + labels inline, count-up preserved).
-//   R3. The «تجربة حية» tab wrapper is GONE — its three surfaces
-//       live as INDEPENDENT sections, each with its own headline:
-//       the calculator (#start), EVO (#evo, warrior art kept), and
-//       the exercise library (now a blog-style CAROUSEL).
-//   R4. The exercise library renders as a carousel (like the blog)
-//       and moved to sit right before the blog; the ready-made
-//       diet-plan library (مكتبة الخطط الغذائية الجاهزة) joins it
-//       there as its own carousel section.
-//   R5. The old planning-plus-EVO section was WRONG (it mixed
-//       the planners with EVO and implied a human coach). It is now
-//       #plan — an INTERACTIVE planner section like the tools: a
-//       workout-plan builder + a nutrition-plan builder (real
-//       planner vocabulary + real matrix splits, live previews).
-//       EVO is NOT mentioned there (it owns #evo) and NO coach is
-//       referenced (online coaching is a separate paid membership).
-//   R6. The blog section title is the simple «أحدث المقالات» and
-//       the carousel is LATEST-FIRST (the newest posts actually
-//       lead the row).
-//   R7. The big free-vs-paid section is replaced by SMALL
-//       attractive membership cards (prices still derive from
-//       memberships.ts — single source) + one online-coaching card.
-//   R8. The repetitive final CTA band is removed entirely.
-//   R9. The footer is flat: no disclosure groups — every link
-//       visible and organized at every breakpoint (SiteFooter).
+// HOME-PLATFORM-284 (owner order 2026-09-27 — «الصفحة الرئيسية كواجهة
+// منصة حقيقية وليست صفحة هبوط»): the embedded tool surfaces are GONE
+// from the homepage. The homepage is now a true PLATFORM homepage —
+// concise SECTIONS with CARDS that link to the real pages, exactly one
+// job per section, mirroring the header's service nav:
 //
-// HOME-REFINE-271 (owner follow-up 2026-09-24 — four corrections on
-// top of the nine):
-//   F1. The exercise-library directive was a misorder: the
-//       INTERACTIVE muscle-group browser (مكتبة التمارين) is RESTORED
-//       as its own section (#library, where the programs grid was),
-//       and the READY-MADE PROGRAMS (برامج التمارين الجاهزة) take the
-//       pre-blog carousel slot (#train).
-//   F2. The EVO section is CONCISE: a two-turn demo, and NO artwork
-//       under the copy (the desktop warrior side-art stays).
-//   F3. #plan is TRULY interactive like the tools («حقيقى تفاعلى مثل
-//       الادوات»): both builders call the REAL generation endpoints
-//       (/api/ai/workout-plan-demo · /api/ai/meal-plan-demo — the
-//       unified free pool, guests included) and render the generated
-//       plan in-page; changing any choice returns the card to its
-//       live preview (a rendered plan always matches the choices).
-//   F4. The footer is SHORTENED (SiteFooter): every list trimmed to
-//       its primary entry points — the header nav already carries
-//       the dropped surfaces (27 → 18 links).
+//   SECTION ARC (top → bottom):
+//     HERO (two CTAs, unchanged) → PROOF (one row, unchanged) →
+//     #library TRAINING (the interactive muscle-group browser — the
+//     preview now answers with SIX real exercises per family) →
+//     #train PROGRAMS (the ready-made carousel, unchanged) →
+//     #eat NUTRITION (three clearly-differentiated cards: the food
+//     database · the MANUAL Meal Planner · the READY-MADE diet-plan
+//     library) → #diet (the diet-systems carousel, unchanged) →
+//     #tools TOOLS (ONE card linking to the /tools hub — the
+//     calculators themselves are NO LONGER embedded here) →
+//     #plan AI PLANNING (three AI cards: the AI Workout Planner, the
+//     AI Meal Planner — a STRUCTURED day plan with portions/grams, not
+//     mere suggestions — and EVO, the AI coach; visually and verbally
+//     distinct from the regular tools) → #learn (latest-first blog
+//     carousel, unchanged) → #memberships (small tier cards + the
+//     coaching band, unchanged) → #faq (unchanged).
 //
-// The 269 laws that still hold: fitness-math.ts stays the single
-// calculator source; the EVO demo stays labeled + hands off to the
-// floating widget (chat-surface law); prices derive from
-// memberships.ts (never literals); EN/AR are independent native
-// pairs; counts ride the verified constants; zero emoji; MSA-clean
-// Arabic; motion stays once-only + reduced-motion-safe.
+// WHY (the owner's brief): a homepage should NAVIGATE the visitor
+// into the platform's real pages — the embedded calculator/builders
+// duplicated the tool pages, blurred AI planning into regular tools,
+// and buried the section entry points under a landing-page treatment.
+//
+// The laws that still hold from the 270/271 frames: the hero's
+// two-button directive; the compact one-row proof strip; prices
+// derive from memberships.ts (never literals); EN/AR are independent
+// native pairs; counts ride the verified constants (EX_PLUS /
+// FOODS_PLUS / TOOLS_COUNT); the EVO chat surface stays the floating
+// widget (openEvoFloatingChat — the EVO card's button dispatches it);
+// zero emoji; MSA-clean Arabic; motion stays once-only +
+// reduced-motion-safe.
 // ============================================================
 
 // ============================================================
@@ -310,407 +273,108 @@ function CountUp({
 }
 
 // ══════════════════════════════════════════════════════════════
-// THE LIVING PRODUCT — three REAL product surfaces that run
-// in-page (HOME-EXPERIENCE-269). Each one is the product itself,
-// not a description of it: the calculator runs the app's own
-// math (fitness-math.ts single source), the EVO demo shows a
-// real conversation and hands off to the REAL widget (the
-// chat-surface law), and the library browser filters the real
-// curated samples with a live swap.
+// THE PLATFORM SECTION CARDS (HOME-PLATFORM-284) — the homepage's
+// navigation surfaces. One card = one destination page; NO tool is
+// embedded on the homepage anymore. The cards ride the SAME
+// marble-card family as the content previews (marble-card +
+// card-lift + EngravedIcon + chrome-text arrow) so the whole page
+// reads as ONE product surface.
 // ══════════════════════════════════════════════════════════════
 
-// ── Activity labels — the same register as the app tool so the
-//    homepage and /tools read as ONE product. ──
-const ACTIVITY_LABELS_AR: Record<FitnessActivity, string> = {
-  sedentary: "خامل (بدون رياضة)",
-  light: "نشاط خفيف (1-3 أيام/أسبوع)",
-  moderate: "نشاط متوسط (3-5 أيام/أسبوع)",
-  active: "نشاط عالي (6-7 أيام/أسبوع)",
-  very_active: "نشاط شديد جدًا (رياضي محترف)",
-};
-const ACTIVITY_LABELS_EN: Record<FitnessActivity, string> = {
-  sedentary: "Sedentary (little or no exercise)",
-  light: "Lightly active (1-3 days/week)",
-  moderate: "Moderately active (3-5 days/week)",
-  active: "Very active (6-7 days/week)",
-  very_active: "Extra active (athlete/pro)",
-};
-
-// Tab A — the REAL calorie/macro calculator (the app's own math).
-function HomeCalculator({ isAr }: { isAr: boolean }) {
-  const [gender, setGender] = useState<FitnessGender>("male");
-  const [age, setAge] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-  const [activity, setActivity] = useState<FitnessActivity>("moderate");
-  const [goal, setGoal] = useState<FitnessGoal>("maintain");
-  const [result, setResult] = useState<CalorieTargets | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const calculate = () => {
-    const w = parseFloat(weight);
-    const h = parseFloat(height);
-    const a = parseInt(age, 10);
-    if (!isValidCalculatorInput(a || NaN, w || NaN, h || NaN)) {
-      setError(
-        isAr
-          ? "من فضلك أدخل عمرًا ووزنًا وطولًا صحيحة (أكبر من صفر)."
-          : "Please enter a valid age, weight and height (greater than zero).",
-      );
-      return;
-    }
-    setError(null);
-    setResult(
-      calculateCalorieTargets({
-        gender,
-        age: a,
-        weightKg: w,
-        heightCm: h,
-        activity,
-        goal,
-      }),
-    );
-  };
-
-  // Macro bars scale against the largest macro of THIS result, so
-  // the three chrome bars read as an honest relative picture.
-  const maxMacro = result
-    ? Math.max(result.protein, result.carbs, result.fat)
-    : 1;
-  const macros = result
-    ? [
-        {
-          key: "protein",
-          labelAr: "بروتين",
-          labelEn: "Protein",
-          grams: result.protein,
-        },
-        {
-          key: "carbs",
-          labelAr: "كربوهيدرات",
-          labelEn: "Carbs",
-          grams: result.carbs,
-        },
-        {
-          key: "fat",
-          labelAr: "دهون",
-          labelEn: "Fat",
-          grams: result.fat,
-        },
-      ]
-    : [];
-
-  const inputCls =
-    "w-full rounded-xl border border-[var(--edge)] bg-[var(--card)] px-3 py-2.5 text-sm font-normal text-[var(--text)] outline-none transition-colors focus:border-[var(--text)]";
-  const segmented = (active: boolean) =>
-    `flex-1 rounded-full px-3 py-2 text-sm font-medium transition-all ${
-      active
-        ? "bg-[var(--text)] text-[var(--bg)]"
-        : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
-    }`;
-
+// ── PlatformCard — the generic section entry: an engraved icon,
+//    an optional differentiation chip, a title, a description, and
+//    the chrome arrow CTA. Used by the Tools card and the
+//    nutrition trio (whose chips carry the explicit
+//    MANUAL / READY-MADE differentiation). ──
+function PlatformCard({
+  icon,
+  chip,
+  title,
+  body,
+  cta,
+  href,
+  isAr,
+}: {
+  icon: string;
+  chip?: string;
+  title: string;
+  body: string;
+  cta: string;
+  href: string;
+  isAr: boolean;
+}) {
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
-      {/* Inputs */}
-      <div className="space-y-5">
-        {/* Gender + goal — two segmented rows */}
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "الجنس" : "Gender"}
-          </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setGender("male")} className={segmented(gender === "male")}>
-              {isAr ? "ذكر" : "Male"}
-            </button>
-            <button type="button" onClick={() => setGender("female")} className={segmented(gender === "female")}>
-              {isAr ? "أنثى" : "Female"}
-            </button>
-          </div>
-        </div>
-
-        {/* Age / weight / height — numeric trio */}
-        <div className="grid grid-cols-3 gap-3">
-          {(
-            [
-              { labelAr: "العمر (سنة)", labelEn: "Age (years)", value: age, set: setAge, mode: "numeric" },
-              { labelAr: "الوزن (كجم)", labelEn: "Weight (kg)", value: weight, set: setWeight, mode: "decimal" },
-              { labelAr: "الطول (سم)", labelEn: "Height (cm)", value: height, set: setHeight, mode: "numeric" },
-            ] as const
-          ).map((f) => (
-            <label key={f.labelEn} className="block">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-                {isAr ? f.labelAr : f.labelEn}
-              </span>
-              <input
-                type="text"
-                inputMode={f.mode}
-                dir="ltr"
-                value={f.value}
-                onChange={(e) => f.set(e.target.value.replace(/[^\d.]/g, ""))}
-                placeholder={f.mode === "decimal" ? "84" : "30"}
-                className={inputCls}
-              />
-            </label>
-          ))}
-        </div>
-
-        {/* Activity */}
-        <label className="block">
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "مستوى النشاط" : "Activity level"}
-          </span>
-          <select
-            value={activity}
-            onChange={(e) => setActivity(e.target.value as FitnessActivity)}
-            className={`${inputCls} cursor-pointer appearance-none`}
-          >
-            {(Object.keys(ACTIVITY_LABELS_AR) as FitnessActivity[]).map((a) => (
-              <option key={a} value={a}>
-                {isAr ? ACTIVITY_LABELS_AR[a] : ACTIVITY_LABELS_EN[a]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {/* Goal */}
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "هدفك" : "Your goal"}
-          </p>
-          <div className="flex gap-2">
-            {(
-              [
-                { g: "lose" as FitnessGoal, labelAr: "خسارة وزن", labelEn: "Lose weight" },
-                { g: "maintain" as FitnessGoal, labelAr: "تثبيت الوزن", labelEn: "Maintain" },
-                { g: "gain" as FitnessGoal, labelAr: "زيادة وزن", labelEn: "Gain weight" },
-              ]
-            ).map((o) => (
-              <button key={o.g} type="button" onClick={() => setGoal(o.g)} className={segmented(goal === o.g)}>
-                {isAr ? o.labelAr : o.labelEn}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {error && (
-          <p role="alert" className="text-sm font-medium text-[var(--text)]">
-            {error}
-          </p>
-        )}
-
-        <button type="button" onClick={calculate} className="btn-chrome w-full px-6 py-3 text-sm md:text-base">
-          {isAr ? "احسب أرقامي الآن" : "Calculate my numbers"}
-        </button>
+    <a href={href} className="marble-card card-lift group flex h-full flex-col p-5 text-start">
+      <div className="flex items-start justify-between gap-3">
+        <EngravedIcon name={icon} alt="" size={40} className="h-10 w-10 shrink-0" />
+        {chip ? (
+          <span className="seal-chip shrink-0 py-1! text-[11px]!">{chip}</span>
+        ) : null}
       </div>
-
-      {/* Result — the product ANSWERS */}
-      <div
-        className="relative flex flex-col justify-center rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-5 md:p-7"
-        aria-live="polite"
-      >
-        {result ? (
-          <div key={`${result.target}-${result.protein}`} className="swap-fade">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "سعرك اليومية حول هدفك" : "Your daily target for this goal"}
-            </p>
-            <p className="mt-2 flex items-baseline gap-2">
-              <span className="chrome-text text-5xl font-bold tracking-tight md:text-6xl">
-                {result.target.toLocaleString("en-US")}
-              </span>
-              <span className="text-sm font-semibold" style={{ color: PALETTE.textSec }}>
-                {isAr ? "سعرة/يوم" : "kcal / day"}
-              </span>
-            </p>
-            {/* Macro bars — the chrome metal grows with the answer */}
-            <div className="mt-6 space-y-4">
-              {macros.map((m) => (
-                <div key={m.key}>
-                  <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                    <span className="font-medium" style={{ color: PALETTE.textPrim }}>
-                      {isAr ? m.labelAr : m.labelEn}
-                    </span>
-                    <span className="font-semibold" style={{ color: PALETTE.textSec }}>
-                      {isAr ? `${m.grams.toLocaleString("en-US")} جم` : `${m.grams.toLocaleString("en-US")} g`}
-                    </span>
-                  </div>
-                  <div className="macro-track">
-                    <div
-                      className="macro-fill"
-                      style={{ width: `${Math.max(4, Math.round((m.grams / maxMacro) * 100))}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-6 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-              {isAr
-                ? "بنفس معادلات حاسبة السعرات في المنصة — ويمكنك بناء خطة تغذية وتمارين كاملة حول هذه الأرقام بالذكاء الاصطناعي."
-                : "The same math as the platform's calorie calculator — and you can build a full nutrition and workout plan around these numbers with AI."}
-            </p>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"} className="btn-outline px-5 py-2.5 text-sm font-medium">
-                {isAr ? "ابنِ خطتي حول هذه الأرقام" : "Build my plan around these"}
-                <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-              <a
-                href="/auth?mode=signup"
-                className="self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-                style={{ color: PALETTE.textSec }}
-              >
-                {isAr ? "احفظ النتيجة في حساب مجاني ›" : "Save this in a free account ›"}
-              </a>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center">
-            <EngravedIcon name="calories" alt="" size={40} className="mx-auto h-10 w-10 opacity-70" />
-            <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? "أدخل أرقامك واضغط احسب — النتيجة تظهر هنا فورًا، بنفس معادلات المنصة، دون حساب ودون مغادرة الصفحة."
-                : "Enter your numbers and hit calculate — the result appears here instantly, with the platform's own formulas. No account, no leaving the page."}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+      <h3 className="mt-4 text-lg font-semibold leading-tight tracking-tight" style={{ color: PALETTE.textPrim }}>
+        {title}
+      </h3>
+      <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {body}
+      </p>
+      <p className="chrome-text mt-4 text-sm font-semibold">
+        {cta}
+        <span className="rtl:rotate-180" aria-hidden="true">›</span>
+      </p>
+    </a>
   );
 }
 
-// ── The EVO conversation demo — the content of the standalone #evo
-//    section (HOME-REFINE-270 R3/R5: EVO owns its own section; the
-//    planners live separately in #plan). A labeled illustrative
-//    exchange (honesty law: it SAYS it is an example), and the CTA
-//    hands off to the REAL floating widget — the EVO CHAT SURFACE
-//    LAW holds (this is a demonstration, never a second input).
-function EvoConversation({ isAr, copy }: { isAr: boolean; copy: HomeCopy }) {
-  // HOME-REFINE-271 F2: the demo is CONCISE — one question, one
-  // answer that carries real numbers (the owner's «مختصر» directive;
-  // the four-turn exchange is retired). SITE-CONTENT-281: the demo
-  // turns are admin-editable copy (resolved by the parent — same
-  // fallback law as every other string on this page).
-  const turns = [
-    { who: "user" as const, text: copy.evoDemoUser },
-    { who: "evo" as const, text: copy.evoDemoEvo },
-  ];
-
+// ── EvoCard — the AI coach's section card. NOT a full-card link:
+//    the chat surface law keeps the REAL chat on the floating
+//    widget (openEvoFloatingChat — the button dispatches it), while
+//    the quiet «learn more» link routes to the EVO page. The avatar
+//    is the widget's own character art wearing the .ai-ring (the
+//    cyan AI-surface law — one of the few places cyan may touch). ──
+function EvoCard({ isAr }: { isAr: boolean }) {
   return (
-    <div>
-      {/* The honest label — directly above the exchange */}
-      <span className="seal-chip">
-        <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-        {copy.evoDemoLabel}
-      </span>
-
-      {/* The conversation — VRD-V6: the exchange sits inside the EVO
-          CONSOLE (.evo-console), an in-product surface instead of two
-          floating bubbles. Bubbles pop to card level inside the tint
-          glass; the EVO avatar carries .ai-ring (the cyan AI-surface
-          law — the ONLY place cyan touches this section).
-          VRD-V7 (P1-3): the console gains the AI PRESENCE PAIR —
-          a Siri-Orb-style presence sphere (.evo-orb) heading the
-          console, and a Border-Beam ring (.evo-beam) traveling its
-          border. Both are pure CSS/SVG-light recipes (transform-only,
-          zero dependencies, reduced-motion-safe); the --ai cyan stays
-          scoped to this AI surface. */}
-      <div className="evo-console mt-5">
-        {/* The presence header — orb + wordmark + the live pulse (the
-            floating widget IS live on this page). */}
-        <div className="mb-3.5 flex items-center gap-2.5 border-b border-[var(--edge)]/70 pb-3">
-          <span className="evo-orb" aria-hidden="true" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-            EVO
-          </span>
-          <span className="live-dot ms-auto" aria-hidden="true" />
-        </div>
-        <div className="space-y-3.5">
-          {turns.map((t, i) =>
-            t.who === "user" ? (
-              <div key={i} className="flex justify-end">
-                <p
-                  className="max-w-[85%] rounded-2xl rounded-es-md border border-[var(--edge)] bg-[var(--card)] px-4 py-3 text-sm font-normal leading-relaxed"
-                  style={{ color: PALETTE.textPrim }}
-                >
-                  {t.text}
-                </p>
-              </div>
-            ) : (
-              <div key={i} className="flex items-end justify-start gap-2.5">
-                <ThemeImg
-                  light="/images/brand/evo-widget-light.webp"
-                  dark="/images/brand/evo-widget-dark.webp"
-                  alt="EVO"
-                  width={64}
-                  height={64}
-                  className="ai-ring h-9 w-9 shrink-0 rounded-full border border-[var(--edge)] object-cover"
-                />
-                <p
-                  className="marble-card max-w-[85%] px-4 py-3 text-sm font-normal leading-relaxed"
-                  style={{ color: PALETTE.textPrim, borderRadius: "1rem 1rem 1rem 0.25rem" }}
-                >
-                  {t.text}
-                </p>
-              </div>
-            ),
-          )}
-        </div>
-        {/* VRD-V8 — the HAND-OFF (V8-3): the demo answer visibly flows
-            into the product outcome — the two REAL in-page builders in
-            #plan (deep anchors #plan-workout / #plan-nutrition — pure
-            navigation, zero logic change). The rail + dots carry the
-            --ai cyan, still scoped INSIDE the console (AI-surface
-            law); reduced-motion stills the dots. The border beam stays
-            the console's last child (its paint layer). */}
-        <div className="evo-handoff">
-          <span className="evo-handoff-rail" aria-hidden="true">
-            <span className="evo-dots">
-              <span className="evo-dot" />
-              <span className="evo-dot" />
-              <span className="evo-dot" />
-            </span>
-          </span>
-          <div className="evo-handoff-card">
-            <p className="evo-handoff-title mb-2 uppercase tracking-[0.14em] rtl:tracking-normal">
-              {isAr ? "ثم تُبنى خطتك هنا" : "THEN YOUR PLAN BUILDS HERE"}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <a href="#plan-workout" className="evo-handoff-chip">
-                <EngravedIcon name="rack" alt="" size={14} className="h-3.5 w-3.5" />
-                {isAr ? "خطة التمارين" : "Workout plan"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-              <a href="#plan-nutrition" className="evo-handoff-chip">
-                <EngravedIcon name="protein" alt="" size={14} className="h-3.5 w-3.5" />
-                {isAr ? "خطة التغذية" : "Nutrition plan"}
-                <span className="rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-            </div>
-          </div>
-        </div>
-        {/* The border beam — masked ring, rotor spins inside (last child:
-            paints above the panel fill but under nothing interactive). */}
-        <span className="evo-beam" aria-hidden="true">
-          <span className="evo-beam-rotor" />
+    <div className="marble-card card-lift flex h-full flex-col p-5 text-start">
+      <div className="flex items-start justify-between gap-3">
+        <ThemeImg
+          light="/images/brand/evo-widget-light.webp"
+          dark="/images/brand/evo-widget-dark.webp"
+          alt="EVO"
+          width={64}
+          height={64}
+          className="ai-ring h-10 w-10 shrink-0 rounded-full border border-[var(--edge)] object-cover"
+        />
+        <span className="seal-chip shrink-0 py-1! text-[11px]!">
+          <span className="live-dot" aria-hidden="true" />
+          {isAr ? "متاح الآن" : "LIVE NOW"}
         </span>
       </div>
-
-      {/* The hand-off — the widget law (the ONLY chat surface) */}
-      <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <h3 className="mt-4 text-lg font-semibold leading-tight tracking-tight" style={{ color: PALETTE.textPrim }}>
+        {isAr ? "EVO — مدربك الذكي" : "EVO — your AI coach"}
+      </h3>
+      <p className="mt-2 flex-1 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+        {isAr
+          ? "اسأله بالعربية أو الإنجليزية: يجيبك بأرقام، ويقترح بدائل ذكية لتمارينك ووجباتك، ويعدّل خطتك مع تقدمك."
+          : "Ask in Arabic or English: it answers with real numbers, suggests smart swaps for your exercises and meals, and adjusts your plan as you progress."}
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={openEvoFloatingChat}
-          className="btn-chrome px-6 py-3 text-sm md:text-base"
+          className="btn-outline px-5 py-2 text-sm font-medium"
         >
           <span className="live-dot" aria-hidden="true" />
-          {copy.evoContinueCta}
+          {isAr ? "تحدث مع EVO الآن" : "Chat with EVO now"}
         </button>
         <a
           href={isAr ? "/ar/evo" : "/evo"}
-          className="self-center text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
+          className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
           style={{ color: PALETTE.textSec }}
         >
-          {isAr ? "اعرف المزيد عن EVO ›" : "Learn more about EVO ›"}
+          {isAr ? "اعرف المزيد ›" : "Learn more ›"}
         </a>
       </div>
+      {/* The honest visitor quota (EVO fair use — a VERIFIED policy
+          restatement, not marketing copy). */}
       <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
         {isAr
           ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — دون تسجيل."
@@ -861,728 +525,6 @@ function BlogCarousel({
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-// THE SMART PLANNING SECTION (#plan) — HOME-REFINE-270 R5.
-// The owner directive: the old planning-plus-EVO section was
-// completely wrong — the correct design is an INTERACTIVE section
-// like the tools, building a plan with AI: one surface for WORKOUTS
-// and one for NUTRITION. EVO is NOT mentioned here (it owns #evo)
-// and no human COACH is referenced (online coaching is a separate
-// paid membership — a different world).
-//
-// Honesty law: these are LIVE PREVIEWS, clearly labeled — the
-// structure/split derives deterministically from the REAL planner
-// vocabulary (ai-workout-planner.ts — imported, single source) and
-// the REAL matrix splits (server-provided samples.dietSystems), and
-// the FULL plan (exercises/sets/reps · meals/grams) is generated by
-// the AI inside the real tools the CTAs open.
-// ══════════════════════════════════════════════════════════════
-
-// The weekly split structure per days-per-week — the standard
-// training splits the AI planner builds around (2-6 days).
-const WORKOUT_SPLITS: Record<
-  number,
-  { nameAr: string; nameEn: string; daysAr: string[]; daysEn: string[] }
-> = {
-  2: {
-    nameAr: "جسم كامل ×2",
-    nameEn: "Full body ×2",
-    daysAr: ["جسم كامل", "جسم كامل"],
-    daysEn: ["Full body", "Full body"],
-  },
-  3: {
-    nameAr: "جسم كامل ×3",
-    nameEn: "Full body ×3",
-    daysAr: ["جسم كامل", "جسم كامل", "جسم كامل"],
-    daysEn: ["Full body", "Full body", "Full body"],
-  },
-  4: {
-    nameAr: "أعلى / أسفل ×2",
-    nameEn: "Upper / Lower ×2",
-    daysAr: ["أعلى الجسم", "أسفل الجسم", "أعلى الجسم", "أسفل الجسم"],
-    daysEn: ["Upper body", "Lower body", "Upper body", "Lower body"],
-  },
-  5: {
-    nameAr: "دفع / سحب / أرجل + أعلى / أسفل",
-    nameEn: "Push / Pull / Legs + Upper / Lower",
-    daysAr: ["دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل", "أعلى الجسم", "أسفل الجسم"],
-    daysEn: ["Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs", "Upper body", "Lower body"],
-  },
-  6: {
-    nameAr: "دفع / سحب / أرجل ×2",
-    nameEn: "Push / Pull / Legs ×2",
-    daysAr: ["دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل", "دفع (صدر وأكتاف وترايسبس)", "سحب (ظهر وبايسبس)", "أرجل"],
-    daysEn: ["Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs", "Push (chest, shoulders, triceps)", "Pull (back, biceps)", "Legs"],
-  },
-};
-
-// ── The REAL generation payload shapes (HOME-REFINE-271 F3) —
-//    mirrors of the validated API responses, kept local and plain
-//    (the homepage renders them; it never imports the server
-//    modules). ──
-type HomeLibraryMatch = { slug: string; name: string; category: string; image: string };
-type HomeWorkoutExercise = { name: string; sets: number; reps: number | string; library?: HomeLibraryMatch | null };
-type HomeWorkoutDay = { name: string; focus?: string; exercises: HomeWorkoutExercise[] };
-type HomeWorkoutPlan = { days: HomeWorkoutDay[] };
-type HomeMealItem = { food: string; grams: number; kcal: number };
-type HomeMeal = { name: string; items: HomeMealItem[]; kcal: number };
-type HomeMealPlan = { meals: HomeMeal[]; kcal: number };
-type HomeQuota = { used: number; limit: number; remaining: number };
-
-// Reads the quota object the demo routes return (never throws — a
-// missing quota is simply not displayed).
-function readQuota(raw: unknown): HomeQuota | null {
-  if (!raw || typeof raw !== "object") return null;
-  const q = raw as { used?: unknown; limit?: unknown; remaining?: unknown };
-  if (typeof q.limit !== "number" || typeof q.remaining !== "number") return null;
-  return { used: typeof q.used === "number" ? q.used : 0, limit: q.limit, remaining: q.remaining };
-}
-
-// The quota chip line (the same honest register as the tool pages).
-function quotaLine(quota: HomeQuota, isAr: boolean) {
-  return isAr
-    ? `رصيد الشهر: ${quota.remaining} متبقٍ من ${quota.limit}`
-    : `This month: ${quota.remaining} of ${quota.limit} left`;
-}
-
-// The small segmented control used across both builders (the same
-// visual register as the calculator's controls — one product).
-function planSegmented(active: boolean) {
-  return `flex-1 rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-    active
-      ? "bg-[var(--text)] text-[var(--bg)]"
-      : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
-  }`;
-}
-
-// VRD-V7 (P1-5) — the quiet bento tile hosting ONE control group
-// inside the plan-builder cards: a hairline module (no fill) that
-// makes each choice scannable, while the tinted answer zone stays
-// the loudest tile of the card. Touch targets inside are untouched.
-function planTile(extra = "") {
-  return `rounded-[var(--radius-chrome)] border border-[var(--edge)]/70 p-3.5 ${extra}`;
-}
-
-// Card A — the REAL workout-plan builder (HOME-REFINE-271 F3: «قسم
-// التخطيط الذكى اجعله حقيقى تفاعلى مثل الادوات» — the card runs the
-// SAME generation engine as the tool: the button calls
-// /api/ai/workout-plan-demo (the unified free pool — guests included,
-// no signup wall) and the generated week renders HERE in-page. Before
-// generating, the live split preview answers instantly from the real
-// planner vocabulary; after generating, changing any choice returns
-// the card to the preview so a rendered plan always matches the
-// CURRENT selections — never a stale generation.
-// PARITY (owner directive 2026-09-24 «الادوات على الرئيسية تطابق
-// الادوات الاصلية»): the card carries EVERY generation field the
-// tool page carries — goal/level/days/equipment vocabulary + the
-// optional notes (≤200 chars) riding the request and the envelope.
-// THE HAND-OFF LAW (owner directive 2026-09-24: «الخطة المولده لا تظهر
-// فى صفحة الأداة»): every successful generation is persisted via
-// saveGuestPlan — the SAME envelope the tool pages re-hydrate from
-// (plan-persistence.ts). Clicking «افتح الأداة الكاملة للحفظ والتصدير»
-// must land on a tool that ALREADY shows this exact plan (guests:
-// localStorage; members: the route's account auto-save + the local
-// mirror as offline cache — the same split the tool pages write).)
-function WorkoutPlanBuilder({ isAr, isLoggedIn }: { isAr: boolean; isLoggedIn: boolean }) {
-  // The vocabulary arrives from the REAL planner module (single
-  // source — the homepage labels can never drift from the tool).
-  const goals = workoutGoalOptions(isAr ? "ar" : "en");
-  const levels = workoutLevelOptions(isAr ? "ar" : "en");
-  const equipment = workoutEquipmentOptions(isAr ? "ar" : "en");
-
-  const [goal, setGoal] = useState(goals[1]?.slug ?? "muscle");
-  const [level, setLevel] = useState(levels[0]?.slug ?? "beginner");
-  const [days, setDays] = useState(3);
-  const [equip, setEquip] = useState(equipment[2]?.slug ?? "full-gym");
-  // PARITY: the tool's optional notes field (≤200 chars, sent as-is).
-  const [notes, setNotes] = useState("");
-  // The REAL generation state (same semantics as the tool page).
-  const [plan, setPlan] = useState<HomeWorkoutPlan | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [quota, setQuota] = useState<HomeQuota | null>(null);
-
-  const split = WORKOUT_SPLITS[days] ?? WORKOUT_SPLITS[3];
-  const goalLabel = goals.find((g) => g.slug === goal)?.label ?? "";
-  const levelLabel = levels.find((l) => l.slug === level)?.label ?? "";
-  const equipLabel = equipment.find((e) => e.slug === equip)?.label ?? "";
-
-  // Any selection change returns the card to the live preview.
-  const pickGoal = (v: typeof goal) => { setGoal(v); setPlan(null); setError(null); };
-  const pickLevel = (v: typeof level) => { setLevel(v); setPlan(null); setError(null); };
-  const pickDays = (v: number) => { setDays(v); setPlan(null); setError(null); };
-  const pickEquip = (v: typeof equip) => { setEquip(v); setPlan(null); setError(null); };
-  const pickNotes = (v: string) => { setNotes(v); setPlan(null); setError(null); };
-
-  const generate = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const guestId = isLoggedIn ? undefined : ensureGuestId() || undefined;
-      const res = await fetch("/api/ai/workout-plan-demo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          goal,
-          level,
-          days,
-          equipment: equip,
-          language: isAr ? "ar" : "en",
-          notes: notes || undefined,
-          guestId,
-        }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(
-          data?.error ||
-            (isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again."),
-        );
-        setQuota(readQuota(data?.quota));
-        return;
-      }
-      const generated = data?.plan as HomeWorkoutPlan;
-      setPlan(generated);
-      setQuota(readQuota(data?.quota));
-      // THE HAND-OFF LAW: persist with the tool pages' envelope (the
-      // inputs — including the notes — ride along so the full tool
-      // opens with the SAME selections that produced this plan).
-      saveGuestPlan("workout", generated, { goal, level, days, equipment: equip, notes });
-    } catch {
-      setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    // VRD-V8: the deep anchor #plan-workout — the EVO console's
-    // hand-off chip scrolls HERE (navigation only, zero logic change).
-    <div id="plan-workout" className="marble-card flex h-full scroll-mt-24 flex-col p-5 md:p-6">
-      <div className="flex items-center gap-2.5">
-        <EngravedIcon name="rack" alt="" size={20} className="h-5 w-5" />
-        <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-          {isAr ? "خطة التمارين" : "The workout plan"}
-        </h3>
-      </div>
-      <p className="mt-1.5 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-        {isAr
-          ? "حدّد اختياراتك ثم أنشئ خطتك — تتولّد هنا في الصفحة في ثوانٍ."
-          : "Set your choices and generate — it builds right here in seconds."}
-      </p>
-
-      {/* Controls — the real planner vocabulary, as quiet bento
-          modules (VRD-V7 P1-5): one hairline tile per choice, the
-          card reads at a glance. Same fields, same handlers. */}
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-        <div className={planTile("sm:col-span-2")}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "هدفك" : "Your goal"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {goals.map((g) => (
-              <button key={g.slug} type="button" onClick={() => pickGoal(g.slug)} className={planSegmented(goal === g.slug)}>
-                {g.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className={planTile()}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "مستواك" : "Your level"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {levels.map((l) => (
-              <button key={l.slug} type="button" onClick={() => pickLevel(l.slug)} className={planSegmented(level === l.slug)}>
-                {l.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className={planTile()}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "أيام التدريب أسبوعيًا" : "Days per week"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[2, 3, 4, 5, 6].map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => pickDays(d)}
-                aria-pressed={days === d}
-                className={`grid min-w-11 place-items-center rounded-full px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-                  days === d
-                    ? "bg-[var(--text)] text-[var(--bg)]"
-                    : "bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--muted-2)]"
-                }`}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className={planTile("sm:col-span-2")}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "معداتك المتاحة" : "Your equipment"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {equipment.map((e) => (
-              <button key={e.slug} type="button" onClick={() => pickEquip(e.slug)} className={planSegmented(equip === e.slug)}>
-                {e.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        {/* PARITY: the tool's optional notes field — rides the request
-            and the hand-off envelope exactly like the tool's copy. */}
-        <div className={planTile("sm:col-span-2")}>
-          <label
-            htmlFor="home-workout-notes"
-            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
-            style={{ color: PALETTE.textMuted }}
-          >
-            {isAr ? "ملاحظات اختيارية" : "Optional constraints"}
-          </label>
-          <input
-            id="home-workout-notes"
-            type="text"
-            maxLength={200}
-            value={notes}
-            onChange={(e) => pickNotes(e.target.value)}
-            placeholder={isAr ? "مثال: أتجنب الضغط على الركبة اليسرى…" : "e.g. avoid loading the left knee…"}
-            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
-          />
-        </div>
-      </div>
-
-      {/* The answer area — the generated week once it exists, the
-          live structure preview before that. */}
-      <div
-        className="mt-4 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
-        aria-live="polite"
-      >
-        {plan ? (
-          <div key="generated" className="swap-fade">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? `خطتك المولّدة — ${plan.days.length} أيام` : `Your generated week — ${plan.days.length} days`}
-            </p>
-            <div className="mt-3 space-y-3">
-              {plan.days.map((d) => (
-                <div key={d.name} className="rounded-xl border border-[var(--edge)] bg-[var(--card)] p-3.5">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="text-sm font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                      {d.name}
-                    </p>
-                    {d.focus && (
-                      <span className="text-xs font-normal" style={{ color: PALETTE.textSec }}>
-                        {d.focus}
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-1.5 divide-y divide-[var(--edge)]/60">
-                    {d.exercises.map((ex, i) => {
-                      const lib = ex.library ?? null;
-                      const href = lib ? `${isAr ? "/ar" : ""}/exercises/${lib.slug}` : null;
-                      return (
-                        <li key={`${ex.name}-${i}`} className="flex items-center gap-3 py-2 text-sm font-normal">
-                          {lib && href ? (
-                            <>
-                              <a href={href} className="shrink-0" tabIndex={-1} aria-hidden="true">
-                                <span className="block h-11 w-11 overflow-hidden rounded-lg border border-[var(--edge)]/60 bg-[var(--card)]">
-                                  <ImageWithFallback
-                                    src={lib.image}
-                                    alt=""
-                                    width={44}
-                                    height={44}
-                                    className="h-11 w-11 object-contain"
-                                    fallbackSrc={getFallbackSVG(lib.category)}
-                                  />
-                                </span>
-                              </a>
-                              <a
-                                href={href}
-                                className="min-w-0 flex-1 font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-                                style={{ color: PALETTE.textPrim }}
-                              >
-                                {ex.name}
-                              </a>
-                            </>
-                          ) : (
-                            <span className="min-w-0 flex-1" style={{ color: PALETTE.textSec }}>
-                              {ex.name}
-                            </span>
-                          )}
-                          <span className="whitespace-nowrap text-xs font-semibold" style={{ color: PALETTE.textSec }} dir="ltr">
-                            {ex.sets} × {ex.reps}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-              {isAr
-                ? "الحركات المرتبطة من مكتبة التمارين تفتح صفحة شرحها الكامل — والنظام تقدير تعليمي قابل للنسخ."
-                : "Linked movements open their full how-to page in the exercise library — the split is a copyable educational estimate."}
-            </p>
-            <a
-              href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}
-              className="mt-2 inline-flex text-xs font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textPrim }}
-            >
-              {isAr ? "افتح الأداة الكاملة للحفظ والتصدير ›" : "Open the full tool to save & export ›"}
-            </a>
-          </div>
-        ) : (
-          <div key={`${days}-${goal}`} className="swap-fade">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "هيكل أسبوعك" : "Your week's structure"}
-            </p>
-            <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-              {isAr ? `${days} أيام — ${split.nameAr}` : `${days} days — ${split.nameEn}`}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(isAr ? split.daysAr : split.daysEn).map((d, i) => (
-                <span key={i} className="seal-chip py-1! text-[11px]!">
-                  {isAr ? `اليوم ${i + 1}` : `Day ${i + 1}`}
-                  <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-                  {d}
-                </span>
-              ))}
-            </div>
-            <p className="mt-3 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-              {`${goalLabel} · ${levelLabel} · ${equipLabel}`}
-            </p>
-          </div>
-        )}
-        {/* The generate row — the REAL engine call (unified pool). */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={generate}
-            disabled={loading}
-            className="btn-chrome px-6 py-3 text-sm disabled:opacity-50 md:text-base"
-          >
-            {loading
-              ? isAr ? "جارٍ إنشاء خطتك…" : "Building your plan…"
-              : plan
-                ? isAr ? "ولّد خطة أخرى" : "Generate another"
-                : isAr ? "أنشئ خطة التمارين" : "Create my workout plan"}
-          </button>
-          {quota && quota.limit > 0 && (
-            <span className="text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-              {quotaLine(quota, isAr)}
-            </span>
-          )}
-        </div>
-        {error && (
-          <p role="alert" className="mt-3 text-sm font-medium text-[#ff3b30]">
-            {error}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Card B — the REAL nutrition-plan builder (HOME-REFINE-271 F3,
-// PARITY 2026-09-24 «الادوات على الرئيسية تطابق الادوات الاصلية»):
-// the SAME generation fields as /ai-meal-planner — a FREE calorie
-// target (numeric 1200→4000, step 50, + the calculator hint) and the
-// diet system select → the button calls /api/ai/meal-plan-demo (the
-// unified free pool) and the generated DAY renders in-page — meals,
-// items, grams, and kcal, the same engine as the tool. The optional
-// notes (≤200 chars) ride the request exactly like the tool's field.
-// Before generating, the REAL matrix split previews live; changing
-// any choice returns the card to the preview (a rendered plan always
-// matches the choices).
-// THE HAND-OFF LAW (owner directive 2026-09-24): every successful
-// generation is persisted via saveGuestPlan — the same envelope the
-// ai-meal-planner page re-hydrates from (inputs: calories + system +
-// notes), so «افتح الأداة الكاملة» lands on the tool ALREADY showing
-// this exact day with the SAME selections.
-function MealPlanBuilder({ samples, isAr, isLoggedIn }: { samples: HomeSamples; isAr: boolean; isLoggedIn: boolean }) {
-  const systems = samples.dietSystems;
-  // PARITY: the tool's free calorie target (string state like the
-  // tool — Number() only at the fetch/persist boundary) + its notes.
-  const [calories, setCalories] = useState("2000");
-  const [systemSlug, setSystemSlug] = useState(systems[0]?.slug ?? "balanced");
-  const [notes, setNotes] = useState("");
-  // The REAL generation state (same semantics as the tool page).
-  const [plan, setPlan] = useState<HomeMealPlan | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [quota, setQuota] = useState<HomeQuota | null>(null);
-
-  const system: HomeDietSystemSample | undefined =
-    systems.find((s) => s.slug === systemSlug) ?? systems[0];
-
-  const maxSplit = system
-    ? Math.max(system.split.protein, system.split.carbs, system.split.fat)
-    : 1;
-
-  // Any selection change returns the card to the live preview.
-  const pickCalories = (v: string) => { setCalories(v); setPlan(null); setError(null); };
-  const pickSystem = (v: string) => { setSystemSlug(v); setPlan(null); setError(null); };
-  const pickNotes = (v: string) => { setNotes(v); setPlan(null); setError(null); };
-
-  const generate = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const guestId = isLoggedIn ? undefined : ensureGuestId() || undefined;
-      const res = await fetch("/api/ai/meal-plan-demo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          calories: Number(calories),
-          system: systemSlug,
-          language: isAr ? "ar" : "en",
-          notes: notes || undefined,
-          guestId,
-        }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(
-          data?.error ||
-            (isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again."),
-        );
-        setQuota(readQuota(data?.quota));
-        return;
-      }
-      const generated = data?.plan as HomeMealPlan;
-      setPlan(generated);
-      setQuota(readQuota(data?.quota));
-      // THE HAND-OFF LAW: persist with the tool pages' envelope (the
-      // calorie target + system + notes ride along as the tool's inputs).
-      saveGuestPlan("nutrition", generated, { calories: Number(calories), system: systemSlug, notes });
-    } catch {
-      setError(isAr ? "تعذّر التوليد — حاول مرة أخرى." : "Generation failed — try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    // VRD-V8: the deep anchor #plan-nutrition — the EVO console's
-    // hand-off chip scrolls HERE (navigation only, zero logic change).
-    <div id="plan-nutrition" className="marble-card flex h-full scroll-mt-24 flex-col p-5 md:p-6">
-      <div className="flex items-center gap-2.5">
-        <EngravedIcon name="mealplanner" alt="" size={20} className="h-5 w-5" />
-        <h3 className="text-xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-          {isAr ? "خطة التغذية" : "The nutrition plan"}
-        </h3>
-      </div>
-      <p className="mt-1.5 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-        {isAr
-          ? "حدّد سعراتك ونظامك الغذائي وملاحظاتك ثم أنشئ خطتك — يوم كامل بالوجبات والغرامات."
-          : "Set your calories, diet system and preferences, then generate — a full day of meals in grams."}
-      </p>
-
-      {/* Controls — PARITY with the tool page's generation fields, as
-          quiet bento modules (VRD-V7 P1-5): same fields, same
-          handlers, scannable hairline tiles. */}
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-        <div className={planTile()}>
-          <label
-            htmlFor="home-meal-calories"
-            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
-            style={{ color: PALETTE.textMuted }}
-          >
-            {isAr ? "سعرات اليوم المستهدفة" : "Daily calorie target"}
-          </label>
-          {/* The tool's free calorie input — any integer 1200→4000
-              (the API validates the same range). */}
-          <input
-            id="home-meal-calories"
-            type="number"
-            inputMode="numeric"
-            min={1200}
-            max={4000}
-            step={50}
-            value={calories}
-            onChange={(e) => pickCalories(e.target.value)}
-            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
-            dir="ltr"
-          />
-          <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "من 1200 إلى 4000 — لا تعرف رقمك؟ " : "From 1200 to 4000 — don't know yours? "}
-            <a
-              href={`${isAr ? "/ar" : ""}/tools/calorie-calculator`}
-              className="underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textSec }}
-            >
-              {isAr ? "حاسبة السعرات" : "the calorie calculator"}
-            </a>
-          </p>
-        </div>
-        <div className={planTile()}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "نظامك الغذائي" : "Your diet system"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {systems.map((s) => (
-              <button key={s.slug} type="button" onClick={() => pickSystem(s.slug)} className={planSegmented(systemSlug === s.slug)}>
-                {isAr ? s.nameAr : s.nameEn}
-              </button>
-            ))}
-          </div>
-          <p className="mt-1.5 text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-            {isAr ? "أنظمة مطابقة لمكتبة الخطط الغذائية الجاهزة." : "The site's own systems — matching the diet plan library."}
-          </p>
-        </div>
-        <div className={planTile("sm:col-span-2")}>
-          <label
-            htmlFor="home-meal-notes"
-            className="mb-2 block text-xs font-semibold uppercase tracking-wider"
-            style={{ color: PALETTE.textMuted }}
-          >
-            {isAr ? "ملاحظات اختيارية" : "Optional preferences"}
-          </label>
-          <input
-            id="home-meal-notes"
-            type="text"
-            maxLength={200}
-            value={notes}
-            onChange={(e) => pickNotes(e.target.value)}
-            placeholder={isAr ? "مثال: بلا منتجات الألبان، سمك مرتين أسبوعياً…" : "e.g. no dairy, fish twice a week…"}
-            className="w-full rounded-full border border-[var(--edge)] bg-[var(--card)] px-5 py-2.5 text-sm font-normal outline-none transition-colors focus:border-[var(--chrome-edge)]"
-          />
-        </div>
-      </div>
-
-      {/* The answer area — the generated day once it exists, the
-          real matrix split preview before that. */}
-      <div
-        className="mt-4 flex flex-1 flex-col rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-4 md:p-5"
-        aria-live="polite"
-      >
-        {plan ? (
-          <div key="generated" className="swap-fade">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? "يومك المولّد" : "Your generated day"}
-            </p>
-            <div className="mt-3 space-y-3">
-              {plan.meals.map((m) => (
-                <div key={m.name} className="rounded-xl border border-[var(--edge)] bg-[var(--card)] p-3.5">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-sm font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                      {m.name}
-                    </p>
-                    <span className="text-xs font-semibold" style={{ color: PALETTE.textSec }} dir="ltr">
-                      {m.kcal} kcal
-                    </span>
-                  </div>
-                  <ul className="mt-1.5 divide-y divide-[var(--edge)]/60">
-                    {m.items.map((item, i) => (
-                      <li key={`${item.food}-${i}`} className="flex items-baseline justify-between gap-3 py-1.5 text-sm font-normal">
-                        <span style={{ color: PALETTE.textSec }}>{item.food}</span>
-                        <span className="whitespace-nowrap text-xs" style={{ color: PALETTE.textMuted }} dir="ltr">
-                          {item.grams} g · {item.kcal} kcal
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 flex items-baseline justify-between gap-3 text-sm">
-              <span className="font-semibold" style={{ color: PALETTE.textPrim }}>
-                {isAr ? "إجمالي اليوم" : "Day total"}
-              </span>
-              <span className="chrome-text font-bold" dir="ltr">
-                {plan.kcal} kcal
-              </span>
-            </p>
-            <p className="mt-2 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-              {isAr
-                ? "الخطة تقدير تعليمي قابل للنسخ — راجع الكميات وعدّلها على مائدتك، وقِس أثرها بالاتجاه الأسبوعي."
-                : "This plan is a copyable educational estimate — review the portions, adjust them to your table, and measure the weekly trend."}
-            </p>
-            <a
-              href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}
-              className="mt-2 inline-flex text-xs font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textPrim }}
-            >
-              {isAr ? "افتح الأداة الكاملة للحفظ والتصدير ›" : "Open the full tool to save & export ›"}
-            </a>
-          </div>
-        ) : (
-          system && (
-            <div key={system.slug} className="swap-fade">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-                {isAr ? "توزيع ماكروزك" : "Your macro split"}
-              </p>
-              <p className="mt-1 text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-                {isAr ? `النظام ${system.nameAr}` : `The ${system.nameEn} system`}
-              </p>
-              <div className="mt-4 space-y-3">
-                {(
-                  [
-                    { key: "protein", labelAr: "بروتين", labelEn: "Protein", pct: system.split.protein },
-                    { key: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", pct: system.split.carbs },
-                    { key: "fat", labelAr: "دهون", labelEn: "Fat", pct: system.split.fat },
-                  ] as const
-                ).map((m) => (
-                  <div key={m.key}>
-                    <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                      <span className="font-medium" style={{ color: PALETTE.textPrim }}>
-                        {isAr ? m.labelAr : m.labelEn}
-                      </span>
-                      <span className="font-semibold" style={{ color: PALETTE.textSec }}>
-                        {m.pct}%
-                      </span>
-                    </div>
-                    <div className="macro-track">
-                      <div
-                        className="macro-fill"
-                        style={{ width: `${Math.max(4, Math.round((m.pct / maxSplit) * 100))}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-4 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                {isAr
-                  ? `خطة يوم كامل بالغرامات تُبنى حول ${Number(calories || 0).toLocaleString("en-US")} سعرة عند الضغط على الزر. لا تعرف رقمك؟ احسبه في الحاسبة أعلاه.`
-                  : `A full day of food in grams builds around ${Number(calories || 0).toLocaleString("en-US")} kcal when you press the button. Don't know your number? Use the calculator above.`}
-              </p>
-            </div>
-          )
-        )}
-        {/* The generate row — the REAL engine call (unified pool). */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={generate}
-            disabled={loading || !calories}
-            className="btn-chrome px-6 py-3 text-sm disabled:opacity-50 md:text-base"
-          >
-            {loading
-              ? isAr ? "جارٍ إنشاء خطتك…" : "Building your plan…"
-              : plan
-                ? isAr ? "ولّد خطة أخرى" : "Generate another"
-                : isAr ? "أنشئ خطتي" : "Create My Plan"}
-          </button>
-          {quota && quota.limit > 0 && (
-            <span className="text-xs font-normal" style={{ color: PALETTE.textMuted }}>
-              {quotaLine(quota, isAr)}
-            </span>
-          )}
-        </div>
-        {error && (
-          <p role="alert" className="mt-3 text-sm font-medium text-[#ff3b30]">
-            {error}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── The diet-system card (the ready-made diet-plan library
 //    carousel, HOME-REFINE-270 R4). Every value is the REAL matrix
 //    data (server slice) — the card links into a real leaf page of
@@ -1638,139 +580,6 @@ function LandingDietCard({ system, levelCount, isAr, index }: { system: HomeDiet
   );
 }
 
-// ── The interactive plate (#eat) — pick a real food, watch its
-//    numbers move. The per-100g values are the LIVE database
-//    values (server-provided samples); the contextual sentence is
-//    DERIVED from the same numbers, never hand-written. ──
-function FoodExplorer({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
-  const [selectedSlug, setSelectedSlug] = useState(samples.foods[0]?.slug ?? "");
-  const selected: HomeFoodSample | undefined =
-    samples.foods.find((f) => f.slug === selectedSlug) ?? samples.foods[0];
-
-  const maxMacro = selected
-    ? Math.max(selected.protein, selected.carbs, selected.fat)
-    : 1;
-  const bars = selected
-    ? [
-        { key: "protein", labelAr: "بروتين", labelEn: "Protein", grams: selected.protein },
-        { key: "carbs", labelAr: "كربوهيدرات", labelEn: "Carbs", grams: selected.carbs },
-        { key: "fat", labelAr: "دهون", labelEn: "Fat", grams: selected.fat },
-      ]
-    : [];
-
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
-      {/* The panel — the numbers MOVE with the selection */}
-      <div
-        className="flex flex-col justify-center rounded-[var(--radius-chrome)] border border-[var(--edge)] bg-[var(--tint)] p-5 md:p-7"
-        aria-live="polite"
-      >
-        {selected && (
-          <div key={selected.slug} className="swap-fade">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-              {isAr ? selected.categoryLabelAr : selected.categoryLabelEn}
-            </p>
-            <h3 className="mt-1 text-2xl font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-              {isAr ? selected.nameAr : selected.nameEn}
-            </h3>
-            <p className="mt-3 flex items-baseline gap-2">
-              {/* TPL-REF-280 — display numerals: the plate's kcal figure
-                  takes the display face (Playfair) at its existing scale —
-                  the template's big-number pattern in Alkemos's type. */}
-              <span className="chrome-text font-display text-5xl font-bold tracking-tight">
-                {selected.calories.toLocaleString("en-US")}
-              </span>
-              <span className="text-sm font-semibold" style={{ color: PALETTE.textSec }}>
-                {isAr ? "سعرة / 100 جم" : "kcal / 100 g"}
-              </span>
-            </p>
-            <div className="mt-6 space-y-4">
-              {bars.map((b) => (
-                <div key={b.key}>
-                  <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                    <span className="font-medium" style={{ color: PALETTE.textPrim }}>
-                      {isAr ? b.labelAr : b.labelEn}
-                    </span>
-                    <span className="font-semibold" style={{ color: PALETTE.textSec }}>
-                      {isAr ? `${b.grams.toLocaleString("en-US")} جم` : `${b.grams.toLocaleString("en-US")} g`}
-                    </span>
-                  </div>
-                  <div className="macro-track">
-                    <div
-                      className="macro-fill"
-                      style={{ width: `${Math.max(4, Math.round((b.grams / maxMacro) * 100))}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* The DERIVED contextual line — numbers, not adjectives */}
-            <p className="mt-6 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-              {isAr
-                ? `كل 100 جرام من ${selected.nameAr} تمنحك ${selected.calories.toLocaleString("en-US")} سعرة، منها ${selected.protein.toLocaleString("en-US")} جرام بروتين — والبقية أرقام مباشرة تصنع بها وجبتك.`
-                : `Every 100 g of ${selected.nameEn} gives you ${selected.calories.toLocaleString("en-US")} kcal, including ${selected.protein.toLocaleString("en-US")} g of protein — real numbers you can build a meal around.`}
-            </p>
-            <a
-              href={`${isAr ? "/ar" : ""}/foods/${selected.slug}`}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: PALETTE.textPrim }}
-            >
-              {isAr ? "افتح صفحة الصنف كاملة ›" : "Open the full food page ›"}
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* The real sample cards — tappable selectors */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-        {samples.foods.map((food) => {
-          const active = food.slug === selected?.slug;
-          return (
-            <button
-              key={food.slug}
-              type="button"
-              onClick={() => setSelectedSlug(food.slug)}
-              aria-pressed={active}
-              className="marble-card card-lift group flex cursor-pointer flex-col p-4 text-start transition-colors"
-              style={
-                active
-                  ? {
-                      borderColor: "var(--text)",
-                      boxShadow: "var(--shadow-lift), var(--card-inner-hl)",
-                    }
-                  : undefined
-              }
-            >
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-                {isAr ? food.categoryLabelAr : food.categoryLabelEn}
-              </span>
-              <h3 className="mt-1 min-h-10 text-base font-semibold leading-tight tracking-tight line-clamp-2" style={{ color: PALETTE.textPrim }}>
-                {isAr ? food.nameAr : food.nameEn}
-              </h3>
-              <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal">
-                <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-                  <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{food.calories}</span>
-                  <span style={{ color: PALETTE.textMuted }}>{isAr ? "سعرة" : "kcal"}</span>
-                </div>
-                <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-                  <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{isAr ? `${food.protein} جم` : `${food.protein}g`}</span>
-                  <span style={{ color: PALETTE.textMuted }}>{isAr ? "بروتين" : "protein"}</span>
-                </div>
-                <div className="rounded bg-[var(--tint)] px-1 py-1 text-center">
-                  <span className="block font-semibold" style={{ color: PALETTE.textPrim }}>{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</span>
-                  <span style={{ color: PALETTE.textMuted }}>{isAr ? "كربوهيدرات" : "carbs"}</span>
-                </div>
-              </div>
-              <span className="chrome-text mt-2 text-xs font-semibold">
-                {active ? (isAr ? "معروض الآن" : "Now showing") : isAr ? "اعرض الأرقام" : "Show the numbers"}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 // ─── Helper components (conditional rendering — no display:none in DOM) ───
 
@@ -1923,9 +732,11 @@ function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean
         </div>
       </div>
 
-      {/* The live swap — real cards re-render per selection */}
+      {/* The live swap — real cards re-render per selection.
+          HOME-PLATFORM-284: SIX curated samples per family now fill
+          a full 2×3 grid on md+ (was 2-3 cards on a 4-col row). */}
       {filtered.length > 0 ? (
-        <div key={cat} className="swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div key={cat} className="swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">
           {filtered.map((ex) => (
             <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
           ))}
@@ -1938,8 +749,8 @@ function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean
 
       <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
         {isAr
-          ? `كل بطاقة تمرين حقيقي من مكتبة ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحته.`
-          : `Every card is a real exercise from the ${EX_PLUS} library — with form photos and clear instructions one tap away.`}
+          ? `ستة تمارين حقيقية من مكتبة ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحة كل تمرين.`
+          : `Six real exercises from the ${EX_PLUS} library — with form photos and clear instructions one tap away.`}
       </p>
       <div className="mt-5 text-center">
         <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
@@ -2271,136 +1082,14 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
         </div>
       </section>
 
-      {/* ===================== 3. THE CALCULATOR — independent (R3) =====================
-          The first of the three former tab surfaces, now its own section:
-          the REAL calorie/macro calculator running the app's own math
-          (fitness-math.ts single source) — the visitor gets their real
-          numbers on the homepage itself. */}
-      <section id="start" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <span className="seal-chip">
-              <EngravedIcon name="calories" alt="" size={12} className="h-3 w-3" />
-              {c.startEyebrow}
-            </span>
-            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {c.startTitle}
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {c.startBody}
-            </p>
-          </Reveal>
-          <Reveal delay={80} className="mt-8 md:mt-10">
-            <div className="marble-card marble-card--unclipped p-4 md:p-8 lg:p-10">
-              <HomeCalculator isAr={isAr} />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== 4. EVO — independent (R3/R5) =====================
-          EVO owns its own section (the owner directive: it is a SEPARATE
-          thing from the smart-planning world). The Phase 127 warrior-art
-          recipe stays: text on the inline-start, warrior art dissolving
-          into the marble on the inline-end (.evo-art-mask, mirrored in
-          RTL). The demo conversation stays LABELED illustrative and the
-          CTA dispatches openEvoFloatingChat — the EVO CHAT SURFACE LAW. */}
-      <section id="evo" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <div className="marble-card marble-card--unclipped relative overflow-hidden p-5 md:p-10 lg:p-12">
-              {/* Desktop warrior art — inline-end, masked into the marble. */}
-              <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[46%] items-end justify-center md:flex" aria-hidden="true">
-                <ThemeImg
-                  light="/images/brand/evo-hero-light.webp"
-                  dark="/images/brand/evo-hero-dark.webp"
-                  alt=""
-                  width={640}
-                  height={675}
-                  className="evo-art-mask h-full w-auto object-contain object-bottom"
-                />
-              </div>
-              <div className="relative max-w-xl">
-                <span className="seal-chip">
-                  <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
-                  {c.evoEyebrow}
-                </span>
-                <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-                  {c.evoTitle}
-                </h2>
-                <p className="mt-3 text-base font-normal leading-relaxed md:text-lg" style={{ color: PALETTE.textSec }}>
-                  {c.evoBody}
-                </p>
-                <div className="mt-7">
-                  <EvoConversation isAr={isAr} copy={c} />
-                </div>
-              </div>
-              {/* HOME-REFINE-271 F2: the mobile warrior-art cutout under
-                  the copy is REMOVED (the owner's «بدون صورة فى الاسفل»
-                  directive) — the desktop inline-end side art stays. */}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== 5. SMART PLANNING — REAL generation (R5 + 271 F3 + VRD-V7 bento) =====================
-          The owner's follow-up directive: the section is TRULY
-          interactive like the tools — both builders call the REAL
-          generation endpoints (the unified free pool, guests
-          included) and render the generated plan in-page. Nothing
-          else is referenced here (it owns nothing beyond the
-          planners).
-          VRD-V7 (P1-5): the section re-reads as a BENTO — the two
-          builder cards, then ONE full-width allowance bar closing the
-          grid (the transactional note moved from the header prose to
-          the point of action; the header got lighter, the grid got a
-          clear modular close). ZERO functionality changed: same
-          fields, same endpoints, same persistence, same tool CTAs. */}
-      <section id="plan" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <span className="seal-chip">
-              <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
-              {c.planEyebrow}
-            </span>
-            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {c.planTitle}
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {c.planBody}
-            </p>
-          </Reveal>
-          <div className="mt-8 grid gap-4 md:mt-10 md:gap-5 lg:grid-cols-2">
-            <Reveal className="h-full">
-              <WorkoutPlanBuilder isAr={isAr} isLoggedIn={isLoggedIn} />
-            </Reveal>
-            <Reveal delay={80} className="h-full">
-              <MealPlanBuilder samples={samples} isAr={isAr} isLoggedIn={isLoggedIn} />
-            </Reveal>
-            {/* The bento close — the free allowance, at the point of
-                action (full-width bar, one quiet module). */}
-            <Reveal delay={120} className="lg:col-span-2">
-              <div className="marble-card flex flex-col items-center justify-between gap-3 px-5 py-4 text-center md:flex-row md:gap-4 md:text-start">
-                <p className="text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-                  {c.planAllowance}
-                </p>
-                <span className="seal-chip shrink-0 py-1! text-[11px]!">
-                  <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
-                  {c.planAllowanceChip}
-                </span>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== 6. THE EXERCISE LIBRARY — interactive (271 F1) =====================
-          The RESTORED muscle-group browser (the owner's correction:
-          the interactive مكتبة التمارين returns as its own section — a
-          real filter answering in-page, not a carousel). The chips
-          mirror the hub vocabulary and carry the VERIFIED per-family
-          counts; every card is a real exercise page entry point. */}
-      <section id="library" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
+      {/* ===================== 3. TRAINING — the exercise library preview =====================
+          The muscle-group browser is the Training section's CONTENT
+          PREVIEW (HOME-PLATFORM-284): real curated sample cards that
+          filter in-page, now answering with SIX real exercises per
+          family. The chips mirror the hub vocabulary and carry the
+          VERIFIED per-family counts; every card is a real exercise
+          page entry point — the tool-like browsing lives on /exercises. */}
+      <section id="library" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
@@ -2420,44 +1109,11 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
         </div>
       </section>
 
-      {/* ===================== 7. EAT — the interactive plate =====================
-          The food database made TOUCHABLE: pick a real food and watch
-          its real per-100g numbers move (the same semantics as the
-          /foods explorer — now answering in-page). */}
-      <section id="eat" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <span className="seal-chip">
-              <EngravedIcon name="protein" alt="" size={12} className="h-3 w-3" />
-              {isAr ? `${FOODS_PLUS} صنفًا غذائيًا` : `${FOODS_PLUS} FOODS`}
-            </span>
-            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
-              {c.eatTitle}
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
-              {c.eatBody}
-            </p>
-          </Reveal>
-          <Reveal delay={80} className="mt-8 md:mt-10">
-            <FoodExplorer samples={samples} isAr={isAr} />
-          </Reveal>
-          {/* ONE focused section CTA. */}
-          <Reveal delay={120} className="mt-8 text-center">
-            <a href={isAr ? "/ar/foods" : "/foods"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-              {c.eatCta}
-              <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
-            </a>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== 8. READY-MADE PROGRAMS — the carousel (271 F1) =====================
-          The owner's correction: this pre-blog carousel slot carries
-          the READY-MADE PROGRAMS (برامج التمارين الجاهزة) — the same
+      {/* ===================== 4. PROGRAMS — the ready-made carousel =====================
+          The READY-MADE PROGRAMS (برامج التمارين الجاهزة) — the same
           blog-style carousel treatment, real program artwork, and ONE
-          focused browse-all CTA (the AI-builder CTA retired 2026-09-24;
-          the interactive exercise library lives in its own section
-          above, the smart-planning builders in #plan). */}
+          focused browse-all CTA (the AI planners own plan creation in
+          the AI section below; this section only BROWSES programs). */}
       <section id="train" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -2496,12 +1152,90 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
         </div>
       </section>
 
-      {/* ===================== 9. THE READY-MADE DIET LIBRARY — carousel (R4) =====================
+      {/* ===================== 5. NUTRITION — three clearly-differentiated ways =====================
+          HOME-PLATFORM-284: the interactive plate is retired. The
+          section presents the nutrition surfaces as THREE CARDS with
+          an explicit differentiation: the food DATABASE (know the
+          numbers) · the MANUAL Meal Planner (you build the meals) ·
+          the READY-MADE diet-plan library (browse and start). The AI
+          Meal Planner is deliberately NOT here — it lives in the AI
+          Planning section below, and the section body cross-references
+          it so the split stays clear. */}
+      <section id="eat" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="protein" alt="" size={12} className="h-3 w-3" />
+              {isAr ? `${FOODS_PLUS} صنفًا غذائيًا` : `${FOODS_PLUS} FOODS`}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {c.eatTitle}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {c.eatBody}
+            </p>
+          </Reveal>
+          <div className="mt-8 grid gap-4 md:mt-10 md:grid-cols-3 md:gap-5">
+            {/* Card 1 — the food database (know the numbers). */}
+            <Reveal className="h-full">
+              <PlatformCard
+                isAr={isAr}
+                icon="protein"
+                href={isAr ? "/ar/foods" : "/foods"}
+                title={isAr ? "قاعدة الأطعمة" : "The food database"}
+                body={
+                  isAr
+                    ? `${FOODS_PLUS} صنفًا غذائيًا بالسعرات والماكروز لكل 100 جرام — بما فيها المطبخ العربي — لتعرف أرقام طبقك قبل أن تأكله.`
+                    : `${FOODS_PLUS} foods with per-100 g calories and macros — regional and global staples — so you know your plate's numbers before you eat it.`
+                }
+                cta={isAr ? "استكشف قاعدة الأطعمة" : "Explore the food database"}
+              />
+            </Reveal>
+            {/* Card 2 — the MANUAL meal planner (you build the meals):
+                the chip + body state the differentiation explicitly. */}
+            <Reveal delay={80} className="h-full">
+              <PlatformCard
+                isAr={isAr}
+                icon="mealplanner"
+                chip={isAr ? "ابنِها بنفسك" : "YOU BUILD IT"}
+                href={isAr ? "/ar/meal-planner" : "/meal-planner"}
+                title={isAr ? "مخطط الوجبات" : "Meal Planner"}
+                body={
+                  isAr
+                    ? "أنت من يبني الوجبة: أضف الأصناف من قاعدة الأطعمة وحدّد الكمية بالجرام، وتابع السعرات والماكروز لحظة بلحظة — مع قائمة تسوق جاهزة."
+                    : "You build the meal: add foods from the database, set the grams, and watch the calories and macros update live — with a ready shopping list."
+                }
+                cta={isAr ? "افتح مخطط الوجبات" : "Open the Meal Planner"}
+              />
+            </Reveal>
+            {/* Card 3 — the READY-MADE diet plans (browse and start):
+                the counts derive from the real matrix slice, never
+                literals (levels × systems). */}
+            <Reveal delay={160} className="h-full">
+              <PlatformCard
+                isAr={isAr}
+                icon="fruits"
+                chip={isAr ? "جاهزة للتصفح" : "READY TO BROWSE"}
+                href={isAr ? "/ar/diet-plan" : "/diet-plan"}
+                title={isAr ? "الخطط الغذائية الجاهزة" : "Ready-made diet plans"}
+                body={
+                  isAr
+                    ? `${dietPlansCount} خطة يوم كاملة معدة مسبقًا بالغرامات والسعرات — ${samples.dietSystems.length} أنظمة × ${samples.dietLevels.length} مستويات من ${Math.min(...samples.dietLevels)} إلى ${Math.max(...samples.dietLevels)} سعرة — تصفحها وابدأ فورًا.`
+                    : `${dietPlansCount} complete pre-made daily plans with exact grams and calories — ${samples.dietSystems.length} systems × ${samples.dietLevels.length} levels from ${Math.min(...samples.dietLevels).toLocaleString("en-US")} to ${Math.max(...samples.dietLevels).toLocaleString("en-US")} kcal — browse and start instantly.`
+                }
+                cta={isAr ? "افتح مكتبة الخطط" : "Open the plan library"}
+              />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== 6. THE READY-MADE DIET LIBRARY — carousel (R4) =====================
           The owner directive: add the ready-made diet-plan library
           (مكتبة الخطط الغذائية الجاهزة) to the homepage, beside the
           exercise library. Real matrix data (server slice) — every card
           links into a real leaf page of the /diet-plan library. */}
-      <section id="diet" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+      <section id="diet" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <span className="seal-chip">
@@ -2537,14 +1271,147 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
         </div>
       </section>
 
-      {/* ===================== 10. LEARN — the latest articles (R6) =====================
+      {/* ===================== 7. TOOLS — ONE card to the hub =====================
+          HOME-PLATFORM-284 (owner directive: the Tools section is A
+          CARD linking to the Tools page — NOT the actual calculators):
+          the embedded calculator is retired from the homepage. The
+          section is ONE wide card routing to /tools; the calculator
+          + tracker names ride the TOOLS single source (tools-shared.ts
+          — the planners are deliberately excluded from the chips:
+          they own their sections above/below). */}
+      <section id="tools" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="calories" alt="" size={12} className="h-3 w-3" />
+              {c.toolsEyebrow}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {c.toolsTitle}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {c.toolsBody}
+            </p>
+          </Reveal>
+          <Reveal delay={80} className="mt-8 md:mt-10">
+            <a
+              href={isAr ? "/ar/tools" : "/tools"}
+              className="marble-card card-lift group flex flex-col gap-5 p-6 text-start md:flex-row md:items-center md:gap-8 md:p-8"
+            >
+              <EngravedIcon name="calories" alt="" size={56} className="h-14 w-14 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
+                  {isAr ? "صفحة الأدوات المجانية" : "The free tools page"}
+                </h3>
+                {/* The real tool names as chips — derived from the
+                    tools-shared single source (never literals); the
+                    three planners are filtered OUT (their homes are the
+                    nutrition + AI sections). */}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {TOOLS.filter((t) => !t.slug.startsWith("/")).map((t) => (
+                    <span key={t.slug} className="seal-chip py-1! text-[11px]!">
+                      {isAr ? t.nameAr : t.nameEn}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <p className="chrome-text shrink-0 text-sm font-semibold">
+                {c.toolsCta}
+                <span className="rtl:rotate-180" aria-hidden="true">›</span>
+              </p>
+            </a>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ===================== 8. AI PLANNING — distinct from the regular tools =====================
+          HOME-PLATFORM-284: the in-page builders are retired — this is
+          now the AI family's navigation surface (mirroring the
+          header's AI group): the AI Workout Planner + the AI Meal
+          Planner (both explicitly AI-powered cards) + EVO, the AI
+          coach. Deliberately SEPARATE from #tools so smart planning
+          never reads as «more calculators»: every card carries the
+          بالذكاء الاصطناعي chip and its body states exactly WHAT gets
+          generated — the meal card promises a STRUCTURED full-day plan
+          with portions in grams, not mere meal suggestions. */}
+      <section id="plan" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <span className="seal-chip">
+              <EngravedIcon name="evo" alt="" size={12} className="h-3 w-3" />
+              {c.planEyebrow}
+            </span>
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+              {c.planTitle}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base font-normal md:text-lg" style={{ color: PALETTE.textSec }}>
+              {c.planBody}
+            </p>
+          </Reveal>
+          <div className="mt-8 grid gap-4 md:mt-10 md:grid-cols-3 md:gap-5">
+            {/* Card 1 — the AI Workout Planner (AI-powered, explicit). */}
+            <Reveal className="h-full">
+              <PlatformCard
+                isAr={isAr}
+                icon="rack"
+                chip={isAr ? "بالذكاء الاصطناعي" : "AI-POWERED"}
+                href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}
+                title={isAr ? "مخطط التمارين بالذكاء الاصطناعي" : "AI Workout Planner"}
+                body={
+                  isAr
+                    ? "نظام تدريبي أسبوعي كامل يُبنى لك: تمارين محددة من المكتبة بمجموعاتها وتكراراتها، وفق هدفك ومستواك وأيامك ومعداتك — يتولد في ثوانٍ."
+                    : "A complete weekly split built for you: named exercises from the library with sets and reps, matched to your goal, level, days, and equipment — generated in seconds."
+                }
+                cta={isAr ? "أنشئ خطة التمارين" : "Create my workout plan"}
+              />
+            </Reveal>
+            {/* Card 2 — the AI Meal Planner: a STRUCTURED full-day
+                plan with portions/grams — the body states this
+                explicitly (owner directive: not mere suggestions). */}
+            <Reveal delay={80} className="h-full">
+              <PlatformCard
+                isAr={isAr}
+                icon="mealplanner"
+                chip={isAr ? "بالذكاء الاصطناعي" : "AI-POWERED"}
+                href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}
+                title={isAr ? "مخطط الوجبات بالذكاء الاصطناعي" : "AI Meal Planner"}
+                body={
+                  isAr
+                    ? "خطة يوم كاملة منظمة، وليست مجرد اقتراحات وجبات: كل وجبة بأصنافها المحددة وكمياتها بالغرامات وسعراتها المحسوبة — تتولد في ثوانٍ وفق هدفك ونظامك الغذائي."
+                    : "A structured full-day plan, not just meal suggestions: every meal with its specific foods, portions in grams, and calculated calories — generated in seconds around your goal and diet system."
+                }
+                cta={isAr ? "أنشئ خطتي" : "Create My Plan"}
+              />
+            </Reveal>
+            {/* Card 3 — EVO, the AI coach (chat button → floating widget). */}
+            <Reveal delay={160} className="h-full">
+              <EvoCard isAr={isAr} />
+            </Reveal>
+          </div>
+          {/* The bento close — the honest free-allowance line at the
+              point of action (the unified plan pool; guests included). */}
+          <Reveal delay={200}>
+            <div className="marble-card mt-4 flex flex-col items-center justify-between gap-3 px-5 py-4 text-center md:mt-5 md:flex-row md:gap-4 md:text-start">
+              <p className="text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
+                {c.planAllowance}
+              </p>
+              <span className="seal-chip shrink-0 py-1! text-[11px]!">
+                <EngravedIcon name="macros" alt="" size={12} className="h-3 w-3" />
+                {c.planAllowanceChip}
+              </span>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ===================== 9. LEARN — the latest articles (R6) =====================
           The simple title the owner asked for («أحدث المقالات»), and
           the carousel is LATEST-FIRST: the newest posts actually lead
           the row (featured posts fill the rest; featured slugs keep
           the dark lead-card styling). The section renders only when
           posts loaded (the needsPosts law). */}
       {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20">
+        <section id="learn" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
           <div className="mx-auto max-w-6xl">
             <Reveal className="text-center">
               <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -2572,7 +1439,7 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
           ends here, the services act begins. */}
       <div className="meander-divider" aria-hidden="true" />
 
-      {/* ===================== 11. MEMBERSHIPS — small cards (R7) =====================
+      {/* ===================== 10. MEMBERSHIPS — small cards (R7) =====================
           The compact treatment the owner asked for: SMALL attractive
           membership cards + one online-coaching card. Prices derive
           from memberships.ts (single source — no literals); the free

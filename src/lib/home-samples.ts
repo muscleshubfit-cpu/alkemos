@@ -15,9 +15,9 @@
  *   receives plain objects).
  *
  * WHAT IT RETURNS:
- *   - 8 REAL exercises (curated slugs — one hero lift per muscle
- *     family: chest / back / legs / shoulders / biceps / triceps /
- *     core / posterior chain), each with its real bilingual name,
+ *   - 42 REAL exercises (HOME-PLATFORM-284 — six curated slugs per
+ *     muscle family: chest / back / legs / shoulders / biceps /
+ *     triceps / core), each with its real bilingual name,
  *     level, equipment, category label, and first real image URL.
  *   - 8 REAL foods (curated slugs spanning protein / carbs / fats /
  *     fruit / dairy), each with its real per-100g calories & macros.
@@ -51,38 +51,65 @@ import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 
 // ─── Curated real slugs (verified against the arrays by the drift test) ───
 //
-// HOME-EXPERIENCE-269: the curation grew from 8 (one per family) to 15
-// (2 per family + 3 for legs) because the homepage LIBRARY TAB is now
-// INTERACTIVE — the visitor taps a muscle group and the real sample
-// cards swap in-page. Two+ real entries per family make the interaction
-// honest (a filter with one result is a dead filter). Every slug is
-// hand-picked for contrast: a barbell/machine staple + a beginner
-// home-friendly movement, with level variety where the library allows.
+// HOME-PLATFORM-284 (owner order 2026-09-27 «وسّع معاينة مكتبة التمارين من
+// 3 إلى 6 تمارين»): the curation grew to SIX REAL entries per muscle
+// family (42 total) because the homepage library browser is the
+// Training section's preview — every selection now answers with a
+// full 6-card grid (2 rows × 3 on md+). Every slug is hand-picked for
+// contrast: a barbell/machine/cable staple + beginner home-friendly
+// movements, with level variety where the library allows. All image
+// assets verified on disk (exercise-images-selfhost pattern).
 
 export const EXERCISE_SAMPLE_SLUGS = [
-  // chest — the barbell staple + the home classic
+  // chest — barbell/dumbbell/cable staples + the home classics
   "barbell-bench-press-medium-grip",
   "pushups",
   "incline-dumbbell-press",
-  // back — bodyweight + barbell
+  "dumbbell-flyes",
+  "cable-crossover",
+  "dips-chest-version",
+  // back — bodyweight + barbell + dumbbell + cable
   "pullups",
   "bent-over-barbell-row",
-  // legs — barbell + home dumbbell + posterior chain
+  "chin-up",
+  "bent-over-two-dumbbell-row",
+  "close-grip-front-lat-pulldown",
+  "barbell-deadlift",
+  // legs — barbell + kettlebell + dumbbell + machine + bodyweight
   "barbell-squat",
   "goblet-squat",
   "romanian-deadlift",
-  // shoulders — dumbbell press + the isolation classic
+  "dumbbell-lunges",
+  "leg-press",
+  "bodyweight-squat",
+  // shoulders — press pair + the raise classics
   "dumbbell-shoulder-press",
   "side-lateral-raise",
-  // biceps — barbell + dumbbell hammer
+  "arnold-dumbbell-press",
+  "front-dumbbell-raise",
+  "upright-barbell-row",
+  "face-pull",
+  // biceps — barbell + dumbbell families
   "barbell-curl",
   "alternate-hammer-curl",
-  // triceps — cable + bodyweight
+  "dumbbell-bicep-curl",
+  "preacher-curl",
+  "incline-dumbbell-curl",
+  "concentration-curls",
+  // triceps — cable + bodyweight + barbell + dumbbell
   "triceps-pushdown",
   "bench-dips",
-  // core — the plank staple + the advanced hang
+  "close-grip-barbell-bench-press",
+  "lying-triceps-press",
+  "standing-dumbbell-triceps-extension",
+  "tricep-dumbbell-kickback",
+  // core — the plank staple + the ab classics
   "plank",
   "hanging-leg-raise",
+  "crunches",
+  "russian-twist",
+  "reverse-crunch",
+  "sit-up",
 ] as const;
 
 export const FOOD_SAMPLE_SLUGS = [

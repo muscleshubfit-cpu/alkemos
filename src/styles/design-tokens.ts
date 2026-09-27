@@ -151,9 +151,7 @@ export const RECIPES = [
   "seal-chip",         // engraved eyebrow chip
   "chrome-text",       // metallic numerals (dark-steel light / silver dark)
   "hero-pill",         // VRD-V6: the hero platform-trio glass pills
-  "evo-console",       // VRD-V6: the EVO demo in-product panel
   "split-rail",        // VRD-V6: the diet-card macro split rail
-  "macro-track",       // the #eat / calculator animated macro bars
   "chips-row",         // the muscle-chip rail (scroll-snap on touch)
   "navbar-chrome",     // sticky translucent navbar
   "footer-marble",     // the footer structural band

@@ -95,11 +95,9 @@ never negative (connected-script law).
 | `.marble-card` (+`.card-lift`) | every surface card | `--card` fill + chrome hairline + shadow + inner highlight; 2px lift on interactive cards only, reduced-motion safe |
 | `.seal-chip` | eyebrow labels | uppercase micro-chip, chrome hairline |
 | `.chrome-text` / `.chrome-text-on-dark` | metallic numerals | price, counts, section numbers |
-| `.evo-console` | EVO demo panel | VRD-V6 — tint-glass in-product console; cyan only on the avatar `.ai-ring` |
 | `.split-rail` + `.split-seg--*` | macro split visual | VRD-V6 — diet cards; segments derive from `--text` via color-mix (auto theme-inverting) |
 | `.chev` | pill-CTA chevron micro-slide | TPL-REF-280 — 4px nudge toward reading direction on `.btn-*` hover; individual `translate` property (composes with `rtl:rotate-180`); RTL-mirrored; reduced-motion frozen; opt-in per span |
 | `.ghost-num` | diet-card ghost index numeral | TPL-REF-280 — `font-display` 44px/600 in `color-mix(--text 10%)` (zero new hexes, auto theme-inverting); aria-hidden, decorative, no rank meaning |
-| `.macro-track` / `.macro-fill` | animated macro bars | the calculator + `#eat` explorer |
 | `.chips-row` | muscle chips rail | scroll-snap single row on touch, edge fades, RTL-safe |
 | `.navbar-chrome` | sticky navbar | `--navbar-bg` translucent + blur(12px) saturate(150%) |
 | `.footer-marble` | footer band | tint + hairline (light) / deeper step `#0E0C0A` (dark) |
@@ -112,17 +110,20 @@ never negative (connected-script law).
    (login/signup `.btn-chrome` + memberships `.btn-outline`).
 2. **Proof strip** — one compact band: 4 auditable numbers (`CountUp`,
    SSR-honest, derived from verified constants only).
-3. `#start` **Calculator** — the app's real math (`fitness-math.ts`).
-4. `#evo` **EVO** — labeled 2-turn demo inside `.evo-console`; CTA dispatches
-   `openEvoFloatingChat()` (the chat-surface law).
-5. `#plan` **Smart Planning** — REAL generation (the unified free pool) via
-   `/api/ai/workout-plan-demo` / `meal-plan-demo`; guest plans persist via
-   `saveGuestPlan`.
-6. `#library` **Exercise library** — interactive muscle-group browser.
-7. `#eat` **Food explorer** — pick a food, per-100g numbers move.
-8. `#train` / `#diet` **Ready-made programs & diet plans** — carousel pair;
-   diet cards carry the macro split rail (VRD-V6) + the ghost index
-   numeral (TPL-REF-280).
+3. `#library` **Training** — the muscle-group browser preview: SIX real
+   exercise cards per family (HOME-PLATFORM-284).
+4. `#train` **Programs** — the ready-made programs carousel.
+5. `#eat` **Nutrition** — three clearly-differentiated cards: the food
+   database · the MANUAL Meal Planner («ابنِها بنفسك») · the READY-MADE
+   diet-plan library («جاهزة للتصفح»).
+6. `#diet` **Diet plans** — the diet-systems carousel; diet cards carry
+   the macro split rail (VRD-V6) + the ghost index numeral (TPL-REF-280).
+7. `#tools` **Tools** — ONE card to the `/tools` hub (the calculators are
+   NOT embedded on the homepage; tool chips derive from tools-shared.ts).
+8. `#plan` **AI Planning** — three AI cards (AI Workout Planner · AI Meal
+   Planner — a structured full-day plan with grams — · EVO with a
+   `openEvoFloatingChat()` chat button, the chat-surface law) + the honest
+   free-allowance bar. Deliberately distinct from `#tools`.
 9. `#learn` **Latest articles** — latest-first carousel (renders only when
    posts loaded).
 10. **Meander divider** → `#memberships` **Memberships** — three small cards

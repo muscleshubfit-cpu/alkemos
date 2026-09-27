@@ -12,54 +12,54 @@ import {
 } from "@/lib/home-samples";
 
 /**
- * HOME-REFINE-271 CANARIES — the four-point owner follow-up
- * (2026-09-24) on top of the HOME-REFINE-270 nine-point refinement.
- * + the 2026-09-24 hand-off frame: the #train AI-builder CTA is
- *   retired (ONE browse-all CTA) and the homepage builders persist
- *   every generated plan via saveGuestPlan so «افتح الأداة الكاملة»
- *   lands on a tool that ALREADY shows the plan.
+ * HOME-PLATFORM-284 CANARIES (owner order 2026-09-27 — «الصفحة
+ * الرئيسية كواجهة منصة حقيقية وليست صفحة هبوط») — the homepage is a
+ * true PLATFORM homepage: concise SECTIONS with CARDS that link to
+ * the real pages, mirroring the header's service nav.
  *
- * THE CORRECTED ARC (F1–F4):
+ * THE PLATFORM ARC:
  *   Promise (Hero, TWO CTAs: auth + memberships) → Proof (ONE compact
- *   row) → #start (the calculator, independent) → #evo (EVO, its own
- *   CONCISE section — two-turn demo, no artwork under the copy, the
- *   desktop warrior side-art stays) → #plan (the smart-planning
- *   builders, now running the REAL generation endpoints in-page) →
- *   #library (the RESTORED interactive muscle-group exercise
- *   browser) → #eat (the interactive plate) → #train (the READY-MADE
- *   PROGRAMS carousel) → #diet (the ready-made diet-plan library
- *   carousel) → #learn (أحدث المقالات, latest-first) → #memberships
- *   (small cards + coaching card) → featured coaches → #faq → footer
- *   (flat, fully displayed, SHORTENED — 18 primary links).
+ *   row) → #library (TRAINING — the muscle-group browser preview, SIX
+ *   real exercises per family) → #train (PROGRAMS — the ready-made
+ *   carousel) → #eat (NUTRITION — three clearly-differentiated
+ *   cards: the food database · the MANUAL Meal Planner · the
+ *   READY-MADE diet-plan library) → #diet (the diet-systems carousel)
+ *   → #tools (TOOLS — ONE card linking to the /tools hub, NOT the
+ *   embedded calculators) → #plan (AI PLANNING — the AI Workout
+ *   Planner + the AI Meal Planner cards, both explicitly AI-powered,
+ *   the meal card promising a STRUCTURED full-day plan with grams —
+ *   plus EVO, the AI coach with the chat-surface law) → #learn
+ *   (أحدث المقالات, latest-first) → #memberships (small cards +
+ *   coaching band) → featured coaches → #faq → footer (flat,
+ *   fully displayed — 18 primary links).
  *
  * Guards pin:
  *   1) SINGLE-SOURCE PRICING — unchanged law: prices derive from
  *      memberships.ts lookups (never literals, never a tier grid) and
  *      the refund line states the REAL 7-day policy.
- *   2) THE CALCULATOR runs the app's own math via fitness-math.ts
- *      (single source; the homepage may never fork the formulas).
- *   3) THE EVO SECTION owns EVO alone: the demo is LABELED illustrative
- *      and hands off to the floating widget (the CHAT SURFACE LAW).
- *   4) THE SMART-PLANNING SECTION (#plan) is REAL: both builders call
- *      the REAL demo endpoints (/api/ai/workout-plan-demo ·
- *      /api/ai/meal-plan-demo — the unified pool) and render the
- *      generated plan in-page — real planner vocabulary (ai-
- *      workout-planner.ts), live previews, BOTH tool CTAs — and
- *      ZERO EVO or coach references inside the section (the owner's
- *      explicit law).
- *      PARITY (owner directive 2026-09-24 «الادوات على الرئيسية تطابق
- *      الادوات الاصلية — الخانات المطلوبة وباقى تفاصيل التوليد»): the
- *      builders carry EVERY generation field the tool pages carry —
- *      the meal side's FREE calorie target (1200–4000, like the tool)
- *      and BOTH sides' optional notes (≤200 chars) ride the fetch
- *      bodies AND the saveGuestPlan envelopes (the tool re-hydrates
- *      them). The retired preset-chips register stays dead.
- *   5) The curated samples exist in the LIVE libraries (drift guard)
- *      — 15 exercises, 8 foods, 3 programs, 4 diet systems.
- *   6) The hero drives the account action + the memberships page (the
- *      owner's two-button directive); the retired final-CTA band and
- *      the old tab wrapper stay dead.
- *   7) Arabic is the native anchor; English is independent native copy
+ *   2) NO EMBEDDED TOOLS — the calculator/builders/food-explorer are
+ *      GONE from the view: no fitness-math import, no planner-option
+ *      imports, no demo endpoints, no guest-plan persistence. The
+ *      homepage NAVIGATES; the tool pages DO.
+ *   3) THE TOOLS SECTION IS A CARD — one wide card → /tools; its
+ *      chips derive from the tools-shared single source (the three
+ *      planners filtered OUT — they own their sections).
+ *   4) AI PLANNING IS DISTINCT — #plan carries the three AI surfaces
+ *      (AI Workout Planner · AI Meal Planner · EVO), every card
+ *      explicitly AI-powered, the meal card promising quantities in
+ *      grams (not mere suggestions), and NO human-coaching service
+ *      reference inside the region.
+ *   5) THE NUTRITION TRIO IS DIFFERENTIATED — the manual Meal Planner
+ *      («ابنِها بنفسك»), the AI Meal Planner (AI section), and the
+ *      ready-made diet plans («جاهزة للتصفح») each state their
+ *      approach; the AI cross-reference is explicit.
+ *   6) The curated samples exist in the LIVE libraries (drift guard)
+ *      — 42 exercises (six per muscle family), 8 foods, 3 programs,
+ *      4 diet systems.
+ *   7) The hero drives the account action + the memberships page (the
+ *      owner's two-button directive); the retired embedded-surface
+ *      strings stay dead.
+ *   8) Arabic is the native anchor; English is independent native copy
  *      — both pinned verbatim.
  */
 
@@ -76,7 +76,7 @@ const COPY_HOME = "src/lib/site-content/home.ts";
 const readBoth = () =>
   readFileSync(LANDING, "utf8") + "\n" + readFileSync(COPY_HOME, "utf8");
 
-describe("HOME-REFINE-271 — the refined homepage canaries", () => {
+describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   // (1) The memberships section derives every price from the SINGLE
   //     source (memberships.ts) — no price literals, no tier grid, no
   //     subscribe-now sales CTA. The refund line states the REAL policy.
@@ -120,7 +120,9 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
 
   // (2) THE HERO — the owner's two-button directive: login/signup +
   //     the premium-memberships page, side by side (stacked on touch).
-  it("the hero carries exactly the two CTAs: login/signup + the memberships page", () => {
+  //     HOME-PLATFORM-284: the subtitle no longer promises «try it
+  //     right on this page» — the tools live on their own pages now.
+  it("the hero carries exactly the two CTAs and the platform subtitle", () => {
     const src = readFileSync(LANDING, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
     // The primary account action (signup; the auth page carries the
@@ -140,15 +142,20 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     // the quiet standalone login link.
     expect(src).not.toContain('href="#start"');
     expect(src).not.toContain("/auth?mode=login");
-    // The hero H1 + subtitle pairs (native anchors — re-pinned to the
-    // site-content single source, SITE-CONTENT-281).
+    // The hero H1 + subtitle pairs (native anchors — pinned to the
+    // site-content single source, SITE-CONTENT-281 / 284).
     expect(copy).toContain("تدرّب بذكاء. وتغذَّ بدقة.");
     expect(copy).toContain("Train smarter. Eat with precision.");
-    expect(copy).toContain("جرّبها الآن في هذه الصفحة");
-    expect(copy).toContain("Try it right on this page");
+    // 284: the subtitle now frames the PLATFORM (no in-page trial
+    // promise) and keeps the Arabic-and-English fact.
+    expect(copy).toContain("بالعربية والإنجليزية.");
+    expect(copy).toContain("in Arabic and English.");
+    // The retired in-page-trial promise stays dead in EITHER file.
+    expect(readBoth()).not.toContain("جرّبها الآن في هذه الصفحة");
+    expect(readBoth()).not.toContain("Try it right on this page");
   });
 
-  // (3) THE PROOF STRIP — one compact row (R2): the four auditable
+  // (3) THE PROOF STRIP — one compact row: the four auditable
   //     numbers, small type, numbers + labels inline, count-up alive.
   it("the proof strip is one compact row of auditable numbers (count-up preserved)", () => {
     const src = readFileSync(LANDING, "utf8");
@@ -161,215 +168,215 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).toContain("TOOLS_COUNT");
     // The SSR-honest fallback (no-JS users see the truth).
     expect(src).toContain("const shown = display ?? value;");
-    // The compact one-row classes (R2: numbers + labels inline).
+    // The compact one-row classes (numbers + labels inline).
     expect(src).toContain("flex max-w-5xl flex-wrap items-baseline justify-center gap-x-6 gap-y-1.5 md:gap-x-10");
     // The retired BIG-stat markup stays dead (no icon-tile stat grid).
     expect(src).not.toContain("grid max-w-5xl grid-cols-2 gap-y-8 md:grid-cols-4");
   });
 
-  // (4) THE CALCULATOR SECTION (#start) — the app's own math, never
-  //     forked, now an independent section with its own headline.
-  it("the calculator section (#start) runs the real math as its own section", () => {
+  // (4) NO EMBEDDED TOOLS — the 284 core law: the homepage NAVIGATES to
+  //     the tool pages; the calculator math, the planner vocabulary,
+  //     the demo endpoints, and the guest-plan persistence all live on
+  //     the tool pages, never in the view.
+  it("no embedded tool runs on the homepage — it only links to the tool pages", () => {
     const src = readFileSync(LANDING, "utf8");
-    expect(src, "the #start section is missing").toContain('id="start"');
-    // The math single source — the homepage calculator imports the
-    // shared formulas, never re-implements them.
-    expect(src).toContain('from "@/lib/fitness-math"');
-    expect(src).toContain("calculateCalorieTargets");
-    expect(src).toContain("isValidCalculatorInput");
     for (const banned of [
-      // A forked formula would look like this (the Mifflin constants
-      // must never appear in the view — they live in fitness-math.ts).
-      "10 * w",
-      "6.25 *",
-      "10 * weightKg",
-      "6.25 * heightCm",
-      "- 5 * age",
+      // The retired embedded components.
+      "function HomeCalculator",
+      "function WorkoutPlanBuilder",
+      "function MealPlanBuilder",
+      "function FoodExplorer",
+      "function EvoConversation",
+      // The calculator math source (the tool page owns it).
+      'from "@/lib/fitness-math"',
+      "calculateCalorieTargets",
+      "isValidCalculatorInput",
+      // The planner vocabulary (the tool pages own it).
+      'from "@/lib/ai-workout-planner"',
+      "workoutGoalOptions",
+      "workoutLevelOptions",
+      "workoutEquipmentOptions",
+      // The in-page generation endpoints (the tool pages own them).
+      '"/api/ai/workout-plan-demo"',
+      '"/api/ai/meal-plan-demo"',
+      // The homepage-side guest-plan persistence (retired with the
+      // builders — nothing is generated on the homepage anymore).
+      "ensureGuestId",
+      "saveGuestPlan",
+      // The retired section ids.
+      'id="start"',
+      'id="evo"',
     ]) {
+      expect(src, `an embedded tool surface returned: "${banned}"`).not.toContain(banned);
+    }
+    // The forked-formula ban (the Mifflin constants must never appear
+    // in the view — they live in fitness-math.ts).
+    for (const banned of ["10 * w", "6.25 *", "10 * weightKg", "6.25 * heightCm", "- 5 * age"]) {
       expect(src, `the view forked the calculator math: "${banned}"`).not.toContain(banned);
     }
-    // The calculator CTA pair + the honest math note.
-    expect(src).toContain("احسب أرقامي الآن");
-    expect(src).toContain("Calculate my numbers");
-    expect(src).toContain("بنفس معادلات حاسبة السعرات في المنصة");
-    expect(src).toContain("The same math as the platform's calorie calculator");
   });
 
-  // (5) THE EVO SECTION — EVO owns its own section (R3/R5): the
-  //     labeled demo, the widget hand-off, and the retired mixed
-  //     «التخطيط الذكي و EVO» framing stays dead.
-  it("the EVO section owns EVO alone: labeled demo + widget hand-off + honest quota", () => {
+  // (5) THE TOOLS SECTION — ONE card linking to the /tools hub (the
+  //     owner's explicit directive: NOT the actual calculators). The
+  //     chips derive from the tools-shared single source; the three
+  //     planners are filtered out (they own their sections).
+  it("the tools section is one card to the /tools hub with derived chips", () => {
     const src = readFileSync(LANDING, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
-    expect(src, "the EVO section is missing").toContain('id="evo"');
-    expect(src).toContain("openEvoFloatingChat");
-    // The section headline pair (single source re-pinned, SITE-CONTENT-281).
-    expect(copy).toContain("تحدّث مع EVO — بالعربية أو الإنجليزية.");
-    expect(copy).toContain("Talk to EVO — in Arabic or English.");
-    // The demo is HONEST: labeled illustrative, and its CTA opens
-    // the floating widget (the chat-surface law).
-    expect(copy).toContain("نموذج توضيحي لمحادثة");
-    expect(copy).toContain("AN ILLUSTRATIVE EXCHANGE");
-    expect(copy).toContain("أكمل المحادثة مع EVO");
-    expect(copy).toContain("Continue this conversation");
-    // The honest visitor quota (EVO fair use) — stays in the view (a
-    // VERIFIED policy restatement, not editable marketing copy).
-    expect(src).toContain("10 رسائل يوميًا مع EVO — دون تسجيل");
-    expect(src).toContain("10 messages a day with EVO — no signup");
-    // The retired /chat route stays dead (the widget is the surface).
-    expect(src).not.toContain('href="/chat"');
-    expect(src).not.toContain('"/chat"');
-    // The retired mixed-section headline + framing stay dead.
-    expect(src).not.toContain("التخطيط الذكي و EVO");
-    expect(src).not.toContain("SMART PLANNING + EVO");
-    expect(src).not.toContain("خطة مبنية حولك — ومدرب يواكب تقدّمك.");
-    expect(src).not.toContain("A plan built around you — and a coach who keeps it moving.");
-    // The warrior-art recipe stays (the Phase 127 owner artwork).
-    expect(src).toContain("evo-art-mask");
-    expect(src).toContain("evo-hero-light.webp");
+    expect(src, "the #tools section is missing").toContain('id="tools"');
+    // ONE wide card → the tools hub (locale-aware).
+    expect(src).toContain('href={isAr ? "/ar/tools" : "/tools"}');
+    // The chips derive from the single source (never literals).
+    expect(src).toContain('import { TOOLS, TOOLS_COUNT } from "@/lib/tools-shared"');
+    expect(src).toContain("TOOLS.filter((t) => !t.slug.startsWith(\"/\")).map((t) =>");
+    // The section copy follows the registry (SITE-CONTENT-281).
+    expect(copy).toContain("اعرف أرقامك قبل أي خطوة.");
+    expect(copy).toContain("Know your numbers before anything else.");
+    // The retired calculator-section framing stays dead.
+    expect(readBoth()).not.toContain("THE CALORIE & MACRO CALCULATOR");
+    expect(readBoth()).not.toContain("حاسبة السعرات والماكروز");
   });
 
-  // (6) THE SMART-PLANNING SECTION (#plan) — REAL generation like the
-  //     tools (271 F3): both builders call the REAL demo endpoints and
-  //     render the generated plan in-page — real planner vocabulary,
-  //     real matrix levels, live previews, both tool CTAs — and NO EVO /
-  //     NO coach inside.
-  it("the #plan section runs the REAL AI generation (workout + nutrition), clean of EVO and coach references", () => {
+  // (6) THE AI PLANNING SECTION (#plan) — the AI family's navigation
+  //     surface, deliberately distinct from #tools: the AI Workout
+  //     Planner + the AI Meal Planner (explicitly AI-powered cards —
+  //     the meal card promises a STRUCTURED full-day plan with
+  //     portions in grams, not mere suggestions) + EVO with the
+  //     chat-surface law, and NO human-coaching service inside.
+  it("the #plan section carries the three AI cards, clean of human-coaching services", () => {
     const src = readFileSync(LANDING, "utf8");
+    const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the #plan section is missing").toContain('id="plan"');
-    // The vocabulary single source: the homepage imports the REAL
-    // planner option functions (labels can never drift from the tool).
-    expect(src).toContain('from "@/lib/ai-workout-planner"');
-    expect(src).toContain("workoutGoalOptions");
-    expect(src).toContain("workoutLevelOptions");
-    expect(src).toContain("workoutEquipmentOptions");
-    // Both builders exist.
-    expect(src).toContain("function WorkoutPlanBuilder");
-    expect(src).toContain("function MealPlanBuilder");
-    // The REAL engine: both demo endpoints are called in-page (the
-    // unified free pool — guests included), with the guest id minted
-    // by the shared plan-persistence module (same identity as the
-    // tools — the incognito-reset hole stays closed).
-    expect(src).toContain('"/api/ai/workout-plan-demo"');
-    expect(src).toContain('"/api/ai/meal-plan-demo"');
-    expect(src).toContain("ensureGuestId");
-    // THE HAND-OFF LAW (owner directive 2026-09-24: «الخطة المولده لا
-    // تظهر فى صفحة الأداة»): both builders persist every successful
-    // generation with the SAME envelope the tool pages re-hydrate
-    // from — the homepage import carries saveGuestPlan and BOTH kinds
-    // are written with their inputs.
-    expect(src).toContain('import { ensureGuestId, saveGuestPlan } from "@/lib/plan-persistence"');
-    expect(src.match(/saveGuestPlan\("workout"/g)?.length).toBe(1);
-    expect(src.match(/saveGuestPlan\("nutrition"/g)?.length).toBe(1);
-    // PARITY LAW (owner directive 2026-09-24: «الادوات على الرئيسية
-    // تطابق الادوات الاصلية — الخانات المطلوبة وباقى تفاصيل التوليد»):
-    // the meal builder carries the TOOL's free calorie field (numeric
-    // 1200–4000 — not the retired 6-preset chips), both builders carry
-    // the tool's optional notes (≤200 chars), and BOTH the fetch bodies
-    // AND the persistence envelopes carry the notes so the full tool
-    // re-hydrates the EXACT selections that produced the plan.
-    expect(src).toContain('min={1200}');
-    expect(src).toContain('max={4000}');
-    expect(src.match(/maxLength=\{200\}/g)?.length).toBe(2);
-    expect(src.match(/notes: notes \|\| undefined/g)?.length).toBe(2);
-    expect(src).toContain(
-      'saveGuestPlan("workout", generated, { goal, level, days, equipment: equip, notes })',
-    );
-    expect(src).toContain(
-      'saveGuestPlan("nutrition", generated, { calories: Number(calories), system: systemSlug, notes })',
-    );
-    // The retired preset-chips register stays dead (the tool's free
-    // input replaced it — the chips capped at 3000, the tool reaches
-    // 4000 with any integer).
-    expect(src).not.toContain("pickCalories(lv)");
-    // The quota chip register + the honest free-pool line (single
-    // source re-pinned, SITE-CONTENT-281 — the line moved to the
-    // site-content defaults with the rest of the #plan copy).
-    expect(src).toContain("رصيد الشهر");
-    expect(src).toContain("This month:");
-    // The generate buttons (initial labels pinned) + both tool CTAs
-    // (locale-aware, on the generated plan + the section).
+    // The three AI surfaces — locale-aware card links.
+    expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
+    expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
+    expect(src).toContain('href={isAr ? "/ar/evo" : "/evo"}');
+    // EXPLICITLY AI-POWERED: every planner card carries the AI chip and
+    // its full AI name (the owner's directive).
+    expect(src).toContain('"بالذكاء الاصطناعي" : "AI-POWERED"');
+    expect(src).toContain("مخطط التمارين بالذكاء الاصطناعي");
+    expect(src).toContain("AI Workout Planner");
+    expect(src).toContain("مخطط الوجبات بالذكاء الاصطناعي");
+    expect(src).toContain("AI Meal Planner");
+    // THE AI MEAL PLANNER PROMISE (the owner's wording): a STRUCTURED
+    // full-day plan with portions/grams — NOT merely meal suggestions.
+    expect(src).toContain("وليست مجرد اقتراحات وجبات");
+    expect(src).toContain("not just meal suggestions");
+    expect(src).toContain("كمياتها بالغرامات وسعراتها المحسوبة");
+    expect(src).toContain("portions in grams, and calculated calories");
+    // The generate CTAs (the pinned benefit-first labels, now on the
+    // AI cards).
     expect(src).toContain("أنشئ خطتي");
     expect(src).toContain("Create My Plan");
     expect(src).toContain("أنشئ خطة التمارين");
     expect(src).toContain("Create my workout plan");
-    expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
-    expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
+    // The section framing follows the registry — AI, not calculators.
+    expect(copy).toContain("التخطيط بالذكاء الاصطناعي");
+    expect(copy).toContain("AI PLANNING");
+    // The honest free-allowance bar (single source re-pinned — the
+    // text lives in the registry, the bar lives in the view).
     expect(readBoth()).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
     expect(readBoth()).toContain("free monthly plan allowance");
-    // REGION LAW: the #plan region must be clean of EVO and of any
-    // coach/مدرب reference (the owner's explicit directive — EVO owns
-    // #evo; human coaching is a separate paid membership).
+    expect(readBoth()).toContain("توليد بالذكاء الاصطناعي");
+    expect(readBoth()).toContain("AI GENERATION");
+    // The EVO card: the chat surface stays the floating widget (the
+    // law) + the honest visitor quota.
+    expect(src).toContain("openEvoFloatingChat");
+    expect(src).toContain("10 رسائل يوميًا مع EVO — دون تسجيل");
+    expect(src).toContain("10 messages a day with EVO — no signup");
+    expect(src).not.toContain('href="/chat"');
+    expect(src).not.toContain('"/chat"');
+    // REGION LAW (284): the #plan region carries the AI family and NO
+    // human-coaching service (coaching is a separate paid membership —
+    // EVO's «مدربك الذكي» is the AI coach, allowed by design).
     const planStart = src.indexOf('id="plan"');
-    const nextStart = src.indexOf('id="library"');
+    const nextStart = src.indexOf('id="learn"');
     expect(planStart).toBeGreaterThan(-1);
     expect(nextStart).toBeGreaterThan(planStart);
     const planRegion = src.slice(planStart, nextStart);
-    expect(planRegion, "EVO leaked into the #plan region").not.toContain("EVO");
-    expect(planRegion, "a coach reference leaked into the #plan region").not.toContain("مدرب");
-    expect(planRegion, "a coach reference leaked into the #plan region").not.toContain("coach");
+    expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("كوتشينج");
+    expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("/coaching");
+    expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("مدرب شخصي");
+    expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("Online Coaching");
   });
 
-  // (7) The block map + the real content entry points.
-  it("the refined block map and its browse-all links exist", () => {
+  // (7) THE NUTRITION TRIO — Meal Planner / AI Meal Planner / ready-made
+  //     Diet Plans stay clearly differentiated: the manual planner chip,
+  //     the ready-made chip, and the AI cross-reference in the copy.
+  it("the nutrition section differentiates the manual planner, the AI planner, and the ready-made plans", () => {
+    const src = readFileSync(LANDING, "utf8");
+    const copy = readFileSync(COPY_HOME, "utf8");
+    expect(src, "the #eat section is missing").toContain('id="eat"');
+    // The three nutrition surfaces — locale-aware card links.
+    expect(src).toContain('href={isAr ? "/ar/foods" : "/foods"}');
+    expect(src).toContain('href={isAr ? "/ar/meal-planner" : "/meal-planner"}');
+    expect(src).toContain('href={isAr ? "/ar/diet-plan" : "/diet-plan"}');
+    // The explicit differentiation chips.
+    expect(src).toContain('"ابنِها بنفسك" : "YOU BUILD IT"');
+    expect(src).toContain('"جاهزة للتصفح" : "READY TO BROWSE"');
+    // The manual planner's body states WHO builds the meal.
+    expect(src).toContain("أنت من يبني الوجبة");
+    expect(src).toContain("You build the meal");
+    // The AI cross-reference is explicit (the AI planner lives in the
+    // AI section below — the owner's differentiation directive).
+    expect(copy).toContain("قسم التخطيط الذكي أدناه");
+    expect(copy).toContain("the AI Planning section below");
+    // The section copy follows the registry.
+    expect(copy).toContain("تغذيتك بثلاث طرق واضحة");
+    expect(copy).toContain("Your nutrition, three clear ways");
+  });
+
+  // (8) The block map + the real content entry points.
+  it("the platform block map and its browse-all links exist", () => {
     const both = readBoth();
     for (const required of [
-      // The section ids, in the corrected 271 order
-      'id="start"',
-      'id="evo"',
-      'id="plan"',
+      // The section ids, in the 284 platform order
       'id="library"',
-      'id="eat"',
       'id="train"',
+      'id="eat"',
       'id="diet"',
+      'id="tools"',
+      'id="plan"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
-      // The RESTORED interactive exercise library (271 F1): the
-      // muscle-group picker + its browse-all CTA.
+      // TRAINING — the muscle-group picker + its browse-all CTA.
       "مكتبة التمارين",
       "The exercise library",
       "اختر مجموعة عضلية",
       "Pick a muscle group",
       "استكشف مكتبة التمارين كاملة",
       "Explore the full exercise library",
-      // The ready-made programs carousel (271 F1) + its ONE focused
-      // browse-all CTA (the AI-builder CTA retired 2026-09-24 — the
-      // smart-planning builders in #plan own that job)
+      // PROGRAMS — the carousel + its ONE focused browse-all CTA.
       "برامج التمارين الجاهزة",
       "Ready-made training programs",
       "كل البرامج",
       "All programs",
-      // The Eat section (the interactive plate) + section CTA
-      "اعرف أرقام طبقك قبل أن تأكله.",
-      "Know your plate's numbers before you eat it.",
+      // NUTRITION — the food-database card copy + the retired
+      // explorer framing replaced by the trio.
       "استكشف قاعدة الأطعمة",
       "Explore the food database",
-      // The diet-plan library carousel + its CTA
+      // DIET — the diet-plan library carousel + its CTA.
       "مكتبة الخطط الغذائية الجاهزة",
       "The ready-made diet-plan library",
-      'href={isAr ? "/ar/diet-plan" : "/diet-plan"}',
-      // The blog section (simple title) + CTA
+      // LEARN — the simple title + CTA.
       "أحدث المقالات",
       "Latest Articles",
       "استكشف المحتوى",
       "Explore the articles",
-      // The memberships + coaching endpoints
+      // The memberships + coaching endpoints.
       'href={isAr ? "/ar/memberships" : "/memberships"}',
       'href={isAr ? "/ar/coaching" : "/coaching"}',
-      // Locale-aware browse-all entry points
+      // Locale-aware browse-all entry points.
       'href={isAr ? "/ar/exercises" : "/exercises"}',
       'href={isAr ? "/ar/foods" : "/foods"}',
       // The samples prop drives the content sections (server-provided
       // real data — the bundle law holds).
       "samples.exercises",
-      "samples.foods",
       "samples.programs",
       "samples.dietSystems",
-      // VRD-V8R: the memberships section gains the page's eyebrow
-      // rhythm naming the WHOLE services act, and the three cards read
-      // REAL feature rows (memberships.ts limits — the checkseal mark
-      // the /memberships lists render; zero invented claims).
+      // VRD-V8R: the memberships section keeps the eyebrow rhythm +
+      // the REAL limit-derived feature rows (memberships.ts limits).
       "العضويات والكوتشينج",
       "MEMBERSHIPS & COACHING",
       "توليدان شهريًا للخطط الذكية",
@@ -379,7 +386,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "تجربة بلا إعلانات",
       "Ad-free experience",
       "theme-img-pin-dark",
-      // VRD-V8R: the FAQ closer gains the eyebrow + a finished
+      // VRD-V8R: the FAQ closer keeps the eyebrow + the finished
       // marble-card surface (the pinned AccordionTrigger classes stay).
       "الأسئلة الشائعة",
       "COMMON QUESTIONS",
@@ -399,8 +406,7 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       // The retired programs-grid headline (the carousel replaced it).
       "خطة كاملة تقودك، أسبوعًا بأسبوع.",
       "A complete plan to guide you, week by week.",
-      // The retired four-turn EVO demo lines (the concise two-turn
-      // demo replaced them — 271 F2).
+      // The retired four-turn EVO demo lines.
       "وزني 84 كجم، وأتدرب أربعة أيام في الأسبوع.",
       "تم. سعراتك اليومية الآن 2,150 سعرة",
       // The big free-vs-paid section.
@@ -415,8 +421,8 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "Start today. Build a routine that fits you.",
       "أو تحدث مع EVO أولًا",
       "Or talk to EVO first",
-      // The retired #train AI-builder CTA (owner directive
-      // 2026-09-24 — «امسحه»; #plan owns AI plan creation).
+      // The retired #train AI-builder CTA (the AI cards in #plan own
+      // that job now).
       "ابنِ خطتك بالذكاء الاصطناعي",
       "Build your plan with AI",
       // VRD-V8R: the free-prose card one-liners are retired — replaced
@@ -427,12 +433,18 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
       "Unlimited EVO, 4 plans a month, full export.",
       "8 خطط شهريًا، وتجربة بلا إعلانات.",
       "8 plans a month, and an ad-free experience.",
+      // The retired in-page generation framing (the 284 law).
+      "خطتك تُبنى هنا — فعلًا.",
+      "Your plan is built right here.",
+      "توليد حقيقي داخل الصفحة",
+      "REAL IN-PAGE GENERATION",
+      "توليد حقيقي داخل الصفحة، بنفس محرك الأدوات",
     ]) {
       expect(both, `retired block string returned: "${banned}"`).not.toContain(banned);
     }
   });
 
-  // (8) The blog carousel is LATEST-FIRST (R6): the newest posts lead
+  // (9) The blog carousel is LATEST-FIRST (R6): the newest posts lead
   //     the row (featured fills the tail).
   it("the blog carousel puts the latest posts first", () => {
     const src = readFileSync(LANDING, "utf8");
@@ -440,42 +452,42 @@ describe("HOME-REFINE-271 — the refined homepage canaries", () => {
     expect(src).not.toContain("posts={[...featuredPosts, ...latestPosts]");
   });
 
-  // (9) The section ORDER: calculator → EVO → plan → library → eat →
-  //     train → diet → learn → memberships → faq (the corrected arc —
-  //     the interactive library sits right after the planners, and
-  //     the programs carousel joins the diet carousel right before
-  //     the blog).
-  it("the sections render in the corrected order", () => {
+  // (10) The section ORDER (the 284 platform arc): library → train →
+  //      eat → diet → tools → plan → learn → memberships → faq —
+  //      mirroring the header's service nav (Training · Nutrition ·
+  //      Tools · AI · Coaching), with the proof strip directly under
+  //      the hero.
+  it("the sections render in the platform order", () => {
     const src = readFileSync(LANDING, "utf8");
     const order = [
-      'id="start"',
-      'id="evo"',
-      'id="plan"',
       'id="library"',
-      'id="eat"',
       'id="train"',
+      'id="eat"',
       'id="diet"',
+      'id="tools"',
+      'id="plan"',
       'id="learn"',
       'id="memberships"',
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
-      expect(order[i], `section ${i} out of the corrected order`).toBeGreaterThan(order[i - 1]);
+      expect(order[i], `section ${i} out of the platform order`).toBeGreaterThan(order[i - 1]);
     }
-    // The proof strip sits between the hero and the calculator
+    // The proof strip sits between the hero and the training section
     // (proof directly under the promise).
     const proofAt = src.indexOf('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
     expect(proofAt).toBeGreaterThan(-1);
     expect(proofAt).toBeLessThan(order[0]);
-    // The programs + diet carousels sit right before the blog (the
-    // owner's placement directive — 271 F1 corrected the pair).
-    expect(order[5]).toBeLessThan(order[7]);
-    expect(order[6]).toBeLessThan(order[7]);
+    // The programs + diet carousels sit before the tools/AI cluster,
+    // and the AI section closes the product act before #learn.
+    expect(order[1]).toBeLessThan(order[4]);
+    expect(order[3]).toBeLessThan(order[4]);
+    expect(order[5]).toBeLessThan(order[6]);
   });
 });
 
-describe("HOME-REFINE-271 — header/footer contract", () => {
-  // (10) The header carries the five core services as VISIBLE navigation
+describe("HOME-PLATFORM-284 — header/footer contract", () => {
+  // (11) The header carries the five core services as VISIBLE navigation
   //      (desktop nav) with the secondary services demoted to the
   //      drawer's «More» group.
   it("the header exposes the five core services and demotes the secondary ones", () => {
@@ -500,8 +512,8 @@ describe("HOME-REFINE-271 — header/footer contract", () => {
     expect(src).not.toContain("الخدمات المدفوعة");
   });
 
-  // (11) The footer is the flat fully-displayed service map (R9),
-  //      now SHORTENED (271 F4): every list trimmed to its PRIMARY
+  // (12) The footer is the flat fully-displayed service map (R9),
+  //      SHORTENED (271 F4): every list trimmed to its PRIMARY
   //      entry points — the header nav carries the dropped surfaces.
   it("the footer is the flat fully-displayed service map", () => {
     const src = readFileSync(FOOTER, "utf8");
@@ -538,7 +550,7 @@ describe("HOME-REFINE-271 — header/footer contract", () => {
     expect(src).toContain("text-[11px] font-semibold");
   });
 
-  // (12) HREF-ONCE LAW (the flat footer): every locale-aware footer
+  // (13) HREF-ONCE LAW (the flat footer): every locale-aware footer
   //      href appears EXACTLY ONCE (single copy — no mobile/desktop
   //      duplication anymore). 271 F4: the trimmed map carries 18
   //      primary links (was 27 — the header nav absorbed the rest).
@@ -570,7 +582,7 @@ describe("HOME-REFINE-271 — header/footer contract", () => {
   });
 });
 
-describe("HOME-REFINE-271 — density, CTA & card contract", () => {
+describe("HOME-PLATFORM-284 — density, CTA & card contract", () => {
   // The CTA sizing standard — primary 48px touch / 52px md+, secondary
   // 44px touch / 48px md+ (rtl-typography re-pins the recipes too).
   it("CTA standard: btn-chrome 48/52 · btn-outline 44/48", () => {
@@ -583,40 +595,30 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     expect(outlineBlock).toContain("min-height: 44px");
   });
 
-  // §11 food cards (C-1 VLM note): the food selector cards keep the
-  // aligned macro rows (min-h title floor) + gap-2 rhythm — the same
-  // recipe inside the interactive FoodExplorer (#eat, unchanged).
-  it("food cards: aligned macro rows (min-h title floor) + gap-2 rhythm", () => {
-    const src = readFileSync(LANDING, "utf8");
-    expect(src).toContain("mt-1 min-h-10 text-base font-semibold leading-tight tracking-tight line-clamp-2");
-    expect(src).toContain('className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal"');
-    expect(src).toContain('className="chrome-text mt-2 text-xs font-semibold"');
-  });
-
   // O-3 asymmetry (the compact memberships section): the coaching
   // card carries the section's ONE filled CTA; the quiet outline
-  // buttons live on the section-level browse CTAs. (2026-09-24: the
-  // #train browse-all CTA was promoted to the unified section-CTA
-  // recipe — px-7 py-3, like #library/#eat/#diet — when the section's
-  // AI-builder button was retired; the blog CTA keeps the quiet
-  // px-6 py-2.5 recipe, and exactly ONE filled px-6 py-2.5 CTA
-  // remains: the coaching card.)
+  // buttons live on the section-level browse CTAs. The unified
+  // browse-all section-CTA recipe (48px touch floor) covers the three
+  // single-CTA sections (#library, #train, #diet); the blog CTA keeps
+  // the quiet px-6 py-2.5 recipe.
   it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).toContain(': "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
     expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(1);
     // The unified browse-all section-CTA recipe (48px touch floor):
-    // #library, #eat, #train, #diet — four single-CTA sections.
-    expect(src.match(/className="btn-outline px-7 py-3 text-sm font-medium md:text-base"/g)?.length).toBeGreaterThanOrEqual(4);
+    // #library, #train, #diet — three single-CTA sections (the AI and
+    // nutrition cards carry their own chrome-text arrows).
+    expect(src.match(/className="btn-outline px-7 py-3 text-sm font-medium md:text-base"/g)?.length).toBeGreaterThanOrEqual(3);
   });
 
   // The unified hover law: every INTERACTIVE homepage card family
-  // rides the .card-lift recipe — HOME-REFINE-270: EIGHT families
-  // (exercise, food, program, blog, coach, free-card, pro-card, diet).
-  it("unified card hover: card-lift on all eight interactive card families; recipe + reduced-motion guard in css", () => {
+  // rides the .card-lift recipe — HOME-PLATFORM-284: TEN families
+  // (platform-card, evo-card, tools-card, exercise, program, diet,
+  // blog, coach, free-card, pro-card).
+  it("unified card hover: card-lift on all ten interactive card families; recipe + reduced-motion guard in css", () => {
     const src = readFileSync(LANDING, "utf8");
     const css = readFileSync("src/app/globals.css", "utf8");
-    expect(src.match(/marble-card card-lift/g)?.length).toBe(8);
+    expect(src.match(/marble-card card-lift/g)?.length).toBe(10);
     for (const required of [
       ".marble-card.card-lift:hover {",
       "transform: translateY(-2px)",
@@ -629,27 +631,24 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
     }
   });
 
-  // VRD-V8R — the monochrome identity on the #eat selector chips: the
-  // legacy green/orange value accents are retired (DESIGN.md §10.3 —
-  // #34c759 must never appear on a marketing surface); the pinned
-  // aligned-rows recipe stays byte-identical.
-  it("food selector chips: legacy accent colors stay dead, mono ramp rules", () => {
+  // VRD-V8R — the monochrome identity on marketing surfaces: the
+  // legacy green/orange value accents stay dead (DESIGN.md §10.3 —
+  // #34c759 must never appear on a marketing surface).
+  it("food surfaces: legacy accent colors stay dead, mono ramp rules", () => {
     const src = readFileSync(LANDING, "utf8");
     expect(src).not.toContain("text-[#34c759]");
     expect(src).not.toContain("text-[#ff9500]");
-    expect(src).toContain('className="block font-semibold" style={{ color: PALETTE.textPrim }}');
   });
 
-  // VRD-V8R — the tint bands carry the proof strip's machined edge
-  // language: framed tint bands (evo/library/train) ride border-y,
-  // meander-adjacent bands (learn/faq) ride border-t.
+  // VRD-V8R — the tint bands carry the hairline frame language: the
+  // 284 alternation (bg → tint → bg → tint …) keeps every tint band
+  // framed (border-y mid-page, border-t for the closers).
   it("section transitions: tint bands carry the hairline frame", () => {
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
-      'id="evo" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
-      'id="library" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
       'id="train" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
-      'id="learn" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="diet" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
+      'id="plan" className="scroll-mt-20 border-y border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
       'id="faq" className="scroll-mt-20 border-t border-[var(--edge)] bg-[var(--tint)] px-4 py-10 md:py-20"',
     ]) {
       expect(src, `tint-band frame missing: ${required.slice(0, 60)}`).toContain(required);
@@ -669,18 +668,18 @@ describe("HOME-REFINE-271 — density, CTA & card contract", () => {
   });
 });
 
-describe("HOME-REFINE-271 — the motion-safety contract", () => {
+describe("HOME-PLATFORM-284 — the motion-safety contract", () => {
   // The living-page motion layer: every animation is once-only,
   // transform/opacity-only, and gated by prefers-reduced-motion. The
   // .rv reveal recipe must never hide content from no-JS users (the
-  // armed state exists only post-mount in React state).
-  it("motion: the reveal/count-up/swap recipes exist and every keyframe respects reduced motion", () => {
+  // armed state exists only post-mount in React state). The 284 frame
+  // retired the macro-bar pair with the embedded calculator/explorer —
+  // the surviving recipes stay guarded.
+  it("motion: the reveal/swap recipes exist and every keyframe respects reduced motion", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     const src = readFileSync(LANDING, "utf8");
     for (const required of [
       ".rv {",
-      ".macro-track {",
-      ".macro-fill {",
       ".live-dot {",
       ".swap-fade {",
     ]) {
@@ -689,12 +688,19 @@ describe("HOME-REFINE-271 — the motion-safety contract", () => {
     // Every motion recipe stands down under reduced motion.
     const reducedBlocks = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     const joined = reducedBlocks.join("\n");
-    for (const recipe of [".rv", ".macro-fill", ".live-dot", ".swap-fade"]) {
+    for (const recipe of [".rv", ".live-dot", ".swap-fade"]) {
       expect(joined, `reduced-motion guard missing for: ${recipe}`).toContain(recipe);
     }
-    // The retired tab recipe stays dead (the tabs are gone).
+    // The retired tab recipe stays dead (the tabs are gone), and the
+    // macro-bar pair (284) never returns.
     expect(css).not.toContain(".home-tabs");
     expect(css).not.toContain(".home-tab");
+    expect(css).not.toContain(".macro-track");
+    expect(css).not.toContain(".macro-fill");
+    expect(css).not.toContain(".evo-console");
+    expect(css).not.toContain(".evo-orb");
+    expect(css).not.toContain(".evo-beam");
+    expect(css).not.toContain(".evo-art-mask");
     // The reveal arms ONLY after mount (no class-based SSR hiding).
     expect(src).toContain('useState<"idle" | "armed" | "shown">("idle")');
     expect(src).toContain('setPhase("armed")');
@@ -707,14 +713,10 @@ describe("HOME-REFINE-271 — the motion-safety contract", () => {
   });
 });
 
-describe("HOME-REFINE-271 — copy voice canaries", () => {
+describe("HOME-PLATFORM-284 — copy voice canaries", () => {
   // K-1: «توليدات» is a mechanical pseudo-plural — the natural MSA
   // verbal noun is the only register. After the compact-card rebuild
-  // the phrase survives in the membership FAQ answers. SITE-CONTENT-281
-  // re-pin + COPY-REFINE-282 correction: the phrase now lives ONCE in
-  // the registry's FAQ answer (the pre-281 pin of ×2 was stale against
-  // the live copy — the test had drifted RED before this frame; the
-  // pin now matches the live single source).
+  // the phrase survives in the membership FAQ answers.
   it("K-1: the pseudo-plural «توليدات» stays dead; the verbal noun is the register", () => {
     const both = readBoth();
     expect(both).not.toContain("توليدات");
@@ -722,10 +724,6 @@ describe("HOME-REFINE-271 — copy voice canaries", () => {
   });
 
   // K-2: the coaches H2 keeps the «featured/certified» meaning.
-  // SITE-CONTENT-281 re-pin + COPY-REFINE-282 correction: the live copy
-  // (owner's 2026-09-26 wording) says «معتمدون» — the pre-281 «مميزون»
-  // pin was stale against the live view (RED before this frame); the
-  // pin now matches the live single source.
   it("K-2: the featured-coaches H2 says «معتمدون»", () => {
     const both = readBoth();
     expect(both).toContain('"مدربون معتمدون على Alkemos"');
@@ -733,7 +731,7 @@ describe("HOME-REFINE-271 — copy voice canaries", () => {
   });
 
   // K-6: the retired hero subtitle pairs stay dead (banned in EITHER
-  // file — the registry must not resurrect them either).
+  //      file — the registry must not resurrect them either).
   it("K-6: the retired hero subtitles stay dead", () => {
     const both = readBoth();
     expect(both).not.toContain("خطتك للياقة تبدأ من هنا.");
@@ -754,12 +752,9 @@ describe("HOME-REFINE-271 — copy voice canaries", () => {
   });
 });
 
-describe("HOME-REFINE-271 — FAQ canaries", () => {
+describe("HOME-PLATFORM-284 — FAQ canaries", () => {
   // The FIVE questions (Arabic anchors + independent English). Every
-  // claim mirrors the implementation. SITE-CONTENT-281 re-pin: the
-  // questions moved with their FAQ set to the site-content registry —
-  // the pins follow the single source; retired sets stay banned in
-  // EITHER file.
+  // claim mirrors the implementation.
   it("the homepage FAQ answers the five hesitation-remover questions", () => {
     const both = readBoth();
     for (const required of [
@@ -793,7 +788,7 @@ describe("HOME-REFINE-271 — FAQ canaries", () => {
   });
 });
 
-describe("HOME-REFINE-271 — homepage sample drift guard (real content, curated)", () => {
+describe("HOME-PLATFORM-284 — homepage sample drift guard (real content, curated)", () => {
   // The curated homepage samples must exist in the LIVE libraries —
   // if a data file renames/retires a curated entry, this fails so the
   // curation is consciously updated (library-counts pattern).
@@ -849,6 +844,26 @@ describe("HOME-REFINE-271 — homepage sample drift guard (real content, curated
       expect(ex.image.endsWith(".webp")).toBe(true);
     }
   });
+
+  // HOME-PLATFORM-284 (owner directive «وسّع معاينة مكتبة التمارين من
+  // 3 إلى 6»): SIX real curated samples per muscle family — the
+  // library preview answers every selection with a full 6-card grid.
+  it("the exercise curation carries SIX samples per muscle family (the 3→6 expansion)", () => {
+    expect(EXERCISE_SAMPLE_SLUGS.length).toBe(42);
+    const perFamily = new Map<string, number>();
+    for (const slug of EXERCISE_SAMPLE_SLUGS) {
+      const ex = EXERCISES.find((e) => e.slug === slug);
+      expect(ex, `curated exercise missing: ${slug}`).toBeTruthy();
+      const cat = ex!.category;
+      perFamily.set(cat, (perFamily.get(cat) ?? 0) + 1);
+    }
+    for (const family of ["chest", "back", "shoulders", "legs", "biceps", "triceps", "core"]) {
+      expect(perFamily.get(family), `family ${family} lost its six-sample curation`).toBe(6);
+    }
+    // The browser grid renders the six-card 2×3 grid on md+.
+    const src = readFileSync(LANDING, "utf8");
+    expect(src).toContain("swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3");
+  });
 });
 
 describe("TPL-REF-280 — the selective template-reference contract", () => {
@@ -875,8 +890,9 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     expect(reduced.join("\n")).toContain(".chev { transition: none; }");
     // Opt-in scope: every .chev span in the view is a pill-CTA chevron
-    // (the evo-handoff chips are excluded by design).
-    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
+    // (the 284 frame: the two hero CTAs ×2 + the three browse-all CTAs
+    // + the diet/library/platform card arrows — eight in all).
+    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(8);
     expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
   });
 
@@ -905,9 +921,8 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     expect(src).not.toContain("#d7ff4d");
   });
 
-  it("(4) display numerals: proof band + plate kcal ride the display face", () => {
+  it("(4) display numerals: the proof band rides the display face", () => {
     expect(src).toContain('className="font-display text-lg font-semibold tracking-tight md:text-xl"');
-    expect(src).toContain('className="chrome-text font-display text-5xl font-bold tracking-tight"');
   });
 
   it("scope fence: the template identity never ships (Ember & Ink / Sora / Outfit / tpl- prefixes)", () => {

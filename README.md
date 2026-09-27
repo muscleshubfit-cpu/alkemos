@@ -21,19 +21,23 @@ confidential**, accessible only to owner-authorized collaborators
 
 ## 🧭 What Alkemos offers
 
-### The refined homepage (`src/components/views/LandingView.tsx`)
-The homepage IS the product's first five minutes — the visitor USES the
-platform before any signup, through independent interactive sections:
-a real calorie/macro calculator running the app's own formulas
-(`src/lib/fitness-math.ts` — the single source the tools page shares),
-an EVO section (labeled conversation demo whose CTA opens the real
-floating chat widget, warrior artwork), an interactive smart-planning
-section (`#plan`: a workout-plan builder + a nutrition-plan builder
-with live previews — real planner vocabulary from
-`src/lib/ai-workout-planner.ts`, real diet-matrix splits via
-`src/lib/home-samples.ts`), an interactive food macro explorer, and
-blog-style carousels for the exercise library and the ready-made
-diet-plan library (both fed by the server-provided curated samples).
+### The platform homepage (`src/components/views/LandingView.tsx`)
+The homepage is a true PLATFORM homepage — concise sections with CARDS
+that link to the real pages, mirroring the header's service nav
+(HOME-PLATFORM-284): a Training section (the muscle-group browser
+previewing SIX real exercises per family, fed by the server-provided
+curated samples), a Programs carousel, a Nutrition section with three
+clearly-differentiated cards (the food database · the MANUAL Meal
+Planner «ابنِها بنفسك» · the READY-MADE diet-plan library «جاهزة
+للتصفح»), the diet-systems carousel, a Tools section that is ONE wide
+card to the `/tools` hub (the calculators themselves are NOT embedded —
+their chips derive from `src/lib/tools-shared.ts`), and an AI Planning
+section — deliberately distinct from the tools — carrying the three AI
+surfaces as explicitly AI-powered cards: the AI Workout Planner, the
+AI Meal Planner (a STRUCTURED full-day plan with portions in grams —
+not mere suggestions), and EVO with a chat button that opens the real
+floating widget (the chat-surface law). NO tool runs on the homepage
+anymore — the pages own the doing; the homepage owns the navigation.
 The hero carries exactly two CTAs (login/signup + the memberships
 page) over a compact one-row proof strip; memberships render as small
 cards (prices derive from `memberships.ts` — never literals; each

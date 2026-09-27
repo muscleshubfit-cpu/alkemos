@@ -9,9 +9,20 @@
  * homepage FAQ set here (5 hesitation-removers) stays SEPARATE from
  * the /faq page's 10-question set (static-pages.ts) exactly as before.
  *
+ * HOME-PLATFORM-284 (owner order 2026-09-27 «الصفحة الرئيسية كواجهة
+ * منصة حقيقية»): the registry follows the homepage restructure — the
+ * calculator-section group (home.start) became the TOOLS-section group
+ * (home.tools: one card → /tools, no embedded calculators), the EVO
+ * demo group (home.evo) retired with the section (the EVO card's copy
+ * is tool-entry copy, pinned in the view), the nutrition framing
+ * (home.eat) now presents the THREE clearly-differentiated ways, and
+ * the AI-planning group (home.plan) names what gets GENERATED. Retired
+ * Supabase override rows under the old keys are simply ignored (the
+ * fallback law: the code defaults always render).
+ *
  * SCOPE GUARD (what is deliberately NOT here):
- *   - Interactive tool labels (calculator inputs/CTA/notes, planner
- *     buttons, quota chips) — tool UX, not marketing copy.
+ *   - Interactive tool labels (planner buttons, quota chips) — tool
+ *     UX, not marketing copy.
  *   - Count-bearing eyebrows + proof-strip labels + tier feature rows
  *     + the EVO fair-use line + the refund note — every one restates a
  *     VERIFIED number or policy from its single source (memberships.ts
@@ -41,33 +52,26 @@ export type HomeCopy = {
   heroPillNutrition: string;
   heroPillPlanning: string;
   heroNode: string;
-  startEyebrow: string;
-  startTitle: string;
-  startBody: string;
-  evoEyebrow: string;
-  evoTitle: string;
-  evoBody: string;
-  evoDemoLabel: string;
-  evoDemoUser: string;
-  evoDemoEvo: string;
-  evoContinueCta: string;
+  libraryTitle: string;
+  libraryBody: string;
+  trainEyebrow: string;
+  trainTitle: string;
+  trainBody: string;
+  trainCta: string;
+  eatTitle: string;
+  eatBody: string;
+  dietTitle: string;
+  dietBody: string;
+  dietCta: string;
+  toolsEyebrow: string;
+  toolsTitle: string;
+  toolsBody: string;
+  toolsCta: string;
   planEyebrow: string;
   planTitle: string;
   planBody: string;
   planAllowance: string;
   planAllowanceChip: string;
-  libraryTitle: string;
-  libraryBody: string;
-  eatTitle: string;
-  eatBody: string;
-  eatCta: string;
-  trainEyebrow: string;
-  trainTitle: string;
-  trainBody: string;
-  trainCta: string;
-  dietTitle: string;
-  dietBody: string;
-  dietCta: string;
   learnTitle: string;
   learnCta: string;
   membershipsEyebrow: string;
@@ -122,9 +126,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Subtitle paragraph",
         labelAr: "الفقرة التمهيدية",
         defaultEn:
-          "The all-in-one platform for your workouts, nutrition, and exact macro targets — powered by EVO, your 24/7 AI coach. Try it right on this page, in Arabic and English.",
+          "The all-in-one platform for your workouts, nutrition, and exact macro targets — powered by EVO, your 24/7 AI coach who helps you and keeps adjusting your plan — in Arabic and English.",
         defaultAr:
-          "منصة متكاملة تجمع تمارينك، وتغذيتك، وحساب سعراتك بدقة — ومعها EVO، مدربك بالذكاء الاصطناعي لمساعدتك وتعديل خطتك باستمرار. جرّبها الآن في هذه الصفحة، بالعربية والإنجليزية.",
+          "منصة متكاملة تجمع تمارينك، وتغذيتك، وحساب سعراتك بدقة — ومعها EVO، مدربك بالذكاء الاصطناعي لمساعدتك وتعديل خطتك باستمرار — بالعربية والإنجليزية.",
       },
       {
         prop: "heroPillTraining",
@@ -161,131 +165,67 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
     ],
   },
   {
-    key: "home.start",
-    labelEn: "Calculator section (#start)",
-    labelAr: "قسم الحاسبة (#start)",
+    key: "home.tools",
+    labelEn: "Tools section (#tools)",
+    labelAr: "قسم الأدوات (#tools)",
     fields: [
       {
-        prop: "startEyebrow",
-        key: "home.start.eyebrow",
+        prop: "toolsEyebrow",
+        key: "home.tools.eyebrow",
         labelEn: "Section eyebrow chip",
         labelAr: "شريحة العنوان الصغير",
-        defaultEn: "THE CALORIE & MACRO CALCULATOR",
-        defaultAr: "حاسبة السعرات والماكروز",
+        defaultEn: "FREE TOOLS — NO SIGNUP",
+        defaultAr: "أدوات مجانية — بدون تسجيل",
       },
       {
-        prop: "startTitle",
-        key: "home.start.title",
+        prop: "toolsTitle",
+        key: "home.tools.title",
         labelEn: "Section heading",
         labelAr: "عنوان القسم",
         defaultEn: "Know your numbers before anything else.",
         defaultAr: "اعرف أرقامك قبل أي خطوة.",
       },
       {
-        prop: "startBody",
-        key: "home.start.body",
+        prop: "toolsBody",
+        key: "home.tools.body",
         multiline: true,
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Calculate your exact daily calories and macro split tailored to your goal — using the platform's own validated formulas, free with no signup.",
+          "Accurate calculators that give you your numbers in seconds, plus a daily water tracker — the tools page gathers them all, free with no signup.",
         defaultAr:
-          "احسب سعراتك اليومية وتوزيع الماكروز المثالي لهدفك بدقة — بنفس معادلات المنصة المعتمدة علمياً، ودون أي تسجيل.",
-      },
-    ],
-  },
-  {
-    key: "home.evo",
-    labelEn: "EVO section (#evo)",
-    labelAr: "قسم EVO (#evo)",
-    fields: [
-      {
-        prop: "evoEyebrow",
-        key: "home.evo.eyebrow",
-        labelEn: "Section eyebrow chip",
-        labelAr: "شريحة العنوان الصغير",
-        defaultEn: "EVO — YOUR AI COACH",
-        defaultAr: "EVO — مدربك الذكي داخل المنصة",
+          "حاسبات دقيقة تعطيك أرقامك في ثوانٍ، ومتتبع يومي لشرب الماء — صفحة الأدوات تجمعها كلها مجانًا، دون أي تسجيل.",
       },
       {
-        prop: "evoTitle",
-        key: "home.evo.title",
-        labelEn: "Section heading",
-        labelAr: "عنوان القسم",
-        defaultEn: "Talk to EVO — in Arabic or English.",
-        defaultAr: "تحدّث مع EVO — بالعربية أو الإنجليزية.",
-      },
-      {
-        prop: "evoBody",
-        key: "home.evo.body",
-        multiline: true,
-        labelEn: "Section paragraph",
-        labelAr: "فقرة القسم",
-        defaultEn:
-          "Understands your fitness goals, delivers clear numbers, and tailors your plan with smart swaps suited to your lifestyle — the bubble at the bottom of this page opens the real chat now.",
-        defaultAr:
-          "يفهم هدفك الرياضي، ويجيبك بأرقام وحلول عملية، ثم يبني خطتك ويعدّلها ببدائل ذكية تناسب نمط حياتك — والفقاعة أسفل الصفحة تفتح المحادثة الحقيقية الآن.",
-      },
-      {
-        prop: "evoDemoLabel",
-        key: "home.evo.demoLabel",
-        labelEn: "Demo label chip",
-        labelAr: "شريحة تسمية المحادثة",
-        hintEn: "Must keep saying the demo is illustrative (honesty law).",
-        hintAr: "يجب أن تظل توضح أن المحادثة نموذج توضيحي (قانون الصدق).",
-        defaultEn: "AN ILLUSTRATIVE EXCHANGE",
-        defaultAr: "نموذج توضيحي لمحادثة",
-      },
-      {
-        prop: "evoDemoUser",
-        key: "home.evo.demoUser",
-        multiline: true,
-        labelEn: "Demo — visitor message",
-        labelAr: "المحادثة — رسالة الزائر",
-        defaultEn: "I want to lose fat without losing muscle. What works for tonight's dinner?",
-        defaultAr: "هدفي خسارة الدهون مع الحفاظ على العضلات. ما الذي يصلح لعشائي الليلة؟",
-      },
-      {
-        prop: "evoDemoEvo",
-        key: "home.evo.demoEvo",
-        multiline: true,
-        labelEn: "Demo — EVO answer",
-        labelAr: "المحادثة — رد EVO",
-        defaultEn:
-          "A meal that fits your goal: 200 g grilled chicken breast with 150 g rice and a green salad — roughly 520 kcal and 52 g protein. Tell me your weight and training days and I'll build your whole week.",
-        defaultAr:
-          "وجبة تناسب هدفك: 200 جرام صدر دجاج مشوي مع 150 جرام أرز وسلطة خضراء — نحو 520 سعرة و52 جرام بروتين. أخبرني بوزنك وأيام تدريبك وسأبني لك خطة الأسبوع كاملة.",
-      },
-      {
-        prop: "evoContinueCta",
-        key: "home.evo.continueCta",
-        labelEn: "Chat CTA button",
-        labelAr: "زر متابعة المحادثة",
-        defaultEn: "Continue this conversation",
-        defaultAr: "أكمل المحادثة مع EVO",
+        prop: "toolsCta",
+        key: "home.tools.cta",
+        labelEn: "Card CTA label",
+        labelAr: "تسمية زر البطاقة",
+        defaultEn: "Open the tools page",
+        defaultAr: "افتح صفحة الأدوات",
       },
     ],
   },
   {
     key: "home.plan",
-    labelEn: "Smart planning section (#plan)",
-    labelAr: "قسم التخطيط الذكي (#plan)",
+    labelEn: "AI planning section (#plan)",
+    labelAr: "قسم التخطيط بالذكاء الاصطناعي (#plan)",
     fields: [
       {
         prop: "planEyebrow",
         key: "home.plan.eyebrow",
         labelEn: "Section eyebrow chip",
         labelAr: "شريحة العنوان الصغير",
-        defaultEn: "SMART PLANNING",
-        defaultAr: "التخطيط الذكي",
+        defaultEn: "AI PLANNING",
+        defaultAr: "التخطيط بالذكاء الاصطناعي",
       },
       {
         prop: "planTitle",
         key: "home.plan.title",
         labelEn: "Section heading",
         labelAr: "عنوان القسم",
-        defaultEn: "Your plan is built right here.",
-        defaultAr: "خطتك تُبنى هنا — فعلًا.",
+        defaultEn: "A complete plan — built for you by AI in seconds.",
+        defaultAr: "خطتك كاملة — يبنيها الذكاء الاصطناعي في ثوانٍ.",
       },
       {
         prop: "planBody",
@@ -294,9 +234,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Set your choices and hit generate — a full plan (exercises and sets, or meals in grams) is created right on this page by the same engine as the tools.",
+          "This is not the calculators: here AI generates your complete plan — a weekly workout split with its exercises and sets, or a full day of meals with quantities in grams — and EVO stays with you to answer and adjust anytime.",
         defaultAr:
-          "حدّد اختياراتك واضغط زر الإنشاء — خطة كاملة بالتمارين والمجموعات أو بالوجبات والغرامات تتولّد هنا في الصفحة، بنفس محرك الأدوات.",
+          "هذا ليس قسم الحاسبات: هنا يولّد الذكاء الاصطناعي خطتك كاملة — نظامًا تدريبيًا أسبوعيًا بتمارينه ومجموعاته، أو خطة وجبات ليوم كامل بكمياتها بالغرامات — ويظل EVO معك للإجابة والتعديل في أي وقت.",
       },
       {
         prop: "planAllowance",
@@ -312,8 +252,8 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         key: "home.plan.allowanceChip",
         labelEn: "Free-allowance chip",
         labelAr: "شريحة الرصيد",
-        defaultEn: "REAL IN-PAGE GENERATION",
-        defaultAr: "توليد حقيقي داخل الصفحة",
+        defaultEn: "AI GENERATION",
+        defaultAr: "توليد بالذكاء الاصطناعي",
       },
     ],
   },
@@ -337,24 +277,24 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "An interactive slice of the library — pick a muscle group to explore targeted exercises with proper form photos and technique cues.",
+          "Pick a muscle group and browse six real exercises per family — every card is a documented exercise with form photos and technique cues, one tap from its full page.",
         defaultAr:
-          "عينة تفاعلية من المكتبة — اختر مجموعة عضلية واستكشف التمارين الموجهة المشروحة بصور الأداء الصحيح لتفادي الإصابات.",
+          "اختر مجموعة عضلية واستعرض ستة تمارين حقيقية من كل مجموعة — كل بطاقة تمرين موثق بصور الأداء الصحيح وشرح واضح، وينقلك مباشرة إلى صفحته.",
       },
     ],
   },
   {
     key: "home.eat",
-    labelEn: "Food database section (#eat)",
-    labelAr: "قسم قاعدة الأطعمة (#eat)",
+    labelEn: "Nutrition section (#eat)",
+    labelAr: "قسم التغذية (#eat)",
     fields: [
       {
         prop: "eatTitle",
         key: "home.eat.title",
         labelEn: "Section heading",
         labelAr: "عنوان القسم",
-        defaultEn: "Know your plate's numbers before you eat it.",
-        defaultAr: "اعرف أرقام طبقك قبل أن تأكله.",
+        defaultEn: "Your nutrition, three clear ways",
+        defaultAr: "تغذيتك بثلاث طرق واضحة",
       },
       {
         prop: "eatBody",
@@ -363,17 +303,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Accurate calories, protein, carbs, and fat for every 100 g across regional and global staples — pick a food and watch its numbers move.",
+          "Know your foods' numbers in a huge database, build your meals yourself in the manual planner, or start instantly from the ready-made plan library — and when you want a complete daily plan generated for you by AI, that's the AI Planning section below.",
         defaultAr:
-          "سعرات وبروتين وكربوهيدرات ودهون لكل 100 جرام تشمل المطبخ العربي والعالمي — اختر صنفًا من القاعدة وشاهد أرقامه تتحرك.",
-      },
-      {
-        prop: "eatCta",
-        key: "home.eat.cta",
-        labelEn: "Section CTA button",
-        labelAr: "زر الدعوة للإجراء",
-        defaultEn: "Explore the food database",
-        defaultAr: "استكشف قاعدة الأطعمة",
+          "اعرف أرقام أطعمتك في قاعدة بيانات ضخمة، أو ابنِ وجباتك بنفسك في المخطط اليدوي، أو ابدأ فورًا من مكتبة الخطط الجاهزة — وإن أردت خطة يوم كاملة تتولد لك بالذكاء الاصطناعي فستجدها في قسم التخطيط الذكي أدناه.",
       },
     ],
   },
