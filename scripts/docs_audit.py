@@ -54,12 +54,11 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      §12.5.1 skeleton (Agent/Task/Work Log/Stage Summary) → hard fail —
      the live region was normalized + rotated at Phase 237 (warnings
      retired; the legacy gap entries live in archive/, unchecked by design).
-  I. (Phase 215 / P1-4 — finding المؤكد 22) governed docs
-     (AGENTS/README/DEVELOPER_GUIDE/SECURITY/DESIGN) must carry a
-     parseable «Last updated/آخر تحديث» date, and any doc touched by
-     a commit since the gate birthday (2026-09-16) must have its
-     header ≥ that commit's date — forward-only: pre-gate drift is
-     Phase 217 / P3-1 scope.
+  I. RETIRED (Phase 289 — ARCH-REMEDIATION, audit P1-4 / RC-2): the
+     governed docs' «Last updated» headers are OPTIONAL PROVENANCE now —
+     git is the single source of every date (check M's hand-maintained
+     date column died the same death; the gate REPORT derives dates
+     from git instead). Editing a doc no longer demands a header bump.
   J. (Phase 215 / P1-4 — finding المؤكد 25) the Phase-115
      frozen-verbatim files (archive/PROGRESS.md +
      archive/QA_CHECKLIST.md) must have ZERO commits since the gate
@@ -74,10 +73,14 @@ Checks (any failure = exit 1, ::error:: annotations in --ci):
      pre-hardening legacy ids are allowlisted.
   L. (Phase 274 — external audit م-04) demo-account emails in the four
      setup docs must match the seeds in src/lib/data/auth.ts.
-  M. (Phase 274 — external audit م-07) the docs/README.md registry is
-     enforced: every row's backticked paths exist, and the Last-updated
-     date never lags the file's last commit (STATE.md/worklog.md exempt
-     — they refresh by law every frame, same precedent as check I).
+  M. (Phase 274 — external audit م-07; rewritten Phase 289 —
+     ARCH-REMEDIATION, audit P1-4) the docs/README.md registry is
+     enforced BIDIRECTIONALLY: every row's backticked paths exist,
+     AND every top-level docs/*.md carries a row (the four
+     unregistered files were invisible to the one-way check). The
+     hand-maintained Last-updated column is RETIRED (RC-2 — git
+     already records every date); the gate report derives and
+     prints git dates instead of policing prose.
   N. (Phase 274 — external audit م-08) docs/CI_GATES.md must mention
      every file in .github/workflows/.
   P. (Phase 274 — external audit م-09) README/DEVELOPER_GUIDE Node
@@ -480,14 +483,11 @@ for entry_lines in wl_entries:
              f"entries (Phase 237 hardening; AGENTS.md §12.5.1)")
 
 # ------------------------------------------------------------------ I
-# Phase 215 / P1-4 (audit المؤكد 22): governed docs must not claim a
-# Last-updated date OLDER than the commits that touched them since the
-# gate birthday. Forward-only by design — pre-gate drift is Phase 217
-# (P3-1) scope; from 2026-09-16 on, editing a governed doc without
-# bumping its header fails the push.
-GATE_BIRTH = "2026-09-16"
-GOVERNED_DOCS = ["AGENTS.md", "README.md", "DEVELOPER_GUIDE.md",
-                 "SECURITY.md", "DESIGN.md"]
+# RETIRED (Phase 289 — ARCH-REMEDIATION, audit P1-4 / RC-2): the check-I
+# date-truth policing (governed docs' Last-updated headers vs git) was
+# the single most frequent fix-up class — a date duplicated in prose that
+# git already records. Headers stay as OPTIONAL provenance; nothing gates
+# them. The check slot it frees is the budget for H5 (merged into H).
 
 
 def git_out(args: list[str]) -> str | None:
@@ -500,32 +500,11 @@ def git_out(args: list[str]) -> str | None:
     return r.stdout.strip() if r.returncode == 0 else None
 
 
-for rel in GOVERNED_DOCS:
-    p = REPO / rel
-    if not p.exists():
-        continue  # read() already failed for it in A-style checks
-    text = p.read_text(errors="replace")
-    head = "\n".join(text.splitlines()[:15])
-    m = re.search(r"(?:last updated|آخر تحديث)[^\d]{0,20}(\d{4}-\d{2}-\d{2})",
-                  head, re.IGNORECASE)
-    if not m:
-        fail("I/last-updated-header",
-             f"{rel} carries no parseable «Last updated / آخر تحديث» date "
-             f"in its header — the 5 governed docs must carry one")
-        continue
-    header_date = m.group(1)
-    since = git_out(["log", f"--since={GATE_BIRTH}T00:00:00", "-1",
-                     "--format=%as", "--", rel])
-    if since and header_date < since:
-        fail("I/last-updated-truth",
-             f"{rel} claims Last updated {header_date} but was modified "
-             f"by a commit dated {since} (since the Phase-215 gate) — "
-             f"bump the header in the same commit that edits it")
-
 # ------------------------------------------------------------------ J
 # Phase 215 / P1-4 (audit المؤكد 25): the Phase-115 frozen-verbatim
 # files must never change again. Scoped to the frozen pair on purpose:
 # §3.8 still allows APPEND-ONLY growth of the other archive files.
+GATE_BIRTH = "2026-09-16"   # check-J birthday (kept: J still scopes to it)
 FROZEN_VERBATIM = ["archive/PROGRESS.md", "archive/QA_CHECKLIST.md"]
 touched = git_out(["log", f"--since={GATE_BIRTH}T00:00:00", "--oneline",
                    "--", *FROZEN_VERBATIM])
@@ -565,54 +544,56 @@ if auth_src:
                      f"code (single source; Phase 274, external audit م-04)")
 
 # ------------------------------------------------------------------ M
-# م-07: the docs/README.md registry is enforced now. Every row's
-# backticked paths must exist, and the Last-updated column may never be
-# older than the file's last commit date. STATE.md and worklog.md are
-# exempt from the DATE half only — they refresh by law in every frame
-# (the same reason check I scopes them out); their paths still must
-# exist. This is the §12.5.2 audit turned into a per-push gate.
+# م-07 (Phase 274) + Phase 289 (ARCH-REMEDIATION, audit P1-4): the
+# registry is enforced BIDIRECTIONALLY now —
+#   direction 1 (rows → files, unchanged): every backticked repo path in
+#     a registry row must exist;
+#   direction 2 (files → rows, NEW): every top-level docs/*.md must carry
+#     a row — the four unregistered files were invisible to the one-way
+#     check (the registry blind spot, audit §A2.1).
+# The hand-maintained Last-updated column is RETIRED (RC-2: git already
+# records every date — the column was the most frequent fix-up class,
+# hand-in-hand with the retired check I). The gate REPORT below derives
+# and prints git dates instead of policing prose.
 registry = read("docs/README.md")
+registry_paths: set[str] = set()
 if registry:
-    reg_lines = registry.splitlines()
-    _i = 0
-    while _i < len(reg_lines):
-        _ln = reg_lines[_i]
-        if _ln.startswith("|") and "Last updated" in _ln and "File" in _ln:
-            headers = [c.strip() for c in _ln.strip().strip("|").split("|")]
-            date_col = next((k for k, h in enumerate(headers)
-                             if "last updated" in h.lower()), None)
-            _j = _i + 2  # skip the |---| separator row
-            while _j < len(reg_lines) and reg_lines[_j].startswith("|"):
-                cells = [c.strip() for c in
-                         reg_lines[_j].strip().strip("|").split("|")]
-                paths = re.findall(r"`([^`]+)`", cells[0] if cells else "")
-                paths = [p for p in paths
-                         if re.match(r"^(?:[\w.-]+/)*[\w.-]+\.[\w.]+$", p)
-                         and not p.startswith("http")]
-                for p in paths:
-                    if not (REPO / p).exists():
-                        fail("M/registry-paths",
-                             f"docs/README.md row references «{p}» which "
-                             f"does not exist — registry rows point at real "
-                             f"files (moved? renamed? update the row in the "
-                             f"same commit)")
-                if (date_col is not None and date_col < len(cells) and paths
-                        and paths[0] not in ("STATE.md", "worklog.md")):
-                    dm = re.search(r"(\d{4}-\d{2}-\d{2})", cells[date_col])
-                    if dm:
-                        gdate = git_out(["log", "-1", "--format=%as",
-                                         "--", paths[0]])
-                        if gdate and dm.group(1) < gdate:
-                            fail("M/registry-dates",
-                                 f"docs/README.md row for «{paths[0]}» says "
-                                 f"{dm.group(1)} but the file's last commit "
-                                 f"is {gdate} — the registry must never lag "
-                                 f"its file (§12.5.2 turned per-push; "
-                                 f"Phase 274, external audit م-07)")
-                _j += 1
-            _i = _j
-        else:
-            _i += 1
+    for ln_no, ln in enumerate(registry.splitlines(), 1):
+        if not ln.startswith("|"):
+            continue
+        for pth in re.findall(r"`([^`]+)`", ln):
+            if not (re.match(r"^(?:[\w.-]+/)*[\w.-]+\.[\w.]+$", pth)
+                    and not pth.startswith("http")):
+                continue
+            registry_paths.add(pth)
+            if not (REPO / pth).exists():
+                fail("M/registry-paths",
+                     f"docs/README.md row references «{pth}» which does not "
+                     f"exist — registry rows point at real files (moved? "
+                     f"renamed? update the row in the same commit)")
+    # direction 2 — every top-level docs/*.md must be registered
+    docs_md = sorted((REPO / "docs").glob("*.md"))
+    for md in docs_md:
+        rel = f"docs/{md.name}"
+        if rel not in registry_paths:
+            fail("M/registry-coverage",
+                 f"{rel} has no row in docs/README.md — every top-level "
+                 f"docs/*.md must be registered (reports land WITH their "
+                 f"row in the same commit — «born archived» law; Phase "
+                 f"289, audit P1-4)")
+
+# git-derived date report (replaces the hand-edited column — derive,
+# don't duplicate): surfaced in the gate report, never in prose law.
+if registry:
+    dated: list[tuple[str, str]] = []
+    for md in docs_md:
+        rel = f"docs/{md.name}"
+        g = git_out(["log", "-1", "--format=%as", "--", rel]) or "?"
+        dated.append((g, rel))
+    dated.sort(reverse=True)
+    newest = " · ".join(f"{r} ({d})" for d, r in dated[:3])
+    print(f"registry: {len(docs_md)} docs/*.md · all registered · "
+          f"newest by git: {newest}")
 
 # ------------------------------------------------------------------ N
 # م-08: CI_GATES.md must cover every workflow file — its table once
@@ -686,6 +667,10 @@ PATH_RE = re.compile(
     r"yml|yaml|toml|css))`")
 tracked = git_out(["ls-files"]) or ""
 tracked_names = {line.rsplit("/", 1)[-1] for line in tracked.splitlines()}
+# The five governed docs (check R's scan scope — the check-I date policing
+# on them was retired at Phase 289; the LIST stays for the dead-path guard).
+GOVERNED_DOCS = ["AGENTS.md", "README.md", "DEVELOPER_GUIDE.md",
+                 "SECURITY.md", "DESIGN.md"]
 for rel in GOVERNED_DOCS:
     gp = REPO / rel
     if not gp.exists():

@@ -1418,3 +1418,17 @@ Owner ask: «افحص داشبورد الادمن لان محتاج تنسيق �
 | CI state entering the phase | ✅ | live check-runs on fbb27f4: Supabase Preview success · guard success · parity success |
 | Docs parity §3.6 | ✅ UPDATED | STATE.md → Phase 108 / fbb27f4 · QA + PROGRESS Phase 108 sections · PROGRESS slimmed back to cap (Phase 99-run → archive/PROGRESS_ARCHIVE.md ملحق 2026-09-03 Phase 108, verbatim) · worklog Task 108 ×2 (repo + workspace) |
 | Gates after edits | ✅ | tsc 0 · eslint 0 · vitest 191/191 · migration_audit --ci 0 · docs_parity 0 · docs_audit 0 · check-stale-refs 0 · check-ui-wiring 0 |
+
+
+<!-- ARCH-REMEDIATION-289 (2026-09-28): STATE.md QA-history rows relocated verbatim below (audit P1-3 — STATE keeps only the CURRENT phase's QA summary) -->
+
+## [2026-09-28] STATE.md — صفوف تاريخ QA (287→263) منقولة حرفيًا (المرحلة 289 — ARCH-REMEDIATION-289)
+
+- **(287) ARCH-REMEDIATION-287 (فريم توثيقي — سابقة 223/283):** docs_audit ✓ صفر مخالفات (كانت I حمراء قبل الإصلاح) · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — التفصيل بworklog
+- **(285+284) HOME-POLISH-285 وHOME-PLATFORM-284 (فريما كود + توثيق):** tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 101/1729 ثم 101/1728 (كاناري homepage-adoption أعيد تثبيته لكل هيكل) · next build ✓ 2020/2020 · تحقق حي EN/AR × 1440/390 نظيف (VLM: صفر مشاكل) — التفصيل بمدخليهما بworklog
+- **(283) QA-PURGE-283 (فريم سكريبت يدوي + توثيق):** migration_audit ✓ صفر انجراف جديد (بيانات فقط — types.ts غير مطلوب) · docs_parity ✓ (خريطة الترقيم 0001→0095) · docs_audit --ci ✓ · vitest/tsc/eslint غير مطلوبة (فريم صفر كود — سابقة 223 التوثيقية) — التفصيل بworklog
+- **(281) SITE-CONTENT-281 (فريم كود + ميجريشن):** tsc ✓ 0 · eslint ✓ 0 (تحذير root-shell القديم وحده) · vitest ✓ 1727/1727 (+14 اختبار site-content) · migration_audit ✓ صفر انجراف · next build ✓ 2020/2020 (ISR ‏5m) · الحي محليًا EN/AR: كل المسارات العامة 200 والنصوص تُصيَّر بالفولباك والـtokens — التفصيل بworklog
+- **(278+277+276) VRD-V8R/V8/V7 (فريمات كود + توثيق — التفاصيل بworklog):** البوابات خضراء وقت كل فريم: tsc 0 · eslint 0 (تحذير root-shell القديم وحده) · vitest 100/1705 ثم 1702/1702 · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ · docs_parity ✓ · docs_audit صفر مخالفات جديدة · contrast matrix ✓ · next build 2020/2020 · الحي EN/AR × Light/Dark × 1440/390: صفر overflow وصفر أخطاء console · CI 4/4 — التفصيل بمدخلاتها بworklog
+- **(274) DOC-REMEDIATION-274 (فريم توثيق + تحصين):** docs_audit ✓ (بالفحوص التسعة الجديدة) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ · فحص أسرار = صفر · الوصول المجهول للمستودع مرفوض — التفصيل بworklog
+- **(273 + 271+270) HOME-PARITY-273 وHOME-REFINE-271/270 (فريمات كود):** tsc ✓ 0 · eslint ✓ 0 · vitest ✓ 100/1702 · build ✓ 2020/2020 لكل فريم (كاناري homepage-adoption أعيد تثبيته لكل هيكل) — التفاصيل بمدخلاتها بworklog
+- **(263/262/261 + 260/259/258/257/256/255/254/253/251/250) البوابات خضراء وقت كل فريم** (تفاصيلها بمدخلات worklog + LIVE-VERIF المستقلة)
