@@ -26,7 +26,8 @@ Work Log:
 Stage Summary:
 - الصفحة الرئيسية الآن واجهة منصة حقيقية: 9 أقسام موجزة ببطاقات تربط بالصفحات، صفر أدوات مضمّنة، AI Planning منفصل بصريًا ولفظيًا عن Tools، التمييز الثلاثي (Meal Planner/AI Meal Planner/Diet Plans) صريح بالشرائح والنصوص، معاينة التمارين 6 لكل مجموعة عضلية.
 - الملفات الممسوسة: src/components/views/LandingView.tsx (إعادة هيكلة كبرى) · src/lib/home-samples.ts (42 عينة) · src/lib/site-content/home.ts (السجل) · src/app/globals.css + src/styles/design-tokens.ts + src/docs/DESIGN_SYSTEM.md + README.md + STATE.md + worklog.md (هذا) · src/lib/__tests__/homepage-adoption.test.ts (إعادة كتابة).
-- البوابات كلها خضراء: tsc 0 · eslint 0 · vitest 101/1728 · build 2020/2020 · تحقق حي EN/AR + VLM نظيف — جاهزة للدفع والنشر.
+- البوابات كلها خضراء: tsc 0 · eslint 0 · vitest 101/1728 · build 2020/2020 · تحقق حي EN/AR + VLM نظيف.
+- (التسليم) كوميت 6b020b83 دُفع إلى origin/main (متزامن) — CI quality-gate + نشر Vercel التلقائي يليانه؛ SHA مسجل بهذا الكوميت التوثيقي المستقل (سابقة 281/283).
 
 ---
 Task ID: QA-PURGE-283-2026-09-27
