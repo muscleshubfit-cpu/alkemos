@@ -155,9 +155,9 @@ export function SiteFooter() {
               here — the floating widget on every page + the header's AI
               nav + the homepage EVO section carry it; the rest stays). */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "الكوتشينج والخدمات" : "Coaching & Services"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">{isAr ? "التدريب الأونلاين والخدمات" : "Coaching & Services"}</p>
             <ul className="mt-3 space-y-2 text-[13px] leading-7">
-              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "الكوتشينج" : "Coaching"}</a></li>
+              <li><a href={isAr ? "/ar/coaching" : "/coaching"} className="block py-1 hover:underline">{isAr ? "التدريب الأونلاين" : "Coaching"}</a></li>
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
               {/* §12.53 item 11 (2026-09-16): locale-aware affiliate link —
                   the AR mirror exists now. */}

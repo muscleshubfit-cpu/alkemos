@@ -34,7 +34,7 @@ const TIER_NAME_AR: Record<MembershipTier, string> = {
   free: "مجاني",
   premium: "بريميوم",
   pro: "برو",
-  coaching: "كوتشينج",
+  coaching: "التدريب الأونلاين",
 };
 
 // ===== Types =====

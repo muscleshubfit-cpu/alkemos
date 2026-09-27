@@ -125,7 +125,7 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         defaultEn:
           "The all-in-one platform for your workouts, nutrition, and exact macro targets — powered by EVO, your 24/7 AI coach who helps you and keeps adjusting your plan — in Arabic and English.",
         defaultAr:
-          "منصة متكاملة تجمع تمارينك، وتغذيتك، وحساب سعراتك بدقة — ومعها EVO، مدربك بالذكاء الاصطناعي لمساعدتك وتعديل خطتك باستمرار — بالعربية والإنجليزية.",
+          "منصة متكاملة تجمع تمارينك، وتغذيتك، وأهدافك الدقيقة من الماكروز — ومعها EVO، مدربك الذكي على مدار الساعة لمساعدتك وتعديل خطتك باستمرار — بالعربية والإنجليزية.",
       },
       {
         prop: "heroPillTraining",
@@ -163,8 +163,8 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         key: "home.tools.eyebrow",
         labelEn: "Section eyebrow chip",
         labelAr: "شريحة العنوان الصغير",
-        defaultEn: "FREE TOOLS — NO SIGNUP",
-        defaultAr: "أدوات مجانية — بدون تسجيل",
+        defaultEn: "FREE TOOLS — FREE TO TRY",
+        defaultAr: "أدوات مجانية — جرّبها فورًا",
       },
       {
         prop: "toolsTitle",
@@ -181,9 +181,9 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section paragraph",
         labelAr: "فقرة القسم",
         defaultEn:
-          "Accurate calculators that give you your numbers in seconds, the manual meal planner, and a daily water tracker — each tool opens on its own page, free with no signup.",
+          "Accurate calculators that give you your numbers in seconds, the manual meal planner, and a daily water tracker — each tool opens on its own page, free to try, no credit card required.",
         defaultAr:
-          "حاسبات دقيقة تعطيك أرقامك في ثوانٍ، ومخطط وجبات يدوي تبني فيه وجباتك بنفسك، ومتتبع يومي لشرب الماء — كل أداة تعمل في صفحتها مباشرة، مجانًا ودون أي تسجيل.",
+          "حاسبات دقيقة تعطيك أرقامك في ثوانٍ، ومخطط وجبات يدوي تبني فيه وجباتك بنفسك، ومتتبع يومي لشرب الماء — كل أداة تعمل في صفحتها مباشرة، جرّبها مجانًا ولا تحتاج إلى بطاقة ائتمانية.",
       },
       {
         prop: "toolsCta",
@@ -233,7 +233,7 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         multiline: true,
         labelEn: "Free-allowance bar text",
         labelAr: "نص شريط الرصيد المجاني",
-        defaultEn: "Every visitor carries a free monthly allowance for AI-generated plans.",
+        defaultEn: "Every visitor has a monthly free allowance for AI-generated plans.",
         defaultAr: "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط بالذكاء الاصطناعي",
       },
       {
@@ -408,7 +408,7 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         labelEn: "Section eyebrow chip",
         labelAr: "شريحة العنوان الصغير",
         defaultEn: "MEMBERSHIPS & COACHING",
-        defaultAr: "العضويات والكوتشينج",
+        defaultAr: "العضويات والتدريب الأونلاين",
       },
       {
         prop: "membershipsTitle",

@@ -599,7 +599,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
     const workoutPrograms = readFileSync("src/lib/workout-programs.ts", "utf8");
     expect(workoutPrograms).toContain('gym: { ar: "النادي الرياضي"');
     const faqJsonld = readFileSync("src/lib/faq-content.ts", "utf8");
-    expect(faqJsonld).toContain("اشتراك كوتشينج بشري منفصل يمكنك الانضمام إليه");
+    expect(faqJsonld).toContain("اشتراك تدريب أونلاين مع مدرب بشري منفصل يمكنك الانضمام إليه");
     expect(faqJsonld).toContain("coaching subscription you can join");
     // Content-strategy v1 (2026-09-20): the FAQ visible copy is DERIVED
     // from faq-content.ts (single source with the JSON-LD) — the visible

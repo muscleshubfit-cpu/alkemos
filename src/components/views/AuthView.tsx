@@ -613,8 +613,8 @@ export function AuthView({ mode, next, coach }: { mode: "login" | "signup"; next
             <div className="mt-8 border-t border-[var(--edge)] pt-6">
               <p className="text-center text-sm font-normal text-[var(--muted-foreground)]">
                 {isAr
-                  ? "مش جاهز تسجّل؟ تقدر تستخدم الأدوات والمدونة بدون حساب."
-                  : "Not ready to sign up? You can use the tools and blog without an account."}
+                  ? "جرّب الأدوات والمدونة مجانًا فورًا — لا تحتاج إلى بطاقة ائتمانية. وحسابك المجاني يحفظ خططك ونتائجك ويزامنها عبر أجهزتك."
+                  : "Try the tools and blog free, instantly — no credit card required. A free account saves your plans and results and syncs them across your devices."}
               </p>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                 <a

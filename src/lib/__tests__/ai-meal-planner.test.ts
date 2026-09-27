@@ -189,7 +189,7 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(page).toContain("useI18n");
     expect(page).toContain("meal-plan-demo");
     expect(page).toContain("ReviewInviteCard");
-    expect(page).toContain("توليدان شهرياً");
+    expect(page).toContain("توليدان شهريًا لكل زائر");
     expect(page).toContain("2 generations per month");
     const en = readFileSync(LAYOUT_EN, "utf8");
     expect(en).toContain('canonical: "https://alkemos.com/ai-meal-planner"');

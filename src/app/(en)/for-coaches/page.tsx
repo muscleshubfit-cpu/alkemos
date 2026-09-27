@@ -210,7 +210,7 @@ export default function ForCoachesPage() {
             </h2>
             <p className="mt-4 text-base leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "المدرب في Alkemos شريك لا موظف. عملاؤك على المنصة عملاؤك أنت — لا عملاء الموقع — وصلاحيات إدارتهم كلها بيدك: استبياناتهم وخططهم وتقدّمهم ودعمهم. والمساعد الذكي (EVO) يعمل في خدمة عملك مع عملائك، ولا يقدّم كوتشينج لعملاء من لدن المنصة."
+                ? "المدرب في Alkemos شريك لا موظف. عملاؤك على المنصة عملاؤك أنت — لا عملاء الموقع — وصلاحيات إدارتهم كلها بيدك: استبياناتهم وخططهم وتقدّمهم ودعمهم. والمساعد الذكي (EVO) يعمل في خدمة عملك مع عملائك، ولا يقدّم تدريبًا أونلاين لعملاء من لدن المنصة."
                 : "A coach on Alkemos is a partner, not an employee. Your clients on the platform are YOUR clients — not the site's — and every management tool is in your hands: their questionnaires, plans, progress, and support. The AI chat (EVO) works for YOUR business with YOUR clients — the site never coaches them behind your back."}
             </p>
             <ul className="mt-6 space-y-3">
@@ -232,7 +232,7 @@ export default function ForCoachesPage() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
                 {isAr
-                  ? "توليد الخطط لعميلك يسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معًا: بريميوم 4 توليدات شهريًا · برو 8 · كوتشينج 8 (ويورّث كل مزايا برو). وهو الرصيد نفسه الذي يستخدمه عميلك من EVO وصفحات المخططات؛ يتجدد في أول كل شهر، ولا يُحتسب إلا التوليد الناجح — الفاشل لا يحرق حصة. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا."
+                  ? "توليد الخطط لعميلك يسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معًا: بريميوم 4 توليدات شهريًا · برو 8 · التدريب الأونلاين 8 (ويورّث كل مزايا برو). وهو الرصيد نفسه الذي يستخدمه عميلك من EVO وصفحات المخططات؛ يتجدد في أول كل شهر، ولا يُحتسب إلا التوليد الناجح — الفاشل لا يحرق حصة. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا."
                   : "Generating a client's plans draws from his own tier's unified monthly balance — ONE pool for nutrition AND workouts combined: Premium 4 generations/month · Pro 8 · Coaching 8 (inherits every Pro benefit). It is the same pool he spends through EVO and the planner pages; it resets on the 1st, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
               </p>
             </div>

@@ -315,7 +315,7 @@ ${MARKER_NOTES}
       // the non-existent single "book a session" service the coach card
       // was corrected away from.
       prompt = isAr
-        ? `اكتب 3 دعوات لاتخاذ إجراء (CTA) مقنعة خاصة بـ Alkemos بناءً على المقال. القاعدة: اذكر منتجات Alkemos الحقيقية فقط — عضوية الكوتشينج الأونلاين الشهرية، أو مخطط الوجبات، أو الحاسبات المجانية (السعرات/الماكروز/مؤشر كتلة الجسم/نسبة الدهون/متتبع الماء)، أو برامج التدريب — وممنوع نهائيًا أي صياغة «احجز جلسة» أو «جلسة تدريب واحدة» (خدمة غير موجودة).\n\n${articleContext}\n\nأعد شكلاً حرفياً:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- ملاحظات`
+        ? `اكتب 3 دعوات لاتخاذ إجراء (CTA) مقنعة خاصة بـ Alkemos بناءً على المقال. القاعدة: اذكر منتجات Alkemos الحقيقية فقط — عضوية التدريب الأونلاين الشهرية، أو مخطط الوجبات، أو الحاسبات المجانية (السعرات/الماكروز/مؤشر كتلة الجسم/نسبة الدهون/متتبع الماء)، أو برامج التدريب — وممنوع نهائيًا أي صياغة «احجز جلسة» أو «جلسة تدريب واحدة» (خدمة غير موجودة).\n\n${articleContext}\n\nأعد شكلاً حرفياً:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- ملاحظات`
         : `Write 3 persuasive CTAs for Alkemos from this article. RULE: mention only Alkemos's REAL products — the monthly online-coaching membership, the meal planner, the free calculators (calories/macros/BMI/body-fat/water), or workout programs — NEVER a single "book a session" offer (that service does not exist).\n\n${articleContext}\n\nReply exactly:\n${MARKER_MAIN}\n1. ...\n2. ...\n3. ...\n${MARKER_NOTES}\n- notes`;
       break;
 

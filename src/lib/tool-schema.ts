@@ -116,13 +116,13 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "Five named diet presets",
         "Gram conversion at 4/4/9 kcal per gram",
         "Calorie and gram breakdown per macro",
-        "Free, instant, no signup",
+        "Free, instant results",
       ],
       ar: [
         "خمسة أنماط غذائية مسماة",
         "تحويل إلى غرامات بمعاملات 4/4/9 سعرة للغرام",
         "تفصيل السعرات والغرامات لكل مغذٍّ",
-        "مجانية وفورية وبلا تسجيل",
+        "مجانية وفورية",
       ],
     },
     crumbs: {
@@ -169,13 +169,13 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "WHO category classification",
         "Healthy weight range for your height",
         "Metric and imperial units",
-        "Instant results, no signup",
+        "Instant results",
       ],
       ar: [
         "تصنيف فئات منظمة الصحة العالمية",
         "نطاق الوزن الصحي لطولك",
         "الوحدات المترية والإمبراطورية",
-        "نتائج فورية بلا تسجيل",
+        "نتائج فورية",
       ],
     },
     crumbs: {
@@ -270,7 +270,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     name: { en: "Water Tracker", ar: "متتبع شرب الماء" },
     description: {
       en: "Free daily water tracker: sets a goal of 35 ml per kg of body weight (2–4.5 L safe range), logs cups with one tap, and keeps a seven-day history — no account needed.",
-      ar: "متتبع ماء يومي مجاني: يضبط هدفاً 35 مل لكل كجم من وزن الجسم (نطاق آمن 2–4.5 لتر)، ويسجل الأكواب بلمسة، ويحفظ تاريخاً لأسبوع — بلا حساب.",
+      ar: "متتبع ماء يومي مجاني: يضبط هدفاً 35 مل لكل كجم من وزن الجسم (نطاق آمن 2–4.5 لتر)، ويسجل الأكواب بلمسة، ويحفظ تاريخاً لأسبوع — مجانًا.",
     },
     features: {
       en: [
@@ -283,7 +283,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "هدف يومي مقيس بالوزن (35 مل/كجم)",
         "تسجيل الأكواب بلمسة ومقادير مخصصة",
         "تاريخ ترطيب سبعة أيام",
-        "يعمل في المتصفح بلا حساب",
+        "يعمل في متصفحك مباشرة",
       ],
     },
     crumbs: {
@@ -336,7 +336,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "قاعدة أطعمة قابلة للبحث بأطعمة محلية",
         "تغذية كل 100 غرام مقيسة على حصصك",
         "إجماليات ماكروز لكل وجبة وليوم",
-        "حفظ تلقائي للمسودة بلا حساب",
+        "حفظ تلقائي للمسودة أثناء العمل",
       ],
     },
     crumbs: {
@@ -379,8 +379,8 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     },
     name: { en: "AI Meal Planner", ar: "مخطط الوجبات بالذكاء الاصطناعي" },
     description: {
-      en: "Free AI meal planner trial: generate a complete day plan in grams and calories from your target, diet system, and preferences in seconds — no signup; your plan stays on your device, and a free account saves it permanently.",
-      ar: "تجربة مجانية لمخطط الوجبات بالذكاء الاصطناعي: ولّد خطة يوم كاملة بالغرامات والسعرات من رقمك ونظامك وملاحظاتك في ثوانٍ — بلا تسجيل؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
+      en: "Free AI meal planner trial: generate a complete day plan in grams and calories from your target, diet system, and preferences in seconds — free to try; your plan stays on your device, and a free account saves it permanently.",
+      ar: "تجربة مجانية لمخطط الوجبات بالذكاء الاصطناعي: ولّد خطة يوم كاملة بالغرامات والسعرات من رقمك ونظامك وملاحظاتك في ثوانٍ — مجانًا؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
     },
     features: {
       en: [
@@ -395,7 +395,7 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
         "أنظمة الموقع الأربعة (متوازن، عالي البروتين، كيتو، نباتي)",
         "ملاحظات اختيارية تُحترم في التوليد",
         "تحقق صارم من الشكل وإغلاق السعرات لكل خطة",
-        "مجاني للجميع: توليدان شهريًا لكل زائر بلا حساب",
+        "مجاني للجميع: توليدان شهريًا لكل زائر",
       ],
     },
     crumbs: {
@@ -438,8 +438,8 @@ export const TOOL_SCHEMA_DATA: Record<string, ToolSchemaData> = {
     },
     name: { en: "AI Workout Planner", ar: "مخطط التمارين بالذكاء الاصطناعي" },
     description: {
-      en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — no signup; your plan stays on your device, and a free account saves it permanently.",
-      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — بلا تسجيل؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
+      en: "Free AI workout planner trial: generate a balanced weekly split from your goal, level, training days, and equipment in seconds — free to try; your plan stays on your device, and a free account saves it permanently.",
+      ar: "تجربة مجانية لمخطط التمارين بالذكاء الاصطناعي: ولّد نظاماً تدريبياً أسبوعياً متوازناً من هدفك ومستواك وأيامك وتجهيزتك في ثوانٍ — مجانًا؛ خطتك تبقى على جهازك، والحساب المجاني يحفظها بشكل دائم.",
     },
     features: {
       en: [

@@ -15,11 +15,11 @@ export const metadata: Metadata = {
   // BRANDLESS by law: the /ar/layout template appends exactly one
   // " — Alkemos" to depth-1 titles — including a brand here would render
   // a double-brand title (the same class of bug P0-3 fixed on blog).
-  title: "الكوتشينج أونلاين — مدرب بشري يبني خططك ويتابعك أسبوعيًا",
+  title: "التدريب الأونلاين — مدرب بشري يبني خططك ويتابعك أسبوعيًا",
   description:
-    "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية مخصصة، برامج تمارين متكيفة مع مستواك، متابعة شخصية أسبوعية، ومساعد ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
+    "تدريب أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية مخصصة، برامج تمارين متكيفة مع مستواك، متابعة شخصية أسبوعية، ومساعد ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
   keywords: [
-    "كوتشينج أونلاين",
+    "التدريب الأونلاين",
     "مدرب شخصي أونلاين",
     "أخصائي تغذية أونلاين",
     "خطة تغذية مخصصة",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "مدرب لياقة معتمد",
   ],
   openGraph: {
-    title: "الكوتشينج أونلاين | Alkemos",
+    title: "التدريب الأونلاين | Alkemos",
     description:
       "خطط مخصصة من مدربين معتمدين + متابعة شخصية + مساعد ذكي على مدار الساعة.",
     type: "website",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "الكوتشينج أونلاين | Alkemos",
+    title: "التدريب الأونلاين | Alkemos",
     description:
       "خطط مخصصة من مدربين معتمدين + متابعة شخصية + مساعد ذكي على مدار الساعة.",
     images: ["/images/og/og-home-ar.png"],

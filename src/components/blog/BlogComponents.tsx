@@ -47,11 +47,11 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  <Crown className="h-6 w-6" />
  </span>
  <h3 className="mt-4 text-xl font-semibold tracking-tight md:text-2xl">
- {isAr ? "اشترك في الكوتشينج الأونلاين مع Alkemos" : "Join Alkemos Online Coaching"}
+ {isAr ? "اشترك في التدريب الأونلاين مع Alkemos" : "Join Alkemos Online Coaching"}
  </h3>
  <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
  {isAr
- ? "خطة مخصصة من مدرب معتمد — تغذية + تمارين + متابعة أسبوعية — ضمن عضوية كوتشينج شهرية مرنة تبدأ متى شئت."
+ ? "خطة مخصصة من مدرب معتمد — تغذية + تمارين + متابعة أسبوعية — ضمن عضوية تدريب أونلاين شهرية مرنة تبدأ متى شئت."
  : "A personalized plan from a certified coach — nutrition + training + weekly tracking — as a flexible monthly coaching membership."}
  </p>
  <a

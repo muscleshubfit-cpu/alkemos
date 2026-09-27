@@ -7,7 +7,7 @@ import { Resources } from "@/components/hub-head-resources";
 export const metadata: Metadata = {
   title: "Free Fitness Tools | Alkemos — Calculators, Planner & AI",
   description:
-    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators — no signup required.",
+    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators — free to try, no credit card required.",
   keywords: [
     "free fitness tools",
     "fitness calculators",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Free Fitness Tools | Alkemos",
-    description: "8 free tools: calculators, meal planner, and AI plan generators — no signup.",
+    description: "8 free tools: calculators, meal planner, and AI plan generators — free to try.",
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/tools",

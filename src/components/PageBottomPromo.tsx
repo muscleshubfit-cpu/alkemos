@@ -121,7 +121,7 @@ export function MembershipPromo({ isAr }: { isAr: boolean }) {
           href={isAr ? "/ar/coaching" : "/coaching"}
           className="rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
         >
-          {isAr ? "الكوتشينج مع مدرب بشري ›" : "Coaching with a human coach ›"}
+          {isAr ? "التدريب الأونلاين مع مدرب بشري ›" : "Coaching with a human coach ›"}
         </a>
       </div>
     </section>

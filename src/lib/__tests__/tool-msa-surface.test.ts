@@ -192,7 +192,7 @@ describe("tool-page + main-FAQ MSA surface (P2-10 §12.41)", () => {
     for (const bare of ["Premium", "Pro", "Coaching"]) {
       expect(
         corpus.includes(bare),
-        `bare tier name «${bare}» — the Arabic UI names are بريميوم/برو/كوتشينج (src/lib/memberships.ts nameAr)`,
+        `bare tier name «${bare}» — the Arabic UI names are بريميوم/برو/التدريب الأونلاين (src/lib/memberships.ts nameAr)`,
       ).toBe(false);
     }
   });

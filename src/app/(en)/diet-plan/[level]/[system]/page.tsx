@@ -245,7 +245,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
           {/* ── Free customization CTA (§12.28: AI generator first, manual planner for exact grams) ── */}
           <div className="mt-10 rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6">
             <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
-              Make it your plan — free, no account
+              Make it your plan — free
             </h2>
             <p className="mt-2 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               The plan above is drawn for {lv} calories in general; your own
@@ -254,12 +254,12 @@ export default async function DietPlanCellPageEn({ params }: Params) {
                 plan your meals with AI
               </Link>{" "}
               — enter your number, system, and preferences, and a complete day
-              plan in grams is generated for you in seconds, free for everyone
-              without an account. For exact manual control, open the{" "}
+              plan in grams is generated for you in seconds, free for everyone.
+              For exact manual control, open the{" "}
               <Link href="/meal-planner" className="font-medium underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
                 meal planner
               </Link>{" "}
-              — it works for visitors free, without any account — and enter
+              — it works for visitors, free to try — and enter
               this plan&apos;s items at your grams: the totals build live for
               each meal and for the day, and you adjust grams until your day
               lands exactly on target.

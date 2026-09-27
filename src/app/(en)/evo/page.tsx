@@ -95,8 +95,8 @@ export default function EvoPage() {
     },
     {
       icon: Sparkles,
-      titleAr: "متاح للجميع — بلا تسجيل",
-      titleEn: "Available to Everyone — No Signup",
+      titleAr: "متاح للجميع — مجانًا",
+      titleEn: "Available to Everyone — Free",
       descAr: "افتح EVO وابدأ فورًا: 10 رسائل يوميًا، ورصيد شهري موحد لتوليد خطط التغذية والتمارين (توليدان للمجاني، ويرتفع إلى 8 مع أعلى الباقات) — المشتركون يحصلون على رصيد أكبر ومزايا أعمق.",
       descEn: "Open EVO and start instantly: 10 messages/day, plus one unified monthly pool for nutrition & workout plan generation (2 on Free, up to 8 on the top tiers) — subscribers get a bigger pool and deeper features.",
       color: "#ff9500",
@@ -413,8 +413,8 @@ export default function EvoPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm font-normal text-[var(--muted-foreground)]">
             {isAr
-              ? "EVO متاح للجميع بدون تسجيل: توليد خطط التغذية والتمارين يسحب من رصيد شهري موحد واحد، والمحادثة اليومية عدّاد منفصل عنه — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق. وفي حفظ الخطط: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الاشتراك تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
-              : "EVO is available to everyone with no signup: nutrition & workout plan generation draws from ONE unified monthly pool, daily chat is a separate counter — and subscribers get a bigger pool and deeper features. On saving plans: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and a subscription adds broader management and extra benefits per plan."}
+              ? "EVO متاح للجميع: توليد خطط التغذية والتمارين يسحب من رصيد شهري موحد واحد، والمحادثة اليومية عدّاد منفصل عنه — والمشتركون يحصلون على رصيد أكبر ومزايا أعمق. وفي حفظ الخطط: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الاشتراك تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
+              : "EVO is available to everyone: nutrition & workout plan generation draws from ONE unified monthly pool, daily chat is a separate counter — and subscribers get a bigger pool and deeper features. On saving plans: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and a subscription adds broader management and extra benefits per plan."}
           </p>
 
           <div className="marble-card mt-8 overflow-hidden">
@@ -433,8 +433,8 @@ export default function EvoPage() {
               {
                 featAr: "توليد خطط AI (تغذية + تمرين من رصيد واحد)",
                 featEn: "AI plan generation (nutrition + workout, one pool)",
-                freeAr: "✓ توليدان شهريًا — بدون تسجيل",
-                freeEn: "✓ 2/month — no signup",
+                freeAr: "✓ توليدان شهريًا — لكل زائر",
+                freeEn: "✓ 2/month — for every visitor",
                 subAr: "✓ 4–8 شهريًا حسب باقتك",
                 subEn: "✓ 4–8/month by tier",
               },
@@ -527,7 +527,7 @@ export default function EvoPage() {
           </h2>
           <p className="mx-auto mt-4 max-w-md text-base font-medium text-white/80">
             {isAr
-              ? "يشمل اشتراك الكوتشينج: EVO بكل ميزاته + خطط تغذية مخصّصة + برامج تمارين + متابعة شخصية + كل أدوات المنصة. بلا أي زيادة في السعر."
+              ? "يشمل اشتراك التدريب الأونلاين: EVO بكل ميزاته + خطط تغذية مخصّصة + برامج تمارين + متابعة شخصية + كل أدوات المنصة. بلا أي زيادة في السعر."
               : "Coaching subscription includes: EVO with full features + personalized nutrition plans + workout programs + personal follow-up + all platform tools. No extra cost."}
           </p>
           <a
@@ -555,8 +555,8 @@ export default function EvoPage() {
                 href: isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner",
                 titleAr: "مخطط الوجبات بالذكاء الاصطناعي",
                 titleEn: "AI Meal Planner",
-                descAr: "ولّد خطة تغذية كاملة مجانًا وبدون تسجيل.",
-                descEn: "Generate a full nutrition plan free, no signup.",
+                descAr: "ولّد خطة تغذية كاملة — مجانًا.",
+                descEn: "Generate a full nutrition plan — free to try.",
               },
               {
                 href: isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner",
@@ -567,7 +567,7 @@ export default function EvoPage() {
               },
               {
                 href: isAr ? "/ar/coaching" : "/coaching",
-                titleAr: "كوتشينج مع مدربين بشريين",
+                titleAr: "التدريب الأونلاين مع مدربين بشريين",
                 titleEn: "Human Online Coaching",
                 descAr: "مدرب بشري يبني خططك ويتابعك أسبوعيًا.",
                 descEn: "A human coach builds your plans and checks in weekly.",
@@ -620,8 +620,8 @@ export default function EvoPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-md text-base font-medium text-[#9BA0A6]">
             {isAr
-              ? "ابدأ المحادثة الآن — بدون تسجيل. وعندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، ولكي يرافقك مدرب بشري — الكوتشينج."
-              : "Start chatting now — no signup. When your usage grows: Premium to manage your plans, Pro to adapt & optimize them, and Coaching for a human coach in your corner."}
+              ? "ابدأ المحادثة الآن — مجانًا. وعندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، ولكي يرافقك مدرب بشري — التدريب الأونلاين."
+              : "Start chatting now — free to try. When your usage grows: Premium to manage your plans, Pro to adapt & optimize them, and Coaching for a human coach in your corner."}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <button

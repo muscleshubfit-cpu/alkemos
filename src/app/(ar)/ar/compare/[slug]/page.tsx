@@ -240,7 +240,7 @@ export default async function ArabicComparisonPage({
             <Link href="/ar/exercises" className="underline underline-offset-4 hover:opacity-80">مكتبة التمارين</Link>
             <Link href="/ar/foods" className="underline underline-offset-4 hover:opacity-80">قاعدة الأطعمة</Link>
             <Link href="/ar/programs" className="underline underline-offset-4 hover:opacity-80">برامج التدريب</Link>
-            <Link href="/ar/coaching" className="underline underline-offset-4 hover:opacity-80">الكوتشينج البشري</Link>
+            <Link href="/ar/coaching" className="underline underline-offset-4 hover:opacity-80">التدريب الأونلاين</Link>
           </div>
         </section>
 

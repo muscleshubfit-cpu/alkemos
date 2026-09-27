@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 189 chars — trimmed to
   // the 158 EN budget, same funnel message, sentence ends cleanly.
   description:
-    "Generate a daily meal plan in grams and calories with AI: pick your calorie target and diet system, add preferences, get a validated plan — free, no signup.",
+    "Generate a daily meal plan in grams and calories with AI: pick your calorie target and diet system, add preferences, get a validated plan — free to try.",
   keywords: [
     "ai meal planner",
     "ai meal plan generator",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Meal Planner | Alkemos",
     description:
-      "Generate a complete day plan in grams and calories — free trial, no signup.",
+      "Generate a complete day plan in grams and calories — free trial.",
     type: "website",
     url: "https://alkemos.com/ai-meal-planner",
     // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin

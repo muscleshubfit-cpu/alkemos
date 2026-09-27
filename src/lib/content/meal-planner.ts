@@ -11,8 +11,8 @@ import type { ToolReference } from "./tool-reference";
 export const MEAL_PLANNER_CONTENT: ToolReference = {
   slug: "meal-planner",
   intro: {
-    en: "A calorie target is a number; a meal plan is breakfast you will actually eat on Tuesday. This planner bridges the two: build any number of meals, search a food database for the items on your table, set the portion in grams, and watch calories and protein total per meal and per day in real time — no spreadsheet, no account needed to start. The reference below is the complete method around the tool: why planning beats improvisation, how to structure a day of meals around your training, a fully worked example day with numbers, how to turn the plan into a grocery list, and what to do when real life — restaurants, travel, Ramadan, family dinners — collides with the plan.",
-    ar: "هدف السعرات رقمٌ؛ وخطة الوجبات فطورٌ ستأكله فعلاً يوم الثلاثاء. يجسر هذا المخطط بين الاثنين: ابنِ ما تشاء من الوجبات، وابحث في قاعدة أطعمة عن أصناف مائدتك، وحدّد الحصة بالغرامات، وشاهد السعرات والبروتين يتجمعان لكل وجبة ولكل يوم لحظياً — بلا جداول بيانات وبلا حساب لتبدأ. والمرجع أدناه هو المنهج الكامل حول الأداة: لماذا يتفوق التخطيط على الارتجال، وكيف تنظم يوم وجبات حول تدريبك، ومثال يوم مشروح بالأرقام، وكيف تحوّل الخطة لقائمة مشتريات، وماذا تفعل حين تصطدم الحياة الواقعية — المطاعم والسفر ورمضان والعزائم — بالخطة.",
+    en: "A calorie target is a number; a meal plan is breakfast you will actually eat on Tuesday. This planner bridges the two: build any number of meals, search a food database for the items on your table, set the portion in grams, and watch calories and protein total per meal and per day in real time — no spreadsheet, and you start instantly. The reference below is the complete method around the tool: why planning beats improvisation, how to structure a day of meals around your training, a fully worked example day with numbers, how to turn the plan into a grocery list, and what to do when real life — restaurants, travel, Ramadan, family dinners — collides with the plan.",
+    ar: "هدف السعرات رقمٌ؛ وخطة الوجبات فطورٌ ستأكله فعلاً يوم الثلاثاء. يجسر هذا المخطط بين الاثنين: ابنِ ما تشاء من الوجبات، وابحث في قاعدة أطعمة عن أصناف مائدتك، وحدّد الحصة بالغرامات، وشاهد السعرات والبروتين يتجمعان لكل وجبة ولكل يوم لحظياً — بلا جداول بيانات، وتبدأ فورًا. والمرجع أدناه هو المنهج الكامل حول الأداة: لماذا يتفوق التخطيط على الارتجال، وكيف تنظم يوم وجبات حول تدريبك، ومثال يوم مشروح بالأرقام، وكيف تحوّل الخطة لقائمة مشتريات، وماذا تفعل حين تصطدم الحياة الواقعية — المطاعم والسفر ورمضان والعزائم — بالخطة.",
   },
   sections: [
     {
@@ -55,8 +55,8 @@ export const MEAL_PLANNER_CONTENT: ToolReference = {
         {
           kind: "p",
           text: {
-            en: "The draft saves itself as you work — your plan survives a closed tab and is waiting when you return, with no account required for the essentials. Members unlock convenience at scale (more saved plans, deeper history), but planning a full day with live macro totals stays free, deliberately: the barrier between a visitor and a working plan should be zero.",
-            ar: "تحفظ المسودة نفسها أثناء عملك — فخطتك تنجو من تبويب مغلق وتنتظر عند عودتك، بلا حساب مطلوب للأساسيات. ويفتح الأعضاء اليسرَ على نطاق أوسع (خطط محفوظة أكثر، تاريخاً أعمق)، لكن تخطيط يوم كامل بإجماليات ماكروز حية يبقى حراً بتعمد: فالحاجز بين زائر وخطة عاملة ينبغي أن يكون صفراً.",
+            en: "The draft saves itself as you work — your plan survives a closed tab and is waiting when you return, with the essentials free by design. Members unlock convenience at scale (more saved plans, deeper history), but planning a full day with live macro totals stays free, deliberately: the barrier between a visitor and a working plan should be zero.",
+            ar: "تحفظ المسودة نفسها أثناء عملك — فخطتك تنجو من تبويب مغلق وتنتظر عند عودتك، والأساسيات مجانية دائمًا. ويفتح الأعضاء اليسرَ على نطاق أوسع (خطط محفوظة أكثر، تاريخاً أعمق)، لكن تخطيط يوم كامل بإجماليات ماكروز حية يبقى حراً بتعمد: فالحاجز بين زائر وخطة عاملة ينبغي أن يكون صفراً.",
           },
         },
       ],

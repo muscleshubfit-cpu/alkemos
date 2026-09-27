@@ -317,7 +317,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
       title: "",
       items: [
         {
-          label: isAr ? "الكوتشينج" : "Coaching",
+          label: isAr ? "التدريب الأونلاين" : "Coaching",
           icon: Users,
           href: isAr ? "/ar/coaching" : "/coaching",
         },
@@ -534,7 +534,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
     },
     {
       id: "coaching",
-      labelAr: "الكوتشينج",
+      labelAr: "التدريب الأونلاين",
       labelEn: "Coaching",
       icon: Users,
       href: isAr ? "/ar/coaching" : "/coaching",

@@ -85,7 +85,7 @@ export function jsonLd(obj: unknown): string {
  */
 const ORG_DESCRIPTIONS: Record<"en" | "ar", string> = {
   en: "The complete digital training platform: 868+ exercises with photos, 8,830+ foods with nutrition data, ready-made programs, free tools, and human coaching alongside the EVO AI engine.",
-  ar: "منصة التدريب الرقمي المتكاملة: 868+ تمرينًا، 8,830+ صنفًا غذائيًا بالقيم الغذائية، برامج جاهزة، أدوات مجانية، وكوتشينج بشري مع ذكاء اصطناعي EVO.",
+  ar: "منصة التدريب الرقمي المتكاملة: 868+ تمرينًا، 8,830+ صنفًا غذائيًا بالقيم الغذائية، برامج جاهزة، أدوات مجانية، وتدريب أونلاين مع مدرب بشري وذكاء اصطناعي EVO.",
 };
 
 export function getOrganizationSchema(lang: "en" | "ar") {
@@ -168,9 +168,9 @@ const COACHING_SERVICE_TEXT: Record<
       "Online coaching with professional coaches and nutrition specialists: personalized meal and workout plans, weekly check-ins, manual swaps by your coach, and the EVO AI assistant available around the clock.",
   },
   ar: {
-    name: "كوتشينج أونلاين — مدربون وأخصائيو تغذية",
+    name: "التدريب الأونلاين — مدربون وأخصائيو تغذية",
     description:
-      "كوتشينج أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية وتمارين مخصصة، متابعة أسبوعية، تبديلات يجريها المدرب بنفسه، ومدرّب ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
+      "تدريب أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية وتمارين مخصصة، متابعة أسبوعية، تبديلات يجريها المدرب بنفسه، ومدرّب ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
   },
 };
 

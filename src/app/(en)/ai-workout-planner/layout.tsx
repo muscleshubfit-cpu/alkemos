@@ -9,7 +9,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "AI Workout Planner | Alkemos — Free Weekly Split Generator",
   description:
-    "Generate a balanced weekly workout split with AI: pick your goal, level, training days, and equipment, add constraints, and get a validated split in seconds. Free trial, no signup.",
+    "Generate a balanced weekly workout split with AI: pick your goal, level, training days, and equipment, add constraints, and get a validated split in seconds. Free trial.",
   keywords: [
     "ai workout planner",
     "ai workout generator",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Workout Planner | Alkemos",
     description:
-      "Generate a balanced weekly split in seconds — free trial, no signup.",
+      "Generate a balanced weekly split in seconds — free trial.",
     type: "website",
     url: "https://alkemos.com/ai-workout-planner",
     // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin

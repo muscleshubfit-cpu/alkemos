@@ -497,8 +497,8 @@ function EvoCard({ isAr }: { isAr: boolean }) {
             restatement, not marketing copy). */}
         <p className="mt-2 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
           {isAr
-            ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — دون تسجيل."
-            : "Visitors get 10 messages a day with EVO — no signup."}
+            ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — جرّبه مجانًا، ولا تحتاج إلى بطاقة ائتمانية."
+            : "Visitors get 10 messages a day with EVO — free to try, no credit card required."}
         </p>
       </div>
       <div className="mt-4 flex shrink-0 flex-col items-start gap-3 md:mt-0 md:items-end">

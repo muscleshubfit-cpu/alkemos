@@ -106,9 +106,9 @@ describe("Phase 173 — coach card sells the coaching membership", () => {
   });
 
   it("the card now offers the online-coaching membership in both languages", () => {
-    expect(blogComponentsSrc).toContain("اشترك في الكوتشينج الأونلاين مع Alkemos");
+    expect(blogComponentsSrc).toContain("اشترك في التدريب الأونلاين مع Alkemos");
     expect(blogComponentsSrc).toContain("Join Alkemos Online Coaching");
-    expect(blogComponentsSrc).toContain("عضوية كوتشينج شهرية");
+    expect(blogComponentsSrc).toContain("عضوية تدريب أونلاين شهرية");
     expect(blogComponentsSrc).toContain("monthly coaching membership");
   });
 

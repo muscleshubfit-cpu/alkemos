@@ -60,7 +60,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ابدأ التجربة مجانًا — منتج حقيقي كامل، لا نسخة معطلة. ثم ارتقِ عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، وكوتشينج عندما تريد مدربًا بشريًا مع كل قوة الذكاء الاصطناعي."
+              ? "ابدأ التجربة مجانًا — منتج حقيقي كامل، لا نسخة معطلة. ثم ارتقِ عندما يكبر استخدامك: بريميوم لإدارة خططك وحفظها، وبرو لتكييفها وتحسينها، والتدريب الأونلاين عندما تريد مدربًا بشريًا مع كل قوة الذكاء الاصطناعي."
               : "Start free — the real product, not a crippled demo. Upgrade when your usage grows: Premium to manage your plans, Pro to adapt & optimize them, Coaching when you want a human coach with the full power of AI."}
           </p>
         </div>
@@ -216,8 +216,8 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
             save limits. Copy-only. */}
         <p className="mx-auto mt-8 max-w-2xl text-center text-sm font-normal text-[var(--muted-foreground)]">
           {isAr
-            ? "يمكنك تجربة توليد خطط الذكاء الاصطناعي فورًا بدون إنشاء حساب: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الباقات المدفوعة تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
-            : "You can try AI plan generation instantly — no account needed: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and paid tiers add broader management and extra benefits per plan."}
+            ? "يمكنك تجربة توليد خطط الذكاء الاصطناعي فورًا: بدون حساب تبقى خطتك على جهازك، وبحساب مجاني تُحفظ دائمًا في حسابك وتتزامن عبر أجهزتك، ومع الباقات المدفوعة تحصل على إدارة أوسع ومزايا إضافية حسب باقتك."
+            : "You can try AI plan generation instantly: no account keeps your plan on this device, a free account saves it permanently in your account & syncs it across your devices, and paid tiers add broader management and extra benefits per plan."}
         </p>
 
         {/* Refund policy banner */}
@@ -252,7 +252,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                 </div>
                 <p className="mt-3 text-sm font-normal text-[#9BA0A6]">
                   {isAr
-                    ? "كوتشينج بشري مع مدربين محترفين وأخصائيي تغذية: خطط مخصّصة، متابعة أسبوعية، وتبديلات يجريها المدرب بنفسه."
+                    ? "التدريب الأونلاين مع مدربين محترفين وأخصائيي تغذية: خطط مخصّصة، متابعة أسبوعية، وتبديلات يجريها المدرب بنفسه."
                     : "Human coaching with professional coaches and nutrition specialists: personalized plans, weekly check-ins, and swaps made by your coach."}
                 </p>
                 <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -390,16 +390,16 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
                   : "Yes, full refund within 7 days of activation, provided no paid features (plan generation, swaps, saved results) have been used.",
               },
               {
-                q: isAr ? "هل الكوتشينج مشمول في Pro؟" : "Is coaching included in Pro?",
+                q: isAr ? "هل التدريب الأونلاين مشمول في Pro؟" : "Is coaching included in Pro?",
                 a: isAr
-                  ? "لا، الكوتشينج منفصل تماماً عن العضويات: Pro يمنحك مزايا المنصة، والكوتشينج يمنحك مدربًا بشريًا يتابعك شخصيًا."
+                  ? "لا، التدريب الأونلاين منفصل تماماً عن العضويات: Pro يمنحك مزايا المنصة، والتدريب الأونلاين يمنحك مدربًا بشريًا يتابعك شخصيًا."
                   : "No, coaching is completely separate from memberships. Pro gives you platform features, coaching gives you a human coach.",
               },
               {
                 q: isAr ? "هل توجد تجربة مجانية؟" : "Is there a free trial?",
                 a: isAr
-                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا — حتى بدون تسجيل (توليدان ناجحان شهريًا لكل زائر، ويُحفظ ما تولّده بحساب مجاني). لا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
-                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly — even without an account (2 successful generations per month for every visitor; a free account saves them permanently). There is no temporary trial subscription — the Free tier is free forever.",
+                  ? "التجربة نفسها مجانية ودائمة: افتح مخطط التمارين أو مخطط الوجبات بالذكاء الاصطناعي وولّد خطتك الأولى فورًا (توليدان ناجحان شهريًا لكل زائر، ويُحفظ ما تولّده بحساب مجاني). لا يوجد اشتراك تجريبي مؤقت — الفئة المجانية مجانية للأبد."
+                  : "The trial IS the product: open the AI Workout or AI Meal Planner and generate your first plan instantly (2 successful generations per month for every visitor; a free account saves them permanently). There is no temporary trial subscription — the Free tier is free forever.",
               },
               {
                 q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?",

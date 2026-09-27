@@ -12,7 +12,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Meal Planner | Alkemos — Build Custom Meal Plans Free",
   description:
-    "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free, no signup. Export unlocks on paid tiers.",
+    "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free to try. Export unlocks on paid tiers.",
   keywords: [
     "meal planner",
     "custom meal plan",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Meal Planner | Alkemos",
     description:
-      "Build a personalized meal plan from 8,830+ foods with calories and macros — free, no signup.",
+      "Build a personalized meal plan from 8,830+ foods with calories and macros — free to try.",
     type: "website",
     url: "https://alkemos.com/meal-planner",
     // P3-10 (Phase 217, deep-audit م9): og:locale symmetry — the AR twin

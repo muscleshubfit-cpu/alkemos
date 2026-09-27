@@ -233,7 +233,7 @@ describe("ai workout planner trial (§12.32)", () => {
     expect(page).toContain("useI18n");
     expect(page).toContain("workout-plan-demo");
     expect(page).toContain("ReviewInviteCard");
-    expect(page).toContain("توليدان شهرياً");
+    expect(page).toContain("توليدان شهريًا لكل زائر");
     expect(page).toContain("2 generations per month");
     expect(page).toContain("مخطط التمارين بالذكاء الاصطناعي");
     const en = readFileSync(LAYOUT_EN, "utf8");

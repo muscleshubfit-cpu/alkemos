@@ -242,7 +242,7 @@ export default async function DietPlanCellPage({ params }: Params) {
           {/* ── Free customization CTA (the embedded tool path — §12.28: AI generator first, manual planner for exact grams) ── */}
           <div className="mt-10 rounded-3xl border border-[var(--edge)] bg-[var(--tint)] p-6">
             <h2 className="text-lg font-semibold tracking-tight text-[var(--text)]">
-              اجعلها خطتك أنت — مجاناً وبلا تسجيل
+              اجعلها خطتك أنت — مجانًا
             </h2>
             <p className="mt-2 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               الخطة أعلاه مرسومة على مقاس {lv} سعرة عموماً؛ وأرقامك أنت تستحق
@@ -251,11 +251,11 @@ export default async function DietPlanCellPage({ params }: Params) {
                 خطّط وجباتك بالذكاء الاصطناعي
               </Link>{" "}
               — أدخل رقمك ونظامك وملاحظاتك فتُولَّد لك خطة يوم كاملة بالغرامات
-              في ثوانٍ، مجاناً للجميع بلا حساب. وللتحكم اليدوي الدقيق افتح{" "}
+              في ثوانٍ، مجانًا للجميع. وللتحكم اليدوي الدقيق افتح{" "}
               <Link href="/ar/meal-planner" className="font-medium underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
                 مخطط الوجبات
               </Link>{" "}
-              — يعمل للزوار مجاناً دون أي حساب — وأدخل أصناف هذه الخطة
+              — يعمل للزوار مجانًا — وأدخل أصناف هذه الخطة
               بغراماتك، فترى الإجماليات تتجمع لحظياً لكل وجبة ولكل يوم، وعدّل
               الغرامات حتى يهبط يومك على هدفك بالضبط.
             </p>

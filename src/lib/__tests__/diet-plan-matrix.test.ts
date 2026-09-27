@@ -300,7 +300,7 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
   it("FREE CTA: every leaf links to the meal planner (no-registration path)", () => {
     const leaf = readFileSync(LEAF_FILE, "utf8");
     expect(leaf).toContain('href="/ar/meal-planner"');
-    expect(leaf).toContain("بلا تسجيل");
+    expect(leaf).toContain("مجانًا");
     expect(leaf).toContain('href="/ar/tools/calorie-calculator"');
     // Internal mesh: other systems at the same level + other levels of the
     // same system (eatthismuch-style programmatic cross-linking).
@@ -309,7 +309,7 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     // §12.27: the EN twin carries the same honest free CTA + mesh.
     const leafEn = readFileSync(LEAF_FILE_EN, "utf8");
     expect(leafEn).toContain('href="/meal-planner"');
-    expect(leafEn).toContain("without any account");
+    expect(leafEn).toContain("free to try");
     expect(leafEn).toContain('href="/tools/calorie-calculator"');
     expect(leafEn).toContain("DIET_SYSTEMS.filter");
     expect(leafEn).toContain("DIET_LEVELS.filter");

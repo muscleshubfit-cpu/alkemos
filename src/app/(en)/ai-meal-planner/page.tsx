@@ -264,12 +264,12 @@ export default function AiMealPlannerPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-base font-normal text-[var(--muted-foreground)] md:text-lg">
             {isAr
-              ? "ولّد خطة يوم كاملة بالغرامات والسعرات في ثوانٍ — مجاناً وبلا تسجيل."
-              : "Generate a complete day plan in grams and calories in seconds — free, no signup."}
+              ? "ولّد خطة يوم كاملة بالغرامات والسعرات في ثوانٍ — مجانًا فورًا."
+              : "Generate a complete day plan in grams and calories in seconds — free to try, no credit card required."}
           </p>
           <div className="seal-chip mt-4 inline-flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-[var(--muted-2)]" aria-hidden="true" />
-            {isAr ? "مجاني: توليدان شهرياً لكل زائر بلا تسجيل" : "Free: 2 generations per month per visitor, no signup"}
+            {isAr ? "مجاني: توليدان شهريًا لكل زائر" : "Free: 2 generations per month for every visitor"}
           </div>
         </div>
 
@@ -506,8 +506,8 @@ export default function AiMealPlannerPage() {
             </h2>
             <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
               {isAr
-                ? "كل زائر يحصل على توليديْن ناجحيْن شهريًا بلا حساب ولا تسجيل — والرصيد يُحسب للتوليد الناجح فقط. بإنشاء حساب مجاني تبقى خططك محفوظة في حسابك من أي جهاز؛ ومع بريميوم يرتفع الرصيد إلى 4 توليدات شهريًا (و8 مع برو) مع الحفظ والإدارة الكاملة. للتحكم اليدوي بلا أي حد، افتح مخطط الوجبات وابنِ يومك صنفاً صنفاً بإجماليات حية؛ ولتصفح جاهز فوري، مصفوفة خطط الطعام تضم 24 خطة يوم معروضة بالغرامات."
-                : "Every visitor gets 2 successful generations per month — no account, no signup, and only successful generations count. Create a free account and your plans are saved to it from any device; Premium lifts the pool to 4 generations a month (8 with Pro) with full saving and management. For manual control with no limits at all, open the meal planner and build your day item by item with live totals; for instant browsing, the diet-plan matrix holds 24 complete daily plans laid out in grams."}
+                ? "كل زائر يحصل على توليديْن ناجحيْن شهريًا من رصيده الشهري المجاني — والرصيد يُحسب للتوليد الناجح فقط. بإنشاء حساب مجاني تبقى خططك محفوظة في حسابك من أي جهاز؛ ومع بريميوم يرتفع الرصيد إلى 4 توليدات شهريًا (و8 مع برو) مع الحفظ والإدارة الكاملة. للتحكم اليدوي بلا أي حد، افتح مخطط الوجبات وابنِ يومك صنفاً صنفاً بإجماليات حية؛ ولتصفح جاهز فوري، مصفوفة خطط الطعام تضم 24 خطة يوم معروضة بالغرامات."
+                : "Every visitor gets 2 successful generations per month from a free monthly allowance — no credit card required, and only successful generations count. Create a free account and your plans are saved to it from any device; Premium lifts the pool to 4 generations a month (8 with Pro) with full saving and management. For manual control with no limits at all, open the meal planner and build your day item by item with live totals; for instant browsing, the diet-plan matrix holds 24 complete daily plans laid out in grams."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link href={isAr ? "/ar/meal-planner" : "/meal-planner"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
@@ -525,7 +525,7 @@ export default function AiMealPlannerPage() {
                 {isAr ? "مدرب EVO الذكي" : "EVO AI coach"}
               </Link>
               <Link href={isAr ? "/ar/coaching" : "/coaching"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
-                {isAr ? "كوتشينج بشري" : "Human coaching"}
+                {isAr ? "التدريب الأونلاين" : "Human coaching"}
               </Link>
             </div>
           </div>

@@ -297,7 +297,7 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     // free monthly quota is now explicitly AI-plan generation.
     // The text lives in the registry; the band renders before #plan.
     expect(readBoth()).toContain("كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط بالذكاء الاصطناعي");
-    expect(readBoth()).toContain("free monthly allowance for AI-generated plans");
+    expect(readBoth()).toContain("monthly free allowance for AI-generated plans");
     expect(readBoth()).toContain("توليد بالذكاء الاصطناعي");
     expect(readBoth()).toContain("AI GENERATION");
     const allowanceAt = src.indexOf('aria-label={isAr ? "رصيد الخطط المجاني" : "The free plan allowance"}');
@@ -306,8 +306,8 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     // The EVO card: the chat surface stays the floating widget (the
     // law) + the honest visitor quota.
     expect(src).toContain("openEvoFloatingChat");
-    expect(src).toContain("10 رسائل يوميًا مع EVO — دون تسجيل");
-    expect(src).toContain("10 messages a day with EVO — no signup");
+    expect(src).toContain("10 رسائل يوميًا مع EVO — جرّبه مجانًا، ولا تحتاج إلى بطاقة ائتمانية");
+    expect(src).toContain("10 messages a day with EVO — free to try, no credit card required");
     expect(src).not.toContain('href="/chat"');
     expect(src).not.toContain('"/chat"');
     // REGION LAW (284): the #plan region carries the AI family and NO
@@ -424,7 +424,7 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       "samples.dietSystems",
       // VRD-V8R: the memberships section keeps the eyebrow rhythm +
       // the REAL limit-derived feature rows (memberships.ts limits).
-      "العضويات والكوتشينج",
+      "العضويات والتدريب الأونلاين",
       "MEMBERSHIPS & COACHING",
       "توليدان شهريًا للخطط الذكية",
       "2 AI plans a month",

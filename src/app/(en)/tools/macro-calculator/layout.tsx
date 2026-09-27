@@ -4,7 +4,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Macro Calculator | Alkemos — Protein, Carbs & Fat in Grams",
   description:
-    "Calculate your daily macros (protein, carbs, fat) from your calorie target: five preset splits from balanced to keto, with grams per day. Free, no signup.",
+    "Calculate your daily macros (protein, carbs, fat) from your calorie target: five preset splits from balanced to keto, with grams per day. Free to try, no credit card required.",
   keywords: [
     "macro calculator",
     "macros calculator",

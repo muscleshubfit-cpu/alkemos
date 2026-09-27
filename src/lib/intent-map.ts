@@ -290,7 +290,7 @@ export const SEARCH_INTENT_MAP: SearchIntentEntry[] = [
     cluster: "ai-meal-planner",
     labelEn: "AI meal planner",
     labelAr: "مخطط الوجبات بالذكاء الاصطناعي",
-    primaryIntent: "Generate a personalized meal plan with AI (free trial, no signup).",
+    primaryIntent: "Generate a personalized meal plan with AI (free trial).",
     canonical: "/ai-meal-planner",
     supporting: ["/evo", "/diet-plan", "/meal-planner", "/tools/calorie-calculator"],
     kind: "tool",
@@ -339,7 +339,7 @@ export const SEARCH_INTENT_MAP: SearchIntentEntry[] = [
   {
     cluster: "online-coaching",
     labelEn: "Human online coaching",
-    labelAr: "الكوتشينج البشري أونلاين",
+    labelAr: "التدريب الأونلاين مع مدرب بشري",
     primaryIntent: "Get coached by a real human fitness/nutrition coach.",
     canonical: "/coaching",
     supporting: ["/evo", "/memberships", "/for-coaches", "/coaches"],
