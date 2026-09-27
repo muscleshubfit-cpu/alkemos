@@ -83,35 +83,40 @@ const FOOD_CATEGORIES: FoodCategory[] = [
 ];
 
 // ============================================================
-// HOME-PLATFORM-284 + HOME-POLISH-285 (owner orders 2026-09-27 —
-// «الصفحة الرئيسية كواجهة منصة حقيقية» ثم «تحسين أقسامها»): the
+// HOME-PLATFORM-284 + HOME-POLISH-285 + HOME-REFINE-286 (owner
+// orders 2026-09-27 — «الصفحة الرئيسية كواجهة منصة حقيقية» ثم
+// «تحسين أقسامها» ثم «التعديلات المتبقية»): the
 // embedded tool surfaces are GONE from the homepage. The homepage is a
 // true PLATFORM homepage — concise SECTIONS with CARDS that link to the
 // real pages, exactly one job per section, mirroring the header's
 // service nav:
 //
 //   SECTION ARC (top → bottom):
-//     HERO (two CTAs, unchanged) → PROOF (one row, unchanged) →
+//     HERO (two CTAs — fully STATIC since 286: no animated diagram,
+//     no entrance beats, no arrows on the CTAs) → PROOF (one row,
+//     unchanged) →
 //     #library TRAINING (the interactive muscle-group browser — the
 //     preview now answers with SIX real exercises per family) →
 //     #train PROGRAMS (the ready-made carousel, unchanged) →
 //     #eat FOOD LIBRARY (the exercise-library pattern applied to the
-//     food database: the nine category chips route into /foods?cat=…
-//     and SIX real food cards — per-100g calories + macros — each link
-//     into its food page) → #diet (the diet-systems carousel,
-//     unchanged) → #tools TOOLS (TILE PREVIEW: every free tool as its
-//     own visual card — the calculators + the water tracker + the
-//     MANUAL Meal Planner «ابنِها بنفسك» — the tools themselves live
-//     on their pages) → the free-allowance band (the honest monthly
-//     plan quota — moved BEFORE the AI section so it INTRODUCES the
-//     AI planners) → #plan AI PLANNING (TWO strong AI cards — the AI
-//     Workout Planner + the AI Meal Planner, both explicitly
-//     AI-POWERED with filled chrome CTAs; the meal card promises a
-//     STRUCTURED full-day plan with portions in grams, not mere
-//     suggestions — + EVO as the full-width AI-coach card with the
-//     openEvoFloatingChat button per the chat-surface law + the
-//     honest 10/day quota) → #learn → #memberships → #faq (a visible
-//     Q&A grid — no click-to-reveal).
+//     food database: the nine-category set — WRAPPED on every viewport,
+//     never a single scrolling row — routes into /foods?cat=… and SIX
+//     real food cards carry the SAME four-fact macro format as the
+//     /foods cards — kcal · P · C · F in the food pages' own colors —
+//     each linking into its food page) → #diet (the diet-systems
+//     carousel, unchanged) → #tools TOOLS (TILE PREVIEW: every free
+//     tool as its own visual card — the calculators + the water
+//     tracker + the MANUAL Meal Planner «ابنِها بنفسك» — the tools
+//     themselves live on their pages) → the free-allowance band
+//     (the honest monthly AI-plan quota — sits immediately BEFORE
+//     the AI section so it INTRODUCES the AI planners) → #plan AI
+//     PLANNING (TWO strong AI cards — the AI Workout Planner + the
+//     AI Meal Planner, both explicitly AI-POWERED with filled chrome
+//     CTAs; the meal card promises a STRUCTURED full-day plan with
+//     portions in grams, not mere suggestions — + EVO as the
+//     full-width AI-coach card with the openEvoFloatingChat button
+//     per the chat-surface law + the honest 10/day quota) → #learn →
+//     #memberships → #faq (a visible Q&A grid — no click-to-reveal).
 //
 // WHY (the owner's brief): a homepage should NAVIGATE the visitor
 // into the platform's real pages — the embedded calculator/builders
@@ -123,7 +128,11 @@ const FOOD_CATEGORIES: FoodCategory[] = [
 // chip list read as a footnote), the AI planners get visually stronger
 // cards with filled CTAs so smart planning never reads as «more
 // calculators», the memberships' single dark anchor is PRO, and the
-// FAQ answers are directly visible.
+// FAQ answers are directly visible. The 286 refinement completes the
+// owner's remaining orders: the exact AI-allowance wording, the four
+// labeled macro facts on every food card (homepage + /foods, same
+// colors — «استخدم نفس الألوان لا تمنعها»), the complete wrapped
+// category set, and a fully static hero.
 //
 // The laws that still hold from the 270/271/284 frames: the hero's
 // two-button directive; the compact one-row proof strip; prices
@@ -132,7 +141,7 @@ const FOOD_CATEGORIES: FoodCategory[] = [
 // FOODS_PLUS / TOOLS_COUNT); the EVO chat surface stays the floating
 // widget (openEvoFloatingChat — the EVO card's button dispatches it);
 // zero emoji; MSA-clean Arabic; motion stays once-only +
-// reduced-motion-safe.
+// reduced-motion-safe (and the hero carries NO motion at all).
 // ============================================================
 
 // ============================================================
@@ -309,10 +318,15 @@ function CountUp({
 
 // ── LandingFoodCard — one REAL food from the curated samples, in
 //    the exercise-card language (HOME-POLISH-285: the nutrition
-//    section became the Food Library preview). The card states the
-//    food's REAL per-100g numbers (server-provided — the 3.6MB foods
-//    array never crosses to the client) and links into the food's
-//    detail page. ──
+//    section became the Food Library preview). HOME-REFINE-286: the
+//    card carries the SAME four-fact macro format as the food
+//    pages' cards — Calories · Protein · Carbs · Fat, each in its
+//    own labeled cell with the food pages' OWN colors (kcal blue ·
+//    protein green · carbs orange · fat red — the owner order:
+//    «استخدم نفس الألوان لا تمنعها»), so the preview and the hub
+//    read as ONE surface. Values stay the REAL server-provided
+//    per-100g numbers (the 3.6MB foods array never crosses to the
+//    client) and the card links into the food's detail page. ──
 function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }) {
   const name = isAr ? food.nameAr : food.nameEn;
   return (
@@ -326,17 +340,28 @@ function LandingFoodCard({ food, isAr }: { food: HomeFoodSample; isAr: boolean }
       <h3 className="mt-1 text-base font-semibold leading-tight tracking-tight" style={{ color: PALETTE.textPrim }}>
         {name}
       </h3>
-      {/* The two REAL per-100g facts a food browser always wants
-          first: the calories and the protein/carbs/fat triple. */}
-      <p className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs font-medium" style={{ color: PALETTE.textSec }}>
-        <span className="whitespace-nowrap">
-          <span className="font-semibold" style={{ color: PALETTE.textPrim }}>{food.calories}</span>
-          {isAr ? " سعرة / 100 جم" : " kcal / 100 g"}
-        </span>
-        <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-        <span dir="ltr" className="whitespace-nowrap">
-          P {food.protein} · C {food.carbs} · F {food.fat}
-        </span>
+      {/* The four REAL per-100g facts — the SAME labeled, colored
+          cell format the /foods cards + the food detail page use. */}
+      <div className="mt-2.5 grid grid-cols-2 gap-1">
+        <div className="rounded bg-white px-1.5 py-1 text-center">
+          <p className="text-xs font-semibold leading-tight text-[#0071e3]">{food.calories}</p>
+          <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "سعرة" : "kcal"}</p>
+        </div>
+        <div className="rounded bg-white px-1.5 py-1 text-center">
+          <p className="text-xs font-semibold leading-tight text-[#34c759]">{isAr ? `${food.protein} جم` : `${food.protein}g`}</p>
+          <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "بروتين" : "Protein"}</p>
+        </div>
+        <div className="rounded bg-white px-1.5 py-1 text-center">
+          <p className="text-xs font-semibold leading-tight text-[#ff9500]">{isAr ? `${food.carbs} جم` : `${food.carbs}g`}</p>
+          <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "كربوهيدرات" : "Carbs"}</p>
+        </div>
+        <div className="rounded bg-white px-1.5 py-1 text-center">
+          <p className="text-xs font-semibold leading-tight text-[#ff3b30]">{isAr ? `${food.fat} جم` : `${food.fat}g`}</p>
+          <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "دهون" : "Fat"}</p>
+        </div>
+      </div>
+      <p className="mt-1.5 text-[10px] font-normal" style={{ color: PALETTE.textMuted }}>
+        {isAr ? "القيم لكل 100 جم" : "Values per 100 g"}
       </p>
       <p className="chrome-text mt-3 text-xs font-semibold">{isAr ? "اعرض الصنف ›" : "View food ›"}</p>
     </a>
@@ -1084,20 +1109,13 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
             {c.heroSubtitle}
           </p>
 
-          {/* VRD-V8 — the platform CONVERGENCE (V8-1 + V8-2): the trio
-              graduates from static chips to a visual product story.
-              The glass pills keep their semantic row, and beneath them
-              three chrome streams flow down into ONE platform node —
-              Training + Nutrition visibly feed the smart-planning
-              core, so «one integrated platform» reads in seconds.
-              Source idea: 21st.dev/MagicUI «Animated Beam», re-authored
-              internally as a fixed symmetric SVG with a pathLength=100
-              dash pulse (zero deps, zero JS; direction-symmetric by
-              construction — no RTL flip needed; reduced-motion freezes
-              to the static wire). STILL a semantic non-interactive
-              list: the two-button law stays exact — hover is styling,
-              never navigation, and the diagram is aria-hidden. */}
-          <div className="platform-trio mt-4 md:mt-5">
+          {/* HOME-REFINE-286 (owner order 2026-09-27): the hero is
+              fully STATIC — the animated convergence diagram
+              (.trio-flow — traveling pulses + breathing node) and the
+              CTA chevron arrows are RETIRED. The three glass pills
+              stay as the plain semantic pillar list (the two-button
+              law holds; hover is styling, never navigation). */}
+          <div className="mt-4 md:mt-5">
             <ul
               className="flex flex-wrap items-center justify-center gap-2 md:gap-3"
               aria-label={isAr ? "أعمدة المنصة" : "The platform pillars"}
@@ -1115,25 +1133,6 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
                 {c.heroPillPlanning}
               </li>
             </ul>
-            <div className="trio-flow" aria-hidden="true">
-              <svg className="trio-svg" viewBox="0 0 360 64" fill="none" focusable="false">
-                {/* The static wire — three quiet streams into the node */}
-                <path className="trio-base" d="M46 4 Q46 40 180 56" />
-                <path className="trio-base" d="M180 4 V56" />
-                <path className="trio-base" d="M314 4 Q314 40 180 56" />
-                {/* The traveling pulses (comet dashes, staggered) */}
-                <path className="trio-pulse trio-pulse--1" d="M46 4 Q46 40 180 56" pathLength={100} />
-                <path className="trio-pulse trio-pulse--2" d="M180 4 V56" pathLength={100} />
-                <path className="trio-pulse trio-pulse--3" d="M314 4 Q314 40 180 56" pathLength={100} />
-                {/* The convergence node — glass plate + core + halo */}
-                <circle className="trio-node-disc" cx="180" cy="56" r="13" />
-                <circle className="trio-node-halo" cx="180" cy="56" r="12" />
-                <circle className="trio-node-core" cx="180" cy="56" r="4.5" />
-              </svg>
-              <span className="trio-node-label tracking-[0.18em] rtl:tracking-normal">
-                {c.heroNode}
-              </span>
-            </div>
           </div>
 
           {/* The two-button pair (R1). */}
@@ -1142,28 +1141,24 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
               <>
                 <a href={memberHref} className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                   {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
-                  <span className="chev rtl:rotate-180">›</span>
                 </a>
                 <a
                   href={isAr ? "/ar/memberships" : "/memberships"}
                   className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
                   {isAr ? "العضويات المميزة" : "Premium memberships"}
-                  <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </>
             ) : (
               <>
                 <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
                   {isAr ? "تسجيل الدخول / حساب جديد" : "Log in / Sign up"}
-                  <span className="chev rtl:rotate-180">›</span>
                 </a>
                 <a
                   href={isAr ? "/ar/memberships" : "/memberships"}
                   className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
                 >
                   {isAr ? "العضويات المميزة" : "Premium memberships"}
-                  <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
                 </a>
               </>
             )}
@@ -1265,13 +1260,14 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
         </div>
       </section>
 
-      {/* ===================== 5. FOOD LIBRARY — the /foods preview (HOME-POLISH-285) =====================
+      {/* ===================== 5. FOOD LIBRARY — the /foods preview (HOME-POLISH-285 + HOME-REFINE-286) =====================
           The owner directive: the nutrition section becomes a proper
-          FOOD LIBRARY preview, matching the Exercise Library pattern.
-          The nine category chips (the foods-shared vocabulary, each
-          with the hub's own category image) route into the hub's
-          filtered views; SIX real curated food cards — each stating
-          its REAL per-100g calories + macros — link into the food's
+          FOOD LIBRARY preview, matching the Exercise Library pattern —
+          then 286 sharpened it: the COMPLETE nine-category set renders
+          WRAPPED at every viewport (never one scrolling row), and the
+          SIX real curated food cards carry the SAME four-fact macro
+          format as the /foods cards (kcal · P · C · F — labeled cells
+          in the food pages' own colors), each linking into the food's
           detail page; the 8,830+ database context rides FOODS_PLUS.
           The Meal Planner and the ready-made diet plans own their
           surfaces elsewhere (the tools section below + the #diet
@@ -1290,14 +1286,18 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
               {c.eatBody}
             </p>
           </Reveal>
-          {/* The category chips — the SAME hub vocabulary, each routing
-              into the /foods filtered view (real crawlable links). */}
+          {/* The category chips — the SAME hub vocabulary (the complete
+              nine-category set), each routing into the /foods filtered
+              view (real crawlable links). HOME-REFINE-286 (owner
+              order): the set renders as a WRAPPED multi-row grid at
+              EVERY viewport — never a single horizontal scrolling
+              row — so the complete category set is always visible. */}
           <Reveal delay={40}>
             <div className="mt-8 md:mt-10">
               <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
                 {isAr ? "اختر فئة" : "Pick a category"}
               </p>
-              <div className="chips-row mt-3">
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 {FOOD_CATEGORIES.map((cat) => {
                   const label = isAr ? FOOD_CATEGORY_LABELS[cat].ar : FOOD_CATEGORY_LABELS[cat].en;
                   return (

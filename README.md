@@ -4,7 +4,7 @@
 > **Stack:** Next.js 16 · React 19 · TypeScript · Supabase · Tailwind CSS 4 · OpenRouter + Groq + NVIDIA NIM (AI) · Vercel
 > **Quality:** every push is audited by automated CI gates — types, lint, tests, schema-drift, docs parity, anti-regression
 > **Status:** in production · current live status: [`STATE.md`](./STATE.md)
-> **Last updated:** 2026-09-27 (Ph 285 — HOME-POLISH-285: the platform-homepage section rewritten for the food-library preview, tool tiles, allowance band, stronger AI cards, PRO dark anchor, and the visible FAQ grid)
+> **Last updated:** 2026-09-27 (Ph 286 — HOME-REFINE-286: the exact AI-allowance wording, four-fact colored macro cells on every food card (homepage + /foods), the complete wrapped category set, and a fully static hero)
 
 Alkemos is a bilingual (English + full Arabic RTL mirror) fitness and nutrition
 platform that unifies training, nutrition, and AI planning in one product:
@@ -24,13 +24,17 @@ confidential**, accessible only to owner-authorized collaborators
 ### The platform homepage (`src/components/views/LandingView.tsx`)
 The homepage is a true PLATFORM homepage — concise sections with CARDS
 that link to the real pages, mirroring the header's service nav
-(HOME-PLATFORM-284, polished by HOME-POLISH-285): a Training section
+(HOME-PLATFORM-284, polished by HOME-POLISH-285, refined by
+HOME-REFINE-286): a Training section
 (the muscle-group browser previewing SIX real exercises per family,
 fed by the server-provided curated samples), a Programs carousel, a
 FOOD LIBRARY section previewing the `/foods` hub the same way the
-exercise library is previewed (the nine category chips route into
+exercise library is previewed (the complete nine-category set,
+WRAPPED at every viewport — never a single scrolling row — routes into
 `/foods?cat=…` filtered views; SIX real curated food cards — each
-stating its real per-100g calories and macros — link into the food
+carrying the SAME four-fact labeled macro cells as the `/foods` cards
+(calories · protein · carbs · fat, in the food pages' own colors) —
+link into the food
 detail pages), the diet-systems carousel, a Tools section of VISUAL
 TILES (the five calculators/tracker PLUS the manual Meal Planner
 «ابنِها بنفسك», every tile linking to its tool page — the tools
@@ -54,7 +58,9 @@ clear visible CTA (`.btn-outline` on the light cards,
 `.btn-outline-dark` on the dark Pro card), plus one online-coaching
 card. The FAQ closes the page as a directly-visible grid of Q&A
 cards (no accordion). Motion is once-only, transform/opacity-only,
-and fully `prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2).
+and fully `prefers-reduced-motion`-safe (DESIGN.md §7.1.2/§7.4.2) —
+and the HERO is fully static (HOME-REFINE-286: no animated diagram,
+no entrance beats, no arrows on its CTAs).
 
 ### Free content & tools — no account needed
 - **Exercise library** — 868 exercises with start/end position images

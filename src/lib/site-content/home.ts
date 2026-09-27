@@ -49,7 +49,6 @@ export type HomeCopy = {
   heroPillTraining: string;
   heroPillNutrition: string;
   heroPillPlanning: string;
-  heroNode: string;
   libraryTitle: string;
   libraryBody: string;
   trainEyebrow: string;
@@ -152,14 +151,6 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         defaultEn: "Smart Planning",
         defaultAr: "التخطيط الذكي",
       },
-      {
-        prop: "heroNode",
-        key: "home.hero.node",
-        labelEn: "Convergence node label",
-        labelAr: "تسمية عقدة التقارب",
-        defaultEn: "ONE PLATFORM",
-        defaultAr: "منصة واحدة",
-      },
     ],
   },
   {
@@ -242,8 +233,8 @@ export const HOME_COPY_GROUPS: HomeCopyGroup[] = [
         multiline: true,
         labelEn: "Free-allowance bar text",
         labelAr: "نص شريط الرصيد المجاني",
-        defaultEn: "Every visitor carries a free monthly plan allowance — no signup.",
-        defaultAr: "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط — دون تسجيل.",
+        defaultEn: "Every visitor carries a free monthly allowance for AI-generated plans.",
+        defaultAr: "كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط بالذكاء الاصطناعي",
       },
       {
         prop: "planAllowanceChip",

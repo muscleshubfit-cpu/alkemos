@@ -293,9 +293,11 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     expect(copy).toContain("AI PLANNING");
     // THE ALLOWANCE BAND (HOME-POLISH-285: moved from AFTER the EVO card
     // to IMMEDIATELY BEFORE the section — it introduces the AI planners).
+    // HOME-REFINE-286: the owner dictated the EXACT new wording — the
+    // free monthly quota is now explicitly AI-plan generation.
     // The text lives in the registry; the band renders before #plan.
-    expect(readBoth()).toContain("رصيدًا شهريًا مجانيًا لتوليد الخطط");
-    expect(readBoth()).toContain("free monthly plan allowance");
+    expect(readBoth()).toContain("كل زائر يملك رصيدًا شهريًا مجانيًا لتوليد الخطط بالذكاء الاصطناعي");
+    expect(readBoth()).toContain("free monthly allowance for AI-generated plans");
     expect(readBoth()).toContain("توليد بالذكاء الاصطناعي");
     expect(readBoth()).toContain("AI GENERATION");
     const allowanceAt = src.indexOf('aria-label={isAr ? "رصيد الخطط المجاني" : "The free plan allowance"}');
@@ -725,13 +727,29 @@ describe("HOME-PLATFORM-284 — density, CTA & card contract", () => {
     }
   });
 
-  // VRD-V8R — the monochrome identity on marketing surfaces: the
-  // legacy green/orange value accents stay dead (DESIGN.md §10.3 —
-  // #34c759 must never appear on a marketing surface).
-  it("food surfaces: legacy accent colors stay dead, mono ramp rules", () => {
+  // VRD-V8R → HOME-REFINE-286 (owner order «استخدم نفس الألوان لا
+  // تمنعها»): the legacy green/orange value accents stayed dead on
+  // marketing surfaces UNTIL the owner ordered the homepage Food
+  // Library preview to ride the SAME four-fact macro format as the
+  // /foods cards — kcal blue · protein green · carbs orange · fat
+  // red. The exception is PINNED to exactly the LandingFoodCard macro
+  // cells: each accent appears EXACTLY ONCE in the view (inside the
+  // food card); everywhere else the mono-ramp law still holds.
+  it("food surfaces: mono ramp holds EXCEPT the owner-ordered food-card macro cells", () => {
     const src = readFileSync(LANDING, "utf8");
-    expect(src).not.toContain("text-[#34c759]");
-    expect(src).not.toContain("text-[#ff9500]");
+    // Exactly one occurrence of each macro accent — the four labeled
+    // per-100g cells of LandingFoodCard and nothing else.
+    expect(src.match(/text-\[#0071e3\]/g)?.length).toBe(1);
+    expect(src.match(/text-\[#34c759\]/g)?.length).toBe(1);
+    expect(src.match(/text-\[#ff9500\]/g)?.length).toBe(1);
+    expect(src.match(/text-\[#ff3b30\]/g)?.length).toBe(1);
+    // …and those cells live inside LandingFoodCard (the food-library
+    // preview card), not on any other homepage surface.
+    const foodCard = src.slice(src.indexOf("function LandingFoodCard"), src.indexOf("function ToolTile"));
+    expect(foodCard).toContain("text-[#0071e3]");
+    expect(foodCard).toContain("text-[#34c759]");
+    expect(foodCard).toContain("text-[#ff9500]");
+    expect(foodCard).toContain("text-[#ff3b30]");
   });
 
   // VRD-V8R — the tint bands carry the hairline frame language: the
@@ -988,10 +1006,10 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     expect(reduced.join("\n")).toContain(".chev { transition: none; }");
     // Opt-in scope: every .chev span in the view is a pill-CTA chevron
-    // (the 285 frame: the two hero CTAs ×2 + the five browse-all CTAs
-    // (library/eat/train/diet/tools) + the blog CTA + the three tier
-    // CTAs + the AiCard CTA — fourteen in all).
-    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(14);
+    // (the 286 frame: the hero CTAs went arrow-free with the static-hero
+    // order — the five browse-all CTAs (library/eat/train/diet/tools) +
+    // the blog CTA + the three tier CTAs + the AiCard CTA — ten in all).
+    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
     expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
   });
 

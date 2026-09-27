@@ -15,13 +15,13 @@
 
 | File | Role | Status | Last updated | Law-ref |
 |---|---|---|---|---|
-| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-24 (Ph 274) | §3.6/§3.8 |
+| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286 entry; history compressed to hold the 100-line/32KB caps) | §3.6/§3.8 |
 | `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-24 (Ph 274 — §1 visibility law: PRIVATE · §12.5.2 archive pointer) | §1–§12.10 |
-| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-24 (Ph 274 — 273 entry relocated to top + dated; undated-ID escape closed by docs_audit) | §12.5.1 |
-| `README.md` | Front door + feature law surface | LIVE | 2026-09-27 (Ph 285 — HOME-POLISH-285: platform-homepage section rewritten — food library · tool tiles · AI cards · PRO anchor · FAQ grid) | §3.8 |
+| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286 entry logged) | §12.5.1 |
+| `README.md` | Front door + feature law surface | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286: exact allowance wording · four-fact colored macro cells · wrapped category set · static hero) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
-| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-26 (Ph 280 — TPL-REF-280: §5 +`.chev`/`.ghost-num` recipes + §7.1.1/§7.4/§7.4.1 template-reference notes — selective visual integration on the rolled-back 278 tree) | — |
+| `DESIGN.md` | Design system — binding UI/UX reference | LIVE | 2026-09-27 (Ph 286 — §10.3: the owner-ordered food-card macro-color exception documented) | — |
 | `CONTRIBUTING.md` | Contribution policy (static) | LIVE | 2026-09-05 | §12.5 exception |
 | `CHANGELOG.md` | Pointer to per-phase tracking (STATE/worklog) | LIVE | 2026-09-19 (filled Ph 233 — Phase-111 order honored) | §12.5 exception |
 | `archive/PROGRESS.md` + `archive/QA_CHECKLIST.md` | Phase-115 merged status files, verbatim | FROZEN (docs_audit J guards zero commits since 2026-09-16) | — | §3.8 |

@@ -588,7 +588,13 @@ Before any UI change ships:
 3. **No legacy accent colors** — `#0071e3`, `#34c759`, `#8b5cf6` and the
    indigo `rgba(99,102,241)` family must not appear on hub/marketing
    surfaces (grep the diff; `--ai` cyan and owner artwork are the only
-   exemptions).
+   exemptions). **HOME-REFINE-286 owner-ordered exception:** the
+   homepage Food Library preview's four per-100g macro cells
+   (LandingFoodCard — kcal blue `#0071e3` · protein green `#34c759` ·
+   carbs orange `#ff9500` · fat red `#ff3b30`) ride the SAME labeled,
+   colored format as the /foods cards and the food detail page
+   («استخدم نفس الألوان لا تمنعها») — pinned by
+   homepage-adoption.test.ts to exactly those cells.
 4. **Contrast matrix** — `python3 scripts/v1_contrast_matrix.py` must be
    green (text ≥4.5:1, chrome stops ≥4.5:1, focus ring ≥3:1, alternation
    ΔL* ≥2.8, cookie-glass worst case) in BOTH modes.

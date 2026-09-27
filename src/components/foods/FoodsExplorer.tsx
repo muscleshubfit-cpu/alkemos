@@ -221,17 +221,29 @@ export function FoodsExplorer({
                     <h3 className="mt-1 text-sm font-semibold tracking-tight">
                       {isAr ? food.nameAr : food.nameEn}
                     </h3>
-                    {/* Macros per 100g */}
-                    <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-normal">
-                      <div className="rounded bg-white px-1 py-0.5 text-center">
-                        <span className="font-semibold text-[var(--text)]">{food.per100g.calories}</span>
-                        <span className="text-[var(--muted-foreground)]">{isAr ? " كالوري" : " kcal"}</span>
+                    {/* Macros per 100g — HOME-REFINE-286 (owner order):
+                        all FOUR facts clearly labeled (Calories ·
+                        Protein · Carbs · Fat) in the food detail
+                        page's own color convention (kcal blue ·
+                        protein green · carbs orange · fat red) — the
+                        homepage's Food Library preview rides the SAME
+                        format. Real database values, nothing invented. */}
+                    <div className="mt-2 grid grid-cols-2 gap-1">
+                      <div className="rounded bg-white px-1.5 py-1 text-center">
+                        <p className="text-xs font-semibold leading-tight text-[#0071e3]">{food.per100g.calories}</p>
+                        <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "سعرة" : "kcal"}</p>
                       </div>
-                      <div className="rounded bg-white px-1 py-0.5 text-center">
-                        <span className="font-semibold text-[#34c759]">{isAr ? `${food.per100g.protein} جم` : `${food.per100g.protein}g`}</span>
+                      <div className="rounded bg-white px-1.5 py-1 text-center">
+                        <p className="text-xs font-semibold leading-tight text-[#34c759]">{isAr ? `${food.per100g.protein} جم` : `${food.per100g.protein}g`}</p>
+                        <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "بروتين" : "Protein"}</p>
                       </div>
-                      <div className="rounded bg-white px-1 py-0.5 text-center">
-                        <span className="font-semibold text-[#ff9500]">{isAr ? `${food.per100g.carbs} جم` : `${food.per100g.carbs}g`}</span>
+                      <div className="rounded bg-white px-1.5 py-1 text-center">
+                        <p className="text-xs font-semibold leading-tight text-[#ff9500]">{isAr ? `${food.per100g.carbs} جم` : `${food.per100g.carbs}g`}</p>
+                        <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "كربوهيدرات" : "Carbs"}</p>
+                      </div>
+                      <div className="rounded bg-white px-1.5 py-1 text-center">
+                        <p className="text-xs font-semibold leading-tight text-[#ff3b30]">{isAr ? `${food.per100g.fat} جم` : `${food.per100g.fat}g`}</p>
+                        <p className="text-[9px] font-normal leading-tight text-[var(--muted-foreground)]">{isAr ? "دهون" : "Fat"}</p>
                       </div>
                     </div>
                   </div>
