@@ -28,7 +28,7 @@ Stage Summary:
 - الملفات الممسوسة: src/lib/site-content/home.ts (النص الحرفي + إزالة heroNode) · src/components/views/LandingView.tsx (الهيرو الساكن + بطاقة الطعام + الفئات الملتفة + التعليقات) · src/components/foods/FoodsExplorer.tsx (الخلايا الأربع) · src/app/globals.css (نظافة trio الميتة) · src/lib/__tests__/homepage-adoption.test.ts (الكاناريات الثلاثة) · README.md · DESIGN.md · STATE.md · docs/README.md · worklog.md (هذا).
 - صفر مساس: المنطق/الأسعار/الحدود/APIs/المسارات/القاعدة/الأطر المكتملة (284/285 بقيت كما هي — تغيّر فقط ما أمر به المالك صراحة).
 - البوابات خضراء: tsc 0 · eslint 0 · vitest 101/1729 · build 2020/2020 · تحقق حي EN/AR نظيف.
-- (التسليم) يلي هذا المدخل كوميت feat على main → نشر Vercel التلقائي؛ SHA يسجل بكوميت توثيقي مستقل (سابقة 281/283/284/285).
+- (التسليم) كوميت feat **1327c6f** دُفع إلى origin/main (e4954f7..1327c6f) · **Vercel: success** · تحقق حي EN/AR: نص الرصيد الحرفي فوق #plan، هيرو ساكن، 9 فئات ملتفة، 6 بطاقات بأربع خلايا ملونة، /foods بالخلايا الأربع ×EN/AR — SHA مسجل بهذا الكوميت التوثيقي المستقل (سابقة 281/283/284/285).
 
 ---
 Task ID: HOME-POLISH-285-2026-09-27
