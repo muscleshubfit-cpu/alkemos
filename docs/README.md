@@ -15,9 +15,9 @@
 
 | File | Role | Status | Last updated | Law-ref |
 |---|---|---|---|---|
-| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286 entry; history compressed to hold the 100-line/32KB caps) | §3.6/§3.8 |
+| `STATE.md` | Living status — FIRST file of every session | LIVE | 2026-09-28 (Ph 287 — ARCH-REMEDIATION-287 pointer: remediation session opened per the architecture audit; history rows still pending P1-3 relocation) | §3.6/§3.8 |
 | `AGENTS.md` | Binding law for every agent | LIVE | 2026-09-24 (Ph 274 — §1 visibility law: PRIVATE · §12.5.2 archive pointer) | §1–§12.10 |
-| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286 entry logged) | §12.5.1 |
+| `worklog.md` | Task log — active window (top-12 + rolling date buffer), newest on top; full history in the archive | LIVE | 2026-09-28 (Ph 287 — ARCH-REMEDIATION-287 entry logged; rotation to the hard cap lands with P1-1) | §12.5.1 |
 | `README.md` | Front door + feature law surface | LIVE | 2026-09-27 (Ph 286 — HOME-REFINE-286: exact allowance wording · four-fact colored macro cells · wrapped category set · static hero) | §3.8 |
 | `DEVELOPER_GUIDE.md` | Onboarding + architecture | LIVE | 2026-09-24 (Ph 274 — five stale sections → single-source referrals · route-group tree · 7-element header) | — |
 | `SECURITY.md` | Security policy | LIVE | 2026-09-24 (Ph 274 — private-codebase threat model · cache table from vercel.json · is_coach v2 · demo email) | §7 |
@@ -31,7 +31,8 @@
 
 | File | Role | Status | Last updated |
 |---|---|---|---|
-| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-27 (Ph 283 — QA-PURGE-283: إصلاح تاريخ TECH_REFERENCE المتأخر من 281 + تحديث هذا الصف) |
+| `docs/README.md` (this file) | Documentation lifecycle registry | LIVE | 2026-09-28 (Ph 287 — ARCH-REMEDIATION P0: صف تقرير تدقيق المعمارية 2026-09-28 + تحديث هذا الصف) |
+| `docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md` | Repository architecture audit — documentation·testing·validation·Git·CI: verified facts (A1–A6) + root-cause map (RC-1..RC-7) + the minimum architecture (Part C) + remediation plan P0–P4 — the AUTHORITATIVE SPEC for the remediation session | LIVE (ACTIVE — authoritative reference; flips to EXECUTED when the remediation lands, per its Lifecycle-status line) | 2026-09-28 |
 | `docs/TECH_REFERENCE.md` | Deep technical reference (Supabase/RLS/migrations/storage) | LIVE | 2026-09-26 (SITE-CONTENT-281: §1.4 صف site_content — أُصلح تاريخه المتأخر بفريم 283) |
 | `src/docs/DESIGN_SYSTEM.md` | Design-system implementation reference (owner-directed VRD-V6 mirror; typed registry at `src/styles/design-tokens.ts`) | LIVE | 2026-09-27 (Ph 285 — HOME-POLISH-285: +`.btn-outline-dark` recipe row + the 12-step homepage page-recipe order: food library · tool tiles · allowance band · strong AI cards · PRO dark anchor · visible FAQ grid) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE | 2026-09-24 (Ph 274 — تحصين III: workflow table completed to all 18 + vercel-cleanup hourly cadence + 9 new anti-drift checks) |

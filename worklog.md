@@ -6,6 +6,23 @@
 > guarded by the derived tail invariant — `scripts/docs_audit.py` H-check.
 
 ---
+Task ID: ARCH-REMEDIATION-287-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ خطة الإصلاح الكاملة بتقرير تدقيق المعمارية docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md (المرجع الحاكم)؛ هذا الفريم = P0 فقط: (P0-1) إصلاح البوابة الحمراء check I بترويسة DESIGN.md · (P0-3) تسجيل التقرير بالسجل + هذا المدخل + مؤشر STATE (التزامات أرجئها أمر التدقيق المقيد بالقراءة فقط) · (P0-2) فحوصات إلزامية على main · (P0-4) حذف الفروع الثلاثة المدمجة.
+
+Work Log:
+- (القانون) STATE.md أول الجلسة + git fetch — SYNCED على c43f7335 + قراءة كاملة للتقرير الحاكم (292 سطرًا) وAGENTS.md وdocs/README.md وscripts/docs_audit.py (العائلات العشرون) وتوثيق البوابات — صفر مساس بالكود/الواجهة/المنطق/API/القاعدة/SEO.
+- (P0-1) DESIGN.md ترويسة «Last updated» من 2026-09-26 إلى 2026-09-27 (المرحلة 286 — §10.3 استثناء ألوان الماكرو؛ سطر 280 القديم أنزل «Last updated (280)» بنمط 278/277 القائم) — إعادة تشغيل docs_audit محليًا: صفر مخالفات (كانت I/last-updated-truth حمراء).
+- (P0-3) docs/README.md: صف جديد للتقرير (LIVE/ACTIVE — المرجع الحاكم لجلسة التنفيذ؛ ينقلب EXECUTED عند هبوط الإصلاح) + تحديث صف السجل ذاته وصفّي STATE/worklog إلى 2026-09-28.
+- (P0-3) STATE.md: المؤشر إلى المرحلة 287 (تفاصيلها بمدخلها) مع ضغط صفَّي 238+239 و234–237 التاريخيين للبقاء داخل سقف 100 سطر/32KB (سابقة 286) — إعادة الهيكلة الكاملة (سقف ≤2 صف مرحلة) تبقى لبند P1-3 كما خطط التقرير.
+- (P0-2) حماية فرع main عبر GitHub API (توكن المالك — صلاحية admin مؤكدة): required status checks بالأسماء الحية الأربعة (quality · parity · guard · Supabase Preview) · enforce_admins=false («Do not allow bypassing» = OFF بموجب تفضيل المالك — مساره السريع محفوظ) · ممنوع force-push/الحذف.
+- (P0-4) حذف الفروع الثلاثة المدمجة الموثقة بالتقرير §A4 (docs/audit-reports-delivery · fix/perf-audit-2026-09-05 · perf/vercel-usage-phase3) — أمر المالك بتنفيذ الخطة كاملة هو التأكيد؛ الوسمان التاريخيان بقيا ( markers صفرية التكلفة بقرار المالك).
+- (التحقق الموحد للفريم التوثيقي — سابقة 223/283) docs_parity ✓ · docs_audit ✓ (صفر مخالفات بعد إصلاح I) · migration_audit ✓ صفر انجراف جديد · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (فريم صفر كود).
+
+Stage Summary:
+- البوابة الحمراء أُصلحت (check I أخضر) والتقرير الحاكم مسجل بالسجل وworklog وSTATE، وmain محمية بفحوصات إلزامية، والفروع الثلاثة المدمجة حُذفت — P0 مكتمل.
+- Commit SHA: c43f7335 (تقرير التدقيق المسجل بهذا الفريم) · هذا الفريم نفسه يُدفع بكوميت واحد — SHA الذاتي بروفينانس اختياري بعد الدفع (git log هو السجل؛ حلقة RC-1 يعتقليها P1-2 بالفريم التالي).
+- Push status: pushed
 ---
 Task ID: HOME-REFINE-286-2026-09-27
 Agent: Implementation Agent
