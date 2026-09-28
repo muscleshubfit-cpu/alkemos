@@ -1,0 +1,244 @@
+{
+ "_comment": "CONTENT-AUDIT-REMEDIATION §4 (2026-09-28) — curated DB patches. Each `find` was validated to occur EXACTLY ONCE in the live DB dump before this file was generated. Applied by scripts/blog-runner/content-audit-db-remediation.mts (DRY_RUN default; never on mismatch).",
+ "patches": [
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "covers the “how many grams of creatine during loading” question for most adults.",
+   "replace": "covers most adults.",
+   "note": "keyword-echo question host (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "Yes, you can build muscle with bodyweight [exercises](/exercises) only, but adding external load",
+   "replace": "Bodyweight [exercises](/exercises) alone can build muscle too, but adding external load",
+   "note": "planted yes/no filler sentence (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "The “what is the best time to take creatine” question often gets a simple answer: pick a time",
+   "replace": "Timing has a simple answer: pick a time",
+   "note": "self-referential query echo (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "; these are the best supplements for joint pain according to multiple meta‑analyses",
+   "replace": "; these have the strongest evidence according to multiple meta‑analyses",
+   "note": "keyword-echo tail (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": ") frequency — how often should I deload — is typically every 4–6 weeks",
+   "replace": ") frequency is typically every 4–6 weeks",
+   "note": "planted question inside em-dashes (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "then taper back during a cut — answering how many [calories](/tools/calorie-calculator) should I eat to lose weight by targeting a modest 300–500 kcal deficit.",
+   "replace": "then taper back during a cut targeting a modest 300–500 kcal deficit (estimate yours with the [calories](/tools/calorie-calculator) calculator).",
+   "note": "self-referential SEO tail in conclusion (§1.3)"
+  },
+  {
+   "slug": "creatine-loading-strength-hypertrophy-guide",
+   "lang": "en",
+   "find": "For female lifters, training adjustments menstrual cycle female lifters suggest slightly higher creatine doses in the luteal phase when fluid retention is naturally higher.",
+   "replace": "For female lifters, training adjustments across the menstrual cycle suggest slightly higher creatine doses in the luteal phase, when fluid retention is naturally higher.",
+   "note": "keyword-salad phrase as sentence subject (§1.3)"
+  },
+  {
+   "slug": "weekly-fat-burning-diet-plan",
+   "lang": "ar",
+   "find": "كيف أحسب السعرات اليومية بدقة؟ الإجابة: سجل كل ما تأكله لمدة أسبوع، قارن المجموع بالهدف، وعدل الحصص تدريجياً.",
+   "replace": "وللتحقق من دقة حسابك: سجل كل ما تأكله لمدة أسبوع، قارن المجموع بالهدف، وعدل الحصص تدريجياً.",
+   "note": "planted Q/A inside paragraph (§4.2 #1)"
+  },
+  {
+   "slug": "sleep-recovery-gym-results",
+   "lang": "ar",
+   "find": "سؤال شائع: **هل الكارديو يحرق العضلات؟** الإجابة: إذا قمت به بذكاء، لا. أضف 2‑3 جلسات",
+   "replace": "**هل الكارديو يحرق العضلات؟** الكارديو المعتدل لا يحرق العضلات ما دامت سعراتك وبروتينك كافيين؛ الخطر في الإفراط مع عجز سعري كبير ونقص بروتين. أضف 2‑3 جلسات",
+   "note": "planted labels + cardio answer harmonized with calculate-daily-calories (§4.2 #2 / §4.3)"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss-muscle-gain",
+   "lang": "ar",
+   "find": "**سؤال شائع:** \"هل الكارديو يحرق العضلات؟\" الإجابة: الكارديو المعتدل (30-45 دقيقة، 3-4 مرات أسبوعياً) مع بروتين كافٍ يحافظ على العضلات، لكن الكارديو المفرط من غير بروتين يسبب فقداناً عضلياً.",
+   "replace": "الكارديو المعتدل (30-45 دقيقة، 3-4 مرات أسبوعياً) مع بروتين كافٍ لا يحرق العضلات، أما الكارديو المفرط بدون بروتين كافٍ فقد يسبب فقداناً عضلياً.",
+   "note": "planted Q/A + cardio harmonized (§4.2 #3 / §4.3)"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss-muscle-gain",
+   "lang": "ar",
+   "find": "(سؤال: \"كم مرة أتدرب في الأسبوع لبناء العضلات؟\" الإجابة: 4-5 جلسات تركز على الحركات المركبة)",
+   "replace": "بجلسات تركز على الحركات المركبة",
+   "note": "planted inline Q/A in bullet"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss-muscle-gain",
+   "lang": "ar",
+   "find": " (إجابة \"كم جرام بروتين يحتاج الجسم يومياً لبناء العضلات\")",
+   "replace": "",
+   "note": "keyword-echo parenthetical"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss-muscle-gain",
+   "lang": "ar",
+   "find": "مقدمة\n\nتخيل أنك جالس",
+   "replace": "تخيل أنك جالس",
+   "note": "bare stray «مقدمة» line (§4.2 family)"
+  },
+  {
+   "slug": "common-fat-burning-mistakes",
+   "lang": "ar",
+   "find": "سؤال يطرح دائماً: \"هل الكارديو يحرق العضلات؟\" الإجابة المختصرة: نعم، إذا مارست الكارديو الطويل يومياً دون بروتين كافٍ وسعرات كافية، سيبحث الجسم عن طاقة من العضلات.",
+   "replace": "الإجابة المختصرة: نعم — إذا مارست الكارديو الطويل يومياً دون بروتين وسعرات كافية، فقد يبحث الجسم عن طاقته في العضلات.",
+   "note": "planted question echo under its own H2 (§4.2)"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "**سؤال القارئ**: *كم سعرة أحتاج يومياً لخسارة الوزن؟* → الجواب أعلاه يغطي كل الحالات، لكن تذكر أن كل جسم مختلف؛ راقب وزنك أسبوعيًا وعدّل 100-200 سعرة بحسب النتيجة.",
+   "replace": "تذكّر أن كل جسم مختلف: راقب وزنك أسبوعيًا وعدّل 100-200 سعرة بحسب النتيجة.",
+   "note": "planted reader-Q block → kept the useful tip as prose"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "**سؤال القارئ**: *كم مرة أتدرب في الأسبوع لبناء العضلات؟* → **3-5 جلسات** أسبوعيًا بتوزيع عضلي (Upper/Lower أو Push/Pull/Legs) تعطي أفضل النتائج مع الراحة الكافية.",
+   "replace": "وللجزء التدريبي المرافق: **3-5 جلسات** أسبوعيًا بتوزيع عضلي (Upper/Lower أو Push/Pull/Legs) تعطي أفضل النتائج مع الراحة الكافية.",
+   "note": "planted reader-Q block → kept content as prose"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "\n\n**سؤال القارئ**: *كم جرام بروتين يحتاج الجسم يومياً لبناء العضلات؟* → الجواب أعلاه يغطي النطاق الأمثل، عدّله بحسب استجابتك.",
+   "replace": "",
+   "note": "pure \"see above\" filler — deleted"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "> **سؤال القارئ**: *ما أفضل وقت للتمرين؟* → اختر الوقت الذي تستطيع الالتزام به بانتظام؛ الانتظام أهم من التوقيت المثالي.\n\n",
+   "replace": "",
+   "note": "planted blockquote duplicating the timing paragraph above it"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "> **كم ساعة نوم لدعم بناء العضلات وتحسين حرق الدهون؟** → 8 ساعات هدف واقعي؛ إذا لم تستطع فابدأ بـ7 وزد تدريجيًا.\n\n",
+   "replace": "",
+   "note": "planted blockquote duplicating the sleep section above it"
+  },
+  {
+   "slug": "calculate-daily-calories-weight-loss",
+   "lang": "ar",
+   "find": "**هل الكارديو يحرق العضلات؟** إذا مارست كارديو مفرطًا (أكثر من 45 دقيقة يوميًا) مع عجز سعري كبير ونقص بروتين، فقد تفقد عضلاتك. الحل:",
+   "replace": "**هل الكارديو يحرق العضلات؟** الكارديو المعتدل لا يحرق العضلات ما دامت سعراتك وبروتينك كافيين؛ الخطر في الإفراط (أكثر من 45 دقيقة يوميًا) مع عجز سعري كبير ونقص بروتين — عندها قد تفقد عضلاتك. الحل:",
+   "note": "cardio answer harmonized (§4.3)"
+  },
+  {
+   "slug": "beta-alanine-guide-selection",
+   "lang": "ar",
+   "find": "- اقرأ الملصق بعناية: **كيفية قراءة ملصق مكمل بيتا ألانين** توضح لك كمية البيتا ألانين النقي لكل جرعة.",
+   "replace": "- اقرأ الملصق بعناية: يوضح لك كمية البيتا ألانين النقي لكل جرعة.",
+   "note": "keyword-salad bold phrase as sentence subject"
+  },
+  {
+   "slug": "beta-alanine-guide-selection",
+   "lang": "ar",
+   "find": "إذا كانت لديك أسئلة أخرى مثل \"كيف أختار مكمل بيتا ألانين لتقوية العضلات\" أو تريد معرفة \"نظام غذائي نباتي لزيادة الكتلة العضلية للرياضيين\"، فقد غطى المقال كل ذلك وأكثر.",
+   "replace": "وإن بقيت لديك أسئلة أخرى، فقسم الأسئلة الشائعة في نهاية المقال يغطي أهم ما يسأل عنه القرّاء.",
+   "note": "conclusion keyword-echo mirroring the removed «كلمة مفتاحية» labels"
+  },
+  {
+   "slug": "chest-muscle-home-workout-guide",
+   "lang": "ar",
+   "find": " هذا النهج يجيب على سؤال شائع: كيف أزيد قوتي في الصالة خلال 8 أسابيع؟ عبر زيادة الحمل تدريجياً وليس عبر jumps مفاجئة.",
+   "replace": "",
+   "note": "self-answering filler sentence (AR twin of the EN §1.3 template) with stray Latin «jumps»"
+  },
+  {
+   "slug": "healthy-high-protein-meals-office",
+   "lang": "ar",
+   "find": "واسأل نفسك \"هل الكارديو يحرق العضلات؟\" الإجابة: ليس إذا خططت بشكل صحيح.",
+   "replace": "فالكارديو المعتدل مع تخطيط صحيح لا يحرق العضلات.",
+   "note": "planted mid-paragraph Q/A (§4.2 family)"
+  },
+  {
+   "slug": "calculate-calories-fat-loss",
+   "lang": "ar",
+   "find": "فـ **هل مكملات ما قبل التمرين آمنة للنساء أثناء الحمل؟** الإجابة: استشيري الطبيب، وغالباً يُنصح بتجنب الكافيين الزائد.",
+   "replace": "فالأسلم استشارة الطبيب، وغالباً يُنصح بتجنب الكافيين الزائد.",
+   "note": "planted Q/A inside bullet (§4.2 family)"
+  }
+ ],
+ "faq_additions": [
+  {
+   "slug": "beta-alanine-guide-selection",
+   "lang": "ar",
+   "items": [
+    {
+     "question": "ما هو الوقت المثالي لتناول البروتين بعد التمرين؟",
+     "answer": "يفضل تناول البروتين خلال 30‑60 دقيقة بعد انتهاء التمرين لتعزيز عملية إصلاح العضلات."
+    },
+    {
+     "question": "هل يمكن بناء العضلات بدون تناول مكملات بروتين؟",
+     "answer": "نعم، يمكن بناء العضلات عبر نظام غذائي غني بالبروتين من المصادر الطبيعية إذا تم استهلاك الكمية الكافية يومياً."
+    },
+    {
+     "question": "ما هي أفضل مصادر البروتين النباتي للرياضيين؟",
+     "answer": "البروتينات النباتية العالية الجودة تشمل العدس، الحمص، الفول الصويا، الكينوا، ومكمل بروتين البازلاء."
+    },
+    {
+     "question": "كيف يمكن خسارة الدهون دون فقدان الكتلة العضلية؟",
+     "answer": "اتبع نظاماً غذائياً قليل السعرات مع كميات كافية من البروتين وممارسة تمارين مقاومة للحفاظ على العضلات."
+    },
+    {
+     "question": "ما هو عدد الوجبات اليومية المثالية لتقليل الوزن؟",
+     "answer": "عدد الوجبات لا يحدد فقدان الوزن بحد ذاته؛ الأهم هو إجمالي السعرات اليومية وتوزيع البروتين خلال اليوم."
+    },
+    {
+     "question": "هل المشي السريع يحرق سعرات أكثر من الجري الخفيف؟",
+     "answer": "عادةً يحرق الجري سعرات أكثر في الوقت نفسه، لكن المشي السريع يمكن أن يكون أكثر استدامة لبعض الأشخاص ويؤدي إلى حرق سعرات مشابهة إذا استمر لفترة أطول."
+    }
+   ]
+  }
+ ],
+ "category_fixes": [
+  {
+   "slug": "red-light-therapy-muscle-recovery-mistakes",
+   "lang": "en",
+   "from": "nutrition",
+   "to": "wellness"
+  },
+  {
+   "slug": "foam-roller-recovery-4-week-guide",
+   "lang": "en",
+   "from": "nutrition",
+   "to": "wellness"
+  },
+  {
+   "slug": "4-day-upper-lower-hypertrophy-split",
+   "lang": "en",
+   "from": "nutrition",
+   "to": "workout"
+  },
+  {
+   "slug": "choose-best-wearable-sleep-tracker-athletes",
+   "lang": "ar",
+   "from": "nutrition",
+   "to": "fitness"
+  },
+  {
+   "slug": "sleep-muscle-growth-science",
+   "lang": "ar",
+   "from": "nutrition",
+   "to": "science"
+  }
+ ]
+}
