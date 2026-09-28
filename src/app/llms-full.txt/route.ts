@@ -89,7 +89,7 @@ export async function GET(): Promise<Response> {
 
 ## Editorial policy (content trust)
 
-- Every article is reviewed by Ahmed Zake (founder, certified fitness & nutrition coach) before publication; author and reviewer identities are declared in the Article structured data and on ${SITE}/authors/ahmed-zake
+- Every article is reviewed by Ahmed Zake (founder, certified fitness & nutrition coach — ACSM, ACE, ISSA and NASM certifications) before publication; author and reviewer identities are declared in the Article structured data and on ${SITE}/authors/ahmed-zake
 
 ## Latest English articles
 

@@ -75,20 +75,36 @@ export const AHMED_ZAKE: AuthorProfile = {
   bioAr:
     "أحمد زكي مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى Alkemos ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين. يشرف أحمد على كل محتوى يُنشر على المنصة، من مكتبة الـ868+ تمرينًا إلى خط المدوّنة الآلي، ويراجع كل مقال للدقّة قبل النشر.",
   credentials: [
-    { en: "Certified Personal Trainer (CPT)", ar: "مدرب شخصي معتمد (CPT)" },
-    { en: "Nutrition Coach certification", ar: "شهادة مدرب تغذية" },
+    // P2-11 (2026-09-28): the eight credentials below are transcribed
+    // EXACTLY as named on the founder's certificates (owner-supplied
+    // certificates image — the single source of truth). The issuing body is
+    // named on every entry for E-E-A-T verifiability. Per owner instruction
+    // NO certificate numbers, dates, membership or accreditation IDs are
+    // published — certificate names and issuers only.
+    { en: "Certified Personal Trainer — American College of Sports Medicine (ACSM)", ar: "مدرب شخصي معتمد — الكلية الأمريكية للطب الرياضي (ACSM)" },
+    { en: "Certified Personal Trainer — American Council on Exercise (ACE)", ar: "مدرب شخصي معتمد — المجلس الأمريكي للتمرين (ACE)" },
+    { en: "Certified Personal Trainer — International Sports Sciences Association (ISSA)", ar: "مدرب شخصي معتمد — الرابطة الدولية لعلوم الرياضة (ISSA)" },
+    { en: "Fitness Nutrition Specialist — American Council on Exercise (ACE)", ar: "أخصائي تغذية اللياقة — المجلس الأمريكي للتمرين (ACE)" },
+    { en: "Fitness Nutrition Specialist (FNS) — National Academy of Sports Medicine (NASM)", ar: "أخصائي تغذية اللياقة (FNS) — الأكاديمية الوطنية للطب الرياضي (NASM)" },
+    { en: "Specialist in Sports Nutrition — International Sports Sciences Association (ISSA)", ar: "أخصائي التغذية الرياضية — الرابطة الدولية لعلوم الرياضة (ISSA)" },
+    { en: "Weight Management Specialist — American Council on Exercise (ACE)", ar: "أخصائي إدارة الوزن — المجلس الأمريكي للتمرين (ACE)" },
+    { en: "Fitness Coach — International Sports Sciences Association (ISSA)", ar: "مدرب لياقة — الرابطة الدولية لعلوم الرياضة (ISSA)" },
+    // Experience lines (not certificates — biographical facts already
+    // established on the platform; kept for the credentials-and-experience
+    // list on the author profile page).
     { en: "10+ years coaching experience", ar: "أكثر من 10 سنوات خبرة تدريب" },
     { en: "Founder of Alkemos (2026)", ar: "مؤسس Alkemos (2026)" },
   ],
   sameAs: [
-    // NOTE (per E-E-A-T framework §Authoritativeness): only include URLs
-    // of profiles that ACTUALLY exist and are publicly verifiable. This is
-    // the PERSON's own profile list — Ahmed Zake has no verifiable personal
-    // profiles yet, so it stays empty. The BRAND's social profiles (created
-    // 2026-09-09) live in Organization.sameAs via src/lib/social.ts — do
-    // not duplicate them here (Person.sameAs = person, Organization.sameAs
-    // = brand; mixing them blurs the entity graph).
-    // Adding fake `sameAs` URLs is a Trust signal killer, not a booster.
+    // P2-11 (2026-09-28): owner-verified personal Facebook profiles, both
+    // resolving live — AhmedZakePT is the founder's coaching page (14k+
+    // followers), SpEeRr is his personal profile (18k+ followers). These are
+    // the PERSON's own profiles. The BRAND's social profiles live in
+    // Organization.sameAs via src/lib/social.ts — do not duplicate them
+    // here (Person.sameAs = person, Organization.sameAs = brand; mixing
+    // them blurs the entity graph).
+    "https://www.facebook.com/AhmedZakePT/",
+    "https://www.facebook.com/SpEeRr/",
   ],
   avatarUrl: "https://alkemos.com/images/coach-portrait.jpg",
   profileUrl: "https://alkemos.com/authors/ahmed-zake",
@@ -172,6 +188,11 @@ export function getPersonSchema(author: AuthorProfile) {
       "Fat loss",
       "Macronutrient planning",
       "Workout programming",
+      // P2-11 (2026-09-28): cert-supported additions — the founder holds
+      // ISSA Specialist in Sports Nutrition + ACE Weight Management
+      // Specialist credentials (see credentials above).
+      "Sports nutrition",
+      "Weight management",
     ],
   };
 

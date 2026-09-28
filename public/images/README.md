@@ -120,6 +120,11 @@ The following images already exist in `public/images/` (root level, not in subfo
 
 - `accessories.jpg`, `ahmed-*.jpg`, `coach-portrait.jpg`, `dumbbell-gym.jpg`
 - `evo-*.jpg`, `fitness-*.jpg`, `gym-interior.jpg`, `hero-ahmed.jpg`
+- `founder-certificates.{jpg,webp}` — the founder's eight professional certificates
+  (ACSM · ACE · ISSA · NASM), isolated from the owner-supplied collage onto a
+  clean background (P2-11, 2026-09-28). Used on `/authors/ahmed-zake` +
+  `/ar/authors/ahmed-zake`. Do not edit the certificate pixels — the source
+  of truth is the owner's original image.
 - `meal-*.jpg`, `running-outdoor.jpg`, `yoga-studio.jpg`
 
 These are used on the landing page hero, About, Coaching, and EVO sections. No action needed for these.

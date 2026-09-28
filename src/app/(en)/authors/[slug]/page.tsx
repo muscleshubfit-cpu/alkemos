@@ -171,24 +171,50 @@ export default async function AuthorProfilePage({
               </li>
             ))}
           </ul>
+
+          {/* P2-11 (2026-09-28): the founder's eight certifications as issued
+              (ACSM, ACE, ISSA, NASM) — isolated from the original collage onto
+              a clean background. Pixel-exact document scans; no content was
+              recreated or altered. */}
+          <figure className="mt-8 overflow-hidden rounded-xl border border-[var(--edge)] bg-[var(--tint)] p-2 sm:p-3">
+            <Image
+              src="/images/founder-certificates.webp"
+              alt="The eight professional certifications of Ahmed Zake — ACSM, ACE, ISSA and NASM certificates, shown as issued"
+              width={1252}
+              height={1884}
+              sizes="(max-width: 768px) 100vw, 700px"
+              className="h-auto w-full rounded-lg"
+            />
+            <figcaption className="mt-2 pb-1 text-center text-xs font-normal text-[var(--muted-foreground)]">
+              Ahmed Zake&apos;s professional certifications — ACSM · ACE · ISSA · NASM
+            </figcaption>
+          </figure>
         </section>
 
         {author.sameAs.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">Find {author.nameEn} online</h2>
             <ul className="mt-4 flex flex-wrap gap-3">
-              {author.sameAs.map((url) => (
-                <li key={url}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block rounded-md border border-[var(--edge)] px-3 py-1.5 text-sm hover:border-[var(--muted-2)]"
-                  >
-                    {new URL(url).hostname.replace(/^www\./, "")}
-                  </a>
-                </li>
-              ))}
+              {author.sameAs.map((url) => {
+                // P2-11: hostname-only labels rendered two identical
+                // "facebook.com" chips — include the profile handle so
+                // each link is distinguishable.
+                const u = new URL(url);
+                const handle = u.pathname.replace(/\//g, "").split("/")[0];
+                return (
+                  <li key={url}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer me"
+                      className="inline-block rounded-md border border-[var(--edge)] px-3 py-1.5 text-sm hover:border-[var(--muted-2)]"
+                    >
+                      {u.hostname.replace(/^www\./, "")}
+                      {handle ? `/${handle}` : ""}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}

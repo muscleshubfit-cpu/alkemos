@@ -147,11 +147,28 @@ export default async function ArabicAuthorProfilePage({
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--muted-2)]" />
                 <span>
                   {cred.ar}
-                  <span className="block text-xs text-[var(--muted-foreground)]">{cred.en}</span>
+                  <span className="block text-xs text-[var(--muted-foreground)]" dir="ltr">{cred.en}</span>
                 </span>
               </li>
             ))}
           </ul>
+
+          {/* P2-11 (2026-09-28): شهادات المؤسس الثماني كما صدرت (ACSM وACE وISSA وNASM)
+              — معزولة من المونتاج الأصلي على خلفية نظيفة. قصّ بكسلي دقيق؛
+              لم يُعَد إنشاء أو تعديل أي محتوى. */}
+          <figure className="mt-8 overflow-hidden rounded-xl border border-[var(--edge)] bg-[var(--tint)] p-2 sm:p-3">
+            <Image
+              src="/images/founder-certificates.webp"
+              alt="الشهادات المهنية الثماني لأحمد زكي — شهادات ACSM وACE وISSA وNASM كما صدرت"
+              width={1252}
+              height={1884}
+              sizes="(max-width: 768px) 100vw, 700px"
+              className="h-auto w-full rounded-lg"
+            />
+            <figcaption className="mt-2 pb-1 text-center text-xs font-normal text-[var(--muted-foreground)]">
+              شهادات أحمد زكي المهنية — ACSM · ACE · ISSA · NASM
+            </figcaption>
+          </figure>
         </section>
 
         {author.sameAs.length > 0 && (
@@ -160,18 +177,25 @@ export default async function ArabicAuthorProfilePage({
               {author.nameAr} على الإنترنت
             </h2>
             <ul className="mt-4 flex flex-wrap gap-3">
-              {author.sameAs.map((url) => (
-                <li key={url}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block rounded-md border border-[var(--edge)] px-3 py-1.5 text-sm hover:border-[var(--muted-2)]"
-                  >
-                    {new URL(url).hostname.replace(/^www\./, "")}
-                  </a>
-                </li>
-              ))}
+              {author.sameAs.map((url) => {
+                // P2-11: بطاقات بأسماء المضيف فقط كانت تعرض «facebook.com»
+                // مرتين متطابقتين — نُظهر معرّف الحساب لتمييز كل رابط.
+                const u = new URL(url);
+                const handle = u.pathname.replace(/\//g, "").split("/")[0];
+                return (
+                  <li key={url}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer me"
+                      className="inline-block rounded-md border border-[var(--edge)] px-3 py-1.5 text-sm hover:border-[var(--muted-2)]"
+                    >
+                      {u.hostname.replace(/^www\./, "")}
+                      {handle ? `/${handle}` : ""}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}
