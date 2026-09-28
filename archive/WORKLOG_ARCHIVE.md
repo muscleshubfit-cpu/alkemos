@@ -10707,3 +10707,23 @@ Stage Summary:
 - الملفات الممسوسة: STATE.md (إعادة بناء) · archive/PROGRESS_ARCHIVE.md (+21 صفًا حرفيًا) · archive/QA_CHECKLIST_ARCHIVE.md (+8 صفوف حرفيًا) · scripts/docs_audit.py (M ثنائي + I معتزل) · docs/README.md (بلا أعمدة تواريخ + 4 صفوف) · worklog.md (هذا المدخل).
 - Push status: pushed
 
+
+<!-- rotated 2026-09-28 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: ARCH-REMEDIATION-290-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P2 من التقرير الحاكم (تحديد نطاق التحقق): paths-ignore لبوابة الجودة + توثيق التحقق المحلي المحدد بالنطاق بقانون §3.5 + قانون تثبيت الكاناري — صفر مساس بالكود/المنطق/الواجهة.
+
+Work Log:
+- (P2-1 CI) quality-gate.yml: paths-ignore على push وpull_request لـ(`**.md` · `docs/**` · `archive/**` · `.github/**` · `scripts/**`) وفق Part C §5 — دفعة docs-only لا يمكنها تغيير نتيجة tsc/eslint/vitest فتتخطى البطارية (46 كوميت docs-only أحرقتها سابقًا بلا أي أثر) — بوابات parity وguard بقيت على كل دفعة كما هي (هي بوابات التوثيق) وworkflow_dispatch متاح دائمًا — تعليق الرأس يوثق القانون.
+- (P2-2 محلي) AGENTS.md §3.5: فقرة «Scope-matched verification» — فريم docs-only (صفر src/supabase/build-config) يشغل محليًا docs_parity + docs_audit فقط (+ migration_audit والحراس عند مساس نطاقهم) — سابقة 223/283 صارت قانونًا مكتوبًا؛ فريم الكود يشغل المجموعة الكاملة.
+- (P2-3 كاناري) AGENTS.md §8: قانون CANARY PINNING POLICY — الكاناري يثبت السلوك والبنية أولًا؛ الأعداد الحرفية فقط حيث العدد نفسه هو القانون (image-safety v3 · MSA · slug law · ui-wiring)؛ تعديل نص تجميلي لا يستلزم تعديل اختبار بنفس الكوميت (فئة chev 14→10 بالمرحلة 286) — الحراس الحقيقيون لا يُضعفون أبدًا.
+- (توثيق تابع) CI_GATES.md: تحصين IV (رأس الملف) + صف بوابة الجودة بالجدول يوثق paths-ignore — فحص N (تغطية كل workflow) أخضر.
+- (STATE) صف 290 + صف QA 290 — سلّم ≤2 (صف 288 انتقل حرفيًا للأرشيف بنفس الفريم) — آخر كوميت متحقق منه: 4c0b2ba6.
+- (التحقق — فريم docs+CI فقط) بنية YAML صالحة (python yaml parse لquality-gate.yml) ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (القانون الجديد نفسه).
+
+Stage Summary:
+- التحقق صار مطابقًا للنطاق: دفعات التوثيق تدفع بوابات التوثيق فقط (محليًا وCI)، ودفعات الكود تدفع البطارية كاملة — وقانون الكاناري يمنع تزاوج الأسطح غير المرتبطة.
+- الملفات الممسوسة: .github/workflows/quality-gate.yml (paths-ignore) · AGENTS.md (§3.5 + §8) · docs/CI_GATES.md (تحصين IV) · STATE.md (290 + أرشفة صف 288) · archive/PROGRESS_ARCHIVE.md + QA_CHECKLIST_ARCHIVE.md (+صف 288 حرفيًا) · worklog.md (هذا المدخل).
+- Push status: pushed
+

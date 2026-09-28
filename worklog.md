@@ -8,6 +8,26 @@
 
 ---
 ---
+Task ID: PHASE1-DEPLOY-VERIFY-2026-09-29
+Agent: Super Z (main)
+Task: بلاغ المالك 2026-09-29 — بريد Vercel «Preview deployment failed» للكوميت 205f61b على فرع phase1-verify (فشل 22:06 UTC): تشخيص السبب الجذري بالأدلة، وإكمال التحقق الحي بعد النشر الموعود بمدخل PHASE1-QUALITY («يلي اكتمال Vercel في نفس الجلسة»)، ثم الإغلاق النظيف للفرع والتوثيق.
+
+Work Log:
+- (تشخيص 1 — الإنتاج سليم) نفس الكوميت 205f61ba منشور إنتاجيًا بنجاح: حالة «Vercel» على GitHub ‏success «Deployment has completed» 22:08:26 UTC · فحوصات الكوميت 6/6 خضراء (Supabase Preview · Vercel Preview Comments · guard · cleanup · quality · parity) — العطل معاين-only بلا أي أثر إنتاجي.
+- (تشخيص 2 — استبعاد الكود كليًا) ثلاث نسخ بناء محلية باردة لنفس الشجرة: نظيفة 97 ثانية · بلا أي متغيرات بيئة: نجاح (SSG يتحمل غياب المفاتيح) · بمفاتيح Supabase معطوبة: نجاح — ذروة RSS ‏1,612MB على آلة 4GB ⇒ OOM مستبعد، timeout مستبعد (97 ث مقابل سقف 45 دقيقة)، وفرق التبعيات مستبعد (بناء الإنتاج بنفس bun.lock نجح).
+- (تشخيص 3 — التسلسل الحاسم من reflog + GHA API) 21:54:21 كوميت dc058fd2 ودُفع فرع phase1-verify → المعاين #1 (dc058fd2) يبني من ~21:55 → التشغيل الحي 36489146598 على الفرع 21:54:29→22:04:45 (فشل البوابة الصادق الموثق سلفًا) → 22:06:13 amend إلى 205f61ba مع force-push للفرع ودفع main في نفس الدقيقة → المعاين #1 استُبدل قسرًا والمعاين #2 (205f61ba) فشل خلال دقيقة إنشائه (سباق ref/supersession على فتحة البناء الواحدة بخطة Hobby) → الإنتاج اصطف خلفه وأكمل بعد دقيقتين بكاش دافئ. workflow الـcleanup بريء نصًّا (سكربته لا تستعرض QUEUED/BUILDING/INITIALIZING أصلًا).
+- (الحكم) ليست عيوب كود — فشل معاين عابر من نمط supersession/‏ref-race (force-push لفرع أثناء بناء معاين جارٍ + دفع متزامن لmain على فتحة بناء واحدة). القانون التشغيلي المستفاد: لا force-push لفرع تحقق والمعاين يبني — انتظر اكتماله أو احذف الفرع قبل إعادة الدفع.
+- (التحقق الحي بعد النشر — بندًا بندًا) 301 EN ✓ حيًا فورًا على العاري (→ calculate-daily-calories-fuel-fat-loss-bulking) · 301 AR ✓ أصليًا (cache-bust يرجع 301 → muscle-building-home-workout-guide) · migration 0096 مطبق كاملًا: المنحوزان خارج sitemap-blog.xml والناجيان باقيان · العناوين الجديدة ×4 ✓ أصليًا حرفيًا (أثبتها cache-bust لكلٍّ منها — مطابقة لنص الميجريشن) · queue-health منشور ومحمي (401 بلا جلسة coach — requireAdmin يعمل كما صُمم).
+- (الفجوة المكتشفة — كاش Cloudflare قديم) 5 URLs تُقدَّم من نسخ CF مخزنة 19:07 UTC قبل النشرين (وهي بعينها صفحات زحف التدقيق — cf-cache-status HIT بعمر ≈3.8 ساعة): AR redirect العاري + مقالات الاستشفاء الأربعة بعناوينها القديمة. الأصل خلف الكاش سليم كله؛ جلسات Phase 0/1 أغفلت طقس purge بعد النشر (سابقة SOCIAL-OG-2) — الفهرس وsitemap و301 الإنجليزي كلها صحيحة الآن.
+- (الإجراء) حذف فرع phase1-verify عن بعد بعد أداء غرضه (سابقة phase0-verify) · لا إعادة بناء للمعاين (قانون VERCEL-USAGE-6 — كلفة عدادات صفرية القيمة؛ والفاشل يلتقطه cleanup الساعي بعد 6 ساعات بقانون VERCEL-USAGE-5) · CF purge متعذر آليًا بالجلسة (لا توكن CF هنا ولا workflow يملكه — قانون §3.2) ⇒ إجراء مالك واحد متبقٍ (أدناه).
+- (البوابات — إطار توثيقي بحكم Phase 290) docs_audit ✓ · docs_parity ✓ · بطارية الكود غير مستحقة (صفر مساس بsrc/supabase/build-config).
+
+Stage Summary:
+- عطل المعاين مُشخَّص بالدليل الكامل: عابر بيئي (supersession/‏force-push) لا كود — الإنتاج على الكوميت نفسه أخضر ومتحقق منه حيًا بندًا بندًا.
+- إجراء المالك الوحيد المتبقي: Cloudflare purge للروابط الخمسة أو purge_everything (لوحة CF ▸ Caching ▸ Purge) — حتى ذلك الحين يرى الزائر النسخ القديمة على العاري من تلك الروابط فقط.
+- Push status: pushed to main · فرع phase1-verify محذوف من origin بعد اكتمال الغرض.
+
+---
 Task ID: PHASE1-QUALITY-2026-09-29
 Agent: Super Z (main)
 Task: أمر المالك 2026-09-29 — تنفيذ المرحلة التالية بعد Phase 0 من AUDIT_REPORT.md (المرحلة 1 «قلب الجودة») بالكامل وفق التقرير وبنفس منهجية التدقيق/التنفيذ/الاختبار/التحقق الحي، وبقرار المالك الصريح: لا نموذج مدفوع ولا اشتراك جديد — ثم تحديث STATE.md وworklog.md والدفع إلى main.
@@ -209,23 +229,5 @@ Work Log:
 
 Stage Summary:
 - السكريبت مدفوع فعلًا الآن والفئة (guard غير مدفوع يخضر محليًا ويحمر بCI) مقفولة بفحص M المشتق من git — دفعتا parity الحمراوان سببهما هذا وحده وستخضرّان بهذا الكوميت.
-- Push status: pushed
-
----
-Task ID: ARCH-REMEDIATION-290-2026-09-28
-Agent: Implementation Agent
-Task: أمر المالك 2026-09-28 — تنفيذ P2 من التقرير الحاكم (تحديد نطاق التحقق): paths-ignore لبوابة الجودة + توثيق التحقق المحلي المحدد بالنطاق بقانون §3.5 + قانون تثبيت الكاناري — صفر مساس بالكود/المنطق/الواجهة.
-
-Work Log:
-- (P2-1 CI) quality-gate.yml: paths-ignore على push وpull_request لـ(`**.md` · `docs/**` · `archive/**` · `.github/**` · `scripts/**`) وفق Part C §5 — دفعة docs-only لا يمكنها تغيير نتيجة tsc/eslint/vitest فتتخطى البطارية (46 كوميت docs-only أحرقتها سابقًا بلا أي أثر) — بوابات parity وguard بقيت على كل دفعة كما هي (هي بوابات التوثيق) وworkflow_dispatch متاح دائمًا — تعليق الرأس يوثق القانون.
-- (P2-2 محلي) AGENTS.md §3.5: فقرة «Scope-matched verification» — فريم docs-only (صفر src/supabase/build-config) يشغل محليًا docs_parity + docs_audit فقط (+ migration_audit والحراس عند مساس نطاقهم) — سابقة 223/283 صارت قانونًا مكتوبًا؛ فريم الكود يشغل المجموعة الكاملة.
-- (P2-3 كاناري) AGENTS.md §8: قانون CANARY PINNING POLICY — الكاناري يثبت السلوك والبنية أولًا؛ الأعداد الحرفية فقط حيث العدد نفسه هو القانون (image-safety v3 · MSA · slug law · ui-wiring)؛ تعديل نص تجميلي لا يستلزم تعديل اختبار بنفس الكوميت (فئة chev 14→10 بالمرحلة 286) — الحراس الحقيقيون لا يُضعفون أبدًا.
-- (توثيق تابع) CI_GATES.md: تحصين IV (رأس الملف) + صف بوابة الجودة بالجدول يوثق paths-ignore — فحص N (تغطية كل workflow) أخضر.
-- (STATE) صف 290 + صف QA 290 — سلّم ≤2 (صف 288 انتقل حرفيًا للأرشيف بنفس الفريم) — آخر كوميت متحقق منه: 4c0b2ba6.
-- (التحقق — فريم docs+CI فقط) بنية YAML صالحة (python yaml parse لquality-gate.yml) ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓ — tsc/eslint/vitest غير مطلوبة (القانون الجديد نفسه).
-
-Stage Summary:
-- التحقق صار مطابقًا للنطاق: دفعات التوثيق تدفع بوابات التوثيق فقط (محليًا وCI)، ودفعات الكود تدفع البطارية كاملة — وقانون الكاناري يمنع تزاوج الأسطح غير المرتبطة.
-- الملفات الممسوسة: .github/workflows/quality-gate.yml (paths-ignore) · AGENTS.md (§3.5 + §8) · docs/CI_GATES.md (تحصين IV) · STATE.md (290 + أرشفة صف 288) · archive/PROGRESS_ARCHIVE.md + QA_CHECKLIST_ARCHIVE.md (+صف 288 حرفيًا) · worklog.md (هذا المدخل).
 - Push status: pushed
 
