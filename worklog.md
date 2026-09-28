@@ -21,6 +21,7 @@ Work Log:
 - (تنفيذ 2) lazy موضعي لإصلاح هدر الداكن: درج موبايل SiteHeader (كان eager مخفي دائمًا) + فقاعة EVO (تتركب بعد الخمول أصلًا) — hero/logo أبقيت eager عمدًا (LCP + lcp-discovery + media-scoped preloads) — سلوك وأبعاد محجوزة: صفر CLS.
 - (مؤجل مبررًا موثقًا) refactor LandingView لserver components (خفض الترطيب — مخاطرة عالية على 1,851 سطرًا بجلسة واحدة) · إزالة preload المكرر (اليدوي وحده حامل media+fetchPriority) · lazy للhero (يفشل lcp-lazy-loaded) · حذف فهارس Supabase — الكل بdocs/PERFORMANCE-AUDIT-2026-09-28.md §3.
 - (التحقق) tsc ✓ 0 · vitest ✓ 1,771/1,771 · eslint ✓ 0 · next build ✓ (كل المسارات Static/SSG/ISR) · stale-refs: صفر إشارات للملفات المحذوفة.
+- (القياس بعد النشر) deploy ‏8f3830a READY + purge_everything لكاش CF ثم إعادة نفس القياسين: Lighthouse mobile — الوزن 2,320→1,817KB (−21.7%) · TBT 2,210→1,810ms (−18%) · SI 3.8→3.1s · Perf 49→50 · CLS 0 وSEO 100 ثابتان — والقياس التجريبي الفعلي: صور 1,221→656KB (−46%) · طلبات 87→83 (light) · LCP فعلي 360/384ms · فقاعة EVO أُصلحت بالداكن ✓ · حزمة JS مطابقة (صفر انحدار) — بوابة parity خضراء بعد إصلاحَي فشل أول push: H5 (تدوير ذيل النافذة بworklog_rotate.py للأرشيف) وM (تسجيل التقرير بdocs/README.md) — التفصيل الكامل §4 بالتقرير.
 
 Stage Summary:
 - صفحة رئيسية أخف بـ~900KB من طلباتها وصفحات الأطعمة/التمارين/البرامج تربح بالمثل؛ الزائر الداكن يوفر ~56KB و3 طلبات من نافذة LCP.
