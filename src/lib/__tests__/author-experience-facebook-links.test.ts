@@ -4,8 +4,7 @@ import { resolve } from "node:path";
 import { AHMED_ZAKE, getPersonSchema } from "../authors";
 
 /**
- * Owner follow-up canary (2026-09-28 — two corrections on the completed
- * P2-11). Guarded contracts:
+ * Owner follow-up canary (2026-09-28). Guarded contracts:
  *
  *   1. EXPERIENCE CORRECTION — the founder's totals are ~20 years of
  *      training, ~10 of them coaching ONLINE, stated in EVERY relevant
@@ -14,14 +13,12 @@ import { AHMED_ZAKE, getPersonSchema } from "../authors";
  *      invented precision (no start years, no exact counts), and no
  *      leftover of the old under-claim ("10+ years" / "over a decade").
  *
- *   2. FACEBOOK FIX — the plain target="_blank" chips died in the owner's
- *      environment (in-app browsers kill the tab within a second; FB's
- *      logged-out mobile app-link bounce). The coaching PAGE now renders
- *      Facebook's OFFICIAL Page Plugin (real in-page preview + the real
- *      Follow button), click-to-load for privacy. The personal PROFILE
- *      cannot be embedded (Facebook plugin = Pages only) and stays a
- *      direct labeled link. Direct links remain on BOTH pages as the
- *      robust fallback.
+ *   2. FACEBOOK — the founder's two owner-verified profiles stay as
+ *      labeled DIRECT-LINK chips on both author pages. The Facebook
+ *      Page Plugin embed that briefly shipped in the same follow-up
+ *      was REMOVED again by owner order (later the same day) — this
+ *      guards the removal: no component, no registry field, no
+ *      plugin endpoint anywhere in src, and the direct chips intact.
  */
 
 const ROOT = resolve(__dirname, "../..");
@@ -30,12 +27,13 @@ const COACHING_PAGE = resolve(ROOT, "app/(en)/coaching/page.tsx");
 const EN_AUTHOR_PAGE = resolve(ROOT, "app/(en)/authors/[slug]/page.tsx");
 const AR_AUTHOR_PAGE = resolve(ROOT, "app/(ar)/ar/authors/[slug]/page.tsx");
 const EMBED_COMPONENT = resolve(ROOT, "components/FacebookPageEmbed.tsx");
+const AUTHORS_REGISTRY = resolve(ROOT, "lib/authors.ts");
 
 const ABOUT_SRC = readFileSync(STATIC_PAGES, "utf8");
 const COACHING_SRC = readFileSync(COACHING_PAGE, "utf8");
 const EN_PAGE_SRC = readFileSync(EN_AUTHOR_PAGE, "utf8");
 const AR_PAGE_SRC = readFileSync(AR_AUTHOR_PAGE, "utf8");
-const EMBED_SRC = readFileSync(EMBED_COMPONENT, "utf8");
+const REGISTRY_SRC = readFileSync(AUTHORS_REGISTRY, "utf8");
 
 const NEW_EN = "about twenty years of training experience";
 const NEW_EN_ONLINE = "around ten of them coaching";
@@ -116,21 +114,18 @@ describe("Owner follow-up 1 — founder experience: ~20 years total, ~10 online"
   });
 });
 
-describe("Owner follow-up 2 — Facebook: official Page Plugin embed + labeled direct links", () => {
-  it("facebookPageEmbeds ⊆ sameAs and contains only Facebook PAGE urls", () => {
-    const embeds = AHMED_ZAKE.facebookPageEmbeds ?? [];
-    expect(embeds.length).toBeGreaterThan(0);
-    for (const url of embeds) {
-      expect(AHMED_ZAKE.sameAs).toContain(url);
-      expect(url).toMatch(/^https:\/\/www\.facebook\.com\/[^/]+\/$/);
-      // profile.php / people/ URLs are NOT plugin-embeddable pages
-      expect(url).not.toMatch(/profile\.php|\/people\//);
+describe("Owner follow-up 2 — Facebook: labeled direct links; Page Plugin embed removed by owner order", () => {
+  it("the embed is fully gone — no component, no registry field, no plugin endpoint in src", () => {
+    expect(existsSync(EMBED_COMPONENT), "FacebookPageEmbed.tsx must stay deleted").toBe(false);
+    // the retired registry field must not be reintroduced
+    expect(REGISTRY_SRC).not.toContain("facebookPageEmbeds");
+    // neither author page may reference the retired component
+    for (const [name, src] of [
+      ["EN", EN_PAGE_SRC],
+      ["AR", AR_PAGE_SRC],
+    ] as const) {
+      expect(src, `${name} page still references the embed`).not.toContain("FacebookPageEmbed");
     }
-  });
-
-  it("the coaching page is embeddable; the personal profile is NOT (Facebook plugin = Pages only)", () => {
-    expect(AHMED_ZAKE.facebookPageEmbeds).toContain("https://www.facebook.com/AhmedZakePT/");
-    expect(AHMED_ZAKE.facebookPageEmbeds).not.toContain("https://www.facebook.com/SpEeRr/");
   });
 
   it("sameAsLabels keys are exact sameAs URLs with bilingual values", () => {
@@ -150,36 +145,15 @@ describe("Owner follow-up 2 — Facebook: official Page Plugin embed + labeled d
     });
   });
 
-  it("the embed component is Facebook's official Page Plugin, click-to-load, with a direct-link fallback", () => {
-    expect(existsSync(EMBED_COMPONENT), "FacebookPageEmbed.tsx missing").toBe(true);
-    // official plugin endpoint with the href URL-encoded
-    expect(EMBED_SRC).toContain("https://www.facebook.com/plugins/page.php");
-    expect(EMBED_SRC).toContain("encodeURIComponent(pageUrl)");
-    expect(EMBED_SRC).toContain("tabs=timeline");
-    // privacy: nothing loads from Facebook until the visitor clicks —
-    // the iframe must NOT be in the initial (default-false) render.
-    expect(EMBED_SRC).toContain('useState(false)');
-    expect(EMBED_SRC).toContain("{!show ? (");
-    expect(EMBED_SRC).toContain("setShow(true)");
-    // the iframe itself only exists inside the expanded branch
-    expect(EMBED_SRC).toContain("<iframe");
-    // robust fallback: the direct link is rendered OUTSIDE the !show branch
-    expect(EMBED_SRC).toContain('rel="noopener noreferrer me"');
-    expect(EMBED_SRC).toContain("Open on Facebook");
-    expect(EMBED_SRC).toContain("افتح على فيسبوك");
-  });
-
-  it("both EN and AR author pages render the embed + labeled chips", () => {
+  it("both EN and AR author pages render the labeled direct-link chips", () => {
     for (const [name, src] of [
       ["EN", EN_PAGE_SRC],
       ["AR", AR_PAGE_SRC],
     ] as const) {
-      expect(src, `${name} page lost the embed`).toContain("FacebookPageEmbed");
       expect(src, `${name} page lost the direct chips`).toContain("target=\"_blank\"");
       expect(src, `${name} page lost the handle display`).toContain("handle");
+      expect(src, `${name} page lost the bilingual labels`).toContain("sameAsLabels");
     }
-    expect(EN_PAGE_SRC).toContain('lang="en"');
-    expect(AR_PAGE_SRC).toContain('lang="ar"');
   });
 
   it("sameAs itself is untouched — exactly the two owner-verified profiles", () => {

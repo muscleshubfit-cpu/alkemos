@@ -55,19 +55,6 @@ export type AuthorProfile = {
   /** Same-as links — ONLY verifiable profiles (per E-E-A-T framework) */
   sameAs: string[];
   /**
-   * Facebook PAGE urls (a subset of sameAs) that render through Facebook's
-   * OFFICIAL Page Plugin iframe embed
-   * (developers.facebook.com/docs/plugins/page-plugin). Facebook's plugin
-   * supports PAGES only — personal profiles cannot be embedded (platform
-   * restriction), so they stay as direct links.
-   *
-   * Owner follow-up (2026-09-28): plain target="_blank" chips proved
-   * unreliable in in-app browsers / logged-out mobile web (tab opens then
-   * dies on Facebook's app-link bounce) — the in-page official embed gives
-   * a real preview + the real Follow button without leaving the site.
-   */
-  facebookPageEmbeds?: string[];
-  /**
    * Bilingual display labels for sameAs links (keyed by the exact URL).
    * Falls back to hostname/handle when absent. Kept here so the profile
    * pages stay data-driven from the registry.
@@ -128,11 +115,10 @@ export const AHMED_ZAKE: AuthorProfile = {
     "https://www.facebook.com/AhmedZakePT/",
     "https://www.facebook.com/SpEeRr/",
   ],
-  // Owner follow-up (2026-09-28): the coaching PAGE is embeddable through
-  // Facebook's official Page Plugin (real in-page preview + real Follow
-  // button). SpEeRr is a personal PROFILE — Facebook's plugin does not
-  // support profiles (platform restriction), so it stays a direct link.
-  facebookPageEmbeds: ["https://www.facebook.com/AhmedZakePT/"],
+  // Owner reversal (2026-09-28, later the same day): the Facebook Page
+  // Plugin embed shipped in the follow-up was removed by owner order —
+  // the labeled direct-link chips below are the founder pages' only
+  // Facebook presence. sameAsLabels stays (the chips consume it).
   sameAsLabels: {
     "https://www.facebook.com/AhmedZakePT/": { en: "Coaching page", ar: "صفحة التدريب" },
     "https://www.facebook.com/SpEeRr/": { en: "Personal profile", ar: "الملف الشخصي" },

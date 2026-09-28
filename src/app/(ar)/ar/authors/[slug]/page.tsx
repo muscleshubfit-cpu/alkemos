@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Facebook } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { FacebookPageEmbed } from "@/components/FacebookPageEmbed";
 import { AUTHORS, getAuthorBySlug, getProfilePageSchema } from "@/lib/authors";
 import { getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
@@ -178,24 +177,6 @@ export default async function ArabicAuthorProfilePage({
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
               {author.nameAr} على الإنترنت
             </h2>
-            {/* متابعة أمر المالك على P2-11 (2026-09-28): روابط target="_blank"
-                الخالصة كانت تموت في بيئة المالك (متصفحات التطبيقات تقتل التبويب
-                خلال أقل من ثانية، والجوال غير مسجل الدخول يرتد عبر رابط تطبيق
-                فيسبوك — والاختبار الحي في Chromium قياسي أكد أن الروابط نفسها
-                سليمة). صفحة التدريب تُعرض الآن عبر تضمين فيسبوك الرسمي Page
-                Plugin: معاينة حقيقية داخل الصفحة بزر المتابعة الحقيقي، ولا
-                يُحمَّل شيء من فيسبوك قبل الضغط. الملف الشخصي لا يمكن تضمينه
-                (إضافة فيسبوك تدعم الصفحات فقط) فيبقى رابطًا مباشرًا، وكذلك
-                بطاقة هذه الصفحة — بديل موثوق لحاصري الإعلانات ومن يفضل
-                الانتقال المباشر. */}
-            {(author.facebookPageEmbeds ?? []).map((url) => (
-              <FacebookPageEmbed
-                key={url}
-                pageUrl={url}
-                pageName={`${author.nameAr} — ${author.sameAsLabels?.[url]?.ar ?? "صفحة فيسبوك"}`}
-                lang="ar"
-              />
-            ))}
             <ul className="mt-4 flex flex-wrap gap-3">
               {author.sameAs.map((url) => {
                 // P2-11: بطاقات بأسماء المضيف فقط كانت تعرض «facebook.com»

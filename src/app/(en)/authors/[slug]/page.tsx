@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Facebook } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { FacebookPageEmbed } from "@/components/FacebookPageEmbed";
 import { AUTHORS, getAuthorBySlug, getProfilePageSchema } from "@/lib/authors";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -196,26 +195,6 @@ export default async function AuthorProfilePage({
         {author.sameAs.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">Find {author.nameEn} online</h2>
-            {/* Owner follow-up on P2-11 (2026-09-28): plain target="_blank"
-                chips died in the owner's environment (in-app browsers kill
-                the new tab within a second; logged-out mobile web dies on
-                Facebook's app-link bounce — live click tests in a standard
-                Chromium confirmed the links themselves are correct). The
-                coaching PAGE now renders Facebook's OFFICIAL Page Plugin
-                embed: a real in-page preview with the real Follow button,
-                click-to-load so nothing hits facebook.com before the
-                visitor asks. The personal PROFILE cannot be embedded
-                (Facebook's plugin supports Pages only) and stays a direct
-                link, as does this page's chip — robust fallback for
-                ad-blockers and direct-navigation preferences. */}
-            {(author.facebookPageEmbeds ?? []).map((url) => (
-              <FacebookPageEmbed
-                key={url}
-                pageUrl={url}
-                pageName={`${author.nameEn} — ${author.sameAsLabels?.[url]?.en ?? "Facebook page"}`}
-                lang="en"
-              />
-            ))}
             <ul className="mt-4 flex flex-wrap gap-3">
               {author.sameAs.map((url) => {
                 // P2-11: hostname-only labels rendered two identical
