@@ -31,8 +31,8 @@ const ARTICLE_PAGE = resolve(
   __dirname,
   "../../components/blog/BlogArticlePage.tsx",
 );
-const AVATAR_ASSET = "images/authors/ahmed-zake-avatar.jpg";
-const AVATAR_URL = `https://alkemos.com${"/"}images/authors/ahmed-zake-avatar.jpg`;
+const AVATAR_ASSET = "images/authors/coach-avatar.jpg";
+const AVATAR_URL = `https://alkemos.com${"/"}images/authors/coach-avatar.jpg`;
 
 /** Minimal JPEG dimension reader (handles baseline + progressive SOFn). */
 function jpegSize(buf: Buffer): { width: number; height: number } | null {

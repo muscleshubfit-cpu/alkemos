@@ -150,7 +150,11 @@ export const AHMED_ZAKE: AuthorProfile = {
   // (byline 40px, authors index 80px, profile 96–128px) and the profile
   // pages' og:image already declares 400×400 — the JSON-LD Person.image
   // picks this up automatically.
-  avatarUrl: "https://alkemos.com/images/authors/ahmed-zake-avatar.jpg",
+  // Filename note: the first deploy used ahmed-zake-avatar.jpg, whose URL got
+  // negative-cached (24h) at the Cloudflare edge by pre-deploy polling —
+  // renamed to the never-requested coach-avatar.jpg (naming consistent with
+  // coach-portrait.jpg) so no visitor can meet a cached 404.
+  avatarUrl: "https://alkemos.com/images/authors/coach-avatar.jpg",
   profileUrl: "https://alkemos.com/authors/ahmed-zake",
 };
 
