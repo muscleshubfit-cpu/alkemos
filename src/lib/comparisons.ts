@@ -81,9 +81,9 @@ export const COMPARISONS: Comparison[] = [
     h1En: "Alkemos vs MyFitnessPal",
     h1Ar: "Alkemos مقابل MyFitnessPal",
     introEn:
-      "A head-to-head comparison between Alkemos and MyFitnessPal — two platforms that overlap on food tracking but differ sharply on coaching, exercise instruction, AI features, and pricing model. MyFitnessPal is the established calorie tracker with 280M+ users; Alkemos is a newer platform that combines food tracking with a full exercise library, workout programs, free tools, and an AI coach. This page breaks down where each wins.",
+      "A head-to-head comparison between Alkemos and MyFitnessPal — two platforms that overlap on food tracking but differ sharply on coaching, exercise instruction, AI features, and pricing model. MyFitnessPal is the established calorie tracker with 200M+ users; Alkemos is a newer platform that combines food tracking with a full exercise library, workout programs, free tools, and an AI coach. This page breaks down where each wins.",
     introAr:
-      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكنهما تختلفان اختلافًا جوهريًا في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 280 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، أدوات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
+      "مقارنة مباشرة بين Alkemos و MyFitnessPal — منصتان تتقاطعان في تتبّع الطعام لكنهما تختلفان اختلافًا جوهريًا في التدريب، شرح التمارين، ميزات الذكاء الاصطناعي، ونموذج التسعير. MyFitnessPal هو متتبّع السعرات المعروف بأكثر من 200 مليون مستخدم؛ Alkemos منصة أحدث تجمع بين تتبّع الطعام ومكتبة تمارين كاملة، برامج تدريب، أدوات مجانية، ومدرب ذكاء اصطناعي. هذه الصفحة تُفصّل أين يتفوّق كل منهما.",
     descriptionEn:
       "Alkemos vs MyFitnessPal 2026 comparison: food tracking, exercise library, AI coach, pricing, languages, and which platform fits your goals.",
     descriptionAr:
@@ -148,8 +148,8 @@ export const COMPARISONS: Comparison[] = [
         labelAr: "دعم اللغة العربية",
         alkemosValue: "Full bilingual (Arabic + English) with RTL",
         alkemosValueAr: "ثنائي اللغة بالكامل (عربية + إنجليزية) مع دعم RTL",
-        competitorValue: "English-only interface",
-        competitorValueAr: "واجهة إنجليزية فقط",
+        competitorValue: "No Arabic interface",
+        competitorValueAr: "لا تدعم العربية",
         outcome: "win",
       },
       {
@@ -208,7 +208,7 @@ export const COMPARISONS: Comparison[] = [
         paragraphs: [
           "Alkemos wins decisively on platform breadth. MyFitnessPal is a calorie tracker — Alkemos is a complete fitness platform. The 868+-exercise library with step-by-step form instructions, ready-made workout programs for every goal and equipment setup, eight free tools — four calculators (calorie, BMI, macro, body fat), a water tracker, a meal planner, and two AI planners — and the EVO AI coach together cover what would cost you 3–4 separate subscriptions on the MyFitnessPal model.",
           "The EVO AI coach is the single biggest differentiator. MyFitnessPal's premium tier offers 'insights' — basic charts and trends. Alkemos's EVO reads your health data, builds you a personalized nutrition and workout plan, suggests meal and exercise swaps based on your preferences, and answers fitness questions 24/7. This is closer to having a human coach than a tracker.",
-          "Arabic speakers have no real choice: MyFitnessPal is English-only. Alkemos is fully bilingual with native RTL support, including Arabic exercise names, Arabic food names, and an Arabic AI coach. For the 400M+ Arabic speakers underserved by Western fitness apps, this alone is the deciding factor.",
+          "Arabic speakers have no real choice: MyFitnessPal ships in many languages but offers no Arabic interface. Alkemos is fully bilingual with native RTL support, including Arabic exercise names, Arabic food names, and an Arabic AI coach. For the 400M+ Arabic speakers underserved by Western fitness apps, this alone is the deciding factor.",
         ],
       },
       {
@@ -232,7 +232,7 @@ export const COMPARISONS: Comparison[] = [
         paragraphs: [
           "Alkemos يتفوّق بوضوح في اتساع المنصة. MyFitnessPal متتبّع سعرات — Alkemos منصة لياقة كاملة. مكتبة الـ868+ تمرينًا مع شرح خطوة بخطوة، برامج التدريب الجاهزة لكل هدف وتجهيز، ثماني أدوات مجانية (أربع حاسبات: سعرات، BMI، ماكروز، نسبة دهون — إضافة إلى متتبع الماء ومخطط الوجبات ومولدا خطط الذكاء الاصطناعي)، ومدرب الذكاء الاصطناعي EVO مجتمعةً تغطّي ما كلّفك 3–4 اشتراكات منفصلة في نموذج MyFitnessPal.",
           "مدرب EVO الذكي هو الفارق الأكبر. النسخة المدفوعة من MyFitnessPal تُقدّم «رؤى» — رسوم بيانية واتجاهات أساسية. EVO في Alkemos يقرأ بياناتك الصحية، يبني لك خطة تغذية وتمارين مخصصة، يقترح تبديلات للوجبات والتمارين حسب تفضيلاتك، ويُجيب على أسئلة اللياقة 24/7. هذا أقرب لامتلاك مدرب بشري من امتلاك متتبّع.",
-          "الناطقون بالعربية ليس لديهم خيار حقيقي: MyFitnessPal إنجليزي فقط. Alkemos ثنائي اللغة بالكامل مع دعم RTL أصلي، بما في ذلك أسماء التمارين بالعربية، أسماء الأطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. ولأكثر من 400 مليون ناطق بالعربية لا تخدمهم تطبيقات اللياقة الغربية، فهذه وحدها كفيلة بحسم القرار.",
+          "الناطقون بالعربية ليس لديهم خيار حقيقي: MyFitnessPal يدعم لغات عديدة لكنه لا يوفر واجهة عربية. Alkemos ثنائي اللغة بالكامل مع دعم RTL أصلي، بما في ذلك أسماء التمارين بالعربية، أسماء الأطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. ولأكثر من 400 مليون ناطق بالعربية لا تخدمهم تطبيقات اللياقة الغربية، فهذه وحدها كفيلة بحسم القرار.",
         ],
       },
       {

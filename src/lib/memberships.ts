@@ -115,7 +115,7 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       `تصفح ${EX_PLUS} تمرينًا`,
       `تصفح ${FOODS_PLUS} صنفًا غذائيًا`,
       "تصفح برامج التدريب",
-      `${TOOLS_COUNT}+ أدوات لياقة وتغذية مجانية`,
+      `${TOOLS_COUNT} أدوات لياقة وتغذية مجانية`,
       "خطط AI: توليدان شهريًا (تغذية أو تمرين) — رصيد مجاني لكل زائر، وتبقى خطتك على جهازك بدون حساب",
       "بالحساب المجاني: حفظ دائم لخططك ومزامنتها عبر أجهزتك",
       "EVO: 10 رسائل يوميًا",
@@ -126,7 +126,10 @@ export const MEMBERSHIPS: MembershipInfo[] = [
       `Browse ${EX_PLUS} exercises`,
       `Browse ${FOODS_PLUS} foods`,
       "Browse workout programs",
-      `${TOOLS_COUNT}+ free fitness & nutrition tools`,
+      // CONTENT-AUDIT P2-3 (audit §1.12): the count is exactly 8 (TOOLS_COUNT)
+      // and every other surface states it without "+" — the Free-tier card
+      // must not imply more tools than exist.
+      `${TOOLS_COUNT} free fitness & nutrition tools`,
       "AI plans: 2 generations/month (nutrition or workout) — a free allowance for every visitor; no account keeps your plan on this device",
       "With a free account: plans saved permanently & synced across your devices",
       "EVO: 10 messages a day",
@@ -385,8 +388,8 @@ export const COMPARISON_ROWS: Array<{
     // 2026-09-15: the row was "حاسبات اللياقة/Fitness Calculators" while
     // the hub serves the full 8-tool cluster (tools-shared.ts) — renamed
     // to the actual service, matching the tier feature lines above.
-    feature: `الأدوات المجانية (${TOOLS_COUNT}+)`,
-    featureEn: `Free Tools (${TOOLS_COUNT}+)`,
+    feature: `الأدوات المجانية (${TOOLS_COUNT})`,
+    featureEn: `Free Tools (${TOOLS_COUNT})`,
     free: "✓",
     premium: "✓",
     pro: "✓",

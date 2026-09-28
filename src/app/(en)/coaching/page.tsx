@@ -367,8 +367,8 @@ export default function CoachingPage() {
                 {
                   title: isAr ? "استرداد كامل خلال 7 أيام" : "Full 7-day refund",
                   body: isAr
-                    ? "إن لم تُستخدم أي ميزة مدفوعة، نعيد لك كامل قيمة الاشتراك خلال 7 أيام من التفعيل — قراراتك هنا بلا مخاطرة."
-                    : "If no paid feature has been used, we refund your full subscription within 7 days of activation — joining here is risk-free.",
+                    ? "إن لم تُستخدم أي ميزة مدفوعة، نعيد لك كامل قيمة الاشتراك خلال 7 أيام من التفعيل — شروط واضحة، بلا التزام محفوف بالمخاطرة."
+                    : "If no paid feature has been used, we refund your full subscription within 7 days of activation — the conditions are simple and stated up front.",
                   href: isAr ? "/ar/memberships" : "/memberships",
                   cta: isAr ? "سياسة الاسترداد ›" : "Refund policy ›",
                 },

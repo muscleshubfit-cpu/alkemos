@@ -535,7 +535,7 @@ export const HOME_FAQ_DEFAULT: { en: SiteFaqItem[]; ar: SiteFaqItem[] } = {
     },
     {
       q: "Does Alkemos suit beginners?",
-      a: "Absolutely. Every movement is paired with clear visual form cues to keep you safe and injury-free, while our structured programs start from zero-equipment home basics and progress alongside you.",
+      a: "Absolutely. Every movement is paired with clear visual form cues to help you train safely and reduce injury risk, while our structured programs start from zero-equipment home basics and progress alongside you.",
     },
     {
       q: "What's the difference between a membership and online coaching?",
@@ -557,7 +557,7 @@ export const HOME_FAQ_DEFAULT: { en: SiteFaqItem[]; ar: SiteFaqItem[] } = {
     },
     {
       q: "هل يناسبني Alkemos إذا كنت مبتدئًا؟",
-      a: "نعم بالتأكيد. كل تمرين مزود بصور توضيحية وتعليمات الأداء الصحيح لحمايتك من الإصابات، وتوفر المنصة برامج تدريبية وتغذوية تبدأ من مستوى الصفر والتمارين المنزلية وتتطور معك تدريجياً.",
+      a: "نعم بالتأكيد. كل تمرين مزود بصور توضيحية وتعليمات الأداء الصحيح لتقلل خطر الإصابات وتتدرّب بأمان، وتوفر المنصة برامج تدريبية وتغذوية تبدأ من مستوى الصفر والتمارين المنزلية وتتطور معك تدريجياً.",
     },
     {
       q: "ما الفرق بين العضوية والتدريب الأونلاين؟",

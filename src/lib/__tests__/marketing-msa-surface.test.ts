@@ -459,7 +459,8 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "5 calculators", // 2026-09-15 accuracy fix: 4 calculators + water tracker
       "خمس حاسبات", // same miscount in Arabic
       "2,100", // stale ExRx count (2,200+ verified from exrx.net)
-      "350M", // stale MFP user count (280M+ company-reported 2026)
+      "350M", // stale MFP user count
+      "280M", // CONTENT-AUDIT P1-5 (2026-09-28): softened to 200M+ — audit found 280M+ unsourced (estimates range 200–300M)
       "~$95/yr", // stale Freeletics pricing
       "~$150/yr", // stale Freeletics pricing
       "roughly $150/year", // stale Freeletics body claim
@@ -477,7 +478,7 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
       "8,830+ foods",
       "2,200+",
-      "280M+",
+      "200M+",
       "~$80/yr", // Freeletics 12-mo Training Coach (App Store, verified)
       'dataAsOf: "2026-09-15"', // re-verification date on all three (2026-09-15 refresh)
       "Premium+ tier ($24.99/month or $99.99/year)", // MFP Premium+

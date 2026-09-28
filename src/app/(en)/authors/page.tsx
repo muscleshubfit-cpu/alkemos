@@ -84,9 +84,13 @@ export default function AuthorsIndexPage() {
           Authors &amp; Reviewers
         </h1>
         <p className="mt-4 max-w-2xl text-base font-normal leading-relaxed text-[var(--muted-2)] md:text-lg">
-          Every exercise, food page, program, and article on Alkemos is written
-          and reviewed by real professionals. Meet the people behind the
-          content — their experience, credentials, and the standards they
+          {/* CONTENT-AUDIT P1-3 (2026-09-28, audit §1.5): "written by" was not
+              defensible — library data is imported and curated, blog posts are
+              AI-generated through an editorial pipeline. The honest, stronger
+              E-E-A-T claim: reviewed and curated by real professionals. */}
+          Every exercise, food page, program, and article on Alkemos is
+          reviewed and curated by real professionals. Meet the people behind
+          the content — their experience, credentials, and the standards they
           review against.
         </p>
 

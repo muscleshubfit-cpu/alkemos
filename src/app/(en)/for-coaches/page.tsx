@@ -238,7 +238,7 @@ export default function ForCoachesPage() {
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
                 {isAr
                   ? "توليد الخطط لعميلك يسحب من رصيده الموحد حسب باقته — رصيد واحد شهري يجمع التغذية والتمارين معًا: بريميوم 4 توليدات شهريًا · برو 8 · التدريب الأونلاين 8 (ويورّث كل مزايا برو). وهو الرصيد نفسه الذي يستخدمه عميلك من EVO وصفحات المخططات؛ يتجدد في أول كل شهر، ولا يُحتسب إلا التوليد الناجح — الفاشل لا يحرق حصة. أما التعديل بيدك ورفع الخطط اليدوية وإعادة توليد أي وجبة أو صنف أو يوم تدريب أو تمرين بالذكاء الاصطناعي — فكلها غير محدودة تمامًا."
-                  : "Generating a client's plans draws from his own tier's unified monthly balance — ONE pool for nutrition AND workouts combined: Premium 4 generations/month · Pro 8 · Coaching 8 (inherits every Pro benefit). It is the same pool he spends through EVO and the planner pages; it resets on the 1st, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
+                  : "Generating a client's plans draws from their own tier's unified monthly balance — ONE pool for nutrition AND workouts combined: Premium 4 generations/month · Pro 8 · Coaching 8 (inherits every Pro benefit). It is the same pool they spend through EVO and the planner pages; it resets on the 1st, and only successful generations count — failed ones never burn quota. Hand-editing, manual uploads, and AI-regenerating any meal, item, workout day, or exercise are all unlimited."}
               </p>
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function ForCoachesPage() {
               t: isAr ? "حدد سعرك وفعّل" : "Price it & activate",
               b: isAr
                 ? "أنت من يحصّل من عميلك، ثم تفعّل اشتراكه من محفظتك على المنصة."
-                : "You get paid by your client, then activate him from your wallet.",
+                : "You get paid by your client, then activate them from your wallet.",
             },
           ].map((s) => (
             <div key={s.n} className="marble-card p-6">
