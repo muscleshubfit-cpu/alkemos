@@ -31,6 +31,16 @@ import { VALID_CATEGORY_IDS } from "@/lib/blog";
 import { articleSlugFromTitle } from "@/lib/ai-jobs-client";
 import { resolveSlug, sanitizeModelSlug } from "@/lib/slug";
 import { AR_MSA_EDITOR_LAW } from "@/lib/blog-msa";
+// AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29): the single-shot
+// fallback generator composes the SAME canonical law blocks as the
+// automated pipeline (blog-editorial-law.ts) — its previous inline
+// paraphrases were the audit's F8 fork (two systems, drifting specs).
+import {
+  EDITORIAL_ANSWER_FIRST,
+  EDITORIAL_EEAT,
+  EDITORIAL_FACT_GUARD,
+  EDITORIAL_FAQ_COUNT_RANGE,
+} from "@/lib/blog-editorial-law";
 import {
   fetchFeaturedImage,
   embedBodyImages,
@@ -809,19 +819,16 @@ async function runArticleGenerate(payload: Record<string, unknown>) {
     // PHASE 172 (owner order — GEO answer-first + E-E-A-T without
     // fabrication + fact guard; same laws as the automated pipeline's
     // P2 so both article surfaces ship one quality bar):
-    isAr
-      ? "الإجابة أولًا (إلزامي): أول فقرة أو فقرتين تجيبان مباشرة عن نية البحث الأساسية للموضوع — إجابة محددة قابلة للاقتباس قبل أي توسع، بلا مقدمات عامة أو حشو."
-      : "ANSWER-FIRST (mandatory): the first 1-2 paragraphs directly answer the core search intent behind the topic — a specific, quotable answer before any expansion; no generic warm-up, no filler.",
-    isAr
-      ? "خبرة بلا اختلاق (E-E-A-T): منظور تدريبي عملي واستنتاجات خبير مسموحة؛ ممنوع اختلاق قصص عملاء أو نتائج أو شهادات أو تجارب شخصية أو مؤهلات أو تجارب لم تحدث، وممنوع تكرار اسم الكابتن داخل النص كحشو."
-      : "E-E-A-T WITHOUT FABRICATION: expert reasoning and a practical coaching perspective are welcome; fabricating client stories, results, testimonials, personal experiences, credentials, or experiments is strictly forbidden; do not insert the coach's name into the body as authority filler.",
-    isAr
-      ? "حراسة الحقائق: التوقيتات والجرعات والأرقام والنتائج توصيات شائعة تعتمد على السياق الفردي (نطاقات) لا قواعد مطلقة؛ ممنوع اختلاق دراسات أو باحثين أو إحصاءات أو ادعاءات سريرية — صياغة عامة فقط مثل «تشير الأدلة إلى...»."
-      : "FACT GUARD: timing, dosage, numbers, and outcomes are commonly recommended, context-dependent ranges — never absolute rules; fabricating studies, authors, statistics, or clinical claims is strictly forbidden — generic evidence phrasing only ('research suggests...').",
+    // AUDIT_REPORT §9-1.2: canonical blocks replace the paraphrases —
+    // byte-exact same law text as the pipeline's P2 (a RAISE per the
+    // quality-first law: the P2 wording is the stricter, fuller one).
+    EDITORIAL_ANSWER_FIRST[isAr ? "ar" : "en"],
+    EDITORIAL_EEAT[isAr ? "ar" : "en"],
+    EDITORIAL_FACT_GUARD[isAr ? "ar" : "en"],
     internalLinksLine,
     isAr
-      ? "أنشئ أيضاً قسم أسئلة شائعة: 4-6 أسئلة حقيقية عن هذا الموضوع تحديدًا (نية بحث المقال نفسه — لا أسئلة عامة عن اللياقة) مع إجابات موجزة دقيقة (تعرض في قسم الأسئلة الشائعة بالصفحة)."
-      : "Also produce an FAQ set: 4-6 genuine questions about THIS topic specifically (the article's own search intent — not generic fitness questions) with concise accurate answers (rendered in the page's FAQ section).",
+      ? `أنشئ أيضاً قسم أسئلة شائعة: ${EDITORIAL_FAQ_COUNT_RANGE.min}-${EDITORIAL_FAQ_COUNT_RANGE.max} أسئلة حقيقية عن هذا الموضوع تحديدًا (نية بحث المقال نفسه — لا أسئلة عامة عن اللياقة) مع إجابات موجزة دقيقة (تعرض في قسم الأسئلة الشائعة بالصفحة).`
+      : `Also produce an FAQ set: ${EDITORIAL_FAQ_COUNT_RANGE.min}-${EDITORIAL_FAQ_COUNT_RANGE.max} genuine questions about THIS topic specifically (the article's own search intent — not generic fitness questions) with concise accurate answers (rendered in the page's FAQ section).`,
     tone && (isAr ? `النبرة: ${tone}.` : `Tone: ${tone}.`),
     audience && (isAr ? `الجمهور المستهدف: ${audience}.` : `Target audience: ${audience}.`),
     category && (isAr ? `التصنيف: ${category}.` : `Category: ${category}.`),

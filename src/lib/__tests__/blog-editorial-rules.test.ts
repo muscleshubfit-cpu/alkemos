@@ -39,6 +39,12 @@ const libDir = join(srcDir, "lib");
 const read = (p: string) => readFileSync(p, "utf-8");
 
 const pipelineSrc = read(join(libDir, "blog-pipeline.ts"));
+// AUDIT_REPORT §9-1.2 (2026-09-29): the LANG_RULE text moved to
+// blog-editorial-law.ts (EDITORIAL_LANG_RULE) — the law's single
+// source. pipelineSrc still pins the P1/P2/P4 COMPOSITION (the
+// re-export + prompt injection); the law-text pins below read the
+// new module (the Phase-175 AR_MSA_EDITOR_LAW move precedent).
+const lawSrc = read(join(libDir, "blog-editorial-law.ts"));
 const researchSrc = read(join(libDir, "blog-research.ts"));
 const processorsSrc = read(join(libDir, "ai-job-processors.ts"));
 const blogImagesSrc = read(join(libDir, "blog-images.ts"));
@@ -142,27 +148,32 @@ describe("Phase 173 — unfilled AdSense slot collapse", () => {
 // 5. Arabic — Pan-Arab Modern Standard Arabic editorial law
 // ─────────────────────────────────────────────────────────────────
 describe("Phase 173 — Arabic Pan-Arab MSA editorial law", () => {
+  it("P1/P2/P4 still compose the shared law (LANG_RULE re-exports EDITORIAL_LANG_RULE)", () => {
+    expect(pipelineSrc).toContain('export const LANG_RULE: Record<"en" | "ar", string> = EDITORIAL_LANG_RULE;');
+    expect(pipelineSrc).toContain("${LANG_RULE[lang]}");
+  });
+
   it("LANG_RULE.ar demands Modern Standard Arabic for all Arab readers (no dialect)", () => {
-    expect(pipelineSrc).toContain("العربية الفصحى الحديثة");
-    expect(pipelineSrc).toContain("Pan-Arab Modern Standard Arabic");
+    expect(lawSrc).toContain("العربية الفصحى الحديثة");
+    expect(lawSrc).toContain("Pan-Arab Modern Standard Arabic");
   });
 
   it("LANG_RULE.ar explicitly bans the Egyptian dialect request that produced legacy dialect content", () => {
     // The comment quotes the old rule; the LIVE rule text must not ask
     // for an Egyptian/Gulf tone anymore.
-    expect(pipelineSrc).not.toContain("الفصحى المبسطة بنبرة مصرية");
-    expect(pipelineSrc).toContain("ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)");
+    expect(lawSrc).not.toContain("الفصحى المبسطة بنبرة مصرية");
+    expect(lawSrc).toContain("ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)");
   });
 
   it("LANG_RULE.ar bans dialect-only vocabulary, literal translation, and weak grammar", () => {
-    expect(pipelineSrc).toContain("عشان، مش، ازاي، بتاع");
-    expect(pipelineSrc).toContain("الترجمة الحرفية عن الإنجليزية");
-    expect(pipelineSrc).toContain("أخطاء النحو والإملاء");
+    expect(lawSrc).toContain("عشان، مش، ازاي، بتاع");
+    expect(lawSrc).toContain("الترجمة الحرفية عن الإنجليزية");
+    expect(lawSrc).toContain("أخطاء النحو والإملاء");
   });
 
   it("LANG_RULE.ar carries the correct-title exemplar (كم من الماء أحتاج؟ not كم ماء احتاج)", () => {
-    expect(pipelineSrc).toContain("كم من الماء أحتاج يوميًا؟");
-    expect(pipelineSrc).toContain("لا «كم ماء احتاج»");
+    expect(lawSrc).toContain("كم من الماء أحتاج يوميًا؟");
+    expect(lawSrc).toContain("لا «كم ماء احتاج»");
   });
 
   it("P0 research also demands Pan-Arab MSA (no Egyptian/Gulf wording)", () => {
@@ -322,8 +333,8 @@ import { fallbackResearch } from "@/lib/blog-research";
 
 describe("Phase 176 — Latin-contamination law reaches every prompt surface", () => {
   it("LANG_RULE.ar (P1 + P2 + P4) bans raw Latin mixing inside Arabic prose", () => {
-    expect(pipelineSrc).toContain("ممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية");
-    expect(pipelineSrc).toContain("مصل اللبن (Whey)");
+    expect(lawSrc).toContain("ممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية");
+    expect(lawSrc).toContain("مصل اللبن (Whey)");
   });
   it("the coach single-shot generator (dispatch-fallback path) carries the same clause", () => {
     expect(processorsSrc).toContain("بلا خلط كلمات إنجليزية/لاتينية سائبة");

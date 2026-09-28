@@ -336,27 +336,37 @@ describe("extractH2s", () => {
 const libDir = join(process.cwd(), "src", "lib");
 const pipelineSrc = readFileSync(join(libDir, "blog-pipeline.ts"), "utf-8");
 const processorsSrc = readFileSync(join(libDir, "ai-job-processors.ts"), "utf-8");
+// AUDIT_REPORT §9-1.2 (2026-09-29): the five writing-law TEXTS moved to
+// blog-editorial-law.ts (the single editorial constitution) — the law
+// pins below read the new module; the COMPOSITION pins (variation
+// seeds, digests, prompt structure) keep reading the builders.
+const lawSrc = readFileSync(join(libDir, "blog-editorial-law.ts"), "utf-8");
 
 describe("Phase 172 prompt contracts (source guards)", () => {
   it("P2 carries the ANSWER-FIRST law in both languages", () => {
-    expect(pipelineSrc).toContain("ANSWER-FIRST (mandatory)");
-    expect(pipelineSrc).toContain("الإجابة أولًا (قانون إلزامي)");
+    expect(lawSrc).toContain("ANSWER-FIRST (mandatory)");
+    expect(lawSrc).toContain("الإجابة أولًا (قانون إلزامي)");
+    // and P2 composes the shared block (no fork — audit §9-1.2)
+    expect(pipelineSrc).toContain("EDITORIAL_ANSWER_FIRST[lang]");
   });
 
   it("P2 carries the E-E-A-T no-fabrication law", () => {
-    expect(pipelineSrc).toContain("E-E-A-T WITHOUT FABRICATION");
-    expect(pipelineSrc).toContain("خبرة بلا اختلاق");
+    expect(lawSrc).toContain("E-E-A-T WITHOUT FABRICATION");
+    expect(lawSrc).toContain("خبرة بلا اختلاق");
+    expect(pipelineSrc).toContain("EDITORIAL_EEAT[lang]");
   });
 
   it("P2 carries the health-claims fact guard", () => {
-    expect(pipelineSrc).toContain("FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain)");
-    expect(pipelineSrc).toContain("حراسة الحقائق (صحة/مكملات/تدريب)");
+    expect(lawSrc).toContain("FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain)");
+    expect(lawSrc).toContain("حراسة الحقائق (صحة/مكملات/تدريب)");
+    expect(pipelineSrc).toContain("EDITORIAL_FACT_GUARD[lang]");
   });
 
   it("P2 mandates the article-specific FAQ section in the exact contract format", () => {
     expect(pipelineSrc).toContain('en: "## Frequently Asked Questions"');
     expect(pipelineSrc).toContain('ar: "## الأسئلة الشائعة"');
-    expect(pipelineSrc).toContain("FAQ SECTION (mandatory, at the END of the article)");
+    expect(lawSrc).toContain("FAQ SECTION (mandatory, at the END of the article)");
+    expect(pipelineSrc).toContain("EDITORIAL_FAQ_CONTRACT[lang]");
   });
 
   it("P2 injects the per-run variation seed (regeneration anti-repetition)", () => {
@@ -372,17 +382,23 @@ describe("Phase 172 prompt contracts (source guards)", () => {
   it("P4 keeps the answer-first check, E-E-A-T guard and extended source whitelist", () => {
     expect(pipelineSrc).toContain("ANSWER-FIRST CHECK (mandatory)");
     expect(pipelineSrc).toContain("E-E-A-T GUARD");
-    expect(pipelineSrc).toContain("pubmed.ncbi.nlm.nih.gov");
-    expect(pipelineSrc).toContain("ods.od.nih.gov");
-    expect(pipelineSrc).toContain("acsm.org");
-    expect(pipelineSrc).toContain("issn-online.org");
+    // the whitelist is composed from the shared law constant (audit §9-1.2)
+    expect(pipelineSrc).toContain("EDITORIAL_AUTHORITY_DOMAINS.join(\", \")");
+    expect(lawSrc).toContain("pubmed.ncbi.nlm.nih.gov");
+    expect(lawSrc).toContain("ods.od.nih.gov");
+    expect(lawSrc).toContain("acsm.org");
+    expect(lawSrc).toContain("issn-online.org");
   });
 
   it("the coach-path generator carries the same quality laws", () => {
-    expect(processorsSrc).toContain("ANSWER-FIRST (mandatory)");
-    expect(processorsSrc).toContain("E-E-A-T WITHOUT FABRICATION");
-    expect(processorsSrc).toContain("FACT GUARD:");
-    expect(processorsSrc).toContain("الإجابة أولًا (إلزامي)");
+    // AUDIT §9-1.2: the fallback composes the CANONICAL blocks — no fork.
+    expect(processorsSrc).toContain("EDITORIAL_ANSWER_FIRST[isAr ? \"ar\" : \"en\"]");
+    expect(processorsSrc).toContain("EDITORIAL_EEAT[isAr ? \"ar\" : \"en\"]");
+    expect(processorsSrc).toContain("EDITORIAL_FACT_GUARD[isAr ? \"ar\" : \"en\"]");
+    // the law TEXT itself lives once, in the shared module
+    expect(lawSrc).toContain("ANSWER-FIRST (mandatory)");
+    expect(lawSrc).toContain("E-E-A-T WITHOUT FABRICATION");
+    expect(lawSrc).toContain("الإجابة أولًا (قانون إلزامي)");
   });
 
   it("P5 lifts the markdown FAQ into faq_json (the filler root-cause fix)", () => {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runPhase0Research } from "@/lib/blog-research";
+import { runPhase0Research, researchUsedFallback } from "@/lib/blog-research";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getLangParam, findAdoptablePairRow, findRecentPairRows, markQueueRowCoachRequested, type PipelineLang, type QueueItem } from "@/lib/blog-queue";
 import {
@@ -50,9 +50,35 @@ export const maxDuration = 60;
 
 type P0BundleResearch = Awaited<ReturnType<typeof runPhase0Research>>["research"];
 
-function bundleWithBrief(research: P0BundleResearch, brief: SharedBrief | null): string {
+/** AUDIT_REPORT §9-المرحلة 1, item 3 — the fallback-visibility stamp.
+ * Every inserted bundle carries researchSource so a curated-pool run is
+ * VISIBLE on the queue row (audit C3: 24% of runs fell back silently).
+ * Additive top-level bundle field — legacy rows simply lack it. */
+function researchSourceStamp(p0Source: string): "fallback" | "model" {
+  return researchUsedFallback(p0Source) ? "fallback" : "model";
+}
+
+/** AUDIT_REPORT §9-1.3 — the ALERT half of the fallback law: never fall
+ * back silently. This console.error lands in the GHA run log where the
+ * daily coverage is reviewed (the audit's «تنبيه عند حدوثه بدل النشر
+ * الصامت»); queue-health surfaces the same state for the admin panel. */
+function alertIfFallback(p0Source: string, lang: string): void {
+  if (researchUsedFallback(p0Source)) {
+    console.error(
+      `[blog/p0-research] ⚠ RESEARCH FALLBACK (${lang}): the whole model chain failed — topics come from the STATIC curated pool, NOT real search data (source=curated-fallback). The queue row is stamped researchSource=fallback and the admin queue-health panel flags it.`,
+    );
+  }
+}
+
+function bundleWithBrief(
+  research: P0BundleResearch,
+  brief: SharedBrief | null,
+  researchSource: "fallback" | "model" = "model",
+): string {
   return JSON.stringify(
-    brief ? { research0: research, sharedBrief: brief } : { research0: research },
+    brief
+      ? { research0: research, sharedBrief: brief, researchSource }
+      : { research0: research, researchSource },
   );
 }
 
@@ -253,6 +279,8 @@ export async function GET(request: NextRequest) {
     ]);
     // `mine` = MY language's Phase-0 result; `other` = the twin language's.
     const mineResearch = mine.research;
+    alertIfFallback(mine.source, lang);
+    alertIfFallback(other.source, otherLang);
 
     // Pairing call — its failure degrades the WHOLE run to legacy V3.
     let brief: SharedBrief | null = null;
@@ -320,7 +348,7 @@ export async function GET(request: NextRequest) {
       focus_keyword: myKeyword,
       category: mine.category,
       pairId: brief?.pairId ?? null,
-      bundle: bundleWithBrief(mineResearch, brief),
+      bundle: bundleWithBrief(mineResearch, brief, researchSourceStamp(mine.source)),
       coachRequested: coachRun || undefined,
     });
 
@@ -343,7 +371,7 @@ export async function GET(request: NextRequest) {
             : mineResearch.keywords[0]?.keyword || (lang === "ar" ? "لياقة" : "fitness"),
           category: mine.category,
           pairId: null,
-          bundle: JSON.stringify({ research0: mineResearch }),
+          bundle: bundleWithBrief(mineResearch, null, researchSourceStamp(mine.source)),
           coachRequested: coachRun || undefined,
         });
       }
@@ -364,7 +392,7 @@ export async function GET(request: NextRequest) {
           focus_keyword: topicToKeyword(twinTopic),
           category: other.category,
           pairId: brief.pairId,
-          bundle: bundleWithBrief(other.research, brief),
+          bundle: bundleWithBrief(other.research, brief, researchSourceStamp(other.source)),
         });
         twinInserted = !!twinRes.row;
         if (twinRes.error) {
@@ -385,6 +413,9 @@ export async function GET(request: NextRequest) {
       faqs: mineResearch.faqs.length,
       topics: mineResearch.topics.length,
       source: mine.source,
+      // AUDIT_REPORT §9-1.3: the fallback state rides the response too —
+      // one boolean the runner log (and any watchdog) can grep.
+      researchFallback: researchUsedFallback(mine.source) || undefined,
       pairMode: brief ? ("created" as const) : ("legacy" as const),
       pairId: brief?.pairId,
       twinInserted,
@@ -437,13 +468,14 @@ async function tryJoinPair(
 
     const mine = await runPhase0Research(lang);
     const topic = lang === "ar" ? brief.topicAr : brief.topicEn;
+    alertIfFallback(mine.source, lang);
     const { row: inserted, error: insErr } = await insertResearchedRow({
       language: lang,
       topic,
       focus_keyword: topicToKeyword(topic),
       category: mine.category,
       pairId: brief.pairId,
-      bundle: bundleWithBrief(mine.research, brief),
+      bundle: bundleWithBrief(mine.research, brief, researchSourceStamp(mine.source)),
     });
     if (insErr || !inserted) {
       // Missing pair_id column (0076) → JOIN unavailable; CREATE below

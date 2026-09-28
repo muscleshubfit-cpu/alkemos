@@ -3,6 +3,9 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeCategory } from "@/lib/blog-server";
 import { countWords, splitFaqSection, filterFaqsByRelevance, clampMetaTitle, clampMetaDescription, type OutlinePlan } from "@/lib/blog-pipeline";
 import { scanLatinContamination } from "@/lib/blog-msa";
+import { runP5QualityGates } from "@/lib/blog-quality-gates";
+import { EDITORIAL_FAQ_COUNT_RANGE } from "@/lib/blog-editorial-law";
+import { getRecentPostsByLanguage } from "@/lib/blog-topics";
 import { embedBodyImages } from "@/lib/blog-images";
 import { insertToolLinks } from "@/lib/blog-tool-links";
 import { slugifyAscii } from "@/lib/slug";
@@ -257,10 +260,48 @@ export async function GET(request: NextRequest) {
       }
     }
     const toolLinkPass = insertToolLinks(faqStrippedMd, lang);
+    // AUDIT_REPORT §9-1.4: the FAQ ceiling applies to the degraded
+    // research0 path too (its pool holds up to 10 — the lifted path is
+    // already capped at 7 by splitFaqSection).
     const finalFaqJson =
       finalFaqs.length > 0
         ? finalFaqs
-        : filterFaqsByRelevance(bundle.research0?.faqs ?? [], relevanceHint);
+        : filterFaqsByRelevance(bundle.research0?.faqs ?? [], relevanceHint).slice(
+            0,
+            EDITORIAL_FAQ_COUNT_RANGE.max,
+          );
+
+    // AUDIT_REPORT §9-المرحلة 1, item 4 (2026-09-29) — the EXPANDED
+    // deterministic quality battery (G2-G6; G1 length ran above).
+    // Same mechanism as the Latin gate and the Phase-0 length floor:
+    // any violation fails the row HONESTLY with a diagnostic naming the
+    // gate, and the 23:40 UTC dispatch backstop tops the day's slot up
+    // with a fresh run (audit: «أي فشل → إعادة توليد… markFailed +
+    // backstop»). The whole blog is YMYL health content, so the
+    // authority-link floor applies to every article (audit F6: 62/97
+    // shipped with zero external links). legalTitles = published post
+    // titles of THIS language (the P4 anchor law allows an exact title
+    // as anchor text); the scan is one light card query and degrades to
+    // an empty whitelist on any DB hiccup (gate still runs — a real
+    // title-anchor is then judged by the grammar rules alone, which
+    // 2-5-word grammatical titles pass anyway).
+    let legalTitles: string[] = [];
+    try {
+      legalTitles = (await getRecentPostsByLanguage(lang, 100)).map((p) => p.title);
+    } catch {
+      /* best-effort whitelist — battery runs regardless */
+    }
+    const gateViolations = runP5QualityGates({
+      lang,
+      bodyMd: toolLinkPass.md,
+      faqCount: finalFaqJson.length,
+      legalTitles,
+    });
+    if (gateViolations.length > 0) {
+      throw new Error(
+        `p5: quality-gate battery failed — ${gateViolations.join(" | ")} — rerun p4-review`,
+      );
+    }
 
     // PHASE 176 — final deterministic Latin gate (publish-layer law,
     // mirror of the 171 daily-quota guard): an AR article whose BODY

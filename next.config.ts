@@ -147,6 +147,32 @@ const nextConfig: NextConfig = {
       // ─────────────────────────────────────────────────────────────
       { source: "/ar/blog/muscle-building-bodyweight-home", destination: "/ar/blog/home-muscle-building-guide-no-equipment", statusCode: 301 },
       { source: "/blog/4-week-beginner-hypertrophy-plan", destination: "/blog/4-week-beginner-muscle-building-plan", statusCode: 301 },
+      // ─────────────────────────────────────────────────────────────
+      // AUDIT_REPORT.md §9-المرحلة 1, item 5 (2026-09-29) — the two
+      // audit-CONFIRMED duplicate-intent pairs (F4) consolidated. The
+      // four-article EN recovery cluster gets INTENT DIFFERENTIATION
+      // instead (retitled by migration 0096 — each modality keeps its
+      // own long-tail); the AR "دليل شامل" equipment pair (no-equipment
+      // vs simple-weights) stays as legitimately distinct search
+      // intents. Decisions + live evidence (H2-skeleton comparison)
+      // documented in migration 0096 and the PHASE1-QUALITY-2026-09-29
+      // worklog entry:
+      //   - EN calories pair (title Jaccard 0.78 — both answer literally
+      //     «How many calories should I eat to lose weight»): the
+      //     7-day planner survives (exact-match question title,
+      //     calculator/planner structure, no stuffing evidence); the
+      //     beginner twin carried the audit's §10.2 keyword-stuffing
+      //     live evidence.
+      //   - AR design pair (same «تصميم برنامج تمارين بناء العضلات في
+      //     المنزل» intent): the step-by-step guide survives; the
+      //     plan twin's no-equipment angle is already comprehensively
+      //     served by home-muscle-building-guide-no-equipment.
+      // 301 (not 308) for maximum crawler compatibility — same as
+      // 178/192. Migration 0096 unpublishes both rows (sitemap/RSS/
+      // listings drop them automatically) in the same push.
+      // ─────────────────────────────────────────────────────────────
+      { source: "/blog/calories-to-lose-weight-build-muscle-beginner", destination: "/blog/calculate-daily-calories-fuel-fat-loss-bulking", statusCode: 301 },
+      { source: "/ar/blog/muscle-building-home-workout-plan", destination: "/ar/blog/muscle-building-home-workout-guide", statusCode: 301 },
     ];
   },
   // COACH PUBLIC PHOTOS (Phase 56): CoachLandingEditor stores the

@@ -10687,3 +10687,23 @@ Stage Summary:
 - الملفات الممسوسة: scripts/docs_audit.py (+H5) · scripts/worklog_rotate.py (جديد) · AGENTS.md (§12.5.1) · worklog.md (الترويسة + هذا المدخل + الدوران) · archive/WORKLOG_ARCHIVE.md (+146 مدخلًا حرفيًا) · DEVELOPER_GUIDE.md (سطر السياسة) · docs/README.md (الصفوف) · STATE.md (المرحلة 288).
 - Push status: pushed (SHA الذاتي بروفينانس اختياري بعد الدفع — القانون الجديد)
 
+
+<!-- rotated 2026-09-28 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: ARCH-REMEDIATION-289-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P1-3+P1-4 من التقرير الحاكم: نقل تاريخ STATE للأرشيف (حالة لا سجل) + إلغاء التواريخ اليدوية من سجل docs (اشتقاق لا تكرار) — صفر مساس بالكود/المنطق/الواجهة.
+
+Work Log:
+- (P1-3 نقل) 21 صف مرحلة (287→234) انتقلت حرفيًا إلى archive/PROGRESS_ARCHIVE.md و8 صفوف QA (287→263) إلى archive/QA_CHECKLIST_ARCHIVE.md (كتل مؤرخة append-only) — سلّم المراحل صار صفّين فقط (289+288) وSTATE من 100 سطر/31.1KB إلى **67 سطرًا/11.0KB** (هدف التقرير ≤24KB — تحقق بأقل) — الفقرة المرجعية تشير إلى worklog+الأرشيف.
+- (P1-3 إعادة بناء) قسم «المفتوح الآن» أُعيد بناءه: البنود المغلقة التاريخية حُذفت (تاريخها بالأرشيف) والحيّة ضُغطت + بند جلسة الإصلاح مع موعد القياس التنفيذي (P4-4: ≈2026-10-12) + بند المالك المعلق الوحيد (فحوصات إلزامية — GitHub Pro) — سطر «آخر كوميت متحقق منه» صار صريحًا بالترويسة (الفحص B).
+- (P1-4 بوابة) docs_audit.py: فحص M أعيدت كتابته ثنائي الاتجاه — (1) كل مسار backtick بصفوف السجل موجود (2) كل docs/*.md علوي له صف (سد النقطة العمياء التي أخفت 4 ملفات) — وعمود Last-updated لم يعد يُفحص إطلاقًا؛ بدلًا منه تقرير البوابة يطبع تواريخ git المشتقة (registry: 42 docs/*.md · all registered · newest by git: …).
+- (P1-4 اعتزال I) فحص I (ترويسات Last-updated مقابل git للوثائق الخمس) اعتُزل كاملًا — الترويسات بروفينانس اختياري؛ العائلات 19 (H5 دمجت بعائلة H وI حُررت — قانون ميزانية الفحوص).
+- (P1-4 سجل) docs/README.md: العمود المحسوب أُزيل من الجدولين + 4 صفوف جديدة للملفات غير المسجلة (content-strategy.md LIVE · CONTENT-REWRITE-REPORT EXECUTED · NOTIF-I18N-250 EXECUTED · STAFF-BELL-I18N-251 EXECUTED) + قسم «كيف يبقى السجل صادقًا» أعيدت كتابته (التواريخ من git — صفر أعمال ترفيع) + ميزانية القراءة حُدثت (STATE ~11KB).
+- (التحقق) docs_audit ✓ صفر مخالفات (بالفحوص الجديدة M/M-coverage وبلا I) · docs_parity ✓ · py_compile ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓ — tsc/eslint/vitest غير مطلوبة (فريم بوابات+توثيق).
+
+Stage Summary:
+- STATE الآن حالة حقيقية 30-ثانية (67 سطرًا/11KB بسقف رحابة حقيقي) والسجل بلا أي تاريخ يدوي — أكبر طبقتي تكرار للحقيقة (RC-2/RC-3) مقفولتان، والمسار العادي صار: تعديل doc واحد بلا ترفيع ترويسة ولا صف تاريخ.
+- الملفات الممسوسة: STATE.md (إعادة بناء) · archive/PROGRESS_ARCHIVE.md (+21 صفًا حرفيًا) · archive/QA_CHECKLIST_ARCHIVE.md (+8 صفوف حرفيًا) · scripts/docs_audit.py (M ثنائي + I معتزل) · docs/README.md (بلا أعمدة تواريخ + 4 صفوف) · worklog.md (هذا المدخل).
+- Push status: pushed
+

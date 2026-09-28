@@ -71,6 +71,33 @@ export async function GET(request: NextRequest) {
     issues.push(`${counts.failed} مهمة فشلت نهائيًا — راجعي سبب الفشل في سجل التشغيل`);
   }
 
+  // ── AUDIT_REPORT §9-المرحلة 1, item 3 (2026-09-29): blog research
+  // fallback visibility. The audit measured 34/141 runs (24%) silently
+  // shipping STATIC curated-pool topics — the root of the measured
+  // cannibalization clusters (C3/F4). Rows inserted since the law carry
+  // researchSource:"fallback" in their bundle (stamped by the P0 route);
+  // this best-effort scan surfaces them in the admin panel so a
+  // fallback day is NEVER silent. Degrades open (a scan failure never
+  // breaks the panel).
+  try {
+    const since = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+    const { data: fbRows, error: fbErr } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("language, created_at")
+      .gte("created_at", since)
+      .like("article_bundle", '%"researchSource":"fallback"%')
+      .limit(50);
+    if (!fbErr && fbRows && fbRows.length > 0) {
+      const en = fbRows.filter((r) => r.language === "en").length;
+      const ar = fbRows.length - en;
+      issues.push(
+        `⚠ ${fbRows.length} صف توليد مدونة في آخر 24 ساعة جاء موضعه من القائمة الثابتة لا من بحث حقيقي (EN ${en} · AR ${ar}) — سلسلة النماذج فشلت في P0 تلك التشغيلات`,
+      );
+    }
+  } catch {
+    /* blog-fallback scan is best-effort — panel stays honest without it */
+  }
+
   // ── Last GHA runner run (best-effort probe) ──
   let lastRunnerRunAt: string | null = null;
   const token = process.env.GITHUB_DISPATCH_TOKEN;

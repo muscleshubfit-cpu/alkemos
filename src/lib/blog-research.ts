@@ -423,6 +423,20 @@ Return STRICT JSON only, no markdown fences:
 }
 
 /**
+ * AUDIT_REPORT §9-المرحلة 1, item 3 (2026-09-29) — fallback visibility
+ * law. The audit measured 34/141 runs (24%) silently publishing topics
+ * from the STATIC curated pool (C3) — the root of the cannibalization
+ * clusters. The GSC part of the item is owner-blocked (needs the owner's
+ * Search Console API credentials — external service, owner decision);
+ * what ships NOW is the honest marking: every queue row's bundle carries
+ * researchSource: "fallback" | "model", the P0 route ALERTS (no silent
+ * fallback), and the admin queue-health panel surfaces it.
+ */
+export function researchUsedFallback(p0Source: string): boolean {
+  return p0Source.includes("curated-fallback");
+}
+
+/**
  * Runs Phase 0 for EXACTLY ONE language + picks the rotation category
  * the same deterministic way step1 used to. Insertion of the queue row
  * happens in the route handler (keeps this lib DB-free).

@@ -26,6 +26,24 @@ import {
   scanLatinContamination,
   validateMsaConversion,
 } from "./blog-msa";
+// AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29) — the editorial
+// constitution now lives in ONE module (blog-editorial-law.ts) and is
+// imported byte-exact by P1/P2/P4 here AND the fallback generator in
+// ai-job-processors.ts (the AR_MSA_EDITOR_LAW Phase-175 pattern,
+// generalized per the audit's «دستور prompts موحّد» order). The blocks
+// below are the exact pre-Phase-1 strings — the composed prompts are
+// byte-identical; canaries in blog-editorial-law.test.ts prove no fork.
+import {
+  EDITORIAL_LANG_RULE,
+  EDITORIAL_ANSWER_FIRST,
+  EDITORIAL_EEAT,
+  EDITORIAL_FACT_GUARD,
+  EDITORIAL_DEPTH_OVER_LENGTH,
+  EDITORIAL_FAQ_CONTRACT,
+  EDITORIAL_FAQ_COUNT_RANGE,
+  EDITORIAL_AUTHORITY_DOMAINS,
+  EDITORIAL_ANCHOR_GRAMMAR_LAW,
+} from "./blog-editorial-law";
 // PHASE 171 (blog-audit proposal ب): every model-JSON parse in P1/P2/P4
 // now uses the 161.5-hardened parseJSON from ai-provider (fence-strip +
 // truncation repair + control-char escaping) — the legacy weak
@@ -74,10 +92,13 @@ export type InternalLinkCandidate = { slug: string; title: string };
 // translation, weak grammar/spelling, and malformed headings, without
 // imposing heavy literary Arabic or fixed sentence templates (no forced
 // repetition across articles — natural phrasing per context).
-const LANG_RULE: Record<"en" | "ar", string> = {
-  en: "Write in ENGLISH for an international fitness audience.",
-  ar: "اكتب باللغة العربية الفصحى الحديثة السهلة والواضحة — عربية سليمة طبيعية يفهمها كل قارئ عربي من أي بلد (Pan-Arab Modern Standard Arabic)، بنبرة ودية عملية. ممنوع منعًا باتًا: أي لهجة محلية (مصرية أو خليجية أو غيرها)، والتعبيرات العامية التي لا يفهمها إلا أهل بلد معين (مثل: عشان، مش، ازاي، بتاع، كده، ده، دي، خلاص، حاجة بمعنى «شيء»)، والترجمة الحرفية عن الإنجليزية، والتراكيب الركيكة، وأخطاء النحو والإملاء. صُغ العناوين والأسئلة صياغة عربية سليمة طبيعية بحسب السياق (مثل: «كم من الماء أحتاج يوميًا؟» لا «كم ماء احتاج»). ليست لغة أدبية ثقيلة بل فصحى حديثة سهلة. كل المحتوى بالعربية بالكامل (بما في ذلك العناوين والروابط النصية). ممنوع أيضًا خلط كلمات إنجليزية/لاتينية سائبة داخل الجمل العربية (PHASE 176 — دليل حي: «يُ marketed»، «لا توجد evidences»، «shake مصل اللبن»): كل مصطلح يُكتب بالعربية أو يُعرَّب صوتيًا (الليوسين، الكازين، مشروب البروتين، ألكالين، الأدلة، البساطة، «مقابل» بدل vs)، والاستثناء الوحيد إشارة لاتينية بين قوسين بعد المصطلح العربي (مثل: «مصل اللبن (Whey)») أو أسماء العلامات (Alkemos).",
-};
+// AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29): the law TEXT now
+// lives in src/lib/blog-editorial-law.ts (EDITORIAL_LANG_RULE — the
+// single editorial constitution shared with the fallback generator);
+// re-exported here under its historical name so every existing
+// importer and canary keeps working (the Phase-175 AR_MSA_EDITOR_LAW
+// move pattern, generalized per the audit's «دستور prompts موحّد»).
+export const LANG_RULE: Record<"en" | "ar", string> = EDITORIAL_LANG_RULE;
 
 /** Compact JSON view of research fed to prompts (keeps token cost sane). */
 function researchDigest(r: LanguageResearch): string {
@@ -431,25 +452,16 @@ export async function generateFullArticle(
   const variationSeed =
     VARIATION_SEEDS[lang][Math.floor(Math.random() * VARIATION_SEEDS[lang].length)];
 
-  const answerFirstLine = lang === "ar"
-    ? `الإجابة أولًا (قانون إلزامي): الفقرة الأولى أو الثانية يجب أن تجيب مباشرة عن نية البحث الأساسية التي يطرحها العنوان — إجابة محددة عملية قابلة للاقتباس (٢-٤ جمل)، ثم يتوسع المقال في التفاصيل. ممنوع: مقدمات عامة، أو حشو، أو إعادة صياغة العنوان، أو مشهد تمهيدي طويل قبل الإجابة.`
-    : `ANSWER-FIRST (mandatory): the first or second paragraph must DIRECTLY answer the core search intent behind the title — a specific, quotable, practical answer (2-4 sentences) — before the article expands into detail. FORBIDDEN: generic scene-setting intros, filler, restating the title, or a long warm-up story before the answer.`;
-
-  const eeatLine = lang === "ar"
-    ? `خبرة بلا اختلاق (E-E-A-T): يُسمح بمنظور تدريبي عملي واستنتاجات خبير، لكن ممنوع منعًا باتًّا اختلاق قصص عملاء أو نتائجهم أو شهادات أو تجارب شخصية أو مؤهلات أو تجارب تدريبية لم تحدث. لا تكرر اسم الكابتن أحمد زكي داخل النص كحشو لإظهار السلطة — الإسناد موجود في توقيع المقال نفسه.`
-    : `E-E-A-T WITHOUT FABRICATION: expert reasoning and a practical coaching perspective are welcome; FABRICATING client stories, client results, testimonials, personal experiences, coaching cases, credentials, or experiments is strictly FORBIDDEN. Do not repeat the coach's name inside the body as an authority filler — attribution lives in the byline, not the prose.`;
-
-  const factLine = lang === "ar"
-    ? `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. عند الاستشهاد بالأدلة: صياغة عامة فقط مثل «تشير الأدلة إلى...» دون تسمية مصادر محددة داخل المتن.`
-    : `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Reference evidence generically ("research suggests...", "evidence supports...") without naming specific sources inside the body.`;
-
-  const faqSectionLine = lang === "ar"
-    ? `قسم الأسئلة الشائعة (إلزامي في نهاية المقال): ٤-٧ أسئلة تخدم نية البحث الفعلية لهذا المقال تحديدًا — أسئلة يسألها باحث حقيقي عن هذا الموضوع، لا أسئلة عامة عن اللياقة. ممنوع إضافة أسئلة جانبية عن مواضيع لا يحتاجها المقال. الصيغة الحرفية: عنوان القسم «## الأسئلة الشائعة» ثم لكل سؤال سطر «**السؤال؟»» يليه فقرة الإجابة (إجابة نصية مباشرة بلا روابط وبلا جداول).`
-    : `FAQ SECTION (mandatory, at the END of the article): 4-7 questions serving THIS article's actual search intent — questions a real searcher of THIS topic would ask, not generic fitness questions. Do NOT pad with side questions the article doesn't need. EXACT format: the heading "## Frequently Asked Questions", then for each question one line "**The question?**" followed by a plain-text answer paragraph (no links, no tables inside answers).`;
-
-  const qualityLine = lang === "ar"
-    ? `العمق لا الطول: لا حشو لبلوغ عدد كلمات، لا تكرار النصيحة نفسها في أكثر من قسم، لا فقرات تحفيزية عامة، لا حشو كلمات مفتاحية يفسد اللغة — إن كانت المعلومة بسيطة أجب عنها ببساطة. استخدم الكلمة المفتاحية بصيغتها الحرفية فقط إذا بقيت الجملة طبيعية، وإلا فصياغة طبيعية قريبة منها. العربيّة يجب أن تكون عربية طبيعية مستقلة تحريريًا (جمهور عربي، أمثلة تناسب الثقافة) — ليست ترجمة حرفية عن مقال إنجليزي.`
-    : `DEPTH OVER LENGTH: no filler to hit a word count, no repeating the same advice in multiple sections, no generic motivational paragraphs, no keyword stuffing that deforms the language — if a point is simple, state it simply. Use a keyword verbatim ONLY when the sentence stays natural; otherwise rephrase naturally and closely. Write clean, quotable, information-dense prose (direct answers, clear definitions, concise factual statements, useful bullet lists, tables or clear comparisons only when they genuinely help).`;
+  // AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29): the five writing
+  // laws now come from the shared editorial constitution
+  // (blog-editorial-law.ts) — byte-exact (asserted at extraction),
+  // canary-pinned, and composed identically by the fallback generator
+  // in ai-job-processors.ts (one law, every surface — no fork).
+  const answerFirstLine = EDITORIAL_ANSWER_FIRST[lang];
+  const eeatLine = EDITORIAL_EEAT[lang];
+  const factLine = EDITORIAL_FACT_GUARD[lang];
+  const faqSectionLine = EDITORIAL_FAQ_CONTRACT[lang];
+  const qualityLine = EDITORIAL_DEPTH_OVER_LENGTH[lang];
 
   const prompt = `You are an elite fitness/nutrition copywriter. Write the FULL article.
 ${LANG_RULE[lang]}
@@ -869,8 +881,8 @@ DO ALL OF THE FOLLOWING:
 3. Keyword coverage: verify every main keyword & LSI term appears naturally at least once; add a sentence ONLY where missing, and never at the cost of natural language (fix any sentence that reads as keyword stuffing).
 4. FACT GUARD (health claims): remove or soften any specific statistic, study, paper, author, URL, or clinical claim that cannot be verified — keep generic phrasing like "research suggests". Timing, dosage, and outcome claims (supplements, nutrition, training, recovery, weight loss, muscle gain) must read as commonly recommended, context-dependent ranges — never absolute rules. NEVER add new citations.
 5. E-E-A-T GUARD: delete any fabricated client story, testimonial, personal experience, coaching case, credential, or claimed experiment. Keep expert reasoning and the practical coaching perspective. Do not insert the coach's name into the body.
-6. FAQ SECTION: keep the "## " FAQ section — 4-7 questions serving THIS article's search intent; DELETE any off-topic or generic question the article doesn't need; answers stay plain text (no links inside FAQ answers).
-7. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown). ANCHOR GRAMMAR LAW (content-audit §1.3, 2026-09-28): every anchor text MUST be a short natural phrase that reads grammatically inside its sentence — either the article's exact title or a 2-5 word phrase with normal articles/prepositions. NEVER use a raw keyword list ("training adjustments menstrual cycle female lifters"), never stack long-tail keywords as anchor text, and never add a sentence whose only purpose is to host the link (if the sentence doesn't serve the reader without the link, delete the sentence, not just the link).
+6. FAQ SECTION: keep the "## " FAQ section — ${EDITORIAL_FAQ_COUNT_RANGE.min}-${EDITORIAL_FAQ_COUNT_RANGE.max} questions serving THIS article's search intent; DELETE any off-topic or generic question the article doesn't need; answers stay plain text (no links inside FAQ answers).
+7. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown). ${EDITORIAL_ANCHOR_GRAMMAR_LAW}
 8. FREE-TOOL LINKS (owner directive 2026-09-01): wherever the text naturally mentions calories, macros/protein targets, body fat, BMI, water intake, or meal plans, link that phrase to the matching FREE tool in [anchor](url) format — ONLY these URLs, max 3 total, each used at most once:
    - calories → [anchor](/tools/calorie-calculator)
    - macros/protein needs → [anchor](/tools/macro-calculator)
@@ -878,7 +890,7 @@ DO ALL OF THE FOLLOWING:
    - BMI → [anchor](/tools/bmi-calculator)
    - water intake/hydration → [anchor](/tools/water-tracker)
    - meal plan/meal prep → [anchor](/meal-planner)
-9. Add at most 2 external links ONLY to well-known authoritative domains you are certain exist (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) in [anchor](https://...) format — each link must directly support the sentence it is attached to; do NOT add links for linking's sake.
+9. Add at most 2 external links ONLY to well-known authoritative domains you are certain exist (${EDITORIAL_AUTHORITY_DOMAINS.join(", ")}) in [anchor](https://...) format — each link must directly support the sentence it is attached to; do NOT add links for linking's sake.
 10. Keep all "## " section structure (including the FAQ section); output the COMPLETE final article. Do NOT append any closing call-to-action, marketing outro, or "join Alkemos" pitch paragraph — the website already renders its CTA cards after the article; the article itself must end with its content (the conclusion/summary).
 
 Return STRICT JSON only:
