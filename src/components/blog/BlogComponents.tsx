@@ -68,7 +68,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  <div className="marble-card overflow-hidden p-6 md:p-8">
  <div className="flex flex-col items-center text-center">
  <h3 className="text-xl font-semibold tracking-tight md:text-2xl">
- {isAr ? "أو اختر عضوية Alkemos" : "Or pick a Alkemos plan"}
+ {isAr ? "أو اختر عضوية Alkemos" : "Or pick an Alkemos plan"}
  </h3>
  <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
  {isAr
@@ -133,7 +133,7 @@ export function BlogMembershipCard({ lang }: { lang: "en" | "ar" }) {
  <Gift className="h-6 w-6" />
  </span>
  <h3 className="mt-4 text-xl font-semibold tracking-tight md:text-2xl">
- {isAr ? "حوّل تأثيرك إلى دخل مع برنامج الإفلييت (الشركاء)" : "Turn Your Influence Into Income — Affiliate Program"}
+ {isAr ? "حوّل تأثيرك إلى دخل مع برنامج الأفلييت (الشركاء)" : "Turn Your Influence Into Income — Affiliate Program"}
  </h3>
  <p className="mx-auto mt-2 max-w-md text-sm font-normal text-[var(--muted-foreground)]">
  {isAr

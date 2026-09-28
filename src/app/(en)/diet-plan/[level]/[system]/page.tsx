@@ -144,7 +144,11 @@ export default async function DietPlanCellPageEn({ params }: Params) {
           </nav>
 
           <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            {lv}-Calorie {sys.nameEn} Diet Plan
+            {/* CONTENT-AUDIT P0-5 (audit §1.11): one template literal = one
+                text node — no React `<!-- -->` separators where the number
+                meets "-Calorie", so raw-HTML readers (scrapers/AI crawlers)
+                can never see "2000 -Calorie". */}
+            {`${lv}-Calorie ${sys.nameEn} Diet Plan`}
           </h1>
 
           {intro.map((p, i) => (
@@ -155,7 +159,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
 
           {/* ── The full day, computed (same solve as the AR twin) ── */}
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">
-            The full day in grams ({day.kcal} calories)
+            {`The full day in grams (${day.kcal} calories)`}
           </h2>
           <div className="mt-4 space-y-4">
             {day.meals.map((meal) => (
@@ -288,7 +292,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
                 No — the plan is a scaffold, not a shackle. Literal-gram
                 compliance every day with no social life and no variety
                 collapses faster than it starts. The daily constants are the
-                total ({day.kcal} calories) and the protein (about{" "}
+                total{` (${day.kcal} calories)`} and the protein (about{" "}
                 {targets.protein} g); how the items are arranged across meals
                 should follow your day and your taste, and same-family swaps
                 (chicken for fish, lentils for chickpeas) are allowed as long
@@ -357,7 +361,7 @@ export default async function DietPlanCellPageEn({ params }: Params) {
                 href={`/diet-plan/${lv}/${s.slug}`}
                 className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]"
               >
-                {lv}-calorie {s.nameEn}
+                {`${lv}-calorie ${s.nameEn}`}
               </Link>
             ))}
           </div>

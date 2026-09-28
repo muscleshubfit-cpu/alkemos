@@ -142,7 +142,7 @@ export function AffiliateProgramView() {
           <div className="mx-auto w-full max-w-5xl px-4 py-16 text-center sm:px-6 md:py-24 lg:py-28">
             <span className="seal-chip">
               <Gift className="h-3.5 w-3.5" aria-hidden="true" />
-              {isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}
+              {isAr ? "برنامج الأفلييت (الشركاء)" : "Affiliate Program"}
             </span>
 
             <h1 className="mt-6 text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
@@ -663,7 +663,7 @@ function getCopy(isAr: boolean): Copy {
           title: "منتجات وخدمات لمرة واحدة",
           cookieSuffix: "آلية تتبع للكوكيز",
           body:
-            "أي منتج أو خدمة مدفوعة مؤهلة مستقبلًا يمكن أن تنضم إلى برنامج الإفلييت (الشركاء) — وتستخدم عمليات الشراء لمرة واحدة آلية تتبع الكوكيز لمدة 30 يومًا القائمة حاليًا.",
+            "أي منتج أو خدمة مدفوعة مؤهلة مستقبلًا يمكن أن تنضم إلى برنامج الأفلييت (الشركاء) — وتستخدم عمليات الشراء لمرة واحدة آلية تتبع الكوكيز لمدة 30 يومًا القائمة حاليًا.",
           futureNote:
             "نرحّب بإضافة أي منتجات مؤهلة مستقبلًا — لا توجد قاعدة دائمة بأن منتجات اليوم هي حدود البرنامج.",
         },
@@ -725,18 +725,18 @@ function getCopy(isAr: boolean): Copy {
         body:
           "أنشئ حسابك في Alkemos، وتوجّه إلى قسم الأفلييت في لوحتك، وابدأ المشاركة خلال دقائق.",
         disclosure:
-          "تخضع المشاركة في برنامج الإفلييت (الشركاء) لشروط الاستخدام — ونحتفظ بحق إيقاف أي حساب يخالف سياسات السبام أو الإساءة.",
+          "تخضع المشاركة في برنامج الأفلييت (الشركاء) لشروط الاستخدام — ونحتفظ بحق إيقاف أي حساب يخالف سياسات السبام أو الإساءة.",
       },
     };
   }
 
   return {
     hero: {
-      headline: "TURN YOUR INFLUENCE INTO INCOME.",
+      headline: "Turn your influence into income.",
       supporting:
         "Share Alkemos with people who trust your recommendations. Help them train smarter, eat better, and make meaningful progress — while earning commissions from eligible purchases made through your Affiliate link.",
-      ctaPrimary: "GET YOUR AFFILIATE LINK",
-      ctaSecondary: "START SHARING",
+      ctaPrimary: "Get your affiliate link",
+      ctaSecondary: "Start sharing",
     },
     heroStats: [
       { value: "20%", label: "Commission on eligible subscriptions" },
@@ -745,7 +745,7 @@ function getCopy(isAr: boolean): Copy {
       { value: "Real-time", label: "Transparent earnings dashboard" },
     ],
     why: {
-      title: "WHY BECOME A ALKEMOS AFFILIATE?",
+      title: "Why become an Alkemos affiliate?",
       subtitle:
         "You focus on what you do best: recommending a platform you trust. We handle the rest.",
       cards: [
@@ -772,7 +772,7 @@ function getCopy(isAr: boolean): Copy {
         "No guaranteed income. Earnings depend on the size and quality of your audience and the conversions you drive.",
     },
     who: {
-      title: "WHO IS THIS FOR?",
+      title: "Who is this for?",
       audiences: [
         "Fitness coaches",
         "Personal trainers",
@@ -788,17 +788,22 @@ function getCopy(isAr: boolean): Copy {
         "We encourage recommending to a genuine audience interested in fitness and nutrition. Any spam practice or unsolicited mass-messaging will result in account suspension.",
     },
     commission: {
-      title: "COMMISSIONS",
+      title: "Commissions",
       subtitle:
         "A clear, reliable system that supports today's subscriptions and is ready for any future paid products and services.",
       subs: {
-        badge: "SUBSCRIPTIONS",
+        badge: "Subscriptions",
         title: "Subscription Commission",
         rateSuffix: "on qualifying subscription purchases",
         body:
           "You earn 20% of any qualifying subscription purchased through your link and verified. The commission is recorded the moment payment is confirmed — never earlier.",
         renewalNote:
-          "When real recurring subscription renewals exist, qualifying subscription referrals are retained server-side so future qualifying renewals can generate additional commissions. We do not imply that automatic renewals currently exist.",
+          // CONTENT-AUDIT 5.2 (2026-09-28, audit §5.2): the old sentence
+          // ("When real recurring subscription renewals exist…") read as
+          // near-unintelligible legalese and implied a renewal system that
+          // does not exist. Plain-English rewrite: what happens today, and
+          // what would happen IF renewals ever ship.
+          "Today every qualifying subscription pays its commission once, when payment is confirmed. If recurring renewals are ever introduced, qualifying referrals are already tracked server-side, so renewals could earn additional commissions automatically — automatic renewals do not exist today.",
         examplesTitle: "What your commission looks like:",
         examples: [
           { label: "Premium membership", price: "$14.99/mo", earn: "$3.00" },
@@ -807,7 +812,7 @@ function getCopy(isAr: boolean): Copy {
         ],
       },
       prods: {
-        badge: "PRODUCTS & SERVICES",
+        badge: "Products & services",
         title: "One-time Products & Services",
         cookieSuffix: "cookie attribution",
         body:
@@ -817,7 +822,7 @@ function getCopy(isAr: boolean): Copy {
       },
     },
     how: {
-      title: "HOW IT WORKS",
+      title: "How it works",
       steps: [
         {
           title: "Get your link",
@@ -870,9 +875,9 @@ function getCopy(isAr: boolean): Copy {
       ],
     },
     finalCta: {
-      title: "READY TO START?",
+      title: "Ready to start?",
       body:
-        "Sign up for a Alkemos account, visit the Affiliate section in your dashboard, and start sharing in minutes.",
+        "Sign up for an Alkemos account, visit the Affiliate section in your dashboard, and start sharing in minutes.",
       disclosure:
         "Participation in the Affiliate Program is subject to our Terms of Use. We reserve the right to suspend any account that violates our spam or abuse policies.",
     },

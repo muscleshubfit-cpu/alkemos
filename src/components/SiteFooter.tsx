@@ -161,7 +161,7 @@ export function SiteFooter() {
               <li><a href={isAr ? "/ar/memberships" : "/memberships"} className="block py-1 hover:underline">{isAr ? "العضويات" : "Memberships"}</a></li>
               {/* §12.53 item 11 (2026-09-16): locale-aware affiliate link —
                   the AR mirror exists now. */}
-              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program"}</a></li>
+              <li><a href={isAr ? "/ar/affiliate" : "/affiliate"} className="block py-1 hover:underline">{isAr ? "برنامج الأفلييت (الشركاء)" : "Affiliate Program"}</a></li>
               <li><a href={isAr ? "/ar/for-coaches" : "/for-coaches"} className="block py-1 hover:underline">{isAr ? "للمدربين" : "For Coaches"}</a></li>
             </ul>
           </div>

@@ -117,7 +117,9 @@ export default function DietPlanHubPage() {
               <div key={s.slug} className="marble-card flex flex-col p-5">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="text-lg font-semibold tracking-tight text-[var(--text)]">
-                    النظام {s.nameAr}
+                  {/* CONTENT-AUDIT P0-4 (audit §1.10): indefinite form —
+                      «نظام متوازن» not «النظام متوازن». */}
+                  نظام {s.nameAr}
                   </h3>
                   <span
                     className="whitespace-nowrap text-xs font-normal text-[var(--muted-foreground)]"

@@ -12,6 +12,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import {
   HUB_INITIAL_EXERCISES,
+  localizedMuscleList,
   type HubExerciseCard,
 } from "@/components/hubs/hub-exercises-shared";
 import { ShowMoreExercises } from "@/components/hubs/ShowMoreExercises";
@@ -113,7 +114,7 @@ export default async function ArabicMuscleHubPage({
         chip: eqLabel.ar,
         levelLabel: lvlLabel.ar,
         levelColor: lvlLabel.color,
-        muscles: ex.primaryMuscles.join("، "),
+        muscles: localizedMuscleList(ex.primaryMuscles, "ar"),
       };
     });
   const label = CATEGORY_LABELS[hub.category];

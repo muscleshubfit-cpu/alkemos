@@ -688,7 +688,11 @@ function LandingDietCard({ system, levelCount, isAr, index }: { system: HomeDiet
         {String(index + 1).padStart(2, "0")}
       </span>
       <h3 className="text-lg font-semibold tracking-tight" style={{ color: PALETTE.textPrim }}>
-        {isAr ? `النظام ${system.nameAr}` : `${system.nameEn}`}
+        {/* CONTENT-AUDIT P0-4 (2026-09-28, audit §1.10): «النظام متوازن» —
+            definite noun + indefinite adjective — is ungrammatical Arabic;
+            the indefinite «نظام متوازن» matches the diet-plan library titles
+            (نظام 2000 سعرة متوازن) and reads naturally as a card title. */}
+        {isAr ? `نظام ${system.nameAr}` : `${system.nameEn}`}
       </h3>
       {/* The macro split rail — aria-hidden (the ratio is decorative;
         the exact numbers are announced by the row below). */}

@@ -337,7 +337,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
           href: isAr ? "/ar/memberships" : "/memberships",
         },
         {
-          label: isAr ? "برنامج الإفلييت (الشركاء)" : "Affiliate Program",
+          label: isAr ? "برنامج الأفلييت (الشركاء)" : "Affiliate Program",
           icon: Gift,
           // §12.53 item 11 (2026-09-16): locale-aware — AR mirror exists.
           href: isAr ? "/ar/affiliate" : "/affiliate",

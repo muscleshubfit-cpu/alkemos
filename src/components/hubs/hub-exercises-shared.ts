@@ -8,6 +8,8 @@
  * number.
  */
 
+import { MUSCLE_LABELS } from "@/lib/exercises-shared";
+
 /** Compact, pre-localized exercise card — resolved server-side. */
 export type HubExerciseCard = {
   /** Localized link (e.g. /exercises/bench-press or /ar/exercises/...) */
@@ -31,3 +33,19 @@ export type HubExerciseCard = {
  * heaviest hub (348 cards) by ~83%.
  */
 export const HUB_INITIAL_EXERCISES = 60;
+
+/**
+ * CONTENT-AUDIT P0-3 (2026-09-28, audit §1.6): the AR muscle/equipment
+ * hub cards rendered raw English muscle values («العضلات الأساسية:
+ * Chest») because `primaryMuscles` carries the source dataset's English
+ * keys. Server-side resolution through MUSCLE_LABELS (the single Arabic
+ * muscle glossary, Phase SEO-GEO-7) keeps the client island free of any
+ * label map — same pre-localization law as every other card field. An
+ * unmapped muscle falls back to the raw value (today's behavior, no
+ * regression) so a future dataset row can never blank the card.
+ */
+export function localizedMuscleList(muscles: string[], lang: "en" | "ar"): string {
+  const sep = lang === "ar" ? "، " : ", ";
+  if (lang !== "ar") return muscles.join(sep);
+  return muscles.map((m) => MUSCLE_LABELS[m]?.ar ?? m).join(sep);
+}

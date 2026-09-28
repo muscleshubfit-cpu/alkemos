@@ -142,7 +142,9 @@ export default async function DietPlanCellPage({ params }: Params) {
           </nav>
 
           <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            نظام غذائي {lv} سعرة — {sys.nameAr}
+            {/* CONTENT-AUDIT P0-5 (audit §1.11): قالب واحد = عقدة نص واحدة —
+                بلا فواصل `<!-- -->` حيث يلتقي الرقم بالشرطة أو القوس. */}
+            {`نظام غذائي ${lv} سعرة — ${sys.nameAr}`}
           </h1>
 
           {intro.map((p, i) => (
@@ -153,7 +155,7 @@ export default async function DietPlanCellPage({ params }: Params) {
 
           {/* ── The full day, computed ── */}
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">
-            خطة اليوم كاملة بالغرامات ({day.kcal} سعرة)
+            {`خطة اليوم كاملة بالغرامات (${day.kcal} سعرة)`}
           </h2>
           <div className="mt-4 space-y-4">
             {day.meals.map((meal) => (
@@ -233,7 +235,7 @@ export default async function DietPlanCellPage({ params }: Params) {
             {LEVEL_GUIDANCE[lv]}
           </p>
           <h2 className="mt-8 text-xl font-semibold tracking-tight text-[var(--text)]">
-            عن النظام {sys.nameAr}
+            عن النظام {sys.nameArDef}
           </h2>
           <p className="mt-3 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
             {SYSTEM_GUIDANCE[sys.slug]}
@@ -281,7 +283,7 @@ export default async function DietPlanCellPage({ params }: Params) {
               <p className="mt-1.5 text-base font-normal leading-relaxed text-[var(--muted-foreground)]">
                 لا — الخطة سقالة لا قيد. الالتزام الحرفي بالغرام كل يوم بلا
                 حياة اجتماعية ولا تنويع ينهار أسرع مما يبدأ. الثابت اليومي هو
-                الإجمالي ({day.kcal} سعرة) والبروتين (نحو {targets.protein}
+                الإجمالي{` (${day.kcal} سعرة)`} والبروتين (نحو {targets.protein}
                 غراماً)، أما ترتيب الأصناف بين الوجبات فليكن تبعا ليومك
                 وذوقك، والاستبدالات داخل العائلة الواحدة (دجاج بسمك، عدس
                 بحمص) مسموحة ما دام الإجمالي اليومي قريباً من الهدف.
@@ -344,12 +346,12 @@ export default async function DietPlanCellPage({ params }: Params) {
                 href={`/ar/diet-plan/${lv}/${s.slug}`}
                 className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]"
               >
-                {lv} سعرة {s.nameAr}
+                {`${lv} سعرة ${s.nameAr}`}
               </Link>
             ))}
           </div>
           <p className="mt-4 text-sm font-normal text-[var(--muted-foreground)]">
-            بالنظام {sys.nameAr} على مستوى آخر:
+            بالنظام {sys.nameArDef} على مستوى آخر:
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {DIET_LEVELS.filter((l) => l !== lv).map((l) => (

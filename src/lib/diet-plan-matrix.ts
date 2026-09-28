@@ -79,6 +79,14 @@ export interface SolvedDay {
 export interface DietSystem {
   slug: string;
   nameAr: string;
+  /**
+   * Definite Arabic form (CONTENT-AUDIT P0-4, 2026-09-28, audit §1.10):
+   * «النظام متوازن» (definite noun + indefinite adjective) is broken
+   * Arabic; templates that qualify the DEFINITE system now use this form
+   * («عن النظام المتوازن…»), while card TITLES use the indefinite
+   * nameAr («نظام متوازن»). One field, both grammatical cases covered.
+   */
+  nameArDef: string;
   /** §12.27: the EN matrix surface (owner directive «بند ٨ تم تنفيذ عربى
    * فقط مطلوب انجليزى» — EN cells live at /diet-plan/{level}/{system}). */
   nameEn: string;
@@ -181,6 +189,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "balanced",
     nameAr: "متوازن",
+    nameArDef: "المتوازن",
     nameEn: "Balanced",
     split: { protein: 30, carbs: 40, fat: 30 },
     meals: [
@@ -228,6 +237,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "high-protein",
     nameAr: "عالي البروتين",
+    nameArDef: "العالي البروتين",
     nameEn: "High-Protein",
     split: { protein: 45, carbs: 35, fat: 20 },
     meals: [
@@ -275,6 +285,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "keto",
     nameAr: "كيتو",
+    nameArDef: "الكيتوني",
     nameEn: "Keto",
     split: { protein: 25, carbs: 5, fat: 70 },
     meals: [
@@ -320,6 +331,7 @@ export const DIET_SYSTEMS: DietSystem[] = [
   {
     slug: "vegetarian",
     nameAr: "نباتي",
+    nameArDef: "النباتي",
     nameEn: "Vegetarian",
     split: { protein: 25, carbs: 50, fat: 25 },
     meals: [

@@ -124,7 +124,7 @@ export default function ForCoachesPage() {
           {[
             {
               n: "868+",
-              t: isAr ? "تمرين بالشرح والفيديو" : "Exercises with guides",
+              t: isAr ? "تمرين بأدلة أداء كاملة" : "Exercises with guides",
             },
             {
               n: "8,830+",
@@ -349,8 +349,8 @@ export default function ForCoachesPage() {
             alt: isAr ? "دمبل في النادي الرياضي" : "Dumbbells in the gym",
             t: isAr ? "برامج تمارين من مكتبة 868+ تمرين" : "Workout programs from an 868+ exercise library",
             b: isAr
-              ? "برامج تمارين متكيّفة بمستويات مختلفة، ومكتبة تمارين مشروحة بالفيديو يمكنك بناء أي جلسة منها — ويمكنك أيضًا إعادة توليد أي يوم تدريبي كامل أو استبدال أي تمرين بالذكاء الاصطناعي."
-              : "Adaptive workout programs across levels, plus a video-explained exercise library you can build any session from — and you can AI-regenerate any full training day or swap any exercise.",
+              ? "برامج تمارين متكيّفة بمستويات مختلفة، ومكتبة تمارين مشروحة خطوة بخطوة يمكنك بناء أي جلسة منها — ويمكنك أيضًا إعادة توليد أي يوم تدريبي كامل أو استبدال أي تمرين بالذكاء الاصطناعي."
+              : "Adaptive workout programs across levels, plus a fully-guided exercise library you can build any session from — and you can AI-regenerate any full training day or swap any exercise.",
           },
         ].map((f) => (
           <div
