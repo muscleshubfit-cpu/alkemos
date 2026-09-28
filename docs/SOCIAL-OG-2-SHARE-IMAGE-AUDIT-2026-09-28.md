@@ -90,6 +90,11 @@ suffix lives on the metadata layer only — no file renamed, no design/content c
 
 ### 3.2 Truthful + complete image metadata
 
+- **Comparison cells (EN+AR):** the `/api/og-image/<slug>?lang=X` generator URLs — the
+  exact URLs that served 0-byte PNGs for AR during the broken era — now carry `&v=2`
+  (og + twitter + JSON-LD image, keeping the §12.40 consistency law); the route ignores
+  the extra param and the CF `/api/og-image/` cache rule is path-matched (unaffected).
+
 - **Program cells (EN+AR):** declared dims corrected 1200×630 → **768×768** (measured),
   `og:image:type: image/webp` added, `?v=2` on both og + twitter references.
 - **Exercise cells (EN+AR):** photo share image now declares **640×427** (measured) +
@@ -139,7 +144,7 @@ exactly as intended; versioned URLs serve `200` with correct content-types).
 
 ## 5. Files touched
 
-- 73 metadata files: `?v=2` share-cache-bust (EN + AR mirrors, layouts + pages).
+- 75 metadata files: `?v=2` share-cache-bust (EN + AR mirrors, layouts + pages, incl. the comparison generator URLs).
 - `src/app/(en|ar)/.../exercises/[slug]/page.tsx` — photo dims/type + bust (EN+AR).
 - `src/app/(en|ar)/.../programs/[slug]/page.tsx` — corrected dims 768×768 + type + bust.
 - `src/app/(en|ar)/.../blog/[slug]/page.tsx` — 1200×630 declared (EN+AR).

@@ -50,13 +50,13 @@ export async function generateMetadata({
       description: comparison.descriptionAr,
       siteName: "Alkemos",
       locale: "ar_EG",
-      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`, width: 1200, height: 630 }],
+      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: comparison.titleAr,
       description: comparison.descriptionAr,
-      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`],
+      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`],
     },
   };
 }
@@ -81,7 +81,7 @@ export default async function ArabicComparisonPage({
     // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
     // consistency — same branded og-image URL the metadata declares
     // (?lang=ar variant; previously fell back to /logo.png).
-    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`,
+    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,

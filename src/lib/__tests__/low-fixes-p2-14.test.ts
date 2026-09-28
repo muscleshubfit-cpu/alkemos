@@ -99,11 +99,11 @@ describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit find
     [BLOG_AR, "image: og.shareImage,"],
     [
       COMPARE_EN,
-      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`",
+      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`",
     ],
     [
       COMPARE_AR,
-      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare`",
+      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`",
     ],
   ];
 

@@ -60,13 +60,13 @@ export async function generateMetadata({
       description: comparison.descriptionEn,
       siteName: "Alkemos",
       locale: "en_US",
-      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`, width: 1200, height: 630 }],
+      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: comparison.titleEn,
       description: comparison.descriptionEn,
-      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`],
+      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`],
     },
   };
 }
@@ -92,7 +92,7 @@ export default async function ComparisonPage({
     // consistency — same branded og-image URL the metadata declares for
     // og:image/twitter:image (previously fell back to /logo.png, a
     // mixed-source inconsistency on all 6 comparison pages).
-    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare`,
+    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,
