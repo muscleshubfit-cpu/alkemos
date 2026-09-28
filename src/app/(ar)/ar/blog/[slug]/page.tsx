@@ -3,7 +3,7 @@ import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools, buildBlogHreflang } from "@/lib/blog-server";
 import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
-import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
+import { getArticleSchema, getBreadcrumbSchema, getFAQSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
@@ -145,6 +145,16 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "ar", slugPools), "ar").md,
   };
 
+  // AUDIT_REPORT §9-0.2 (2026-09-29) — FAQPage JSON-LD from faq_json — see
+  // the EN mirror (/blog/[slug]/page.tsx) for the full rationale (GEO for
+  // AI answer engines · no-forced-filler · raw stored questions).
+  const faqPageSchema =
+    fullPost.faq_json && fullPost.faq_json.length > 0
+      ? getFAQSchema(
+          fullPost.faq_json.map((f) => ({ q: f.question, a: f.answer })),
+        )
+      : null;
+
   return (
     <>
       {articleSchema && (
@@ -163,6 +173,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
+        />
+      )}
+      {faqPageSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema) }}
         />
       )}
       <BlogArticlePage lang="ar" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />

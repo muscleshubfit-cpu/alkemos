@@ -43,6 +43,15 @@ export type BlogOGData = {
    * render (1.7–5.2s live) exceeds WhatsApp/Facebook fetch budgets —
    * that latency is what produced the blue-box share cards. `image`
    * stays the raw featured_image (page-body hero source).
+   *
+   * AUDIT_REPORT §9-0.5 (2026-09-29) — DEFERRED BY OWNER-ORDER CONFLICT,
+   * not overlooked: the audit's Phase 0.5 proposes og:image → /api/og-image
+   * (brand identity + CTR), but that reverses the live-verified
+   * SOCIAL-OG/SOCIAL-OG-2 cover-first fix (owner order 2026-09-22;
+   * 11/11 green verification 2026-09-28) whose root-cause evidence is the
+   * generator cold-render timeout above. Re-enabling generator-first
+   * requires an explicit owner decision accepting the blue-box risk —
+   * see the PHASE0-QUALITY-2026-09-29 worklog entry.
    */
   shareImage: string;
   articleUrl: string;

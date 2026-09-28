@@ -169,8 +169,9 @@ export function BlogArticlePage({
           from the body. These are now handled server-side in generateMetadata
           (blog/[slug]/page.tsx) so they appear in <head>, not <body>. */}
 
-      {/* JSON-LD schemas are injected server-side in /app/blog/[slug]/page.tsx
-          and /app/ar/blog/[slug]/page.tsx (Article + Breadcrumb + FAQPage).
+      {/* JSON-LD schemas are injected server-side in /app/(en)/blog/[slug]/page.tsx
+          and /app/(ar)/ar/blog/[slug]/page.tsx (Article + Speakable + Breadcrumb,
+          plus FAQPage built from faq_json — AUDIT_REPORT §9-0.2, 2026-09-29).
           We deliberately DO NOT duplicate them here — server-rendered JSON-LD
           is visible to crawlers without executing JavaScript, which is the
           correct SEO pattern. */}
@@ -282,10 +283,13 @@ export function BlogArticlePage({
                     </span>
                   </span>
                 </Link>
-                <span className="hidden sm:inline text-[var(--muted-foreground)]">•</span>
-                <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                  {isAr ? "تحقق من المصادر المنشورة في المقال" : "Sources cited in article"}
-                </span>
+                {/* AUDIT_REPORT §9-0.1 (2026-09-29): the false sources-
+                    citation byline (EN + AR strings, after the author
+                    block) was REMOVED — audit F2 measured it on 97/97
+                    pages while FACT GUARD forbids naming any source and
+                    62/97 articles carry zero external links (an E-E-A-T
+                    risk on YMYL health content). Honest citations
+                    policy = Phase 2 of the audit plan. */}
               </div>
             </div>
 
@@ -328,16 +332,12 @@ export function BlogArticlePage({
             {/* AdSense — after article content */}
             <AdSenseAd format="auto" />
 
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-10 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span key={tag} className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-3 py-1 text-xs font-normal text-[var(--muted-foreground)]">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* AUDIT_REPORT §9-0.1 (2026-09-29): the visible keyword-chips
+                block (`#tag` spans rendering raw LSI keywords) was REMOVED
+                from the template — audit F7 measured raw long-tail keywords
+                stuffed as visible chips on 97/97 articles (reader-visible
+                keyword stuffing). tags stay in the DB/type; they are simply
+                no longer rendered on the article page. */}
 
             {/* Social share */}
             <SocialShare path={`/blog/${post.slug}`} title={shareTitle} description={shareDescription} lang={lang} />

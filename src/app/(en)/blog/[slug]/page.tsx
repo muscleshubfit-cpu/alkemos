@@ -3,7 +3,7 @@ import { BlogArticlePage } from "@/components/blog/BlogArticlePage";
 import { fetchBlogForOG, fetchBlogPostFull, fetchPublishedBlogSlugPools, buildBlogHreflang } from "@/lib/blog-server";
 import { sanitizeBlogContent } from "@/lib/blog-content-sanitize";
 import { insertToolLinks } from "@/lib/blog-tool-links";
-import { getArticleSchema, getBreadcrumbSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
+import { getArticleSchema, getBreadcrumbSchema, getFAQSchema, getSpeakableSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
 import type { Metadata } from "next";
 
@@ -173,6 +173,22 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     content: insertToolLinks(sanitizeBlogContent(fetchedPost.content, "en", slugPools), "en").md,
   };
 
+  // AUDIT_REPORT §9-0.2 (2026-09-29) — FAQPage JSON-LD from faq_json: the
+  // FAQ cards' data becomes machine-readable for AI answer engines (GEO).
+  // Audit F5 measured 0/97 articles with FAQPage schema while the data sat
+  // ready in the DB on every article. Google retired FAQ rich results
+  // (seo.ts law, May 2026) — this is emitted for AI-engine semantic value
+  // only (the coaching/for-coaches precedent). NO-FORCED-FILLER: an article
+  // with no faq_json emits nothing. Server-rendered = crawler-visible
+  // without JS. Raw stored questions (the displayFaqQuestion polish is
+  // presentation-only capitalization).
+  const faqPageSchema =
+    fullPost.faq_json && fullPost.faq_json.length > 0
+      ? getFAQSchema(
+          fullPost.faq_json.map((f) => ({ q: f.question, a: f.answer })),
+        )
+      : null;
+
   return (
     <>
       {articleSchema && (
@@ -191,6 +207,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
+        />
+      )}
+      {faqPageSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema) }}
         />
       )}
       <BlogArticlePage lang="en" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />

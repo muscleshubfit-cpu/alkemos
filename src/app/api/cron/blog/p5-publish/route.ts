@@ -23,6 +23,15 @@ import { cronBlogQueueQuerySchema } from "@/lib/validation/schemas";
 
 export const maxDuration = 60;
 
+/** AUDIT_REPORT §9-0.3 (2026-09-29) — the REAL length floor at the publish
+ * layer. The P2 ask is 1500–2500 words (mandatory), yet NOTHING enforced
+ * any floor at publish (audit F3/C1: the only code floor was P2's 400-word
+ * parse-validity net; measured median 1,202 words, only 15% in range, six
+ * sub-800-word articles shipped). 1300 = the audit's Phase-0 floor — below
+ * the 1500 ask (models get slack) but far above the measured median, so a
+ * deficient draft can never reach production again. */
+const P5_WORD_FLOOR = 1300;
+
 /**
  * PIPELINE V3 · PHASE 5 — Publish & Update (ONE language).
  * Pure Node.js / Supabase — NO AI models here (owner spec).
@@ -146,6 +155,22 @@ export async function GET(request: NextRequest) {
     const images = (bundle.images ?? []) as { url: string; alt: string; credit: string }[];
     if (!outline?.title || !review?.markdown) {
       throw new Error("p5: missing reviewed artifacts — rerun p4-review");
+    }
+
+    // AUDIT_REPORT §9-0.3 (2026-09-29) — publish-layer LENGTH GATE (same
+    // mechanism as the Phase-176 Latin gate below: fail honestly → the row
+    // is marked failed with the diagnostic → the 23:40 UTC dispatch backstop
+    // tops the day's slot up with a fresh run). Measured on the SAME basis
+    // as reading_time and the audit's n=109 baseline (review.markdown — the
+    // lifted FAQ section included, it renders as the visible FAQ cards).
+    // Runs BEFORE the quota/dup guards so a short draft fails fast without
+    // spending DB roundtrips; a failed row never consumed the daily quota
+    // (the guard counts PUBLISHED rows only).
+    const draftWords = countWords(review.markdown);
+    if (draftWords < P5_WORD_FLOOR) {
+      throw new Error(
+        `p5: article too short (${draftWords} words < ${P5_WORD_FLOOR}-word floor) — rerun p2-content`,
+      );
     }
 
     // PHASE 171 (proposal ج) — DAILY QUOTA GUARD (publish-layer law):

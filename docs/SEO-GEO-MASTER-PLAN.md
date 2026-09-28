@@ -43,7 +43,7 @@
 | ملف `llms.txt` | موجود ومكتوب باحتراف — جاهز لمحركات الذكاء الاصطناعي | `https://alkemos.com/llms.txt` |
 | ملف `llms-full.txt` | موجود كموسّع للمقالات | `https://alkemos.com/llms-full.txt` |
 | RSS Feeds | EN + AR متوفّران | `<link rel="alternate" type="application/rss+xml">` |
-| خط المدوّنة الآلي | 61 مقالًا منشورًا، 6 مقالات/يوم | `sitemap-blog.xml` |
+| خط المدوّنة الآلي | 61 مقالًا منشورًا وقت القياس، 1 مقالة/يوم/لغة (Phase 119 — صُحّح 2026-09-29 من «6 مقالات/يوم» وفق AUDIT_REPORT §9-0.4) | `sitemap-blog.xml` |
 | حجم الفهرسة في Bing | ~80,100 صفحة (يشمل 8,750 صفحة طعام من USDA غير المُعلَنة في الخريطة) | `site:alkemos.com` على Bing |
 | الأمان والخصوصية | HSTS, CSP, GDPR Cookie Banner, Permissions-Policy, X-Frame-Options | فحص response headers |
 | PWA | قابل للتثبيت + Service Worker + manifest.json | `public/manifest.json`, `public/sw.js` |
@@ -183,7 +183,7 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 3. **ذكاء اصطناعي EVO** — لا منافس عربي يقدّمه
 4. **الأسعار تنافسية** — $14.99–$39.99/شهر (أقل من Freeletics, Future)
 5. **نظام مدربين جاهز** — 100% دخل للمدرب، رسم ثابت
-6. **خط مدوّنة آلي** — 6 مقالات/يوم = 2,190 مقال/سنة
+6. **خط مدوّنة آلي** — 1 مقالة/يوم/لغة (Phase 119) ≈ 730 مقالة/سنة باللغتين (صُحّح 2026-09-29 من «6 مقالات/يوم»)
 7. **SEO تقني نظيف** — Schema + Sitemaps + hreflang + canonical
 8. **PWA** — قابل للتثبيت كتطبيق أصلي
 
