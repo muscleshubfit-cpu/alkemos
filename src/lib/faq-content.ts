@@ -17,7 +17,7 @@ export const FAQS_EN = [
   { q: "Payment methods?", a: "PayPal (primary — instant and secure), InstaPay, and Vodafone Cash. PayPal processes automatically; manual methods require uploading a receipt which the team reviews within 24 hours." },
   { q: "Is my data safe?", a: "Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
   { q: "What does a free account give me?", a: "Every plan you generate is saved to your account instead of staying on one device, synced across your devices, and manageable from your plans page. You also get your dashboard with progress tracking and questionnaires. Creating the account is free." },
-  { q: "Mobile friendly?", a: "Yes, fully responsive and installable as a PWA app on mobile." },
+  { q: "Is Alkemos mobile-friendly?", a: "Yes, fully responsive and installable as a PWA app on mobile." },
   { q: "When will I see results?", a: "Results vary by individual, consistency, starting point, and goals. Alkemos provides structured tools and guidance to help you make measurable progress over time." },
 ];
 
@@ -26,7 +26,7 @@ export const FAQS_AR = [
   { q: "ما هو EVO؟", a: "EVO هو محرك الأداء الذكي في المنصة. يقرأ بياناتك وهدفك، ويبني لك خطط تغذية وتمارين مخصصة، ويقترح تبديلات ذكية للوجبات والتمارين. متاح للجميع، للزوار والأعضاء على حد سواء، وفق حدود الاستخدام." },
   { q: "هل يوجد مدرب بشري؟", a: "EVO هو مدرب ذكاء اصطناعي. إذا كنت ترغب في متابعة بشرية مباشرة، يتوفر اشتراك تدريب أونلاين مع مدرب بشري منفصل يمكنك الانضمام إليه عبر صفحة التدريب الأونلاين." },
   { q: "كم خطة بالذكاء الاصطناعي أحصل عليها شهرياً؟", a: "رصيد شهري موحد واحد يجمع خطط التغذية والتمارين معاً: الباقة المجانية (والزوار ضمنها) توليدان ناجحان شهرياً، وبريميوم 4، وبرو 8، والتدريب الأونلاين 8. التوليد الفاشل لا يُحتسب إطلاقاً، ويتجدد الرصيد في أول كل شهر." },
-  { q: "ما هي التبديلات وكم عددها؟", a: "التبديلات تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة. الباقة المجانية: لا توجد. بريميوم: 3 تبديلات للوجبات أو التمارين أسبوعيًا. برو: 6 أسبوعيًا. التدريب الأونلاين: 6 أسبوعيًا. تتجدد كل اثنين." },
+  { q: "ما هي التبديلات وكم عددها؟", a: "التبديلات تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة. الباقة المجانية: لا توجد. بريميوم: 3 تبديلات للوجبات أو التمارين أسبوعيًا. برو: 6 أسبوعيًا. التدريب الأونلاين: 6 أسبوعيًا. تتجدد كل يوم اثنين." },
   { q: "ما هي طرق الدفع المتاحة؟", a: "PayPal (الطريقة الرئيسية — فورية وآمنة)، InstaPay، و Vodafone Cash. PayPal يعالج الدفع تلقائياً؛ أما الطرق اليدوية فتتطلب رفع إيصال يقوم الفريق بمراجعته خلال 24 ساعة." },
   { q: "هل بياناتي آمنة؟", a: "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل." },
   { q: "ماذا يمنحني الحساب المجاني؟", a: "كل خطة تولّدها تُحفظ في حسابك بدلًا من البقاء على جهاز واحد، وتتزامن عبر أجهزتك، وتديرها من صفحة خططي. كما تحصل على لوحتك الخاصة بمتابعة التقدم والاستبيانات. وإنشاء الحساب مجاني." },

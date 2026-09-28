@@ -56,7 +56,7 @@ export const CATEGORY_LABELS: Record<FoodCategory, { ar: string; en: string; emo
   fruit: { ar: "فواكه", en: "Fruits", emoji: "🍎", image: "/images/categories/foods/fruit.png" },
   dairy: { ar: "ألبان", en: "Dairy", emoji: "🥛", image: "/images/categories/foods/dairy.png" },
   nuts: { ar: "مكسرات", en: "Nuts", emoji: "🥜", image: "/images/categories/foods/nuts.png" },
-  snack: { ar: "سناك", en: "Snacks", emoji: "🍫", image: "/images/categories/foods/snack.png" },
+  snack: { ar: "وجبات خفيفة", en: "Snacks", emoji: "🍫", image: "/images/categories/foods/snack.png" },
   drink: { ar: "مشروبات", en: "Drinks", emoji: "☕", image: "/images/categories/foods/drink.png" },
 };
 

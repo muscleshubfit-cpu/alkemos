@@ -127,7 +127,7 @@ export default function CoachingPage() {
     },
     {
       icon: Bot,
-      titleAr: "EVO — مساعدك الذكي 24/7",
+      titleAr: "EVO — مدربك الذكي على مدار الساعة",
       titleEn: "EVO — Your AI Assistant 24/7",
       descAr: "اسأل EVO أي سؤال عن التغذية أو التمارين أو التحفيز في أي وقت — محرك ذكي يقرأ بياناتك ويتذكّرها، ويتعلّم أسبوعيًا من خطط المنصة الحقيقية (مجهولة الهوية).",
       descEn: "Ask EVO anything about nutrition, training, or motivation, anytime — a smart engine that reads and remembers your data, and learns weekly from real (anonymized) platform plans.",
@@ -177,7 +177,7 @@ export default function CoachingPage() {
             </div>
             <p className="mx-auto mt-8 max-w-xl text-lg font-normal leading-snug text-[var(--muted-foreground)] md:text-xl">
               {isAr
-                ? "خطط تغذية مخصصة، برامج تمارين متكيفة، متابعة شخصية، ومحرك ذكاء اصطناعي (EVO) متاح 24/7."
+                ? "خطط تغذية مخصصة، برامج تمارين متكيفة، متابعة شخصية، ومحرك ذكاء اصطناعي (EVO) متاح على مدار الساعة."
                 : "Personalized nutrition plans, adaptive workout programs, personal follow-up, and an AI engine (EVO) available 24/7."}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -275,7 +275,7 @@ export default function CoachingPage() {
         <section className="bg-[var(--tint)] px-4 py-16 text-[var(--text)] md:py-24">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-              {isAr ? "المدرب + EVO معك 24/7." : "Your coach + EVO, 24/7."}
+              {isAr ? "المدرب + EVO معك على مدار الساعة." : "Your coach + EVO, 24/7."}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
               {/* Phase 196 (owner directive): EVO is part of EVERY Alkemos
@@ -358,7 +358,7 @@ export default function CoachingPage() {
                   cta: isAr ? "تعرّف على المؤسس ›" : "Meet the founder ›",
                 },
                 {
-                  title: isAr ? "حدود شفافة بلا نجمة صغيرة" : "Transparent limits, no fine print",
+                  title: isAr ? "حدود شفافة بلا شروط خفية" : "Transparent limits, no fine print",
                   body: isAr
                     ? "كل الأسعار وحدود الاستخدام (توليد الخطط، التبديلات، الحفظ) منشورة بالكامل على صفحة العضويات — ما تراه هو ما تحصل عليه."
                     : "Every price and usage limit (plan generations, swaps, saves) is published in full on the memberships page — what you see is what you get.",

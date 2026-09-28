@@ -355,7 +355,7 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   // blog). The library entries moved into their service groups above.
   groups.push({
     id: "resources",
-    title: isAr ? "المحتوى" : "Resources",
+    title: isAr ? "المصادر" : "Resources",
     items: [
       // Access-point fix (2026-09-14): the /compare vertical entry.
       {

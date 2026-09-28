@@ -352,7 +352,7 @@ export default function MembershipsPage({ lang: langProp }: { lang?: Lang } = {}
               swaps inside the existing plan, never a regeneration. */}
           <p className="mx-auto mt-2 max-w-2xl text-center text-xs font-normal leading-relaxed text-[var(--muted-foreground)]">
             {isAr
-              ? "«التبديلات» تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة — وهي أسبوعية وتتجدد كل اثنين."
+              ? "«التبديلات» تعني استبدال وجبات أو تمارين فردية داخل خطتك دون إعادة إنشاء الخطة كاملة — وهي أسبوعية وتتجدد كل يوم اثنين."
               : "“Swaps” means replacing individual meals or exercises within your plan — never a full plan regeneration. They are weekly and reset every Monday."}
           </p>
           {/* Access-point fix (2026-09-14): the /compare vertical had ZERO

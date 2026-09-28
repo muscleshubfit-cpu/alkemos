@@ -121,6 +121,19 @@ export default function ProgramDetailClient({
               {isAr ? program.descriptionAr : program.descriptionEn}
             </p>
 
+            {/* CONTENT-AUDIT P1-9 (2026-09-28, audit §2.3 + GEO §3-3): a
+                definition-first methodology paragraph BEFORE the schedule
+                table — the quotable line AI engines can lift, plus the
+                progression guidance the program pages lacked. */}
+            <section className="mt-4 rounded-2xl border border-[var(--edge)] bg-[var(--tint)] p-4">
+              <h2 className="text-sm font-semibold tracking-tight text-[var(--text)]">
+                {isAr ? "منهجية البرنامج وكيف تتقدم" : "How this program works — and how to progress"}
+              </h2>
+              <p className="mt-2 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]" dir="auto">
+                {isAr ? program.methodologyAr : program.methodologyEn}
+              </p>
+            </section>
+
             {/* Stats */}
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
               <div className="rounded-2xl bg-[var(--card)] border border-[var(--edge)] p-4">
@@ -275,9 +288,12 @@ export default function ProgramDetailClient({
             {isAr ? "تريد خطة مخصصة لك؟" : "Want a personalized plan?"}
           </h2>
           <p className="mt-2 text-sm font-normal text-[var(--muted-foreground)]">
-            {isAr
-              ? "تنشئ منصة Alkemos خططًا مخصصة بناءً على أهدافك ومستواك."
-              : "Alkemos creates personalized plans based on your goals and level."}
+              {/* CONTENT-AUDIT 5.7 (audit §2.3): the ghost-voice
+                  "Alkemos creates…" was the only third-person sentence on
+                  the site — restored the platform's we/you voice. */}
+              {isAr
+              ? "ابنِ خطتك أنت بالذكاء الاصطناعي: أهدافك ومستواك وتفضيلاتك مدخلًا، وجدول كامل مخرجًا."
+              : "Build your own plan with AI: your goals, level, and preferences in — a full schedule out."}
           </p>
           <a
             href={isAr ? "/ar/memberships" : "/memberships"}

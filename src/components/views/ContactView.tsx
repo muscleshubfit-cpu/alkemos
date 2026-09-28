@@ -73,9 +73,15 @@ export function ContactView() {
             {isAr ? "تواصل معنا" : "Contact Us"}
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
+            {/* CONTENT-AUDIT P2-9 (2026-09-28, audit §2.7): the old subtitle
+                told visitors to “log in and send a message” while a public
+                form sat right below it — and that form only opens a real
+                ticket for signed-in users (visitors’ messages are saved
+                locally with an honest toast). The copy now describes the
+                three channels accurately. */}
             {isAr
-              ? "لديك سؤال أو استفسار؟ أرسل إلينا رسالة عبر الدخول إلى حسابك، أو راسلنا على البريد — وعادةً نرد خلال 24 ساعة."
-              : "Have a question? Log in and send us a message — we usually reply within 24 hours."}
+              ? "لديك سؤال أو استفسار؟ استخدم الاستمارة أو راسلنا على البريد — ورسائل الحسابات المسجلة تفتح تذكرة دعم نرد عليها عادةً خلال 24 ساعة."
+              : "Have a question? Use the form or email us — signed-in messages open a support ticket and usually get a reply within 24 hours."}
           </p>
         </div>
 

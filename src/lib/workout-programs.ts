@@ -36,6 +36,15 @@ export type WorkoutProgram = {
   nameEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  /**
+   * CONTENT-AUDIT P1-9 (2026-09-28, audit §2.3 + §3-فرص 3): program pages
+   * showed the schedule table with almost no editorial context — no
+   * quotable definition line for AI citation and no progression guidance
+   * (the heart of any training methodology). Each program now carries a
+   * methodology paragraph: definition first, then how to progress.
+   */
+  methodologyAr: string;
+  methodologyEn: string;
   location: ProgramLocation;
   level: ProgramLevel;
   goal: ProgramGoal;
@@ -96,6 +105,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج 3 أيام في الأسبوع بوزن الجسم دون أي معدات. مثالي للمبتدئين الذين يبدأون رحلتهم من المنزل.",
     descriptionEn:
       "3-day-per-week bodyweight program with zero equipment. Perfect for beginners starting their fitness journey at home.",
+    methodologyAr:
+      "برنامج كامل الجسم للمبتدئين يدرّب كل مجموعات العضلات الكبرى في كل جلسة، عادة ثلاث مرات أسبوعيًا. التقدم بإضافة التكرارات أولًا ثم الوزن: عندما تبلغ الحد الأعلى لنطاق التكرارات في كل المجموعات بشكل سليم، أضف أصغر زيادة متاحة (أو تنويعًا أصعب) وابدأ البناء من جديد. ارتح يومًا على الأقل بين الجلسات — العضلة تنمو في الاستشفاء لا في التمرين.",
+    methodologyEn:
+      "A full-body beginner program trains every major muscle group in each session, typically three times a week. Progress by adding repetitions first, then weight: once you reach the top of an exercise's rep range in every set with clean form, add the smallest load increment (or a harder variation) and build back up. Rest at least one day between sessions — muscle grows during recovery, not during the workout.",
     location: "home",
     level: "beginner",
     goal: "general",
@@ -176,6 +189,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج HIIT بأربع حصص أسبوعيًا لهدف حرق الدهون، بجلسات من 20 إلى 30 دقيقة فقط. مخصص للمستوى المتوسط ممن لديهم أساس تدريبي مسبق.",
     descriptionEn:
       "A 4-day/week HIIT program built for fat loss, with 20-30 minute sessions. For intermediate trainees with a training base.",
+    methodologyAr:
+      "تمارين HIIT تناوب فترات جهد قصيرة مع راحة غير مكتملة لإبقاء نبض القلب مرتفعًا وحرق السعرات بكفاءة. اعمل بجهد تستطيع الاستمرار عليه طول الفترة لا اندفاعة تنطفئ في منتصف الجولة، واعتبر الراحة المذكورة حدًا أعلى: مع تحسن اللياقة قصّر الراحات قبل أن تطوّل فترات الجهد. أيام الاستشفاء جزء من البرنامج وليست فشلًا.",
+    methodologyEn:
+      "HIIT alternates short work intervals with incomplete recovery to keep your heart rate high and calorie burn efficient. Work at an effort you can hold for the whole interval — not a sprint that dies mid-round — and treat the listed rest as a ceiling: as conditioning improves, shorten the rests before lengthening the work. Recovery days are part of the program, not a failure.",
     location: "home",
     level: "intermediate",
     goal: "fat-loss",
@@ -261,6 +278,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج 4 أيام/أسبوع لتمرين عضلات الجذع والبطن بعمق، مناسب لكل المستويات، ويمكن للمبتدئين تخفيف الأعداد.",
     descriptionEn:
       "4-day/week program for deep core and abs training. Suitable for all levels, beginners can reduce reps.",
+    methodologyAr:
+      "برنامج تخصص عضلات البطن يبني قوة الجذع بعمل مباشر لعضلات البطن بتواتر أسبوعي أعلى. التكرارات البطيئة مع شد البطن تتفوق على السريعة هنا — جودة الانقباض هي المحفز — والتقدم يعني تنويعات أصعب وزمن توتر أطول لا تكرارات لا نهائية. حافظ على أمان أسفل ظهرك بإلصاقه بالأرض في الحركات المستلقية.",
+    methodologyEn:
+      "A core specialization program builds trunk strength with direct abdominal work at higher weekly frequency. Slow, braced repetitions beat fast ones here — quality of contraction is the stimulus — and progression means harder variations and longer time under tension, not endless reps. Keep your lower back safe by pressing it into the floor on supine movements.",
     location: "home",
     level: "intermediate",
     goal: "general",
@@ -345,6 +366,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج PPL بمعدل 6 أيام/أسبوع باستخدام الدمبل فقط، مثالي لمن لديه دمبل في المنزل ويريد بناء العضلات.",
     descriptionEn:
       "6-day/week PPL program using only dumbbells. Ideal for those with dumbbells at home who want to build muscle.",
+    methodologyAr:
+      "تقسيم Push/Pull/Legs يناوب عائلات الحركة الثلاث عبر الأسبوع، فيتدرب كل جزء مرتين في الدورة مع استشفاء بينهما. أضف وزنًا عندما يصبح الحد الأعلى لنطاق التكرارات تحت السيطرة في كل المجموعات، وأبقِ تكرارًا أو اثنين في الاحتياط في تمارين العزل. النوم والبروتين هما النصف الآخر من البرنامج.",
+    methodologyEn:
+      "A Push/Pull/Legs split rotates the body's three movement families across the week, so each muscle trains twice per cycle while recovering between hits. Add load when the top of the rep range feels controlled in every set, and keep one or two reps in reserve on isolation work. Sleep and protein are the other half of the program.",
     location: "home-equipment",
     level: "intermediate",
     goal: "hypertrophy",
@@ -436,6 +461,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج 3 أيام/أسبوع في النادي الرياضي لأساسيات بناء القوة والعضلات، يناسب المبتدئين في النادي.",
     descriptionEn:
       "3-day/week gym program for foundational strength and muscle building. Suitable for gym beginners.",
+    methodologyAr:
+      "برنامج كامل الجسم في النادي يعلّم الأنماط الأساسية بالبار والماكينات بأحمال خفيفة قابلة للتعلم. تقدم خطيًا: زيادات صغيرة كلما وصلت كل المجموعات المحددة إلى أعلى نطاق التكرارات، وكرر الوزن نفسه إذا اختل الشكل. سجل كل جلسة — السجل هو البرنامج نفسه.",
+    methodologyEn:
+      "A gym-based full-body beginner program teaches the fundamental barbell and machine patterns with light, learnable loads. Progress linearly: small weight jumps whenever every prescribed set reaches the top of the rep range, and repeat a weight when form breaks down. Record every session — the log IS the program.",
     location: "gym",
     level: "beginner",
     goal: "general",
@@ -516,6 +545,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج PPL كلاسيكي بمعدل 6 أيام/أسبوع في النادي الرياضي للتضخيم العضلي، مناسب للمتدرب المتوسط الذي يريد بناء كتلة عضلية.",
     descriptionEn:
       "Classic 6-day/week PPL gym program for hypertrophy. Suitable for intermediate trainees looking to build muscle mass.",
+    methodologyAr:
+      "تقسيم Push/Pull/Legs متوسط يضاعف الحجم الأسبوعي لكل عضلة عبر دوران من ستة أيام. أضف الحمل بزيادات صغيرة عندما يثبت سقف نطاق التكرارات في كل المجموعات، وناوب نطاقات التكرارات كل بضعة أسابيع لاستمرار التقدم. خفف الحمل أسبوعًا كاملًا عندما يشكو النوم أو المفاصل.",
+    methodologyEn:
+      "An intermediate Push/Pull/Legs split doubles weekly volume per muscle across a six-day rotation. Add load in small increments when the rep-range ceiling holds for every set, and rotate rep ranges every few weeks to keep progress going. Take one lighter week when sleep or joints complain.",
     location: "gym",
     level: "intermediate",
     goal: "hypertrophy",
@@ -607,6 +640,10 @@ export const WORKOUT_PROGRAMS: WorkoutProgram[] = [
       "برنامج قوة كلاسيكي 5×5 لرفع الأوزان الثقيلة تدريجيًا. 3 أيام/أسبوع، تركيز على البنش والسكوات والديدليفت. للمتقدمين.",
     descriptionEn:
       "Classic 5×5 strength program for lifting heavy. 3 days/week, focused on bench, squat, and deadlift. For advanced trainees.",
+    methodologyAr:
+      "برنامج 5×5 يبني القوة بخمس مجموعات ثقيلة من خمس تكرارات في رفعات البار الكبرى. ابدأ بنحو 80% من وزن تستطيع أداء 8 تكرارات نظيفة به، ثم أضف 2.5 كجم على البار كل جلسة تكمل فيها المجموعات الخمس — وبعد جلستين متعثرتين أعد الوزن نفسه مع تخفيض 10%. ارتَح 3–5 دقائق بين المجموعات الثقيلة؛ المجموعة الخامسة يجب أن تكون جهدًا محسوبًا لا نجاة.",
+    methodologyEn:
+      "A 5×5 program builds strength with five heavy sets of five repetitions on the big barbell lifts. Start around 80% of a weight you could do for eight clean reps, then add 2.5 kg (5 lb) to the bar every session you complete all five sets — and after two stalled sessions, repeat the weight at a 10% reduction. Rest 3–5 minutes between heavy sets; the fifth set should be measured work, not survival.",
     location: "gym",
     level: "advanced",
     goal: "strength",

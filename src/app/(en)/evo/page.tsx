@@ -55,7 +55,7 @@ export default function EvoPage() {
     },
     {
       icon: MessageCircle,
-      titleAr: "استشارات فورية 24/7",
+      titleAr: "استشارات فورية على مدار الساعة",
       titleEn: "Instant Consultations 24/7",
       descAr: "اسأل EVO أي سؤال عن التغذية، التمارين، المكملات، أو التحفيز — في أي وقت.",
       descEn: "Ask EVO any question about nutrition, exercises, supplements, or motivation — anytime.",
@@ -172,7 +172,11 @@ export default function EvoPage() {
             />
           </div>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-            EVO
+            {/* CONTENT-AUDIT P2-5 (audit §2.5): bare "EVO" told neither
+                engine nor reader anything out of context — the H1 now
+                carries the entity descriptor, matching the canonical
+                «مدربك الذكي» used across the site. */}
+            EVO — {isAr ? "مدربك الذكي" : "your AI coach"}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-lg font-normal text-[var(--muted-foreground)] md:text-xl">
             {isAr
@@ -217,7 +221,7 @@ export default function EvoPage() {
           <div className="relative mx-auto mt-10 max-h-[520px] w-fit">
             <Image
               src="/images/brand/evo-character.webp"
-              alt={isAr ? "محارب EVO بالدرع السبارتي — المساعد الذكي من Alkemos" : "EVO warrior in Spartan armor — Alkemos smart assistant"}
+              alt={isAr ? "محارب EVO بالدرع السبارتي — مدربك الذكي من Alkemos" : "EVO warrior in Spartan armor — Alkemos smart assistant"}
               width={874}
               height={1000}
               sizes="(max-width: 768px) 90vw, 480px"

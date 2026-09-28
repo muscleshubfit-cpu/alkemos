@@ -293,7 +293,7 @@ export default function AiMealPlannerPage() {
                 dir="ltr"
               />
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {isAr ? "من 1200 إلى 4000 — لا تعرف رقمك؟ " : "From 1200 to 4000 — don't know yours? "}
+                {isAr ? "من 1,200 إلى 4,000 — لا تعرف رقمك؟ " : "From 1,200 to 4,000 — don't know yours? "}
                 <Link href={isAr ? "/ar/tools/calorie-calculator" : "/tools/calorie-calculator"} className="underline decoration-[var(--edge)] underline-offset-4 hover:text-[var(--text)]">
                   {isAr ? "حاسبة السعرات" : "the calorie calculator"}
                 </Link>

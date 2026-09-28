@@ -87,7 +87,13 @@ export function SiteFooter() {
               height={110}
               className="h-10 w-auto object-contain"
             />
-            <p className="mt-3 text-xs font-normal">{isAr ? "اصنع قوّتك الأسطورية." : "Forge Your Legendary Strength."}</p>
+            <p className="mt-3 text-xs font-normal">
+              {/* CONTENT-AUDIT P2-7 (audit §4.14): the epic-fantasy slogan
+                  clashed with the site's numbers-and-precision voice
+                  («تدرّب بذكاء. وتغذَّ بدقة.») — the footer now echoes the
+                  brand rhythm instead. */}
+              {isAr ? "تدرّب بذكاء. وتغذَّ بدقة." : "Train smarter. Eat with precision."}
+            </p>
             <p className="mt-3 text-[10px] font-normal text-[var(--muted-foreground)]">{isAr ? `© ${new Date().getFullYear()} جميع الحقوق محفوظة` : `© ${new Date().getFullYear()} All rights reserved`}</p>
             {/* Phase SEO-GEO-4.6 (2026-09-09): owned-profile icon row — the
                 human counterpart of Organization.sameAs (src/lib/social.ts).

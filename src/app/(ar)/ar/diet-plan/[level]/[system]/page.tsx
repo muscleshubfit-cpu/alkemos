@@ -185,7 +185,7 @@ export default async function DietPlanCellPage({ params }: Params) {
           </div>
           <p className="mt-3 text-sm font-normal leading-relaxed text-[var(--muted-foreground)]">
             إجمالي اليوم: {day.kcal} سعرة · بروتين {day.protein} جم ·
-            كربوهيدرات {day.carbs} جم · دهون {day.fat} غ. الأوزان مطبوخة أو
+            كربوهيدرات {day.carbs} جم · دهون {day.fat} جم. الأوزان مطبوخة أو
             جاهزة للأكل، والقيم مقربة لأقرب سعرة — فالفارق الطبيعي لهضم طعام
             حقيقي أوسع من هذه الخانات العشرية.
           </p>
