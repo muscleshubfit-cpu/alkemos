@@ -195,7 +195,7 @@ const EXERCISE_LIBRARY: Record<string, { gym: ExerciseVariant; home: ExerciseVar
  },
  pulldown: {
  gym: { name: "سحب أمامي", sets: 4, reps: "10-12", rest: "90 ثانية", notes: "اسحب للصدر", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Bent-over_row.jpg/200px-Bent-over_row.jpg" },
- home: { name: "سحب باند", sets: 4, reps: "12-15", rest: "60 ثانية", notes: "ثبّت الباند جيداً", image: "/images/categories/exercises/back.png" },
+ home: { name: "سحب باند", sets: 4, reps: "12-15", rest: "60 ثانية", notes: "ثبّت الباند جيداً", image: "/images/categories/exercises/back.webp" },
  },
  pullup: {
  gym: { name: "عقلة", sets: 4, reps: "6-10", rest: "2 دقيقة", notes: "مدى حركة كامل", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Pullup.jpg/200px-Pullup.jpg" },
@@ -247,7 +247,7 @@ const EXERCISE_LIBRARY: Record<string, { gym: ExerciseVariant; home: ExerciseVar
  },
  face_pull: {
  gym: { name: "فيس بول بالكابل", sets: 3, reps: "15-20", rest: "60 ثانية", notes: "للأكتاف والوضعية", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Military_press.jpg/200px-Military_press.jpg" },
- home: { name: "فيس بول بالباند", sets: 3, reps: "15-20", rest: "60 ثانية", notes: "ثبّت الباند", image: "/images/categories/exercises/back.png" },
+ home: { name: "فيس بول بالباند", sets: 3, reps: "15-20", rest: "60 ثانية", notes: "ثبّت الباند", image: "/images/categories/exercises/back.webp" },
  },
  plank: {
  gym: { name: "بلانك", sets: 3, reps: "45-60 ثانية", rest: "45 ثانية", notes: "حافظ على استقامة الجسم", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Plank_(exercise).jpg/200px-Plank_(exercise).jpg" },

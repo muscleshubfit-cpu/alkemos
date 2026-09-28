@@ -79,20 +79,20 @@ export const GOAL_LABELS: Record<ProgramGoal, { ar: string; en: string }> = {
 // Local images — each program type has its own unique AI-generated image.
 // Generated in Apple iPhone product photography style (2026-08-25).
 const IMAGES = {
-  homeBodyweight: "/images/programs/home-workout.png",
-  homeDumbbell: "/images/programs/home-dumbbell.png",
-  homeCore: "/images/programs/home-core.png",
-  gymBeginner: "/images/programs/gym-beginner.png",
-  gymStrength: "/images/programs/gym-strength.png",
-  gymHypertrophy: "/images/programs/full-gym.png",
-  fatLoss: "/images/programs/hiit.png",
-  cardio: "/images/programs/hiit.png",
-  absCore: "/images/programs/home-core.png",
-  pushDay: "/images/programs/gym-strength.png",
-  pullDay: "/images/programs/gym-beginner.png",
-  legDay: "/images/programs/full-gym.png",
-  fullBody: "/images/programs/gym-beginner.png",
-  upperBody: "/images/programs/gym-strength.png",
+  homeBodyweight: "/images/programs/home-workout.webp",
+  homeDumbbell: "/images/programs/home-dumbbell.webp",
+  homeCore: "/images/programs/home-core.webp",
+  gymBeginner: "/images/programs/gym-beginner.webp",
+  gymStrength: "/images/programs/gym-strength.webp",
+  gymHypertrophy: "/images/programs/full-gym.webp",
+  fatLoss: "/images/programs/hiit.webp",
+  cardio: "/images/programs/hiit.webp",
+  absCore: "/images/programs/home-core.webp",
+  pushDay: "/images/programs/gym-strength.webp",
+  pullDay: "/images/programs/gym-beginner.webp",
+  legDay: "/images/programs/full-gym.webp",
+  fullBody: "/images/programs/gym-beginner.webp",
+  upperBody: "/images/programs/gym-strength.webp",
 };
 
 export const WORKOUT_PROGRAMS: WorkoutProgram[] = [

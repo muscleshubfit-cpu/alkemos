@@ -773,7 +773,13 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
                 alt="Alkemos"
                 width={128}
                 height={128}
-                eager
+                /* PERF-220: lazy — this instance lives inside the CLOSED
+                    mobile drawer (display:none until the menu opens). The
+                    old eager flag made Chrome fetch the light variant on
+                    EVERY pageview in both themes even though the drawer is
+                    never visible pre-interaction; lazy still loads it
+                    instantly when the drawer opens (in-viewport lazy).
+                    The always-visible header instance above keeps eager. */
                 className="h-9 w-9 object-contain"
               />
             </button>

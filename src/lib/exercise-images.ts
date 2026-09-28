@@ -31,7 +31,7 @@ const IMAGE_BASE = "/images/exercises";
 
 /**
  * Get the full image URL for an exercise image path.
- * - If path starts with "/" → local asset (e.g. "/images/categories/exercises/chest.png")
+ * - If path starts with "/" → local asset (e.g. "/images/categories/exercises/chest.webp")
  * - If path starts with "http" → full URL (passthrough)
  * - Otherwise → self-hosted WebP asset (dataset key .jpg → .webp)
  */

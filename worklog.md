@@ -8,6 +8,25 @@
 
 ---
 ---
+Task ID: PERF-AUDIT-296-2026-09-28
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-28 — Audit شامل للسرعة والأداء (الموقع + البنية التحتية) بجلسة جديدة كليًا، ثم تنفيذ التحسينات المبررة فقط دون تغيير التصميم أو المحتوى أو business logic، وإعادة القياس وحفظ التقرير داخل المستودع.
+
+Work Log:
+- (قياس قبل) Lighthouse 13.5 mobile: Perf 49 · LCP 5.2s · TBT 2,210ms · CLS 0 · FCP 2.1s · TTFB 40ms — بينما القياس التجريبي الفعلي بPlaywright (بلا throttle): LCP ≈ 404–436ms وLoad ≈ 500–550ms → الدرجة المخبرية محكومة بمحاكاة CPU×4 (ترطيب) لا بالشبكة (الأصول الحرجة تصل ≤300ms).
+- (اكتشاف 1 — الصور) 30 ملفًا بامتداد .png هي فعليًا JPEG ‏1024×1024 (2.2MB): foods (9) · exercises (8) · programs (7) · tools (6) — مُشار إليها بسلاسل حرفية في lib وليست في DB.
+- (اكتشاف 2 — الثيم الداكن) قياس مقارن: الزائر الداكن يجلب 4 أصول light مخفية (hero+logo+helmet+evo ≈ 62KB/4 طلبات) لأن Chromium يحمّل eager المخفي بdisplay:none — الوضع الفاتح نظيف (الداكنة lazy أصلاً).
+- (اكتشاف 3 — البنية) APIs: Cloudflare (brotli/http3/early-hints ✓، قواعد كاش سليمة، أصول ثابتة HIT) · Vercel (builds READY ~2min، ISR يعمل، br فعلي) · Supabase (DB 24MB، أثقل استعلام تطبيقي 10ms، 129 فهرسًا غير مستخدم بعائد مهمل) · GitHub (19 workflow وظيفية) — كلها صحية: صفر إجراء مبرر.
+- (تنفيذ 1) إعادة ترميز 24 صورة مُشار إليها إلى WebP حقيقي 768px q80: ‏1,825KB→790KB (−57%) + حذف 6 أيتام tools/*.png (469KB — فحص src/DB/scripts/docs: صفر مراجع) + تحديث المراجع: foods-shared · exercises · exercises-shared · ai-local · workout-programs + تعليق exercise-images + اختبار passthrough.
+- (تنفيذ 2) lazy موضعي لإصلاح هدر الداكن: درج موبايل SiteHeader (كان eager مخفي دائمًا) + فقاعة EVO (تتركب بعد الخمول أصلًا) — hero/logo أبقيت eager عمدًا (LCP + lcp-discovery + media-scoped preloads) — سلوك وأبعاد محجوزة: صفر CLS.
+- (مؤجل مبررًا موثقًا) refactor LandingView لserver components (خفض الترطيب — مخاطرة عالية على 1,851 سطرًا بجلسة واحدة) · إزالة preload المكرر (اليدوي وحده حامل media+fetchPriority) · lazy للhero (يفشل lcp-lazy-loaded) · حذف فهارس Supabase — الكل بdocs/PERFORMANCE-AUDIT-2026-09-28.md §3.
+- (التحقق) tsc ✓ 0 · vitest ✓ 1,771/1,771 · eslint ✓ 0 · next build ✓ (كل المسارات Static/SSG/ISR) · stale-refs: صفر إشارات للملفات المحذوفة.
+
+Stage Summary:
+- صفحة رئيسية أخف بـ~900KB من طلباتها وصفحات الأطعمة/التمارين/البرامج تربح بالمثل؛ الزائر الداكن يوفر ~56KB و3 طلبات من نافذة LCP.
+- البنية التحتية الأربعة (CF/Vercel/Supabase/GitHub) موثقة صحية بلا إجراء؛ الترطيب يبقى bottleneck المختبر الوحيد المتبقي (مسار قرار مالك مستقبلي).
+- الملفات: docs/PERFORMANCE-AUDIT-2026-09-28.md (جديد) · 5 lib + exercise-images.ts + test + SiteHeader + EvoFloatingWidget · 24 webp جديد/-30 png · STATE.md · worklog.md (هذا المدخل).
+---
 Task ID: CONTENT-AUDIT-PHASE-295-P2-11-2026-09-28
 Agent: Super Z (main)
 Task: أمر المالك 2026-09-28 — تنفيذ P2-11 بالكامل من تقرير العلاج بمصدر الحقيقة من المالك: صورة الشهادات الأصلية الثماني + حسابا فيسبوك، مع معالجة بصرية احترافية بلا أي تغيير في محتوى الشهادات.

@@ -56,14 +56,14 @@ export const LEVEL_LABELS: Record<Level, { ar: string; en: string; color: string
 };
 
 export const CATEGORY_LABELS: Record<ExerciseCategory, { ar: string; en: string; emoji: string; image: string }> = {
-  chest: { ar: "صدر", en: "Chest", emoji: "💪", image: "/images/categories/exercises/chest.png" },
-  back: { ar: "ظهر", en: "Back", emoji: "🔙", image: "/images/categories/exercises/back.png" },
-  shoulders: { ar: "أكتاف", en: "Shoulders", emoji: "🏆", image: "/images/categories/exercises/shoulders.png" },
-  legs: { ar: "أرجل", en: "Legs", emoji: "🦵", image: "/images/categories/exercises/legs.png" },
-  biceps: { ar: "بايسبس", en: "Biceps", emoji: "💪", image: "/images/categories/exercises/biceps.png" },
-  triceps: { ar: "ترايسبس", en: "Triceps", emoji: "💪", image: "/images/categories/exercises/triceps.png" },
-  core: { ar: "بطن/كور", en: "Core", emoji: "🎯", image: "/images/categories/exercises/core.png" },
-  cardio: { ar: "كارديو", en: "Cardio", emoji: "❤️", image: "/images/categories/exercises/cardio.png" },
+  chest: { ar: "صدر", en: "Chest", emoji: "💪", image: "/images/categories/exercises/chest.webp" },
+  back: { ar: "ظهر", en: "Back", emoji: "🔙", image: "/images/categories/exercises/back.webp" },
+  shoulders: { ar: "أكتاف", en: "Shoulders", emoji: "🏆", image: "/images/categories/exercises/shoulders.webp" },
+  legs: { ar: "أرجل", en: "Legs", emoji: "🦵", image: "/images/categories/exercises/legs.webp" },
+  biceps: { ar: "بايسبس", en: "Biceps", emoji: "💪", image: "/images/categories/exercises/biceps.webp" },
+  triceps: { ar: "ترايسبس", en: "Triceps", emoji: "💪", image: "/images/categories/exercises/triceps.webp" },
+  core: { ar: "بطن/كور", en: "Core", emoji: "🎯", image: "/images/categories/exercises/core.webp" },
+  cardio: { ar: "كارديو", en: "Cardio", emoji: "❤️", image: "/images/categories/exercises/cardio.webp" },
 };
 
 /**

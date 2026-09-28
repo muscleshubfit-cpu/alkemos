@@ -49,15 +49,15 @@ export type Food = {
 };
 
 export const CATEGORY_LABELS: Record<FoodCategory, { ar: string; en: string; emoji: string; image: string }> = {
-  protein: { ar: "بروتين", en: "Protein", emoji: "🥩", image: "/images/categories/foods/protein.png" },
-  carb: { ar: "كربوهيدرات", en: "Carbs", emoji: "🍚", image: "/images/categories/foods/carb.png" },
-  fat: { ar: "دهون", en: "Fats", emoji: "🥑", image: "/images/categories/foods/fat.png" },
-  vegetable: { ar: "خضار", en: "Vegetables", emoji: "🥦", image: "/images/categories/foods/vegetable.png" },
-  fruit: { ar: "فواكه", en: "Fruits", emoji: "🍎", image: "/images/categories/foods/fruit.png" },
-  dairy: { ar: "ألبان", en: "Dairy", emoji: "🥛", image: "/images/categories/foods/dairy.png" },
-  nuts: { ar: "مكسرات", en: "Nuts", emoji: "🥜", image: "/images/categories/foods/nuts.png" },
-  snack: { ar: "وجبات خفيفة", en: "Snacks", emoji: "🍫", image: "/images/categories/foods/snack.png" },
-  drink: { ar: "مشروبات", en: "Drinks", emoji: "☕", image: "/images/categories/foods/drink.png" },
+  protein: { ar: "بروتين", en: "Protein", emoji: "🥩", image: "/images/categories/foods/protein.webp" },
+  carb: { ar: "كربوهيدرات", en: "Carbs", emoji: "🍚", image: "/images/categories/foods/carb.webp" },
+  fat: { ar: "دهون", en: "Fats", emoji: "🥑", image: "/images/categories/foods/fat.webp" },
+  vegetable: { ar: "خضار", en: "Vegetables", emoji: "🥦", image: "/images/categories/foods/vegetable.webp" },
+  fruit: { ar: "فواكه", en: "Fruits", emoji: "🍎", image: "/images/categories/foods/fruit.webp" },
+  dairy: { ar: "ألبان", en: "Dairy", emoji: "🥛", image: "/images/categories/foods/dairy.webp" },
+  nuts: { ar: "مكسرات", en: "Nuts", emoji: "🥜", image: "/images/categories/foods/nuts.webp" },
+  snack: { ar: "وجبات خفيفة", en: "Snacks", emoji: "🍫", image: "/images/categories/foods/snack.webp" },
+  drink: { ar: "مشروبات", en: "Drinks", emoji: "☕", image: "/images/categories/foods/drink.webp" },
 };
 
 export const TAG_LABELS: Record<string, { ar: string; en: string; color: string }> = {

@@ -425,7 +425,11 @@ export function EvoFloatingWidget() {
               alt="EVO"
               width={56}
               height={56}
-              eager
+              /* PERF-220: lazy — the widget itself mounts post-idle via
+                  EvoWidgetLazy, so eager buys nothing (the bubble paints at
+                  mount-time layout either way); eager made Chrome ALSO
+                  fetch the hidden light variant on dark-theme visits.
+                  Lazy kills that duplicate ~16KB fetch per dark pageview. */
               className="h-14 w-14 rounded-full object-cover"
             />
             <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-[var(--ai)] opacity-15" />

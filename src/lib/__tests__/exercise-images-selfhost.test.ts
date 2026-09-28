@@ -36,8 +36,8 @@ describe("exercise images self-hosting (batch 2 — §12.53 item 2)", () => {
   });
 
   it("keeps the passthrough laws unchanged", () => {
-    expect(getExerciseImageUrl("/images/categories/exercises/chest.png")).toBe(
-      "/images/categories/exercises/chest.png",
+    expect(getExerciseImageUrl("/images/categories/exercises/chest.webp")).toBe(
+      "/images/categories/exercises/chest.webp",
     );
     expect(getExerciseImageUrl("https://example.com/photo.jpg")).toBe(
       "https://example.com/photo.jpg",
