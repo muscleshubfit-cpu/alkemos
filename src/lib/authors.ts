@@ -137,7 +137,20 @@ export const AHMED_ZAKE: AuthorProfile = {
     "https://www.facebook.com/AhmedZakePT/": { en: "Coaching page", ar: "صفحة التدريب" },
     "https://www.facebook.com/SpEeRr/": { en: "Personal profile", ar: "الملف الشخصي" },
   },
-  avatarUrl: "https://alkemos.com/images/coach-portrait.jpg",
+  // Owner follow-up item 3 (2026-09-28): the author-card avatar is the
+  // founder's REAL photo. The public Facebook page (facebook.com/AhmedZakePT)
+  // was checked first per the owner's instruction: its Graph picture endpoint
+  // works without a token, but the image it serves is a branded collage
+  // (dark neon background, "AZ" logo, text overlays) that becomes unreadable
+  // noise at avatar sizes, and its CDN URLs are signed and expire — not
+  // reliable for direct use. Chosen instead: the best founder photo already
+  // on the site — a dedicated SQUARE 400×400 face crop of the studio
+  // portrait /images/coach-portrait.jpg (the clean white-background photo
+  // used on the about page). Square because every consumer is a circle
+  // (byline 40px, authors index 80px, profile 96–128px) and the profile
+  // pages' og:image already declares 400×400 — the JSON-LD Person.image
+  // picks this up automatically.
+  avatarUrl: "https://alkemos.com/images/authors/ahmed-zake-avatar.jpg",
   profileUrl: "https://alkemos.com/authors/ahmed-zake",
 };
 

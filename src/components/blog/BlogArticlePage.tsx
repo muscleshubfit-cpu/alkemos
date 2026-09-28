@@ -13,6 +13,7 @@ import { stripFaqSectionFromBody, stripTitleHeadingFromBody } from "@/lib/blog-m
 // the AI provider chain that blog-pipeline.ts imports.
 import { clampMetaTitle } from "@/lib/blog-meta-title";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
+import { resolveAuthor } from "@/lib/authors";
 import { canonicalShareUrl } from "@/lib/share-url";
 import { BlogMembershipCard, SocialShare, ReadingProgress, TableOfContents } from "./BlogComponents";
 import { AdSenseAd } from "@/components/AdSenseAd";
@@ -149,6 +150,12 @@ export function BlogArticlePage({
   const shareTitle = clampMetaTitle(post.meta_title || post.title || "", lang);
   const shareDescription = post.meta_description || post.excerpt || "";
 
+  // Owner follow-up item 3 (2026-09-28): resolve the DB author string to
+  // the registry profile (the SAME resolver the Article schema uses) so the
+  // byline avatar and the JSON-LD Person.image can never diverge. Undefined
+  // avatarUrl falls back to the letter circle below.
+  const bylineAvatarUrl = resolveAuthor(post.author).avatarUrl;
+
   return (
     <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--text)]" dir={isAr ? "rtl" : "ltr"}>
       <ReadingProgress />
@@ -240,13 +247,32 @@ export function BlogArticlePage({
                     name + job title + link to credentials = strongest trust
                     signal possible. The `Reviewed by Ahmed Zake` second line
                     matches the reviewedBy Person in the Article schema. */}
+                {/* Owner follow-up item 3 (2026-09-28): the byline circle now
+                    shows the founder's REAL photo — the registry avatarUrl
+                    (square face crop of the site's studio portrait), resolved
+                    from the DB author string by the same resolver the Article
+                    schema uses, so byline + JSON-LD Person.image always match.
+                    The letter circle stays as the graceful fallback for any
+                    future author without an avatar. */}
                 <Link
                   href={isAr ? "/ar/authors/ahmed-zake" : "/authors/ahmed-zake"}
                   className="group flex items-center gap-3"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-sm font-semibold text-[var(--text)] transition-opacity group-hover:opacity-80">
-                    {post.author.charAt(0)}
-                  </span>
+                  {bylineAvatarUrl ? (
+                    <span className="relative block h-10 w-10 overflow-hidden rounded-full border border-[var(--edge)] bg-[var(--tint)] transition-opacity group-hover:opacity-80">
+                      <Image
+                        src={bylineAvatarUrl}
+                        alt={post.author}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </span>
+                  ) : (
+                    <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-sm font-semibold text-[var(--text)] transition-opacity group-hover:opacity-80">
+                      {post.author.charAt(0)}
+                    </span>
+                  )}
                   <span className="flex flex-col">
                     <span className="text-sm font-medium text-[var(--text)] group-hover:underline">
                       {post.author}
