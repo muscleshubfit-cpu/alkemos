@@ -46,6 +46,7 @@ export {
   BLOG_CATEGORIES,
   VALID_CATEGORY_IDS,
   normalizeCategory,
+  effectiveCategory,
   getCategoryLabel,
 } from "./blog-categories";
 

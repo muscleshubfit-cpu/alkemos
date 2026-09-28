@@ -17,10 +17,16 @@ import { sizedRemoteImage } from "./remote-image-size";
 // carried only 8 ids — fitness/wellness missing — so /blog/category/fitness
 // and /wellness 404'd live while the client stored those ids). The single
 // source is now src/lib/blog-categories.ts; both sides re-export it.
+// CONTENT-AUDIT P1-8: effectiveCategory is ALSO imported as a value — the
+// category-page query filters through it in-memory (misfiled stored rows
+// are corrected at render time; DB untouched).
+import { effectiveCategory } from "./blog-categories";
+
 export {
   BLOG_CATEGORIES,
   VALID_CATEGORY_IDS,
   normalizeCategory,
+  effectiveCategory,
 } from "./blog-categories";
 
 export type BlogOGData = {
@@ -422,6 +428,13 @@ export async function listPublishedPostsByCategory(
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+    // CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4): membership is now the
+    // EFFECTIVE category (render-time override map in blog-categories.ts).
+    // The DB filter is dropped in favor of an in-memory pass — the corpus
+    // is small (≤ ~50 card rows per language, body fields excluded), and
+    // the stored category alone put recovery-device and training-split
+    // articles inside /blog/category/nutrition, diluting topical authority.
+    // DB rows stay untouched (render-time law).
     const { data, error } = await supabase
       .from("blog_posts")
       .select(
@@ -429,10 +442,10 @@ export async function listPublishedPostsByCategory(
       )
       .eq("is_published", true)
       .eq("language", lang)
-      .eq("category", categoryId)
       .order("published_at", { ascending: false });
     if (error) return [];
-    return (data ?? []) as BlogPostCard[];
+    const rows = (data ?? []) as BlogPostCard[];
+    return rows.filter((p) => effectiveCategory(p.slug, p.category) === categoryId);
   } catch {
     return [];
   }

@@ -121,14 +121,20 @@ describe("blog category pages (P2-11 / §12.36)", () => {
     expect(list).toContain("/category/${cat.id}");
     expect(list).not.toContain("setCategory");
 
-    // The article page's category chip is a contextual link.
+    // The article page's category chip is a contextual link — via the
+    // EFFECTIVE category (content-audit P1-8: misfiled stored rows are
+    // corrected at render time).
     const article = stripComments(readFileSync(ARTICLE, "utf8"));
-    expect(article).toContain("/category/${post.category}");
+    expect(article).toContain("/category/${effectiveCategory(post.slug, post.category)}");
 
-    // Server data: category-filtered list, card fields only.
+    // Server data: category-filtered list, card fields only. Since the
+    // content-audit P1-8 pass, membership is the EFFECTIVE category —
+    // the query fetches the language's published card rows and filters
+    // in-memory through effectiveCategory (misfiled rows corrected at
+    // render time; DB untouched).
     const server = stripComments(readFileSync(SERVER, "utf8"));
     expect(server).toContain("listPublishedPostsByCategory");
-    expect(server).toContain('.eq("category", categoryId)');
+    expect(server).toContain('effectiveCategory(p.slug, p.category) === categoryId');
   });
 
   it("SITEMAP: the 20 category URLs are advertised with alternates", () => {

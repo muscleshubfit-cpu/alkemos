@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
+import { getBlogPost, getRelatedPosts, getLinkedPost, parseTableOfContents, renderMarkdown, getCategoryLabel, effectiveCategory, type BlogPost, type BlogPostCard, type BlogFaq } from "@/lib/blog";
 import { deferIdle } from "@/lib/defer-idle";
 import { stripFaqSectionFromBody, stripTitleHeadingFromBody } from "@/lib/blog-msa";
 // PHASE 189 (SEO-GEO-10): clamp the share title through the same SERP
@@ -186,11 +186,14 @@ export function BlogArticlePage({
               <div className="flex flex-wrap items-center gap-3 text-xs font-normal text-[var(--muted-foreground)]">
                 {/* P2-11 (§12.36): the article's category is a contextual
                     link into the crawlable category page. */}
+                {/* CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4): the chip
+                    links the EFFECTIVE category — misfiled stored rows are
+                    corrected at render time (see blog-categories.ts). */}
                 <a
-                  href={`${isAr ? "/ar/blog" : "/blog"}/category/${post.category}`}
+                  href={`${isAr ? "/ar/blog" : "/blog"}/category/${effectiveCategory(post.slug, post.category)}`}
                   className="rounded-full border border-[var(--edge)] bg-[var(--tint)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-2)] transition-colors hover:border-[var(--chrome-edge)]"
                 >
-                  {getCategoryLabel(post.category, lang)}
+                  {getCategoryLabel(effectiveCategory(post.slug, post.category), lang)}
                 </a>
                 <span>{post.reading_time} {isAr ? "دقائق قراءة" : "min read"}</span>
                 {post.published_at && (
@@ -373,7 +376,7 @@ export function BlogArticlePage({
                       )}
                       <div className="p-5">
                         <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                          {getCategoryLabel(rel.category, lang)}
+                          {getCategoryLabel(effectiveCategory(rel.slug, rel.category), lang)}
                         </span>
                         <h3 className="mt-2 text-base font-semibold leading-tight tracking-tight">{rel.title}</h3>
                         <p className="mt-2 line-clamp-2 text-sm font-normal text-[var(--muted-foreground)]">{rel.excerpt}</p>

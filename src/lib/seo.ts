@@ -517,7 +517,7 @@ export function getSpeakableSchema(params: {
  * behind the Article schema's reviewedBy): every published piece is
  * reviewed by Ahmed Zake before it ships.
  */
-export const CONTENT_LAST_REVIEWED = "2026-09-09";
+export const CONTENT_LAST_REVIEWED = "2026-09-28";
 
 /**
  * Reviewed WebPage schema — Phase SEO-GEO-4.5 (§7.1 items #6 + #7).

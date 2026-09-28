@@ -76,3 +76,36 @@ export function getCategoryLabel(categoryId: string, lang: "en" | "ar"): string 
   const cat = BLOG_CATEGORIES.find((c) => c.id === categoryId);
   return cat ? (lang === "ar" ? cat.ar : cat.en) : categoryId;
 }
+
+/**
+ * CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4) — render-time corrections for
+ * misfiled articles (the Nutrition category carried recovery-device and
+ * training-split articles, diluting topical authority and misleading search
+ * intent inside the category page).
+ *
+ * Live-audit evidence (2026-09-28):
+ *   • red-light-therapy-muscle-recovery-mistakes (EN) → recovery modality
+ *   • foam-roller-recovery-4-week-guide (EN)       → recovery modality
+ *   • 4-day-upper-lower-hypertrophy-split (EN)    → training split
+ *   • choose-best-wearable-sleep-tracker-athletes (AR) → gear review
+ *   • sleep-muscle-growth-science (AR)            → sleep/recovery science
+ *
+ * Deterministic and render-time only — DB rows stay untouched (same law as
+ * every sanitizer pass). When the stored row is ever corrected upstream,
+ * remove the entry here (the test canary below lists each slug verbatim so
+ * a stale override is visible).
+ */
+const BLOG_CATEGORY_OVERRIDES: Record<string, BlogCategoryId> = {
+  "red-light-therapy-muscle-recovery-mistakes": "wellness",
+  "foam-roller-recovery-4-week-guide": "wellness",
+  "4-day-upper-lower-hypertrophy-split": "workout",
+  "choose-best-wearable-sleep-tracker-athletes": "fitness",
+  "sleep-muscle-growth-science": "science",
+};
+
+/** The category a post EFFECTIVELY belongs to (override → stored → default). */
+export function effectiveCategory(slug: string, stored: string | undefined | null): BlogCategoryId {
+  const override = BLOG_CATEGORY_OVERRIDES[slug];
+  if (override) return override;
+  return normalizeCategory(stored);
+}

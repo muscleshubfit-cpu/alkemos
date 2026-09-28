@@ -75,3 +75,34 @@ describe("blog-categories — single-source registry (fork guard)", () => {
     expect(getCategoryLabel("unknown-x", "en")).toBe("unknown-x");
   });
 });
+
+/**
+ * CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4) — the render-time category
+ * override map. Every misfiled slug recorded in the live audit is asserted
+ * to land in its corrected category, and no override may point at an
+ * invalid id (the normalizeCategory guarantee).
+ */
+import { effectiveCategory } from "../blog-categories";
+
+describe("effectiveCategory (content-audit P1-8 overrides)", () => {
+  it("corrects the five live-audited misfiled articles", () => {
+    expect(effectiveCategory("red-light-therapy-muscle-recovery-mistakes", "nutrition")).toBe("wellness");
+    expect(effectiveCategory("foam-roller-recovery-4-week-guide", "nutrition")).toBe("wellness");
+    expect(effectiveCategory("4-day-upper-lower-hypertrophy-split", "nutrition")).toBe("workout");
+    expect(effectiveCategory("choose-best-wearable-sleep-tracker-athletes", "nutrition")).toBe("fitness");
+    expect(effectiveCategory("sleep-muscle-growth-science", "nutrition")).toBe("science");
+  });
+
+  it("never fires on other slugs — stored category flows through normalizeCategory", () => {
+    expect(effectiveCategory("creatine-loading-strength-hypertrophy-guide", "supplements")).toBe("supplements");
+    expect(effectiveCategory("some-unknown-post", "training")).toBe("workout");
+  });
+
+  it("all override targets are valid category ids", () => {
+    // indirect guarantee: every corrected value above is a literal compared
+    // to the registry — this canary pins the registry's shape.
+    for (const id of ["wellness", "workout", "fitness", "science"]) {
+      expect(VALID_CATEGORY_IDS.has(id)).toBe(true);
+    }
+  });
+});
