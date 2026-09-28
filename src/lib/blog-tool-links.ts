@@ -161,6 +161,22 @@ const MD_LINK_SPLIT = /(!?\[[^\]]*\]\([^)]*\))/g;
 const SKIP_LINE = /^(#{1,6}\s|>|\||\s*[-*_]{3,}\s*$|!\[)/;
 
 /**
+ * CONTENT-AUDIT P0-2 root fix (2026-09-28, live evidence: 18 AR articles
+ * rendered mid-word link splits such as «سعرات</a>ك» and «تمارين</a>ك» — the
+ * Arabic trigger patterns are plain substrings, so /سعرات/ happily matched
+ * INSIDE «سعراتك» and wrapped only the fragment, splitting the visible
+ * word at render time). A character class for "word continuation": Arabic
+ * letters (incl. tatweel/kashida), Arabic-Indic digits, Latin letters and
+ * digits. \b is meaningless for Arabic, so the boundary is enforced at the
+ * wrap site below — for every language. DELIBERATELY AFTER-EDGE ONLY: a
+ * letter glued BEFORE the match (e.g. the definite article in «السعرات»)
+ * still shapes as a whole word across the inline anchor in every browser
+ * (established live behavior, never flagged by the audit) — only a letter
+ * AFTER the closing paren visibly breaks the word.
+ */
+const WORD_CHAR = /[0-9A-Za-z\u0621-\u064A\u0660-\u0669\u0671-\u06D3]/;
+
+/**
  * Wrap the FIRST plain-text occurrence of each tool's trigger phrase with
  * a markdown link to that tool — deterministic, idempotent, capped.
  *
@@ -237,6 +253,16 @@ function tryWrapFirstOccurrence(
         const anchor = m[0];
         // Sanity: never wrap a whitespace-only or 1-char anchor.
         if (!anchor || anchor.trim().length < 2) continue;
+
+        // WORD-SPLIT GUARD (content-audit P0-2 root fix, 2026-09-28): a
+        // match with a word character glued to its END is a MID-WORD
+        // FRAGMENT — wrapping it would split the visible word at render
+        // time (`سعرات</a>ك`). Skip this match; the rule keeps trying later
+        // fragments, lines, and alternative patterns, so a clean mention
+        // still links. (Start-edge letters are deliberately allowed — see
+        // the WORD_CHAR note.)
+        const after = fragment[m.index + anchor.length] ?? "";
+        if (WORD_CHAR.test(after)) continue;
 
         fragments[f] =
           fragment.slice(0, m.index) +

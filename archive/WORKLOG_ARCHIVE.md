@@ -10542,3 +10542,27 @@ Stage Summary:
 - Commit SHA: acba03e7 (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
 - Push status: pushed
 
+
+<!-- rotated 2026-09-28 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: QA-PURGE-283-2026-09-27
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-27 «مطلوب مسح حسابين الاختبار»: مسح حسابي أدمن QA (alkemos.qa.admin@gmail.com + qa.admin1431@musclehub-test.com) من قاعدة الإنتاج.
+
+Work Log:
+- (القانون) AGENTS.md §40/§120: الوكيل لا يشغّل DELETE على الإنتاج إطلاقًا — عمليات auth.users يدوية تاريخيًا (0040/0050/0055/0066) والتسليم الصالح = ملف RUN_ON_SUPABASE جاهز للتشغيل + الرابط الخام. STATE.md أول الجلسة + fetch (HEAD = f9e3f1fe = origin/main).
+- (المسار الوحيد) كلا الحسابين دوره admin → محميان من الحذف عبر /admin/accounts (GUARD 2 «admin_protected» في src/app/api/admin/accounts/route.ts) — واجهة التطبيق لا تستطيع مسحهما؛ المسار اليدوي هو الوحيد (سابقة 0066 لمسح admin.test@musclehub-test.com).
+- (أصل الحسابين) alkemos.qa.admin@gmail.com: أنشأه التسجيل الحي ورقّاه 0073 (تأكيد بريد من SQL + role=admin) · qa.admin1431@musclehub-test.com: معلّم is_test_account=true واستُخدم بجلسات UX 2026-09-21 (docs/UX-TEST-REPORT-2026-09-21.md) وأُعيد ضبط كلمة مروره بوسيلة 0050.
+- (السكريبت 0095) RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql — نمط 0066 v2 حرفيًا: DO block لكل حساب (ذرّي — درس 0066 v1: أي فشل يرجع كل شيء)، الخطوة 0 تحلّ id من auth.users ثم profiles fallback (idempotent — الحساب الغائب يتخطى بأمان)، الخطوة 1 تمسح الجداول بلا FK حي (بمرآة 0066 v2: coach_presence بعمود coach_id الحي) + tool_leads بالإيميل + تصفير coach_wallet_transactions.created_by (حماية حركات المحافظ)، الخطوة 2 تحذف profiles (كاسكيد حي)، الخطوة 3 تحذف auth.users (كاسكيد auth + التخزين) — ويغلق بـNOTIFY pgrst + استعلام VERIFY لازم يرجّع 3 أصفار.
+- (تدقيق ما بعد 0066) فُحصت كل ميجريشنز 0067→0094 ملفًا ملفًا: كل جداول المستخدم الجديدة cascade أو set-null (site_coach_assignments 0067 · evo_feedback 0077 set-null · evo_memory/evo_memory_state 0078 · evo_followup_prefs 0079 · ai_plan_usage 0085 cascade من auth.users · site_content 0094 set-null) — العمود الوحيد الجديد بلا FK إطلاقًا: evo_call_stats.user_id (0081) → أُضيف حذفًا وقائيًا في الخطوة 1.
+- (توثيق) INDEX.md: سلسلة العدّاد +1 يدوي مع 0095 + خريطة الترقيم 0001→0095 + صف 0095 (يدوي ⚠️) + صف سجل التدقيق 283 · STATE.md: المرحلة 283 + مدخل (٠٠) 283 + صف QA + دمجتان معتمدتان (280+279R و278+277) = 100 سطر بالضبط / 30,713 بايت.
+- (إصلاح بوابات موروث) M/registry-dates كان أحمر على HEAD السابق (صف docs/README.md لTECH_REFERENCE يقول 2026-09-20 بينما آخر كوميت للملف 2026-09-26 من 281) — أُصلح تاريخ الصف + صف README نفسه إلى 2026-09-27 فأخضرّ docs_audit.
+- (البوابات) migration_audit --ci ✓ صفر انجراف جديد (بيانات فقط — types.ts غير مطلوب قانون §c) · docs_parity --ci ✓ · docs_audit --ci ✓ · vitest/tsc/eslint غير مطلوبة (فريم صفر كود — سابقة 223 التوثيقية).
+
+Stage Summary:
+- التسليم: سكريبت مسح جاهز للتشغيل اليدوي من Supabase Dashboard → SQL Editor — ذرّي/متكرر/محصور بالبريدين نصًا (مستحيل يمس حسابًا آخر) وصفر تغيير هيكلي.
+- الرابط الخام للمالك: https://raw.githubusercontent.com/muscleshubfit-cpu/alkemos/main/supabase/migrations/RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql
+- التشغيل يطبع إشعارًا لكل بريد (جاري المسح/تم/غير موجود) ويغلق بـNOTIFY pgrst + استعلام التحقق النهائي (auth_users_left / profiles_left / leads_left = 0/0/0).
+- Commit SHA: 9c6defef (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
+- Push status: pushed
+

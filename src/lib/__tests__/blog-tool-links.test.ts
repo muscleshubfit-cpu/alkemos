@@ -72,19 +72,44 @@ describe("insertToolLinks — EN", () => {
 });
 
 describe("insertToolLinks — AR", () => {
-  it("wraps Arabic trigger phrases (سعرات / خطة غذائية) with AR-mirror URLs", () => {
+  it("wraps Arabic trigger phrases (السعرات / خطة غذائية) with AR-mirror URLs", () => {
     const md =
-      "مقدمة عن التمرين والتغذية. للتحكم في وزنك لازم تحسب سعراتك اليومية بدقة، وتلتزم بخطة غذائية واضحة تناسب هدفك على المدى الطويل.";
+      "مقدمة عن التمرين والتغذية. للتحكم في وزنك لازم تحسب السعرات بدقة، وتلتزم بخطة غذائية واضحة تناسب هدفك على المدى الطويل.";
     const { md: out, inserted } = insertToolLinks(md, "ar");
     // Access-point fix (2026-09-14): AR articles link the /ar mirrors —
-    // the tool pages render Arabic ONLY on their /ar/* URLs.
-    expect(out).toContain("](/ar/tools/calorie-calculator)");
+    // the tool pages render Arabic ONLY on their /ar/* URLs. The anchor is
+    // the matched «سعرات» inside «السعرات» — the definite article stays
+    // outside and the word still shapes whole (see the WORD_CHAR note).
+    expect(out).toContain("[سعرات](/ar/tools/calorie-calculator)");
     expect(out).toContain("](/ar/meal-planner)");
     expect(inserted.length).toBeGreaterThanOrEqual(2);
   });
 
+  // CONTENT-AUDIT P0-2 root fix (2026-09-28): the Arabic trigger patterns
+  // are plain substrings, so before the word-split guard a mention like
+  // «سعراتك» wrapped ONLY the fragment «سعرات» and the rendered article
+  // showed a visibly broken word (`سعرات</a>ك`) on 18 live articles.
+  it("never splits a word: a possessive suffix glued to the mention leaves it PLAIN (no partial-word wrap)", () => {
+    const md =
+      "جملة تمهيدية كاملة عن التغذية السليمة. لازم تحسب سعراتك اليومية بدقة عالية حتى تصل إلى هدفك بثبات وانتظام مع مرور الوقت.";
+    const { md: out } = insertToolLinks(md, "ar");
+    expect(out).toContain("سعراتك"); // the word stays whole
+    expect(out).not.toContain("[سعرات]("); // …and is never wrapped mid-word
+    expect(out).not.toContain(")ك"); // no link ever closes before the kaf
+  });
+
+  it("prefix + suffix both glued (بسعراتك) also stays plain — the trailing kaf alone blocks the wrap", () => {
+    // «بسعراتك» = ب + سعرات + ك — the AFTER edge carries a word letter,
+    // so the mention is never wrapped mid-word.
+    const md =
+      "التزم بتتبع ما تأكله أسبوعياً بعناية، وقارن المجموع بسعراتك المستهدفة يوم بعد يوم حتى تستقر العادة.";
+    const { md: out } = insertToolLinks(md, "ar");
+    expect(out).not.toContain("[سعرات](");
+    expect(out).not.toContain(")ك");
+  });
+
   it("is idempotent for Arabic too", () => {
-    const md = "احسب سعراتك اليومية لتحقيق هدفك واتبع خطة غذائية مناسبة لجسمك ونشاطك اليومي.";
+    const md = "احسب السعرات اليومية لتحقيق هدفك واتبع خطة غذائية مناسبة لجسمك ونشاطك اليومي.";
     const first = insertToolLinks(md, "ar");
     const second = insertToolLinks(first.md, "ar");
     expect(second.inserted.length).toBe(0);

@@ -7,6 +7,25 @@
 > Newest on top; append-only; one entry per task (§12.5.1).
 
 ---
+---
+Task ID: CONTENT-AUDIT-REMEDIATION-S4-2026-09-28
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-28 — إتمام البنود المتبقية من docs/CONTENT-AUDIT-REMEDIATION-2026-09-28.md، خصوصًا محتوى قاعدة البيانات (§4)، دون إعادة تنفيذ مكتمل ولا اختراع ما يتطلب قرار مالك.
+
+Work Log:
+- (تشخيص النشر) نشرات جولات الإصلاح السابقة كانت محجوبة على Vercel (COMMIT_AUTHOR_REQUIRED — هوية «Z User») — أُعيد النشر عبر API deployment + تطهير CF، والإصلاحات الآن حية؛ هويات الالتزامات الجديدة «Alkemos Agent».
+- (القناة) أُنشئت قناة العلاج المعتمدة: scripts/blog-runner/content-audit-db-remediation.mts + content-audit-db-patches.json (25 رقعة محقّقة find=1x) + .github/workflows/content-audit-db-remediation.yml (dispatch-only، DRY_RUN افتراضيًا).
+- (قبل الكتابة) نسخة احتياطية يومية طازجة (db-backup: نجح) + DRY_RUN عبر GHA بالمفتاح الحقيقي (الخطة مطابقة للمحلية) + إثبات تكافؤ بايتي 7/7 للصفوف الميكانيكية.
+- (APPLY — تشغيل 36366488858) 22 صفًا: 11 مقالًا «مقدمة:» + كاف sleep-recovery + ذيل creatine EN + 25 رقعة منسّقة (حشو §1.3، مزروع §4.2 بعدد أوسع من التقرير: 10 كتل سؤال القارئ + 5 كلمات مفتاحية ببيتا ألانين حُذفت مع إثراء faq_json 4→10، و4+2 بحاسبة السعرات، ومثيلان اكتُشفا) + توحيد الكارديو §4.3 عبر أربعة مقالات + فئات P1-8 الخمس — 0 فشل، 0 ناجين من التحقق البعدي، والتحقق الحي بعد ISR مؤكد.
+- (الفك §4.4) أُزيلت ⑥⑦⑧ من تركيب sanitizeBlogContent (الدوال باقية قانون تحويل للقناة) + أُفرغت BLOG_CATEGORY_OVERRIDES (الآلية صمّام موثّق) + كناري اختباري يثبّت التركيب المفكوك وكناري يمنع عودة الإدخالات.
+- (جذر P0-2 الإضافي) insertToolLinks كان يكسر كلمات عربية وقت العرض (سعرات</a>ك على 18 مقالًا حيًّا) — حارس WORD_CHAR على الحافة الخلفية فقط (البادئة «ال» تُشكَّل كلمةً سليمة عبر المتصفح — موثق بالتعليق) + اختبارات انحدار.
+- (التحقق) vitest 1,748/1,748 · tsc 0 · eslint 0 · next build ✓ (2,022 صفحة) · تسجيل الوثائق: صفّا docs/README + صف CI_GATES + تحديث تقرير العلاج §4 (منفَّذ) + STATE.
+
+Stage Summary:
+- تدقيق المحتوى مغلق بالكامل: كل بند قابل للتنفيذ منفَّذ (repo + DB)، وقاعدة البيانات مصدر الحقيقة الوحيد بعد فك طبقات التعويض.
+- المتبقي بقرار مالك فقط: P2-11 (جهة الاعتماد) + مراحل تعريب الأطعمة 4+ — كلاهما موثق بتقرير العلاج §5.
+- الملفات: src/lib/blog-content-sanitize.ts · src/lib/blog-tool-links.ts · src/lib/blog-categories.ts · 3 ملفات اختبار · docs/README.md · docs/CI_GATES.md · docs/CONTENT-AUDIT-REMEDIATION-2026-09-28.md · STATE.md · worklog.md (هذا المدخل).
+- Push status: pushed
 Task ID: ARCH-REMEDIATION-293-2026-09-28
 Agent: Implementation Agent
 Task: أمر المالك 2026-09-28 — تنفيذ P4 من التقرير الحاكم وإغلاق جلسة إصلاح المعمارية كاملة (P0→P4، فريمات 287–293): تحصينات منظومة الحوكمة نفسها + قلب حالة التقرير إلى EXECUTED.
@@ -222,26 +241,4 @@ Stage Summary:
 - الملفات الممسوسة: src/components/views/LandingView.tsx (إعادة هيكلة كبرى) · src/lib/home-samples.ts (42 عينة) · src/lib/site-content/home.ts (السجل) · src/app/globals.css + src/styles/design-tokens.ts + src/docs/DESIGN_SYSTEM.md + README.md + STATE.md + worklog.md (هذا) · src/lib/__tests__/homepage-adoption.test.ts (إعادة كتابة).
 - البوابات كلها خضراء: tsc 0 · eslint 0 · vitest 101/1728 · build 2020/2020 · تحقق حي EN/AR + VLM نظيف.
 - (التسليم) كوميت 6b020b83 دُفع إلى origin/main (متزامن) — CI quality-gate + نشر Vercel التلقائي يليانه؛ SHA مسجل بهذا الكوميت التوثيقي المستقل (سابقة 281/283).
-
----
-Task ID: QA-PURGE-283-2026-09-27
-Agent: Implementation Agent
-Task: أمر المالك 2026-09-27 «مطلوب مسح حسابين الاختبار»: مسح حسابي أدمن QA (alkemos.qa.admin@gmail.com + qa.admin1431@musclehub-test.com) من قاعدة الإنتاج.
-
-Work Log:
-- (القانون) AGENTS.md §40/§120: الوكيل لا يشغّل DELETE على الإنتاج إطلاقًا — عمليات auth.users يدوية تاريخيًا (0040/0050/0055/0066) والتسليم الصالح = ملف RUN_ON_SUPABASE جاهز للتشغيل + الرابط الخام. STATE.md أول الجلسة + fetch (HEAD = f9e3f1fe = origin/main).
-- (المسار الوحيد) كلا الحسابين دوره admin → محميان من الحذف عبر /admin/accounts (GUARD 2 «admin_protected» في src/app/api/admin/accounts/route.ts) — واجهة التطبيق لا تستطيع مسحهما؛ المسار اليدوي هو الوحيد (سابقة 0066 لمسح admin.test@musclehub-test.com).
-- (أصل الحسابين) alkemos.qa.admin@gmail.com: أنشأه التسجيل الحي ورقّاه 0073 (تأكيد بريد من SQL + role=admin) · qa.admin1431@musclehub-test.com: معلّم is_test_account=true واستُخدم بجلسات UX 2026-09-21 (docs/UX-TEST-REPORT-2026-09-21.md) وأُعيد ضبط كلمة مروره بوسيلة 0050.
-- (السكريبت 0095) RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql — نمط 0066 v2 حرفيًا: DO block لكل حساب (ذرّي — درس 0066 v1: أي فشل يرجع كل شيء)، الخطوة 0 تحلّ id من auth.users ثم profiles fallback (idempotent — الحساب الغائب يتخطى بأمان)، الخطوة 1 تمسح الجداول بلا FK حي (بمرآة 0066 v2: coach_presence بعمود coach_id الحي) + tool_leads بالإيميل + تصفير coach_wallet_transactions.created_by (حماية حركات المحافظ)، الخطوة 2 تحذف profiles (كاسكيد حي)، الخطوة 3 تحذف auth.users (كاسكيد auth + التخزين) — ويغلق بـNOTIFY pgrst + استعلام VERIFY لازم يرجّع 3 أصفار.
-- (تدقيق ما بعد 0066) فُحصت كل ميجريشنز 0067→0094 ملفًا ملفًا: كل جداول المستخدم الجديدة cascade أو set-null (site_coach_assignments 0067 · evo_feedback 0077 set-null · evo_memory/evo_memory_state 0078 · evo_followup_prefs 0079 · ai_plan_usage 0085 cascade من auth.users · site_content 0094 set-null) — العمود الوحيد الجديد بلا FK إطلاقًا: evo_call_stats.user_id (0081) → أُضيف حذفًا وقائيًا في الخطوة 1.
-- (توثيق) INDEX.md: سلسلة العدّاد +1 يدوي مع 0095 + خريطة الترقيم 0001→0095 + صف 0095 (يدوي ⚠️) + صف سجل التدقيق 283 · STATE.md: المرحلة 283 + مدخل (٠٠) 283 + صف QA + دمجتان معتمدتان (280+279R و278+277) = 100 سطر بالضبط / 30,713 بايت.
-- (إصلاح بوابات موروث) M/registry-dates كان أحمر على HEAD السابق (صف docs/README.md لTECH_REFERENCE يقول 2026-09-20 بينما آخر كوميت للملف 2026-09-26 من 281) — أُصلح تاريخ الصف + صف README نفسه إلى 2026-09-27 فأخضرّ docs_audit.
-- (البوابات) migration_audit --ci ✓ صفر انجراف جديد (بيانات فقط — types.ts غير مطلوب قانون §c) · docs_parity --ci ✓ · docs_audit --ci ✓ · vitest/tsc/eslint غير مطلوبة (فريم صفر كود — سابقة 223 التوثيقية).
-
-Stage Summary:
-- التسليم: سكريبت مسح جاهز للتشغيل اليدوي من Supabase Dashboard → SQL Editor — ذرّي/متكرر/محصور بالبريدين نصًا (مستحيل يمس حسابًا آخر) وصفر تغيير هيكلي.
-- الرابط الخام للمالك: https://raw.githubusercontent.com/muscleshubfit-cpu/alkemos/main/supabase/migrations/RUN_ON_SUPABASE_0095_DELETE_QA_TEST_ACCOUNTS.sql
-- التشغيل يطبع إشعارًا لكل بريد (جاري المسح/تم/غير موجود) ويغلق بـNOTIFY pgrst + استعلام التحقق النهائي (auth_users_left / profiles_left / leads_left = 0/0/0).
-- Commit SHA: 9c6defef (كوميت التنفيذ والتوثيق موحّدان) + كوميت تسجيل SHA هذا
-- Push status: pushed
 

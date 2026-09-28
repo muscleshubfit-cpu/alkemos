@@ -50,6 +50,7 @@
 | Legacy AR cleanup | `legacy-ar-cleanup.yml` | المرحلة 175 («ابدا التنظيف»): تنظيف جودة مقالات AR الليجاسي على دفعات (workflow_dispatch) — قوائم انتظار مقيدة ببوابات جودة المحتوى |
 | Meta-title remediation | `meta-title-remediation.yml` | المرحلة 181: إعادة قطع أحادية `meta_title` المخزّنة عبر clampMetaTitle المحسّن — لقطة تشغيل بلايست (workflow_dispatch) |
 | Retro-pair blog | `retro-pair-blog.yml` | الاقتراح 3 («نفذ المقترح ٣»): إقران مكتبة المدونة ما قبل-157 بأزواج hreflang رجعيًا بنفس مصافحة P5 (workflow_dispatch) |
+| Content-audit DB remediation | `content-audit-db-remediation.yml` | CONTENT-AUDIT-REMEDIATION §4 (2026-09-28): ترحيل إصلاحات التدقيق المحتواة في blog_posts عبر القناة المعتمدة (workflow_dispatch، DRY_RUN=1 افتراضيًا) — العائلات الميكانيكية ⑥⑦⑧ بنداء الدوال من مصدرها الوحيد + 25 رقعة منسّقة محقّقة (find يطابق مرة واحدة) + فئات P1-8 + إثراء faq_json؛ idempotent وبوابة تحقق قبل كل كتابة |
 | Storage backup | `storage-backup.yml` | (P0-3(c) من خطة تقوية الاستعادة — أمر المالك 2026-09-20 مساءً) نسخة يومية لملفات Supabase Storage الفعلية إلى مستودع خاص مع manifest ‏sha256 لكل ملف · مجدولة 06:00 UTC |
 | Storage inventory | `storage-inventory.yml` | (P0-3(b)) جرد يومي لكل الـbuckets والكائنات إلى مستودع النسخ — كشف صامت للفقد/النمو · مجدولة 05:45 UTC |
 | Storage restore drill | `storage-restore-drill.yml` | (Drill #2 — أمر المالك «التحقق من إمكانية استعادتها») إثبات استعادة غير إتلافي من البداية للنهاية لنسخة Storage (رفع لمقطع مؤقت + قراءة sha256 + تنظيف دائم) · عند الطلب (workflow_dispatch — لا جدولة، الحفر عمدًا على الطلب) |

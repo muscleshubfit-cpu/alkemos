@@ -79,29 +79,18 @@ export function getCategoryLabel(categoryId: string, lang: "en" | "ar"): string 
 
 /**
  * CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4) — render-time corrections for
- * misfiled articles (the Nutrition category carried recovery-device and
- * training-split articles, diluting topical authority and misleading search
- * intent inside the category page).
- *
- * Live-audit evidence (2026-09-28):
- *   • red-light-therapy-muscle-recovery-mistakes (EN) → recovery modality
- *   • foam-roller-recovery-4-week-guide (EN)       → recovery modality
- *   • 4-day-upper-lower-hypertrophy-split (EN)    → training split
- *   • choose-best-wearable-sleep-tracker-athletes (AR) → gear review
- *   • sleep-muscle-growth-science (AR)            → sleep/recovery science
- *
- * Deterministic and render-time only — DB rows stay untouched (same law as
- * every sanitizer pass). When the stored row is ever corrected upstream,
- * remove the entry here (the test canary below lists each slug verbatim so
- * a stale override is visible).
+ * misfiled articles. §4.4 UNWIND (2026-09-28, later the same day): the five
+ * rows below were migrated into blog_posts by the GHA remediation channel
+ * (scripts/blog-runner/content-audit-db-remediation.mts, run 36366488858 —
+ * category nutrition → wellness/wellness/workout/fitness/science, verified
+ * post-write), so the override map now carries ZERO entries — the database
+ * is the single source of truth. The mechanism (effectiveCategory) stays:
+ * it is the documented escape hatch if a future row is ever misfiled and
+ * needs a render-time correction while the DB fix is pending, and the
+ * category-page filtering + article chip keep flowing through it
+ * (identity behavior with an empty map).
  */
-const BLOG_CATEGORY_OVERRIDES: Record<string, BlogCategoryId> = {
-  "red-light-therapy-muscle-recovery-mistakes": "wellness",
-  "foam-roller-recovery-4-week-guide": "wellness",
-  "4-day-upper-lower-hypertrophy-split": "workout",
-  "choose-best-wearable-sleep-tracker-athletes": "fitness",
-  "sleep-muscle-growth-science": "science",
-};
+const BLOG_CATEGORY_OVERRIDES: Record<string, BlogCategoryId> = {};
 
 /** The category a post EFFECTIVELY belongs to (override → stored → default). */
 export function effectiveCategory(slug: string, stored: string | undefined | null): BlogCategoryId {

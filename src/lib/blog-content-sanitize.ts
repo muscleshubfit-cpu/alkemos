@@ -234,6 +234,13 @@ export function fixLegacyRedirectLinks(content: string, lang: "en" | "ar"): stri
  * shows a visibly split word («سعرات» + «ك» = سعراتك). Recorded shapes:
  * كيف تحسب سعرات</a>ك بدقة · سعرات</a>ك اليومية · تمارين</a>ك لا تظهر.
  *
+ * §4.4 UNWIND (2026-09-28, same session): the DB rows were migrated by
+ * scripts/blog-runner/content-audit-db-remediation.mts (channel run 22
+ * rows, 0 survivors), so this pass is NO LONGER composed into the render
+ * pipeline — it stays exported as the remediation channel's transform law
+ * (the script imports it verbatim; no fork). A canary in
+ * blog-content-sanitize.test.ts pins the unwound composition.
+ *
  * RULE: a markdown link IMMEDIATELY followed by the Arabic letter ك (no
  * space) with a word boundary after it is, on the recorded evidence, a
  * split possessive — the kaf moves INSIDE the anchor text. An anchor that
@@ -260,6 +267,10 @@ export function fixBrokenWordLinkSplits(content: string): string {
  * The tail is machine-written filler that breaks E-E-A-T (text that says
  * it "answers the common query" is written for crawlers, not readers).
  *
+ * §4.4 UNWIND (2026-09-28): the DB row was migrated (channel run), so this
+ * pass is NO LONGER composed into the render pipeline — exported as the
+ * remediation channel's transform law (see ⑥ above).
+ *
  * RULE: the recorded template family "`, answering the common (query|
  * question) of …`" up to the sentence period is deleted (period kept).
  * Deterministic + idempotent: a sentence that no longer contains the
@@ -275,11 +286,15 @@ export function fixKeywordFillerTails(content: string, lang: "en" | "ar"): strin
 /**
  * ⑧ CONTENT-AUDIT P0-2/§1.2 (2026-09-28) — duplicated «مقدمة» labels.
  *
- * WHY (live-audit evidence, 2 AR articles): the body's opening paragraph
- * carries an inline label AND the first H2 repeats it —
+ * WHY (live-audit evidence, 11 AR articles): the body's opening paragraph
+ * carries an inline label AND/OR the first H2 repeats it —
  *   paragraph: «مقدمة: حلمك بجسم رشيق…»
  *   first H2: «## مقدمة: لماذا يحتاج الجسم…»
  * The reader sees "Introduction:" twice before any content.
+ *
+ * §4.4 UNWIND (2026-09-28): all 11 rows were migrated (channel run), so
+ * this pass is NO LONGER composed into the render pipeline — exported as
+ * the remediation channel's transform law (see ⑥ above).
  *
  * RULES (both deterministic + idempotent):
  *   a) an H2 heading whose text starts with «مقدمة:»/«مقدمة：» keeps only
@@ -305,9 +320,16 @@ export function fixIntroLabelDuplication(content: string, lang: "en" | "ar"): st
  * Order matters: raw anchors become markdown links FIRST so the legacy
  * and prefix rewrites see them; corruption fixes are order-independent;
  * legacy exact-path rewrites run BEFORE the family rewriter so a legacy
- * /blog/… target can never be double-prefixed; the ⑥/⑦/⑧ passes are
- * markdown-shape fixes that must run BEFORE insertToolLinks sees the
- * content (so injected tool links are never re-processed).
+ * /blog/… target can never be double-prefixed.
+ *
+ * §4.4 UNWIND (2026-09-28, CONTENT-AUDIT-REMEDIATION §4): the markdown-shape
+ * passes ⑦⑧⑨ (kaf splits / filler tails / «مقدمة» labels) were REMOVED from
+ * this composition — their blog_posts rows were migrated by the GHA
+ * remediation channel (scripts/blog-runner/content-audit-db-remediation.mts,
+ * run 36366488858: 22 rows, 0 failures, 0 post-write survivors), so the
+ * database is the single source of truth for those shapes. The functions
+ * stay exported above as the channel's transform law. A test canary pins
+ * the unwound composition so a silent re-addition fails the build.
  */
 export function sanitizeBlogContent(
   content: string,
@@ -316,18 +338,7 @@ export function sanitizeBlogContent(
 ): string {
   return fixCrossLanguageLinkPrefixes(
     fixArMirrorFamilies(
-      fixLegacyRedirectLinks(
-        fixIntroLabelDuplication(
-          fixKeywordFillerTails(
-            fixBrokenWordLinkSplits(
-              fixKnownCorruptions(fixRawHtmlInternalAnchors(content)),
-            ),
-            lang,
-          ),
-          lang,
-        ),
-        lang,
-      ),
+      fixLegacyRedirectLinks(fixKnownCorruptions(fixRawHtmlInternalAnchors(content)), lang),
       lang,
     ),
     lang,

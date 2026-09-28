@@ -77,30 +77,44 @@ describe("blog-categories — single-source registry (fork guard)", () => {
 });
 
 /**
- * CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4) — the render-time category
- * override map. Every misfiled slug recorded in the live audit is asserted
- * to land in its corrected category, and no override may point at an
- * invalid id (the normalizeCategory guarantee).
+ * CONTENT-AUDIT P1-8 (2026-09-28, audit §2.4) → §4.4 UNWIND (same day):
+ * the five misfiled rows were migrated into blog_posts by the GHA
+ * remediation channel (run 36366488858, verified post-write), so the
+ * override map now carries ZERO entries. These canaries pin that end
+ * state: no stale override may reappear, and the mechanism itself
+ * (effectiveCategory) must keep flowing the stored category through
+ * normalizeCategory.
  */
 import { effectiveCategory } from "../blog-categories";
 
-describe("effectiveCategory (content-audit P1-8 overrides)", () => {
-  it("corrects the five live-audited misfiled articles", () => {
-    expect(effectiveCategory("red-light-therapy-muscle-recovery-mistakes", "nutrition")).toBe("wellness");
-    expect(effectiveCategory("foam-roller-recovery-4-week-guide", "nutrition")).toBe("wellness");
-    expect(effectiveCategory("4-day-upper-lower-hypertrophy-split", "nutrition")).toBe("workout");
-    expect(effectiveCategory("choose-best-wearable-sleep-tracker-athletes", "nutrition")).toBe("fitness");
-    expect(effectiveCategory("sleep-muscle-growth-science", "nutrition")).toBe("science");
+describe("effectiveCategory (content-audit P1-8 — §4.4 unwound, DB is the source)", () => {
+  it("the override map carries no stale entries — the five rows live in the DB now", () => {
+    const src = readFileSync("src/lib/blog-categories.ts", "utf8");
+    for (const slug of [
+      "red-light-therapy-muscle-recovery-mistakes",
+      "foam-roller-recovery-4-week-guide",
+      "4-day-upper-lower-hypertrophy-split",
+      "choose-best-wearable-sleep-tracker-athletes",
+      "sleep-muscle-growth-science",
+    ]) {
+      expect(src, `stale override for ${slug}`).not.toContain(`"${slug}"`);
+    }
   });
 
-  it("never fires on other slugs — stored category flows through normalizeCategory", () => {
+  it("the migrated rows resolve through their (now-correct) stored category", () => {
+    expect(effectiveCategory("red-light-therapy-muscle-recovery-mistakes", "wellness")).toBe("wellness");
+    expect(effectiveCategory("foam-roller-recovery-4-week-guide", "wellness")).toBe("wellness");
+    expect(effectiveCategory("4-day-upper-lower-hypertrophy-split", "workout")).toBe("workout");
+    expect(effectiveCategory("choose-best-wearable-sleep-tracker-athletes", "fitness")).toBe("fitness");
+    expect(effectiveCategory("sleep-muscle-growth-science", "science")).toBe("science");
+  });
+
+  it("stored category flows through normalizeCategory for every other slug", () => {
     expect(effectiveCategory("creatine-loading-strength-hypertrophy-guide", "supplements")).toBe("supplements");
     expect(effectiveCategory("some-unknown-post", "training")).toBe("workout");
   });
 
-  it("all override targets are valid category ids", () => {
-    // indirect guarantee: every corrected value above is a literal compared
-    // to the registry — this canary pins the registry's shape.
+  it("all corrected targets are valid category ids (the registry shape pins this)", () => {
     for (const id of ["wellness", "workout", "fitness", "science"]) {
       expect(VALID_CATEGORY_IDS.has(id)).toBe(true);
     }

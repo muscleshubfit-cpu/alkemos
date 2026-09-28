@@ -250,11 +250,14 @@ describe("sanitizeBlogContent — access-point fix integration (2026-09-14)", ()
 });
 
 /**
- * CONTENT-AUDIT (2026-09-28) — render-time passes ⑥⑦⑧ for the live-audit
- * defects recorded in docs/CONTENT-QUALITY-SEO-GEO-AUDIT-2026-09-28.md
- * (§1.2 visible `---` rows / split words / duplicated «مقدمة»; §1.3
- * self-referential keyword-filler tails). Every case is derived from a
- * live article, not invented.
+ * CONTENT-AUDIT (2026-09-28) — §4.4 UNWIND: the ⑥⑦⑧ functions below were
+ * REMOVED from the composed render pipeline after their blog_posts rows
+ * were migrated by the GHA remediation channel
+ * (scripts/blog-runner/content-audit-db-remediation.mts — the script
+ * imports these exact functions as its transform law; no fork). The unit
+ * tests stay as the channel's contract; the first canary pins the unwound
+ * composition so a silent re-addition to sanitizeBlogContent fails the
+ * build. Every case is derived from a live article, not invented.
  */
 import {
   fixBrokenWordLinkSplits,
@@ -262,6 +265,22 @@ import {
   fixKeywordFillerTails,
 } from "../blog-content-sanitize";
 import { renderMarkdown } from "../blog";
+
+describe("sanitizeBlogContent — §4.4 unwind canary (DB is the single source of truth)", () => {
+  it("markdown-shape defects pass through the render pipeline UNTOUCHED (rows are fixed in the DB)", () => {
+    // A stored kaf split — must survive the composed pipeline verbatim now
+    // (already /ar-prefixed so the ④ family rewriter is a no-op on it too).
+    const kaf = "إذا شعرت أن [تمارين](/ar/exercises)ك لا تظهر بنتائج، فالسبب قلة الاستشفاء.";
+    expect(sanitizeBlogContent(kaf, "ar", POOLS)).toBe(kaf);
+    // A stored filler tail — idem (EN).
+    const filler =
+      "The typical protein target is 1.6–2.2 g per kilogram per day, answering the common query of how many grams of protein per day to build muscle.";
+    expect(sanitizeBlogContent(filler, "en", POOLS)).toBe(filler);
+    // A duplicated «مقدمة:» label — idem (AR).
+    const intro = "مقدمة: حلمك بجسم رشيق يبدأ من الفهم.\n\n## مقدمة: لماذا يحتاج الجسم إلى نظام غذائي؟";
+    expect(sanitizeBlogContent(intro, "ar", POOLS)).toBe(intro);
+  });
+});
 
 describe("renderMarkdown — markdown table separator rows never render (audit P0-2, 4 live articles)", () => {
   it("a `| --- | --- |` separator row is dropped, data rows survive", () => {
@@ -292,7 +311,7 @@ describe("renderMarkdown — markdown table separator rows never render (audit P
   });
 });
 
-describe("fixBrokenWordLinkSplits — the split-word kaf (audit §1.2, 5 live instances)", () => {
+describe("fixBrokenWordLinkSplits — the split-word kaf (channel law; audit §1.2, 5 live instances)", () => {
   it("moves an orphan kaf into the anchor: [سعرات](url)ك → [سعراتك](url)", () => {
     const md = "تعلّم كيف تحسب [سعرات](/ar/tools/calorie-calculator)ك بدقة كل يوم.";
     expect(fixBrokenWordLinkSplits(md)).toBe(
@@ -322,7 +341,7 @@ describe("fixBrokenWordLinkSplits — the split-word kaf (audit §1.2, 5 live in
   });
 });
 
-describe("fixKeywordFillerTails — 'answering the common query of…' (audit §1.3)", () => {
+describe("fixKeywordFillerTails — 'answering the common query of…' (channel law; audit §1.3)", () => {
   it("deletes the recorded filler tail, keeps the sentence period (live creatine article)", () => {
     const md =
       "For reference, the typical protein target for muscle growth is about 1.6–2.2 g per kilogram per day, answering the common query of how many grams of protein per day to build muscle.";
@@ -339,7 +358,7 @@ describe("fixKeywordFillerTails — 'answering the common query of…' (audit §
   });
 });
 
-describe("fixIntroLabelDuplication — «مقدمة:» twice before content (audit §1.2, 2 live articles)", () => {
+describe("fixIntroLabelDuplication — «مقدمة:» twice before content (channel law; audit §1.2, 11 live articles)", () => {
   it("strips the label from an H2, keeping the topic", () => {
     const md = "## مقدمة: لماذا يحتاج الجسم إلى نظام غذائي؟\nنص الفقرة.";
     expect(fixIntroLabelDuplication(md, "ar")).toBe("## لماذا يحتاج الجسم إلى نظام غذائي؟\nنص الفقرة.");
