@@ -16,9 +16,14 @@ import { AHMED_ZAKE, getPersonSchema } from "../authors";
  *   2. FACEBOOK — the founder's two owner-verified profiles stay as
  *      labeled DIRECT-LINK chips on both author pages. The Facebook
  *      Page Plugin embed that briefly shipped in the same follow-up
- *      was REMOVED again by owner order (later the same day) — this
- *      guards the removal: no component, no registry field, no
- *      plugin endpoint anywhere in src, and the direct chips intact.
+ *      was REMOVED again by owner order (later the same day), and a
+ *      further owner order removed the "… on the Internet" heading
+ *      and made the chips open in the SAME tab — target="_blank"
+ *      tabs die within a second in in-app browsers (documented root
+ *      cause), so same-tab navigation is the only pattern that works
+ *      everywhere. This guards all of it: no component, no registry
+ *      field, no plugin endpoint anywhere in src, no section heading,
+ *      no target="_blank" on the chips, and the chips intact.
  */
 
 const ROOT = resolve(__dirname, "../..");
@@ -114,7 +119,7 @@ describe("Owner follow-up 1 — founder experience: ~20 years total, ~10 online"
   });
 });
 
-describe("Owner follow-up 2 — Facebook: labeled direct links; Page Plugin embed removed by owner order", () => {
+describe("Owner follow-up 2 — Facebook: labeled same-tab chips, no section heading; Page Plugin embed removed by owner order", () => {
   it("the embed is fully gone — no component, no registry field, no plugin endpoint in src", () => {
     expect(existsSync(EMBED_COMPONENT), "FacebookPageEmbed.tsx must stay deleted").toBe(false);
     // the retired registry field must not be reintroduced
@@ -145,15 +150,26 @@ describe("Owner follow-up 2 — Facebook: labeled direct links; Page Plugin embe
     });
   });
 
-  it("both EN and AR author pages render the labeled direct-link chips", () => {
+  it("both EN and AR author pages render the labeled same-tab chips, with no section heading", () => {
+    // strip block comments — only executable code is under contract
+    const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "");
     for (const [name, src] of [
       ["EN", EN_PAGE_SRC],
       ["AR", AR_PAGE_SRC],
     ] as const) {
-      expect(src, `${name} page lost the direct chips`).toContain("target=\"_blank\"");
-      expect(src, `${name} page lost the handle display`).toContain("handle");
-      expect(src, `${name} page lost the bilingual labels`).toContain("sameAsLabels");
+      const code = stripComments(src);
+      // Owner order (2026-09-28, later the same day): the chips open in the
+      // SAME tab — target="_blank" tabs die within a second in in-app
+      // browsers (documented root cause), so it must be gone from these
+      // pages entirely; rel="me" stays for the sameAs identity signal.
+      expect(code, `${name} page still opens links in a new tab`).not.toContain('target="_blank"');
+      expect(code, `${name} page lost rel="me"`).toContain('rel="me"');
+      expect(code, `${name} page lost the handle display`).toContain("handle");
+      expect(code, `${name} page lost the bilingual labels`).toContain("sameAsLabels");
     }
+    // the "… online" section heading was removed by owner order
+    expect(EN_PAGE_SRC, "EN page still carries the online heading").not.toContain("Find {author.nameEn} online");
+    expect(AR_PAGE_SRC, "AR page still carries the online heading").not.toContain("{author.nameAr} على الإنترنت");
   });
 
   it("sameAs itself is untouched — exactly the two owner-verified profiles", () => {

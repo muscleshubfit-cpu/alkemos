@@ -174,10 +174,12 @@ export default async function ArabicAuthorProfilePage({
 
         {author.sameAs.length > 0 && (
           <section className="mb-10">
-            <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-              {author.nameAr} على الإنترنت
-            </h2>
-            <ul className="mt-4 flex flex-wrap gap-3">
+            {/* متابعة أمر المالك (2026-09-28، لاحقًا في اليوم نفسه): عنوان
+                «على الإنترنت» حُذف بأمر المالك. البطاقات تفتح في نفس التبويب —
+                تبويبات target="_blank" تُقتل خلال أقل من ثانية في متصفحات
+                التطبيقات (الجذر الموثّق من التحقيق الحي)، فالتنقل في نفس
+                التبويب هو النمط الوحيد الذي يعمل في كل البيئات. */}
+            <ul className="flex flex-wrap gap-3">
               {author.sameAs.map((url) => {
                 // P2-11: بطاقات بأسماء المضيف فقط كانت تعرض «facebook.com»
                 // مرتين متطابقتين — نُظهر معرّف الحساب لتمييز كل رابط.
@@ -189,8 +191,7 @@ export default async function ArabicAuthorProfilePage({
                   <li key={url}>
                     <a
                       href={url}
-                      target="_blank"
-                      rel="noopener noreferrer me"
+                      rel="me"
                       className="inline-flex items-center gap-2 rounded-md border border-[var(--edge)] px-3 py-1.5 text-sm hover:border-[var(--muted-2)]"
                     >
                       {isFacebook && <Facebook className="h-4 w-4 shrink-0" aria-hidden="true" />}
