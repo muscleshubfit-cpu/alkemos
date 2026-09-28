@@ -1,0 +1,58 @@
+# WHY: AUDIT_REPORT.md §9-المرحلة 2, item 3 (2026-09-29) — retroactive
+# treatment of the OLD published corpus against FABRICATED STATISTICS
+# (audit F9: pre-FACT-GUARD articles carry unlinked "studies show …by 15%"
+# claims; the measured scan found 16 articles / 20 sentences, 18 of them
+# softened + 2 documented keeps in scripts/blog-runner/stats-db-patches.json).
+#
+# Channel law (same as content-audit-db-remediation / retro-pair-blog /
+# legacy-ar-cleanup): dispatch-only, DRY_RUN=1 by default (plan report,
+# zero writes), the service key never leaves GitHub secrets, every patch
+# is byte-exact exact-match-fail-safe, re-runs are idempotent. Writes
+# content/reading_time/updated_at ONLY (the cleanup-workflow write law).
+# Production pages pick the softened content up via the 5-minute ISR
+# revalidate.
+name: Stats DB remediation (audit Phase 2 item 3 — dispatch-only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = plan only (zero writes) · 0 = apply to blog_posts"
+        required: false
+        default: "1"
+
+concurrency:
+  group: stats-db-remediation
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Production-locked install (A-12): the same frozen bun.lock Vercel
+      # and local dev build from — no npm fresh re-resolution drift.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Fabricated-stats softening (validated before any write)
+        run: npx --no-install tsx scripts/blog-runner/stats-db-remediation.mts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '1' }}
+
+      - name: Summary
+        if: always()
+        run: echo "Stats DB remediation finished — see the per-slug plan/report above."

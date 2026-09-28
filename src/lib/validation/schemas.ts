@@ -781,6 +781,20 @@ export const adminBlogCleanupBodySchema = z.object({
 
 export type AdminBlogCleanupBody = z.infer<typeof adminBlogCleanupBodySchema>;
 
+// ── POST /api/admin/blog/review (AUDIT_REPORT §9-المرحلة 2, item 1 — 0097) ──
+
+/** The owner-review action body. `post_id` is the blog_posts row being
+ *  marked reviewed (UUID FORMAT stays route policy — the route re-derives
+ *  the legacy «معرّف المقال مطلوب» 400); the optional note rides the
+ *  response echo only (no storage — the row's review state is the two
+ *  0097 columns, nothing more). */
+export const adminBlogReviewBodySchema = z.object({
+  post_id: z.string().min(1).max(MAX_ADMIN_ID_LEN),
+  note: z.string().trim().max(300).optional(),
+});
+
+export type AdminBlogReviewBody = z.infer<typeof adminBlogReviewBodySchema>;
+
 // ── PATCH /api/admin/coach-kind ──
 
 /** The enum IS the legacy check — every gate failure re-derives «coach_id

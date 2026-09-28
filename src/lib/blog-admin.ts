@@ -36,6 +36,10 @@ export type AdminBlogPost = {
   source?: string;
   faq_json?: BlogFaq[] | null;
   schema_json?: Record<string, unknown> | null;
+  /** 0097 (audit Phase 2 · item 1): 'pending' | 'reviewed'. */
+  review_status?: string;
+  /** 0097: the real review timestamp — null = never reviewed. */
+  last_reviewed_at?: string | null;
 };
 
 // ---- Client/Admin queries ----
@@ -131,6 +135,13 @@ export async function adminCreatePost(
     created_at: now,
     updated_at: now,
     faq_json: post.faq_json || [],
+    // 0097 (audit Phase 2 · item 1): a row the OWNER creates already
+    // published was humanly written/reviewed by definition — it ships
+    // in the honest 'reviewed' state. Drafts stay 'pending' (the
+    // default) and flip when the owner publishes them from the editor.
+    ...(post.is_published
+      ? { review_status: "reviewed", last_reviewed_at: now }
+      : {}),
     // Record<string, unknown> → Json needs the single boundary cast.
     schema_json: (post.schema_json || {}) as BlogPostInsert["schema_json"],
   };
@@ -233,6 +244,7 @@ export async function adminGetStats() {
       en: 0,
       ar: 0,
       scheduled: 0,
+      pendingReview: 0,
       recent: [],
     };
 
@@ -250,6 +262,7 @@ export async function adminGetStats() {
         en: 0,
         ar: 0,
         scheduled: 0,
+        pendingReview: 0,
         recent: [],
       };
 
@@ -264,6 +277,11 @@ export async function adminGetStats() {
       scheduled: posts.filter(
         (p) => p.is_published && p.published_at && p.published_at > now,
       ).length,
+      // 0097 (audit Phase 2 · item 1): the owner's review worklist size —
+      // PUBLISHED articles still carrying review_status 'pending'.
+      pendingReview: posts.filter(
+        (p) => p.is_published && (p.review_status ?? "pending") === "pending",
+      ).length,
       recent: posts.slice(0, 5),
     };
   } catch {
@@ -274,6 +292,7 @@ export async function adminGetStats() {
       en: 0,
       ar: 0,
       scheduled: 0,
+      pendingReview: 0,
       recent: [],
     };
   }

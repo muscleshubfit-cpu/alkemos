@@ -108,6 +108,19 @@ describe("AUDIT §9-1.2 — the law blocks themselves", () => {
     expect(EDITORIAL_FACT_GUARD.ar).toContain("ممنوع اختلاق دراسات");
   });
 
+  it("FACT GUARD carries the honest-citation amendment (AUDIT §9-2.2, option أ)", () => {
+    // citations ARE allowed — but only as links to whitelisted authority
+    // domains, with certainty-of-existence; generic phrasing otherwise.
+    expect(EDITORIAL_FACT_GUARD.en).toContain(
+      "Citing evidence is allowed ONLY as markdown links to well-known authority domains",
+    );
+    expect(EDITORIAL_FACT_GUARD.en).toContain("every cited URL must be a page you are CERTAIN exists");
+    expect(EDITORIAL_FACT_GUARD.ar).toContain("الاستشهاد بالأدلة مسموح فقط كروابط markdown إلى نطاقات سلطات موثوقة معروفة");
+    expect(EDITORIAL_FACT_GUARD.ar).toContain("أن تكون متأكدًا من وجود الصفحة");
+    // the ban core is unchanged (the strict half of the policy):
+    expect(EDITORIAL_FACT_GUARD.en).toContain("strictly FORBIDDEN");
+  });
+
   it("the FAQ count law is the owner range 4-7 (one number, every surface)", () => {
     expect(EDITORIAL_FAQ_COUNT_RANGE).toEqual({ min: 4, max: 7 });
   });

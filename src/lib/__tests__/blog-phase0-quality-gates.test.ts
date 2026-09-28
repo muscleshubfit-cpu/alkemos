@@ -48,6 +48,19 @@ vi.mock("@/lib/supabase/admin", () => ({
   },
 }));
 vi.mock("@/lib/blog-server", () => ({ normalizeCategory: vi.fn((c: string) => c || "training") }));
+// AUDIT §9-2.2: the link-verify gate is a BOUNDARY (network) — unit
+// behavior lives in blog-link-verify.test.ts; here it is a no-op
+// pass-through so the behavioral P5 tests never touch the network.
+vi.mock("@/lib/blog-link-verify", () => ({
+  verifyBodyLinks: vi.fn(async (md: string) => ({
+    checked: [],
+    dead: [],
+    unverified: [],
+    skipped: [],
+    md,
+  })),
+}));
+
 vi.mock("@/lib/blog-queue", () => ({
   getQueueIdParam: vi.fn(),
   fetchQueueItem: vi.fn(),

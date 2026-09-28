@@ -284,6 +284,54 @@ export function BlogAdminView() {
     }
   };
 
+  /* ── OWNER REVIEW WORKFLOW (0097 · AUDIT_REPORT §9-المرحلة 2, item 1) ──
+   * Every pipeline article publishes in the HONEST 'pending' review
+   * state — its page shows «AI-generated · medical review pending» and
+   * the Article schema omits reviewedBy/lastReviewed until a human
+   * actually reviews it. THIS action is that review: the owner reads
+   * the article (View button) and approves it → review_status flips to
+   * 'reviewed' + the real last_reviewed_at is stamped via the
+   * admin-gated POST /api/admin/blog/review. The byline/schema then
+   * carry the TRUE review claims. */
+  const [reviewBusy, setReviewBusy] = useState<string | null>(null);
+
+  const handleMarkReviewed = async (id: string) => {
+    if (reviewBusy) return;
+    if (
+      !confirm(
+        isAr
+          ? "اعتماد مراجعة هذا المقال؟ هذا يثبت أنك راجعته فعلاً — سيظهر على المقال «راجعه Ahmed Zake» مع تاريخ المراجعة الحقيقي في الصفحة وفي الـ schema."
+          : "Approve this article's review? This confirms you actually reviewed it — the article then shows «Reviewed by Ahmed Zake» with the real review date on the page and in the schema.",
+      )
+    )
+      return;
+    setReviewBusy(id);
+    try {
+      const res = await fetch("/api/admin/blog/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post_id: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          data?.error || (isAr ? `تعذّر اعتماد المراجعة (كود ${res.status})` : `Review failed (HTTP ${res.status})`),
+        );
+      }
+      await load();
+      toast.success(
+        isAr
+          ? "تم اعتماد المراجعة ✅ المقال الآن يحمل ادعاء المراجعة الصادق"
+          : "Review approved ✅ the article now carries the honest review claim",
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "فشل اعتماد المراجعة");
+    } finally {
+      setReviewBusy(null);
+    }
+  };
+
+
   const filtered = posts.filter((p) => {
     const matchesFilter = filter === "all" || p.language === filter;
     const matchesQuery = !searchQuery.trim() || 
@@ -304,6 +352,7 @@ export function BlogAdminView() {
   const statCards = [
     { label: isAr ? "إجمالي المقالات" : "Total", value: stats?.total || 0, icon: FileText, color: "text-blue-500" },
     { label: isAr ? "منشورة" : "Published", value: stats?.published || 0, icon: CheckCircle2, color: "text-emerald-500" },
+    { label: isAr ? "بانتظار مراجعتك" : "Pending review", value: stats?.pendingReview ?? 0, icon: Eye, color: "text-orange-500" },
     { label: isAr ? "مسودات" : "Drafts", value: stats?.drafts || 0, icon: FileEdit, color: "text-amber-500" },
     { label: isAr ? "إنجليزي" : "English", value: stats?.en || 0, icon: Globe, color: "text-indigo-500" },
     { label: isAr ? "عربي" : "Arabic", value: stats?.ar || 0, icon: Globe, color: "text-teal-500" },
@@ -396,6 +445,30 @@ export function BlogAdminView() {
         </div>
       </div>
 
+      {/* OWNER REVIEW WORKLIST banner (0097 · audit Phase 2 item 1):
+          the honest-E-E-A-T law — pipeline articles publish as
+          «AI-generated · medical review pending» until the owner
+          actually reviews them. This strip keeps the worklist visible. */}
+      {(stats?.pendingReview ?? 0) > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-500/25 bg-orange-500/5 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400">
+              <Eye className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                {isAr ? "مراجعة المالك — بانتظارك" : "Owner review — pending"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {isAr
+                  ? `${stats?.pendingReview} مقالة منشورة تظهر للزوار كـ«مولّد بالذكاء الاصطناعي · بانتظار المراجعة الطبية». راجعها من زر العرض ثم اضغط «اعتماد» لتصبح علامة المراجعة صادقة.`
+                  : `${stats?.pendingReview} published articles show readers «AI-generated · medical review pending». Review one (View), then press «Approve» to make the review claim true.`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* AI Article Generator — REAL queue-based generation (2026-08-28).
           The previous banner pointed at a generator button that had been
           deleted in Phase 15 — coaches had NO way to generate articles. */}
@@ -461,7 +534,7 @@ export function BlogAdminView() {
       )}
 
       {/* Compact Stat Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {statCards.map((s, i) => {
           const Icon = s.icon;
           return (
@@ -546,15 +619,32 @@ export function BlogAdminView() {
                       </span>
                     </td>
                     <td className="p-3 text-center">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                          post.is_published
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                            : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                        }`}
-                      >
-                        {post.is_published ? (isAr ? "منشور" : "Published") : (isAr ? "مسودة" : "Draft")}
-                      </span>
+                      <div className="flex flex-col items-center gap-1">
+                        <span
+                          className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                            post.is_published
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          }`}
+                        >
+                          {post.is_published ? (isAr ? "منشور" : "Published") : (isAr ? "مسودة" : "Draft")}
+                        </span>
+                        {/* 0097 (audit Phase 2 · item 1): the honest review
+                            state chip — published rows only. */}
+                        {post.is_published && (
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              (post.review_status ?? "pending") === "reviewed"
+                                ? "bg-emerald-500/10 text-emerald-600/80 dark:text-emerald-400/80"
+                                : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                            }`}
+                          >
+                            {(post.review_status ?? "pending") === "reviewed"
+                              ? isAr ? "مُراجَع ✓" : "Reviewed ✓"
+                              : isAr ? "بانتظار المراجعة" : "Review pending"}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-1.5">
@@ -583,6 +673,23 @@ export function BlogAdminView() {
                           >
                             <ExternalLink className="h-3 w-3" />
                           </a>
+                        )}
+                        {/* 0097: approve the review for a published+pending
+                            row — the honest-E-E-A-T flip. */}
+                        {post.is_published && (post.review_status ?? "pending") !== "reviewed" && (
+                          <button
+                            onClick={() => void handleMarkReviewed(post.id)}
+                            disabled={reviewBusy === post.id}
+                            title={isAr ? "اعتماد المراجعة" : "Approve review"}
+                            className="inline-flex h-7 items-center gap-1 rounded-md bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                          >
+                            {reviewBusy === post.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            {isAr ? "اعتماد" : "Approve"}
+                          </button>
                         )}
                         <button
                           onClick={() => handleDelete(post.id)}

@@ -59,10 +59,20 @@ export const EDITORIAL_EEAT: Record<EditorialLang, string> = {
 // ─────────────────────────────────────────────────────────────────
 // FACT GUARD — no invented studies/statistics/clinical claims
 // (P2 + P4 + fallback). YMYL health content law.
+//
+// AUDIT_REPORT §9-المرحلة 2, item 2 (2026-09-29) — the HONEST
+// CITATION amendment (option أ): evidence may now be cited as LINKS
+// to the whitelisted authority domains (EDITORIAL_AUTHORITY_DOMAINS —
+// WHO/NIH/CDC/Mayo/ACSM/ISSN) — better for GEO than the old blanket
+// ban. What stays ABSOLUTE: fabricating studies, authors, paper
+// titles, statistics, or URLs. The deterministic enforcement behind
+// this law: the P5 authority-link floor (blog-quality-gates G4) + the
+// HEAD-verification gate (blog-link-verify.ts — dead citations are
+// removed before the battery).
 // ─────────────────────────────────────────────────────────────────
 export const EDITORIAL_FACT_GUARD: Record<EditorialLang, string> = {
-  en: `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Reference evidence generically ("research suggests...", "evidence supports...") without naming specific sources inside the body.`,
-  ar: `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. عند الاستشهاد بالأدلة: صياغة عامة فقط مثل «تشير الأدلة إلى...» دون تسمية مصادر محددة داخل المتن.`,
+  en: `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Citing evidence is allowed ONLY as markdown links to well-known authority domains (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) — e.g. [WHO guidance on protein intake](https://www.who.int/...) — where the link directly supports its sentence; every cited URL must be a page you are CERTAIN exists. Generic phrasing ("research suggests...", "evidence supports...") is the alternative when no certain authority link fits.`,
+  ar: `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. الاستشهاد بالأدلة مسموح فقط كروابط markdown إلى نطاقات سلطات موثوقة معروفة (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) — مثل [إرشادات منظمة الصحة العالمية عن البروتين](https://www.who.int/...) — بشرط أن يدعم الرابط جملته مباشرة وأن تكون متأكدًا من وجود الصفحة. وعند غياب رابط سلطة متأكد منه: صياغة عامة فقط مثل «تشير الأدلة إلى...».`,
 };
 
 // ─────────────────────────────────────────────────────────────────

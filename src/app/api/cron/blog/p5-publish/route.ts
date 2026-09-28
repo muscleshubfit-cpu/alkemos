@@ -4,6 +4,7 @@ import { normalizeCategory } from "@/lib/blog-server";
 import { countWords, splitFaqSection, filterFaqsByRelevance, clampMetaTitle, clampMetaDescription, type OutlinePlan } from "@/lib/blog-pipeline";
 import { scanLatinContamination } from "@/lib/blog-msa";
 import { runP5QualityGates } from "@/lib/blog-quality-gates";
+import { verifyBodyLinks } from "@/lib/blog-link-verify";
 import { EDITORIAL_FAQ_COUNT_RANGE } from "@/lib/blog-editorial-law";
 import { getRecentPostsByLanguage } from "@/lib/blog-topics";
 import { embedBodyImages } from "@/lib/blog-images";
@@ -260,6 +261,34 @@ export async function GET(request: NextRequest) {
       }
     }
     const toolLinkPass = insertToolLinks(faqStrippedMd, lang);
+
+    // AUDIT_REPORT §9-المرحلة 2, item 2 (2026-09-29) — the CITATION
+    // LINK VERIFICATION GATE («بوابة تحقق من الروابط (HEAD request)»).
+    // The honest-citation policy (option أ) now lets the writing phases
+    // cite evidence as links to the whitelisted authority domains —
+    // better for GEO than the old blanket ban. Free-chain models DO
+    // hallucinate URLs, so every EXTERNAL link in the final body is
+    // HEAD-verified here: CONFIRMED-dead links (404/410) are removed to
+    // their anchor text BEFORE the battery, so the G4 authority floor
+    // measures the VERIFIED state (dead-citation-removed + no authority
+    // link left → honest battery failure → backstop regenerates).
+    // Fail-OPEN by design (403/405/429/timeout/DNS = kept): an authority
+    // that refuses HEAD must never cost a good citation, and the whole
+    // pass is bounded (≤12 URLs · ≤30s). Runs on the GHA runner
+    // (network available; the Vercel-cron backstop only DISPATCHES the
+    // workflow, it never runs P5 itself).
+    const linkVerify = await verifyBodyLinks(toolLinkPass.md);
+    if (linkVerify.dead.length > 0) {
+      console.warn(
+        `[blog/p5-publish] link-verify: ${linkVerify.dead.length} confirmed-dead citation link(s) REMOVED (anchor kept): ${linkVerify.dead.slice(0, 5).join(", ")}`,
+      );
+    }
+    if (linkVerify.unverified.length > 0) {
+      console.log(
+        `[blog/p5-publish] link-verify: ${linkVerify.unverified.length} link(s) inconclusive (kept — 403/405/429/timeout): ${linkVerify.unverified.slice(0, 5).join(", ")}`,
+      );
+    }
+    const verifiedMd = linkVerify.md;
     // AUDIT_REPORT §9-1.4: the FAQ ceiling applies to the degraded
     // research0 path too (its pool holds up to 10 — the lifted path is
     // already capped at 7 by splitFaqSection).
@@ -293,7 +322,7 @@ export async function GET(request: NextRequest) {
     }
     const gateViolations = runP5QualityGates({
       lang,
-      bodyMd: toolLinkPass.md,
+      bodyMd: verifiedMd,
       faqCount: finalFaqJson.length,
       legalTitles,
     });
@@ -310,7 +339,7 @@ export async function GET(request: NextRequest) {
     // list and the 23:40 dispatch backstop tops the day's slot up. EN
     // articles skip (Latin is their prose).
     if (lang === "ar") {
-      const bodyLatin = scanLatinContamination(toolLinkPass.md);
+      const bodyLatin = scanLatinContamination(verifiedMd);
       if (bodyLatin.count > 0) {
         throw new Error(
           `p5: latin contamination in final body (${bodyLatin.count} tokens: ${bodyLatin.tokens.slice(0, 10).join(", ")}) — rerun p4-review`,
@@ -329,7 +358,7 @@ export async function GET(request: NextRequest) {
       // BODY IMAGE EMBEDDING LAW: images[0] = featured/og cover; images[1..N]
       // are inserted into the article markdown at section boundaries (was:
       // dropped entirely → every post was a wall of text).
-      content: embedBodyImages(toolLinkPass.md, images),
+      content: embedBodyImages(verifiedMd, images),
       // Phase SEO-GEO-6.3 (§12.19 P0-3): word-boundary clamp replaces the
       // old `.slice(0, 60)` mid-word hard cut (23/31 EN titles were landing
       // in the SERP truncated mid-word; AR budget is wider at 70).
@@ -352,6 +381,14 @@ export async function GET(request: NextRequest) {
       author: "Ahmed Zake",
       is_published: true,
       published_at: now,
+      // AUDIT_REPORT §9-المرحلة 2, item 1 (0097 — 2026-09-29): every
+      // pipeline article publishes in the HONEST pending-review state —
+      // the byline reads «AI-generated · medical review pending» and the
+      // Article schema omits reviewedBy/lastReviewed until the owner
+      // actually reviews it (POST /api/admin/blog/review or the editor's
+      // own publish). last_reviewed_at stays null — NEVER automatic.
+      review_status: "pending",
+      last_reviewed_at: null,
       // PHASE 172: article-specific FAQs lifted from the reviewed markdown
       // (see the splitFaqSection block above); research0 fallback only in
       // the degraded no-FAQ-section path.
@@ -428,6 +465,12 @@ export async function GET(request: NextRequest) {
       title: row.title,
       slug,
       toolLinksInserted: toolLinkPass.inserted.length,
+      linkVerify: {
+        checked: linkVerify.checked.length,
+        deadRemoved: linkVerify.dead.length,
+        unverifiedKept: linkVerify.unverified.length,
+      },
+      reviewStatus: "pending",
       faqLifted: finalFaqs.length,
       ...(faqRelevanceDropped > 0 ? { faqRelevanceDropped } : {}),
       handshake,

@@ -36,6 +36,15 @@ export type BlogPost = {
  schema_json: Record<string, unknown> | null;
  linked_post_id: string | null;
  created_at: string;
+ // 0097 (audit Phase 2 · item 1): the honest review state. 'pending' =
+ // published awaiting the owner's review; 'reviewed' = actually
+ // reviewed (last_reviewed_at then carries the real timestamp).
+ // OPTIONAL on the client shape: rows fetched during the deploy/migration
+ // transition window lack the columns (undefined = pending — same honest
+ // default the DB default encodes). The generated supabase types.ts Row
+ // keeps them REQUIRED — that is the DB truth.
+ review_status?: string;
+ last_reviewed_at?: string | null;
 };
 
 // PHASE 192 (fork fix): the registry moved to src/lib/blog-categories.ts —

@@ -99,6 +99,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         // Phase SEO-GEO-2 (2026-09-08): resolved author Person — see
         // the EN mirror (/blog/[slug]/page.tsx) for the full rationale.
         authorProfile: resolveAuthor(og.author),
+        // AUDIT_REPORT §9-المرحلة 2, item 1 (0097): the REAL review
+        // state — null (review pending) omits lastReviewed + reviewedBy
+        // from the schema entirely (honest E-E-A-T); a timestamp is
+        // emitted only when a human actually reviewed. See EN mirror.
+        lastReviewed: og.lastReviewedAt,
       })
     : null;
 
@@ -181,7 +186,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema) }}
         />
       )}
-      <BlogArticlePage lang="ar" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />
+      <BlogArticlePage lang="ar" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} lastReviewedAt={og.lastReviewedAt ?? undefined} />
     </>
   );
 }

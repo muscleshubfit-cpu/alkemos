@@ -1,0 +1,56 @@
+# WHY: AUDIT_REPORT.md §9-المرحلة 2, item 4 (2026-09-29) — GEO MEASUREMENT.
+# The audit (F14) measured that the plan's AI-Answers visibility KPI had
+# zero tracking. This monthly probe runs the committed sample query set
+# (12 EN + 12 AR) through the site's OWN free AI chain (proxy for
+# generative answer engines — no new service, no cost) and reports how
+# often Alkemos is mentioned/cited. Results land in the run log +
+# $GITHUB_STEP_SUMMARY; the monthly row is then recorded in
+# docs/SEO-GEO-MASTER-PLAN.md §GEO-M (manual copy — the workflow NEVER
+# auto-commits: identity law §10, only owner-email commits land on main).
+#
+# Cadence: monthly (1st of the month, 07:00 UTC) + manual dispatch any
+# time. The owner's manual ChatGPT/Perplexity/AI-Overviews spot-check
+# rides the same query set (5 minutes) — see the plan's §GEO-M protocol.
+name: GEO answer-visibility probe (audit Phase 2 item 4 — monthly)
+
+on:
+  schedule:
+    - cron: "0 7 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: geo-answer-visibility
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Production-locked install (A-12): the same frozen bun.lock Vercel
+      # and local dev build from — no npm fresh re-resolution drift.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (frozen bun.lock = production tree)
+        run: bun install --frozen-lockfile
+
+      - name: Run the visibility probe (24 fixed sample queries)
+        run: npx --no-install tsx scripts/geo/answer-visibility-probe.mts
+        env:
+          OPENROUTER_API: ${{ secrets.OPENROUTER_API }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+
+      - name: Summary
+        if: always()
+        run: echo "GEO answer-visibility probe finished — see the per-query table above (also in the run summary)."

@@ -10727,3 +10727,20 @@ Stage Summary:
 - الملفات الممسوسة: .github/workflows/quality-gate.yml (paths-ignore) · AGENTS.md (§3.5 + §8) · docs/CI_GATES.md (تحصين IV) · STATE.md (290 + أرشفة صف 288) · archive/PROGRESS_ARCHIVE.md + QA_CHECKLIST_ARCHIVE.md (+صف 288 حرفيًا) · worklog.md (هذا المدخل).
 - Push status: pushed
 
+
+<!-- rotated 2026-09-28 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: ARCH-REMEDIATION-290-FIXUP-2026-09-28
+Agent: Implementation Agent
+Task: إصلاح فوري: سكريبت الدوران scripts/worklog_rotate.py لم يُرفع أبدًا — .gitignore السطر `/scripts/*` ابتلعه (نفس فخ generate-og-cards.py الموثق بذيل الملف) فالبوابة خضراء محليًا (الملف على القرص) وحمراء بCI (غير موجود بالcheckout) — «حارس مش متكمّم مش حارس» بالمقلوب: حارس على القرص وغير مدفوع ليس حارسًا.
+
+Work Log:
+- (التشخيص) فشل docs-parity على دفعتَي 4c0b2ba6 وfdd2eca6: M/registry-paths «scripts/worklog_rotate.py does not exist» — git ls-files أكد: صفر تتبع رغم وجوده بالشجرة منذ فريم 288.
+- (الإصلاح) استثناء `!/scripts/worklog_rotate.py` ب.gitignore (+سطر توثيق بالفخ) + رفع السكريبت نفسه.
+- (التحصين) فحص M صار يستخدم مجموعة الحقيقة من git ‏(ls-files --cached --others --exclude-standard = ما سيدخل الكوميت فعلًا): مسار موجود على القرص لكنه ignored = فشل محلي فوري — الفئة كلها تقفل للأبد (الفحص المشتق من git يرى ما لا تراه الfilesystem).
+- (التحقق) docs_audit ✓ أخضر مع السكريبت staged · py_compile ✓.
+
+Stage Summary:
+- السكريبت مدفوع فعلًا الآن والفئة (guard غير مدفوع يخضر محليًا ويحمر بCI) مقفولة بفحص M المشتق من git — دفعتا parity الحمراوان سببهما هذا وحده وستخضرّان بهذا الكوميت.
+- Push status: pushed
+

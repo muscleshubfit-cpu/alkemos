@@ -32,6 +32,7 @@ export function BlogArticlePage({
   initialPost,
   publishedAt,
   updatedAt,
+  lastReviewedAt,
 }: {
   lang: "en" | "ar";
   slug: string;
@@ -40,6 +41,13 @@ export function BlogArticlePage({
    *  the server, used for the visible byline + the Article schema. */
   publishedAt?: string;
   updatedAt?: string;
+  /** AUDIT_REPORT §9-المرحلة 2, item 1 (0097 — 2026-09-29): the REAL
+   *  human-review timestamp (blog_posts.last_reviewed_at). undefined =
+   *  null = review pending → the byline shows the honest "AI-generated ·
+   *  medical review pending" line and the "Last reviewed" date row is
+   *  omitted (the old code passed the auto updated_at as a review date —
+   *  audit C2/F2: a fabricated E-E-A-T claim on every article). */
+  lastReviewedAt?: string | null;
 }) {
   const isAr = lang === "ar";
   // M28 fix: accept initialPost as a prop from the server component.
@@ -218,13 +226,17 @@ export function BlogArticlePage({
                  data-speakable="summary">
                 {post.excerpt}
               </p>
-              {/* Phase SEO-GEO-4 (2026-09-08): visible publish + last-reviewed
-                  dates. The Article schema carries the same dates as
-                  datePublished + dateModified + lastReviewed — the visible
-                  UI matches the machine-readable schema (E-E-A-T consistency).
-                  `updatedAt` is the real DB updated_at (passed from the server
-                  route); falls back to `publishedAt` when the DB has no
-                  updated_at yet (brand-new post). */}
+              {/* Phase SEO-GEO-4 (2026-09-08): visible publish date.
+                  AUDIT_REPORT §9-المرحلة 2, item 1 (0097 — 2026-09-29):
+                  the "Last reviewed" row is now emitted ONLY from the
+                  REAL last_reviewed_at (a human actually reviewed the
+                  article); before this, the row showed the DB updated_at
+                  (an automated timestamp) as a review date on 97/97
+                  articles — the audit's C2 fabricated-E-E-A-T finding.
+                  When a review is pending, the honest "AI-generated ·
+                  medical review pending" byline line below carries the
+                  state instead, and updated_at (a content edit, not a
+                  review) renders under its own honest "Updated" label. */}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
                 {publishedAt && (
                   <span>
@@ -232,11 +244,20 @@ export function BlogArticlePage({
                     {new Date(publishedAt).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
                   </span>
                 )}
-                {updatedAt && updatedAt !== publishedAt && (
+                {lastReviewedAt && (
                   <>
                     <span className="text-[var(--muted-foreground)]">•</span>
                     <span>
                       {isAr ? "آخر مراجعة" : "Last reviewed"}{" "}
+                      {new Date(lastReviewedAt).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  </>
+                )}
+                {!lastReviewedAt && updatedAt && updatedAt !== publishedAt && (
+                  <>
+                    <span className="text-[var(--muted-foreground)]">•</span>
+                    <span>
+                      {isAr ? "آخر تحديث" : "Updated"}{" "}
                       {new Date(updatedAt).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
                     </span>
                   </>
@@ -279,7 +300,24 @@ export function BlogArticlePage({
                       {post.author}
                     </span>
                     <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                      {isAr ? "المؤسس والمدرب الرئيسي · راجع بواسطة Ahmed Zake" : "Founder & Head Coach · Reviewed by Ahmed Zake"}
+                      {/* AUDIT_REPORT §9-المرحلة 2, item 1 (0097 — 2026-09-29):
+                          the "Reviewed by Ahmed Zake" line was previously
+                          printed on EVERY article while P5 publishes with
+                          ZERO human review (audit C2/F2 — a fabricated
+                          E-E-A-T signal on YMYL health content). It now
+                          appears ONLY after the owner actually reviewed the
+                          article (review_status='reviewed'); the pending
+                          state gets the audit's honest minimum wording:
+                          «AI-generated · medical review pending». The
+                          Article schema follows the same law (reviewedBy/
+                          lastReviewed omitted until a real review exists). */}
+                      {lastReviewedAt
+                        ? isAr
+                          ? "المؤسس والمدرب الرئيسي · راجعه Ahmed Zake"
+                          : "Founder & Head Coach · Reviewed by Ahmed Zake"
+                        : isAr
+                          ? "المؤسس والمدرب الرئيسي · مولّد بالذكاء الاصطناعي · بانتظار المراجعة الطبية"
+                          : "Founder & Head Coach · AI-generated · medical review pending"}
                     </span>
                   </span>
                 </Link>

@@ -242,12 +242,28 @@ modern-standard purity checks, image-safety rules, FAQ single-display, and
 topic selection deduplicated against the search-intent map
 (`src/lib/intent-map.ts`) so articles never compete with canonical pages.
 
+### Owner review workflow (honest E-E-A-T)
+Every pipeline-published article lands in the **pending review** state — its
+page honestly says "AI-generated · medical review pending" (النسخة العربية:
+«مولّد بالذكاء الاصطناعي · بانتظار المراجعة الطبية») and the structured data
+carries no review claims until one is true. The owner reviews from
+**Admin → Blog**: each published article row shows its review state, and the
+**Approve / اعتماد** button (or simply publishing/saving the article yourself
+in the editor) marks it reviewed with the real review date
+(`blog_posts.review_status` / `last_reviewed_at`, migration 0097) — the byline
+and Article schema then carry the true "Reviewed by Ahmed Zake" claims.
+
 ### SEO / GEO
 JSON-LD structured data across the site (`src/lib/seo.ts`), dynamic XML
 sitemaps (pages, blog, foods, exercises, collections, comparisons), a
 `robots.txt` that welcomes AI crawlers, `llms.txt` + `llms-full.txt` for
 generative engines, bilingual RSS feeds, and dedicated Open Graph cards per
-surface family.
+surface family. Citations in generated articles are allowed only as links to
+whitelisted health authorities (WHO/NIH/CDC/Mayo/ACSM/ISSN), and every
+external link is verified live at publish (dead citations are removed). A
+monthly GEO probe measures how often Alkemos appears in AI answers
+(`.github/workflows/geo-answer-visibility.yml` + the protocol in
+[`docs/SEO-GEO-MASTER-PLAN.md`](./docs/SEO-GEO-MASTER-PLAN.md) §8.4).
 
 ### Automated quality gates
 Every push and pull request is audited on GitHub Actions by gates that

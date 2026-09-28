@@ -80,11 +80,23 @@ export function isValidAngleId(id: unknown): id is string {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Freshness windows (STATE 157 law: adopt ≤48h · join ≤30h)
+// Freshness windows (STATE 157 law — AUDIT_REPORT §9-المرحلة 2, item 5,
+// 2026-09-29: widened 48h→72h adopt · 30h→48h join).
+//
+// DIAGNOSIS (live data, 2026-09-29): of 53 pair-era queue rows only 4
+// carried a pair_id (7.5%) — and the binding constraint was NEVER the
+// windows (the 2 complete pairs were consumed 0.0h apart; zero stale
+// 'researched' rows existed) — it was the ONE-SHOT pairing call failing
+// on the free chain (chain failure + strict JSON laws → legacy).
+// The widening is resilience for the REAL failure mode: a language's
+// window failing for 1-2 days (23% row failures measured) leaves its
+// twin row unadopted — at 48h it expired forever; at 72h a second-day
+// run still adopts it (evergreen fitness content — a 3-day-old research
+// brief is still fresh; news it is not).
 // ─────────────────────────────────────────────────────────────────
 
-export const ADOPT_MAX_AGE_HOURS = 48;
-export const JOIN_MAX_AGE_HOURS = 30;
+export const ADOPT_MAX_AGE_HOURS = 72;
+export const JOIN_MAX_AGE_HOURS = 48;
 
 function ageHours(iso: string | null | undefined, now: Date): number | null {
   if (!iso) return null;
@@ -239,7 +251,20 @@ export type PairingSelectionResult = PairingChoice & { source: string };
  * or a NEW Arabic long-tail phrasing of the same daily subject, and ONE
  * shared article angle id. Throws on any invalid output — the route
  * catches and degrades to legacy V3 (never pairs blindly).
+ *
+ * AUDIT_REPORT §9-المرحلة 2, item 5 (2026-09-29) — the RETRY law: the
+ * pairing call was ONE shot on a free chain that fails often (measured:
+ * only 2 complete pairs in the whole pair era). It now runs up to
+ * PAIRING_MAX_ATTEMPTS times (fresh chain call per attempt — the chain's
+ * provider-lead rotation changes between attempts) with a short backoff;
+ * a lightweight ≤400-token call, so the extra attempts cost seconds, and
+ * P0's total budget still fits the GHA step comfortably. A wrong pair
+ * stays worse than no pair: every parse/validation law is UNCHANGED —
+ * retries only fight transport/model failure, never the strict JSON
+ * contract.
  */
+export const PAIRING_MAX_ATTEMPTS = 2;
+
 export async function runPairingSelection(
   enResearch: LanguageResearch,
   arResearch: LanguageResearch,
@@ -260,21 +285,40 @@ ${arResearch.topics.map((t, i) => `${i + 1}. ${t}`).join("\n")}
 Return STRICT JSON only:
 {"topicEn":"<exact EN candidate>","topicAr":"<exact AR candidate or new natural Arabic topic>","angleId":"<one id>"}`;
 
-  const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
-    tag: "blog:pairing",
-    temperature: 0.3,
-    maxTokens: 400,
-    jsonMode: true,
-    timeoutMs: 45_000,
-    maxModels: 2,
-  });
-  const choice = parsePairingJSON(text, {
-    enCandidates: enResearch.topics,
-    arCandidates: arResearch.topics,
-  });
-  if (!choice) {
-    throw new Error(`pairing: invalid JSON from ${provider}:${model}`);
+  let lastError: Error | null = null;
+  for (let attempt = 1; attempt <= PAIRING_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
+        tag: "blog:pairing",
+        temperature: 0.3,
+        maxTokens: 400,
+        jsonMode: true,
+        timeoutMs: 45_000,
+        // AUDIT §9-2.5: 2 → 3 — a light call deserves a deeper walk of
+        // the strong chain (the P4 precedent: more healthy entries beat
+        // two leading hiccups).
+        maxModels: 3,
+      });
+      const choice = parsePairingJSON(text, {
+        enCandidates: enResearch.topics,
+        arCandidates: arResearch.topics,
+      });
+      if (choice) {
+        console.log(
+          `[blog-pairing] paired (${provider}:${model}, attempt ${attempt}) angle=${choice.angleId}`,
+        );
+        return { ...choice, source: `${provider}:${model}` };
+      }
+      // Valid transport, invalid payload: retry the whole chain (the
+      // next attempt rotates the leading provider).
+      lastError = new Error(`pairing: invalid JSON from ${provider}:${model}`);
+      console.warn(`[blog-pairing] attempt ${attempt} invalid — ${lastError.message}`);
+    } catch (e) {
+      // The chain itself died (all walked models failed) — the primary
+      // measured failure mode. Retry once with a fresh chain walk.
+      lastError = e instanceof Error ? e : new Error(String(e));
+      console.warn(`[blog-pairing] attempt ${attempt} chain failure — ${lastError.message}`);
+    }
   }
-  console.log(`[blog-pairing] paired (${provider}:${model}) angle=${choice.angleId}`);
-  return { ...choice, source: `${provider}:${model}` };
+  throw lastError ?? new Error("pairing: all attempts failed");
 }

@@ -122,6 +122,13 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         // or 'MuscleHub' — resolveAuthor normalizes all of those to the
         // canonical Ahmed Zake Person (the de-facto author of every post).
         authorProfile: resolveAuthor(og.author),
+        // AUDIT_REPORT §9-المرحلة 2, item 1 (0097): the REAL review
+        // state — null (review pending) omits lastReviewed + reviewedBy
+        // from the schema entirely (honest E-E-A-T, audit C2/F2: the
+        // claims were printed on 97/97 articles while P5 publishes with
+        // zero human review); a timestamp is emitted only when a human
+        // actually reviewed the article.
+        lastReviewed: og.lastReviewedAt,
       })
     : null;
 
@@ -215,7 +222,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema) }}
         />
       )}
-      <BlogArticlePage lang="en" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} />
+      <BlogArticlePage lang="en" slug={slug} initialPost={fullPost} publishedAt={publishedAt} updatedAt={updatedAt} lastReviewedAt={og.lastReviewedAt ?? undefined} />
     </>
   );
 }

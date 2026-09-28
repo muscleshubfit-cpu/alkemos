@@ -1,20 +1,11 @@
 /**
- * src/lib/blog-pipeline.ts — PIPELINE V2 · PHASES 1, 2, 4 (+ image guard)
+ * src/lib/blog-pipeline.ts — PIPELINE V2 · writing phases (P1 outline,
+ * P2 content, P4 review + the MSA/Latin repair passes).
  *
- * Owner directive 2026-08-27 — article generation restructured into:
- *   P1 outline  : pick ONE topic from P0 suggestions → SEO title,
- *                 subtitle, intro/5-7 H2/conclusion outline, LSI
- *                 keywords, image plan (subject + type per image).
- *   P2 content  : full 1500–2500-word article in the SAME language,
- *                 following the outline and naturally answering the
- *                 P0 FAQs.
- *   P4 review   : proofread/flow/dedup pass, keyword-coverage check,
- *                 conservative fact-check (never invent citations),
- *                 internal+external links, closing Call-to-Action.
- *
- * All calls go through callFreeAIFallbackChain (OpenRouter + Groq only,
- * strongest free models first, automatic fall-through to the next model
- * on failure). IMAGE MODESTY GUARD is enforced here on every prompt.
+ * Current law: the writing laws compose BYTE-EXACT from the single-source
+ * editorial constitution (src/lib/blog-editorial-law.ts — AUDIT §9-1.2);
+ * the file history/phase chronicle lives in
+ * archive/PROMPT-LAW-HISTORY.md (AUDIT §9-2.6 pruning law).
  */
 import { callFreeAIFallbackChain, parseJSON } from "./ai-provider";
 import { type LanguageResearch } from "./blog-research";
@@ -83,21 +74,10 @@ export type ReviewReport = {
 
 export type InternalLinkCandidate = { slug: string; title: string };
 
-// PHASE 173 (owner directive — Arabic editorial law): Modern Standard
-// Arabic ONLY, natural and easy for EVERY Arabic reader (Pan-Arab). The
-// old rule asked for «بنبرة مصرية/خليجية ودّية» — that wording is what
-// produced Egyptian-dialect articles (live evidence: legacy AR posts use
-// عشان/مش/ازاي/بتاع; the AR title defect «كم ماء احتاج»). The law now
-// explicitly bans local dialects, dialect-only vocabulary, literal
-// translation, weak grammar/spelling, and malformed headings, without
-// imposing heavy literary Arabic or fixed sentence templates (no forced
-// repetition across articles — natural phrasing per context).
-// AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29): the law TEXT now
-// lives in src/lib/blog-editorial-law.ts (EDITORIAL_LANG_RULE — the
-// single editorial constitution shared with the fallback generator);
-// re-exported here under its historical name so every existing
-// importer and canary keeps working (the Phase-175 AR_MSA_EDITOR_LAW
-// move pattern, generalized per the audit's «دستور prompts موحّد»).
+// PHASE 173/176 (current law): ARABIC = Modern Standard Arabic ONLY,
+// Pan-Arab and easy for every Arabic reader — the full editorial law text
+// lives in blog-editorial-law.ts LANG_RULE.ar (single source). History:
+// archive/PROMPT-LAW-HISTORY.md.
 export const LANG_RULE: Record<"en" | "ar", string> = EDITORIAL_LANG_RULE;
 
 /** Compact JSON view of research fed to prompts (keeps token cost sane). */
@@ -428,14 +408,9 @@ export async function generateFullArticle(
   outline: OutlinePlan,
   research: LanguageResearch,
 ): Promise<{ markdown: string; wordCount: number; source: string }> {
-  // PHASE 176 (owner report «التعديلات الجديدة اختفت مرة أخرى» — live
-  // evidence: the 09-11 protein-timing article force-fitted CREATINE and
-  // INTERMITTENT-FASTING questions because the prompt dumped ALL ten
-  // niche-generic P0 FAQs into instruction 4 and a weak P2 model answered
-  // every one of them as body sections + FAQ cards): only research
-  // questions that share vocabulary with THIS article's title ride into
-  // the writing prompt at all (the same relevance matcher the
-  // ensureFaqSection append path already used — one shared law).
+// PHASE 176 (current law): the FAQ section is article-specific (see the
+// FAQ CONTRACT in blog-editorial-law.ts); filterFaqsByRelevance enforces
+// it deterministically at P5. Incident history: archive/PROMPT-LAW-HISTORY.md.
   const relevantResearchFaqs = relevantResearchFaqsForTitle(research.faqs, outline.title);
   const faqBlock = relevantResearchFaqs
     .map((f) => `- ${f.question}`)
@@ -497,7 +472,7 @@ REQUIREMENTS:
 3. Weave keywords + LSI terms NATURALLY (never at the cost of readability).
 4. Where a researched question fits the article's intent, answer it inside the relevant section:
 ${faqBlock}
-5. Evidence-aligned practical advice; generic evidence phrasing only — do NOT invent paper names, authors, URLs, or statistics.
+5. Evidence-aligned practical advice. Cite evidence ONLY as markdown links to the authority domains listed in the FACT GUARD law above (each link directly supporting its sentence — certain-to-exist pages); when no certain link fits, use generic evidence phrasing. Do NOT invent paper names, authors, URLs, or statistics.
 6. No title repetition at the top — start directly with the ANSWER-FIRST introduction paragraph.
 
 Return STRICT JSON only:
@@ -532,40 +507,18 @@ export function countWords(md: string): number {
   return md.split(/\s+/).filter(Boolean).length;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Phase SEO-GEO-6.3 (§12.19 P0-3) — SERP-safe meta title clamp
-// ═══════════════════════════════════════════════════════════════
-//
-// PHASE 189 (SEO-GEO-10, deep-audit P1-1): the whole law block —
-// META_TITLE_MAX, BRAND_SUFFIX_RE, TRAILING_JUNK_RE,
-// DANGLING_CONNECTIVES, endsWithDanglingConnective, stripDanglingTail,
-// stripDanglingConnectives, clampMetaTitle — moved VERBATIM to
-// src/lib/blog-meta-title.ts (zero-dependency module) so render-time
-// surfaces (blog-server.ts fetchBlogForOG + the client-side article
-// share title) can apply the law WITHOUT importing the AI provider
-// chain this file carries. Re-exported here unchanged — every existing
-// importer (p5-publish, the Phase-181 remediation runner, the tests)
-// keeps working; blog-meta-title-render.test.ts guards the
-// single-source/no-duplication contract.
+// PHASE 189 (current law): SERP-safe meta title clamp — re-exported from
+// the zero-dep single source blog-meta-title.ts (law + chronicle there;
+// the full phase history lives in archive/PROMPT-LAW-HISTORY.md).
 export {
   clampMetaTitle,
   stripDanglingTail,
   stripDanglingConnectives,
 } from "./blog-meta-title";
 
-// ─────────────────────────────────────────────────────────────────
-// PHASE 178 — meta description clamp (the P0-3 title law, applied to
-// descriptions). Live audit 2026-09-12: the legacy `.slice(0, 160)` in
-// the P1 outline parser cut descriptions MID-WORD — 14 published rows
-// carry SERP descriptions (and page intros — excerpt shares the same
-// source) ending "…and equ" / "…tips, and equ" / "…لدع". The law:
-//   1. Budget 158 EN / 160 AR (SERP display ~155-160).
-//   2. Over-budget → cut at the LAST WORD BOUNDARY that fits.
-//   3. Never end on a connector/punctuation island ("…and", "…و", "،").
-//   4. Guarantee a sentence-final mark — a clamped description ends
-//      cleanly, never mid-clause. Used by the P1 outline parse AND the
-//      P5 publisher (excerpt + meta_description share the value).
-// ─────────────────────────────────────────────────────────────────
+// PHASE 178 (current law): meta description clamp — word-boundary cut at
+// budget 158 EN / 160 AR, never a dangling connector, always a clean
+// sentence-final mark. Incident history: archive/PROMPT-LAW-HISTORY.md.
 
 const META_DESCRIPTION_MAX: Record<"en" | "ar", number> = { en: 158, ar: 160 };
 
@@ -668,17 +621,9 @@ function relevantResearchFaqsForTitle(
   });
 }
 
-/**
- * PHASE 176 — deterministic FAQ relevance filter for the P5 lift (and
- * the research0 fallback faq_json). Live evidence: the 09-11
- * protein-timing article lifted SIX questions of which creatine-forms,
- * intermittent-fasting, and basal-metabolism questions were off-topic
- * for a protein-TIMING article — P4's model-ignored instruction alone
- * could not stop them. A question survives only when it shares ≥2
- * meaningful (prefix-normalized) words with the article's title+focus
- * hint. Degradation: an unusable hint (<2 words) keeps everything
- * (never false-drop on a broken hint). This FILTERS; it never adds.
- */
+// PHASE 176 (current law): FAQ relevance filter — a question must share
+// ≥2 meaningful words with the article's title+focus to survive the P5
+// lift. Incident history: archive/PROMPT-LAW-HISTORY.md.
 export function filterFaqsByRelevance<T extends { question: string; answer: string }>(
   faqs: T[],
   hint: string,
@@ -778,15 +723,9 @@ export function splitFaqSection(
   const sectionEnd = nextH2 ? sectionStart + nextH2.index : md.length;
   const section = md.slice(sectionStart, sectionEnd).trim();
 
-  // PHASE 172.1 (live-run 34500011890 forensics — faqLifted:0 on a correctly
-  // formatted FAQ): the writing model (nemotron) separates "**question**"
-  // from its answer with a SINGLE newline, not the blank line the contract
-  // shows. Parsing is therefore LINE-based, not block-based: any bold-only
-  // line (or ### subheading) inside the section opens a question; any other
-  // non-empty line appends to the open answer. Tolerates blank-line AND
-  // single-newline formats, and multiple Q/A pairs inside one block.
-  // `**Label:**` bold lines (trailing colon) stay answer text — they are
-  // emphasis, not questions.
+// PHASE 172.1 (current law): the question-line parser tolerates the
+// model's separator quirks (bold markers, dashes) before lifting Q/A pairs.
+// Run forensics history: archive/PROMPT-LAW-HISTORY.md.
   const faqs: ParsedFaq[] = [];
   const BOLD_Q_LINE = /^\*\*(.+?)\*\*$/;
   const H3_LINE = /^###[ \t]+(.+)$/;
@@ -853,14 +792,9 @@ export async function reviewAndEnhance(
       ? internalCandidates.slice(0, 15).map((c) => `- ${blogPrefix}/${c.slug} → ${c.title}`).join("\n")
       : "(no previous posts yet)";
 
-  // PHASE 173 (owner directive — duplicate closing CTA removal): the
-  // review step used to instruct the model to append a closing CTA
-  // paragraph (the PHASE 62 CTA_VARIANTS rotation, five variants per
-  // language). The article page ALREADY renders the BlogMembershipCard
-  // after the article (coaching membership + plans + affiliate) — the
-  // in-text CTA was a duplicate CTA, so the instruction and its
-  // `ctaAdded` report field are REMOVED entirely. The editor article
-  // generator and every other CTA location are untouched.
+// PHASE 173 (current law): NO closing CTA in the article — the site
+// renders its membership card after the article; the article ends with
+// its content. History: archive/PROMPT-LAW-HISTORY.md.
   const prompt = `You are a senior editor doing FINAL QUALITY REVIEW of a fitness blog article.
 ${LANG_RULE[lang]}
 
@@ -879,7 +813,7 @@ DO ALL OF THE FOLLOWING:
 1. Proofread: fix grammar/spelling, improve flow, remove repetition (merge advice that appears in more than one section into its single best home; delete generic motivational filler; if a point is simple, keep it simple).
 2. ANSWER-FIRST CHECK (mandatory): if the opening 1-2 paragraphs do not DIRECTLY answer the title's core question, rewrite them so they do — specific, quotable, 2-4 sentences, no scene-setting warm-up, no restating the title.
 3. Keyword coverage: verify every main keyword & LSI term appears naturally at least once; add a sentence ONLY where missing, and never at the cost of natural language (fix any sentence that reads as keyword stuffing).
-4. FACT GUARD (health claims): remove or soften any specific statistic, study, paper, author, URL, or clinical claim that cannot be verified — keep generic phrasing like "research suggests". Timing, dosage, and outcome claims (supplements, nutrition, training, recovery, weight loss, muscle gain) must read as commonly recommended, context-dependent ranges — never absolute rules. NEVER add new citations.
+4. FACT GUARD (health claims): remove or soften any specific statistic, study, paper, author, or clinical claim that cannot be verified — unverifiable precise numbers attached to evidence claims go; keep generic phrasing like "research suggests" or a direct link to an authority domain from the list in instruction 9. Timing, dosage, and outcome claims (supplements, nutrition, training, recovery, weight loss, muscle gain) must read as commonly recommended, context-dependent ranges — never absolute rules. NEVER fabricate new citations; an authority link you ADD must be a page you are certain exists.
 5. E-E-A-T GUARD: delete any fabricated client story, testimonial, personal experience, coaching case, credential, or claimed experiment. Keep expert reasoning and the practical coaching perspective. Do not insert the coach's name into the body.
 6. FAQ SECTION: keep the "## " FAQ section — ${EDITORIAL_FAQ_COUNT_RANGE.min}-${EDITORIAL_FAQ_COUNT_RANGE.max} questions serving THIS article's search intent; DELETE any off-topic or generic question the article doesn't need; answers stay plain text (no links inside FAQ answers).
 7. Add EXACTLY 2-4 internal links using [anchor](${blogPrefix}/slug) format on fitting anchor text from the list above (only real slugs — copy the prefix exactly as shown). ${EDITORIAL_ANCHOR_GRAMMAR_LAW}
@@ -964,22 +898,10 @@ Return STRICT JSON only:
   };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PHASE 176 — Arabic Latin-contamination repair pass (P4 backstop).
-//
-// Owner report «التعديلات الجديدة اختفت مرة أخرى» — the 09-11 AR
-// article shipped bare English INSIDE Arabic sentences ("يُ marketed"،
-// "لا توجد evidences"، "shake مصل اللبن"، "الكرياتين alkalin").
-// Prompt laws steer models; the weak free chain still drifts. This is
-// the deterministic CODE side (the Phase-168 doctrine: facts belong to
-// code, language belongs to the model):
-//   1. scanLatinContamination (blog-msa.ts) detects the tokens
-//   2. ONE targeted AI repair call replaces ONLY those tokens
-//   3. validateMsaConversion re-gates the result deterministically
-//      (links/images/headings/length preserved + zero dialect + zero
-//      Latin) — a failing repair THROWS so the runner's ×3 retry
-//      re-runs P4 with a fresh model draw
-// ═══════════════════════════════════════════════════════════════
+// PHASE 176 (current law): the AR Latin-repair backstop —
+// scanLatinContamination detects, ONE targeted AI call repairs, then
+// validateMsaConversion re-gates deterministically. Incident history:
+// archive/PROMPT-LAW-HISTORY.md.
 
 const LATIN_REPAIR_MAIN = "===CORRECTED===";
 const LATIN_REPAIR_NOTES = "===NOTES===";

@@ -424,6 +424,20 @@ export function getHowToSchema(params: {
  * new Date().toISOString() at request time — otherwise Google sees every
  * article as "modified just now" on every crawl, which devalues the
  * freshness signal.
+ *
+ * AUDIT_REPORT §9-المرحلة 2, item 1 (2026-09-29) — HONEST REVIEW LAW:
+ * the blog article pages now pass the article's REAL review state
+ * (0097 review_status/last_reviewed_at). `lastReviewed` semantics:
+ *   - undefined  → caller did not opt in: LEGACY behavior (the static
+ *                 human-curated surfaces — compare pages — keep
+ *                 lastReviewed = dateModified + reviewedBy, the
+ *                 documented /about policy for owner-written content).
+ *   - null       → explicitly NOT reviewed (pipeline-published,
+ *                 review pending): the schema OMITS `lastReviewed` AND
+ *                 `reviewedBy` entirely — no fabricated E-E-A-T
+ *                 signals on YMYL health content (audit C2/F2).
+ *   - string     → a REAL human review timestamp (0097): emitted
+ *                 verbatim alongside reviewedBy.
  */
 export function getArticleSchema(params: {
   title: string;
@@ -434,11 +448,13 @@ export function getArticleSchema(params: {
   dateModified?: string;
   author?: string;
   authorProfile?: AuthorProfile;
+  lastReviewed?: string | null;
 }) {
   const profile = params.authorProfile ?? AHMED_ZAKE;
   const authorPerson = getPersonSchema(profile);
   const reviewerPerson = getPersonSchema(AHMED_ZAKE);
   const dateModified = params.dateModified || params.datePublished;
+  const realReview = params.lastReviewed === undefined ? dateModified : params.lastReviewed;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -447,12 +463,12 @@ export function getArticleSchema(params: {
     image: params.image || SITE_LOGO,
     datePublished: params.datePublished,
     dateModified: dateModified,
-    // lastReviewed = dateModified (every edit is reviewed by Ahmed Zake
-    // per platform policy on /about). Distinct from dateModified because
-    // it signals human review, not just a content change.
-    lastReviewed: dateModified,
+    // AUDIT §9-2.1: emitted ONLY when a real human review exists (or the
+    // legacy owner-curated surfaces that did not opt into the honest
+    // state). null review → both fields omitted (honest, never fabricated).
+    ...(realReview ? { lastReviewed: realReview } : {}),
+    ...(realReview ? { reviewedBy: reviewerPerson } : {}),
     author: authorPerson,
-    reviewedBy: reviewerPerson,
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,

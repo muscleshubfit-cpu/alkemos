@@ -66,15 +66,15 @@ describe("extractSharedBrief", () => {
     ).toBeNull();
   });
 
-  it("enforces the freshness window with injected time (adopt ≤48h)", () => {
-    const stale = { ...VALID_BRIEF, sealedAt: "2026-09-07T11:00:00.000Z" }; // 49h old
+  it("enforces the freshness window with injected time (adopt ≤72h — AUDIT §9-2.5 widened)", () => {
+    const stale = { ...VALID_BRIEF, sealedAt: "2026-09-06T08:00:00.000Z" }; // 73h old
     expect(extractSharedBrief({ sharedBrief: stale }, { now: NOW })).toBeNull();
-    const fresh = { ...VALID_BRIEF, sealedAt: "2026-09-07T13:00:00.000Z" }; // 47h old
+    const fresh = { ...VALID_BRIEF, sealedAt: "2026-09-06T14:00:00.000Z" }; // 71h old (2nd-day rescue)
     expect(extractSharedBrief({ sharedBrief: fresh }, { now: NOW })).not.toBeNull();
     const future = { ...VALID_BRIEF, sealedAt: "2026-09-09T13:00:00.000Z" }; // negative age
     expect(extractSharedBrief({ sharedBrief: future }, { now: NOW })).toBeNull();
-    expect(ADOPT_MAX_AGE_HOURS).toBe(48);
-    expect(JOIN_MAX_AGE_HOURS).toBe(30);
+    expect(ADOPT_MAX_AGE_HOURS).toBe(72);
+    expect(JOIN_MAX_AGE_HOURS).toBe(48);
   });
 
   it("drops unknown angle ids (typo or retired angle)", () => {
@@ -119,14 +119,23 @@ describe("isAdoptablePairRow", () => {
     ).toBe(false);
   });
 
-  it("rejects rows older than the freshness upper bound (≤48h)", () => {
+  it("rejects rows older than the freshness upper bound (≤72h)", () => {
+    expect(
+      isAdoptablePairRow(
+        { ...ROW, created_at: "2026-09-06T08:00:00.000Z" }, // 73h
+        "en",
+        { now: NOW },
+      ),
+    ).toBe(false);
+    // AUDIT §9-2.5: a 49h row (expired under the old 48h law) is now
+    // adoptable — the second-day rescue window for failed language days.
     expect(
       isAdoptablePairRow(
         { ...ROW, created_at: "2026-09-07T11:00:00.000Z" }, // 49h
         "en",
         { now: NOW },
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("rejects malformed rows (null/garbage/array/missing id)", () => {

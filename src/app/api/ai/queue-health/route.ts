@@ -133,11 +133,50 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // ── AUDIT_REPORT §9-المرحلة 2, item 5 (2026-09-29): bilingual
+  // pairing ADOPTION visibility — «تفعيل الإقران الثنائي أو إيقاف
+  // وعوده». The live diagnosis measured only 4/53 pair-era rows
+  // carrying a pair_id (7.5%): the promise was effectively dead while
+  // AGENTS.md still called pairing a foundational law. This 7-day window
+  // scan surfaces the REAL adoption rate next to the fallback rate, so
+  // the fix (retry + widened windows, same frame) can be measured and
+  // the promise either keeps delivering or gets an honest owner
+  // decision (retro-pair as primary). Degrades open — a scan failure
+  // never breaks the panel.
+  let pairing: { rows: number; paired: number; pct: number } | null = null;
+  try {
+    const sincePair = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: pairRows, error: pairErr } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("language, pair_id")
+      .gte("created_at", sincePair)
+      .limit(100);
+    if (!pairErr && pairRows) {
+      const rows = pairRows.length;
+      const paired = pairRows.filter(
+        (r: { pair_id?: string | null }) => typeof r.pair_id === "string" && r.pair_id.length > 0,
+      ).length;
+      const pct = rows > 0 ? Math.round((paired / rows) * 100) : 100;
+      pairing = { rows, paired, pct };
+      // Only flag when there is enough signal AND adoption is critically
+      // low — the threshold matches the measured broken state (7.5%);
+      // a young day with 1-2 rows should not cry wolf.
+      if (rows >= 4 && pct < 25) {
+        issues.push(
+          `⚠ الإقران الثنائي شبه معطل: ${paired}/${rows} صف توليد فقط في آخر 7 أيام يحمل pair_id (${pct}%) — مراجعة أغلب أزواج اللغة لا تكتمل (انظر مدخل المرحلة 2 بتقرير التدقيق)`,
+        );
+      }
+    }
+  } catch {
+    /* pairing scan is best-effort — panel stays honest without it */
+  }
+
   return NextResponse.json({
     counts,
     oldestQueuedMinutes: oldestQueuedMinutes === null ? null : Math.round(oldestQueuedMinutes),
     lastDone,
     lastRunnerRunAt,
+    pairing,
     ok: issues.length === 0,
     issues,
   });

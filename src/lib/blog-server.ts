@@ -77,6 +77,20 @@ export type BlogOGData = {
    */
   updatedAt?: string | null;
   author?: string | null;
+  /**
+   * 0097 (AUDIT_REPORT §9-المرحلة 2, item 1 — 2026-09-29): the REAL
+   * review state of this article. review_status='reviewed' +
+   * lastReviewedAt = the owner actually read/approved it (admin-gated
+   * review action or the owner's own editor publish) — the Article
+   * schema then legitimately carries reviewedBy + lastReviewed.
+   * review_status='pending' + lastReviewedAt=null (the honest state of
+   * every pipeline-published article until reviewed): the schema OMITS
+   * the review claims entirely and the byline says "AI-generated ·
+   * medical review pending" (the audit C2/F2 fix — no fabricated
+   * E-E-A-T signals on YMYL health content).
+   */
+  reviewStatus?: string | null;
+  lastReviewedAt?: string | null;
 };
 
 /**
@@ -105,16 +119,38 @@ const fetchBlogForOGUncached = async (
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { data } = await supabase
+    // 0097 TRANSITION-WINDOW LAW: the Vercel deploy and the Supabase
+    // migration land on the same push but not the same instant — a query
+    // naming review_status/last_reviewed_at 400s (PGRST204) until the
+    // column exists. Degrade ONCE to the pre-0097 column list (review
+    // fields null = the honest pending default) instead of failing the
+    // whole page to 404. Self-heals when the migration lands.
+    const REVIEW_COLS = "review_status, last_reviewed_at";
+    let { data, error } = await supabase
       .from("blog_posts")
       .select(
-        "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author, linked_post_id",
+        `title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author, linked_post_id, ${REVIEW_COLS}`,
       )
       .eq("slug", slug)
       .eq("language", lang)
       .eq("is_published", true)
       .maybeSingle();
-    if (!data) return null;
+    if (error && /review_status|last_reviewed_at|PGRST204|Could not find the .* column/i.test(error.message)) {
+      // type-compatible retry (the review fields are absent → mapped null
+      // below via the defensive casts — the honest pending default).
+      const retry = await supabase
+        .from("blog_posts")
+        .select(
+          "title, meta_title, meta_description, excerpt, featured_image, cover_alt, slug, published_at, updated_at, author, linked_post_id",
+        )
+        .eq("slug", slug)
+        .eq("language", lang)
+        .eq("is_published", true)
+        .maybeSingle();
+      data = retry.data as typeof data;
+      error = retry.error;
+    }
+    if (error || !data) return null;
 
     // Phase SEO-GEO-6.5 (§12.19 P0-4): resolve the language twin ONLY when
     // the twin is itself published (sitemap C1 law — a draft/deleted twin
@@ -169,6 +205,9 @@ const fetchBlogForOGUncached = async (
       publishedAt: data.published_at,
       updatedAt: data.updated_at,
       author: data.author,
+      reviewStatus: (data as { review_status?: string | null }).review_status ?? null,
+      lastReviewedAt:
+        (data as { last_reviewed_at?: string | null }).last_reviewed_at ?? null,
     };
   } catch {
     return null;

@@ -315,7 +315,22 @@ export function BlogEditorView({ mode, postId }: { mode: "new" | "edit"; postId?
  }
  setSaving(true);
  try {
- const updates = { ...post, is_published: publish ?? post.is_published, published_at: publish && !post.published_at ? new Date().toISOString() : post.published_at };
+ // AUDIT_REPORT §9-المرحلة 2, item 1 (0097): the owner pressing
+ // Publish — or saving an already-published article in this editor —
+ // IS a real human review of the content on screen. The row flips to
+ // the honest 'reviewed' state with the real timestamp (same stamp
+ // POST /api/admin/blog/review writes); a pipeline-published draft the
+ // owner merely re-saves unpublished keeps its pending state.
+ const nowIso = new Date().toISOString();
+ const goingPublished = !!(publish ?? post.is_published);
+ const updates = {
+   ...post,
+   is_published: publish ?? post.is_published,
+   published_at: publish && !post.published_at ? nowIso : post.published_at,
+   ...(goingPublished
+     ? { review_status: "reviewed", last_reviewed_at: nowIso }
+     : {}),
+ };
  if (mode === "edit" && postId) {
  await adminUpdatePost(postId, updates);
  toast.success(isAr ? "تم الحفظ!" : "Saved!");

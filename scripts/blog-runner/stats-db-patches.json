@@ -1,0 +1,149 @@
+{
+  "patches": [
+    {
+      "slug": "magnesium-forms-sleep-recovery",
+      "lang": "en",
+      "find": "Studies show that supplementing with 200‑400 mg elemental magnesium can improve sleep latency by 10‑20 minutes and reduce perceived soreness by roughly 15 % in trained athletes.",
+      "replace": "Evidence suggests that supplementing with 200–400 mg elemental magnesium may improve sleep latency and reduce perceived soreness in trained athletes, though individual responses vary.",
+      "note": "remove fabricated 10-20 min / 15% precision (audit F9 example)"
+    },
+    {
+      "slug": "progressive-overload-no-weight",
+      "lang": "en",
+      "find": "Studies indicate that volume increments of 10–20 % per week sustain progressive overload while allowing recovery.",
+      "replace": "Gradual, sustainable weekly volume increments support progressive overload while allowing recovery.",
+      "note": "remove fabricated 10-20%/week claim"
+    },
+    {
+      "slug": "4-day-split-hypertrophy-fat-loss",
+      "lang": "en",
+      "find": "With a 4‑day upper/lower or push/pull/legs split, each group receives two direct sessions weekly, which research indicates maximizes growth while allowing 48–72 hours of recovery.",
+      "replace": "With a 4‑day upper/lower or push/pull/legs split, each group receives two direct sessions weekly — a widely used frequency for maximizing growth while allowing 48–72 hours of recovery.",
+      "note": "drop unlinked research-attribution; keep the common 48-72h range"
+    },
+    {
+      "slug": "4-day-split-hypertrophy-fat-loss",
+      "lang": "en",
+      "find": "Aim for 7–9 hours of uninterrupted sleep; studies show each hour lost reduces protein synthesis by ~10 %.",
+      "replace": "Aim for 7–9 hours of uninterrupted sleep; consistently short sleep is associated with reduced muscle protein synthesis and slower recovery.",
+      "note": "remove fabricated ~10% per hour claim"
+    },
+    {
+      "slug": "chest-muscle-home-workout-guide",
+      "lang": "ar",
+      "find": "تشير الأدلة إلى أن تناول بروتين وكربوهيدرات خلال 30-60 دقيقة بعد التدريب يعزز تخليق البروتين العضلي.",
+      "replace": "قد يساعد تناول بروتين وكربوهيدرات بعد التدريب على تخليق البروتين العضلي، لكن الأهم من التوقيت الدقيق هو إجمالي ما تستهلكه من بروتين خلال اليوم.",
+      "note": "soften the optimal-window claim to common guidance"
+    },
+    {
+      "slug": "home-muscle-gain-8-weeks",
+      "lang": "ar",
+      "find": "الدراسات تظهر أن تناول 3-5 جرام يومياً في أي وقت يعطي نفس الفائدة، لكن تناوله مع الكربوهيدرات بعد التمرين قد يحسن الامتصاص.",
+      "replace": "الجرعة الشائعة الموصى بها هي 3-5 جرام يوميًا في أي وقت وتعطي نفس الفائدة، وقد يحسّن تناوله مع الكربوهيدرات بعد التمرين من الامتصاص.",
+      "note": "replace study-attribution with the common-dosage framing"
+    },
+    {
+      "slug": "sleep-muscle-growth-science",
+      "lang": "ar",
+      "find": "توضح الدراسات أن تناول 2-3 جرام أوميغا-3 يوميًا يسرع استشفاء العضلات أثناء النوم ويحسن جودة النوم.",
+      "replace": "قد يساعد تناول أوميغا-3 (ضمن جرعة معتادة مثل 1-3 جرام يوميًا ضمن نظام غذائي متوازن) على دعم الاستشفاء العام وجودة النوم، مع اختلاف الاستجابة بين الأشخاص.",
+      "note": "remove fabricated 2-3g recovery-speed claim (the article's real Mayo Clinic link stays)"
+    },
+    {
+      "slug": "hiit-home-workout-guide",
+      "lang": "ar",
+      "find": "الأبحاث تشير إلى أن الحركات المركبة مثل البيربيز، القفز بالحبل، والسكوات القفزية ترفع معدل ضربات القلب إلى 85‑95% من الحد الأقصى خلال ثوانٍ.",
+      "replace": "الحركات المركبة مثل البيربيز، القفز بالحبل، والسكوات القفزية ترفع معدل ضربات القلب سريعًا إلى النطاق المرتفع (نحو 85-95% من الحد الأقصى) — وهو النطاق المعتاد لجلسات الهيت.",
+      "note": "drop study-attribution; keep the standard HIIT zone range"
+    },
+    {
+      "slug": "protein-per-day-muscle-build-plan",
+      "lang": "en",
+      "find": "Research shows that ingesting a caffeine‑based pre‑workout 30–45 minutes before the session peaks blood levels when the first interval starts.",
+      "replace": "A common practice is ingesting a caffeine‑based pre‑workout 30–45 minutes before the session so blood levels peak when the first interval starts.",
+      "note": "drop research-attribution; keep the common 30-45min timing"
+    },
+    {
+      "slug": "protein-per-day-muscle-build-plan",
+      "lang": "en",
+      "find": "Sleep drives growth hormone release and muscle protein synthesis; studies show <7 h reduces recovery markers by up to 30 %.",
+      "replace": "Sleep drives growth hormone release and muscle protein synthesis; consistently short sleep (under 7 hours) is associated with impaired recovery markers.",
+      "note": "remove fabricated up-to-30% claim"
+    },
+    {
+      "slug": "sleep-recovery-gym-results",
+      "lang": "ar",
+      "find": "توضح الأبحاث أن قلة النوم تقلل من تخليق البروتين العضلي بنسبة تصل إلى 30٪، وهذا يؤثر مباشرة على حجم القوة والأداء.",
+      "replace": "توضح الأبحاث أن قلة النوم تقلل من تخليق البروتين العضلي، وهذا يؤثر مباشرة على حجم القوة والأداء.",
+      "note": "remove fabricated up-to-30% claim"
+    },
+    {
+      "slug": "sleep-recovery-gym-results",
+      "lang": "ar",
+      "find": "تشير الدراسات إلى أن الاسترخاء العميق يزيد جودة النوم العميق بنسبة 15٪.",
+      "replace": "قد يساهم الاسترخاء العميق في تحسين جودة النوم العميق.",
+      "note": "remove fabricated 15% claim"
+    },
+    {
+      "slug": "best-protein-supplement-ramadan",
+      "lang": "ar",
+      "find": "تُظهر الدراسات أن **أفضل وقت لتناول البروتين بعد التمرين** هو خلال 30-60 دقيقة من انتهاء الحصة، لأن العضلات تكون في حالة امتصاص عالية.",
+      "replace": "يُعد **أفضل وقت لتناول البروتين بعد التمرين** خلال 30-60 دقيقة تقريبًا من انتهاء الحصة وقتًا مناسبًا لأن العضلات تكون في حالة امتصاص عالية، لكن الأهم هو إجمالي بروتينك اليومي.",
+      "note": "drop study-attribution; add the total-daily framing"
+    },
+    {
+      "slug": "bfr-training-checklist",
+      "lang": "en",
+      "find": "- Set pressure to 40‑80 % of arterial occlusion pressure (AOP) for the limb; most research shows 50‑60 % AOP maximizes hypertrophy while keeping discomfort low.",
+      "replace": "- Set pressure to 40‑80 % of arterial occlusion pressure (AOP) for the limb; common BFR guidance is 50‑60 % AOP for hypertrophy while keeping discomfort low.",
+      "note": "research-attribution → common-guidance framing (range kept)"
+    },
+    {
+      "slug": "best-dynamic-stretching-before-gym",
+      "lang": "ar",
+      "find": "تُظهر الدراسات أن الإطالة الديناميكية ترفع درجة حرارة العضلات وتحسّن نطاق الحركة بنسبة تصل إلى 15% مقارنة بالإطالة الثابتة.",
+      "replace": "تُظهر الدراسات أن الإطالة الديناميكية ترفع درجة حرارة العضلات وتحسّن نطاق الحركة أكثر من الإطالة الثابتة.",
+      "note": "remove fabricated up-to-15% claim"
+    },
+    {
+      "slug": "best-dynamic-stretching-before-gym",
+      "lang": "ar",
+      "find": "- **هل تمارين الإطالة الديناميكية تقلل من خطر الإصابات؟** نعم، الأبحاث تشير لتقليل إصابات العضلات والأوتار بنسبة 30% عند الالتزام بها.",
+      "replace": "- **هل تمارين الإطالة الديناميكية تقلل من خطر الإصابات؟** نعم، يُشار إلى أن الالتزام بها يقلل من إصابات العضلات والأوتار.",
+      "note": "remove fabricated 30% claim (body FAQ copy; faq_json card already clean)"
+    },
+    {
+      "slug": "how-many-hours-sleep-for-muscle-growth",
+      "lang": "ar",
+      "find": "الأبحاث تشير إلى أن الأشخاص الذين ينامون 5 ساعات أو أقل يزيدون وزنهم بنسبة تقارب 15% خلال عام مقارنة بمن ينامون 8 ساعات.",
+      "replace": "تشير بعض الأبحاث إلى أن الأشخاص الذين ينامون 5 ساعات أو أقل يميلون إلى زيادة الوزن خلال عام مقارنة بمن ينامون 8 ساعات.",
+      "note": "remove fabricated ~15% weight-gain claim"
+    },
+    {
+      "slug": "combine-hiit-strength-fat-loss-guide",
+      "lang": "en",
+      "find": "Use these numbers to set a weekly fat‑loss target of roughly 0.",
+      "replace": "Use these numbers to set a weekly fat‑loss target of roughly 0.5–1 % of body weight — a commonly recommended rate that is sustainable while preserving muscle.",
+      "note": "research-attribution → commonly-recommended framing (rate kept)"
+    },
+    {
+      "slug": "calorie-macro-guide-muscle-fat",
+      "lang": "ar",
+      "find": "**ما هو أفضل وقت لتناول البروتين بعد التمرين؟** الدراسات تشير إلى أن نافذة 30-60 دقيقة بعد التمرين مثالية، لكن الأهم هو إجمالي البروتين اليومي.",
+      "replace": "**ما هو أفضل وقت لتناول البروتين بعد التمرين؟** الأهم هو إجمالي البروتين اليومي؛ تناول البروتين خلال الساعتين التاليتين للتمرين عادةً كافٍ دون الحاجة لنافذة دقيقة.",
+      "note": "soften the optimal-window claim (body FAQ copy)"
+    }
+  ],
+  "kept": [
+    {
+      "slug": "12-week-progressive-overload-intermediate",
+      "lang": "en",
+      "reason": "creatine 3-5 g/day + long-term safety for healthy adults = the commonly recommended range (FACT GUARD-compliant); no fabricated precision"
+    },
+    {
+      "slug": "sleep-muscle-growth-science",
+      "lang": "ar",
+      "reason": "Mayo Clinic omega-3 sentence carries a REAL whitelisted authority link (mayoclinic.org) — exactly the Phase-2 honest-citation policy"
+    }
+  ]
+}

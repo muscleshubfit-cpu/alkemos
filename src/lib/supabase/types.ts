@@ -375,6 +375,12 @@ export type Database = {
           schema_json: Json | null;
           linked_post_id: string | null;
           created_at: string;
+          /** 0097 (audit Phase 2 · item 1): 'pending' until the owner
+           *  actually reviews; 'reviewed' only via the admin-gated review
+           *  action / the owner's own editor publish. Never automatic. */
+          review_status: string;
+          /** 0097: the REAL review timestamp — null = never reviewed. */
+          last_reviewed_at: string | null;
         };
         Insert: {
           id?: string;
@@ -400,6 +406,8 @@ export type Database = {
           schema_json?: Json | null;
           linked_post_id?: string | null;
           created_at?: string;
+          review_status?: string;
+          last_reviewed_at?: string | null;
         };
         Update: {
           language?: "en" | "ar";
@@ -423,6 +431,8 @@ export type Database = {
           faq_json?: Json | null;
           schema_json?: Json | null;
           linked_post_id?: string | null;
+          review_status?: string;
+          last_reviewed_at?: string | null;
         };
         Relationships: [
           { foreignKeyName: "blog_posts_linked_post_id_fkey"; columns: ["linked_post_id"]; isOneToOne: false; referencedRelation: "blog_posts"; referencedColumns: ["id"] },
