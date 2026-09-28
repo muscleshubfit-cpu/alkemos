@@ -5,9 +5,11 @@ import { Resources } from "@/components/hub-head-resources";
  * M30 fix: English-first metadata for /tools.
  */
 export const metadata: Metadata = {
-  title: "Free Fitness Tools | Alkemos — Calculators, Planner & AI",
+  title: "Free Fitness Tools — Calculators, Planner & AI | Alkemos",
   description:
-    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators — free to try, no credit card required.",
+    // CONTENT-AUDIT P1-7 (audit §2.1): 182 chars — the tool list survives
+    // intact inside the ~160 budget.
+    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators. No credit card required.",
   keywords: [
     "free fitness tools",
     "fitness calculators",

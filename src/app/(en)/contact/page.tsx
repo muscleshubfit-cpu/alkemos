@@ -9,7 +9,7 @@ import { ContactView } from "@/components/views/ContactView";
  * hreflang pair added.
  */
 export const metadata: Metadata = {
-  title: "Contact Us | Alkemos — Support, Feedback & Partnerships",
+  title: "Contact Us — Support, Feedback & Partnerships | Alkemos",
   description:
     "Reach the Alkemos team: technical support, account and payment questions, feedback, or partnership requests. Send us a message and we usually reply within 24 hours.",
   alternates: {
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   // homepage card text with og:url = "/". Mirrors the AR twin's explicit
   // block (src/app/(ar)/ar/contact/page.tsx).
   openGraph: {
-    title: "Contact Us | Alkemos — Support, Feedback & Partnerships",
+    title: "Contact Us — Support, Feedback & Partnerships | Alkemos",
     description:
       "Reach the Alkemos team: technical support, account and payment questions, feedback, or partnership requests. We usually reply within 24 hours.",
     url: "https://alkemos.com/contact",

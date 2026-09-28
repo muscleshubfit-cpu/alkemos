@@ -19,7 +19,7 @@ import { SiteHeader } from "@/components/SiteHeader";
  * hreflang pair added.
  */
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Alkemos — Rules of Using the Platform",
+  title: "Terms & Conditions — Rules of Using the Platform | Alkemos",
   description:
     "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
   alternates: {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   // and og:url = "/" on /terms. Mirrors the AR twin's explicit block
   // (src/app/(ar)/ar/terms/page.tsx).
   openGraph: {
-    title: "Terms & Conditions | Alkemos — Rules of Using the Platform",
+    title: "Terms & Conditions — Rules of Using the Platform | Alkemos",
     description:
       "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
     url: "https://alkemos.com/terms",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getCoachingServiceSchema, jsonLd } from "@/lib/seo";
+import { getCoachingServiceSchema, getFAQSchema, jsonLd } from "@/lib/seo";
+import { COACHING_FAQ } from "@/lib/coaching-faq";
 
 /**
  * SEO-GEO-6.4 (2026-09-12): AR metadata for /ar/coaching — P1-9, the
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   // a double-brand title (the same class of bug P0-3 fixed on blog).
   title: "التدريب الأونلاين — مدرب بشري يبني خططك ويتابعك أسبوعيًا",
   description:
-    "تدريب أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط تغذية مخصصة، برامج تمارين متكيفة مع مستواك، متابعة شخصية أسبوعية، ومساعد ذكاء اصطناعي (EVO) متاح على مدار الساعة.",
+    "تدريب أونلاين مع مدربين وأخصائيي تغذية محترفين: خطط مخصصة، برامج متكيفة، متابعة أسبوعية، ومدربك الذكي EVO على مدار الساعة.",
   keywords: [
     "التدريب الأونلاين",
     "مدرب شخصي أونلاين",
@@ -69,6 +70,11 @@ export const metadata: Metadata = {
 // EN serves English; aggregateRating stays removed (P0-5 law).
 const coachingSchema = getCoachingServiceSchema("ar");
 
+// CONTENT-AUDIT P1-2 (2026-09-28, audit §1.4): see the EN layout — the AR
+// FAQ answers are emitted as FAQPage JSON-LD from the same single-source
+// array so non-JS crawlers read them in the served HTML.
+const coachingFaqSchema = getFAQSchema(COACHING_FAQ.ar);
+
 export default function ArCoachingLayout({
   children,
 }: {
@@ -79,6 +85,10 @@ export default function ArCoachingLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(coachingSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(coachingFaqSchema) }}
       />
       {children}
     </>

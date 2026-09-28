@@ -21,7 +21,9 @@ const PAGE_URL = `${SITE}/for-coaches`;
 export const metadata: Metadata = {
   title: "Coach on Alkemos — your clients, your prices, your money",
   description:
-    "Register as a coach or nutrition specialist on Alkemos for free: a complete platform to run your own clients, AI-generated nutrition & workout plans, your pricing and direct collection — zero commission, a fixed monthly activation fee only. Instant activation.",
+    // CONTENT-AUDIT P1-7 (audit §2.1): 260 chars — trimmed to the ~160
+    // budget; commission model + free registration kept up front.
+    "Register as a coach or nutrition specialist on Alkemos free: run your own clients, AI-generated plans, your pricing, direct collection — zero commission, a fixed monthly fee. Instant activation.",
   keywords: [
     "join as a coach",
     "coach registration",

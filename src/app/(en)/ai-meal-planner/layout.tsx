@@ -8,7 +8,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * /ar/ai-meal-planner.
  */
 export const metadata: Metadata = {
-  title: "AI Meal Planner | Alkemos — Free Day Plan Generator",
+  title: "AI Meal Planner — Free Day Plan Generator | Alkemos",
   // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 189 chars — trimmed to
   // the 158 EN budget, same funnel message, sentence ends cleanly.
   description:

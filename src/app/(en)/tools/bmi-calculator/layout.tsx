@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
-  title: "BMI Calculator | Alkemos — Calculate Your Ideal Weight",
+  title: "BMI Calculator — Calculate Your Ideal Weight | Alkemos",
   description:
     "Calculate your Body Mass Index (BMI) for free. Find out if your weight is ideal, overweight, or underweight. Accurate and easy-to-use BMI calculator with result interpretation.",
   keywords: [

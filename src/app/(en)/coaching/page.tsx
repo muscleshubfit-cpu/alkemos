@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { COACHING_FAQ } from "@/lib/coaching-faq";
 import { useNav } from "@/hooks/use-nav";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -475,14 +476,13 @@ export default function CoachingPage() {
             </Reveal>
             <Reveal delay={150}>
               <Accordion type="single" collapsible className="mt-12">
-                {[
-                  { q: isAr ? "ما هو التدريب الأونلاين في Alkemos؟" : "What is Alkemos coaching?", a: isAr ? "تدريب أونلاين مع مدربين وأخصائيي تغذية محترفين. خطط مخصصة + EVO AI + متابعة شخصية." : "Online coaching with professional coaches and nutrition specialists. Personalized plans + EVO AI + personal follow-up." },
-                  { q: isAr ? "ما هو EVO؟" : "What is EVO?", a: isAr ? "مدرّب الذكاء الاصطناعي في المنصة: يجيب عن أسئلتك، ويبني لك خططًا، ويستطيع حفظها في لوحة خططك مع إمكانية استبدال الوجبات والتمارين." : "The platform's AI coach: it answers your questions, builds plans, and can save them to your plans dashboard with meal/exercise swaps." },
-                  { q: isAr ? "هل الخطط مخصصة؟" : "Are plans personalized?", a: isAr ? "نعم، تُبنى كل خطة من استبياناتك على يد مدرب بشري، ويمكنك طلب استبدالات من خطتك في أي وقت." : "Yes, every plan is built from your questionnaires by a human coach, and you can request swaps anytime." },
-                  { q: isAr ? "هل المدرب بشري فعلًا؟" : "Is the coach a real human?", a: isAr ? "نعم — باقة التدريب الأونلاين تشمل مدربًا بشريًا يبني خططك ويتابع تقدمك أسبوعيًا ويقترح التعديلات بنفسه، وتتواصل معه مباشرة عبر المنصة." : "Yes — the Coaching plan includes a human coach who builds your plans, follows your progress weekly, makes the swaps personally, and is reachable directly through the platform." },
-                  { q: isAr ? "ما هي طرق الدفع؟" : "Payment methods?", a: isAr ? "PayPal (الطريقة الرئيسية)، InstaPay، و Vodafone Cash." : "PayPal (primary), InstaPay, and Vodafone Cash." },
-                  { q: isAr ? "هل بياناتي آمنة؟" : "Is my data secure?", a: isAr ? "نعم — الوصول إلى بياناتك محكوم على مستوى قاعدة البيانات نفسها: لا يطّلع عليها إلا أنت، والمدرب المعيّن لك إن وُجد، وفريق المنصة المصرّح له عند الحاجة للدعم والتشغيل." : "Yes — access to your data is controlled at the database level itself: only you can view your records, along with the coach assigned to you (if any) and the authorized platform team when needed for support and operations." },
-                ].map((faq, i) => (
+                {/* CONTENT-AUDIT P1-2 (2026-09-28): the FAQ array moved to
+                    src/lib/coaching-faq.ts (single source) so the language
+                    layouts can emit the same Q&A as FAQPage JSON-LD — the
+                    closed Accordion panels are not in the served DOM, and
+                    non-JS crawlers (AI answer engines) need the answers in
+                    the server HTML. */}
+                {COACHING_FAQ[isAr ? "ar" : "en"].map((faq, i) => (
                   <AccordionItem key={i} value={`item-${i}`} className="border-b border-[var(--edge)]">
                     <AccordionTrigger className="py-5 text-start text-lg font-normal hover:no-underline">
                       {faq.q}

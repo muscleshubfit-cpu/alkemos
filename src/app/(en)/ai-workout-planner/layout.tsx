@@ -7,7 +7,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * with /ar/ai-workout-planner.
  */
 export const metadata: Metadata = {
-  title: "AI Workout Planner | Alkemos — Free Weekly Split Generator",
+  title: "AI Workout Planner — Free Weekly Split Generator | Alkemos",
   description:
     "Generate a balanced weekly workout split with AI: pick your goal, level, training days, and equipment, add constraints, and get a validated split in seconds. Free trial.",
   keywords: [

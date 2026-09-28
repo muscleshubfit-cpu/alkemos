@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 
 export const metadata: Metadata = {
-  title: "Body Fat Calculator | Alkemos — Calculate Your Body Fat %",
+  title: "Body Fat Calculator — Calculate Your Body Fat % | Alkemos",
   description:
     "Calculate your body fat percentage using the U.S. Navy Method. Free calculator based on waist, neck, and hip circumference measurements.",
   keywords: [

@@ -10,7 +10,7 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
  * tool pages). No hreflang: no /ar mirror exists for this page.
  */
 export const metadata: Metadata = {
-  title: "Meal Planner | Alkemos — Build Custom Meal Plans Free",
+  title: "Meal Planner — Build Custom Meal Plans Free | Alkemos",
   description:
     "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free to try. Export unlocks on paid tiers.",
   keywords: [

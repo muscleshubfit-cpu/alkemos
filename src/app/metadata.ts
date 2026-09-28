@@ -26,8 +26,10 @@ export const metadata: Metadata = {
   // Phase 194 (owner directive — Copy Refinement Pass): the description
   // now LEADS with the one-platform positioning and keeps the library
   // numbers as proof points instead of a bare feature list.
+  // CONTENT-AUDIT P1-7 (2026-09-28, audit §2.1): 191 chars — trimmed to
+  // the ~160 budget; the three-line brand rhythm and proof numbers stay.
   description:
-    "Train smarter. Eat with precision. Progress with numbers on your side. Alkemos unifies training, nutrition, and AI planning — 868+ exercises, 8,830+ foods, 8 free tools, and the EVO AI coach.",
+    "Train smarter. Eat with precision. Alkemos unifies training, nutrition, and AI planning — 868+ exercises, 8,830+ foods, 8 free tools, and the EVO AI coach.",
   keywords: [
     // Platform-level keywords (primary, English) — focused set, one owner
     // per page; tool names belong to their own routes.

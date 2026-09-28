@@ -19,7 +19,7 @@ import { SiteHeader } from "@/components/SiteHeader";
  * hreflang pair added.
  */
 export const metadata: Metadata = {
-  title: "Privacy Policy | Alkemos — How We Protect Your Data",
+  title: "Privacy Policy — How We Protect Your Data | Alkemos",
   description:
     "How Alkemos collects, uses, and protects your personal data: account details, health metrics, cookies, third-party services, and your rights over your information.",
   alternates: {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   // and og:url = "/" on /privacy. Mirrors the AR twin's explicit block
   // (src/app/(ar)/ar/privacy/page.tsx).
   openGraph: {
-    title: "Privacy Policy | Alkemos — How We Protect Your Data",
+    title: "Privacy Policy — How We Protect Your Data | Alkemos",
     description:
       "How Alkemos collects, uses, and protects your personal data: account details, health metrics, cookies, third-party services, and your rights over your information.",
     url: "https://alkemos.com/privacy",

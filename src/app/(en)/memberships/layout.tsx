@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Resources } from "@/components/hub-head-resources";
 
 export const metadata: Metadata = {
-  title: "Memberships | Alkemos — Premium & Pro Plans",
+  title: "Memberships — Premium & Pro Plans | Alkemos",
   // PHASE 189 (SEO-GEO-10, deep-audit P1-3): was 183 chars — inside the
   // 158 EN budget. Prices match src/lib/memberships.ts exactly (the
   // single source of truth for pricing).

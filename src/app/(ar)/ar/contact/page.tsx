@@ -13,7 +13,7 @@ const SITE_URL = "https://alkemos.com";
  * shared footer's Contact link now resolve here instead of the EN URL.
  */
 export const metadata: Metadata = {
-  title: "تواصل معنا | الدعم والملاحظات والشراكات",
+  title: "تواصل معنا — الدعم والملاحظات والشراكات",
   description:
     "تواصل مع فريق Alkemos: الدعم الفني، أسئلة الحساب والدفع، الملاحظات، أو طلبات الشراكة. أرسل رسالتك وسنرد عليك عادة خلال 24 ساعة.",
   alternates: {

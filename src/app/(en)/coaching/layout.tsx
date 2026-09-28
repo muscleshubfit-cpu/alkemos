@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getCoachingServiceSchema, jsonLd } from "@/lib/seo";
+import { getCoachingServiceSchema, getFAQSchema, jsonLd } from "@/lib/seo";
+import { COACHING_FAQ } from "@/lib/coaching-faq";
 
 /**
  * M30 fix: English-first metadata for /coaching.
@@ -7,7 +8,9 @@ import { getCoachingServiceSchema, jsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Online Coaching with Real Coaches | Alkemos",
   description:
-    "Online coaching with professional coaches and nutrition specialists. Personalized meal plans, adaptive workout programs, personal follow-up, and EVO AI assistant available 24/7. Start your journey today.",
+    // CONTENT-AUDIT P1-7 (audit §2.1): 203 chars — trimmed to the ~160
+    // budget with the offer intact.
+    "Online coaching with professional coaches and nutrition specialists: personalized meal plans, adaptive workout programs, personal follow-up, and the EVO AI coach.",
   keywords: [
     "online coaching",
     "nutrition coaching",
@@ -56,6 +59,14 @@ export const metadata: Metadata = {
 // entity description (was Arabic-only before the audit fix).
 const coachingSchema = getCoachingServiceSchema("en");
 
+// CONTENT-AUDIT P1-2 (2026-09-28, audit §1.4): the FAQ answers live inside
+// a closed Radix Accordion, so they never reach the served DOM. The same
+// single-source array (src/lib/coaching-faq.ts) is emitted here as
+// FAQPage JSON-LD — Google retired FAQ rich results (May 2026) but AI
+// answer engines parse JSON-LD from the server HTML, closing the citation
+// gap for the six coaching questions.
+const coachingFaqSchema = getFAQSchema(COACHING_FAQ.en);
+
 export default function CoachingLayout({
   children,
 }: {
@@ -66,6 +77,10 @@ export default function CoachingLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(coachingSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(coachingFaqSchema) }}
       />
       {children}
     </>

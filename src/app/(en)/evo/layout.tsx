@@ -7,7 +7,9 @@ import { getEVOApplicationSchema, jsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "EVO — AI Fitness Coach | Alkemos",
   description:
-    "EVO is an intelligent performance engine — not just a chatbot. It reads your health data and goal, builds personalized nutrition and workout plans, suggests smart meal and exercise swaps, and provides 24/7 fitness and nutrition consulting via AI. Free for everyone.",
+    // CONTENT-AUDIT P1-7 (2026-09-28, audit §2.1): 265 chars — Google
+    // truncates at ~155-160. Front-loaded the definition + core actions.
+    "EVO is an intelligent performance engine: it reads your health data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Free for everyone.",
   keywords: [
     "EVO AI coach",
     "AI fitness coach",
