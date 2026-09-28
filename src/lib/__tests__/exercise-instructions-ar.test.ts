@@ -94,9 +94,17 @@ describe("exercise-instructions-ar (Phase 191)", () => {
     expect(offenders.length).toBe(0);
   });
 
-  it("the two uniform tips are the deterministic Phase-191 translations", () => {
+  it("the per-category tips are the deterministic content-audit cues (P2-6)", () => {
+    // CONTENT-AUDIT P2-6 (2026-09-28, audit §2.5): the uniform 2-line pair
+    // ("Keep your back straight. / Control the movement.") on ALL 868
+    // exercises was replaced by 3 category-aware cues — barbell-squat is a
+    // legs exercise, so the legs set is asserted verbatim here.
     const ex = getExerciseBySlug("barbell-squat");
-    expect(ex?.tipsAr).toEqual(["حافظ على استقامة ظهرك.", "تحكم في الحركة."]);
+    expect(ex?.tipsAr).toEqual([
+      "ادفع الأرض بقدمك كاملة لا بأطراف أصابعك فقط.",
+      "حافظ على اتساق مسار الركبة مع اتجاه القدم.",
+      "مدى الحركة الصادق أهم من الحمل الثقيل.",
+    ]);
   });
 
   it("incident canaries — the audited live examples now lead with Arabic", () => {
@@ -112,7 +120,12 @@ describe("exercise-instructions-ar (Phase 191)", () => {
     expect(ex?.instructionsEn[0]).toBe(
       "Lie down on the floor and secure your feet. Your legs should be bent at the knees.",
     );
-    expect(ex?.tipsEn).toEqual(["Keep your back straight.", "Control the movement."]);
+    // 34-sit-up is a CORE exercise — the core tips set applies (P2-6).
+    expect(ex?.tipsEn).toEqual([
+      "Exhale on the effort — brace your abs before every rep.",
+      "Slow reps make the difference — abs hate momentum.",
+      "Keep your lower back glued to the floor where applicable.",
+    ]);
   });
 
   it("library size unchanged by the batch (guard contract)", () => {
