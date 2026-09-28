@@ -50,10 +50,23 @@ export async function generateMetadata({
   // reliably. The branded family card is the FALLBACK only for an
   // exercise without photos (imageKey empty) — never the default.
   const primaryPhoto = getExerciseImages(exercise.imageKey)[0];
+  // SOCIAL-OG-2 (2026-09-28, «المربع الأزرق» follow-up): (a) `?v=2` cache-
+  // bust on the share image URL — platforms (Facebook/WhatsApp) that
+  // scraped the page during an earlier broken-OG era keep serving the
+  // remembered broken thumbnail for up to 30 days; a fresh image URL
+  // forces a fresh fetch at the next scrape. (b) width/height/type now
+  // declared (640×427 webp — measured, matches the served file) so
+  // crawlers accept the image without a second HEAD probe.
   const shareImage = primaryPhoto
-    ? { url: `https://alkemos.com${primaryPhoto}`, alt: title }
+    ? {
+        url: `https://alkemos.com${primaryPhoto}?v=2`,
+        width: 640,
+        height: 427,
+        type: "image/webp",
+        alt: title,
+      }
     : {
-        url: "https://alkemos.com/images/og/og-exercises-en.png",
+        url: "https://alkemos.com/images/og/og-exercises-en.png?v=2",
         width: 1200,
         height: 630,
         alt: "Alkemos Exercise Library",

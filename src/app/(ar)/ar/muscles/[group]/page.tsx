@@ -73,7 +73,7 @@ export async function generateMetadata({
       // /api/og-image).
       images: [
         {
-          url: "/images/og/og-hubs-ar.png",
+          url: "/images/og/og-hubs-ar.png?v=2",
           width: 1200,
           height: 630,
           alt: "أدلة مجموعات العضلات من Alkemos",
@@ -84,7 +84,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: hub.titleAr,
       description: hub.descriptionAr,
-      images: ["/images/og/og-hubs-ar.png"],
+      images: ["/images/og/og-hubs-ar.png?v=2"],
     },
   };
 }

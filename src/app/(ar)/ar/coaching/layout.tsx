@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     // inherited. Pinned explicitly — same pattern as the EN mirror.
     images: [
       {
-        url: "/images/og/og-home-ar.png",
+        url: "/images/og/og-home-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "منصة Alkemos الرياضية الشاملة",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "التدريب الأونلاين | Alkemos",
     description:
       "خطط مخصصة من مدربين معتمدين + متابعة شخصية + مساعد ذكي على مدار الساعة.",
-    images: ["/images/og/og-home-ar.png"],
+    images: ["/images/og/og-home-ar.png?v=2"],
   },
   alternates: {
     canonical: "https://alkemos.com/ar/coaching",

@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     // (batch 1-b pattern, §12.55).
     images: [
       {
-        url: "/images/og/og-home-ar.png",
+        url: "/images/og/og-home-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "برنامج الأفلييت (الشركاء) من Alkemos",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: "برنامج الأفلييت (الشركاء) — حوّل تأثيرك إلى دخل | Alkemos",
     description:
       "شارك Alkemos مع من يثقون بتوصياتك واكسب عمولة من عمليات الشراء المؤهلة عبر رابطك الخاص.",
-    images: ["/images/og/og-home-ar.png"],
+    images: ["/images/og/og-home-ar.png?v=2"],
   },
   alternates: {
     canonical: "https://alkemos.com/ar/affiliate",

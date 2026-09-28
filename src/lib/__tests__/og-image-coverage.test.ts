@@ -47,9 +47,24 @@ import { resolve } from "node:path";
  *      ignores images — pointless with a 1200×630 asset).
  *   3. All 14 assets exist on disk.
  *   4. No wired surface regresses to /logo.png.
+ *   5. SOCIAL-OG-2 (2026-09-28, «المربع الأزرق» follow-up): every family-
+ *      card reference carries the `?v=2` share-cache-bust suffix — pages
+ *      scraped by Facebook/WhatsApp during an earlier broken-OG era
+ *      (0-byte AR cards pre-Phase-151, logo cards pre-Phase-187,
+ *      cold-timeout generator cards pre-SOCIAL-OG) keep the remembered
+ *      broken thumbnail for up to 30 days; a NEW image URL forces a
+ *      fresh fetch at the next scrape. Bump the version in ONE place
+ *      (the SHARE_IMG_VER constant below) to re-bust the whole site.
  */
 
 const OG_DIR = resolve(__dirname, "../../../public/images/og");
+
+/**
+ * SOCIAL-OG-2 share-image cache-bust version. Bump (v=3, v=4 …) whenever
+ * a full-site thumbnail re-fetch at the platforms is needed again — the
+ * coverage assertions below enforce that every wired surface carries it.
+ */
+const SHARE_IMG_VER = "?v=2";
 
 const CARDS = [
   "og-home-en", "og-home-ar",
@@ -173,7 +188,7 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
 
   it.each(WIRED_SURFACES)("%s references its family card in og + twitter", (rel, card) => {
     const src = readFileSync(repoRootPath(rel), "utf8");
-    const asset = `/images/og/${card}.png`;
+    const asset = `/images/og/${card}.png${SHARE_IMG_VER}`;
     expect(src).toContain(`url: "${asset}"`);
     expect(src).toContain(`images: ["${asset}"]`);
     expect(src).toContain('card: "summary_large_image"');
@@ -183,7 +198,7 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
 
   it("the EN root metadata uses the branded home card (not /logo.png)", () => {
     const src = readFileSync(repoRootPath("src/app/metadata.ts"), "utf8");
-    expect(src).toContain('url: "/images/og/og-home-en.png"');
+    expect(src).toContain(`url: "/images/og/og-home-en.png${SHARE_IMG_VER}"`);
     expect(src).not.toContain('url: "/logo.png"');
   });
 
@@ -214,9 +229,11 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
       expect(src).toContain("images: [shareImage]");
       expect(src).toContain("images: [shareImage.url]");
       // absolute share URL (crawlers never resolve relative og:image)
-      expect(src).toMatch(/\$\{SITE_URL\}\$\{primaryPhoto\}|https:\/\/alkemos\.com\$\{primaryPhoto\}/);
+      // + SOCIAL-OG-2 cache-bust suffix on the photo URL
+      expect(src).toMatch(/\$\{SITE_URL\}\$\{primaryPhoto\}\?v=2|https:\/\/alkemos\.com\$\{primaryPhoto\}\?v=2/);
       // branded card survives as the photo-less fallback only
       expect(src).toContain(`/images/og/${card}.png`);
+      expect(src).toContain(`${card}.png${SHARE_IMG_VER}`);
       expect(src).toContain('card: "summary_large_image"');
       // no regression to the raw logo card
       expect(src).not.toContain('url: "/logo.png"');

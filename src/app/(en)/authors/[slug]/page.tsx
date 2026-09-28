@@ -74,7 +74,7 @@ export async function generateMetadata({
       description: author.bioEn.slice(0, 160),
       siteName: "Alkemos",
       locale: "en_US",
-      images: author.avatarUrl ? [{ url: author.avatarUrl, width: 400, height: 400 }] : [],
+      images: author.avatarUrl ? [{ url: `${author.avatarUrl}?v=2`, width: 400, height: 400 }] : [],
     },
     twitter: {
       card: "summary",

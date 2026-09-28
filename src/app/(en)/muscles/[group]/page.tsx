@@ -71,7 +71,7 @@ export async function generateMetadata({
       // static branded family card (design mirrors /api/og-image).
       images: [
         {
-          url: "/images/og/og-hubs-en.png",
+          url: "/images/og/og-hubs-en.png?v=2",
           width: 1200,
           height: 630,
           alt: "Alkemos Muscle Group Guides",
@@ -82,7 +82,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: hub.titleEn,
       description: hub.descriptionEn,
-      images: ["/images/og/og-hubs-en.png"],
+      images: ["/images/og/og-hubs-en.png?v=2"],
     },
   };
 }

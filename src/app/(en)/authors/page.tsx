@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/images/og/og-home-en.png",
+        url: "/images/og/og-home-en.png?v=2",
         width: 1200,
         height: 630,
         alt: "Alkemos — The Smart Fitness & Nutrition Platform",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-en.png"],
+    images: ["/images/og/og-home-en.png?v=2"],
   },
 };
 

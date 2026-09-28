@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     // 1200×630 branded card (same generator as every other family card).
     images: [
       {
-        url: "/images/og/og-for-coaches-ar.png",
+        url: "/images/og/og-for-coaches-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "انضم كمدرب في Alkemos",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     title: "انضم كمدرب في Alkemos — عملاؤك بأسعارك وأموالك بين يديك",
     description:
       "إدارة عملاء، خطط AI، أسعارك تختارها أنت وتحصّلها بنفسك — بدون نسبة. سجّل مجانًا.",
-    images: ["/images/og/og-for-coaches-ar.png"],
+    images: ["/images/og/og-for-coaches-ar.png?v=2"],
   },
 };
 

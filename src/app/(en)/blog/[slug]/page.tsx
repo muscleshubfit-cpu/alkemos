@@ -69,7 +69,7 @@ export async function generateMetadata({
       // fallback inside blog-server for photo-less articles only.
       // og:image / twitter:image / Article JSON-LD all read the SAME
       // og.shareImage (§12.40 consistency — single source in blog-server).
-      images: [{ url: og.shareImage, alt: og.title }],
+      images: [{ url: og.shareImage, width: 1200, height: 630, alt: og.title }],
       siteName: "Alkemos",
       locale: "en_US",
     },

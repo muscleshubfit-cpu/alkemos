@@ -69,7 +69,7 @@ export async function generateMetadata({
       // inheritance; the hubs card is muscle-group-specific on purpose).
       images: [
         {
-          url: "/images/og/og-home-en.png",
+          url: "/images/og/og-home-en.png?v=2",
           width: 1200,
           height: 630,
           alt: "Alkemos — The Smart Fitness & Nutrition Platform",
@@ -82,7 +82,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: hub.titleEn,
       description: hub.descriptionEn,
-      images: ["/images/og/og-home-en.png"],
+      images: ["/images/og/og-home-en.png?v=2"],
     },
   };
 }

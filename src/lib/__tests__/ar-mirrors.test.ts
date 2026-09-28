@@ -144,10 +144,11 @@ describe("AR mirror for /affiliate (§12.53 item 11 — Phase 208)", () => {
     );
     // The og-home-ar card is pinned (replace-not-inherit law, batch 1-b).
     // The twitter card itself is string-guarded by og-image-coverage.
+    // SOCIAL-OG-2 (2026-09-28): the URL carries the ?v=2 share-cache-bust.
     const images = arAffiliateMetadata.openGraph?.images as Array<{
       url: string;
     }>;
-    expect(images?.[0]?.url).toBe("/images/og/og-home-ar.png");
+    expect(images?.[0]?.url).toBe("/images/og/og-home-ar.png?v=2");
   });
 
   it("EN /affiliate layout completes its half of the pair (was a dangling hreflang → 404)", () => {

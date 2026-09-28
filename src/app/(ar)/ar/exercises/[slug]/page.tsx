@@ -61,10 +61,20 @@ export async function generateMetadata({
   // WhatsApp do not resolve relative og:image reliably. The branded
   // family card is the FALLBACK only (no photos) — never the default.
   const primaryPhoto = getExerciseImages(exercise.imageKey)[0];
+  // SOCIAL-OG-2 (2026-09-28, «المربع الأزرق» follow-up): ?v=2 cache-bust
+  // (fresh image URL at the next platform scrape — stale FB/WhatsApp
+  // caches keep the old broken thumbnail up to 30 days) + measured
+  // 640×427 webp dims/type declared for one-shot crawler acceptance.
   const shareImage = primaryPhoto
-    ? { url: `${SITE_URL}${primaryPhoto}`, alt: title }
+    ? {
+        url: `${SITE_URL}${primaryPhoto}?v=2`,
+        width: 640,
+        height: 427,
+        type: "image/webp",
+        alt: title,
+      }
     : {
-        url: `${SITE_URL}/images/og/og-exercises-ar.png`,
+        url: `${SITE_URL}/images/og/og-exercises-ar.png?v=2`,
         width: 1200,
         height: 630,
         alt: "مكتبة تمارين Alkemos",

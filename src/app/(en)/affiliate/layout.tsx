@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/images/og/og-home-en.png",
+        url: "/images/og/og-home-en.png?v=2",
         width: 1200,
         height: 630,
         alt: "Alkemos — The Smart Fitness & Nutrition Platform",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     title: "Alkemos Affiliate Program — Turn Your Influence Into Income",
     description:
       "Share Alkemos with people who trust your recommendations and earn commissions from eligible purchases.",
-    images: ["/images/og/og-home-en.png"],
+    images: ["/images/og/og-home-en.png?v=2"],
   },
   alternates: {
     canonical: "https://alkemos.com/affiliate",

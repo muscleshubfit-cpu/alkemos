@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     // NOT inherited — pinned explicitly (same pattern as the EN hub).
     images: [
       {
-        url: "/images/og/og-home-ar.png",
+        url: "/images/og/og-home-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "منصة Alkemos الرياضية الشاملة",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-ar.png"],
+    images: ["/images/og/og-home-ar.png?v=2"],
   },
 };
 

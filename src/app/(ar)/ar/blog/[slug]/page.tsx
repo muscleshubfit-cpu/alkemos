@@ -57,7 +57,7 @@ export async function generateMetadata({
       // EN mirror for the full rationale (cold generator latency →
       // blue-box cards on WhatsApp/Facebook; generator = photo-less
       // fallback only, inside blog-server).
-      images: [{ url: og.shareImage, alt: og.title }],
+      images: [{ url: og.shareImage, width: 1200, height: 630, alt: og.title }],
       siteName: "Alkemos",
       locale: "ar_EG",
     },

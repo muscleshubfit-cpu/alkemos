@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     // (og-evo-ar, 1200×630) instead of the homepage card.
     images: [
       {
-        url: "/images/og/og-evo-ar.png",
+        url: "/images/og/og-evo-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "مدرب اللياقة الذكي EVO | Alkemos",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "مدرب اللياقة الذكي EVO | Alkemos",
     description:
       "محرك أداء ذكي يبني خطط تغذية وتمارين مخصصة من بياناتك — مجاني للجميع.",
-    images: ["/images/og/og-evo-ar.png"],
+    images: ["/images/og/og-evo-ar.png?v=2"],
   },
   alternates: {
     canonical: "https://alkemos.com/ar/evo",

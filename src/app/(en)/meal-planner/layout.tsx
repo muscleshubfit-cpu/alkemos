@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     // explicitly.
     images: [
       {
-        url: "/images/og/og-tools-en.png",
+        url: "/images/og/og-tools-en.png?v=2",
         width: 1200,
         height: 630,
         alt: "Alkemos Free Fitness Calculators",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-tools-en.png"],
+    images: ["/images/og/og-tools-en.png?v=2"],
   },
 };
 

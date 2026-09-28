@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     // /api/og-image design).
     images: [
       {
-        url: "/images/og/og-home-ar.png",
+        url: "/images/og/og-home-ar.png?v=2",
         width: 1200,
         height: 630,
         alt: "Alkemos — منصة اللياقة والتغذية الذكية المتكاملة",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "Alkemos | منصة اللياقة والتغذية الذكية المتكاملة",
     description:
       "تدرّب بذكاء، وتغذَّ بدقة، وتقدّم والأرقام في صفك — منصتك المتكاملة للتمارين والتغذية وحساب السعرات: 868+ تمريناً مشروحاً، و8,830+ صنفاً غذائياً عربياً وعالمياً، و8 أدوات مجانية، ومدربك الذكي EVO.",
-    images: ["/images/og/og-home-ar.png"],
+    images: ["/images/og/og-home-ar.png?v=2"],
   },
   // NOTE: NO `alternates` here (homepage AR mirror follow-up, 2026-08-30).
   // Next.js metadata inheritance is field-level: an `alternates` block in

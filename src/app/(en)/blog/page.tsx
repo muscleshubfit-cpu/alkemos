@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/blog`,
     images: [
       {
-        url: "/images/og/og-blog-en.png",
+        url: "/images/og/og-blog-en.png?v=2",
         width: 1200,
         height: 630,
         alt: "The Alkemos Blog — Fitness & Nutrition Articles",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "Fitness & Nutrition Blog | Alkemos",
     description:
       "Science-based workout, nutrition, and supplement articles from the Alkemos team — English editions.",
-    images: ["/images/og/og-blog-en.png"],
+    images: ["/images/og/og-blog-en.png?v=2"],
   },
   alternates: {
     canonical: "/blog",
