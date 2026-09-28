@@ -54,6 +54,25 @@ export type AuthorProfile = {
   credentials: Array<{ en: string; ar: string }>;
   /** Same-as links — ONLY verifiable profiles (per E-E-A-T framework) */
   sameAs: string[];
+  /**
+   * Facebook PAGE urls (a subset of sameAs) that render through Facebook's
+   * OFFICIAL Page Plugin iframe embed
+   * (developers.facebook.com/docs/plugins/page-plugin). Facebook's plugin
+   * supports PAGES only — personal profiles cannot be embedded (platform
+   * restriction), so they stay as direct links.
+   *
+   * Owner follow-up (2026-09-28): plain target="_blank" chips proved
+   * unreliable in in-app browsers / logged-out mobile web (tab opens then
+   * dies on Facebook's app-link bounce) — the in-page official embed gives
+   * a real preview + the real Follow button without leaving the site.
+   */
+  facebookPageEmbeds?: string[];
+  /**
+   * Bilingual display labels for sameAs links (keyed by the exact URL).
+   * Falls back to hostname/handle when absent. Kept here so the profile
+   * pages stay data-driven from the registry.
+   */
+  sameAsLabels?: Record<string, { en: string; ar: string }>;
   /** Avatar URL (absolute) — falls back to logo if empty */
   avatarUrl?: string;
   /** Public profile URL on this site (absolute) */
@@ -70,10 +89,13 @@ export const AHMED_ZAKE: AuthorProfile = {
   nameAr: "أحمد زكي",
   jobTitleEn: "Founder & Head Coach, Alkemos",
   jobTitleAr: "المؤسس والمدرب الرئيسي، Alkemos",
+  // Owner correction (2026-09-28): ~20 years total training experience,
+  // ~10 of them coaching ONLINE. Approximation kept honest — no invented
+  // precision (no exact counts, no start years).
   bioEn:
-    "Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with over a decade of practical experience training clients online and in person. He built Alkemos to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers. Ahmed oversees every piece of content published on the platform, from the 868+ exercise library to the automated blog pipeline, and reviews each article for accuracy before publication.",
+    "Ahmed Zake is the founder of Alkemos and a certified fitness and nutrition coach with about twenty years of training experience, around ten of them coaching clients online. He built Alkemos to combine the precision of AI-driven plan generation with the accountability of human coaching — closing the gap between generic fitness apps and expensive 1-on-1 trainers. Ahmed oversees every piece of content published on the platform, from the 868+ exercise library to the automated blog pipeline, and reviews each article for accuracy before publication.",
   bioAr:
-    "أحمد زكي مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة عملية تتجاوز العشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى Alkemos ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين. يشرف أحمد على كل محتوى يُنشر على المنصة، من مكتبة الـ868+ تمرينًا إلى خط المدوّنة الآلي، ويراجع كل مقال للدقّة قبل النشر.",
+    "أحمد زكي مؤسس Alkemos ومدرب لياقة وتغذية معتمد بخبرة تدريبية تناهز عشرين عامًا، نحو عشر سنوات منها في تدريب العملاء أونلاين. بنى Alkemos ليجمع بين دقة توليد الخطط بالذكاء الاصطناعي ومساءلة التدريب البشري — ليسدّ الفجوة بين تطبيقات اللياقة العامة والمدربين الشخصيين المكلفين. يشرف أحمد على كل محتوى يُنشر على المنصة، من مكتبة الـ868+ تمرينًا إلى خط المدوّنة الآلي، ويراجع كل مقال للدقّة قبل النشر.",
   credentials: [
     // P2-11 (2026-09-28): the eight credentials below are transcribed
     // EXACTLY as named on the founder's certificates (owner-supplied
@@ -89,10 +111,10 @@ export const AHMED_ZAKE: AuthorProfile = {
     { en: "Specialist in Sports Nutrition — International Sports Sciences Association (ISSA)", ar: "أخصائي التغذية الرياضية — الرابطة الدولية لعلوم الرياضة (ISSA)" },
     { en: "Weight Management Specialist — American Council on Exercise (ACE)", ar: "أخصائي إدارة الوزن — المجلس الأمريكي للتمرين (ACE)" },
     { en: "Fitness Coach — International Sports Sciences Association (ISSA)", ar: "مدرب لياقة — الرابطة الدولية لعلوم الرياضة (ISSA)" },
-    // Experience lines (not certificates — biographical facts already
-    // established on the platform; kept for the credentials-and-experience
-    // list on the author profile page).
-    { en: "10+ years coaching experience", ar: "أكثر من 10 سنوات خبرة تدريب" },
+    // Experience lines (not certificates — biographical facts stated by
+    // the owner 2026-09-28: ~20 years total training, ~10 of them coaching
+    // ONLINE; approximation kept honest, no invented precision).
+    { en: "About 20 years of training experience, about 10 of them coaching online", ar: "نحو 20 سنة من الخبرة التدريبية، منها نحو 10 سنوات تدريب أونلاين" },
     { en: "Founder of Alkemos (2026)", ar: "مؤسس Alkemos (2026)" },
   ],
   sameAs: [
@@ -106,6 +128,15 @@ export const AHMED_ZAKE: AuthorProfile = {
     "https://www.facebook.com/AhmedZakePT/",
     "https://www.facebook.com/SpEeRr/",
   ],
+  // Owner follow-up (2026-09-28): the coaching PAGE is embeddable through
+  // Facebook's official Page Plugin (real in-page preview + real Follow
+  // button). SpEeRr is a personal PROFILE — Facebook's plugin does not
+  // support profiles (platform restriction), so it stays a direct link.
+  facebookPageEmbeds: ["https://www.facebook.com/AhmedZakePT/"],
+  sameAsLabels: {
+    "https://www.facebook.com/AhmedZakePT/": { en: "Coaching page", ar: "صفحة التدريب" },
+    "https://www.facebook.com/SpEeRr/": { en: "Personal profile", ar: "الملف الشخصي" },
+  },
   avatarUrl: "https://alkemos.com/images/coach-portrait.jpg",
   profileUrl: "https://alkemos.com/authors/ahmed-zake",
 };

@@ -352,8 +352,8 @@ export default function CoachingPage() {
                 {
                   title: isAr ? "إشراف بشري على كل خطة" : "Human oversight on every plan",
                   body: isAr
-                    ? "المؤسس أحمد زكي — مدرب لياقة وتغذية بخبرة عملية تتجاوز عشر سنوات — يشرف على المحتوى والخطط، ويُراجع كل مقال للدقة العلمية قبل النشر."
-                    : "Founder Ahmed Zake — a fitness and nutrition coach with over ten years of practical experience — oversees the platform's content and reviews every article for accuracy before publication.",
+                    ? "المؤسس أحمد زكي — مدرب لياقة وتغذية بخبرة تدريبية تناهز عشرين عامًا، نحو عشر منها تدريب أونلاين — يشرف على المحتوى والخطط، ويُراجع كل مقال للدقة العلمية قبل النشر."
+                    : "Founder Ahmed Zake — a fitness and nutrition coach with about twenty years of training experience, around ten of them coaching online — oversees the platform's content and reviews every article for accuracy before publication.",
                   href: isAr ? "/ar/about" : "/about",
                   cta: isAr ? "تعرّف على المؤسس ›" : "Meet the founder ›",
                 },

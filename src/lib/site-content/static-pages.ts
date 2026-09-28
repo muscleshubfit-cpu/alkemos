@@ -71,7 +71,7 @@ export const STATIC_PAGE_DEFAULTS: Record<
         {
           heading: "المؤسس: أحمد زكي",
           paragraphs: [
-            "أحمد زكي مؤسس Alkemos، ومدرب لياقة وتغذية بخبرة عملية تتجاوز عشر سنوات في تدريب العملاء أونلاين وحضوريًا. بنى المنصة ليقرّب المسافة بين دقة الخطط المحسوبة وإشراف المدرب الحقيقي، ويسدّ الفجوة بين تطبيقات اللياقة العامة والمدرب الشخصي مرتفع التكلفة.",
+            "أحمد زكي مؤسس Alkemos، ومدرب لياقة وتغذية بخبرة تدريبية تناهز عشرين عامًا، نحو عشر سنوات منها في تدريب العملاء أونلاين. بنى المنصة ليقرّب المسافة بين دقة الخطط المحسوبة وإشراف المدرب الحقيقي، ويسدّ الفجوة بين تطبيقات اللياقة العامة والمدرب الشخصي مرتفع التكلفة.",
             "يشرف أحمد شخصيًا على المحتوى المنشور: من مكتبة الـ{exercises} تمرينًا، إلى قاعدة الـ{foods} صنف غذائي بالقيم الغذائية، إلى مقالات المدونة — يمرّ كل محتوى على مراجعة للدقة قبل النشر. هكذا تعمل المنصة: قدرات الذكاء الاصطناعي، مع إشراف بشري، ومحتوى مبني على الأدلة.",
           ],
         },
@@ -126,7 +126,7 @@ export const STATIC_PAGE_DEFAULTS: Record<
         {
           heading: "Founder: Ahmed Zake",
           paragraphs: [
-            "Ahmed Zake is the founder of Alkemos and a fitness and nutrition coach with over ten years of practical experience training clients online and in person. He built the platform to close the gap between generic fitness apps and expensive 1-on-1 coaching — combining computed precision with real accountability.",
+            "Ahmed Zake is the founder of Alkemos and a fitness and nutrition coach with about twenty years of training experience, around ten of them coaching clients online. He built the platform to close the gap between generic fitness apps and expensive 1-on-1 coaching — combining computed precision with real accountability.",
             "Ahmed personally oversees the published content: from the {exercises}-exercise library, to the {foods}-food nutrition database, to the blog — every piece goes through his review for accuracy before publication. That is how the platform works: AI capabilities, human oversight, evidence-aware content.",
           ],
         },
