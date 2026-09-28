@@ -248,3 +248,112 @@ describe("sanitizeBlogContent — access-point fix integration (2026-09-14)", ()
     );
   });
 });
+
+/**
+ * CONTENT-AUDIT (2026-09-28) — render-time passes ⑥⑦⑧ for the live-audit
+ * defects recorded in docs/CONTENT-QUALITY-SEO-GEO-AUDIT-2026-09-28.md
+ * (§1.2 visible `---` rows / split words / duplicated «مقدمة»; §1.3
+ * self-referential keyword-filler tails). Every case is derived from a
+ * live article, not invented.
+ */
+import {
+  fixBrokenWordLinkSplits,
+  fixIntroLabelDuplication,
+  fixKeywordFillerTails,
+} from "../blog-content-sanitize";
+import { renderMarkdown } from "../blog";
+
+describe("renderMarkdown — markdown table separator rows never render (audit P0-2, 4 live articles)", () => {
+  it("a `| --- | --- |` separator row is dropped, data rows survive", () => {
+    const md = [
+      "| الوجبة | السعرات |",
+      "| --- | --- |",
+      "| الفطور | 522 |",
+    ].join("\n");
+    const html = renderMarkdown(md);
+    expect(html).not.toContain(">---<");
+    expect(html).toContain("الفطور");
+    expect(html).toContain("522");
+  });
+
+  it("aligned-colon separators (`|:---|:---:|`) are dropped too", () => {
+    const md = "| A | B |\n|:---|:---:|\n| 1 | 2 |";
+    const html = renderMarkdown(md);
+    expect(html).not.toContain(">---<");
+    expect(html).not.toContain(">:---<");
+    expect(html).toContain(">2<");
+  });
+
+  it("a data row that legitimately contains dashes is NOT dropped", () => {
+    const md = "| التمرين | المجموعات |\n| --- | --- |\n| 5×5 | 3 - 5 |";
+    const html = renderMarkdown(md);
+    expect(html).toContain("5×5");
+    expect(html).toContain("3 - 5");
+  });
+});
+
+describe("fixBrokenWordLinkSplits — the split-word kaf (audit §1.2, 5 live instances)", () => {
+  it("moves an orphan kaf into the anchor: [سعرات](url)ك → [سعراتك](url)", () => {
+    const md = "تعلّم كيف تحسب [سعرات](/ar/tools/calorie-calculator)ك بدقة كل يوم.";
+    expect(fixBrokenWordLinkSplits(md)).toBe(
+      "تعلّم كيف تحسب [سعراتك](/ar/tools/calorie-calculator) بدقة كل يوم.",
+    );
+  });
+
+  it("keeps the possessive when followed by punctuation or space only — never eats the next word", () => {
+    const md = "راقب [تمارين](/ar/exercises/pushups)ك لا تظهر نتائج، فغير البرنامج.";
+    expect(fixBrokenWordLinkSplits(md)).toBe(
+      "راقب [تمارينك](/ar/exercises/pushups) لا تظهر نتائج، فغير البرنامج.",
+    );
+  });
+
+  it("does NOT touch a link already ending with ك (no double-kaf) or followed by other letters", () => {
+    const ok = "راجع [حسابك](/ar/tools/calorie-calculator) اليوم.";
+    expect(fixBrokenWordLinkSplits(ok)).toBe(ok);
+    const joined = "راجع [الرابط](/ar/tools/calorie-calculator)هنا الآن.";
+    // followed by a full word (no boundary) → left untouched (conservative)
+    expect(fixBrokenWordLinkSplits(joined)).toBe(joined);
+  });
+
+  it("is idempotent", () => {
+    const md = "احسب [سعرات](/ar/tools/calorie-calculator)ك اليومية.";
+    const once = fixBrokenWordLinkSplits(md);
+    expect(fixBrokenWordLinkSplits(once)).toBe(once);
+  });
+});
+
+describe("fixKeywordFillerTails — 'answering the common query of…' (audit §1.3)", () => {
+  it("deletes the recorded filler tail, keeps the sentence period (live creatine article)", () => {
+    const md =
+      "For reference, the typical protein target for muscle growth is about 1.6–2.2 g per kilogram per day, answering the common query of how many grams of protein per day to build muscle.";
+    expect(fixKeywordFillerTails(md, "en")).toBe(
+      "For reference, the typical protein target for muscle growth is about 1.6–2.2 g per kilogram per day.",
+    );
+  });
+
+  it("never fires on AR content or on prose without the template", () => {
+    const md = "جملة عربية عادية تذكر queries without any template.";
+    expect(fixKeywordFillerTails(md, "ar")).toBe(md);
+    const en = "A sentence that merely answers the question of rest periods honestly.";
+    expect(fixKeywordFillerTails(en, "en")).toBe(en);
+  });
+});
+
+describe("fixIntroLabelDuplication — «مقدمة:» twice before content (audit §1.2, 2 live articles)", () => {
+  it("strips the label from an H2, keeping the topic", () => {
+    const md = "## مقدمة: لماذا يحتاج الجسم إلى نظام غذائي؟\nنص الفقرة.";
+    expect(fixIntroLabelDuplication(md, "ar")).toBe("## لماذا يحتاج الجسم إلى نظام غذائي؟\nنص الفقرة.");
+  });
+
+  it("strips the redundant leading label from the opening paragraph (after an H1 title line)", () => {
+    const md = "# خطة أسبوعية لحرق الدهون\nمقدمة: حلمك بجسم رشيق يبدأ من الفهم.\n\n## أول قسم";
+    expect(fixIntroLabelDuplication(md, "ar")).toBe(
+      "# خطة أسبوعية لحرق الدهون\nحلمك بجسم رشيق يبدأ من الفهم.\n\n## أول قسم",
+    );
+  });
+
+  it("never fires on EN content or when there is no label", () => {
+    const md = "## Introduction: why it matters\nBody text.";
+    expect(fixIntroLabelDuplication(md, "en")).toBe(md);
+  });
+});

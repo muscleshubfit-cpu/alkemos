@@ -371,8 +371,18 @@ export function renderMarkdown(content: string): string {
  html = html.replace(/^-\s+(.+)$/gm, '<li class="ms-6 list-disc">$1</li>');
 
  // 10. Tables (basic) — cells already escaped
+ // CONTENT-AUDIT P0-2 (2026-09-28, audit 1.2): the old rule matched EVERY
+ // pipe-bearing line, including the markdown separator row (`| --- | --- |`),
+ // which then rendered as a VISIBLE `<tr><td>---</td>...` row inside the
+ // table (live-audit: 4 AR articles, 17 visible separator cells). A row
+ // whose cells are all colon/dash filler is separator syntax, never data -
+ // dropped here so every stored article renders clean regardless of when
+ // it was written (render-time law: DB rows untouched).
  html = html.replace(/\|(.+)\|/g, (_, body) => {
  const cells = body.split("|").map((c: string) => c.trim()).filter(Boolean);
+ const isSeparatorRow =
+   cells.length > 0 && cells.every((c: string) => /^:?-{3,}:?$/.test(c));
+ if (isSeparatorRow) return "";
  return `<tr>${cells.map((c: string) => `<td class="p-2 border border-border">${c}</td>`).join("")}</tr>`;
  });
  html = html.replace(/(<tr>.*<\/tr>\n?)+/g, (match) => `<table class="w-full text-sm border-collapse my-4"><tbody>${match}</tbody></table>`);

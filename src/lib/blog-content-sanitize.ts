@@ -225,11 +225,89 @@ export function fixLegacyRedirectLinks(content: string, lang: "en" | "ar"): stri
 }
 
 /**
+ * ⑥ CONTENT-AUDIT P0-2 (2026-09-28, audit §1.2) — broken-word link splits.
+ *
+ * WHY (live-audit evidence, 5 instances across 5 AR articles): the legacy
+ * generation pipeline wrapped a link around PART of a word, so the stored
+ * markdown reads `تحسب [سعرات](/ar/tools/calorie-calculator)ك بدقة` — the
+ * possessive kaf lands AFTER the closing paren and the rendered text
+ * shows a visibly split word («سعرات» + «ك» = سعراتك). Recorded shapes:
+ * كيف تحسب سعرات</a>ك بدقة · سعرات</a>ك اليومية · تمارين</a>ك لا تظهر.
+ *
+ * RULE: a markdown link IMMEDIATELY followed by the Arabic letter ك (no
+ * space) with a word boundary after it is, on the recorded evidence, a
+ * split possessive — the kaf moves INSIDE the anchor text. An anchor that
+ * already ends with ك never matches (no double-kaf), and the trailing
+ * boundary (space / punctuation / end-of-line) prevents eating a
+ * following word. Idempotent: the output's link is followed by a
+ * boundary, never a bare kaf.
+ */
+const BROKEN_WORD_KAF = /\[([^\]]*[^ك\s])\]\(([^)\s]+)\)ك(?=[\s،؛؟!.,:؛")\]]|$)/g;
+
+export function fixBrokenWordLinkSplits(content: string): string {
+  return content.replace(BROKEN_WORD_KAF, (_m, text: string, url: string) => `[${text}ك](${url})`);
+}
+
+/**
+ * ⑦ CONTENT-AUDIT P1-1 (2026-09-28, audit §1.3) — self-referential
+ * keyword-filler sentence tails.
+ *
+ * WHY (live-audit evidence, EN): the legacy review pass planted sentences
+ * whose TAIL exists only to host a long-tail keyword verbatim and which
+ * announce their own SEO purpose mid-prose:
+ *   "…is about 1.6–2.2 g per kilogram per day, answering the common query
+ *    of how many grams of protein per day to build muscle."
+ * The tail is machine-written filler that breaks E-E-A-T (text that says
+ * it "answers the common query" is written for crawlers, not readers).
+ *
+ * RULE: the recorded template family "`, answering the common (query|
+ * question) of …`" up to the sentence period is deleted (period kept).
+ * Deterministic + idempotent: a sentence that no longer contains the
+ * trigger phrase can never match again.
+ */
+const KEYWORD_FILLER_TAIL = /,\s*answering the common (?:query|question) of[^.\n]*\./g;
+
+export function fixKeywordFillerTails(content: string, lang: "en" | "ar"): string {
+  if (lang !== "en") return content;
+  return content.replace(KEYWORD_FILLER_TAIL, ".");
+}
+
+/**
+ * ⑧ CONTENT-AUDIT P0-2/§1.2 (2026-09-28) — duplicated «مقدمة» labels.
+ *
+ * WHY (live-audit evidence, 2 AR articles): the body's opening paragraph
+ * carries an inline label AND the first H2 repeats it —
+ *   paragraph: «مقدمة: حلمك بجسم رشيق…»
+ *   first H2: «## مقدمة: لماذا يحتاج الجسم…»
+ * The reader sees "Introduction:" twice before any content.
+ *
+ * RULES (both deterministic + idempotent):
+ *   a) an H2 heading whose text starts with «مقدمة:»/«مقدمة：» keeps only
+ *      the real topic (the label adds nothing out of context);
+ *   b) a FIRST body paragraph starting with the label drops it (the intro
+ *      is by definition the start of the article — the label is redundant).
+ */
+const H2_INTRO_LABEL = /^## مقدمة[:：]\s*(.+)$/gm;
+const LEADING_PARA_INTRO_LABEL = /^((?:#[^#\n]*\n+)?\s*)(?:\*\*)?مقدمة[:：]\s*(?:\*\*)?/;
+
+export function fixIntroLabelDuplication(content: string, lang: "en" | "ar"): string {
+  if (lang !== "ar") return content;
+  let out = content.replace(H2_INTRO_LABEL, "## $1");
+  const m = out.match(LEADING_PARA_INTRO_LABEL);
+  if (m && m[1] !== undefined) {
+    out = out.replace(LEADING_PARA_INTRO_LABEL, "$1");
+  }
+  return out;
+}
+
+/**
  * Composed pipeline — the ONLY entry point pages should call.
  * Order matters: raw anchors become markdown links FIRST so the legacy
  * and prefix rewrites see them; corruption fixes are order-independent;
  * legacy exact-path rewrites run BEFORE the family rewriter so a legacy
- * /blog/… target can never be double-prefixed.
+ * /blog/… target can never be double-prefixed; the ⑥/⑦/⑧ passes are
+ * markdown-shape fixes that must run BEFORE insertToolLinks sees the
+ * content (so injected tool links are never re-processed).
  */
 export function sanitizeBlogContent(
   content: string,
@@ -238,7 +316,18 @@ export function sanitizeBlogContent(
 ): string {
   return fixCrossLanguageLinkPrefixes(
     fixArMirrorFamilies(
-      fixLegacyRedirectLinks(fixKnownCorruptions(fixRawHtmlInternalAnchors(content)), lang),
+      fixLegacyRedirectLinks(
+        fixIntroLabelDuplication(
+          fixKeywordFillerTails(
+            fixBrokenWordLinkSplits(
+              fixKnownCorruptions(fixRawHtmlInternalAnchors(content)),
+            ),
+            lang,
+          ),
+          lang,
+        ),
+        lang,
+      ),
       lang,
     ),
     lang,
