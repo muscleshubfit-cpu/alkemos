@@ -165,7 +165,10 @@ describe("AUDIT_REPORT §9-0.4 — doc truth (real pipeline numbers)", () => {
   it("AGENTS.md no longer claims a nonexistent maxModels 5 call shape", () => {
     const src = read(AGENTS);
     expect(src).not.toContain("try maxModels 5");
-    expect(src).toContain("P1/P2 `maxModels: 2`");
+    // R3 (CHAIN-EXPANSION, 2026-09-29) split the P1/P2 line: P2 walks 3 entries
+    // (480s chain budget funds the third; Groq re-admitted via the per-entry clamp)
+    expect(src).toContain("P1 `maxModels: 2`");
+    expect(src).toContain("P2 `maxModels: 3`");
     expect(src).toContain("P4 `maxModels: 4`");
   });
 
