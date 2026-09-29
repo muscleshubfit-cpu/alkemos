@@ -170,4 +170,8 @@ jobs:
           echo "QUEUE_ID processed: ${QUEUE_ID:-<none>}"
           echo "Topic override: ${PIPELINE_TOPIC:-<none — research picked>}"
           echo "Coach receipt (ai_jobs): ${PIPELINE_JOB_ID:-<automatic scheduled run>}"
+          # R5 (Execution-Path Audit §10 Phase R5, 2026-09-30): the run's
+          # repair-loop line — how many in-run repair cycles saved/retried
+          # this row before publish/markFailed (exported by run-step.sh).
+          echo "R1 repair-loop cycles this run: ${REPAIRS_USED:-0} (cumulative counter: /api/ai/queue-health "repair")"
           echo "Full logs above — green ✓ = published (AR), red ❌ = copy last lines and report."

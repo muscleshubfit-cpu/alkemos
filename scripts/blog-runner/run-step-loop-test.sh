@@ -131,6 +131,17 @@ mk_scenario sc7 p5-publish \
   "3|RERUN_TARGET=p4-review" "3|RERUN_TARGET=p4-review" "3|RERUN_TARGET=p4-review"
 mk_scenario sc7 p4-review "3|RERUN_TARGET=p2-content" "3|RERUN_TARGET=p2-content"
 
+# sc8 (R5): same flow as sc1 — run WITH a GITHUB_ENV file and prove the
+# repair count is exported (the queue-health counter's per-run twin).
+mk_scenario sc8 p5-publish \
+  "3|RERUN_TARGET=p2-content" "0|$OK_JSON_P5"
+mk_scenario sc8 p2-content "0|$OK_JSON_P2"
+mk_scenario sc8 p3-images   "0|$OK_JSON_P3"
+mk_scenario sc8 p4-review   "0|$OK_JSON_P4"
+
+# sc9 (R5): clean publish, zero repair cycles → NO REPAIRS_USED line at all
+mk_scenario sc9 p5-publish "0|$OK_JSON_P5"
+
 # ── assertions ────────────────────────────────────────────────────────
 echo "=== R1 repair-loop integration tests (simulated GHA, stubbed runner) ==="
 
@@ -176,6 +187,42 @@ CALL step=p4-review qid=$QID force=0
 CALL step=p5-publish qid=$QID force=0" \
 3
 
-echo "=== result: $((7 - FAILURES))/7 green ==="
+# ── R5 assertions: the repair count exported for the run summary ────
+# (standalone — run_case unsets GITHUB_ENV, and these cases need it set)
+run_env_case() { # run_env_case <label> <scenario> <expected-exit> <expected-env-line|->
+  local label="$1" scen="$2" want="$3" wantenv="$4"
+  local log="$TMP/calls.log" envf="$TMP/gh.env"
+  rm -f "$log" "$envf" "$TMP/state/"*.n
+  set +e
+  timeout 60 env PATH="$TMP/bin:$PATH" \
+    STUB_SCENARIO="$TMP/sc/$scen" STUB_STATE="$TMP/state" STUB_LOG="$log" \
+    GITHUB_ENV="$envf" \
+    QUEUE_ID="$QID" PIPELINE_LANG=en \
+    bash scripts/blog-runner/run-step.sh p5-publish 3 \
+    > "$TMP/out.txt" 2>&1
+  local got=$?
+  set -u
+
+  local gotenv
+  if [ -f "$envf" ] && grep -q '^REPAIRS_USED=' "$envf"; then
+    gotenv="$(grep '^REPAIRS_USED=' "$envf" | tail -1)"
+  else
+    gotenv="-"
+  fi
+
+  if [ "$got" -eq "$want" ] && [ "$gotenv" = "$wantenv" ]; then
+    echo "✓ $label"
+  else
+    echo "❌ $label"
+    echo "   expected exit=$want got=$got · expected env='$wantenv' got='$gotenv'"
+    tail -8 "$TMP/out.txt" | sed 's/^/     /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+run_env_case "sc8 repair cycle exports REPAIRS_USED=1 (R5 summary line)" sc8 0 "REPAIRS_USED=1"
+run_env_case "sc9 clean publish → no REPAIRS_USED line (summary defaults 0)" sc9 0 "-"
+
+echo "=== result: $((9 - FAILURES))/9 green ==="
 [ "$FAILURES" -eq 0 ] && exit 0
 exit 1

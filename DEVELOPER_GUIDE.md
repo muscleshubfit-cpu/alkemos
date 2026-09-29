@@ -726,6 +726,18 @@ hop — منذ pipeline v2/v3)، لكن إعادة المحاولة ما زال�
   MAX_REPAIRS)، وإصلاح p2-content يتم عبر `?force=1` (توليد فوق المسودة
   مع بقاء research/outline/images). الأدلة: اختبارات blog-repair-target
   وblog-repair-contract + مصفوفة تكامل run-step-loop-test.sh.
+- **رصد حلقة الإصلاح (R5، 2026-09-30 — نفس التدقيق §10 المرحلة R5):**
+  حلقة الإصلاح صارت **قابلة للقياس**: كل توجيه إصلاح يختم عدّادًا تراكميًا
+  `repairLoop` في bundle صف الطابور (`stampQueueRowRepairDirective`
+  بsrc/lib/blog-queue.ts — ينجو عبر سلسلة الإصلاح لأن p2-force/p4
+  ينشران الـbundle؛ سابقة researchSource/coachRequested)، وكل دورة تصدّر
+  `REPAIRS_USED` إلى GITHUB_ENV يطبعها سطر ملخص التشغيل بblog-post-{en,ar}.yml،
+  و`GET /api/ai/queue-health` يحمل عدّاد `repair` بنافذة 14 يومًا
+  (published · afterRepair · exhausted · sharePct · recoveryPct) يقيس
+  «repair-first vs regenerate» من قاعدة البيانات لا من التخمين. رصد خالص —
+  صفر تغيير في أي بوابة أو حالة أو ميزانية إصلاح. الأدلة:
+  blog-repair-r5-observability.test.ts + وصف R5 بblog-repair-contract.test.ts
+  + سيناريوهي sc8/sc9 بمصفوفة run-step-loop-test.sh.
 - **الإصلاح اللاتيني الموضعي (R2، 2026-09-29 — نفس التدقيق §9 بند 4):**
   إصلاح اللاتيني السائب في المقالات العربية لم يعد يعيد توليد المقال
   كاملًا بنداء ~9.5k tokens (كان يقصي Groq ويعيد نصًا إنجليزيًا — 5 من 7

@@ -38,6 +38,7 @@ vi.mock("@/lib/blog-queue", () => ({
   findRecentPairRows: vi.fn(async () => []),
   countAutomatedPublishedToday: vi.fn(async () => 0),
   bundleMarksCoachRequest: vi.fn(() => false),
+  stampQueueRowRepairDirective: vi.fn(async () => undefined),
 }));
 vi.mock("@/lib/blog-topics", () => ({
   getRecentPostsByLanguage: vi.fn(async () => []),
@@ -235,6 +236,75 @@ describe("R1 A1 — P5 500 body carries the machine-readable rerunTarget", () =>
     const body = (await res.json()) as { error?: string; rerunTarget?: string };
     expect(body.error).toContain("Post insert");
     expect(body.rerunTarget).toBeUndefined();
+  });
+});
+
+describe("R5 — the repair directive is STAMPED for observability (queue-health counter source)", () => {
+  it("word-floor directive → stampQueueRowRepairDirective(row, 'p2-content', the row's bundle)", async () => {
+    (blogQueue.fetchQueueItem as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: p5Row("## Short\n\nOnly forty words long and it must fail the floor gate here."),
+      error: null,
+    });
+    const res = await p5Publish(req(`http://localhost:3000/api/cron/blog/p5-publish?queueId=${P5_ROW}`));
+    expect(res.status).toBe(500);
+    expect(blogQueue.stampQueueRowRepairDirective).toHaveBeenCalledTimes(1);
+    const call = (blogQueue.stampQueueRowRepairDirective as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call?.[0]).toBe(P5_ROW);
+    expect(call?.[1]).toBe("p2-content");
+    // the stamp receives the row's CURRENT bundle (no extra DB read)
+    expect(call?.[2]).toBe(p5Row("## Short\n\nOnly forty words long and it must fail the floor gate here.").article_bundle);
+  });
+
+  it("infra failure (no rerunTarget) → NO stamp (legacy behavior untouched)", async () => {
+    INSERT_FAILS = true;
+    // a draft that PASSES every deterministic gate (length + battery) so
+    // the run reaches the post INSERT and fails THERE — the infra class
+    // that maps to no rerunTarget (same shape as the R1 infra case).
+    const faqBlock = [
+      "## Frequently Asked Questions",
+      "**How many days a week should I build muscle at home?**",
+      "Answer for home muscle days.",
+      "**Can I build muscle at home without equipment?**",
+      "Answer for equipment.",
+      "**How long until I see results building muscle at home?**",
+      "Answer for results.",
+      "**Is home training enough to build muscle?**",
+      "Answer for sufficiency.",
+    ].join("\n");
+    (blogQueue.fetchQueueItem as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: p5Row(`${longDraftWithoutFaq()}\n${faqBlock}`),
+      error: null,
+    });
+    const res = await p5Publish(req(`http://localhost:3000/api/cron/blog/p5-publish?queueId=${P5_ROW}`));
+    expect(res.status).toBe(500);
+    expect(blogQueue.stampQueueRowRepairDirective).not.toHaveBeenCalled();
+  });
+
+  it("the stamp SURVIVES the p2-force repair chain (queue-health can count it at publish)", async () => {
+    // a failed row carrying the directive stamp enters the R1 chain:
+    // p2-force regenerates over the draft and MUST spread the stamp
+    // through to the persisted bundle — that survival is what makes
+    // «published after repair» measurable in /api/ai/queue-health.
+    const stampedRow = p2Row();
+    const stampedBundle = JSON.parse(stampedRow.article_bundle as string);
+    stampedBundle.repairLoop = { directives: 1, lastTarget: "p2-content", lastAt: "2026-09-30T10:00:00.000Z" };
+    stampedRow.article_bundle = JSON.stringify(stampedBundle);
+    (blogQueue.fetchQueueItem as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: stampedRow,
+      error: null,
+    });
+    const res = await p2Content(req(`http://localhost:3000/api/cron/blog/p2-content?queueId=${P2_ROW}&force=1`));
+    expect(res.status).toBe(200);
+    const calls = (blogQueue.updateQueueItem as ReturnType<typeof vi.fn>).mock.calls;
+    const upd = calls[1];
+    const persisted = JSON.parse(upd?.[1]?.article_bundle as string);
+    expect(persisted.repairLoop).toEqual({
+      directives: 1,
+      lastTarget: "p2-content",
+      lastAt: "2026-09-30T10:00:00.000Z",
+    });
+    // and the regeneration itself still replaced only the content
+    expect(persisted.content.source).toBe("test-chain-model");
   });
 });
 

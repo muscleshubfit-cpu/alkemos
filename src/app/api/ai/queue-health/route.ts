@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authRequired } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { parseBundleRepairLoop } from "@/lib/blog-queue";
 
 /**
  * AI QUEUE HEALTH — project-wide early-warning dashboard data.
@@ -171,12 +172,77 @@ export async function GET(request: NextRequest) {
     /* pairing scan is best-effort — panel stays honest without it */
   }
 
+  // ── R5 REPAIR-LOOP COUNTER (Execution-Path Audit §10 Phase R5,
+  // 2026-09-30 — «عدّاد إصلاح في /api/ai/queue-health»): measures
+  // «repair-first vs regenerate» from DB truth. P5 stamps a
+  // `repairLoop` marker into the row's bundle at every repair
+  // directive; the marker survives the repair chain, so a PUBLISHED
+  // row that carries it = a row the R1 loop actually saved in-run
+  // (repair-first won), while a FAILED row carrying it = the repair
+  // budget was exhausted and the 23:40 backstop regenerated the day
+  // (regenerate path). 14-day window = the audit's measurement
+  // window. A NEUTRAL counter, not an alarm (like `pairing` above):
+  // it reports the ratio, the issues array stays for real problems.
+  // Degrades open — a scan failure never breaks the panel.
+  let repair: {
+    windowDays: number;
+    published: number;
+    afterRepair: number;
+    exhausted: number;
+    sharePct: number;
+    recoveryPct: number;
+  } | null = null;
+  try {
+    const sinceRepair = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: pubRows, error: pubErr } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("article_bundle")
+      .eq("status", "published")
+      .gte("created_at", sinceRepair)
+      .limit(300);
+    const { data: repRows, error: repErr } = await supabaseAdmin
+      .from("blog_generation_queue")
+      .select("status, article_bundle")
+      .gte("created_at", sinceRepair)
+      .like("article_bundle", '%"repairLoop"%')
+      .limit(300);
+    if (!pubErr && !repErr && Array.isArray(pubRows) && Array.isArray(repRows)) {
+      const published = pubRows.length;
+      // Parse-gate the like() hits — a stray substring inside topic
+      // prose must never count as a repaired row. (Cast mirrors
+      // countAutomatedPublishedToday: the generated client types
+      // article_bundle as Json; the column is a string in practice.)
+      const stampedRows = repRows as Array<{ status?: string | null; article_bundle?: string | null }>;
+      const stamped = stampedRows.filter(
+        (r) => parseBundleRepairLoop(r.article_bundle ?? null) !== null,
+      );
+      const afterRepair = stamped.filter((r) => r.status === "published").length;
+      const exhausted = stamped.filter((r) =>
+        String(r.status || "").startsWith("failed"),
+      ).length;
+      repair = {
+        windowDays: 14,
+        published,
+        afterRepair,
+        exhausted,
+        sharePct: published > 0 ? Math.round((afterRepair / published) * 100) : 0,
+        recoveryPct:
+          afterRepair + exhausted > 0
+            ? Math.round((afterRepair / (afterRepair + exhausted)) * 100)
+            : 100,
+      };
+    }
+  } catch {
+    /* repair scan is best-effort — panel stays honest without it */
+  }
+
   return NextResponse.json({
     counts,
     oldestQueuedMinutes: oldestQueuedMinutes === null ? null : Math.round(oldestQueuedMinutes),
     lastDone,
     lastRunnerRunAt,
     pairing,
+    repair,
     ok: issues.length === 0,
     issues,
   });

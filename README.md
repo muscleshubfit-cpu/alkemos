@@ -250,6 +250,12 @@ discarding it: the failure names the offending step as a machine-readable
 research, outline and images are reused) before falling back to the honest
 mark-failed + next-day backstop. No gate is weakened — a bad article is
 still never published; a good-but-flawed one gets a second chance in-run.
+The repair path is MEASURABLE (R5): every directive stamps a `repairLoop`
+marker into the queue row's bundle, the workflow Summary prints the run's
+cycle count (`REPAIRS_USED`), and `GET /api/ai/queue-health` (admin) carries
+a `repair` counter over a 14-day window — `published` · `afterRepair` ·
+`exhausted` · `sharePct` · `recoveryPct` — so «repair-first vs regenerate»
+is read from database truth, not guessed.
 Arabic Latin-purity repair is likewise **localized**: a deterministic
 dictionary pass arabizes known fitness/supplement terms with zero AI
 calls, and only the remaining tokens go to a tiny conversion call

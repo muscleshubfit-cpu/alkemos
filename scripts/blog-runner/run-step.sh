@@ -30,6 +30,14 @@
 #   • recursive repair calls pin MAX_REPAIRS=0 — the repair chain
 #     never nests another repair loop.
 #
+# R5 REPAIR OBSERVABILITY (Execution-Path Audit §10 Phase R5,
+# 2026-09-30): each repair increment appends REPAIRS_USED=<n> to
+# $GITHUB_ENV — the workflow's Summary step prints it as the run's
+# repair-loop line («repair-first vs regenerate»). Only the top-level
+# p5-publish invocation can be in the repair loop (the chain re-runs
+# p2..p4, never p5), so no recursive child can clobber the counter; a
+# clean zero-repair run writes nothing and the summary defaults to 0.
+#
 # Usage:  bash scripts/blog-runner/run-step.sh <step-name> [max-attempts]
 # Env:    QUEUE_ID (optional input from previous steps)
 #         PIPELINE_LANG ("en"|"ar") — language-split pipelines (2026-08-27);
@@ -117,6 +125,12 @@ while :; do
     fi
 
     repairs_used=$((repairs_used + 1))
+    # R5: surface the count to the job Summary (appends are read by
+    # LATER steps; the last line wins, so this is always the latest
+    # cycle count for this run).
+    if [ -n "${GITHUB_ENV:-}" ]; then
+      echo "REPAIRS_USED=$repairs_used" >> "$GITHUB_ENV"
+    fi
     echo "🔁 [$STEP] R1 repair cycle $repairs_used/$MAX_REPAIRS: re-running from $TARGET on queue row $QUEUE_ID (bundle preserved)"
 
     # Re-run every step from TARGET through P4 (advances the status

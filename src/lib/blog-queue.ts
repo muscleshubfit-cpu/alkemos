@@ -204,6 +204,120 @@ export async function markQueueItemFailed(
 }
 
 // ═══════════════════════════════════════════════════════════════
+// R5 REPAIR OBSERVABILITY (Execution-Path Audit §10 Phase R5,
+// 2026-09-30 — owner order «نفّذ R5 فقط»): the R1 loop recovers
+// rows in-run, but NOTHING recorded that a published row had ever
+// been repaired — «repair-first vs regenerate» was unmeasurable.
+// P5 now stamps a `repairLoop` marker into the row's bundle at the
+// exact moment it issues a repair directive (the same bundle-stamp
+// precedent as researchSource:"fallback" / coachRequested). The
+// marker SURVIVES the repair chain (P2-force writes
+// `{...bundle, content}` and P4 writes `{...bundle, review}`), so a
+// row that publishes afterwards carries the proof — and
+// /api/ai/queue-health counts it. Pure observability: no gate,
+// status, or repair-budget behavior changes anywhere.
+// ═══════════════════════════════════════════════════════════════
+
+/** Shape of the `repairLoop` bundle stamp (one row, cumulative). */
+export type RepairLoopStamp = {
+  /** How many repair directives P5 has issued for this row so far. */
+  directives: number;
+  /** The rerunTarget of the most recent directive. */
+  lastTarget: string;
+  /** ISO timestamp of the most recent directive. */
+  lastAt: string;
+};
+
+/**
+ * Pure: read the `repairLoop` stamp from a bundle JSON string.
+ * Defensive against every bundle shape (raw string / null / garbage /
+ * partial stamp) — returns null when there is no valid stamp, so
+ * callers never mistake a malformed marker for a repaired row.
+ */
+export function parseBundleRepairLoop(bundleJson: string | null): RepairLoopStamp | null {
+  if (!bundleJson) return null;
+  try {
+    const parsed = JSON.parse(bundleJson) as { repairLoop?: unknown } | null;
+    if (parsed === null || typeof parsed !== "object") return null;
+    const st = (parsed as { repairLoop?: unknown }).repairLoop;
+    if (st === null || typeof st !== "object") return null;
+    const o = st as { directives?: unknown; lastTarget?: unknown; lastAt?: unknown };
+    if (
+      typeof o.directives !== "number" ||
+      !Number.isFinite(o.directives) ||
+      o.directives < 1
+    ) {
+      return null;
+    }
+    return {
+      directives: Math.floor(o.directives),
+      lastTarget: typeof o.lastTarget === "string" ? o.lastTarget : "",
+      lastAt: typeof o.lastAt === "string" ? o.lastAt : "",
+    };
+  } catch {
+    return null; // unparseable bundle → no valid stamp
+  }
+}
+
+/**
+ * Stamp (or increment) the `repairLoop` marker on a queue row's
+ * bundle — best-effort, NEVER throws (called from P5's catch block
+ * where the honest markFailed already ran). `knownBundle` lets the
+ * P5 caller pass the bundle it already fetched; when omitted the
+ * helper reads the row itself, and if the row cannot be read it
+ * writes NOTHING (a blind write could wipe a real bundle).
+ */
+export async function stampQueueRowRepairDirective(
+  queueId: string,
+  target: string,
+  knownBundle?: string | null,
+): Promise<void> {
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
+  try {
+    let existing: string | null = knownBundle ?? null;
+    if (knownBundle === undefined) {
+      const { data, error } = await supabaseAdmin
+        .from("blog_generation_queue")
+        .select("article_bundle")
+        .eq("id", queueId)
+        .maybeSingle();
+      if (error || !data) {
+        // Row unreadable/missing — do not write (see docblock).
+        console.warn(
+          `[blog-queue] stampQueueRowRepairDirective skipped: ${
+            error ? error.message : "row not found"
+          }`,
+        );
+        return;
+      }
+      existing = (data as { article_bundle?: string | null }).article_bundle ?? null;
+    }
+    const base: Record<string, unknown> = {};
+    if (existing) {
+      try {
+        Object.assign(base, JSON.parse(existing) as Record<string, unknown>);
+      } catch {
+        /* unparseable bundle → start fresh, marker still stamps */
+      }
+    }
+    const prev = parseBundleRepairLoop(existing);
+    base.repairLoop = {
+      directives: (prev?.directives ?? 0) + 1,
+      lastTarget: target,
+      lastAt: new Date().toISOString(),
+    };
+    await supabaseAdmin
+      .from("blog_generation_queue")
+      .update({ article_bundle: JSON.stringify(base) })
+      .eq("id", queueId);
+  } catch (e) {
+    console.warn(
+      `[blog-queue] stampQueueRowRepairDirective degraded: ${e instanceof Error ? e.message : e}`,
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PHASE 171 (blog-audit proposal ج) — ONE-AUTOMATIC-ARTICLE/DAY LAW,
 // enforced at the PUBLISH layer. The marker `coachRequested` is stamped
 // into article_bundle by P0 when the run was coach-triggered (topic or

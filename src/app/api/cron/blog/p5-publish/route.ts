@@ -20,6 +20,7 @@ import {
   findRecentPairRows,
   countAutomatedPublishedToday,
   bundleMarksCoachRequest,
+  stampQueueRowRepairDirective,
   type QueueItem,
 } from "@/lib/blog-queue";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -497,6 +498,17 @@ export async function GET(request: NextRequest) {
     // threshold changed — only WHO recovers the row and WHEN. Null
     // (infra / unknown) keeps the exact legacy body.
     const rerunTarget = mapP5FailureToRerunTarget(msg);
+    // R5 REPAIR OBSERVABILITY (Execution-Path Audit §10 Phase R5,
+    // 2026-09-30): stamp the directive into the row's bundle so the
+    // repair path is MEASURABLE — the marker survives the repair chain
+    // (P2-force and P4 spread the bundle) and a row that publishes
+    // afterwards carries the proof for the queue-health counter
+    // («repair-first vs regenerate»). Best-effort by the same law as
+    // markQueueItemFailed above: a stamping hiccup must never mask the
+    // honest failure. Pure observability — no gate or budget change.
+    if (rerunTarget) {
+      await stampQueueRowRepairDirective(queueId, rerunTarget, qi?.article_bundle ?? undefined);
+    }
     return NextResponse.json(
       rerunTarget ? { error: msg || "Failed", rerunTarget } : { error: msg || "Failed" },
       { status: 500 },

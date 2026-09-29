@@ -295,6 +295,8 @@
 - **ملاحظة:** رفع floor P2 تشديدٌ للتنفيذ نحو الهدف المعلن (1500–2500) — يحتاج إشارة المالك لأنه يرفع معدل إعادة P2 المحتملة قليلًا مقابل قتل النقص مبكرًا (صفقة موثقة في §3.5).
 
 ### Phase R5 — رصد (اختياري)
+> **الحالة: منفذة بالكامل (2026-09-30، فريم 307 — مدخل REPAIR-OBSERVABILITY-R5 بworklog):** (1) ختم تراكمي `repairLoop` في bundle صف الطابور عند كل توجيه إصلاح (`stampQueueRowRepairDirective` بsrc/lib/blog-queue.ts + استدعاؤه من جسم 500 بمسار P5 — ينجو عبر سلسلة الإصلاح لأن p2-force/p4 ينشران الـbundle؛ سابقة researchSource/coachRequested، وفشل القراءة لا يكتب شيئًا أبدًا)؛ (2) عدّاد `repair` في `GET /api/ai/queue-health` بنافذة 14 يومًا: published · afterRepair · exhausted · sharePct · recoveryPct — يقيس «repair-first vs regenerate» من DB (رصد محايد بلا سطر issues، مثل pairing؛ like() parse-gated ضد الإيجابيات الكاذبة، ويتدهور مفتوحًا)؛ (3) سطر ملخص التشغيل بblog-post-{en,ar}.yml: `REPAIRS_USED` يُصدَّر من run-step.sh عند كل دورة (الأبناء المتكررون p2..p4 لا يفسدونه أبدًا — الحلقة لا تعيد p5). الاختبارات: `blog-repair-r5-observability.test.ts` ‏15/15 + وصف R5 بblog-repair-contract.test.ts (3: التوجيه يختم · infra لا يختم · الختم ينجو عبر p2-force) + sc8/sc9 بمصفوفة run-step-loop-test.sh ‏9/9 + دبوسَا phase0/phase1 تحدّثتا للـmock الجديد. البطارية: tsc 0 · vitest 1,919/1,919 · eslint 0 · next build ✓. **الخطوتان المتبقيتان من §10 مكتملتان — الخطة كلها (R1→R5) منفذة.**
+
 - عدّاد إصلاح في `/api/ai/queue-health` (عدد الصفوف التي نُشرت بعد repair loop) + سطر في ملخص التشغيل — لقياس «repair-first vs regenerate» فعليًا.
 
 **الترتيب المقترح:** R1 أولًا (يوقف النزيف الحالي — فئة P5) ثم R2 (فئة AR الأكبر تاريخيًا) ثم R3/R4. R1 وحده كافٍ لتحويل آخر 3 فشل EN من «فقدان كامل» إلى «نشر».
