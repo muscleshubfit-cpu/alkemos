@@ -405,6 +405,24 @@ const FAQ_SECTION_HEADING: Record<"en" | "ar", string> = {
   ar: "## الأسئلة الشائعة",
 };
 
+// R4 — EXECUTION-WORD-FLOOR ALIGNMENT (Execution-Path Audit §10 Phase R4 /
+// §8.2 B2 + §3.5, 2026-09-29): the writing layer's shared execution floor.
+// Misalignment history: the P2 prompt asked 1500-2500 words, the CODE
+// floors were 400-word parse-validity nets from an older era, and P5's
+// publish floor (1300, p5-publish route) was the only real net — so
+// 419/752/855-1271-word drafts (audit §3.1 + the R3 live runs) flowed
+// through images + review and died at the MOST expensive point, and a
+// P4 review that SHRANK a passing draft (live-measured 1201→752 in run
+// 36582658309; 1409→1369 in §3.2) survived to fail at P5 after the whole
+// chain had already re-run. Both writing steps now carry the same
+// 1200-word execution floor: below the 1500 ask (models get slack),
+// 800 above the old net. A short draft dies at ITS OWN step, where the
+// ×3 retry is a cheap fresh model draw, and review shrinkage below the
+// floor dies at P4 instead of at P5. TIGHTENING only — no gate weakened:
+// the P5 publish floor stays 1300 byte-identical, and the 1200-1300
+// band still rides the R1 repair loop (p2 ?force=1 regeneration).
+export const BLOG_EXECUTION_WORD_FLOOR = 1200;
+
 export async function generateFullArticle(
   lang: "en" | "ar",
   outline: OutlinePlan,
@@ -506,8 +524,13 @@ Return STRICT JSON only:
   const parsed = parseJSON<{ articleMd?: string; article?: string }>(text);
   const md = (parsed?.articleMd || parsed?.article || "").trim();
   const wc = countWords(md);
-  if (!md || wc < 400) {
-    throw new Error(`P2 ${lang}: empty/too-short article from ${provider}:${model}`);
+  // R4: the 400-word parse-validity net let 419/752-word drafts cross
+  // into images + review and die at P5's 1300 floor (audit §3.1/§3.5) —
+  // the execution floor now kills them HERE, at the cheapest retry point.
+  if (!md || wc < BLOG_EXECUTION_WORD_FLOOR) {
+    throw new Error(
+      `P2 ${lang}: empty/too-short article from ${provider}:${model} (${wc} words < ${BLOG_EXECUTION_WORD_FLOOR}-word execution floor)`,
+    );
   }
   console.log(`[blog-pipeline] P2 ${lang} done (${provider}:${model}, ~${wc} words)`);
   return { markdown: md, wordCount: wc, source: `${provider}:${model}` };
@@ -719,6 +742,33 @@ export function stripFaqQuestionLabel(q: string): string {
     .trim();
 }
 
+// R4 — THIRD LIFT-ONLY FAQ FORMAT (Execution-Path Audit §10 Phase R4 /
+// §8.2 B3, 2026-09-29): a PLAIN-TEXT question line. Live evidence
+// (audit §3.3, queue row 38f230fb, run 36507693416): the P4 review model
+// rewrote the FAQ section with plain-text question lines — "How soon
+// after a long run…?" on its own line, the answer paragraph below —
+// while the lifter recognized only **bold** and ### H3 lines. It lifted
+// ZERO questions, the research0 fallback dropped all ten (relevance),
+// and G3 killed a ~complete 1369-word article as "FAQ count 0". The
+// lifter now recognizes a plain-text question line too — CONSERVATIVELY:
+// it must be short (≤25 words), end in ?/؟, carry no block markdown,
+// and it may never steal the first line of an answer still being
+// accumulated. The questions ALREADY exist in the body; the lifter
+// recovers them instead of discarding a publishable article. The
+// models' WRITING contract is unchanged, and the count/quality gates
+// (G3 range, relevance, AR Latin) judge the lifted result exactly as
+// before.
+const TEXT_QUESTION_MAX_WORDS = 25;
+
+function isPlainTextQuestionLine(t: string): boolean {
+  if (!/[?؟]$/.test(t)) return false;
+  // Block markdown (headings, lists, quotes, tables) is not a prose
+  // question — the third format covers plain question lines only.
+  if (/^(?:#{1,6}[ \t]|>|\||[-*+]\s|\d+[.)]\s)/.test(t)) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  return words.length > 0 && words.length <= TEXT_QUESTION_MAX_WORDS;
+}
+
 export function splitFaqSection(
   lang: "en" | "ar",
   md: string,
@@ -750,6 +800,15 @@ export function splitFaqSection(
     if (qText !== undefined && !isLabel) {
       if (current && current.question && current.answer) faqs.push(current);
       current = { question: stripInlineMarkdown(qText), answer: "" };
+      continue;
+    }
+    // R4 third format: a plain-text question line opens the next Q/A pair
+    // ONLY when no answer is mid-accumulation (current === null, or the
+    // previous pair already has its answer) — a line ending in ? inside a
+    // just-started answer stays answer text.
+    if (isPlainTextQuestionLine(t) && (current === null || current.answer !== "")) {
+      if (current && current.question && current.answer) faqs.push(current);
+      current = { question: t, answer: "" };
       continue;
     }
     if (current) {
@@ -875,8 +934,20 @@ Return STRICT JSON only:
     externalLinks?: unknown[];
   }>(text);
   const md = (parsed?.articleMd || "").trim();
-  if (!parsed || !md || countWords(md) < 400) {
+  // R4: parse failure keeps the legacy message; a PARSED review that lands
+  // under the execution floor is a DISTINCT class — the review shrank the
+  // draft below what P5 could ever publish (its 1300 floor is measured on
+  // exactly this markdown). Failing HERE gives the ×3 retry three fresh
+  // review draws instead of burning images + review + a P5 repair cycle
+  // on a review that can never publish (live-measured shrinkage: 1201→752).
+  if (!parsed || !md) {
     throw new Error(`P4 ${lang}: invalid review JSON from ${provider}:${model}`);
+  }
+  const reviewWords = countWords(md);
+  if (reviewWords < BLOG_EXECUTION_WORD_FLOOR) {
+    throw new Error(
+      `P4 ${lang}: review output too short from ${provider}:${model} (${reviewWords} words < ${BLOG_EXECUTION_WORD_FLOOR}-word execution floor — the draft was longer; the review shrank it)`,
+    );
   }
   const coverage = ["good", "partial", "poor"].includes(parsed?.keywordCoverage ?? "")
     ? (parsed.keywordCoverage as ReviewReport["keywordCoverage"])
