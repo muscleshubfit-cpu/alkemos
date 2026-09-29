@@ -9,6 +9,27 @@
 ---
 ---
 ---
+Task ID: PHASE2-DEPLOY-VERIFY-2026-09-29
+Agent: Super Z (main)
+Task: نشر المرحلة 2 (كوميت 1ab53b0b) + إغلاقها بالتحقق الحي: CI، تطبيق 0097، تنفيذ علاج الإحصاءات عبر القناة، أول قياس GEO، وتحقق صدق القالب/المسارات — ثم توثيق الإغلاق.
+
+Work Log:
+- (CI) 1ab53b0b على main: الفحوصات 5/5 خضراء (Supabase Preview ✓ quality ✓ guard ✓ parity ✓ cleanup ✓) — Preview أخضر = 0097 عبر قاعدة المعاينة بلا أخطاء.
+- (0097 حيًا) استعلام قراءة فقط على الإنتاج: الأعمدة موجودة وكل المقالات المنشورة تحمل review_status='pending' + last_reviewed_at=null (الحالة الصادقة).
+- (القالب الصادق حيًا) EN `/blog/magnesium-forms-sleep-recovery`: «AI-generated · medical review pending» مرة واحدة، صفر «Reviewed by Ahmed Zake»، Article schema بلا reviewedBy/lastReviewed، وFAQPage (المرحلة 0) باقٍ · AR `/ar/blog/sleep-recovery-gym-results`: «مولّد بالذكاء الاصطناعي · بانتظار المراجعة الطبية» · صف التواريخ: «Updated» الصادق بدل «Last reviewed» الكاذب القديم.
+- (علاج الإحصاءات — القناة) dispatch لstats-db-remediation بDRY_RUN=0: تشغيل 36500135029 نجح — 15 صفًا/19 رقعة كُتبت (content/reading_time/updated_at فقط)، 0 فشل، والقرارات الموثقة طُبعت · تحقق قاعدي: الادعاء القديم مُزال والتخفيف موجود · تحقق حي بعد نافذة ISR (دورتا انتظار لتقادم التوليد): EN magnesium + AR sleep-recovery + AR dynamic-stretching كلها تحمل النص المخفف والادعاءات الرقمية المختلقة اختفت.
+- (قياس GEO) أول dispatch فشل بERR_MODULE_NOT_FOUND: سكربت المسبار ضحية فخ /scripts/* الشامل في .gitignore (committed-untracked — نفس فئة worklog_rotate في 288) → إصلاح 1e5ffd4b: استثناء !/scripts/geo/ بنفس الفريم + سطر توثيق بالفخ · dispatch ثانٍ: تشغيل 36501359231 نجح — **خط الأساس: 0/24 (0%) · صفر إخفاقات سلسلة** (EN 0/12 · AR 0/12) — قيمة البداية الصادقة المقاسة في التقرير نفسه؛ السطر مسجل بجدول §8.4 بخطة SEO.
+- (المسارات الحية) POST /api/admin/blog/review بلا جلسة → 401 Unauthorized (البوابة الإدارية مثبتة) · /api/ai/queue-health → 401 كما بفريم 299 (إضافة قياس الإقران خلف نفس البوابة).
+- (الإقران/المسبار القادم) نوافذ 72h/48h + retry تعمل من كود 1ab53b0b؛ إثبات التبني الحي يتراكم تلقائيًا في قياس queue-health مع تشغيلات نوفمبر التالية — لا إجراء هنا قبل أن تتراكم العينة.
+
+Stage Summary:
+- المرحلة 2 مغلقة: نشر أخضر + علاج منفذ + خط أساس مقيس + صدق القالب/السكيما/المسارات مثبت حيًا بالقياس.
+- أثر فوري مقيس: 19 ادعاء إحصائيًا مختلقًا نُزع من 15 مقالة منشورة (كلها ظاهرة للزوار) وادعاء مراجعة كاذب اختفى من 95 صفحة (الاثنان بالتوليد الجديد منعٌ بنيويًا).
+- المتبقي على المالك: مراجعة المقالات المعلقة من Admin▸Blog (زر اعتماد) · الذراع اليدوية لGEO · CF purge قديم إن ظهر كاش متقاعد.
+- Push status: pushed (1e5ffd4b — كوميت توثيقي [vercel skip] بعده).
+- Commit SHA (optional, post-push): (git log is the ledger)
+
+---
 Task ID: PHASE2-QUALITY-2026-09-29
 Agent: Super Z (main)
 Task: أمر المالك 2026-09-29 — تنفيذ المرحلة 2 (30-90 يومًا «النضج») من AUDIT_REPORT.md §9 بالترتيب، بنفس منهجية المرحلة 1 (audit → implementation → tests → live verification → documentation → commit/push)، بلا نموذج/خدمة مدفوعة وبلا إعادة فتح بنود المراحل 0/1.
@@ -219,22 +240,4 @@ Stage Summary:
 - القراءة الإلزامية انخفضت من «الملف كله ~41KB» إلى ~17KB محددة النطاق، وكل قانون AI احتفظ بقيدّه الملزم، وتعديل الواجهة صار يعديل وثيقة واحدة + مصدر تشغيل واحد.
 - الملفات الممسوسة: AGENTS.md (ترويسة + §8) · docs/TECH_REFERENCE.md (+§6) · src/docs/DESIGN_SYSTEM.md (pointer) · src/styles/design-tokens.ts (pointer module) · DESIGN.md · docs/README.md · STATE.md · الأرشيفان (+صف 290) · worklog.md (هذا المدخل).
 - Push status: pushed (بلا [vercel skip] — الفريم يمس src/)
-
----
-Task ID: ARCH-REMEDIATION-291-2026-09-28
-Agent: Implementation Agent
-Task: أمر المالك 2026-09-28 — تنفيذ P3-1+P3-3 من التقرير الحاكم: نقل التقارير المغلقة إلى docs/archive/ (التقارير تُولد مؤرشفة) + فصل سجل تنفيذ SEO-GEO عن الخطة — صفر مساس بالكود/المنطق/الواجهة.
-
-Work Log:
-- (P3-1 نقل) 24 تقرير point-in-time منفذ انتقل بgit mv (التاريخ محفوظ) إلى docs/archive/: تقارير التدقيق العميق 16/18 + VERCEL-USAGE + UI/UX (4+3) + ترحيل التوثيق (تقرير+خطة) + تعريب الأطعمة (تدقيق اللغة + 3 تقارير دفعات) + Drills (2) + RECOVERY-LINK/OTP + ADMIN-DASH/DASH-WAVE + CONTENT-REWRITE + NOTIF-I18N-250 + STAFF-BELL-I18N-251 — سطح docs/ الحي صار 18 ملف مراجع حية فقط (هدف التقرير ~17).
-- (P3-1 قانون) «التقارير تُولد مؤرشفة» بدخلتها بdocs/README.md (How to keep this registry true §1): أي تقرير/خطة/سجل جديد يهبط مباشرة بdocs/archive/ مع صفه بالسجل — لم يعد يوجد مسار «يُولد حيًا ثم يُنقل لاحقًا».
-- (P3-3 فصل السجل) سجل تنفيذ SEO-GEO §12 (200,012 حرفًا ≈ 300KB — 64% من الملف) انتقل حرفيًا إلى docs/archive/SEO-GEO-EXECUTION-LOG.md (مولود مؤرشف بصفه) — الخطة 341.8KB→45.4KB بقسم §12 كعبًا يشير للسجل؛ الإدخالات الجديدة تُلحق بملف السجل — صف خريطة مصادر الحقيقة بSTATE حُدث.
-- (مراجع) تحديث كل الإحالات للملفات المنقولة: AGENTS.md §12.5.2 (تقرير docs-context) · SECURITY.md (UX-TEST-REPORT ×3) · docs/CI_GATES.md (خطة الترحيل) · docs/README.md (كل الصفوف المنقولة) — صفر مسارات ميتة (فحص R/M أخضر).
-- (STATE) صف 291 + صف QA 291 — سلّم ≤2 (صف 289 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: ed8713b9 (CI أخضر).
-- (التحقق — فريم توثيقي) docs_audit ✓ (42→19 ملف docs/*.md حي كلها مسجلة — الفحص الثنائي يشمل docs/archive تلقائيًا لأن الصفوف تشير للمسارات الجديدة) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓.
-
-Stage Summary:
-- المواد التاريخية لم تعد تستهلك سياق التنفيذ: سطح docs/ الحي = مراجع فقط، وخطة SEO صارت قابلة للصيانة، وكل تقرير مستقبلي يُولد مؤرشفة من اليوم الأول.
-- الملفات الممسوسة: 24 git mv + docs/archive/SEO-GEO-EXECUTION-LOG.md (جديد) + docs/SEO-GEO-MASTER-PLAN.md (45KB) + docs/README.md (الصفوف + القانون) + AGENTS.md + SECURITY.md + docs/CI_GATES.md + STATE.md (إحالات + 291) + الأرشيفان (صف 289) + worklog.md (هذا المدخل).
-- Push status: pushed
 

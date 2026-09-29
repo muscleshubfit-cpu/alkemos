@@ -10744,3 +10744,23 @@ Stage Summary:
 - السكريبت مدفوع فعلًا الآن والفئة (guard غير مدفوع يخضر محليًا ويحمر بCI) مقفولة بفحص M المشتق من git — دفعتا parity الحمراوان سببهما هذا وحده وستخضرّان بهذا الكوميت.
 - Push status: pushed
 
+
+<!-- rotated 2026-09-29 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: ARCH-REMEDIATION-291-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P3-1+P3-3 من التقرير الحاكم: نقل التقارير المغلقة إلى docs/archive/ (التقارير تُولد مؤرشفة) + فصل سجل تنفيذ SEO-GEO عن الخطة — صفر مساس بالكود/المنطق/الواجهة.
+
+Work Log:
+- (P3-1 نقل) 24 تقرير point-in-time منفذ انتقل بgit mv (التاريخ محفوظ) إلى docs/archive/: تقارير التدقيق العميق 16/18 + VERCEL-USAGE + UI/UX (4+3) + ترحيل التوثيق (تقرير+خطة) + تعريب الأطعمة (تدقيق اللغة + 3 تقارير دفعات) + Drills (2) + RECOVERY-LINK/OTP + ADMIN-DASH/DASH-WAVE + CONTENT-REWRITE + NOTIF-I18N-250 + STAFF-BELL-I18N-251 — سطح docs/ الحي صار 18 ملف مراجع حية فقط (هدف التقرير ~17).
+- (P3-1 قانون) «التقارير تُولد مؤرشفة» بدخلتها بdocs/README.md (How to keep this registry true §1): أي تقرير/خطة/سجل جديد يهبط مباشرة بdocs/archive/ مع صفه بالسجل — لم يعد يوجد مسار «يُولد حيًا ثم يُنقل لاحقًا».
+- (P3-3 فصل السجل) سجل تنفيذ SEO-GEO §12 (200,012 حرفًا ≈ 300KB — 64% من الملف) انتقل حرفيًا إلى docs/archive/SEO-GEO-EXECUTION-LOG.md (مولود مؤرشف بصفه) — الخطة 341.8KB→45.4KB بقسم §12 كعبًا يشير للسجل؛ الإدخالات الجديدة تُلحق بملف السجل — صف خريطة مصادر الحقيقة بSTATE حُدث.
+- (مراجع) تحديث كل الإحالات للملفات المنقولة: AGENTS.md §12.5.2 (تقرير docs-context) · SECURITY.md (UX-TEST-REPORT ×3) · docs/CI_GATES.md (خطة الترحيل) · docs/README.md (كل الصفوف المنقولة) — صفر مسارات ميتة (فحص R/M أخضر).
+- (STATE) صف 291 + صف QA 291 — سلّم ≤2 (صف 289 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: ed8713b9 (CI أخضر).
+- (التحقق — فريم توثيقي) docs_audit ✓ (42→19 ملف docs/*.md حي كلها مسجلة — الفحص الثنائي يشمل docs/archive تلقائيًا لأن الصفوف تشير للمسارات الجديدة) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ · migration_audit ✓.
+
+Stage Summary:
+- المواد التاريخية لم تعد تستهلك سياق التنفيذ: سطح docs/ الحي = مراجع فقط، وخطة SEO صارت قابلة للصيانة، وكل تقرير مستقبلي يُولد مؤرشفة من اليوم الأول.
+- الملفات الممسوسة: 24 git mv + docs/archive/SEO-GEO-EXECUTION-LOG.md (جديد) + docs/SEO-GEO-MASTER-PLAN.md (45KB) + docs/README.md (الصفوف + القانون) + AGENTS.md + SECURITY.md + docs/CI_GATES.md + STATE.md (إحالات + 291) + الأرشيفان (صف 289) + worklog.md (هذا المدخل).
+- Push status: pushed
+
