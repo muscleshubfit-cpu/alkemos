@@ -14,8 +14,10 @@ import { sanitizeModelSlug } from "./slug";
 import {
   AR_MSA_EDITOR_LAW,
   FAQ_HEADING_RE,
+  scanArabicDialect,
   scanLatinContamination,
   validateMsaConversion,
+  countArabicWords,
 } from "./blog-msa";
 // AUDIT_REPORT §9-المرحلة 1, item 2 (2026-09-29) — the editorial
 // constitution now lives in ONE module (blog-editorial-law.ts) and is
@@ -898,15 +900,264 @@ Return STRICT JSON only:
   };
 }
 
-// PHASE 176 (current law): the AR Latin-repair backstop —
+// PHASE 176 (2026-09-11): the AR Latin-repair backstop —
 // scanLatinContamination detects, ONE targeted AI call repairs, then
 // validateMsaConversion re-gates deterministically. Incident history:
 // archive/PROMPT-LAW-HISTORY.md.
+//
+// R2 — LOCALIZED LATIN REPAIR (Execution-Path Audit §9 item 4 / §10
+// Phase R2, 2026-09-29): the Phase-176 call regenerated the WHOLE
+// article (~9.5k-token payload) to fix a handful of bare tokens — the
+// oversized payload excluded Groq entirely (the 8k TPM guard) and the
+// OR/NV free models kept timing out or returning English explanation
+// text instead of the repaired article; 5 of the 7 final AR failures
+// in the audit window died exactly there (we, need, to, replace…).
+// The repair is now LOCALIZED, in three passes:
+//   (a) a fully DETERMINISTIC dictionary pass first (the replacement
+//       table literally from the Phase-176 prompt + the tokens measured
+//       in the audit window's live drafts) + re-scan — dictionary-
+//       covered contamination now repairs with ZERO AI calls;
+//   (b) what remains goes to a SMALL token-only conversion call —
+//       payload = the token list alone (est. tokens ≈ prompt/4 +
+//       maxTokens + 800 ≪ 7.2k ⇒ Groq-eligible again) — the model
+//       returns JSON {token → arabic}, applied deterministically via
+//       the same scanner-mirroring engine;
+//   (c) the SAME deterministic judges as ever — validateMsaConversion
+//       + scanLatinContamination (blog-msa.ts untouched by R2): a
+//       failing repair still throws the same honest
+//       «latin-repair failed validation» error.
+// Rollback (audit §10 R2): LATIN_REPAIR_LEGACY=1 restores the pre-R2
+// full-article path verbatim. No gate, threshold, or editorial rule
+// changed — the gates simply receive a cleaner input.
 
-const LATIN_REPAIR_MAIN = "===CORRECTED===";
+const LATIN_REPAIR_MAIN = "===CORRECTED==="; // (kept only for the legacy path below)
 const LATIN_REPAIR_NOTES = "===NOTES===";
 
-export async function repairArabicLatinContamination(
+/**
+ * R2(a) — the deterministic Latin→Arabic replacement table.
+ * Provenance, two measured sources ONLY (no invented entries):
+ *   1. The Phase-176 repair prompt's own example table (leucine→الليوسين،
+ *      casein→الكازين، shake→مشروب، marketed→يُسوَّق، evidences→أدلة،
+ *      simplicity→البساطة، alkalin→ألكالين، vs→مقابل) — the exact tokens
+ *      of the 09-11 live incident.
+ *   2. The audit window's live drafts (2026-09-15→29, blog queue):
+ *      bmr/tdee/lbm/pal (09-16/17/24), epa/dha (×3), whey/isolate/
+ *      monohydrate/atp/hcl/meq/amino acid(s) (09-16→18), deadlift/squat/
+ *      shakes/bench press (09-17), heart rate (variability) + scapular
+ *      wall slides (09-22/24), sleep/timing/intake/deload (09-15→24).
+ * Multi-word keys are matched BEFORE their word fragments
+ * ("amino acid" before "amino"). Keys must never collide with
+ * LATIN_WHITELIST — pinned by test (silently rewriting an allowed
+ * token would be an unrequested change). Exported for that collision
+ * canary only (blog-latin-repair-r2.test.ts).
+ */
+export const LATIN_REPAIR_DICTIONARY: Record<string, string> = {
+  // ── prompt table (the 09-11 incident) ──
+  leucine: "الليوسين",
+  casein: "الكازين",
+  shake: "مشروب",
+  shakes: "مشروبات",
+  marketed: "يُسوَّق",
+  evidences: "أدلة",
+  simplicity: "البساطة",
+  alkalin: "ألكالين",
+  alkaline: "ألكالين",
+  vs: "مقابل",
+  // ── live audit-window drafts ──
+  whey: "مصل اللبن",
+  protein: "البروتين",
+  isolate: "المعزول",
+  monohydrate: "مونوهيدرات",
+  creatine: "الكرياتين",
+  bmr: "معدل الأيض الأساسي",
+  tdee: "إجمالي الإنفاق اليومي للطاقة",
+  lbm: "الكتلة العضلية الصافية",
+  pal: "مستوى النشاط البدني",
+  epa: "حمض الإيكوسابنتاينويك",
+  dha: "حمض الدوكوساهيكساينويك",
+  atp: "ثلاثي فوسفات الأدينوزين",
+  hcl: "هيدروكلوريد",
+  meq: "ملي مكافئ",
+  deadlift: "الرفعة الميتة",
+  squat: "القرفصاء",
+  sleep: "النوم",
+  timing: "التوقيت",
+  intake: "المدخول",
+  deload: "التخفيف",
+  // ── multi-word phrases (matched before their fragments) ──
+  "amino acids": "أحماض أمينية",
+  "amino acid": "حمض أميني",
+  "bench press": "ضغط الصدر",
+  "heart rate variability": "تغيّر معدل ضربات القلب",
+  "heart rate": "معدل ضربات القلب",
+  "scapular wall slides": "الانزلاق الجداري الكتفي",
+};
+
+const LATIN_DICTIONARY_MAP = new Map(Object.entries(LATIN_REPAIR_DICTIONARY));
+
+/** Arabic letter class — byte-identical to blog-msa's ARABIC_LETTER_CLASS
+ * (kept local: the engine must mirror the scanner, not import its guts). */
+const AR_LETTER_CLASS = "[\\u0621-\\u0652]";
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+interface LatinTokenMapResult {
+  out: string;
+  /** Dictionary/AI keys actually applied (lowercase, unique). */
+  applied: string[];
+}
+
+/**
+ * R2 engine — apply a lowercase token→Arabic map with the EXACT scanning
+ * semantics of scanLatinContamination (blog-msa.ts), so the repair only
+ * ever touches what the detector counts:
+ *   - fenced code blocks: split out verbatim (scanner replaces them)
+ *   - image markdown + bare URLs + markdown link TARGETS "](url)":
+ *     protected (scanner strips them; anchors stay visible)
+ *   - parenthesized Latin glosses "(Whey)": protected (scanner removes
+ *     them before counting — the accepted MSA gloss convention)
+ *   - GLUED Arabic↔Latin adjacency (كريAlkaline): the Latin fragment is
+ *     replaced in place with a SPACED Arabic term (scanner counts it
+ *     before the gloss strip — a real gloss never glues letters)
+ *   - bare tokens: replaced on non-Latin-letter boundaries, case-blind
+ * Multi-word keys apply before single words (sorted longest-first).
+ */
+function applyLatinTokenMap(md: string, map: Map<string, string>): LatinTokenMapResult {
+  if (!md || map.size === 0) return { out: md, applied: [] };
+  const applied = new Set<string>();
+
+  const keys = [...map.keys()].sort((a, b) => b.length - a.length);
+  const bareRules = keys.map((k) => ({
+    re: new RegExp(`(?<![A-Za-z])${escapeRegExp(k)}(?![A-Za-z])`, "gi"),
+    rep: map.get(k) as string,
+    key: k,
+  }));
+  const gluedRe = new RegExp(`(${AR_LETTER_CLASS})([A-Za-z]+)|([A-Za-z]+)(${AR_LETTER_CLASS})`, "g");
+
+  const segments = md.split(/(```[\s\S]*?```)/g);
+  const out = segments.map((seg, i) => (i % 2 === 1 ? seg : repairProseSegment(seg))).join("");
+  return { out, applied: [...applied] };
+
+  function repairProseSegment(seg: string): string {
+    return seg
+      .split("\n")
+      .map((line) => repairLine(line))
+      .join("\n");
+  }
+
+  function repairLine(line: string): string {
+    const kept: string[] = [];
+    const keep = (s: string): string => {
+      kept.push(s);
+      return `\u0000${kept.length - 1}\u0000`;
+    };
+    // 1) protect images / bare URLs / link targets (anchors stay visible)
+    let work = line
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, (m) => keep(m))
+      .replace(/https?:\/\/\S+/g, (m) => keep(m))
+      .replace(/\]\([^)]*\)/g, (m) => keep(m));
+    // 2) glued adjacency repair (BEFORE the gloss protection — mirrors
+    //    the scanner's stage order)
+    work = work.replace(gluedRe, (_m, arA: string, latA: string, latB: string, arB: string) => {
+      const lat = (latA ?? latB ?? "").toLowerCase();
+      const rep = map.get(lat);
+      if (!rep) return _m;
+      applied.add(lat);
+      return latA ? `${arA} ${rep}` : `${rep} ${arB}`;
+    });
+    // 3) protect parenthesized Latin glosses, then bare replacement
+    work = work.replace(/\([^)]*[A-Za-z][^)]*\)/g, (m) => keep(m));
+    for (const { re, rep, key } of bareRules) {
+      work = work.replace(re, () => {
+        applied.add(key);
+        return rep;
+      });
+    }
+    // 4) restore protected spans
+    return work.replace(/\u0000(\d+)\u0000/g, (_m, i: string) => kept[Number(i)]);
+  }
+}
+
+/**
+ * R2(b) per-value deterministic acceptance for ONE model-returned
+ * mapping: the value must be a pure-MSA Arabic TERM, never a sentence,
+ * never English junk (the we-need-to-replace class), never dialect
+ * (the إيه×6 class of 09-17), never a URL/markdown fragment.
+ */
+function isValidArabicTermValue(v: string): boolean {
+  if (!v || v.length > 80) return false;
+  if (!/[\u0600-\u06FF]/.test(v)) return false; // must carry Arabic
+  if (/[A-Za-z]/.test(v)) return false; // zero Latin (junk responses)
+  if (/https?:|[[\]`#]/.test(v)) return false; // no URLs / markdown
+  if (scanArabicDialect(v).strong > 0) return false; // no dialect
+  if (countArabicWords(v) > 8) return false; // a term, not a sentence
+  return true;
+}
+
+/**
+ * R2(b) — the SMALL conversion call: the model sees ONLY the token
+ * list (never the article), so the payload stays far under Groq's 8k
+ * TPM guard (est. tokens ≈ prompt/4 + maxTokens + 800 ≪ 7.2k) and the
+ * strongest free model (gpt-oss-120b, 85% live success) re-enters the
+ * latin-repair path. Returns only per-value-accepted mappings for the
+ * tokens actually requested.
+ */
+async function translateLatinTokens(
+  tokens: string[],
+): Promise<{ map: Map<string, string>; provider: string; model: string }> {
+  const map = new Map<string, string>();
+  if (tokens.length === 0) return { map, provider: "none", model: "none" };
+
+  const prompt = `قائمة مصطلحات لاتينية ظهرت سائبة داخل مقال عربي عن اللياقة والتغذية. مهمتك تحويل المصطلحات فقط — لا يوجد مقال هنا.
+
+أعد كائن JSON فقط، دون أي شرح أو نص خارجه، بهذا الشكل الحرفي:
+{"<المصطلح اللاتيني>": "<المقابل العربي>"}
+
+لكل مصطلح: مقابلها العربي الشائع في نصوص اللياقة والتغذية بالعربية الفصحى الحديثة، أو تعريبها الصوتي إذا لم يوجد مقابل شائع (مثل: leucine → الليوسين، casein → الكازين، shake → مشروب، marketed → يُسوَّق، evidences → أدلة، simplicity → البساطة، alkalin → ألكالين، vs → مقابل).
+
+قواعد صارمة:
+1. كل قيمة عربية خالصة — لا حرف لاتيني واحد داخل القيمة.
+2. فصحى حديثة سهلة فقط — ممنوع أي لهجة عامية (عشان، مش، إيه…).
+3. القيمة مصطلح قصير (كلمة إلى بضع كلمات) — ليست جملة.
+4. لا تضف أي مفتاح لم يُطلب، ولا تكرر الشرح.
+5. المقابل يحفظ المعنى التقني للمصطلح كما يُستخدم في سياق التدريب والتغذية.
+
+المصطلحات:
+${tokens.map((t) => `- ${t}`).join("\n")}`;
+
+  const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
+    tag: "blog:latin-tokens-ar",
+    systemPrompt: AR_MSA_EDITOR_LAW,
+    temperature: 0.2,
+    maxTokens: 1_200,
+    jsonMode: true,
+    timeoutMs: 60_000,
+    maxModels: 3,
+  });
+
+  const parsed = parseJSON<Record<string, unknown>>(text);
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    for (const [k, v] of Object.entries(parsed)) {
+      const key = k.trim().toLowerCase();
+      if (!tokens.includes(key)) continue; // only what we asked for
+      if (typeof v !== "string") continue;
+      const val = v.trim();
+      if (!isValidArabicTermValue(val)) continue; // junk/dialect rejected
+      map.set(key, val);
+    }
+  }
+  return { map, provider, model };
+}
+
+/**
+ * The pre-R2 full-article repair (Phase 176, kept VERBATIM as the
+ * LATIN_REPAIR_LEGACY=1 rollback path — audit §10 R2 «علم env يعيد
+ * المسار القديم»). Do not modify: it is the rollback lever, not the
+ * live path.
+ */
+async function repairArabicLatinContaminationLegacy(
   markdown: string,
   offendingTokens: string[],
 ): Promise<string> {
@@ -973,4 +1224,65 @@ ${markdown}`;
     `[blog-pipeline] latin-repair ar done (${provider}:${model}) — ${tokens.length} token(s) arabized`,
   );
   return body;
+}
+
+/**
+ * PHASE 176 → R2 (2026-09-29): localized Latin repair for AR articles —
+ * deterministic dictionary pass first, then (only for what remains) the
+ * small token-only conversion call, then the SAME deterministic judges.
+ * `offendingTokens` (from the route's scan) feeds the legacy rollback
+ * path only; the live path re-scans internally so the dictionary, the
+ * re-scan and the validator always agree byte-for-byte.
+ */
+export async function repairArabicLatinContamination(
+  markdown: string,
+  offendingTokens: string[],
+): Promise<string> {
+  // R2 rollback lever (audit §10 R2): the pre-R2 full-article path.
+  if (process.env.LATIN_REPAIR_LEGACY === "1") {
+    return repairArabicLatinContaminationLegacy(markdown, offendingTokens);
+  }
+
+  // (a) deterministic dictionary pass + re-scan
+  let out = markdown;
+  const dictPass = applyLatinTokenMap(out, LATIN_DICTIONARY_MAP);
+  out = dictPass.out;
+  let latin = scanLatinContamination(out);
+
+  // (b) remaining tokens → the small conversion call (Groq-eligible)
+  let provider = "dictionary";
+  let model = "pass";
+  let modelAppliedCount = 0;
+  if (latin.count > 0) {
+    const remaining = latin.tokens.slice(0, 40);
+    const { map, provider: p, model: m } = await translateLatinTokens(remaining);
+    if (map.size > 0) {
+      const aiPass = applyLatinTokenMap(out, map);
+      out = aiPass.out;
+      modelAppliedCount = aiPass.applied.length;
+      provider = p;
+      model = m;
+    } else {
+      provider = p;
+      model = m;
+    }
+    latin = scanLatinContamination(out);
+  }
+
+  // (c) the SAME deterministic judges as ever — no gate changed
+  const check = validateMsaConversion(markdown, out, { ctaLinkTolerance: false });
+  if (!check.ok || latin.count > 0) {
+    const violations = [
+      ...check.violations,
+      ...(latin.count > 0
+        ? [`latin contamination remains: ${latin.tokens.slice(0, 10).join(", ")}`]
+        : []),
+    ];
+    throw new Error(`latin-repair failed validation: ${violations.join(" | ")}`);
+  }
+  console.log(
+    `[blog-pipeline] latin-repair ar done (${provider}:${model}) — ` +
+      `${dictPass.applied.length} dictionary + ${modelAppliedCount} model token(s) arabized`,
+  );
+  return out;
 }

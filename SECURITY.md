@@ -75,6 +75,12 @@ Any of the following:
 - The agent's own working clone of the repo: the agent must use the
   same `.env.local` pattern. The agent must NEVER commit `.env.local`
   or any file matching `.env*`.
+- Non-secret feature/rollback flags are documented here (NOT secrets —
+  they carry no credential value): `LATIN_REPAIR_LEGACY` (R2,
+  2026-09-29) — "1" rolls the AR Latin-repair back to the pre-R2
+  full-article AI call (debug/rollback lever only; the deterministic
+  purity gates are byte-identical either way). Default empty/absent =
+  the localized repair (dictionary pass + token-only small call).
 
 ### 2.3 Forbidden actions
 

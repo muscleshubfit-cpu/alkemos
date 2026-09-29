@@ -250,6 +250,12 @@ discarding it: the failure names the offending step as a machine-readable
 research, outline and images are reused) before falling back to the honest
 mark-failed + next-day backstop. No gate is weakened — a bad article is
 still never published; a good-but-flawed one gets a second chance in-run.
+Arabic Latin-purity repair is likewise **localized**: a deterministic
+dictionary pass arabizes known fitness/supplement terms with zero AI
+calls, and only the remaining tokens go to a tiny conversion call
+(token list only — small enough for the Groq free tier, which the old
+full-article repair payload excluded). The purity gates themselves are
+unchanged; rollback is the `LATIN_REPAIR_LEGACY` env flag.
 
 ### Owner review workflow (honest E-E-A-T)
 Every pipeline-published article lands in the **pending review** state — its

@@ -7,6 +7,25 @@
 > Newest on top; append-only; one entry per task (§12.5.1).
 
 ---
+Task ID: LATIN-REPAIR-R2-2026-09-29
+Agent: Super Z (main)
+Task: تنفيذ Phase R2 كاملة من خطة تعافي مسار التنفيذ (docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md §10) — الإصلاح اللاتيني الموضعي للمسار العربي، بأمر المالك (R2 فقط؛ البوابات دون أي تعديل).
+
+Work Log:
+- جمع أدلة حية (قراءة-فقط من قاعدة الإنتاج): 21 صف AR بنافذة التدقيق — كل نصوص post-review نظيفة لهجويًا (strong=0)؛ فشل latin-repair السبعة سببها نداء المقال الكامل (~9.5k tokens يقصي Groq ويعيد نصًا إنجليزيًا we-need-to-replace)؛ بناء القاموس من جدول الـprompt نفسه + مقيسات المسودات الحية (bmr/tdee/epa/dha/alkaline/whey/isolate/monohydrate/atp/hcl/meq/amino acids/bench press/heart rate variability/scapular wall slides/deadlift/squat/shakes/sleep/timing/intake/deload).
+- `src/lib/blog-pipeline.ts`: القاموس الحتمي `LATIN_REPAIR_DICTIONARY` (مفاتيح عبارات قبل كلماتها) + محرك `applyLatinTokenMap` يطابق دلالات الكاشف بالبايت (أسوار كود/صور/URLs/أهداف روابط محمية؛ أقواس الإشارة (Whey) محمية؛ الملتصق كريAlkaline يُفك حتميًا بمسافة) + `translateLatinTokens` النداء الصغير (tag ‏`blog:latin-tokens-ar`، ‏payload قائمة الـtokens وحدها، est<2.6k ⇒ Groq داخل، ‏JSON {token→عربي}) بفحص قيمة-بقيمة `isValidArabicTermValue` (عربي خالص/بلا لاتيني/بلا لهجة قوية/مصطلح ≤8 كلمات/بلا روابط) + `repairArabicLatinContamination` الجديدة (قاموس ← فحص ← نداء صغير للباقي ← نفس القضاة) + المسار القديم محفوظ حرفيًا كإرجاع `LATIN_REPAIR_LEGACY=1` (blog-msa.ts لم يُمس إطلاقًا).
+- الاختبارات `src/lib/__tests__/blog-latin-repair-r2.test.ts` — 10/10 أخضر: فئة 09-11 (marketed/evidences/shake/alkalin بصفر نداءات AI) · كريAlkaline الملتصق (حتى داخل قوس إشارة) · فئة 09-16 (bmr/tdee/epa/dha/alkaline) · العبارات قبل الكلمات (amino acids/bench press/heart rate variability) · كناري payload (نداء واحد يحمل tokens فقط بلا المقال + est<7200) · فئة الرد الإنجليزي (فشل صادق بنفس الرسالة) · فئة القيمة اللهجية إيه×6 والقيمة اللاتينية (رفض قيمة-بقيمة → فشل صادق) · إرجاع legacy (يرى المقال كاملًا بخياراته الحرفية) · كناري عدم تصادم القاموس مع whitelist ونقاء قيمه · كناري المحرك (fence/gloss/URLs/أهداف روابط بالبايت + إصلاح anchor مع بقاء الهدف).
+- البطارية (فريم src): tsc ✓ 0 · eslint ✓ 0 · vitest ✓ كاملًا أخضر · next build ✓ خروج 0 · docs_parity + docs_audit + stale-refs ✓ (بعد التوثيق).
+- (التوثيق بنفس الفريم) AGENTS §8 (ARABIC PURITY LAW — Localized repair + RATE-LIMIT انقسام موقع latin-repair + رأس الملف) · README (قسم Automated content pipeline) · DEVELOPER_GUIDE (قسم طبقة إعادة المحاولة) · STATE فريم 304 (مع توثيق الإثبات الحي لR1 بتشغيل 36571415573) · علامة «منفذة» على Phase R2 بخطة التدقيق · .env.example + SECURITY §2.2 لعلم الإرجاع.
+
+Stage Summary:
+- فئة الفشل الأكبر تاريخيًا في المسار العربي (5/7: latin-repair validation) أصبحت موضعية: الفئة الشائعة (مصطلحات/اختصارات معروفة) تُصلح حتميًا بصفر نداءات AI، والباقي بنداء صغير يدخل Groq (85% نجاة حية) بدل نداء المقال الكامل المقصي له — بلا أي تعديل لأي بوابة أو عتبة (blog-msa.ts بالبايت).
+- الإرجاع: LATIN_REPAIR_LEGACY=1 (مسار Phase-176 حرفيًا). R3/R4/R5 لم تُمس — بانتظار أوامر المالك.
+- أول إثبات حي متوقع: أول تشغيل AR قادم يلتقط كاشف P4 لاتينيًا.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+
+---
 Task ID: REPAIR-LOOP-R1-PHASE-303-2026-09-29
 Agent: Super Z (main)
 Task: تنفيذ Phase R1 كاملة من خطة تعافي مسار التنفيذ (docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md §10) — عقد rerunTarget + حلقة الإصلاح داخل التشغيل + p2 ?force=1، بأمر المالك (R1 فقط، بلا لمس أي Gate/قاعدة جودة/Business Logic خارجها).
@@ -230,20 +249,3 @@ Stage Summary:
 - صفحة رئيسية أخف بـ~900KB من طلباتها وصفحات الأطعمة/التمارين/البرامج تربح بالمثل؛ الزائر الداكن يوفر ~56KB و3 طلبات من نافذة LCP.
 - البنية التحتية الأربعة (CF/Vercel/Supabase/GitHub) موثقة صحية بلا إجراء؛ الترطيب يبقى bottleneck المختبر الوحيد المتبقي (مسار قرار مالك مستقبلي).
 - الملفات: docs/PERFORMANCE-AUDIT-2026-09-28.md (جديد) · 5 lib + exercise-images.ts + test + SiteHeader + EvoFloatingWidget · 24 webp جديد/-30 png · STATE.md · worklog.md (هذا المدخل).
----
-Task ID: CONTENT-AUDIT-PHASE-295-P2-11-2026-09-28
-Agent: Super Z (main)
-Task: أمر المالك 2026-09-28 — تنفيذ P2-11 بالكامل من تقرير العلاج بمصدر الحقيقة من المالك: صورة الشهادات الأصلية الثماني + حسابا فيسبوك، مع معالجة بصرية احترافية بلا أي تغيير في محتوى الشهادات.
-
-Work Log:
-- (المصدر) الصورة الأصلية 1768×992: كُشفت حدود الشهادات الثماني بكسليًا (كشف تكيفي لكل خلية 3×3 + مسحات حواف إحصائية + تحقق VLM مزدوج) — الثمانية: ACSM CPT · ACE CPT · ISSA CPT · ACE FNS · NASM FNS · ISSA SSN · ACE WMS · ISSA FC.
-- (المعالجة البصرية) قصّ بكسلي دقيق بلا أي إعادة إنشاء: أُزيلت الخلفية الزخرفية والشعار البرتقالي المركزي فقط؛ حلاقة خوارزمية لبقايا الخلفية الداكنة/المتوهجة (≤12px) + تدرّج حافة 4px؛ شبكة موحّدة 2×4 على خلفية فاتحة متدرجة بظلال خفيفة — founder-certificates.{webp 131KB, jpg 286KB} ‏(1252×1884). تحقق VLM نهائي: الثمانية كاملة، صفر بقايا، صفر محتوى مقصوص (حافتا أمانة موثقتان: حافة WMS العلوية مقطوعة في الأصل نفسه، والحد الذهبي في SSN ينتهي قبل الزاوية بتصميم القالب).
-- (المحتوى النصي) authors.ts: المدخلان العامّان (CPT بلا جهة + «Nutrition Coach certification») استُبدلا بالثمانية المسمّاة بأجهزة الإصدار (قانون المالك: الأسماء والجهات فقط — لا أرقام/تواريخ/عضويات، يحميه كناري رفض الأرقام).
-- (إشارات الهوية) Person.sameAs = الحسابان الموثّقان حيًّا (AhmedZakePT 14k+ · SpEeRr 18k+) بمعزل عن Organization.sameAs؛ knowsAbout += Sports nutrition · Weight management (بدعم الشهادات)؛ بطاقات الروابط تعرض الحساب بدل اسم المضيف المتطابق.
-- (الصفحتان) مؤسس EN/AR: figure الشهادات داخل قسم الشهادات مع caption ثنائي + alt وصفي.
-- (الحماية) 8 اختبارات كناري جديدة author-credentials-p2-11.test.ts (الجهة مسمّاة، الثمانية حرفيًا، صفر أرقام، sameAs بالضبط + انفصال الكيان، الملفات على القرص، الصفحتان تعرضان الصورة).
-- (الوثائق) تقرير العلاج §5 → منفّذ بتفصيل كامل + صف P2-11 في جدول P2 + صف README/محدث — وSTATE 295.
-
-Stage Summary:
-- P2-11 مغلق بالكامل بمصدر الحقيقة من المالك: تدقيق المحتوى الآن 26/26 (الباقي بقرار المالك: تعريب الأطعمة 4+ فقط).
-- القيود الحرفية للمالك كلها محفوظة ومحروسة باختبارات: بلا تكرار/استبدال/حذف/إعادة إنشاء شهادة، وبلا نشر أرقام أو تواريخ من الشهادات.

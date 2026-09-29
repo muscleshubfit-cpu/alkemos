@@ -726,6 +726,17 @@ hop — منذ pipeline v2/v3)، لكن إعادة المحاولة ما زال�
   MAX_REPAIRS)، وإصلاح p2-content يتم عبر `?force=1` (توليد فوق المسودة
   مع بقاء research/outline/images). الأدلة: اختبارات blog-repair-target
   وblog-repair-contract + مصفوفة تكامل run-step-loop-test.sh.
+- **الإصلاح اللاتيني الموضعي (R2، 2026-09-29 — نفس التدقيق §9 بند 4):**
+  إصلاح اللاتيني السائب في المقالات العربية لم يعد يعيد توليد المقال
+  كاملًا بنداء ~9.5k tokens (كان يقصي Groq ويعيد نصًا إنجليزيًا — 5 من 7
+  فشل AR): تمريرة قاموس حتمية أولًا (جدول الـprompt نفسه + مقيسات نافذة
+  التدقيق في `LATIN_REPAIR_DICTIONARY` بsrc/lib/blog-pipeline.ts — تصلح
+  الفئة الشائعة بصفر نداءات AI)، وما تبقى يذهب لنداء تحويل صغير يحمل
+  قائمة الـtokens وحدها (<1k ⇒ يدخل Groq مجددًا) يعيد JSON {token→عربي}
+  يُطبَّق حتميًا عبر نفس محرك الفحص، والبوابات
+  (`validateMsaConversion`/`scanLatinContamination`) بالبايت كما هي. الإرجاع:
+  `LATIN_REPAIR_LEGACY=1` يعيد المسار القديم حرفيًا. الأدلة:
+  blog-latin-repair-r2.test.ts (حالات الفشل الخمس الحية + الكناريات).
 
 ### 3. الأسعار والتكلفة
 
