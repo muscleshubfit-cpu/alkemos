@@ -10908,3 +10908,20 @@ Stage Summary:
 - القيد المتبقي (خارج سيطرة الموقع، §4 من التقرير): URLs المسمومة في كاش فيسبوك تحتاج إعادة زحف (مشاركة جديدة بعد النشر، ≤30 يومًا، أو Scrape Again من Debugger بحساب المالك) + تحقق المالك أن Bot Fight Mode OFF بلوحة Cloudflare (غير قابل للقراءة بصلاحية التوكن الحالي).
 - Push status: pushed to main — 89322f0 (الإصلاحات + التقرير) ثم d135f83 (follow-up المقارنات) · Vercel: READY ×2 · Cloudflare purge_everything ×2.
 - (التحقق الحي بعد النشر — 11/11 ✓) الرئيسية EN/AR og-home-*.png?v=2 (1200×630) · التمارين EN/AR الصورة الحقيقية ?v=2 (640×427 webp) · البرامج EN/AR 768×768 المصححة · المقارنات EN/AR ?v=2 (1200×630) · المدونة غلاف Pexels بأبعاد 1200×630 · الأطعمة والمؤلفون بالنسخ المصدّرة — وروابط الصور ?v=2 تعيد 200 بأنواع محتوى صحيحة عبر الحافة.
+
+<!-- rotated 2026-09-29 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: GIT-IDENTITY-2026-09-29
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-29 — نشر Vercel لـ commit تقرير التدقيق fe613c04 محجوب («audit@alkemos.local ليس عضوًا بالفريق»)؛ استخدام بريد المالك muscleshubfit@gmail.com وتثبيته قانونًا ملزمًا في AGENTS.md §10.
+
+Work Log:
+- (التشخيص) fe613c04 وُقّع `Independent Audit <audit@alkemos.local>` مخالفًا القانون القائم §10 (بريد الالتزام muscleshubfit@gmail.com) — تكامل Git في Vercel يفوّض كل نشر إلى main بمطابقة بريد مؤلف الـ commit ضد أعضاء فريق muscleshubfit-2941؛ أي بريد آخر = النشر BLOCKED. الـ CI على fe613c04 نفسه أخضر (Supabase Preview · cleanup · parity · guard ✓) — الحجب من Vercel وحده وبلا أي أثر إنتاجي (commit مستندات فقط، والموقع يبقى على آخر بناء سليم؛ وكان يستوجب [vercel skip] أصلًا بقانون VERCEL-USAGE-6).
+- (الإصلاح بلا إعادة كتابة تاريخ) لا amend/force-push على main النشط (خطر فقدان دفعات متزامنة + §12.5.2 يفرض فحوصات ما بعد force-push) — commit جديد بعضوية المالك يفوّض النشر ويتضمن كل محتوى main شاملًا AUDIT_REPORT.md.
+- (تثبيت القانون §10) تشديد قانون بريد الالتزام: الإلزام للمؤلف والمُرسل معًا (الاسم المعروض حر)، سبب Vercel + واقعة 2026-09-29 + وصفة الاسترداد (أول commit لاحق بعضوية عضو يزيح المحجوب — بلا إعادة كتابة أبدًا) + فحص الهوية ما قبل الدفع `%ae`.
+- (البوابات) docs_audit ✓ بعد التعديل · docs_parity ✓ · تدوير ذيل نافذة worklog بـ scripts/worklog_rotate.py (H5 ≤ 12 مدخلًا) · [vercel skip] في موضوع الـ commit (مستندات فقط — قانون VERCEL-USAGE-6) · الهوية: Super Z <muscleshubfit@gmail.com>.
+
+Stage Summary:
+- انحلت مشكلة التفويض من جذرها: كل commit قادم بعضوية muscleshubfit@gmail.com يمر عبر Vercel بلا حجب، والقانون مثبّت في ملف الحكم AGENTS.md §10 بسببه وحادثته ووصفة استرداده — منع تكرار كامل لأي وكيل قادم.
+- Push status: pushed to main (بريد عضو) · التحقق الحي: فحوصات الـ CI وحالة «Vercel» تُقرأ من الـ commit نفسه على GitHub (قانون SHA — فريم 288).
+
