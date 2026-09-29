@@ -10784,3 +10784,23 @@ Stage Summary:
 - الملفات الممسوسة: AGENTS.md (ترويسة + §8) · docs/TECH_REFERENCE.md (+§6) · src/docs/DESIGN_SYSTEM.md (pointer) · src/styles/design-tokens.ts (pointer module) · DESIGN.md · docs/README.md · STATE.md · الأرشيفان (+صف 290) · worklog.md (هذا المدخل).
 - Push status: pushed (بلا [vercel skip] — الفريم يمس src/)
 
+
+<!-- rotated 2026-09-29 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+Task ID: ARCH-REMEDIATION-293-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P4 من التقرير الحاكم وإغلاق جلسة إصلاح المعمارية كاملة (P0→P4، فريمات 287–293): تحصينات منظومة الحوكمة نفسها + قلب حالة التقرير إلى EXECUTED.
+
+Work Log:
+- (P4-1) external-mirror.yml: الجدولة الأسبوعية موقوفة (معلقة تعليقًا) حتى إتمام المالك إعداد docs/RECOVERY-MIRROR-SETUP.md — عاملان أحمران أسبوعيان بلا قيمة فعلية كانا يخفيان الصحة الحقيقية (تقرير A5.1 «FAILING BY DESIGN») — workflow_dispatch متاح والإعادة تتم بنفس كوميت إتمام الإعداد · صف CI_GATES حُدث.
+- (P4-2) قانون ميزانية عائلات الفحوص موثق بالثلاثة مواضع الحاكمة: ترويسة scripts/docs_audit.py (البوابة تحكم التوثيق والميزانية تحكم البوابة — منع RC-5) + AGENTS.md §12.5.2 + CI_GATES.md — مع مراجعة ربع سنوية لمعدلات فشل كل عائلة.
+- (P4-3) AGENTS.md §12.5.2 أعيدت كتابتها: المرور الشهري الكامل اعتُزل (كان يدقق ما تتحققه فحوصا M/N لكل دفعة أصلًا وينمّي worklog بتدقيق التدقيق — RC-5) — النظام الجديد: تحقق آلي لكل دفعة + مراجعة ربع سنوية للبوابة نفسها (معدلات الفشل لكل عائلة) + قاعدة الـ24 ساعة بعد أي force-push باقية.
+- (الإغلاق) تقرير التدقيق الحاكم: سطر Lifecycle انقلب EXECUTED بأرقام الإغلاق الكاملة (فريمات كل بند + القياسات: worklog ‏740.7KB→59.6KB · STATE ‏31,147B→10.7KB · docs/ الحية 42→18 ملفًا · قراءة AGENTS الإلزامية ~41KB→~17KB · دفعات docs-only بلا بطارية جودة (متحقق حيًا عبر API) · parity أخضر) + صف السجل انقلب EXECUTED + بند القياس التنفيذي P4-4 (≈2026-10-12) مسجل بالمفتوح بSTATE.
+- (STATE) صف 293 + صف QA 293 — سلّم ≤2 (صف 291 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: 44b9b312.
+- (التحقق — فريم توثيقي/CI) yaml صالح ✓ · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓.
+
+Stage Summary:
+- خطة إصلاح المعمارية الكاملة (P0→P4) منفذة ومغلقة بسبعة فريمات (287–293): السياق التنفيذي للتاريخ صار محصورًا بالأرشيف، التغيير العادي يمس التوثيق والتحقق الملائمين لنطاقه فقط، والحوكمة نفسها صارت محكومة بميزانية فحوص وقانون دوران.
+- البند الوحيد المتبقي على المالك (موثق بSTATE وبتقرير التدقيق): فحوصات إلزامية على main تتطلب GitHub Pro لريبو خاص (API يرفض 403) — أو تحويل الريبو عامًا — وكذلك إعداد الـMirror لإعادة تفعيل الجدولة.
+- الملفات الممسوسة: .github/workflows/external-mirror.yml · scripts/docs_audit.py (ترويسة الميزانية) · AGENTS.md (§12.5.2) · docs/CI_GATES.md · docs/ARCHITECTURE-AUDIT-REPORT-2026-09-28.md (EXECUTED) · docs/README.md (الصف) · STATE.md (293 + إغلاق الجلسة) · الأرشيفان (+صف 291) · worklog.md (هذا المدخل).
+- Push status: pushed
+
