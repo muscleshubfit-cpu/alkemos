@@ -1,0 +1,39 @@
+{
+  "patches": [
+    {
+      "slug": "calculate-daily-calories-fuel-fat-loss-bulking",
+      "lang": "en",
+      "find": "[Studies show](https://www.cdc.gov/healthyweight/losing_weight/index.html) that",
+      "replace": "Evidence generally suggests that",
+      "note": "dead CDC healthyweight page (retired IA) hosted an unnamed-studies claim — removed to the FACT GUARD generic-phrasing alternative; row keeps its live WHO physical-activity link"
+    },
+    {
+      "slug": "protein-intake-calculator-muscle-build",
+      "lang": "ar",
+      "find": "[CDC Protein](https://www.cdc.gov/nutrition/protein.html)",
+      "replace": "[CDC Nutrition](https://www.cdc.gov/nutrition/index.html)",
+      "note": "dead CDC protein page → live CDC nutrition hub (200-verified); anchor adjusted to match the target page"
+    },
+    {
+      "slug": "12-week-progressive-overload-intermediate",
+      "lang": "en",
+      "find": "The World Health Organization emphasizes that adequate sleep is a pillar of overall health, supporting immune function and cognitive performance ([WHO sleep guidelines](https://www.who.int/news-room/fact-sheets/detail/sleep)).",
+      "replace": "The CDC emphasizes that adequate sleep is a pillar of overall health, supporting immune function and cognitive performance ([CDC sleep guidance](https://www.cdc.gov/sleep/about/index.html)).",
+      "note": "WHO has no live sleep fact-sheet (404) — the «WHO sleep guidelines» attribution was false; the same claim truthfully attributed to the live CDC sleep page (200-verified)"
+    },
+    {
+      "slug": "sleep-recovery-gym-results",
+      "lang": "ar",
+      "find": "- منظمة الصحة العالمية – إرشادات النوم للصحة العامة. [WHO Sleep Guidelines](https://www.who.int/news-room/fact-sheets/detail/sleep-health)",
+      "replace": "- مراكز السيطرة على الأمراض والوقاية منها (CDC) – إرشادات النوم للصحة العامة. [CDC Sleep Guidelines](https://www.cdc.gov/sleep/about/index.html)",
+      "note": "WHO sleep-health fact-sheet 404 — the false reference line rewritten to the live CDC sleep authority (200-verified); the row's live NCBI study link untouched"
+    }
+  ],
+  "kept": [
+    {
+      "slug": "(13 corpus links)",
+      "lang": "en+ar",
+      "reason": "HEAD-unverifiable authority links (403/timeout: mayoclinic.org, ods.od.nih.gov, acsm.org) — 403 is NOT death; the link-verify fail-open law keeps them. Only the 4 confirmed-404 links above are patched."
+    }
+  ]
+}

@@ -62,17 +62,21 @@ export const EDITORIAL_EEAT: Record<EditorialLang, string> = {
 //
 // AUDIT_REPORT §9-المرحلة 2, item 2 (2026-09-29) — the HONEST
 // CITATION amendment (option أ): evidence may now be cited as LINKS
-// to the whitelisted authority domains (EDITORIAL_AUTHORITY_DOMAINS —
-// WHO/NIH/CDC/Mayo/ACSM/ISSN) — better for GEO than the old blanket
-// ban. What stays ABSOLUTE: fabricating studies, authors, paper
+// to the whitelisted authority domains (EDITORIAL_AUTHORITY_
+// DOMAINS — WHO/NIH/CDC/Mayo plus the sport-science bodies ACSM/
+// ISSN/NSCA/NASM/ACE/health.gov/eatright, audit-2 owner order
+// 2026-09-29: the blog is NOT all medical — training/gear/nutrition
+// articles need their own authorities, else the G4 floor has no
+// natural citation target for them) — better for GEO than the old
+// blanket ban. What stays ABSOLUTE: fabricating studies, authors, paper
 // titles, statistics, or URLs. The deterministic enforcement behind
 // this law: the P5 authority-link floor (blog-quality-gates G4) + the
 // HEAD-verification gate (blog-link-verify.ts — dead citations are
 // removed before the battery).
 // ─────────────────────────────────────────────────────────────────
 export const EDITORIAL_FACT_GUARD: Record<EditorialLang, string> = {
-  en: `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Citing evidence is allowed ONLY as markdown links to well-known authority domains (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) — e.g. [WHO guidance on protein intake](https://www.who.int/...) — where the link directly supports its sentence; every cited URL must be a page you are CERTAIN exists. Generic phrasing ("research suggests...", "evidence supports...") is the alternative when no certain authority link fits.`,
-  ar: `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. الاستشهاد بالأدلة مسموح فقط كروابط markdown إلى نطاقات سلطات موثوقة معروفة (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org) — مثل [إرشادات منظمة الصحة العالمية عن البروتين](https://www.who.int/...) — بشرط أن يدعم الرابط جملته مباشرة وأن تكون متأكدًا من وجود الصفحة. وعند غياب رابط سلطة متأكد منه: صياغة عامة فقط مثل «تشير الأدلة إلى...».`,
+  en: `FACT GUARD (health/supplements/training/recovery/weight-loss/muscle-gain): present timing, dosage, numbers, and outcomes as commonly recommended ranges that depend on individual context — never as absolute rules. FABRICATING studies, authors, paper titles, URLs, statistics, or clinical claims is strictly FORBIDDEN. Citing evidence is allowed ONLY as markdown links to well-known authority domains (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org, nsca.com, health.gov, nasm.org, acefitness.org, eatright.org) — health AND sport-science/training/nutrition authorities — e.g. [WHO guidance on protein intake](https://www.who.int/...) or [CDC physical-activity guidance](https://www.cdc.gov/physical-activity/index.html) — where the link directly supports its sentence; every cited URL must be a page you are CERTAIN exists. Generic phrasing ("research suggests...", "evidence supports...") is the alternative when no certain authority link fits.`,
+  ar: `حراسة الحقائق (صحة/مكملات/تدريب): قدّم التوقيتات والجرعات والأرقام والنتائج كتوصيات شائعة تعتمد على السياق الفردي (نطاقات، «يختلف حسب...»)، لا كقواعد مطلقة. ممنوع اختلاق دراسات أو باحثين أو عناوين أوراق أو روابط أو إحصاءات أو ادعاءات سريرية. الاستشهاد بالأدلة مسموح فقط كروابط markdown إلى نطاقات سلطات موثوقة معروفة (who.int, ncbi.nlm.nih.gov, pubmed.ncbi.nlm.nih.gov, ods.od.nih.gov, nccih.nih.gov, cdc.gov, mayoclinic.org, acsm.org, issn-online.org, nsca.com, health.gov, nasm.org, acefitness.org, eatright.org) — جهات صحية وجهات علوم الرياضة والتدريب والتغذية معًا — مثل [إرشادات منظمة الصحة العالمية عن البروتين](https://www.who.int/...) أو [إرشادات النشاط البدني من CDC](https://www.cdc.gov/physical-activity/index.html) — بشرط أن يدعم الرابط جملته مباشرة وأن تكون متأكدًا من وجود الصفحة. وعند غياب رابط سلطة متأكد منه: صياغة عامة فقط مثل «تشير الأدلة إلى...».`,
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -108,8 +112,16 @@ export const EDITORIAL_FAQ_COUNT_RANGE = { min: 4, max: 7 } as const;
 // ─────────────────────────────────────────────────────────────────
 
 /** The ONLY external domains a generated article may cite as evidence
- * links (well-known health/fitness authorities — the P4 whitelist,
- * byte-order preserved so the P4 prompt composes identically). */
+ * links. The first nine are the original P4 medical-science whitelist;
+ * the five appended domains (audit-2, owner order 2026-09-29) are the
+ * SPORT-SCIENCE/training/nutrition authorities: NSCA (strength &
+ * conditioning), health.gov (ODPHP — the US Physical Activity
+ * Guidelines), NASM + ACE (fitness-training certifying bodies — the
+ * same anchors already trusted for the coach's own credentials), and
+ * eatright.org (Academy of Nutrition and Dietetics). The blog's corpus
+ * is training/nutrition-heavy, not purely medical — without these the
+ * G4 authority-link floor has no natural citation target for sports
+ * articles (the owner's audit-2 finding). Byte-order: P4-composable. */
 export const EDITORIAL_AUTHORITY_DOMAINS: readonly string[] = [
   "who.int",
   "ncbi.nlm.nih.gov",
@@ -120,6 +132,11 @@ export const EDITORIAL_AUTHORITY_DOMAINS: readonly string[] = [
   "mayoclinic.org",
   "acsm.org",
   "issn-online.org",
+  "nsca.com",
+  "health.gov",
+  "nasm.org",
+  "acefitness.org",
+  "eatright.org",
 ];
 
 /** The anchor grammar law (content-audit §1.3, 2026-09-28) — the core

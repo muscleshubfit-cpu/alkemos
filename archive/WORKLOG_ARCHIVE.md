@@ -10764,3 +10764,23 @@ Stage Summary:
 - الملفات الممسوسة: 24 git mv + docs/archive/SEO-GEO-EXECUTION-LOG.md (جديد) + docs/SEO-GEO-MASTER-PLAN.md (45KB) + docs/README.md (الصفوف + القانون) + AGENTS.md + SECURITY.md + docs/CI_GATES.md + STATE.md (إحالات + 291) + الأرشيفان (صف 289) + worklog.md (هذا المدخل).
 - Push status: pushed
 
+
+<!-- rotated 2026-09-29 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: ARCH-REMEDIATION-292-2026-09-28
+Agent: Implementation Agent
+Task: أمر المالك 2026-09-28 — تنفيذ P3-2+P3-4 من التقرير الحاكم: تخفيف AGENTS §8 (السرد → TECH_REFERENCE) + توحيد مرايا DESIGN — الحفاظ على كل قيد ملزم حرفيًا.
+
+Work Log:
+- (P3-2 نقل) نص §8 الكامل (36 قانونًا — الحوادث والقرارات والسرد) انتقل حرفيًا إلى docs/TECH_REFERENCE.md §6 (قسم جديد بإثبات منشأ) — §8 أعيدت كتابته بالجوهر الملزم فقط (اسم + قيد + إحالة) مع ترويسة تشرح النقل وأولوية التعارض.
+- (P3-2 نطاق القراءة) ترويسة AGENTS.md تحدد الآن نطاق القراءة الإلزامي: §1–§4+§12 فقط بالجلسة (~17KB — كان «الملف كله قراءة إلزامية» ~41KB) و§5–§11 قانون يُقرأ عند المساس بنطاقه — ميزانية القراءة بdocs/README حُدثت.
+- (P3-4 توحيد المرايا) DESIGN.md = القانون الوحيد وglobals.css = مصدر التشغيل: src/docs/DESIGN_SYSTEM.md وsrc/styles/design-tokens.ts صارا pointer-only (تطبيبقًا للتقرير «generated or pointer-only») — التحري المسبق أكد صفر مستوردين للوحدة بكل src/scripts/workflows وv1_contrast_matrix.py يقرأ globals.css مباشرة — تعديل الواجهة صار يمس DESIGN.md+globals.css فقط لا ثلاثة.
+- (توثيق تابع) DESIGN.md فقرة المرايا أُعيدت كتابتها بقانون التوحيد · صفوف السجل للملفين + DESIGN.md + TECH_REFERENCE حُدثت.
+- (STATE) صف 292 + صف QA 292 — سلّم ≤2 (صف 290 انتقل حرفيًا للأرشيف) — آخر كوميت متحقق منه: 624ea53b.
+- (التحقق — البطارية الكاملة لأن الفريم يمس src/styles/design-tokens.ts) tsc --noEmit ✓ 0 · eslint ✓ · vitest الكاملة ✓ · next build ✓ · docs_audit ✓ · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓.
+
+Stage Summary:
+- القراءة الإلزامية انخفضت من «الملف كله ~41KB» إلى ~17KB محددة النطاق، وكل قانون AI احتفظ بقيدّه الملزم، وتعديل الواجهة صار يعديل وثيقة واحدة + مصدر تشغيل واحد.
+- الملفات الممسوسة: AGENTS.md (ترويسة + §8) · docs/TECH_REFERENCE.md (+§6) · src/docs/DESIGN_SYSTEM.md (pointer) · src/styles/design-tokens.ts (pointer module) · DESIGN.md · docs/README.md · STATE.md · الأرشيفان (+صف 290) · worklog.md (هذا المدخل).
+- Push status: pushed (بلا [vercel skip] — الفريم يمس src/)
+

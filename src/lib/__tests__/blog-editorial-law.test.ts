@@ -125,10 +125,11 @@ describe("AUDIT §9-1.2 — the law blocks themselves", () => {
     expect(EDITORIAL_FAQ_COUNT_RANGE).toEqual({ min: 4, max: 7 });
   });
 
-  it("the authority whitelist carries the nine P4 domains in order", () => {
+  it("the authority whitelist carries the 14 domains — 9 medical + 5 sport-science (audit-2 owner order) — in order", () => {
     expect(EDITORIAL_AUTHORITY_DOMAINS).toEqual([
       "who.int", "ncbi.nlm.nih.gov", "pubmed.ncbi.nlm.nih.gov", "ods.od.nih.gov",
       "nccih.nih.gov", "cdc.gov", "mayoclinic.org", "acsm.org", "issn-online.org",
+      "nsca.com", "health.gov", "nasm.org", "acefitness.org", "eatright.org",
     ]);
   });
 
