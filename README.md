@@ -241,6 +241,15 @@ and one Arabic article per day. The pipeline carries editorial gates: Arabic
 modern-standard purity checks, image-safety rules, FAQ single-display, and
 topic selection deduplicated against the search-intent map
 (`src/lib/intent-map.ts`) so articles never compete with canonical pages.
+When a deterministic publish gate rejects a draft (length, quality battery,
+Arabic purity), the runner repairs it **inside the same run** instead of
+discarding it: the failure names the offending step as a machine-readable
+`rerunTarget` (`src/lib/blog-repair-target.ts`), and
+`scripts/blog-runner/run-step.sh` re-runs that step on the same queue row
+(≤ 2 repair cycles; `p2-content` regenerates the draft via `?force=1` while
+research, outline and images are reused) before falling back to the honest
+mark-failed + next-day backstop. No gate is weakened — a bad article is
+still never published; a good-but-flawed one gets a second chance in-run.
 
 ### Owner review workflow (honest E-E-A-T)
 Every pipeline-published article lands in the **pending review** state — its

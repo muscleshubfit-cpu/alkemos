@@ -26,11 +26,19 @@
  *   PIPELINE_TOPIC (Phase 162: coach topic override — p0-research only;
  *   scheduled runs never set it, so their URLs are unchanged),
  *   PIPELINE_JOB_ID (Phase 171: ai_jobs receipt — marks the run
- *   coach-requested; scheduled runs never set it).
+ *   coach-requested; scheduled runs never set it),
+ *   P2_FORCE_REGENERATE (R1 repair loop, 2026-09-29: "1" = p2-content
+ *   regenerates over an existing draft — set ONLY by run-step.sh's
+ *   repair chain after a P5 word-floor failure, never by workflows).
  *
  * EXIT CODES: 0 = ok:true · 1 = step reported failure · 2 = misconfig
+ *             3 = R1 REPAIR CONTRACT — deterministic P5 gate failure
+ *                 carrying a machine-readable rerunTarget (stdout line
+ *                 `RERUN_TARGET=<step>`); run-step.sh executes the
+ *                 repair in-run instead of blind-retrying (audit §8.2 A2)
  */
 import { NextRequest } from "next/server";
+import { P5_RERUN_TARGETS } from "../../src/lib/blog-repair-target";
 
 const STEPS = [
   "p0-research",
@@ -137,6 +145,10 @@ async function main(): Promise<void> {
   if (queueId) url.searchParams.set("queueId", queueId);
   if (step === "p0-research" && topicArg) url.searchParams.set("topic", topicArg);
   if (step === "p0-research" && jobIdArg) url.searchParams.set("job_id", jobIdArg);
+  // R1 repair chain: p2-content regenerates over the existing draft.
+  if (step === "p2-content" && process.env.P2_FORCE_REGENERATE === "1") {
+    url.searchParams.set("force", "1");
+  }
 
   console.log(
     `[runner] ▶ ${step} · lang=${lang}${queueId ? ` · queue=${queueId}` : ""}${
@@ -163,12 +175,32 @@ async function main(): Promise<void> {
   console.log(`HTTP ${res.status}\n${text}`);
 
   let ok = res.status < 400;
+  let rerunTarget: string | null = null;
   try {
-    ok = ok && JSON.parse(text)?.ok === true;
+    const parsedBody = JSON.parse(text);
+    ok = ok && parsedBody?.ok === true;
+    // R1 REPAIR CONTRACT (audit §8.2 A2): a deterministic P5 gate
+    // failure returns { error, rerunTarget } — translate it to exit
+    // code 3 + a machine-readable stdout line for run-step.sh's
+    // repair loop. Only the closed-set contract targets are honored;
+    // anything else stays a plain exit-1 failure.
+    if (
+      !ok &&
+      typeof parsedBody?.rerunTarget === "string" &&
+      (P5_RERUN_TARGETS as readonly string[]).includes(parsedBody.rerunTarget)
+    ) {
+      rerunTarget = parsedBody.rerunTarget;
+    }
   } catch {
     /* non-JSON body already failed via status above when >= 400 */
   }
-  if (!ok) process.exit(1);
+  if (!ok) {
+    if (rerunTarget) {
+      console.log(`RERUN_TARGET=${rerunTarget}`);
+      process.exit(3);
+    }
+    process.exit(1);
+  }
 
   console.log(`[runner] ✓ ${step} OK`);
 }

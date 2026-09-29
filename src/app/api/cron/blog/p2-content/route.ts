@@ -22,10 +22,19 @@ export const maxDuration = 300;
  * executor is the native GitHub Actions runner (no 60s cap); the route
  * keeps maxDuration 300 for direct manual pings.
  *
+ * R1 REPAIR CONTRACT (Execution-Path Audit §8.2 A4, 2026-09-29):
+ * `?force=1` skips ONLY the resume fast-exit below, letting P2
+ * REGENERATE content over an existing draft on the SAME queue row
+ * (bundle.content replaced; research0/outline/images preserved).
+ * It is set exclusively by run-step.sh's repair loop (P2_FORCE_REGENERATE
+ * → run-step.mts → URL) after a P5 word-floor failure — the status gate
+ * above still applies (only 'outlined'/'failed' rows regenerate), so
+ * force can never walk over a healthy in-flight row.
+ *
  * V3 STATUS CHAIN (language-split): outlined → writing → written
  * (legacy en/ar-pair statuses never occur on new rows).
  *
- * GET /api/cron/blog/p2-content?queueId=<uuid>
+ * GET /api/cron/blog/p2-content?queueId=<uuid>[&force=1]
  */
 export async function GET(request: NextRequest) {
   // M6 (audit 2026-09-07): constant-time CRON_SECRET check.
@@ -81,16 +90,27 @@ export async function GET(request: NextRequest) {
 
     let bundle = qi.article_bundle ? JSON.parse(qi.article_bundle) : {};
 
-    // Resumable after crash mid-write.
+    // R1 REPAIR CONTRACT (A4): the repair loop's p2 re-run carries
+    // force=1 — without it the resume fast-exit below would return the
+    // SAME too-short draft that just failed P5's word floor and the
+    // repair cycle would be a no-op.
+    const force = new URL(request.url).searchParams.get("force") === "1";
+
+    // Resumable after crash mid-write (force=1 = repair regeneration).
     if (bundle.content?.markdown) {
-      return NextResponse.json({
-        ok: true,
-        step: "p2",
-        queueId: qi.id,
-        lang,
-        resumed: true,
-        words: countWords(bundle.content.markdown),
-      });
+      if (!force) {
+        return NextResponse.json({
+          ok: true,
+          step: "p2",
+          queueId: qi.id,
+          lang,
+          resumed: true,
+          words: countWords(bundle.content.markdown),
+        });
+      }
+      console.log(
+        `[blog/p2-content] force=1 — regenerating content over the existing draft (R1 repair contract) on row ${qi.id}`,
+      );
     }
 
     const outline: OutlinePlan | undefined = bundle.outline;
@@ -120,6 +140,7 @@ export async function GET(request: NextRequest) {
       lang,
       words: article.wordCount,
       source: article.source,
+      ...(force ? { regenerated: true } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -24,6 +24,7 @@ import {
 } from "@/lib/blog-queue";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { cronBlogQueueQuerySchema } from "@/lib/validation/schemas";
+import { mapP5FailureToRerunTarget } from "@/lib/blog-repair-target";
 
 export const maxDuration = 60;
 
@@ -484,7 +485,22 @@ export async function GET(request: NextRequest) {
         : "";
       await markQueueItemFailed(queueId, `p5: ${partial}${msg || "Unknown"}`);
     }
-    return NextResponse.json({ error: msg || "Failed" }, { status: 500 });
+    // R1 REPAIR CONTRACT (Execution-Path Audit §8.2 A1, 2026-09-29):
+    // the deterministic gates above fail on an IMMUTABLE bundle — a
+    // blind ×3 retry re-runs the same checks on the same bytes and
+    // fails identically (live evidence: three byte-identical P5
+    // failures in run 36507693416). The 500 body now carries a
+    // machine-readable rerunTarget naming the step that can actually
+    // repair THIS row; run-step.mts translates it to exit code 3 and
+    // run-step.sh executes the repair in-run on the same queue row
+    // (≤2 cycles) before this markFailed becomes final. No gate or
+    // threshold changed — only WHO recovers the row and WHEN. Null
+    // (infra / unknown) keeps the exact legacy body.
+    const rerunTarget = mapP5FailureToRerunTarget(msg);
+    return NextResponse.json(
+      rerunTarget ? { error: msg || "Failed", rerunTarget } : { error: msg || "Failed" },
+      { status: 500 },
+    );
   }
 }
 
