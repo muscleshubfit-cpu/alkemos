@@ -1,0 +1,325 @@
+# GSC connection test (read-only — dispatch only) (2026-09-30).
+#
+# WHY: the repo holds the secret GOOGLE_SEARCH_CONSOLE_CREDENTIALS
+# (service-account JSON) but NOTHING consumes it yet — no workflow and
+# no script reference it. Before building any SEO/GEO reporting on top
+# of Search Console data, we must prove that (a) the SA JSON can
+# authenticate to Google and (b) the SA is granted access to
+# sc-domain:alkemos.com.
+#
+# Safety properties of this job:
+#   - workflow_dispatch ONLY — can never fire on schedule/push/PR.
+#   - READ-ONLY: OAuth scope is webmasters.readonly. The only API calls
+#     are searchAnalytics/query (x3) plus an optional sites.list used
+#     solely to diagnose permission failures.
+#   - The secret is written to $RUNNER_TEMP with 0600 perms, is never
+#     echoed/printed, and is deleted by an always() cleanup step.
+#   - No checkout, no installs: python3 + openssl + stdlib only — zero
+#     dependency drift (repo install discipline A-12).
+#   - Touches no application code, DB, workflow, or config. Temporary
+#     file: remove this YAML once a permanent GSC consumer exists.
+#
+# Window: the 28 most recent COMPLETE days (end = yesterday UTC,
+# start = end-27d), GSC default dataState=final (settled data).
+# Results go to stdout AND $GITHUB_STEP_SUMMARY.
+name: GSC connection test (read-only — dispatch only)
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: gsc-connection-test
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  gsc-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run read-only Search Console test
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GOOGLE_SEARCH_CONSOLE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+          SA_FILE="$RUNNER_TEMP/gsc-sa.json"
+          KEY_FILE="$RUNNER_TEMP/gsc-sa-key.pem"
+          # Materialize the secret into a 0600 temp file. NEVER echo it.
+          printf '%s' "$GSC_CREDENTIALS" > "$SA_FILE"
+          chmod 600 "$SA_FILE"
+          export GSC_SA_FILE="$SA_FILE" GSC_KEY_FILE="$KEY_FILE"
+          python3 << 'PYEOF'
+          import base64
+          import datetime as dt
+          import json
+          import os
+          import subprocess
+          import sys
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          PROPERTY = "sc-domain:alkemos.com"
+          SCOPE = "https://www.googleapis.com/auth/webmasters.readonly"
+          API_BASE = "https://searchconsole.googleapis.com/webmasters/v3"
+          TOKEN_URI_DEFAULT = "https://oauth2.googleapis.com/token"
+
+          SA_FILE = os.environ["GSC_SA_FILE"]
+          KEY_FILE = os.environ["GSC_KEY_FILE"]
+          SUMMARY = os.environ.get("GITHUB_STEP_SUMMARY", "")
+          RUN_URL = "/".join(filter(None, [
+              os.environ.get("GITHUB_SERVER_URL", ""),
+              os.environ.get("GITHUB_REPOSITORY", ""),
+              "actions/runs/" + os.environ.get("GITHUB_RUN_ID", ""),
+          ])) or "local-run"
+
+
+          def log(line):
+              print(line, flush=True)
+
+
+          def emit(line):
+              log(line)
+              if SUMMARY:
+                  with open(SUMMARY, "a", encoding="utf-8") as fh:
+                      fh.write(line + "\n")
+
+
+          def scrub(text, *secrets):
+              out = str(text)
+              for s in secrets:
+                  if s:
+                      out = out.replace(s, "[REDACTED]")
+              return out
+
+
+          def die(summary_line, detail_lines=()):
+              log("::error::GSC connection test FAILED — see the job summary and details below")
+              emit("")
+              emit("## ❌ GSC connection test FAILED")
+              emit("")
+              emit(summary_line)
+              for line in detail_lines:
+                  emit(line)
+              emit("")
+              emit("_No repository or Search Console data was modified — this job is read-only by construction._")
+              sys.exit(1)
+
+
+          # ---- 1. Load the service-account JSON (content never printed) ----
+          try:
+              with open(SA_FILE, "r", encoding="utf-8") as fh:
+                  raw = fh.read()
+          except OSError:
+              die("Could not read the credential temp file inside the runner (unexpected runner-level failure).")
+
+          sa = None
+          try:
+              sa = json.loads(raw)
+          except ValueError:
+              sa = None
+          if not isinstance(sa, dict):
+              stripped = raw.strip()
+              for decoder in (base64.b64decode, base64.urlsafe_b64decode):
+                  try:
+                      sa = json.loads(decoder(stripped + "=" * (-len(stripped) % 4)))
+                      break
+                  except ValueError:
+                      continue
+          if not isinstance(sa, dict) or "client_email" not in sa or "private_key" not in sa:
+              die("The secret GOOGLE_SEARCH_CONSOLE_CREDENTIALS is present but its content is **not a recognizable "
+                  "service-account JSON** (expected keys: `client_email`, `private_key`). Nothing was sent to Google.")
+
+          private_key = sa["private_key"]
+          if not isinstance(private_key, str) or "PRIVATE KEY" not in private_key:
+              die("The service-account JSON is recognizable but its `private_key` field is missing or malformed. "
+                  "Nothing was sent to Google.")
+          if "\\n" in private_key and "\n" not in private_key:
+              private_key = private_key.replace("\\n", "\n")
+          with open(KEY_FILE, "w", encoding="utf-8") as fh:
+              fh.write(private_key)
+          os.chmod(KEY_FILE, 0o600)
+          log("1/4 credential parsed OK (content not printed)")
+
+          # ---- 2. Build + sign the JWT (RS256 via openssl, stdlib only) ----
+          def b64url(data):
+              return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+          now = int(time.time())
+          token_uri = sa.get("token_uri") or TOKEN_URI_DEFAULT
+          head = b64url(json.dumps({"alg": "RS256", "typ": "JWT"}, separators=(",", ":")).encode("utf-8"))
+          claims = b64url(json.dumps({
+              "iss": sa["client_email"],
+              "scope": SCOPE,
+              "aud": token_uri,
+              "iat": now,
+              "exp": now + 3600,
+          }, separators=(",", ":")).encode("utf-8"))
+          signing_input = (head + "." + claims).encode("ascii")
+          proc = subprocess.run(
+              ["openssl", "dgst", "-sha256", "-sign", KEY_FILE],
+              input=signing_input, capture_output=True,
+          )
+          if proc.returncode != 0:
+              die("JWT signing failed — the `private_key` in the secret is not a usable RSA key.",
+                  ["openssl stderr (truncated): `" + scrub(proc.stderr.decode(errors="replace")[:200]) + "`"])
+          jwt = signing_input.decode("ascii") + "." + b64url(proc.stdout)
+          log("2/4 JWT built + signed OK")
+
+          # ---- 3. Exchange the JWT for an access token ----
+          def http(req, timeout, tries=2):
+              last = None
+              for attempt in range(1, tries + 1):
+                  try:
+                      with urllib.request.urlopen(req, timeout=timeout) as resp:
+                          return resp.status, resp.read().decode("utf-8", errors="replace")
+                  except urllib.error.HTTPError as exc:
+                      return exc.code, exc.read().decode("utf-8", errors="replace")
+                  except (urllib.error.URLError, OSError) as exc:
+                      last = exc
+                      if attempt < tries:
+                          time.sleep(2)
+              return 0, "network error: " + type(last).__name__
+
+          status, text = http(urllib.request.Request(
+              token_uri,
+              data=urllib.parse.urlencode({
+                  "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                  "assertion": jwt,
+              }).encode("utf-8"),
+              headers={"Content-Type": "application/x-www-form-urlencoded"},
+          ), timeout=30)
+          if status != 200:
+              try:
+                  err = json.loads(text)
+                  msg = err.get("error_description") or err.get("error") or text[:300]
+              except ValueError:
+                  msg = text[:300]
+              die("**Google OAuth token exchange failed** (HTTP " + str(status) + ").",
+                  ["Google said: `" + scrub(msg, jwt)[:300] + "`",
+                   "Typical causes: the private_key does not match this service account, the SA is disabled, "
+                   "or `token_uri` in the JSON is wrong."])
+          try:
+              access_token = json.loads(text)["access_token"]
+          except (ValueError, KeyError):
+              die("Token endpoint returned HTTP 200 but an unexpected body (no `access_token`).")
+          log("3/4 Google token exchange OK")
+
+          # ---- 4. Read-only Search Console queries ----
+          end = dt.date.today() - dt.timedelta(days=1)
+          start = end - dt.timedelta(days=27)
+          auth_headers = {"Authorization": "Bearer " + access_token,
+                          "Content-Type": "application/json"}
+          query_url = API_BASE + "/sites/" + urllib.parse.quote(PROPERTY, safe="") + "/searchAnalytics/query"
+
+          def query_api(dims, row_limit=None):
+              payload = {"startDate": start.isoformat(), "endDate": end.isoformat(),
+                         "searchType": "web"}
+              if dims:
+                  payload["dimensions"] = dims
+              if row_limit:
+                  payload["rowLimit"] = row_limit
+              status, text = http(urllib.request.Request(
+                  query_url, data=json.dumps(payload).encode("utf-8"),
+                  headers=auth_headers), timeout=60)
+              if status != 200:
+                  detail = scrub(text[:400], access_token, jwt)
+                  diag = []
+                  if status in (401, 403):
+                      s2, t2 = http(urllib.request.Request(
+                          API_BASE + "/sites", headers=auth_headers), timeout=30)
+                      if s2 == 200:
+                          try:
+                              entries = json.loads(t2).get("siteEntry", [])
+                          except ValueError:
+                              entries = []
+                          known = any(e.get("siteUrl") == PROPERTY for e in entries)
+                          if known:
+                              diag.append("`sites.list` succeeded and `" + PROPERTY + "` **is** visible to this SA — "
+                                          "the 403 is likely an insufficient permission level (needs Full/Owner for "
+                                          "domain-property data) or a transient Google-side issue.")
+                          else:
+                              diag.append("`sites.list` succeeded but `" + PROPERTY + "` is **not** among the SA's "
+                                          "visible sites (" + str(len(entries)) + " visible). Grant the service account "
+                                          "`" + sa["client_email"] + "` **delegated owner** (or full user) access on the "
+                                          "domain property in Search Console settings.")
+                      else:
+                          diag.append("`sites.list` also failed (HTTP " + str(s2) + ") — the token is not valid for the "
+                                      "Search Console API at all; check the SA's project/API access or org policy.")
+                  die("**Search Console API error** on `searchAnalytics/query` — HTTP " + str(status) + ".",
+                      ["Google said: `" + detail + "`"] + diag)
+              try:
+                  return json.loads(text).get("rows", [])
+              except ValueError:
+                  die("Search Console returned HTTP 200 with a non-JSON body (truncated): `"
+                      + scrub(text[:200], access_token, jwt) + "`")
+
+          total_rows = query_api(None)
+          query_rows = sorted(query_api(["query"], 20),
+                              key=lambda r: r.get("clicks", 0), reverse=True)[:20]
+          page_rows = sorted(query_api(["page"], 20),
+                             key=lambda r: r.get("clicks", 0), reverse=True)[:20]
+          log("4/4 Search Console queries OK (3 read-only calls)")
+
+          t = total_rows[0] if total_rows else {}
+          clicks = t.get("clicks", 0.0)
+          imps = t.get("impressions", 0.0)
+          ctr = t.get("ctr", 0.0) * 100
+          pos = t.get("position", 0.0)
+
+          def fmt_rows(rows, label):
+              if not rows:
+                  return ["_No `" + label + "` rows returned for this window._", ""]
+              out = ["| # | " + label.capitalize() + " | Clicks | Impressions | CTR | Avg. position |",
+                     "|---|---|---:|---:|---:|---:|"]
+              for i, r in enumerate(rows, 1):
+                  safe = (r.get("keys") or [""])[0].replace("|", "\\|")
+                  row = "| " + str(i) + " | " + safe + " | " + format(r.get("clicks", 0.0), ".0f") \
+                      + " | " + format(r.get("impressions", 0.0), ".0f") \
+                      + " | " + format(r.get("ctr", 0.0) * 100, ".2f") + "%" \
+                      + " | " + format(r.get("position", 0.0), ".2f") + " |"
+                  out.append(row)
+              out.append("")
+              return out
+
+          emit("## ✅ GSC connection test — SUCCESS")
+          emit("")
+          emit("- **Property:** `" + PROPERTY + "`")
+          emit("- **Authenticated as:** `" + sa["client_email"] + "`")
+          emit("- **Window:** " + start.isoformat() + " → " + end.isoformat()
+               + " (28 complete days, UTC; GSC dataState=final — settled data)")
+          emit("- **OAuth scope:** `" + SCOPE + "` (read-only)")
+          emit("- **Run:** " + RUN_URL)
+          emit("")
+          emit("### Totals (28 days)")
+          emit("")
+          emit("| Clicks | Impressions | CTR | Avg. position |")
+          emit("|---:|---:|---:|---:|")
+          emit("| " + format(clicks, ".0f") + " | " + format(imps, ".0f") + " | "
+               + format(ctr, ".2f") + "% | " + format(pos, ".2f") + " |")
+          emit("")
+          if not total_rows:
+              emit("> Authentication and property access succeeded, but GSC returned **zero rows** for the "
+                   "window — no recorded traffic, or data still settling.")
+              emit("")
+          emit("### Top 20 queries by clicks")
+          emit("")
+          for line in fmt_rows(query_rows, "query"):
+              emit(line)
+          emit("### Top 20 pages by clicks")
+          emit("")
+          for line in fmt_rows(page_rows, "page"):
+              emit(line)
+
+          log("RESULT property=" + PROPERTY + " window=" + start.isoformat() + ".." + end.isoformat())
+          log("RESULT totals clicks=" + format(clicks, ".0f") + " impressions=" + format(imps, ".0f")
+              + " ctr=" + format(ctr, ".2f") + "% position=" + format(pos, ".2f"))
+          log("::notice::GSC connection test passed — read-only access to " + PROPERTY + " confirmed")
+          PYEOF
+
+      - name: Delete temporary credential files
+        if: always()
+        run: rm -f "$RUNNER_TEMP/gsc-sa.json" "$RUNNER_TEMP/gsc-sa-key.pem"
