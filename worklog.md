@@ -4,7 +4,25 @@
 > hard-capped at **≤ 12 entries AND ≤ 128 KB** (`scripts/docs_audit.py` check H5). Anything below
 > the window rotates verbatim to `archive/WORKLOG_ARCHIVE.md` in the SAME commit via
 > `python3 scripts/worklog_rotate.py` — size-driven, never calendar-driven, never one-shot.
-> Newest on top; append-only; one entry per task (§12.5.1).
+> newest on top; append-only; one entry per task (§12.5.1).
+
+---
+Task ID: LATIN-REPAIR-R2-LIVE-VERIF-2026-09-29
+Agent: Super Z (main)
+Task: اختبار R2 الحي — workflow_dispatch يدوي لـ AR على main (6adf9461) + مراقبة كاملة + تحقق DB قراءة-فقط (توثيق فقط؛ صفر مساس بأي كود).
+
+Work Log:
+- dispatch يدوي (run 36582658309، 14:26→14:53 UTC): P0-P4 ✓ ثم P5 فشلت 3 مرات ببوابة word-floor (839/791/752 كلمة < 1300) → دورتا إصلاح R1 كاملتان (p2 force=1، سلسلة p2→p3→p4) ثم الفشل الصادق عند نفاد الميزانية (2/2) — صف الطابور 49d9b736…: ‏failed مع bundle محفوظ (تحقق DB قراءة-فقط).
+- مسار R2 اشتغل 4 مرات داخل P4: (14:33) 23 توكنًا → قاموس 0 + نداء 11 → تحقق ✓ · (14:43) 21 → توكن متبقٍ crp → فشل تحقق صادق بنفس الرسالة الحرفية (retry الخطوة عالجها) · (14:47) 8 → نداء 7 → ✓ · (14:53) 8 → نداء 6 → ✓.
+- النداء الصغير blog:latin-tokens-ar دخل Groq ‏4/4 (groq:openai/gpt-oss-120b، ‏~2.1s للنداء) بينما نداءات المقال الكامل (review-ar ‏~10.5k tokens) ظلت مقصاة («exceeds Groq 8k TPM window» ×8 بالسجل) — التباين الذي بُنيت R2 له.
+- وسم المسار القديم blog:latin-repair-ar غائب كليًا (0 ظهورًا) — الإرجاع LATIN_REPAIR_LEGACY غير مفعّل والمسار الجديد هو الحي.
+- القاموس طبّق 0 (توكنات موضوع البروبيوتيك خارج مجموعة المصدر) والنداء الصغير عالجها — تقسيم العمل كما صُمم، والقضاة (`validateMsaConversion`/`scanLatinContamination`) بالبايت.
+
+Stage Summary:
+- R2 مثبتة حية 100%؛ فشل التشغيل النهائي فئة word-floor (هدف R3 المستقبلي) خارج نطاق R2 — لا بوابة خُففت.
+- الشاهد: run_36582658309_full.log — محلي فقط، لم يُحفظ بالمستودع (نمط إثبات R1 ‏run 36571415573).
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
 
 ---
 Task ID: LATIN-REPAIR-R2-2026-09-29
@@ -230,22 +248,3 @@ Stage Summary:
 - القيد المتبقي (خارج سيطرة الموقع، §4 من التقرير): URLs المسمومة في كاش فيسبوك تحتاج إعادة زحف (مشاركة جديدة بعد النشر، ≤30 يومًا، أو Scrape Again من Debugger بحساب المالك) + تحقق المالك أن Bot Fight Mode OFF بلوحة Cloudflare (غير قابل للقراءة بصلاحية التوكن الحالي).
 - Push status: pushed to main — 89322f0 (الإصلاحات + التقرير) ثم d135f83 (follow-up المقارنات) · Vercel: READY ×2 · Cloudflare purge_everything ×2.
 - (التحقق الحي بعد النشر — 11/11 ✓) الرئيسية EN/AR og-home-*.png?v=2 (1200×630) · التمارين EN/AR الصورة الحقيقية ?v=2 (640×427 webp) · البرامج EN/AR 768×768 المصححة · المقارنات EN/AR ?v=2 (1200×630) · المدونة غلاف Pexels بأبعاد 1200×630 · الأطعمة والمؤلفون بالنسخ المصدّرة — وروابط الصور ?v=2 تعيد 200 بأنواع محتوى صحيحة عبر الحافة.
-Task ID: PERF-AUDIT-296-2026-09-28
-Agent: Super Z (main)
-Task: أمر المالك 2026-09-28 — Audit شامل للسرعة والأداء (الموقع + البنية التحتية) بجلسة جديدة كليًا، ثم تنفيذ التحسينات المبررة فقط دون تغيير التصميم أو المحتوى أو business logic، وإعادة القياس وحفظ التقرير داخل المستودع.
-
-Work Log:
-- (قياس قبل) Lighthouse 13.5 mobile: Perf 49 · LCP 5.2s · TBT 2,210ms · CLS 0 · FCP 2.1s · TTFB 40ms — بينما القياس التجريبي الفعلي بPlaywright (بلا throttle): LCP ≈ 404–436ms وLoad ≈ 500–550ms → الدرجة المخبرية محكومة بمحاكاة CPU×4 (ترطيب) لا بالشبكة (الأصول الحرجة تصل ≤300ms).
-- (اكتشاف 1 — الصور) 30 ملفًا بامتداد .png هي فعليًا JPEG ‏1024×1024 (2.2MB): foods (9) · exercises (8) · programs (7) · tools (6) — مُشار إليها بسلاسل حرفية في lib وليست في DB.
-- (اكتشاف 2 — الثيم الداكن) قياس مقارن: الزائر الداكن يجلب 4 أصول light مخفية (hero+logo+helmet+evo ≈ 62KB/4 طلبات) لأن Chromium يحمّل eager المخفي بdisplay:none — الوضع الفاتح نظيف (الداكنة lazy أصلاً).
-- (اكتشاف 3 — البنية) APIs: Cloudflare (brotli/http3/early-hints ✓، قواعد كاش سليمة، أصول ثابتة HIT) · Vercel (builds READY ~2min، ISR يعمل، br فعلي) · Supabase (DB 24MB، أثقل استعلام تطبيقي 10ms، 129 فهرسًا غير مستخدم بعائد مهمل) · GitHub (19 workflow وظيفية) — كلها صحية: صفر إجراء مبرر.
-- (تنفيذ 1) إعادة ترميز 24 صورة مُشار إليها إلى WebP حقيقي 768px q80: ‏1,825KB→790KB (−57%) + حذف 6 أيتام tools/*.png (469KB — فحص src/DB/scripts/docs: صفر مراجع) + تحديث المراجع: foods-shared · exercises · exercises-shared · ai-local · workout-programs + تعليق exercise-images + اختبار passthrough.
-- (تنفيذ 2) lazy موضعي لإصلاح هدر الداكن: درج موبايل SiteHeader (كان eager مخفي دائمًا) + فقاعة EVO (تتركب بعد الخمول أصلًا) — hero/logo أبقيت eager عمدًا (LCP + lcp-discovery + media-scoped preloads) — سلوك وأبعاد محجوزة: صفر CLS.
-- (مؤجل مبررًا موثقًا) refactor LandingView لserver components (خفض الترطيب — مخاطرة عالية على 1,851 سطرًا بجلسة واحدة) · إزالة preload المكرر (اليدوي وحده حامل media+fetchPriority) · lazy للhero (يفشل lcp-lazy-loaded) · حذف فهارس Supabase — الكل بdocs/PERFORMANCE-AUDIT-2026-09-28.md §3.
-- (التحقق) tsc ✓ 0 · vitest ✓ 1,771/1,771 · eslint ✓ 0 · next build ✓ (كل المسارات Static/SSG/ISR) · stale-refs: صفر إشارات للملفات المحذوفة.
-- (القياس بعد النشر) deploy ‏8f3830a READY + purge_everything لكاش CF ثم إعادة نفس القياسين: Lighthouse mobile — الوزن 2,320→1,817KB (−21.7%) · TBT 2,210→1,810ms (−18%) · SI 3.8→3.1s · Perf 49→50 · CLS 0 وSEO 100 ثابتان — والقياس التجريبي الفعلي: صور 1,221→656KB (−46%) · طلبات 87→83 (light) · LCP فعلي 360/384ms · فقاعة EVO أُصلحت بالداكن ✓ · حزمة JS مطابقة (صفر انحدار) — بوابة parity خضراء بعد إصلاحَي فشل أول push: H5 (تدوير ذيل النافذة بworklog_rotate.py للأرشيف) وM (تسجيل التقرير بdocs/README.md) — التفصيل الكامل §4 بالتقرير.
-
-Stage Summary:
-- صفحة رئيسية أخف بـ~900KB من طلباتها وصفحات الأطعمة/التمارين/البرامج تربح بالمثل؛ الزائر الداكن يوفر ~56KB و3 طلبات من نافذة LCP.
-- البنية التحتية الأربعة (CF/Vercel/Supabase/GitHub) موثقة صحية بلا إجراء؛ الترطيب يبقى bottleneck المختبر الوحيد المتبقي (مسار قرار مالك مستقبلي).
-- الملفات: docs/PERFORMANCE-AUDIT-2026-09-28.md (جديد) · 5 lib + exercise-images.ts + test + SiteHeader + EvoFloatingWidget · 24 webp جديد/-30 png · STATE.md · worklog.md (هذا المدخل).
