@@ -60,9 +60,10 @@ jobs:
       # model — silently below the 70s caller intent and below the ~120s a
       # 1100-1400-word JSON article actually needs → every heavy model
       # aborted ("This operation was aborted") and the job died permanently.
-      # The proven full-article baseline (blog-post-en.yml) runs 360000;
-      # 480000 here satisfies 480/4 = 120s × 4 buckets exactly. Small jobs
-      # are unaffected — their effTimeout stays caller-bound (45/60/70s).
+      # The full-article baseline (blog-post-{en,ar}.yml) moved to 480000
+      # with R3 (2026-09-29); 480000 here satisfies 480/4 = 120s × 4 buckets
+      # exactly. Small jobs are unaffected — their effTimeout stays
+      # caller-bound (45/60/70s).
       AI_CHAIN_TOTAL_BUDGET_MS: "480000"
 
       # ── Required secrets (preflight fails fast naming missing ones) ──

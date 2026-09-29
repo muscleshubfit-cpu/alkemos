@@ -7,9 +7,10 @@
  *
  * WHY: /api/cron/blog/* routes were budget-clamped to ≤52s per call to
  * respect the Vercel Hobby limit. Running them natively here lets each
- * step use AI_CHAIN_TOTAL_BUDGET_MS (360000 in the blog workflows since
- * Phase 119; process-ai-jobs uses 480000 since 161.4) for full-length
- * article completions instead of truncated ones.
+ * step use AI_CHAIN_TOTAL_BUDGET_MS (480000 in the blog workflows since
+ * R3 2026-09-29 — was 360000 since Phase 119; process-ai-jobs has run
+ * 480000 since 161.4) for full-length article completions instead of
+ * truncated ones.
  *
  * USAGE (called by run-step.sh):
  *   npx --no-install tsx scripts/blog-runner/run-step.mts \

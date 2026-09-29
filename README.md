@@ -256,6 +256,16 @@ calls, and only the remaining tokens go to a tiny conversion call
 (token list only — small enough for the Groq free tier, which the old
 full-article repair payload excluded). The purity gates themselves are
 unchanged; rollback is the `LATIN_REPAIR_LEGACY` env flag.
+The generation chain itself also widened (R3): the chain budget on the
+GitHub Actions runners rose from 360s to 480s per step and the content
+phase (P2) now walks three models instead of two, with Groq re-admitted
+via a **per-entry max-tokens clamp** — when a request would exceed Groq's
+8k-token-per-minute window, Groq's entry keeps its own reduced max_tokens
+instead of being evicted wholesale (the platform's most reliable free
+provider was previously dropped from exactly the heaviest calls). Review-
+class payloads still exclude Groq by design (the clamp floor of 3800
+output tokens is not met there). Rollback: `GROQ_MAX_TOKENS_CLAMP=0`
+restores the old guard verbatim; the budget reverts via the workflow env.
 
 ### Owner review workflow (honest E-E-A-T)
 Every pipeline-published article lands in the **pending review** state — its

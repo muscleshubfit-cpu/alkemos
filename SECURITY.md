@@ -81,6 +81,12 @@ Any of the following:
   full-article AI call (debug/rollback lever only; the deterministic
   purity gates are byte-identical either way). Default empty/absent =
   the localized repair (dictionary pass + token-only small call).
+  `GROQ_MAX_TOKENS_CLAMP` (R3, 2026-09-29) — "0" rolls the Groq
+  oversized-payload guard back to the pre-R3 wholesale drop (every
+  groq entry removed when the request estimate exceeds the 8k TPM
+  window; debug/rollback lever only). Default empty/absent = the R3
+  per-entry clamp (groq entries kept with reduced max_tokens while the
+  clamp stays ≥ 3800 output tokens).
 
 ### 2.3 Forbidden actions
 

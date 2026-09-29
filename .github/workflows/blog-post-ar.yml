@@ -64,7 +64,12 @@ jobs:
       PIPELINE_LANG: "ar"
 
       # ── Native-execution budget override (default on Vercel: 52000) ──
-      AI_CHAIN_TOTAL_BUDGET_MS: "360000"
+      # R3 (Execution-Path Audit 2026-09-29): 360000 → 480000 — funds the
+      # third P2 chain entry (480/3 = 160s ≥ the 150s caller timeout) and
+      # widens the P4 windows (480/4 = 120s vs 90s). Precedent:
+      # process-ai-jobs.yml has run 480000 since Phase 161.4; the job timeout
+      # (120min) is untouched (actual usage ~28min). Rollback: 480000 → 360000.
+      AI_CHAIN_TOTAL_BUDGET_MS: "480000"
 
       # ── PHASE 162: coach pipeline parity — optional topic override ──
       # Set ONLY by workflow_dispatch runs the coach triggered from the

@@ -756,6 +756,24 @@ const CHAIN_TOTAL_BUDGET_MS =
   Number(process.env.AI_CHAIN_TOTAL_BUDGET_MS) || 52_000;
 const DEFAULT_CHAIN_MODELS = 2;
 
+/* ── R3 (Execution-Path Audit 2026-09-29) — Groq per-entry max_tokens clamp ──
+ * Groq's free tier enforces an 8k TPM ceiling COUNTING prompt AND max_tokens.
+ * Pre-R3 the guard dropped EVERY groq entry whenever the whole-request
+ * estimate exceeded the window — evicting the platform's most reliable
+ * provider (gpt-oss-120b, 85.3% live survival) from exactly the heaviest
+ * calls (P2 content est ~8.7k · P4 review est ~10.4–11.1k · legacy
+ * latin-repair ~9.5k). R3 makes the decision PER ENTRY: when the caller's
+ * maxTokens does not fit, a groq entry is CLAMPED to the remaining window
+ * (window − promptTokens − reserve) and STAYS in the chain as long as the
+ * clamp keeps ≥ GROQ_CLAMP_FLOOR output tokens; below the floor the entry
+ * is dropped exactly as before (P4-review-class payloads stay
+ * openrouter/nvidia-only BY DESIGN — the floor is not met there).
+ * ROLLBACK: GROQ_MAX_TOKENS_CLAMP=0 restores the pre-R3 global drop
+ * verbatim (same log line, same filtering). */
+const GROQ_TPM_WINDOW = 7_200; // conservative request ceiling under Groq's 8k TPM (guard heritage)
+const GROQ_TPM_RESERVE = 800; // safety reserve — unchanged from the original guard formula
+const GROQ_CLAMP_FLOOR = 3_800; // min output room a clamped groq entry must keep, else it is dropped
+
 /**
  * Interleaved strongest-free-models chain.
  *
@@ -867,20 +885,41 @@ export async function callFreeAIFallbackChain(
   // never rotates.
   chainCallSeq += 1;
 
-  // GROQ BIG-PAYLOAD GUARD (hard data from dispatch logs): Groq free tier
-  // enforces an 8000 TPM ceiling COUNTING both prompt and max_tokens
-  // (observed 413s: 'Requested 16664', 'Requested 9094'). Estimate the
-  // request size conservatively; oversized calls run OpenRouter/NVIDIA-only —
-  // normal-sized calls keep the alternating balance untouched.
+  // GROQ BIG-PAYLOAD GUARD — R3 per-entry clamp (2026-09-29; hard data from
+  // dispatch logs): Groq free tier enforces an 8000 TPM ceiling COUNTING both
+  // prompt and max_tokens (observed 413s: 'Requested 16664', 'Requested
+  // 9094'). Pre-R3: est > 7200 dropped ALL groq entries for the call. R3:
+  // each groq entry's max_tokens is clamped to the remaining window when the
+  // caller's maxTokens would not fit — the entry survives only while the
+  // clamp keeps ≥ GROQ_CLAMP_FLOOR output room; below the floor (P4-review
+  // payloads ~10.4–11.1k est) the entry is dropped as before. Normal-sized
+  // calls are untouched. GROQ_MAX_TOKENS_CLAMP=0 = pre-R3 behavior verbatim.
+  const promptTokens = Math.ceil(prompt.length / 4);
   const estTokens =
-    Math.ceil(prompt.length / 4) + (options.maxTokens ?? DEFAULT_CHAIN_MODELS * 1024) + 800;
-  const skipGroq = options.chain !== "fast" && estTokens > 7_200;
-  if (skipGroq)
+    promptTokens + (options.maxTokens ?? DEFAULT_CHAIN_MODELS * 1024) + 800;
+  const groqWindow = GROQ_TPM_WINDOW - promptTokens - GROQ_TPM_RESERVE;
+  const groqClampOn = process.env.GROQ_MAX_TOKENS_CLAMP !== "0";
+  const skipGroq =
+    options.chain !== "fast" &&
+    estTokens > GROQ_TPM_WINDOW &&
+    (!groqClampOn || groqWindow < GROQ_CLAMP_FLOOR);
+  // Per-entry max_tokens for surviving groq entries (undefined = caller's own).
+  const groqClampTokens =
+    options.chain !== "fast" && !skipGroq && estTokens > GROQ_TPM_WINDOW
+      ? groqWindow
+      : undefined;
+  if (skipGroq) {
     console.log(
       `${LP} payload ~${estTokens}t exceeds Groq 8k TPM window → openrouter/nvidia-only for this call`,
     );
+  } else if (groqClampTokens !== undefined) {
+    console.log(
+      `${LP} payload ~${estTokens}t exceeds Groq 8k TPM window → R3 clamp: groq entries kept with max_tokens ${groqClampTokens}t (floor ${GROQ_CLAMP_FLOOR})`,
+    );
+  }
 
-  let activeChain0 =
+  type ChainEntry = { provider: AIProvider; model: string; maxTokens?: number };
+  let activeChain0: ChainEntry[] =
     options.chain === "fast" ? INTERLEAVED_FAST_CHAIN : INTERLEAVED_STRONGEST_CHAIN;
   if (options.chain !== "fast") {
     const LEAD_SEQ: AIProvider[] = ["openrouter", "groq", "nvidia"];
@@ -902,6 +941,13 @@ export async function callFreeAIFallbackChain(
       }
     }
     if (skipGroq) activeChain0 = activeChain0.filter((e) => e.provider !== "groq");
+    // R3: surviving groq entries carry their own clamped max_tokens; every
+    // other entry keeps the caller's value (byte-identical to pre-R3).
+    if (groqClampTokens !== undefined) {
+      activeChain0 = activeChain0.map((e) =>
+        e.provider === "groq" ? { ...e, maxTokens: groqClampTokens } : e,
+      );
+    }
     console.log(
       `${LP} lead=${leadConfigured ? leadProvider : "openrouter(fallback)"} (call #${chainCallSeq}, orKeys=${openrouterKeys.length})`,
     );
@@ -924,7 +970,7 @@ export async function callFreeAIFallbackChain(
   const looksLikeQuota = (m: string) => /\b(401|402|429|403)\b|quota|rate.?limit|credit|insufficient/i.test(m);
 
   let attempted = 0;
-  for (const { provider, model } of activeChain0) {
+  for (const { provider, model, maxTokens: entryMaxTokens } of activeChain0) {
     if (attempted >= maxModels) break;
 
     const baseUrl = AI_PROVIDERS[provider].baseUrl;
@@ -944,6 +990,13 @@ export async function callFreeAIFallbackChain(
       continue;
     }
     attempted++;
+
+    // R3 per-entry options: a clamped groq entry sends its OWN max_tokens;
+    // all other entries send exactly the caller's options (unchanged).
+    const attemptOptions =
+      entryMaxTokens !== undefined && entryMaxTokens !== callOptions.maxTokens
+        ? { ...callOptions, maxTokens: entryMaxTokens }
+        : callOptions;
 
     // Inner key-fallback loop ONLY triggers on auth/quota-style errors —
     // ordinary failures fall through to the next MODEL as before.
@@ -969,14 +1022,14 @@ export async function callFreeAIFallbackChain(
             ? {
                 text: await callAIStream(
                   prompt,
-                  { ...callOptions, timeoutMs: effTimeoutMs },
+                  { ...attemptOptions, timeoutMs: effTimeoutMs },
                   { provider, apiKey, model, baseUrl },
                   streamTap,
                 ),
               }
             : await callAIWithFallback(
                 prompt,
-                { ...callOptions, timeoutMs: effTimeoutMs },
+                { ...attemptOptions, timeoutMs: effTimeoutMs },
                 {
                   provider,
                   apiKey,

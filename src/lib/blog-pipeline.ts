@@ -489,11 +489,19 @@ Return STRICT JSON only:
     // only ~3000 output tokens, so 6400 keeps us under the ceiling while
     // leaving headroom. Nightly upstream outages (entire Google gemma pool
     // 429 for hours) leave nemotron as sole carrier some windows — give it
-    // a REAL long window: eff min(150s, 360s/2=180s) = 150s ×2 models.
+    // a REAL long window.
+    // R3 (Execution-Path Audit 2026-09-29): maxModels 2 → 3. The 480s
+    // workflow budget (AI_CHAIN_TOTAL_BUDGET_MS, up from 360s) funds a third
+    // live entry: eff = min(150s, 480s/3=160s) = 150s ×3 models — per-model
+    // timeout UNCHANGED. Entry #2 is Groq/gpt-oss-120b, re-admitted for this
+    // ~8.7k-est call by the R3 per-entry clamp (~4.8–4.9k max_tokens — enough
+    // for a 1300–2500-word article). Breaks the OR+NV dual-provider
+    // isolation that exhausted P2 chains live (run 36582658309: OR-abort +
+    // NV-503 in one window; AR 09-22/23/24 chain exhaustions).
     maxTokens: 6_400,
     jsonMode: false, // tolerant extraction instead of strict-mode hard fails
     timeoutMs: 150_000,
-    maxModels: 2,
+    maxModels: 3,
   });
   const parsed = parseJSON<{ articleMd?: string; article?: string }>(text);
   const md = (parsed?.articleMd || parsed?.article || "").trim();
@@ -842,13 +850,17 @@ Return STRICT JSON only:
   const { text, model, provider } = await callFreeAIFallbackChain(prompt, {
     tag: `blog:review-${lang}`,
     temperature: 0.4,
-    // Review embeds the FULL draft → big payload runs openrouter-only via
-    // the chain guard. DEEP LADDER FIX (2026-08-27 AR dispatch forensics):
+    // Review embeds the FULL draft → big payload runs openrouter/nvidia-only
+    // via the chain guard. DEEP LADDER FIX (2026-08-27 AR dispatch forensics):
     // with maxModels=2 the review died when BOTH leading models hiccuped.
     // PHASE 177 (2026-09-11 audit): the ladder's gemma/lightning:free steps
     // are now PURGED (0-0.4% live success) so every walked entry is healthy
-    // — 4 models × 90s (360s GHA budget) gives the strongest entries real
-    // depth instead of 5 × 72s with 2 dead steps. Vercel self-clamps to 52s.
+    // — 4 models gives the strongest entries real depth instead of 5 × 72s
+    // with 2 dead steps. Vercel self-clamps to 52s. R3 (2026-09-29): the
+    // 480s budget widens each window 90s→110s (480/4=120s cap; the 110s
+    // caller timeout rules) — and the R3 per-entry clamp does NOT re-admit
+    // Groq here: review payloads (~10.4–11.1k est) clamp below the 3800
+    // floor → openrouter/nvidia-only BY DESIGN (audit reservation).
     maxTokens: 6_400,
     jsonMode: false,
     timeoutMs: 110_000,
