@@ -11016,3 +11016,26 @@ Stage Summary:
 - Push status: pushed (كوميت واحد على main — الهوية muscleshubfit@gmail.com).
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: PHASE2-DEPLOY-VERIFY-2026-09-29
+Agent: Super Z (main)
+Task: نشر المرحلة 2 (كوميت 1ab53b0b) + إغلاقها بالتحقق الحي: CI، تطبيق 0097، تنفيذ علاج الإحصاءات عبر القناة، أول قياس GEO، وتحقق صدق القالب/المسارات — ثم توثيق الإغلاق.
+
+Work Log:
+- (CI) 1ab53b0b على main: الفحوصات 5/5 خضراء (Supabase Preview ✓ quality ✓ guard ✓ parity ✓ cleanup ✓) — Preview أخضر = 0097 عبر قاعدة المعاينة بلا أخطاء.
+- (0097 حيًا) استعلام قراءة فقط على الإنتاج: الأعمدة موجودة وكل المقالات المنشورة تحمل review_status='pending' + last_reviewed_at=null (الحالة الصادقة).
+- (القالب الصادق حيًا) EN `/blog/magnesium-forms-sleep-recovery`: «AI-generated · medical review pending» مرة واحدة، صفر «Reviewed by Ahmed Zake»، Article schema بلا reviewedBy/lastReviewed، وFAQPage (المرحلة 0) باقٍ · AR `/ar/blog/sleep-recovery-gym-results`: «مولّد بالذكاء الاصطناعي · بانتظار المراجعة الطبية» · صف التواريخ: «Updated» الصادق بدل «Last reviewed» الكاذب القديم.
+- (علاج الإحصاءات — القناة) dispatch لstats-db-remediation بDRY_RUN=0: تشغيل 36500135029 نجح — 15 صفًا/19 رقعة كُتبت (content/reading_time/updated_at فقط)، 0 فشل، والقرارات الموثقة طُبعت · تحقق قاعدي: الادعاء القديم مُزال والتخفيف موجود · تحقق حي بعد نافذة ISR (دورتا انتظار لتقادم التوليد): EN magnesium + AR sleep-recovery + AR dynamic-stretching كلها تحمل النص المخفف والادعاءات الرقمية المختلقة اختفت.
+- (قياس GEO) أول dispatch فشل بERR_MODULE_NOT_FOUND: سكربت المسبار ضحية فخ /scripts/* الشامل في .gitignore (committed-untracked — نفس فئة worklog_rotate في 288) → إصلاح 1e5ffd4b: استثناء !/scripts/geo/ بنفس الفريم + سطر توثيق بالفخ · dispatch ثانٍ: تشغيل 36501359231 نجح — **خط الأساس: 0/24 (0%) · صفر إخفاقات سلسلة** (EN 0/12 · AR 0/12) — قيمة البداية الصادقة المقاسة في التقرير نفسه؛ السطر مسجل بجدول §8.4 بخطة SEO.
+- (المسارات الحية) POST /api/admin/blog/review بلا جلسة → 401 Unauthorized (البوابة الإدارية مثبتة) · /api/ai/queue-health → 401 كما بفريم 299 (إضافة قياس الإقران خلف نفس البوابة).
+- (الإقران/المسبار القادم) نوافذ 72h/48h + retry تعمل من كود 1ab53b0b؛ إثبات التبني الحي يتراكم تلقائيًا في قياس queue-health مع تشغيلات نوفمبر التالية — لا إجراء هنا قبل أن تتراكم العينة.
+
+Stage Summary:
+- المرحلة 2 مغلقة: نشر أخضر + علاج منفذ + خط أساس مقيس + صدق القالب/السكيما/المسارات مثبت حيًا بالقياس.
+- أثر فوري مقيس: 19 ادعاء إحصائيًا مختلقًا نُزع من 15 مقالة منشورة (كلها ظاهرة للزوار) وادعاء مراجعة كاذب اختفى من 95 صفحة (الاثنان بالتوليد الجديد منعٌ بنيويًا).
+- المتبقي على المالك: مراجعة المقالات المعلقة من Admin▸Blog (زر اعتماد) · الذراع اليدوية لGEO · CF purge قديم إن ظهر كاش متقاعد.
+- Push status: pushed (1e5ffd4b — كوميت توثيقي [vercel skip] بعده).
+- Commit SHA (optional, post-push): (git log is the ledger)
+
