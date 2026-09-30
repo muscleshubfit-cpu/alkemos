@@ -50,7 +50,8 @@
 | `src/styles/design-tokens.ts` | Typed token registry — retired pointer-only module (Ph 292): zero importers, duplicated globals.css by hand; do not re-add constants | LIVE (pointer-only) |
 | `docs/CI_GATES.md` | Gate narrative (what each CI gate derives and why) | LIVE |
 | `docs/SEO-GEO-MASTER-PLAN.md` | SEO/GEO plan (§12 execution log extracted at Ph 291 — the plan is now a maintainable 45KB) | LIVE |
-| `docs/archive/SEO-GEO-EXECUTION-LOG.md` | The SEO/GEO §12 implementation log (§12.1→§12.62: external-audit P0 execution + the P0-3 baseline + the P0-4 deferral + the P1-5 CSS reduction + its post-purge live production verification), extracted verbatim from the master plan at Ph 291 — new execution-log entries append HERE | LIVE (append-only log — born archived, Ph 291) |
+| `docs/SEO-P1-6-ISLANDS-PLAN-2026-09-30.md` | P1-6 audit + implementation plan (LandingView server islands — measured map, boundaries, 6-step frame-315 plan; audit-only, zero code changes) | LIVE (the execution reference for P1-6) |
+| `docs/archive/SEO-GEO-EXECUTION-LOG.md` | The SEO/GEO §12 implementation log (§12.1→§12.63: external-audit P0 execution + the P0-3 baseline + the P0-4 deferral + the P1-5 CSS reduction + its post-purge live production verification + the P1-6 audit/plan), extracted verbatim from the master plan at Ph 291 — new execution-log entries append HERE | LIVE (append-only log — born archived, Ph 291) |
 | `docs/SEO-EEAT-FRAMEWORK.md` | SEO reference (static) | LIVE |
 | `docs/SEO-SCHEMA-REFERENCE.md` | SEO schema reference | LIVE |
 | `docs/SEO-CWV-THRESHOLDS.md` | CWV thresholds reference (static) | LIVE |
