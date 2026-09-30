@@ -209,6 +209,14 @@ export default function MacroTrackerPage() {
               : "Every food in the 8,830+ database carries its calories, protein, carbs, and fat with smart serving sizes, and curated collections gather high-protein, low-carb, and keto picks — flanked by the calorie calculator, body-fat calculator, and a daily water tracker."}
           </p>
           <div className="mt-5 flex flex-wrap gap-2 text-sm">
+            {/* Phase 318 (P1-8): the accuracy-chain link — the tool surface
+                routes accuracy questions to the pillar guide. */}
+            <Link
+              href={isAr ? "/ar/guides/macro-tracking-accuracy" : "/guides/macro-tracking-accuracy"}
+              className="rounded-full bg-[#0071e3]/10 px-4 py-2 font-medium text-[#0071e3] transition-opacity hover:opacity-90"
+            >
+              {isAr ? "دليل دقة تتبع الماكروز" : "Macro tracking accuracy guide"}
+            </Link>
             <Link
               href={isAr ? "/ar/foods" : "/foods"}
               className="rounded-full border border-[var(--edge)] px-4 py-2 font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]"

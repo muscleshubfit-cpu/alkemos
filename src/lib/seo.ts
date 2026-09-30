@@ -326,7 +326,7 @@ export function getToolWebApplicationSchema(params: {
  * schemas expecting Google rich results.
  * For genuine user Q&A pages, use QAPage instead.
  */
-export function getFAQSchema(faqs: Array<{ q: string; a: string }>) {
+export function getFAQSchema(faqs: ReadonlyArray<{ q: string; a: string }>) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -449,6 +449,13 @@ export function getArticleSchema(params: {
   author?: string;
   authorProfile?: AuthorProfile;
   lastReviewed?: string | null;
+  /**
+   * Phase 318 (P1-8): explicit canonical URL for NON-blog surfaces.
+   * The legacy default builds `${SITE_URL}/blog/${slug}` — correct for
+   * articles, wrong for /compare (produces /blog/compare/…). Optional
+   * and fully backward-compatible: blog callers keep the legacy path.
+   */
+  pageUrl?: string;
 }) {
   const profile = params.authorProfile ?? AHMED_ZAKE;
   const authorPerson = getPersonSchema(profile);
@@ -479,7 +486,7 @@ export function getArticleSchema(params: {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${SITE_URL}/blog/${params.slug}`,
+      "@id": params.pageUrl ?? `${SITE_URL}/blog/${params.slug}`,
     },
   };
 }

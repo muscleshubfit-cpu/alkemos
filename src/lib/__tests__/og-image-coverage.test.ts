@@ -176,6 +176,15 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/(ar)/ar/workout-tracker/layout.tsx", "og-workout-tracker-ar"],
   ["src/app/(en)/macro-tracker/layout.tsx", "og-macro-tracker-en"],
   ["src/app/(ar)/ar/macro-tracker/layout.tsx", "og-macro-tracker-ar"],
+  // Phase 318 (P1-8): the accuracy chain's two new pairs. The pillar
+  // guide rides the macro-tracker family card (the guide IS the macro
+  // tracking surface); the methodology page rides the foods family card
+  // (it is the foods library's documentation face). Static pages pin
+  // their card in metadata directly — the exact-string law applies.
+  ["src/app/(en)/guides/macro-tracking-accuracy/page.tsx", "og-macro-tracker-en"],
+  ["src/app/(ar)/ar/guides/macro-tracking-accuracy/page.tsx", "og-macro-tracker-ar"],
+  ["src/app/(en)/foods/methodology/page.tsx", "og-foods-en"],
+  ["src/app/(ar)/ar/foods/methodology/page.tsx", "og-foods-ar"],
   // AR list surfaces (batch 1-b + SOCIAL-OG-3 dedicated cards)
   ["src/app/(ar)/ar/evo/layout.tsx", "og-evo-ar"],
   ["src/app/(ar)/ar/coaching/layout.tsx", "og-coaching-ar"],

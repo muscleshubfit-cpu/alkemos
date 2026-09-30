@@ -324,6 +324,13 @@ const REGISTERED_SURFACES: Array<{
   { file: "src/components/blog/BlogCategoryPage.tsx", component: "ShareButtons", pathExpr: "path={`/blog/category/${categoryId}`}" },
   { file: "src/components/views/StaticPageView.tsx", component: "ShareButtons", pathExpr: 'page === "about" ? "/about" : "/faq"' },
   { file: "src/components/views/ContactView.tsx", component: "ShareButtons", pathExpr: 'path="/contact"' },
+  // Phase 318 (P1-8): the accuracy chain's two new pairs — the pillar
+  // guide and the food-database methodology reference (share-worthy by
+  // design: the methodology page is the citation surface).
+  { file: "src/app/(en)/guides/macro-tracking-accuracy/page.tsx", component: "ShareButtons", pathExpr: 'path="/guides/macro-tracking-accuracy"' },
+  { file: "src/app/(ar)/ar/guides/macro-tracking-accuracy/page.tsx", component: "ShareButtons", pathExpr: 'path="/ar/guides/macro-tracking-accuracy"' },
+  { file: "src/app/(en)/foods/methodology/page.tsx", component: "ShareButtons", pathExpr: 'path="/foods/methodology"' },
+  { file: "src/app/(ar)/ar/foods/methodology/page.tsx", component: "ShareButtons", pathExpr: 'path="/ar/foods/methodology"' },
 ];
 
 describe("SHARE-COVERAGE GUARD — every public share surface is registered + deterministic", () => {

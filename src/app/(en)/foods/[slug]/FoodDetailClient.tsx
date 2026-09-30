@@ -414,7 +414,12 @@ export default function FoodDetailClient({
 
         {/* Phase 155 (#11): tag-collection links + meal-planner CTA —
             spoke→hub links from every food page to the curated
-            collection hub(s) it belongs to, plus the free planner. */}
+            collection hub(s) it belongs to, plus the free planner.
+            Phase 318 (P1-8): the methodology link — every food page now
+            cites the documented reference it draws its values from
+            (sources · per-100g convention · citation format). This is
+            the wiring that turns 8,830 pages into citation anchors for
+            the methodology surface. */}
         {(collectionLinks.length > 0 || food) && (
           <section className="mt-10">
             <h2 className="text-xl font-semibold tracking-tight">
@@ -431,6 +436,15 @@ export default function FoodDetailClient({
                   <span aria-hidden="true" className="ms-1 text-[#6e6e73]">›</span>
                 </a>
               ))}
+              {food && (
+                <a
+                  href={isAr ? "/ar/foods/methodology" : "/foods/methodology"}
+                  className="rounded-full bg-[#f5f5f7] px-4 py-2 text-sm font-medium text-[#1d1d1f] transition-opacity hover:opacity-90"
+                >
+                  {isAr ? "منهجية هذه البيانات" : "How this data is built"}
+                  <span aria-hidden="true" className="ms-1 text-[#6e6e73]">›</span>
+                </a>
+              )}
               {food && (
                 <a
                   href={isAr ? "/ar/meal-planner" : "/meal-planner"}

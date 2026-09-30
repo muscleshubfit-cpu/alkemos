@@ -40,6 +40,7 @@ export type IntentKind =
   | "coaching" // human coaching
   | "membership" // pricing / tiers
   | "compare" // comparison pages
+  | "guide" // pillar guide pages (Phase 318 — P1-8 accuracy chain)
   | "blog" // editorial surfaces (never a blog-gate collision source)
   | "brand"; // brand/home queries (documented, excluded from the gate)
 
@@ -150,7 +151,7 @@ export const SEARCH_INTENT_MAP: SearchIntentEntry[] = [
     labelAr: "قاعدة بيانات الأطعمة",
     primaryIntent: "Look up per-100g calories and macros for a food.",
     canonical: "/foods",
-    supporting: ["/collections/high-protein-foods", "/tools/calorie-calculator", "/meal-planner"],
+    supporting: ["/collections/high-protein-foods", "/tools/calorie-calculator", "/meal-planner", "/foods/methodology"],
     kind: "library",
     queries: [
       "food nutrition database",
@@ -159,6 +160,41 @@ export const SEARCH_INTENT_MAP: SearchIntentEntry[] = [
       "سعرات الأكلات",
       "القيم الغذائية للأطعمة",
       "قاعدة بيانات الأطعمة",
+    ],
+  },
+  // ── Phase 318 (P1-8 — SEO audit item 8): the accuracy chain's two new
+  // primary surfaces. Registered HERE so the blog topic gate protects
+  // them: no future article may compete for their head queries — the
+  // chain pages stay the canonical owners of the accuracy intent.
+  {
+    cluster: "macro-accuracy-guide",
+    labelEn: "Macro tracking accuracy guide",
+    labelAr: "دليل دقة تتبع الماكروز",
+    primaryIntent: "Understand why macro numbers differ between apps and track accurately.",
+    canonical: "/guides/macro-tracking-accuracy",
+    supporting: ["/foods/methodology", "/foods", "/macro-tracker", "/tools/macro-calculator", "/compare/alkemos-vs-cronometer"],
+    kind: "guide",
+    queries: [
+      "macro tracking accuracy",
+      "how accurate is macro tracking",
+      "why do macros differ between apps",
+      "دقة تتبع الماكروز",
+      "دقة حساب الماكروز",
+    ],
+  },
+  {
+    cluster: "food-data-methodology",
+    labelEn: "Food data methodology",
+    labelAr: "منهجية بيانات الأطعمة",
+    primaryIntent: "Check how a food database sources and standardizes its values.",
+    canonical: "/foods/methodology",
+    supporting: ["/foods", "/guides/macro-tracking-accuracy", "/meal-planner"],
+    kind: "library",
+    queries: [
+      "food database methodology",
+      "food nutrition data sources",
+      "منهجية قاعدة بيانات الأطعمة",
+      "مصادر القيم الغذائية",
     ],
   },
   {
@@ -216,7 +252,7 @@ export const SEARCH_INTENT_MAP: SearchIntentEntry[] = [
     labelAr: "حاسبة الماكروز",
     primaryIntent: "Split daily calories into protein/carb/fat targets.",
     canonical: "/tools/macro-calculator",
-    supporting: ["/tools/calorie-calculator", "/foods", "/ai-meal-planner"],
+    supporting: ["/tools/calorie-calculator", "/foods", "/ai-meal-planner", "/guides/macro-tracking-accuracy"],
     kind: "tool",
     queries: [
       "macro calculator",

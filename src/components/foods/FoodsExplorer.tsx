@@ -264,6 +264,19 @@ export function FoodsExplorer({
         {/* Promotional sections */}
         <MembershipPromo isAr={isAr} />
         <ExploreMore isAr={isAr} exclude="foods" />
+
+        {/* Phase 318 (P1-8): the hub cites its own reference — sources,
+            per-100g convention, citation format. One line, both locales. */}
+        <div className="mt-8 text-center text-sm">
+          <Link
+            href={isAr ? "/ar/foods/methodology" : "/foods/methodology"}
+            className="text-[var(--muted-foreground)] underline underline-offset-4 transition-opacity hover:opacity-80"
+          >
+            {isAr
+              ? "منهجية قاعدة الأطعمة — المصادر والأعراف وكيفية الاستشهاد"
+              : "Food database methodology — sources, conventions, and how to cite"}
+          </Link>
+        </div>
       </main>
 
         {/* Access-point fix (2026-09-14): shared marble footer — this

@@ -89,6 +89,14 @@ export async function GET() {
     { loc: `${base}/ar/workout-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/workout-tracker`, ar: `${base}/ar/workout-tracker` } },
     { loc: `${base}/macro-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/macro-tracker`, ar: `${base}/ar/macro-tracker` } },
     { loc: `${base}/ar/macro-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/macro-tracker`, ar: `${base}/ar/macro-tracker` } },
+    // Phase 318 (P1-8 — SEO audit item 8, owner order 2026-10-01): the
+    // macro-accuracy content chain's two new pairs — the pillar guide
+    // («سلسلة محتوى دقة تتبع الماكروز») and the food-database methodology
+    // reference («سلعنة قاعدة الأطعمة كمرجع موثق يستحق الروابط»).
+    { loc: `${base}/guides/macro-tracking-accuracy`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/guides/macro-tracking-accuracy`, ar: `${base}/ar/guides/macro-tracking-accuracy` } },
+    { loc: `${base}/ar/guides/macro-tracking-accuracy`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/guides/macro-tracking-accuracy`, ar: `${base}/ar/guides/macro-tracking-accuracy` } },
+    { loc: `${base}/foods/methodology`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/foods/methodology`, ar: `${base}/ar/foods/methodology` } },
+    { loc: `${base}/ar/foods/methodology`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/foods/methodology`, ar: `${base}/ar/foods/methodology` } },
     // Comparison index pages — SEO-GEO-4 (2026-09-08): the detail pages
     // live in sitemap-comparisons.xml; the index lives here.
     { loc: `${base}/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },

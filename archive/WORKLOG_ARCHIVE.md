@@ -11259,3 +11259,23 @@ Stage Summary:
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: GSC-AUDIT-CORRECTION-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 — تصحيح مستهدف للتقرير الحاكم docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md: إزالة أي اتجاه لاستخدام GSC في اختيار مواضيع المحتوى الجديد (وثائق فقط — صفر كود/سير عمل/قاعدة/إعدادات، وبدون تنفيذ G1).
+
+Work Log:
+- (المبدأ) استُبدلت IP-1 بالنص الملزم: «GSC must not determine new-content topics. New-content discovery remains driven by live external research. GSC provides post-publication search evidence for optimization, content expansion, cannibalization detection, and validation.» — مع تدفق البيانات الصريح: بحث خارجي حي → قرار المحتوى → النشر → استجابة Google → قياس GSC → تحسين/توسع (الحلقة تعود عند التحسين/التوسع، لا عند قرار المحتوى).
+- (G2) أعيد تعريفها من «تغذية بحث P0» إلى «GSC Evidence & Optimization Loop» — تعمل بعد وجود المحتوى فقط: gsc-data.ts (القارئ المطبوع الوحيد) + أول مستهلكي ما بعد النشر (قائمة تحسين/توسع للمقالات المنشورة) + عدادات أدلة queue-health — سلسلة P0 تبقى مطابقة بايت-بايت (researchSource بقيمتيه نهائيًا) + كاناري يثبت أن بحث P0 خالٍ من GSC.
+- (تعارضات صُحّحت فقط) §2.3 (بند AUDIT_REPORT:314 أصبح superseded — «أبدًا» لا «مرجأ») · §2.4 (لا قيمة gsc مخططة) · §3 (الدور بعد النشر فقط) · مخطط §5 (المستهلك الأول = أدلة التحسين/التوسع — لا P0) · §5.1 · §6-بند5 · §7.1 · §7.2 · §9 (إعادة صياغة إطار G2 الأعلى قيمة + نقل هدف fallback-rate 24%→3% خارج نطاق GSC).
+- (غير المُغيَّر — بأمر المالك) معمارية G1 كاملة (الجامع/المخزن/الاعتماد/النطاق/الإيقاع) + IP-2..IP-12 كما هي + لا تنفيذ لأي مرحلة.
+- (الامتثال) قسم change history §11.1 بالتقرير (صف الأصل 5fd41d49 وصف هذا التصحيح) + صف docs/README.md (وصف IP-1 والحالة) + سطرا STATE.md (آخر تحديث + المفتوح الآن) + هذا المدخل + دوران H5 — كوميت docs-only واحد بعلامة [vercel skip].
+
+Stage Summary:
+- التقرير الحاكم يمنع الآن صراحةً اختيار GSC للمواضيع: الاكتشاف = بحث خارجي حي؛ أدلة GSC = بعد النشر فقط (تحسين/توسع/كشف تزاحم/تحقق)؛ G2 = حلقة أدلة وتحسين بعد النشر تعتمد على G1.
+- الملفات: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (التصحيح + §11.1) · docs/README.md (الصف) · STATE.md (سطران) · worklog.md (هذا المدخل + الأرشيف عند الدوران) — لا شيء غيرها.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+

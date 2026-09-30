@@ -58,6 +58,9 @@ const PARAMETRIC_PATH_PREFIXES = [
   "/tools/bmi-calculator",
   "/tools/body-fat-calculator",
   "/tools/water-tracker",
+  // Phase 318 (P1-8): the accuracy chain's two new primary canonicals.
+  "/guides/macro-tracking-accuracy",
+  "/foods/methodology",
   "/blog/category/[slug]",
 ] as const;
 
