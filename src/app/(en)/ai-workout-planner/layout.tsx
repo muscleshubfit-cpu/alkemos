@@ -9,7 +9,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "AI Workout Planner — Free Weekly Split Generator | Alkemos",
   description:
-    "Generate a balanced weekly workout split with AI: pick your goal, level, training days, and equipment, add constraints, and get a validated split in seconds. Free trial.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 169 → 138 chars — the
+    // ≤160 SERP-truncation law now holds (free-trial CTA kept).
+    "Generate a balanced weekly workout split with AI: pick goal, level, days, and equipment, and get a validated split in seconds. Free trial.",
   keywords: [
     "ai workout planner",
     "ai workout generator",

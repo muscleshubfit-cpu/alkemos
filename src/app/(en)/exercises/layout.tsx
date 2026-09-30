@@ -8,7 +8,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Exercise Library | Alkemos",
   description:
-    "Browse 868+ exercises with full instructions, target muscles, and difficulty level. Exercises for chest, back, shoulders, legs, biceps, triceps, core, and cardio.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 162 → 132 chars — the
+    // ≤160 SERP-truncation law now holds (868+ proof + muscle list kept).
+    "Browse 868+ exercises with full instructions, target muscles, and difficulty — chest, back, shoulders, legs, arms, core, and cardio.",
   keywords: [
     "exercise library",
     "fitness exercises",

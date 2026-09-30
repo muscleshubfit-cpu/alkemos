@@ -13,7 +13,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Water Tracker — Daily Hydration Goal & Log | Alkemos",
   description:
-    "Track your daily water intake for free: get a smart hydration goal based on your body weight (35 ml × kg), log every cup, keep your history, and build the habit of staying hydrated.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 181 → 132 chars — the
+    // ≤160 SERP-truncation law now holds (35 ml × kg proof kept).
+    "Track your daily water intake free: a smart hydration goal from your body weight (35 ml × kg), log every cup, and keep your history.",
   keywords: [
     "water tracker",
     "water intake calculator",

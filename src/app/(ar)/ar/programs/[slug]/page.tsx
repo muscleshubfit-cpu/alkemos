@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProgramBySlug, WORKOUT_PROGRAMS, LEVEL_LABELS, LOCATION_LABELS } from "@/lib/workout-programs";
+import { getProgramBySlug, WORKOUT_PROGRAMS } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
 import { getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 import ProgramDetailClient from "@/app/(en)/programs/[slug]/ProgramDetailClient";
@@ -33,7 +33,12 @@ export async function generateMetadata({
   // SEO-GEO-4: strip the trailing brand — the /ar template appends "— Alkemos".
   const title = stripTrailingBrandForArTemplate(`${program.nameAr} — برنامج تدريب | Alkemos`);
   const ogTitle = `${program.nameAr} — برنامج تدريب | Alkemos`;
-  const description = `${program.nameAr}: ${program.descriptionAr} جدول أسبوعي من ${program.days.length} أيام، مستوى ${LEVEL_LABELS[program.level].ar}، في ${LOCATION_LABELS[program.location].ar}.`;
+  // SEO-P2-10 (2026-10-01, SEO audit item 10): the trailing level/location
+  // clause pushed every page to 187–217 chars (SERP truncation). The
+  // level/location facts already live in descriptionAr, the title, the H1
+  // and the page body — name+description now lands at 119–155 chars for
+  // all seven programs (≤160 law).
+  const description = `${program.nameAr}: ${program.descriptionAr}`;
   const url = `${SITE_URL}/ar/programs/${program.slug}`;
 
   return {

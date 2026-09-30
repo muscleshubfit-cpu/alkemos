@@ -12,7 +12,10 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "حاسبة السعرات الحرارية — احسب احتياجك اليومي والماكروز",
   description:
-    "احسب احتياجك اليومي من السعرات الحرارية والماكروز (بروتين، كربوهيدرات، دهون) من وزنك وطولك وعمرك ونشاطك بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) — نتائج فورية وشرح مبسط، مجانًا ودون بطاقة ائتمانية.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 199 → 132 chars — the
+    // ≤160 SERP-truncation law now holds. The «(Mifflin-St Jeor)» gloss
+    // is KEPT — pinned by tool-msa-surface.test.ts canary (§12.41 law).
+    "احسب سعراتك اليومية والماكروز من وزنك وطولك وعمرك ونشاطك بمعادلة ميفلين-سانت جيور (Mifflin-St Jeor) — نتائج فورية وشرح مبسط، مجانًا.",
   keywords: [
     "حاسبة السعرات الحرارية",
     "حساب السعرات اليومية",

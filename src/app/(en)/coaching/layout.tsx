@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   description:
     // CONTENT-AUDIT P1-7 (audit §2.1): 203 chars — trimmed to the ~160
     // budget with the offer intact.
-    "Online coaching with professional coaches and nutrition specialists: personalized meal plans, adaptive workout programs, personal follow-up, and the EVO AI coach.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 162 → 145 chars — the
+    // ≤160 SERP-truncation law now holds exactly.
+    "Online coaching with professional coaches and nutrition specialists: personalized meal and workout plans, weekly follow-up, and the EVO AI coach.",
   keywords: [
     "online coaching",
     "nutrition coaching",

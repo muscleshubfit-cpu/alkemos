@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description:
     // CONTENT-AUDIT P1-7 (audit §2.1): 182 chars — the tool list survives
     // intact inside the ~160 budget.
-    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI plan generators. No credit card required.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 168 → 138 chars — the
+    // ≤160 SERP-truncation law now holds (8-tool proof kept).
+    "8 free fitness and nutrition tools: calorie, BMI, macro, and body-fat calculators, a water tracker, a meal planner, and two AI generators.",
   keywords: [
     "free fitness tools",
     "fitness calculators",

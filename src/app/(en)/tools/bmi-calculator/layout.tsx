@@ -4,7 +4,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "BMI Calculator — Calculate Your Ideal Weight | Alkemos",
   description:
-    "Calculate your Body Mass Index (BMI) for free. Find out if your weight is ideal, overweight, or underweight. Accurate and easy-to-use BMI calculator with result interpretation.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 176 → 133 chars — the
+    // ≤160 SERP-truncation law now holds (interpretation kept as CTA).
+    "Calculate your Body Mass Index (BMI) free: find out if your weight is ideal, overweight, or underweight — with result interpretation.",
   keywords: [
     "BMI calculator",
     "Body Mass Index",

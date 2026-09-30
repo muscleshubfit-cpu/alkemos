@@ -38,7 +38,9 @@ export const MACRO_ACCURACY_GUIDE_PUBLISHED = "2026-10-01";
 export const MACRO_ACCURACY_GUIDE_META = {
   titleEn: "Macro Tracking Accuracy — Why Apps Disagree and How to Track Precisely | Alkemos",
   descriptionEn:
-    "Why the same food shows different macros in every app, how raw vs cooked weights and serving estimates bend your daily totals, and a weekly audit method that keeps tracking honest.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 180 → 145 chars — the
+    // ≤160 SERP-truncation law now holds (raw-vs-cooked + weekly audit kept).
+    "Why the same food shows different macros in every app, how raw vs cooked weights bend your totals, and a weekly audit that keeps tracking honest.",
   titleAr: "دقة تتبع الماكروز — لماذا تختلف الأرقام بين التطبيقات وكيف تضبطها",
   descriptionAr:
     "لماذا يعرض كل تطبيق ماكروز مختلفة لنفس الصنف؟ وكيف تُحني أوزان النيّئ والمطبوخ وتقديرات الحصص مجاميعك اليومية؟ مع طريقة تدقيق أسبوعية تحفظ صدق التتبع.",

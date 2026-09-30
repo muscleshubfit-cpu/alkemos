@@ -21,7 +21,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 export const metadata: Metadata = {
   title: "Privacy Policy — How We Protect Your Data | Alkemos",
   description:
-    "How Alkemos collects, uses, and protects your personal data: account details, health metrics, cookies, third-party services, and your rights over your information.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 163 → 132 chars — the
+    // ≤160 SERP-truncation law now holds (all five data classes kept).
+    "How Alkemos collects, uses, and protects your data: account details, health metrics, cookies, third-party services, and your rights.",
   alternates: {
     canonical: "/privacy",
     languages: {
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Privacy Policy — How We Protect Your Data | Alkemos",
     description:
-      "How Alkemos collects, uses, and protects your personal data: account details, health metrics, cookies, third-party services, and your rights over your information.",
+      "How Alkemos collects, uses, and protects your data: account details, health metrics, cookies, third-party services, and your rights.",
     url: "https://alkemos.com/privacy",
     type: "website",
     siteName: "Alkemos",

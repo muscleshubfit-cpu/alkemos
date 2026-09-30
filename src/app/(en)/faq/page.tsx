@@ -35,7 +35,9 @@ export const metadata: Metadata = {
   // PHASE 203 (copy refinement): the Arabic-support question was retired
   // (replaced by the free-account question) — the description follows.
   description:
-    "Answers to the most common questions about Alkemos: how the EVO AI coach works, memberships and pricing, payment methods, data safety, and what a free account gives you.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 169 → 137 chars — the
+    // ≤160 SERP-truncation law now holds.
+    "Answers to common Alkemos questions: the EVO AI coach, memberships and pricing, payments, data safety, and what a free account gives you.",
   alternates: {
     canonical: "https://alkemos.com/faq",
     languages: {

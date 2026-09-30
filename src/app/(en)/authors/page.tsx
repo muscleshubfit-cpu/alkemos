@@ -24,7 +24,9 @@ import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Authors & Reviewers | Alkemos",
   description:
-    "The authors and reviewers behind Alkemos: certified fitness and nutrition professionals who write and review every exercise, food page, and article on the platform.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 164 → 132 chars — the
+    // ≤160 SERP-truncation law now holds (certified-professional proof kept).
+    "The authors and reviewers behind Alkemos: certified fitness and nutrition professionals who write and review every page and article.",
   alternates: {
     canonical: "/authors",
     languages: {

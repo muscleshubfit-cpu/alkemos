@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProgramBySlug, GOAL_LABELS, LOCATION_LABELS } from "@/lib/workout-programs";
+import { getProgramBySlug } from "@/lib/workout-programs";
 import { getExerciseMinisBySlugs } from "@/lib/exercises";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 import ProgramDetailClient from "./ProgramDetailClient";
@@ -32,7 +32,12 @@ export async function generateMetadata({
   const title = `${program.nameEn} — Workout Program | Alkemos`;
   // Content-strategy v1: raw enum values ("home-equipment", "fat-loss")
   // leaked into the SERP snippet — map through the canonical label maps.
-  const description = `${program.nameEn}: ${program.descriptionEn} A ${program.days.length}-day weekly schedule for ${GOAL_LABELS[program.goal].en.toLowerCase()}, training at ${LOCATION_LABELS[program.location].en.toLowerCase()}.`;
+  // SEO-P2-10 (2026-10-01, SEO audit item 10): the trailing goal/location
+  // clause pushed every page to 183–220 chars (SERP truncation). The
+  // schedule/goal/location facts already live in descriptionEn itself, the
+  // title, the H1 and the page body — name+description now lands at
+  // 121–151 chars for all seven programs (≤160 law).
+  const description = `${program.nameEn}: ${program.descriptionEn}`;
   const url = `https://alkemos.com/programs/${program.slug}`;
 
   return {

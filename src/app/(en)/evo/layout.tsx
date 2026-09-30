@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description:
     // CONTENT-AUDIT P1-7 (2026-09-28, audit §2.1): 265 chars — Google
     // truncates at ~155-160. Front-loaded the definition + core actions.
-    "EVO is an intelligent performance engine: it reads your health data and goal, builds personalized nutrition and workout plans, and suggests smart meal and exercise swaps. Free for everyone.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 189 → 159 chars — the
+    // ≤160 SERP-truncation law now holds exactly (proof kept: free-for-all).
+    "EVO, your intelligent performance engine: builds personalized nutrition and workout plans from your data and goal, and suggests smart swaps. Free for everyone.",
   keywords: [
     "EVO AI coach",
     "AI fitness coach",

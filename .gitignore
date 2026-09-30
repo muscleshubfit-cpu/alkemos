@@ -93,6 +93,10 @@ pnpm-lock.yaml
 !/scripts/worklog_rotate.py
 !/scripts/geo/
 !/scripts/external-mirror/
+#   scripts/seo-meta-live-audit.mjs → production meta-description length auditor over the sitemaps (SEO-P2-10, 2026-10-01 — the re-measurement tool for the owner's GSC re-audit window 2026-10-30→11-29; hit the same /scripts/* blanket trap as geo/ in 290 — exception added in the same frame)
+#   scripts/seo-p210-smoke.mjs → P2-10 local smoke: next-start description-length sweep over all trimmed surfaces (SEO-P2-10, 2026-10-01)
+!/scripts/seo-meta-live-audit.mjs
+!/scripts/seo-p210-smoke.mjs
 /skills/
 /tests/
 /examples/

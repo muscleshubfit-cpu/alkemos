@@ -21,7 +21,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 export const metadata: Metadata = {
   title: "Terms & Conditions — Rules of Using the Platform | Alkemos",
   description:
-    "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 167 → 141 chars — the
+    // ≤160 SERP-truncation law now holds (all six sections kept).
+    "The official Alkemos terms: accounts, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
   alternates: {
     canonical: "/terms",
     languages: {
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Terms & Conditions — Rules of Using the Platform | Alkemos",
     description:
-      "The official terms for using Alkemos: accounts and eligibility, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
+      "The official Alkemos terms: accounts, memberships and billing, payments and refunds, acceptable use, health disclaimer, and liability limits.",
     url: "https://alkemos.com/terms",
     type: "website",
     siteName: "Alkemos",

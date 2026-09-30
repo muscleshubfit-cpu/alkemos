@@ -8,7 +8,9 @@ import { Resources } from "@/components/hub-head-resources";
 export const metadata: Metadata = {
   title: "Workout Programs | Alkemos",
   description:
-    "Ready-made workout programs for all levels and goals. Home workouts without equipment, dumbbell programs, and full gym programs. Start your fitness journey today.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 162 → 125 chars — the
+    // ≤160 SERP-truncation law now holds (all three locations kept + CTA).
+    "Ready-made workout programs for every level and goal: home workouts without equipment, dumbbell plans, and full gym programs.",
   keywords: [
     "workout programs",
     "training programs",

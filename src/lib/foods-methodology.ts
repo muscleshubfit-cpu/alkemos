@@ -35,7 +35,9 @@ export const FOODS_METHODOLOGY_PUBLISHED = "2026-10-01";
 export const FOODS_METHODOLOGY_META = {
   titleEn: "Food Database Methodology — Sources, Conventions, and How to Cite | Alkemos",
   descriptionEn:
-    "How the Alkemos food database is built: per-100g standardization, the curated core and the reference long tail, the Arabic layer, known limits, and the citation format for coaches and writers.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 192 → 132 chars — the
+    // ≤160 SERP-truncation law now holds (all five documentation pillars kept).
+    "How the Alkemos food database is built: per-100g standardization, curated core, Arabic layer, known limits, and the citation format.",
   titleAr: "منهجية قاعدة الأطعمة — المصادر والأعراف وكيفية الاستشهاد",
   descriptionAr:
     "كيف تُبنى قاعدة أطعمة Alkemos: التوحيد على كل 100 جرام، والنواة المنتقاة والذيل المرجعي، والطبقة العربية، والحدود المعروفة، وصيغة الاستشهاد للمدربين والكتّاب.",

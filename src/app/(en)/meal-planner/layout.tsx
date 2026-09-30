@@ -12,7 +12,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Meal Planner — Build Custom Meal Plans Free | Alkemos",
   description:
-    "Create a personalized meal plan in minutes: search 8,830+ foods with calories and macros, set your portions, and save your plans — free to try. Export unlocks on paid tiers.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 173 → 142 chars — the
+    // ≤160 SERP-truncation law now holds (8,830+ proof + CTA kept).
+    "Create a meal plan in minutes: search 8,830+ foods with calories and macros, set portions, and save plans — free to try, export on paid tiers.",
   keywords: [
     "meal planner",
     "custom meal plan",

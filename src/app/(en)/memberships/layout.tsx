@@ -11,7 +11,9 @@ export const metadata: Metadata = {
     // P3-10/م6 (Phase 217): the EN description now lists ALL four tiers —
     // it dropped Coaching while the AR twin lists it. Monthly prices only
     // (mirrors the AR twin; still inside the 158-char EN budget).
-    "Compare Alkemos plans: Free forever, Premium $14.99/mo (unlimited EVO chat), Pro $29.99/mo (8 AI plans, no ads), Coaching $39.99/mo (human coach). Full limits published.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 169 → 128 chars — all
+    // four tiers + prices kept, inside the ≤160 SERP-truncation law.
+    "Compare Alkemos plans: Free forever, Premium $14.99/mo, Pro $29.99/mo, Coaching $39.99/mo (human coach) — full limits published.",
   keywords: [
     "membership",
     "premium",

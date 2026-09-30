@@ -28,7 +28,9 @@ export const metadata: Metadata = {
   description:
     // ~160-char budget (CONTENT-AUDIT P1-7 law): real capabilities only —
     // targets, live totals, AI plans; no food-diary claims.
-    "Free macro calculator targets, a meal planner with live macro totals from 8,830+ foods, AI meal plans (2 free/month), and weight tracking — in one bilingual platform.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 166 → 152 chars — proof
+    // number (8,830+) and the 2-free AI plans kept inside ≤160.
+    "Macro calculator targets, a meal planner with live totals from 8,830+ foods, AI meal plans (2 free/month), and weight tracking — one bilingual platform.",
   keywords: [
     "macro tracker",
     "macro tracking app",

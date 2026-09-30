@@ -23,7 +23,9 @@ export const metadata: Metadata = {
   description:
     // CONTENT-AUDIT P1-7 (audit §2.1): 260 chars — trimmed to the ~160
     // budget; commission model + free registration kept up front.
-    "Register as a coach or nutrition specialist on Alkemos free: run your own clients, AI-generated plans, your pricing, direct collection — zero commission, a fixed monthly fee. Instant activation.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 194 → 146 chars — the
+    // ≤160 SERP-truncation law now holds (free + zero commission kept).
+    "Register as a coach or nutrition specialist free: your clients, your pricing, direct collection — zero commission, a fixed monthly fee on Alkemos.",
   keywords: [
     "join as a coach",
     "coach registration",

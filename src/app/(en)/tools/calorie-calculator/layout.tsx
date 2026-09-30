@@ -7,7 +7,9 @@ import { ToolSchemaScripts } from "@/components/ToolSchemaScripts";
 export const metadata: Metadata = {
   title: "Calorie Calculator — Calculate Your Daily Needs | Alkemos",
   description:
-    "Calculate your daily calorie needs and macros (protein, carbs, fat) from your weight, height, age, and activity level, using the Mifflin-St Jeor equation. Free to try, no credit card required.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 192 → 139 chars — the
+    // ≤160 SERP-truncation law now holds (equation + free CTA kept).
+    "Calculate your daily calories and macros from weight, height, age, and activity level — the Mifflin-St Jeor equation. Free, no credit card.",
   keywords: [
     "calorie calculator",
     "TDEE calculator",

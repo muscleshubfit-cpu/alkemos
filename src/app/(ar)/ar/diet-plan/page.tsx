@@ -32,7 +32,9 @@ export const metadata: Metadata = {
   // " — Alkemos" (anti-double-brand law, eadb3e7).
   title: "مكتبة الخطط الغذائية الجاهزة — من 1200 إلى 3000 سعرة",
   description:
-    "مكتبة الخطط الغذائية الجاهزة: 24 خطة يوم جاهزة (6 مستويات سعرات × 4 أنظمة — متوازن، عالي البروتين، كيتو، نباتي) بالغرامات والسعرات لكل صنف، مع خطوة تخصيصها مجانًا.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 163 → 141 chars — the
+    // ≤160 SERP-truncation law now holds (24-plan proof + free CTA kept).
+    "مكتبة الخطط الغذائية الجاهزة: 24 خطة يوم (6 مستويات سعرات × 4 أنظمة — متوازن، عالي البروتين، كيتو، نباتي) بالغرامات والسعرات، مع تخصيص مجاني.",
   alternates: {
     canonical: `${SITE_URL}/ar/diet-plan`,
     languages: {

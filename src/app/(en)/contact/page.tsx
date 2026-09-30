@@ -11,7 +11,9 @@ import { ContactView } from "@/components/views/ContactView";
 export const metadata: Metadata = {
   title: "Contact Us — Support, Feedback & Partnerships | Alkemos",
   description:
-    "Reach the Alkemos team: technical support, account and payment questions, feedback, or partnership requests. Send us a message and we usually reply within 24 hours.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 164 → 125 chars — the
+    // ≤160 SERP-truncation law now holds (24-hour reply proof kept).
+    "Reach the Alkemos team: support, account and payment questions, feedback, or partnerships — we usually reply within 24 hours.",
   alternates: {
     canonical: "/contact",
     languages: {

@@ -13,7 +13,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Alkemos Affiliate Program — Turn Your Influence Into Income",
   description:
-    "Join the Alkemos Affiliate Program, share smarter fitness and nutrition solutions, and earn commissions from eligible purchases made through your personal Affiliate link.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 170 → 133 chars — the
+    // ≤160 SERP-truncation law now holds (earn CTA kept).
+    "Join the Alkemos Affiliate Program: share fitness and nutrition tools and earn commissions from purchases through your personal link.",
   keywords: [
     "Alkemos affiliate program",
     "fitness affiliate program",

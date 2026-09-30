@@ -21,7 +21,9 @@ export const metadata: Metadata = {
   title: "Alkemos vs Competitors — Honest Platform Comparisons (2026) | Alkemos",
   description:
     // P0 SEO audit (2026-09-30): Cronometer joined the comparison set.
-    "Side-by-side comparisons of Alkemos vs MyFitnessPal, Freeletics, ExRx.net, and Cronometer: features, prices, content depth, AI coach, and languages — with an honest verdict for each.",
+    // SEO-P2-10 (2026-10-01, SEO audit item 10): 182 → 150 chars — the
+    // ≤160 SERP-truncation law now holds exactly.
+    "Alkemos vs MyFitnessPal, Freeletics, ExRx.net, and Cronometer: features, prices, content depth, AI coach, and languages — with an honest verdict each.",
   alternates: {
     canonical: "https://alkemos.com/compare",
     languages: {

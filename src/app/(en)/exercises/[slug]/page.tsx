@@ -37,7 +37,12 @@ export async function generateMetadata({
   }
 
   const title = `${exercise.nameEn} — Proper Form & Instructions | Alkemos`;
-  const description = `Learn how to perform ${exercise.nameEn} with proper form. Target muscles: ${exercise.primaryMuscles.join(", ")}. Equipment: ${EQUIPMENT_LABELS[exercise.equipment].en}. Level: ${LEVEL_LABELS[exercise.level].en}.`;
+  // SEO-P2-10 (2026-10-01, SEO audit item 10): the long-name tail
+  // (e.g. "Standing Dumbbell Straight-Arm Front Delt Raise Above Head")
+  // pushed 2 of 868 pages to 163–166 chars. Shorter lead verb phrase
+  // ("Learn proper form for") keeps EVERY page ≤160 while preserving the
+  // four data fields (muscles / equipment / level).
+  const description = `Learn proper form for ${exercise.nameEn}. Target muscles: ${exercise.primaryMuscles.join(", ")}. Equipment: ${EQUIPMENT_LABELS[exercise.equipment].en}. Level: ${LEVEL_LABELS[exercise.level].en}.`;
   const url = `https://alkemos.com/exercises/${exercise.slug}`;
 
   // SOCIAL-OG-EX (2026-09-22, owner report «المربع الأزرق يظهر بدل صورة
