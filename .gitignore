@@ -99,6 +99,10 @@ pnpm-lock.yaml
 !/scripts/seo-meta-live-audit.mjs
 !/scripts/seo-p210-smoke.mjs
 !/scripts/seo-p210-origin-verify.mjs
+#   scripts/seo-p212-live-audit.mjs → production missing-dimension <img> auditor over the sitemaps (SEO-P2-12, 2026-10-01 — re-measures the audit's width/height gap as the surfaces scale; same /scripts/* blanket-trap exception precedent as 290/P2-10)
+#   scripts/seo-p212-cls-risk.mjs → P2-12 pre-load CLS probe: blocks all image requests, measures every missing-dimension <img> box BEFORE load — zero-box = unreserved space = the real risk (SEO-P2-12, 2026-10-01; works against `prod` or a local next-start port)
+!/scripts/seo-p212-live-audit.mjs
+!/scripts/seo-p212-cls-risk.mjs
 /skills/
 /tests/
 /examples/

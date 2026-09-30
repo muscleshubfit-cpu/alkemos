@@ -27,9 +27,19 @@ export function PageBanner({
       className={`marble-card relative aspect-[1280/477] w-full ${className}`}
       aria-hidden="true"
     >
+      {/* SEO-P2-12 (2026-10-01, audit item 12 «إضافة width وheight للصور
+          الناقصة الأبعاد»): the banner pair were the ONLY public-SSR
+          missing-dimension <img>s with no own aspect-ratio CSS (they rely
+          entirely on this div's aspect-[1280/477]). Intrinsic 1280×477 is
+          the prebuilt artwork size (phase136 scripts) — pinned here so the
+          browser has the aspect hint in markup itself. CSS h-full w-full
+          object-cover still governs rendering: zero visual change, and the
+          canary seo-image-dimensions.test.ts locks the pair. */}
       <img
         src={`/images/brand/header-${section}-light.webp`}
         alt=""
+        width={1280}
+        height={477}
         className="theme-img-light h-full w-full object-cover"
         decoding="async"
         /* PHASE 137c: high priority — this banner is the page's LCP element
@@ -48,6 +58,8 @@ export function PageBanner({
       <img
         src={`/images/brand/header-${section}-dark.webp`}
         alt=""
+        width={1280}
+        height={477}
         className="theme-img-dark h-full w-full object-cover"
         decoding="async"
         loading="lazy"
