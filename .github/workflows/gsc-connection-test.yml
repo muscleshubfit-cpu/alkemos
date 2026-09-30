@@ -1,28 +1,37 @@
-# GSC connection test (read-only — dispatch only) (2026-09-30).
+# GSC connection test v2 (read-only — dispatch only) (2026-09-30).
 #
-# WHY: the repo holds the secret GOOGLE_SEARCH_CONSOLE_CREDENTIALS
-# (service-account JSON) but NOTHING consumes it yet — no workflow and
-# no script reference it. Before building any SEO/GEO reporting on top
-# of Search Console data, we must prove that (a) the SA JSON can
-# authenticate to Google and (b) the SA is granted access to
-# sc-domain:alkemos.com.
+# WHY (v2 — owner instruction): read BOTH Search Console properties —
+# sc-domain:alkemos.com AND the OLD Alkemos property. Per the owner,
+# the old property's exact ID must be DISCOVERED from the Search
+# Console API itself, never guessed. So this version enumerates every
+# property visible to the service account via sites.list, reports the
+# full list (with permission levels), and runs the read-only 28-day
+# query set against EACH visible property (bounded at 10). Failure of
+# one property never masks the others: every failure gets its own
+# summary section with the property ID, HTTP code and Google's exact
+# error message, and the job exits 1 (honest-failure law) while still
+# rendering every property that succeeded.
+#
+# WHY (v1): the repo holds the secret GOOGLE_SEARCH_CONSOLE_CREDENTIALS
+# but nothing consumed it. This job proves (a) the SA authenticates to
+# Google and (b) what it can actually read.
 #
 # Safety properties of this job:
 #   - workflow_dispatch ONLY — can never fire on schedule/push/PR.
 #   - READ-ONLY: OAuth scope is webmasters.readonly. The only API calls
-#     are searchAnalytics/query (x3) plus an optional sites.list used
-#     solely to diagnose permission failures.
+#     are sites.list (discovery) and searchAnalytics/query (3 per
+#     property). Nothing is ever written anywhere.
 #   - The secret is written to $RUNNER_TEMP with 0600 perms, is never
 #     echoed/printed, and is deleted by an always() cleanup step.
 #   - No checkout, no installs: python3 + openssl + stdlib only — zero
 #     dependency drift (repo install discipline A-12).
-#   - Touches no application code, DB, workflow, or config. Temporary
+#   - Touches no application code, DB, or other workflow. Temporary
 #     file: remove this YAML once a permanent GSC consumer exists.
 #
 # Window: the 28 most recent COMPLETE days (end = yesterday UTC,
 # start = end-27d), GSC default dataState=final (settled data).
 # Results go to stdout AND $GITHUB_STEP_SUMMARY.
-name: GSC connection test (read-only — dispatch only)
+name: GSC connection test v2 (read-only — dispatch only)
 
 on:
   workflow_dispatch: {}
@@ -39,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Run read-only Search Console test
+      - name: Run read-only Search Console test (all visible properties)
         env:
           GSC_CREDENTIALS: ${{ secrets.GOOGLE_SEARCH_CONSOLE_CREDENTIALS }}
         run: |
@@ -62,10 +71,11 @@ jobs:
           import urllib.parse
           import urllib.request
 
-          PROPERTY = "sc-domain:alkemos.com"
+          PRIMARY = "sc-domain:alkemos.com"
           SCOPE = "https://www.googleapis.com/auth/webmasters.readonly"
           API_BASE = "https://searchconsole.googleapis.com/webmasters/v3"
           TOKEN_URI_DEFAULT = "https://oauth2.googleapis.com/token"
+          MAX_PROPERTIES = 10
 
           SA_FILE = os.environ["GSC_SA_FILE"]
           KEY_FILE = os.environ["GSC_KEY_FILE"]
@@ -142,7 +152,7 @@ jobs:
           with open(KEY_FILE, "w", encoding="utf-8") as fh:
               fh.write(private_key)
           os.chmod(KEY_FILE, 0o600)
-          log("1/4 credential parsed OK (content not printed)")
+          log("1/5 credential parsed OK (content not printed)")
 
           # ---- 2. Build + sign the JWT (RS256 via openssl, stdlib only) ----
           def b64url(data):
@@ -167,7 +177,7 @@ jobs:
               die("JWT signing failed — the `private_key` in the secret is not a usable RSA key.",
                   ["openssl stderr (truncated): `" + scrub(proc.stderr.decode(errors="replace")[:200]) + "`"])
           jwt = signing_input.decode("ascii") + "." + b64url(proc.stdout)
-          log("2/4 JWT built + signed OK")
+          log("2/5 JWT built + signed OK")
 
           # ---- 3. Exchange the JWT for an access token ----
           def http(req, timeout, tries=2):
@@ -206,70 +216,81 @@ jobs:
               access_token = json.loads(text)["access_token"]
           except (ValueError, KeyError):
               die("Token endpoint returned HTTP 200 but an unexpected body (no `access_token`).")
-          log("3/4 Google token exchange OK")
-
-          # ---- 4. Read-only Search Console queries ----
-          end = dt.date.today() - dt.timedelta(days=1)
-          start = end - dt.timedelta(days=27)
+          log("3/5 Google token exchange OK")
           auth_headers = {"Authorization": "Bearer " + access_token,
                           "Content-Type": "application/json"}
-          query_url = API_BASE + "/sites/" + urllib.parse.quote(PROPERTY, safe="") + "/searchAnalytics/query"
 
-          def query_api(dims, row_limit=None):
+          # ---- 4. DISCOVERY: enumerate every property the SA can see ----
+          end = dt.date.today() - dt.timedelta(days=1)
+          start = end - dt.timedelta(days=27)
+          s_status, s_text = http(urllib.request.Request(
+              API_BASE + "/sites", headers=auth_headers), timeout=30)
+          if s_status != 200:
+              die("**Discovery failed** — `sites.list` returned HTTP " + str(s_status) + ".",
+                  ["Google said: `" + scrub(s_text[:400], access_token, jwt) + "`"])
+          try:
+              entries = json.loads(s_text).get("siteEntry", [])
+          except ValueError:
+              die("`sites.list` returned HTTP 200 with a non-JSON body (truncated): `"
+                  + scrub(s_text[:200], access_token, jwt) + "`")
+          visible = [(e.get("siteUrl", ""), e.get("permissionLevel", "?")) for e in entries if e.get("siteUrl")]
+          if not visible:
+              die("**No Search Console properties are visible to this service account.** Grant it access in "
+                  "Search Console settings, then re-dispatch.")
+          selected = [u for u, _ in visible][:MAX_PROPERTIES]
+          perm_by_url = {u: p for u, p in visible}
+          if PRIMARY not in perm_by_url:
+              die("**Primary property `" + PRIMARY + "` is NOT visible to this service account.**",
+                  ["Visible properties: " + ", ".join("`" + u + "`" for u, _ in visible),
+                   "Add `" + sa["client_email"] + "` as a delegated owner/user on `" + PRIMARY + "`."])
+          if len(visible) > MAX_PROPERTIES:
+              emit("> ⚠️ " + str(len(visible)) + " properties visible — capped at the first " + str(MAX_PROPERTIES) + ".")
+          log("4/5 discovery OK — " + str(len(visible)) + " property(ies) visible: "
+              + ", ".join(u for u, _ in visible))
+
+          # ---- 5. Read-only 28-day query set per property ----
+          class QueryError(Exception):
+              def __init__(self, status, detail):
+                  super().__init__(detail)
+                  self.status = status
+                  self.detail = detail
+
+          def query_api(prop, dims, row_limit=None):
               payload = {"startDate": start.isoformat(), "endDate": end.isoformat(),
                          "searchType": "web"}
               if dims:
                   payload["dimensions"] = dims
               if row_limit:
                   payload["rowLimit"] = row_limit
+              url = (API_BASE + "/sites/" + urllib.parse.quote(prop, safe="")
+                     + "/searchAnalytics/query")
               status, text = http(urllib.request.Request(
-                  query_url, data=json.dumps(payload).encode("utf-8"),
+                  url, data=json.dumps(payload).encode("utf-8"),
                   headers=auth_headers), timeout=60)
               if status != 200:
-                  detail = scrub(text[:400], access_token, jwt)
-                  diag = []
-                  if status in (401, 403):
-                      s2, t2 = http(urllib.request.Request(
-                          API_BASE + "/sites", headers=auth_headers), timeout=30)
-                      if s2 == 200:
-                          try:
-                              entries = json.loads(t2).get("siteEntry", [])
-                          except ValueError:
-                              entries = []
-                          known = any(e.get("siteUrl") == PROPERTY for e in entries)
-                          if known:
-                              diag.append("`sites.list` succeeded and `" + PROPERTY + "` **is** visible to this SA — "
-                                          "the 403 is likely an insufficient permission level (needs Full/Owner for "
-                                          "domain-property data) or a transient Google-side issue.")
-                          else:
-                              diag.append("`sites.list` succeeded but `" + PROPERTY + "` is **not** among the SA's "
-                                          "visible sites (" + str(len(entries)) + " visible). Grant the service account "
-                                          "`" + sa["client_email"] + "` **delegated owner** (or full user) access on the "
-                                          "domain property in Search Console settings.")
-                      else:
-                          diag.append("`sites.list` also failed (HTTP " + str(s2) + ") — the token is not valid for the "
-                                      "Search Console API at all; check the SA's project/API access or org policy.")
-                  die("**Search Console API error** on `searchAnalytics/query` — HTTP " + str(status) + ".",
-                      ["Google said: `" + detail + "`"] + diag)
+                  raise QueryError(status, scrub(text[:400], access_token, jwt))
               try:
                   return json.loads(text).get("rows", [])
               except ValueError:
-                  die("Search Console returned HTTP 200 with a non-JSON body (truncated): `"
-                      + scrub(text[:200], access_token, jwt) + "`")
+                  raise QueryError(0, "HTTP 200 with non-JSON body (truncated): `"
+                                  + scrub(text[:200], access_token, jwt) + "`")
 
-          total_rows = query_api(None)
-          query_rows = sorted(query_api(["query"], 20),
-                              key=lambda r: r.get("clicks", 0), reverse=True)[:20]
-          page_rows = sorted(query_api(["page"], 20),
-                             key=lambda r: r.get("clicks", 0), reverse=True)[:20]
-          log("4/4 Search Console queries OK (3 read-only calls)")
+          results = []
+          for prop in selected:
+              entry = {"property": prop, "permission": perm_by_url.get(prop, "?"),
+                       "totals": None, "queries": None, "pages": None, "error": None}
+              try:
+                  entry["totals"] = query_api(prop, None)
+                  entry["queries"] = sorted(query_api(prop, ["query"], 20),
+                                            key=lambda r: r.get("clicks", 0), reverse=True)[:20]
+                  entry["pages"] = sorted(query_api(prop, ["page"], 20),
+                                          key=lambda r: r.get("clicks", 0), reverse=True)[:20]
+              except QueryError as exc:
+                  entry["error"] = exc
+              results.append(entry)
+          log("5/5 query set finished for " + str(len(results)) + " property(ies)")
 
-          t = total_rows[0] if total_rows else {}
-          clicks = t.get("clicks", 0.0)
-          imps = t.get("impressions", 0.0)
-          ctr = t.get("ctr", 0.0) * 100
-          pos = t.get("position", 0.0)
-
+          # ---- Render ----
           def fmt_rows(rows, label):
               if not rows:
                   return ["_No `" + label + "` rows returned for this window._", ""]
@@ -285,39 +306,78 @@ jobs:
               out.append("")
               return out
 
-          emit("## ✅ GSC connection test — SUCCESS")
+          failures = [e for e in results if e["error"] is not None]
+          emit("## GSC connection test v2 — " + ("❌ " + str(len(failures)) + " property(ies) failed" if failures
+                                                 else "✅ all properties read OK"))
           emit("")
-          emit("- **Property:** `" + PROPERTY + "`")
           emit("- **Authenticated as:** `" + sa["client_email"] + "`")
           emit("- **Window:** " + start.isoformat() + " → " + end.isoformat()
                + " (28 complete days, UTC; GSC dataState=final — settled data)")
           emit("- **OAuth scope:** `" + SCOPE + "` (read-only)")
+          emit("- **Property discovery:** via `sites.list` — exact IDs from the API, nothing hardcoded/guessed")
           emit("- **Run:** " + RUN_URL)
           emit("")
-          emit("### Totals (28 days)")
+          emit("### Properties visible to the service account (" + str(len(visible)) + ")")
           emit("")
-          emit("| Clicks | Impressions | CTR | Avg. position |")
-          emit("|---:|---:|---:|---:|")
-          emit("| " + format(clicks, ".0f") + " | " + format(imps, ".0f") + " | "
-               + format(ctr, ".2f") + "% | " + format(pos, ".2f") + " |")
+          emit("| Property | Permission level | Queried |")
+          emit("|---|---|---|")
+          for u, p in visible:
+              emit("| `" + u + "` | " + str(p) + " | " + ("yes" if u in selected else "no (capped)") + " |")
           emit("")
-          if not total_rows:
-              emit("> Authentication and property access succeeded, but GSC returned **zero rows** for the "
-                   "window — no recorded traffic, or data still settling.")
-              emit("")
-          emit("### Top 20 queries by clicks")
-          emit("")
-          for line in fmt_rows(query_rows, "query"):
-              emit(line)
-          emit("### Top 20 pages by clicks")
-          emit("")
-          for line in fmt_rows(page_rows, "page"):
-              emit(line)
 
-          log("RESULT property=" + PROPERTY + " window=" + start.isoformat() + ".." + end.isoformat())
-          log("RESULT totals clicks=" + format(clicks, ".0f") + " impressions=" + format(imps, ".0f")
-              + " ctr=" + format(ctr, ".2f") + "% position=" + format(pos, ".2f"))
-          log("::notice::GSC connection test passed — read-only access to " + PROPERTY + " confirmed")
+          for n, entry in enumerate(results, 1):
+              prop = entry["property"]
+              emit("---")
+              emit("")
+              if entry["error"] is not None:
+                  emit("### " + str(n) + ") `" + prop + "` — ❌ FAILED (permission level: "
+                       + str(entry["permission"]) + ")")
+                  emit("")
+                  emit("- **HTTP status:** " + str(entry["error"].status))
+                  emit("- **Google said:** `" + entry["error"].detail + "`")
+                  log("::error::GSC property " + prop + " failed: HTTP " + str(entry["error"].status))
+                  continue
+              emit("### " + str(n) + ") `" + prop + "` — ✅ SUCCESS (permission level: "
+                   + str(entry["permission"]) + ")")
+              emit("")
+              t = entry["totals"][0] if entry["totals"] else {}
+              clicks = t.get("clicks", 0.0)
+              imps = t.get("impressions", 0.0)
+              ctr = t.get("ctr", 0.0) * 100
+              pos = t.get("position", 0.0)
+              emit("#### Totals (28 days)")
+              emit("")
+              emit("| Clicks | Impressions | CTR | Avg. position |")
+              emit("|---:|---:|---:|---:|")
+              emit("| " + format(clicks, ".0f") + " | " + format(imps, ".0f") + " | "
+                   + format(ctr, ".2f") + "% | " + format(pos, ".2f") + " |")
+              emit("")
+              if not entry["totals"]:
+                  emit("> Property access succeeded, but GSC returned **zero rows** for the window.")
+                  emit("")
+              emit("#### Top 20 queries by clicks")
+              emit("")
+              for line in fmt_rows(entry["queries"], "query"):
+                  emit(line)
+              emit("#### Top 20 pages by clicks")
+              emit("")
+              for line in fmt_rows(entry["pages"], "page"):
+                  emit(line)
+              log("RESULT property=" + prop + " window=" + start.isoformat() + ".." + end.isoformat()
+                  + " clicks=" + format(clicks, ".0f") + " impressions=" + format(imps, ".0f")
+                  + " ctr=" + format(ctr, ".2f") + "% position=" + format(pos, ".2f"))
+
+          emit("---")
+          emit("")
+          emit("_Read-only by construction: sites.list + searchAnalytics/query only. "
+               "No repository or Search Console data was modified._")
+
+          if failures:
+              log("::error::" + str(len(failures)) + " of " + str(len(results))
+                  + " properties failed — see per-property sections above")
+              sys.exit(1)
+          log("::notice::GSC connection test v2 passed — " + str(len(results))
+              + " property(ies) read OK (read-only)")
           PYEOF
 
       - name: Delete temporary credential files
