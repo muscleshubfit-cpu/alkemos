@@ -119,6 +119,27 @@ share intent); the raw home pages keep their existing patterns.
 - If a NEW comparison is added to `src/lib/comparisons.ts`: add its SPECS pair to
   `scripts/generate-og-cards.py`, run it, and CI enforces the rest.
 
+### 5.1 Measured post-deploy transition (2026-09-30, ~1 h after push)
+
+The origin (Vercel production) serves the NEW build — verified directly: the
+brand-new card URLs (`/images/og/og-programs-en.png?v=3` etc.) return `200 image/png`
+with the new byte sizes, and those URLs could only exist on the new deployment.
+However, the **Cloudflare edge serves CACHED HTML from the previous build** for pages
+crawled before the deploy (`cf-cache-status: HIT`, `age` ≈ 2 h and growing, origin
+headers `s-maxage=3600, stale-while-revalidate=86400`; the zone's HTML edge TTL
+observably exceeds s-maxage). Until each page's edge entry revalidates (≤ 24 h worst
+case), a scrape of THAT cached page still reads the previous og:image — which now
+resolves to the generator/old-asset path and, at worst, the old cached PNG.
+
+**This is NOT a failed deploy.** Expectations:
+- Within ≤ 24 h every page self-flips to the new meta (new static card URL ?v=3 =
+  guaranteed CF cache miss = new card immediately).
+- To flip INSTANTLY (optional, one click): Cloudflare dashboard → Caching →
+  **Purge Everything** (or purge the top shared URLs). Alternatively, testing a share
+  with `?v=3` appended to the PAGE URL bypasses the HTML cache for a quick preview.
+- Recommended order once CF is purged: Facebook Sharing Debugger → "Scrape Again"
+  on the top shared URLs.
+
 ## 6. Files touched (summary)
 
 - `scripts/generate-og-cards.py` (redesign + 36 new SPECS) + 50 regenerated PNGs (30 new).
