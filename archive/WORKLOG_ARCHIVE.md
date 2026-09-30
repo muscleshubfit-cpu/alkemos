@@ -11299,3 +11299,26 @@ Stage Summary:
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: SEO-P0-TRACKING-PAGES-2026-09-30
+Agent: Super Z (main)
+Task: تنفيذ نطاق P0 المعتمد من تقرير تدقيق SEO الخارجي (Alkemos_SEO_Audit_Report 2026-09-30) — (1) المقارنة الرابعة /compare/alkemos-vs-cronometer بمرآتها العربية عبر بنية comparisons.ts القائمة حصرًا، (2) صفحتا نية البحث /workout-tracker و/macro-tracker بمراياهاما بقدرات المنتج الحقيقية فقط (ProgressView والمخططان الذكيان) وبلا أي ادعاء ميزة غير موجودة، (3) صون بنية SEO القائمة (metadata/canonical/hreflang/sitemap/JSON-LD/robots) — وبلا أي بند من P1/P2 (لا CSS ولا LandingView ولا CF/region ولا قص meta ولا H1 ولا أبعاد صور) وبلا مساس بمنطق أعمال/APIs/قاعدة/مصادقة/دفع.
+
+Work Log:
+- (جرد القدرات قبل الكتابة) التحقق من السطح الحقيقي: لا يوميات طعام يومية ولا سجل مجموعات/تكرارات ولا باركود ولا مغذيات دقيقة — الموجود: توليد خطط AI (2 مجانًا شهريًا بلا تسجيل)، مخطط وجبات بمجاميع حيّة من 8,830+ صنفًا، برامج و868+ تمرينًا، وتتبّع ProgressView (وزن + 5 قياسات + طاقة/التزام 1–10 + صور تقدّم + مخطط + تذكير أسبوعي) — الصفحتان الجديدتان تُصرّحان بالحدود في قسم «ما لا يفعله Alkemos» وFAQ.
+- (المقارنة الرابعة) src/lib/comparisons.ts: إلحاق alkemos-vs-cronometer — 13 صفًا صادقًا (5 خسارات معلنة لتسجيل التغذية الخالص مقابل 5 انتصارات و3 تعادلات) ببيانات موثّقة ويبًا 2026-09-30 (Gold $10.99/شهر·$59.99/سنة، مغذيات دقيقة 80+، NCCDB/USDA، أفلييت ShareASale، لا عربية)؛ الصفحات والسايت ماب والفهارس التقطتها تلقائيًا.
+- (البطاقات) scripts/generate-og-cards.py + تشغيله: +6 بطاقات (زوج cronometer + عائلتا workout/macro-tracker × لغتين) — المولد حتمي البايت فالـ50 القديمة لم تتغير؛ تسجيل العائلات بog-image-coverage.test.ts (CARDS + WIRED_SURFACES).
+- (الصفحتان) نمط for-coaches القائم: 5 ملفات لكل صفحة (client page + layout خادم بالميتاداتا + content.ts للأسئلة، والمرآة العربية re-export + layout عربي) — JSON-LD: FAQPage + BreadcrumbList + ItemList، canonical + hreflang الثلاثي بالاتجاهين، بطاقات مخصّصة ?v=3، وShareButtons بقانون B4.
+- (التوصيل) sitemap-pages.xml +4 مدخلات ببدائل كاملة · LanguageToggle +2 MIRROR_ROUTES · روابط داخلية: حبّات بالمخططيْن الذكييْن + صفحتا المتتبعين بشبكة نقاط الخدمة بقالبي المقارنات EN+AR + تقاطع الصفحتين مع مقارنة Cronometer · llms-full.txt +3 أسطر GEO.
+- (القوانين المحدّثة بنيّتها المعلنة) comparisons-official-links: خريطة VERIFIED_OFFICIAL +Cronometer (قانون اكتمال الخريطة) · marketing-msa-surface: قانون dataAsOf صار خريطة تثبيت لكل سلاج بدل تاريخ واحد · share-unify: تسجيل سطحَي المشاركة.
+- (فهرسا المقارنات) أوصاف /compare و/ar/compare تعدّد المنافسين الأربعة الآن.
+- (البوابات — فريم كود كامل) tsc ✓ 0 · eslint ✓ 0 (تحذير مسبق واحد بملف لم يُمس) · vitest ✓ 1,987/1,987 · next build ✓ 2,029 صفحة (كانت 2,023 — +6 بالضبط كلها SSG) · دخان حي بnext start: الـ6 مسارات 200 مع title/canonical/hreflang/H1 واحد/JSON-LD/og:image لكلٍّ منها، والسايت مابان والروابط الداخلية والروبوتس خضعت للتحقق بلا انحدار (scripts/p0_smoke_verify.py خارج الريبو).
+
+Stage Summary:
+- فجوتا P0 من التدقيق مغلقتان: صفحة إجابة لـ«alkemos vs cronometer» + صفحتا نية البحث للـworkout/macro tracker — كلها ثنائية اللغة بميتاداتا كاملة وصادقة 100% مع قدرات المنتج (لا ادعاء يوميات ولا سجل جلسات).
+- التسليم: 13 ملفًا جديدًا (10 للصفحتين + زوجا المرايا ضمنها + content×2) و9 معدّلة + 6 بطاقات PNG — صفر مساس بمنطق أعمال/APIs/قاعدة/مصادقة/دفع وصفر من بنود P1/P2.
+- المرجع التنفيذي: docs/archive/SEO-GEO-EXECUTION-LOG.md §12.60 (Phase SEO-GEO-21).
+- Push status: not pushed — التنفيذ والتحقق مكتملان بالكامل محليًا؛ الدفع مؤجَّل لمراجعة المالك وفق أمر التنفيذ (البطارية خضراء وجاهزة).
+- Commit SHA (optional, post-push): (git log is the ledger)
