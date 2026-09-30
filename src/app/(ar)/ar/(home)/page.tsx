@@ -90,7 +90,9 @@ export default async function Page() {
   return (
     <>
       <AuthErrorToast />
-      <LandingView samples={samples} content={content} />
+      {/* SEO-P1-6 (frame 315): the AR mirror pins isAr=true — URL-resolved
+          (the /ar page ALWAYS renders Arabic for crawlers and visitors). */}
+      <LandingView samples={samples} content={content} isAr={true} />
     </>
   );
 }

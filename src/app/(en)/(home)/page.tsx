@@ -36,7 +36,11 @@ export default async function Page() {
   return (
     <>
       <AuthErrorToast />
-      <LandingView samples={samples} content={content} />
+      {/* SEO-P1-6 (frame 315): the EN canonical homepage pins isAr=false —
+          URL-resolved, the BlogListPage precedent (no client locale
+          guess on the body; the header/footer chrome keeps its own
+          provider behavior). */}
+      <LandingView samples={samples} content={content} isAr={false} />
     </>
   );
 }

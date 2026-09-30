@@ -1,29 +1,51 @@
-"use client";
+// ============================================================
+// LandingView — SEO-P1-6 (frame 315, plan §5 step 2): the homepage
+// body is now a SERVER component (the old 1,851-line "use client"
+// hydration window is gone). Every static section renders on the
+// server and ships ZERO component JavaScript; the interactive
+// leaves are client islands imported below (verbatim transfers —
+// zero behavior/DOM/API/design change, plan §4):
+//   · LandingViewIslands.tsx          (static islands: Reveal ·
+//     CountUp · CarouselShell · LibraryBrowser · EvoCard · HeroCta)
+//   · LandingViewDynamicIslands.tsx   (data islands behind
+//     next/dynamic: BlogSection #learn + FeaturedCoachesStrip —
+//     their chunk ships as a NON-BLOCKING async script, off the
+//     hydration-critical path)
+// The two server pages pass `isAr` (URL-pinned — the BlogListPage
+// precedent; no useI18n here). Reference:
+// docs/SEO-P1-6-ISLANDS-PLAN-2026-09-30.md.
+// ============================================================
 
-import { useState, useEffect, useRef } from "react";
-import { useI18n } from "@/lib/i18n";
+import dynamic from "next/dynamic";
 import { weeksUnitAr } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
-import { listBlogPosts, getCategoryLabel, selectHomeBlogCarousels, type BlogPostCard } from "@/lib/blog";
-import { deferIdle } from "@/lib/defer-idle";
-import { EXERCISES_COUNT, EXERCISE_CATEGORY_COUNTS } from "@/lib/exercises-shared";
+import { EXERCISES_COUNT } from "@/lib/exercises-shared";
 import { FOODS_COUNT, CATEGORY_LABELS as FOOD_CATEGORY_LABELS, type FoodCategory } from "@/lib/foods-shared";
 import { TOOLS, TOOLS_COUNT } from "@/lib/tools-shared";
 import { MEMBERSHIPS } from "@/lib/memberships";
-import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getFAQSchema, jsonLd } from "@/lib/seo";
 import { resolveHomeCopy, resolveHomeFaq, type HomeCopy, type SiteCopyMap } from "@/lib/site-content/home";
 import Image from "next/image";
 import { ThemeImg, EngravedIcon } from "@/components/ThemeImg";
+import { Reveal, CountUp, CarouselShell, LibraryBrowser, EvoCard, HeroCta } from "./LandingViewIslands";
 import type {
   HomeDietSystemSample,
-  HomeExerciseSample,
   HomeFoodSample,
   HomeProgramSample,
   HomeSamples,
 } from "@/lib/home-samples";
+
+// The two data-fetch islands load through next/dynamic (ssr: true —
+// ssr:false is not allowed in a server component, and functionally a
+// no-op here: both sections render nothing server-side today because
+// their initial state is empty, exactly as before the split).
+const BlogSection = dynamic(() =>
+  import("./LandingViewDynamicIslands").then((m) => m.BlogSection),
+);
+const FeaturedCoachesStrip = dynamic(() =>
+  import("./LandingViewDynamicIslands").then((m) => m.FeaturedCoachesStrip),
+);
 
 // ============================================================
 // Site palette — the Marble & Chrome identity resolves through
@@ -52,18 +74,6 @@ const PALETTE = {
 const EX_PLUS = `${EXERCISES_COUNT.toLocaleString("en-US")}+`;
 const FOODS_PLUS = `${FOODS_COUNT.toLocaleString("en-US")}+`;
 
-// The seven muscle families the interactive library browser exposes
-// (labels mirror the hub's own vocabulary; «كور» keeps the plain
-// transliterated register — VRD-V4 K-5). HOME-REFINE-271 F1: restored.
-const MUSCLE_TABS = [
-  { labelAr: "صدر", labelEn: "Chest", slug: "chest" },
-  { labelAr: "ظهر", labelEn: "Back", slug: "back" },
-  { labelAr: "أكتاف", labelEn: "Shoulders", slug: "shoulders" },
-  { labelAr: "أرجل", labelEn: "Legs", slug: "legs" },
-  { labelAr: "بايسبس", labelEn: "Biceps", slug: "biceps" },
-  { labelAr: "ترايسبس", labelEn: "Triceps", slug: "triceps" },
-  { labelAr: "كور", labelEn: "Core", slug: "core" },
-] as const;
 
 // The nine food families the /foods hub exposes — the homepage preview
 // mirrors the SAME vocabulary (HOME-POLISH-285: the nutrition section
@@ -146,166 +156,9 @@ const FOOD_CATEGORIES: FoodCategory[] = [
 
 // ============================================================
 
-// ── Reveal — the living-page motion primitive ──
-// The retired pre-258 reveal was jarring because it animated
-// layout and re-triggered; this one is structurally incapable of
-// both: it hides content ONLY after mount (SSR/no-JS users always
-// see everything — the armed state never exists in markup),
-// animates opacity/translateY only (zero CLS), fires once, and
-// stands down entirely under prefers-reduced-motion.
-function Reveal({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  /** Stagger delay in ms (kept ≤200 so the group reads as one beat). */
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  // idle = server/motion-off (visible) · armed = hidden, waiting
-  // for the observer · shown = revealed (stays forever).
-  const [phase, setPhase] = useState<"idle" | "armed" | "shown">("idle");
+// (SEO-P1-6) Reveal + CountUp moved verbatim to LandingViewIslands.tsx
+// (client islands — plan §2 map rows «Reveal» + «PROOF CountUp»).
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setPhase("shown");
-          io.disconnect();
-        }
-      },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
-    );
-    io.observe(el);
-    // Arm AFTER the observer exists, so an element already in view
-    // flips to "shown" in the observer's first callback — the
-    // hidden state only ever spans one animation frame.
-    setPhase("armed");
-    // FAILSAFE (the jarring-reveal lesson, inverted): no content may
-    // stay hidden past 1.8s in ANY environment — virtualized capture
-    // viewports, IO quirks, background tabs. A fast scroller still
-    // gets the entrance; a slow one simply finds everything visible.
-    const failsafe = window.setTimeout(() => {
-      setPhase("shown");
-      io.disconnect();
-    }, 1800);
-    return () => {
-      io.disconnect();
-      window.clearTimeout(failsafe);
-    };
-  }, []);
-
-  const hidden = phase === "armed";
-  return (
-    <div
-      ref={ref}
-      className={`rv ${className}`}
-      style={{
-        transitionDelay: delay ? `${delay}ms` : undefined,
-        ...(hidden ? { opacity: 0, transform: "translateY(14px)" } : null),
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ── CountUp — the proof numbers come ALIVE (VRD-V7 P1-4) ──
-// SSR renders the final value (no-JS/hydration always shows the
-// truth); when the strip scrolls into view and motion is allowed,
-// the number counts up once with a SPRING settle and a light BLUR
-// materialization (21st.dev-style count-up re-authored internally —
-// zero dependencies, rAF-only):
-//   · spring — a gentle easeOutBack overshoot (~5%) that settles back
-//     onto the true value (the «living platform» beat);
-//   · blur — the digits start softly defocused and sharpen as they
-//     land (filter+opacity only — compositor-friendly, no layout);
-//   · ZERO CLS — the final string renders as an in-flow ghost sizer
-//     (.count-sizer) while the animating digits ride an absolute
-//     overlay (.count-live), so the strip never wobbles;
-//   · accessibility — the animated digits are aria-hidden and the
-//     final value is announced once via .sr-only;
-// The value stays derived from the verified constants.
-function CountUp({
-  value,
-  suffix = "",
-  paintClass = "",
-}: {
-  value: number;
-  suffix?: string;
-  /** The wrapper's text-paint class (e.g. chrome-text). It must ride
-   * the in-flow sizer AND the absolute overlay SEPARATELY: a parent's
-   * background-clip:text never clips to out-of-flow descendants, so
-   * the overlay has to own its own gradient or its digits vanish. */
-  paintClass?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState<number | null>(null);
-  // Settle progress 0→1 (SSR = 1 — fully landed, zero blur).
-  const [prog, setProg] = useState(1);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0;
-    let started = false;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (started || !entries.some((e) => e.isIntersecting)) return;
-        started = true;
-        io.disconnect();
-        const t0 = performance.now();
-        const dur = 1100;
-        // EaseOutBack with a modest overshoot constant — the spring
-        // reads as a settle, never a bounce (c1 = 0.7 → ≈5% peak).
-        const c1 = 0.7;
-        const c3 = c1 + 1;
-        const tick = (t: number) => {
-          const p = Math.min(1, (t - t0) / dur);
-          const eased = 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2);
-          setDisplay(Math.max(0, Math.round(value * eased)));
-          setProg(p);
-          if (p < 1) raf = requestAnimationFrame(tick);
-        };
-        raf = requestAnimationFrame(tick);
-      },
-      { threshold: 0.4 },
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [value]);
-
-  const shown = display ?? value;
-  const final = `${value.toLocaleString("en-US")}${suffix}`;
-  // The blur peaks at liftoff and fully resolves on landing — the
-  // number materializes INTO focus (paint-only; the strip is small).
-  const blur = prog < 1 ? `blur(${(3 * Math.pow(1 - prog, 1.5)).toFixed(2)}px)` : undefined;
-  return (
-    <span ref={ref} className="count-shell">
-      <span className={`count-sizer ${paintClass}`} aria-hidden="true">
-        {final}
-      </span>
-      <span
-        className={`count-live ${paintClass}`}
-        aria-hidden="true"
-        style={{ filter: blur }}
-      >
-        {shown.toLocaleString("en-US")}
-        {suffix}
-      </span>
-      <span className="sr-only">{final}</span>
-    </span>
-  );
-}
 
 // ══════════════════════════════════════════════════════════════
 // THE PLATFORM SECTION CARDS (HOME-PLATFORM-284 + HOME-POLISH-285) —
@@ -456,212 +309,18 @@ function AiCard({
   );
 }
 
-// ── EvoCard — the AI coach's section card. NOT a full-card link:
-//    the chat surface law keeps the REAL chat on the floating
-//    widget (openEvoFloatingChat — the button dispatches it), while
-//    the quiet «learn more» link routes to the EVO page. The avatar
-//    is the widget's own character art wearing the .ai-ring (the
-//    cyan AI-surface law — one of the few places cyan may touch).
-//    HOME-POLISH-285: the card widened to FULL WIDTH under the two
-//    planner cards (the section's hierarchy: the planners lead, EVO
-//    accompanies) — a horizontal band on md+, stacked on touch. ──
-function EvoCard({ isAr }: { isAr: boolean }) {
-  return (
-    <div className="marble-card card-lift flex flex-col p-5 text-start md:flex-row md:items-center md:gap-8 md:p-7">
-      <div className="flex min-w-0 flex-1 flex-col items-start">
-        <div className="flex items-center gap-3">
-          <ThemeImg
-            light="/images/brand/evo-widget-light.webp"
-            dark="/images/brand/evo-widget-dark.webp"
-            alt="EVO"
-            width={64}
-            height={64}
-            className="ai-ring h-11 w-11 shrink-0 rounded-full border border-[var(--edge)] object-cover"
-          />
-          <div>
-            <h3 className="text-lg font-semibold leading-tight tracking-tight" style={{ color: PALETTE.textPrim }}>
-              {isAr ? "EVO — مدربك الذكي" : "EVO — your AI coach"}
-            </h3>
-            <span className="seal-chip mt-1.5 py-1! text-[11px]!">
-              <span className="live-dot" aria-hidden="true" />
-              {isAr ? "متاح الآن" : "LIVE NOW"}
-            </span>
-          </div>
-        </div>
-        <p className="mt-3 text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-          {isAr
-            ? "اسأله بالعربية أو الإنجليزية: يجيبك بأرقام، ويقترح بدائل ذكية لتمارينك ووجباتك، ويعدّل خطتك مع تقدمك."
-            : "Ask in Arabic or English: it answers with real numbers, suggests smart swaps for your exercises and meals, and adjusts your plan as you progress."}
-        </p>
-        {/* The honest visitor quota (EVO fair use — a VERIFIED policy
-            restatement, not marketing copy). */}
-        <p className="mt-2 text-xs font-normal leading-relaxed" style={{ color: PALETTE.textMuted }}>
-          {isAr
-            ? "الزوار يحصلون على 10 رسائل يوميًا مع EVO — جرّبه مجانًا، ولا تحتاج إلى بطاقة ائتمانية."
-            : "Visitors get 10 messages a day with EVO — free to try, no credit card required."}
-        </p>
-      </div>
-      <div className="mt-4 flex shrink-0 flex-col items-start gap-3 md:mt-0 md:items-end">
-        <button
-          type="button"
-          onClick={openEvoFloatingChat}
-          className="btn-outline px-5 py-2 text-sm font-medium"
-        >
-          <span className="live-dot" aria-hidden="true" />
-          {isAr ? "تحدث مع EVO الآن" : "Chat with EVO now"}
-        </button>
-        <a
-          href={isAr ? "/ar/evo" : "/evo"}
-          className="text-sm font-medium underline decoration-[var(--edge)] underline-offset-4 transition-opacity hover:opacity-70"
-          style={{ color: PALETTE.textSec }}
-        >
-          {isAr ? "اعرف المزيد ›" : "Learn more ›"}
-        </a>
-      </div>
-    </div>
-  );
-}
+// (SEO-P1-6) EvoCard moved verbatim to LandingViewIslands.tsx (the
+// openEvoFloatingChat onClick owns the client boundary).
 
-// ── CarouselShell — the shared blog-style carousel scaffolding
-//    (HOME-REFINE-270 R4: the exercise library + the diet-plan
-//    library ride the SAME pattern as the blog row: a smooth
-//    horizontal scroller with the RTL-aware arrow pair). The exact
-//    arrow recipe the blog carousel used since Phase 257 — 44px
-//    touch targets (rtl-typography leg) — lives here once.
-function CarouselShell({
-  isAr,
-  children,
-  ariaLabel,
-}: {
-  isAr: boolean;
-  children: React.ReactNode;
-  ariaLabel: string;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = 320;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
+// (SEO-P1-6) CarouselShell moved verbatim to LandingViewIslands.tsx
+// (styled-jsx must stay inside a client island — plan §4.5). The
+// server sections below pass server-rendered cards as children.
 
-  return (
-    <div className="relative">
-      {/* Scroll buttons */}
-      <div className="mb-4 flex justify-end gap-2">
-        <button
-          onClick={() => scroll(isAr ? "right" : "left")}
-          className="grid h-9 w-9 max-md:h-11 max-md:w-11 place-items-center rounded-full transition-colors"
-          style={{ backgroundColor: PALETTE.surface, color: PALETTE.textPrim, border: `1px solid ${PALETTE.border}` }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = PALETTE.halo; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = PALETTE.surface; }}
-          aria-label={isAr ? "السابق" : "Previous"}
-        >
-          <svg className="h-4 w-4 rtl:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button
-          onClick={() => scroll(isAr ? "left" : "right")}
-          className="grid h-9 w-9 max-md:h-11 max-md:w-11 place-items-center rounded-full transition-colors"
-          style={{ backgroundColor: PALETTE.surface, color: PALETTE.textPrim, border: `1px solid ${PALETTE.border}` }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = PALETTE.halo; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = PALETTE.surface; }}
-          aria-label={isAr ? "التالي" : "Next"}
-        >
-          <svg className="h-4 w-4 rtl:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5-4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
 
-      {/* Carousel */}
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        aria-label={ariaLabel}
-      >
-        <style jsx>{`
-          div::-webkit-scrollbar { display: none; }
-        `}</style>
-        {children}
-      </div>
-    </div>
-  );
-}
+// (SEO-P1-6) BlogCarousel + the #learn fetch moved verbatim into
+// BlogSection (LandingViewDynamicIslands.tsx, next/dynamic island).
 
-function BlogCarousel({
-  posts,
-  featuredSlugs = [],
-  isAr,
-}: {
-  posts: BlogPostCard[];
-  /** Featured slugs render as the dark lead card; ONE carousel since
-      Phase 198 Batch 2 (selection logic untouched). */
-  featuredSlugs?: string[];
-  isAr: boolean;
-}) {
-  const featuredSet = new Set(featuredSlugs);
-
-  return (
-    <CarouselShell isAr={isAr} ariaLabel={isAr ? "أحدث المقالات" : "Latest articles"}>
-      {posts.map((post) => {
-        const isFeatured = featuredSet.has(post.slug);
-        return (
-          <a
-            key={post.id}
-            href={`${isAr ? "/ar" : ""}/blog/${encodeURIComponent(post.slug)}`}
-            className="marble-card card-lift group block shrink-0"
-            style={{
-              color: isFeatured ? "#F5F5F7" : PALETTE.textPrim,
-              width: isFeatured ? "18rem" : "20rem",
-              backgroundColor: isFeatured ? "#0B0B0D" : undefined,
-            }}
-          >
-            {post.featured_image && (
-              <div className="relative aspect-[16/10] w-full overflow-hidden">
-                <Image
-                  src={post.featured_image}
-                  alt={post.cover_alt || post.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-            )}
-            <div className="p-5">
-              <p
-                className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-                style={{ color: isFeatured ? "rgba(245,245,247,0.65)" : "var(--muted-foreground)" }}
-              >
-                {getCategoryLabel(post.category, isAr ? "ar" : "en")}
-              </p>
-              <h3 className="mt-2 text-lg font-semibold leading-tight tracking-tight line-clamp-2">
-                {post.title}
-              </h3>
-              {post.excerpt && (
-                <p
-                  className="mt-2 line-clamp-2 text-sm font-normal"
-                  style={{ color: isFeatured ? "rgba(255,255,255,0.7)" : PALETTE.textSec }}
-                >
-                  {post.excerpt}
-                </p>
-              )}
-              <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: isFeatured ? "#F5F5F7" : PALETTE.textPrim }}>
-                <EngravedIcon name="scroll" alt="" size={14} className="h-3.5 w-3.5" />
-                {isAr ? "اقرأ ›" : "Read ›"}
-              </p>
-            </div>
-          </a>
-        );
-      })}
-    </CarouselShell>
-  );
-}
 
 // ── The diet-system card (the ready-made diet-plan library
 //    carousel, HOME-REFINE-270 R4). Every value is the REAL matrix
@@ -731,54 +390,9 @@ function LandingDietCard({ system, levelCount, isAr, index }: { system: HomeDiet
 //     precomputed serializable props from the server
 //     (getHomeSamples) — zero library imports here. ───
 
-function LandingExerciseCard({ ex, isAr }: { ex: HomeExerciseSample; isAr: boolean }) {
-  const name = isAr ? ex.nameAr : ex.nameEn;
-  return (
-    <a
-      href={`${isAr ? "/ar" : ""}/exercises/${ex.slug}`}
-      className="marble-card card-lift group flex flex-col"
-    >
-      {/* Real exercise image (start-position frame from the library
-          artwork) — object-contain keeps the full-body framing honest. */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--card)]">
-        {ex.image ? (
-          <Image
-            src={ex.image}
-            alt={name}
-            fill
-            sizes="(max-width: 768px) 45vw, 22vw"
-            className="object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="grid h-full w-full place-items-center">
-            <EngravedIcon name="dumbbell" alt="" size={40} className="h-10 w-10 opacity-60" />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-4 text-start">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: PALETTE.textMuted }}>
-          {isAr ? ex.categoryLabelAr : ex.categoryLabelEn}
-        </p>
-        <h3 className="mt-1 text-base font-semibold leading-tight tracking-tight line-clamp-2" style={{ color: PALETTE.textPrim }}>
-          {name}
-        </h3>
-        {/* Level + equipment — the two facts a browser filters by. */}
-        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium" style={{ color: PALETTE.textSec }}>
-          <span
-            className="inline-block h-2 w-2 shrink-0 rounded-full"
-            style={{ backgroundColor: ex.levelColor }}
-            aria-hidden="true"
-          />
-          {isAr ? ex.levelLabelAr : ex.levelLabelEn}
-          <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-          <span className="truncate">{isAr ? ex.equipmentLabelAr : ex.equipmentLabelEn}</span>
-        </p>
-        <p className="chrome-text mt-3 text-xs font-semibold">{isAr ? "اعرض التمرين ›" : "View exercise ›"}</p>
-      </div>
-    </a>
-  );
-}
+// (SEO-P1-6) LandingExerciseCard moved into LandingViewIslands.tsx
+// (the interactive per-family filter owns its render path).
+
 
 function LandingProgramCard({ prog, isAr }: { prog: HomeProgramSample; isAr: boolean }) {
   const name = isAr ? prog.nameAr : prog.nameEn;
@@ -828,81 +442,10 @@ function LandingProgramCard({ prog, isAr }: { prog: HomeProgramSample; isAr: boo
   );
 }
 
-// ── The interactive muscle-group library browser (HOME-REFINE-271
-//    F1 — RESTORED from the living-product rebuild): real curated
-//    samples filtered in-page by muscle group, with a quiet
-//    crossfade on every swap. The chips mirror the hub vocabulary
-//    and carry the VERIFIED per-family counts (the drift-tested
-//    EXERCISE_CATEGORY_COUNTS); the CTA opens the full library. ──
-function LibraryBrowser({ samples, isAr }: { samples: HomeSamples; isAr: boolean }) {
-  const [cat, setCat] = useState<string>("chest");
-  const filtered = samples.exercises.filter((e) => e.categorySlug === cat);
+// (SEO-P1-6) LibraryBrowser moved verbatim to LandingViewIslands.tsx
+// (the muscle-group tab state owns the client boundary; the samples
+// still arrive as serializable server props).
 
-  return (
-    <div>
-      {/* The muscle chips — the SAME hub vocabulary, now answering */}
-      <div>
-        <p className="text-center text-xs font-semibold uppercase tracking-wider" style={{ color: PALETTE.textMuted }}>
-          {isAr ? "اختر مجموعة عضلية" : "Pick a muscle group"}
-        </p>
-        <div className="chips-row mt-3">
-          {MUSCLE_TABS.map((c) => {
-            const active = c.slug === cat;
-            return (
-              <button
-                key={c.slug}
-                type="button"
-                onClick={() => setCat(c.slug)}
-                aria-pressed={active}
-                className="seal-chip transition-transform duration-300 hover:-translate-y-0.5"
-                style={
-                  active
-                    ? {
-                        background: "var(--text)",
-                        color: "var(--bg)",
-                        borderColor: "var(--text)",
-                      }
-                    : undefined
-                }
-                title={isAr ? `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} تمرينًا` : `${EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0} exercises`}
-              >
-                {isAr ? c.labelAr : c.labelEn}
-                <span className="font-semibold">{EXERCISE_CATEGORY_COUNTS[c.slug] ?? 0}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* The live swap — real cards re-render per selection.
-          HOME-PLATFORM-284: SIX curated samples per family now fill
-          a full 2×3 grid on md+ (was 2-3 cards on a 4-col row). */}
-      {filtered.length > 0 ? (
-        <div key={cat} className="swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">
-          {filtered.map((ex) => (
-            <LandingExerciseCard key={ex.slug} ex={ex} isAr={isAr} />
-          ))}
-        </div>
-      ) : (
-        <p className="mt-7 text-center text-sm" style={{ color: PALETTE.textSec }}>
-          {isAr ? "لا عينات منسقة لهذه المجموعة بعد — افتح المكتبة الكاملة." : "No curated samples for this group yet — open the full library."}
-        </p>
-      )}
-
-      <p className="mt-6 text-center text-sm font-normal leading-relaxed" style={{ color: PALETTE.textSec }}>
-        {isAr
-          ? `تمارين حقيقية من مكتبة تضم ${EX_PLUS} تمرينًا — بصور الأداء الصحيح وشرح واضح داخل صفحة كل تمرين.`
-          : `Real exercises from a library of ${EX_PLUS} — with form photos and clear instructions one tap away.`}
-      </p>
-      <div className="mt-5 text-center">
-        <a href={isAr ? "/ar/exercises" : "/exercises"} className="btn-outline px-7 py-3 text-sm font-medium md:text-base">
-          {isAr ? "استكشف مكتبة التمارين كاملة" : "Explore the full exercise library"}
-          <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
-        </a>
-      </div>
-    </div>
-  );
-}
 
 // ── VRD-V8R — the membership cards' REAL feature rows ──
 // Two–three scannable facts per tier, each mirroring the tier's
@@ -932,52 +475,15 @@ function TierFeatureRows({ rows, pinDark = false }: { rows: readonly string[]; p
   );
 }
 
-export function LandingView({ samples, content }: { samples: HomeSamples; content?: SiteCopyMap }) {
-  const { lang } = useI18n();
-  const { isCoach, isAdmin, profile } = useAuth();
-  const isAr = lang === "ar";
+export function LandingView({ samples, content, isAr }: { samples: HomeSamples; content?: SiteCopyMap; isAr: boolean }) {
   // SITE-CONTENT-281: the admin-editable marketing copy for the active
   // locale — Supabase overrides (passed down by the server route) win,
   // the code defaults in site-content/home.ts are the eternal fallback
   // (the fallback law: the page can never render empty or crash).
   const c = resolveHomeCopy(content, isAr);
-  // The hero CTA stays account-driven for the PRIMARY action; the
-  // secondary CTA is the memberships page (HOME-REFINE-270 R1 — the
-  // owner's two-button directive overrides the old funnel-free-hero
-  // law): guests get login/signup + memberships, signed-in members
-  // get their console + memberships.
-  const isLoggedIn = !!profile;
-  const memberHref = isAdmin ? "/admin" : isCoach ? "/coach" : "/dashboard";
-
-  const [latestPosts, setLatestPosts] = useState<BlogPostCard[]>([]);
-  const [featuredPosts, setFeaturedPosts] = useState<BlogPostCard[]>([]);
-  // 0037 «أعلن معنا» — coaches with a running ad (homepage featured strip)
-  type FeaturedCoach = { slug: string | null; name: string; headline: string; photo: string | null };
-  const [featuredCoaches, setFeaturedCoaches] = useState<FeaturedCoach[]>([]);
-
-  useEffect(() => {
-    // Silent fetch — the strip only renders when active ads exist, so a
-    // failed/empty call must never affect the homepage.
-    fetch("/api/coaches/featured")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((json) => setFeaturedCoaches(json?.coaches ?? []))
-      .catch(() => setFeaturedCoaches([]));
-  }, []);
-
-  useEffect(() => {
-    // Supabase client chunk loads on demand — deferred to idle so it
-    // never competes with LCP/INP on slow networks.
-    deferIdle(() => {
-      void (async () => {
-        const posts = await listBlogPosts(lang);
-        const { latest, featured } = selectHomeBlogCarousels(posts);
-        setLatestPosts(latest);
-        setFeaturedPosts(featured);
-      })();
-    }, 2500);
-  }, [lang]);
-
-  const blogHref = isCoach ? "/admin/blog" : isAr ? "/ar/blog" : "/blog";
+  // (SEO-P1-6) The account-driven hero CTA pair and both data fetches
+  // moved verbatim into the client islands (HeroCta · BlogSection ·
+  // FeaturedCoachesStrip) — the server body carries no hooks.
 
   // ── Single-source tier derivations (HOME-REBUILD-258 law, kept) ──
   // Prices on the homepage come ONLY from memberships.ts lookups —
@@ -1139,34 +645,10 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
             </ul>
           </div>
 
-          {/* The two-button pair (R1). */}
-          <div className="mt-5 flex flex-col items-stretch justify-center gap-3 md:mt-6 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-x-5 md:gap-y-3">
-            {isLoggedIn ? (
-              <>
-                <a href={memberHref} className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
-                  {isAr ? "انتقل إلى لوحة التحكم" : "Go to your dashboard"}
-                </a>
-                <a
-                  href={isAr ? "/ar/memberships" : "/memberships"}
-                  className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
-                >
-                  {isAr ? "العضويات المميزة" : "Premium memberships"}
-                </a>
-              </>
-            ) : (
-              <>
-                <a href="/auth?mode=signup" className="btn-chrome w-full px-7 py-3 text-sm md:w-auto md:px-8 md:py-3 md:text-base">
-                  {isAr ? "تسجيل الدخول / حساب جديد" : "Log in / Sign up"}
-                </a>
-                <a
-                  href={isAr ? "/ar/memberships" : "/memberships"}
-                  className="btn-outline w-full px-6 py-2.5 text-sm font-medium md:w-auto md:py-2.5 md:text-base"
-                >
-                  {isAr ? "العضويات المميزة" : "Premium memberships"}
-                </a>
-              </>
-            )}
-          </div>
+          {/* The two-button pair (R1) — the account-driven half is the
+              HeroCta client island (SEO-P1-6): SSR renders the GUEST
+              pair exactly as the pre-split client render did. */}
+          <HeroCta isAr={isAr} />
         </div>
       </section>
 
@@ -1550,31 +1032,11 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
           the carousel is LATEST-FIRST: the newest posts actually lead
           the row (featured posts fill the rest; featured slugs keep
           the dark lead-card styling). The section renders only when
-          posts loaded (the needsPosts law). */}
-      {latestPosts.length > 0 && (
-        <section id="learn" className="scroll-mt-20 bg-[var(--bg)] px-4 py-10 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <Reveal className="text-center">
-              <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {c.learnTitle}
-              </h2>
-            </Reveal>
-            <div className="mt-10">
-              <BlogCarousel
-                posts={[...latestPosts, ...featuredPosts].slice(0, 10)}
-                featuredSlugs={featuredPosts.map((p) => p.slug)}
-                isAr={isAr}
-              />
-            </div>
-            <div className="mt-6 text-center">
-              <a href={blogHref} className="btn-outline px-6 py-2.5 text-sm font-medium">
-                {c.learnCta}
-                <span className="chev rtl:rotate-180" aria-hidden="true">›</span>
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+          posts loaded (the needsPosts law). SEO-P1-6: the deferIdle
+          (2500ms) fetch + the conditional section moved VERBATIM into
+          the BlogSection dynamic island — the copy arrives as props
+          from the server registry. */}
+      <BlogSection learnTitle={c.learnTitle} learnCta={c.learnCta} isAr={isAr} />
 
       {/* Greek meander divider — the TWO narrative acts law: exploration
           ends here, the services act begins. */}
@@ -1759,52 +1221,10 @@ export function LandingView({ samples, content }: { samples: HomeSamples; conten
       {/* ===================== 11.5 FEATURED COACHES («أعلن معنا» ads) =====================
           Kept verbatim (0037 paid-ad strip — a real service surface;
           renders only when active ads exist). Labeled as promo spots,
-          not an endorsement. */}
-      {featuredCoaches.length > 0 && (
-        <section className="bg-[var(--bg)] px-4 pb-10 md:pb-20">
-          <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: PALETTE.textPrim }}>
-              {c.coachesTitle}
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-center text-base font-normal" style={{ color: PALETTE.textSec }}>
-              {c.coachesBody}
-            </p>
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {featuredCoaches.map((coach, i) => {
-                const href = coach.slug ? `${isAr ? "/ar" : ""}/coaches/${coach.slug}` : "/coaching";
-                return (
-                  <a
-                    key={`${coach.slug || coach.name}-${i}`}
-                    href={href}
-                    className="marble-card card-lift group block p-5 text-center"
-                  >
-                    {coach.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={coach.photo}
-                        alt={coach.name}
-                        className="mx-auto h-16 w-16 rounded-full object-cover ring-4 ring-[var(--tint)]"
-                      />
-                    ) : (
-                      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[var(--edge)] bg-[var(--tint)] text-xl font-semibold text-[var(--text)]">
-                        {(coach.name.trim().charAt(0) || "M")}
-                      </div>
-                    )}
-                    <p className="mt-3 truncate text-sm font-semibold" style={{ color: PALETTE.textPrim }}>
-                      {coach.name}
-                    </p>
-                    {coach.headline && (
-                      <p className="mt-1 line-clamp-2 text-xs font-normal" style={{ color: PALETTE.textSec }}>
-                        {coach.headline}
-                      </p>
-                    )}
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+          not an endorsement. SEO-P1-6: the mount-time fetch + the
+          conditional strip moved VERBATIM into the
+          FeaturedCoachesStrip dynamic island. */}
+      <FeaturedCoachesStrip coachesTitle={c.coachesTitle} coachesBody={c.coachesBody} isAr={isAr} />
 
       {/* ===================== 12. FAQ — hesitation-removers, DIRECTLY VISIBLE =====================
           HOME-POLISH-285 (owner directive): no click-to-reveal — the

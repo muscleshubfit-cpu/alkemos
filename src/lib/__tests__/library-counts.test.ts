@@ -143,7 +143,18 @@ describe("Phase 217 م4+م5: marketing surfaces derive library counts", () => {
       s
         .replace(/\/\*[\s\S]*?\*\//g, " ")
         .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
-    const SCAN = [...SURFACES, "src/components/views/StaticPageView.tsx", "src/lib/site-content/static-pages.ts", "src/lib/site-content/home.ts"];
+    // SEO-P1-6 (frame 315): the homepage islands joined the hardcoded-count
+    // scan — the count derivations (EX_PLUS et al) moved with their
+    // components, so the drift guard follows the text. The import pins
+    // above stay on the server view (the imports stayed there).
+    const SCAN = [
+      ...SURFACES,
+      "src/components/views/LandingViewIslands.tsx",
+      "src/components/views/LandingViewDynamicIslands.tsx",
+      "src/components/views/StaticPageView.tsx",
+      "src/lib/site-content/static-pages.ts",
+      "src/lib/site-content/home.ts",
+    ];
     for (const rel of SCAN) {
       const src = stripComments(readFileSync(rel, "utf8"));
       expect(src, `${rel}: hardcoded exercise count returned`).not.toContain(

@@ -21,6 +21,11 @@ const MARKETING_SURFACE_FILES = [
   "src/app/(en)/evo/page.tsx",
   // Homepage landing (shared by / and /ar)
   "src/components/views/LandingView.tsx",
+  // SEO-P1-6 (frame 315): the homepage's client islands carry the same
+  // marketing literals that used to live inline in the view (moved
+  // verbatim) — the scanner follows the text to its new files.
+  "src/components/views/LandingViewIslands.tsx",
+  "src/components/views/LandingViewDynamicIslands.tsx",
   // Memberships (FAQ + tier copy — the §12.41-هـ pending item, now MSA)
   "src/app/(en)/memberships/page.tsx",
   // Coaching landing (EVO FAQ + program copy)
@@ -208,7 +213,12 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   });
 
   it("LandingView: the CTA/FAQ dialect phrases stay dead (the live finding)", () => {
-    const src = readFileSync("src/components/views/LandingView.tsx", "utf8");
+    // SEO-P1-6: the homepage surface spans the view + both islands
+    // files — the ban covers every file (the readBoth pattern).
+    const src =
+      readFileSync("src/components/views/LandingView.tsx", "utf8") +
+      readFileSync("src/components/views/LandingViewIslands.tsx", "utf8") +
+      readFileSync("src/components/views/LandingViewDynamicIslands.tsx", "utf8");
     for (const banned of [
       "دلوقتي مجانًا",
       "مالكش عذر",
@@ -242,6 +252,10 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       // the Copy Refinement Pass (merged per-file; no duplicate keys).
       "src/app/(en)/coaching/page.tsx": ["بيحلل الأنماط", "إيه اللي شغال", "بيستناك", "ابدأ تحوّلي", "المدربين حقيقيين", "كل أداة محتاجها", "EVO معاك", "بتتعدل مع تقدمك"],
       "src/components/views/LandingView.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين", "كوتش بيتابعك", "أسعارك إيدك", "أدوات المنصة معاك", "شغال معاك", "صفر٪ عمولة", "Your complete fitness platform.", "منصتك الرياضية المتكاملة."],
+      // SEO-P1-6: the moved homepage literals carry the same ban into
+      // the islands files (no weakening — banned in EVERY surface file).
+      "src/components/views/LandingViewIslands.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين", "كوتش بيتابعك", "أسعارك إيدك", "أدوات المنصة معاك", "شغال معاك", "صفر٪ عمولة", "Your complete fitness platform.", "منصتك الرياضية المتكاملة."],
+      "src/components/views/LandingViewDynamicIslands.tsx": ["اختار وابدأ", "قبل ما تاكلها", "ابني بيزنسك", "بدون تخطيط زيادة", "10 دولار بس", "تعرّف على مدربينا المعتمدين", "كوتش بيتابعك", "أسعارك إيدك", "أدوات المنصة معاك", "شغال معاك", "صفر٪ عمولة", "Your complete fitness platform.", "منصتك الرياضية المتكاملة."],
       "src/app/(en)/tools/page.tsx": ["كوبساتك", "شوف الماكروز"],
       "src/components/foods/FoodsExplorer.tsx": ["شوف السعرات", "اللي محتاجها"],
       "src/components/views/AffiliateProgramView.tsx": ["مفيش معالجة دفعات", "إزاي بيشتغل", "لمين ده مناسب", "بتاعك", "هتلاقي رابط"],
@@ -299,6 +313,36 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   it("Phase 195: dynamic counts + swaps clarity canaries across the marketing surface", () => {
     const surfaces: Record<string, string[]> = {
       "src/components/views/LandingView.tsx": [
+        "8830",
+        "5 حاسبات",
+        "6 تبديلات أسبوعيًا",
+        "6 تبديلات أسبوعياً",
+        "3 تبديلات/أسبوع",
+        "6 تبديلات/أسبوع",
+        "3 swaps/week",
+        "6 swaps/week",
+        "868+ تمرين\"",
+        "868+ EXERCISES\"",
+        "8830+ صنفًا",
+        "8,830+ FOODS\"",
+      ],
+      // SEO-P1-6: the moved homepage literals carry the same ban into
+      // the islands files (no weakening).
+      "src/components/views/LandingViewIslands.tsx": [
+        "8830",
+        "5 حاسبات",
+        "6 تبديلات أسبوعيًا",
+        "6 تبديلات أسبوعياً",
+        "3 تبديلات/أسبوع",
+        "6 تبديلات/أسبوع",
+        "3 swaps/week",
+        "6 swaps/week",
+        "868+ تمرين\"",
+        "868+ EXERCISES\"",
+        "8830+ صنفًا",
+        "8,830+ FOODS\"",
+      ],
+      "src/components/views/LandingViewDynamicIslands.tsx": [
         "8830",
         "5 حاسبات",
         "6 تبديلات أسبوعيًا",
@@ -399,6 +443,22 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
   it("Phase 196: tools-count + count-marking + retired weekly cap + EVO-ownership canaries", () => {
     const surfaces: Record<string, string[]> = {
       "src/components/views/LandingView.tsx": [
+        "the 5 calculators",
+        "الحاسبات الخمس",
+        "5 حاسبات",
+        "أكثر من ${EX_PLUS}",
+        "أكثر من 868",
+      ],
+      // SEO-P1-6: the moved homepage literals carry the same ban into
+      // the islands files (no weakening).
+      "src/components/views/LandingViewIslands.tsx": [
+        "the 5 calculators",
+        "الحاسبات الخمس",
+        "5 حاسبات",
+        "أكثر من ${EX_PLUS}",
+        "أكثر من 868",
+      ],
+      "src/components/views/LandingViewDynamicIslands.tsx": [
         "the 5 calculators",
         "الحاسبات الخمس",
         "5 حاسبات",

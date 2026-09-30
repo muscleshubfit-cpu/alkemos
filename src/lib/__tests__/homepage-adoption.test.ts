@@ -64,6 +64,17 @@ import {
  */
 
 const LANDING = "src/components/views/LandingView.tsx";
+// SEO-P1-6 re-pin (frame 315): the homepage surface split into the
+// server view + TWO islands files (the interactive leaves + the two
+// data islands). Structure pins stay on the view; every TEXT pin
+// follows the text wherever it moved (the SITE-CONTENT-281 readBoth
+// precedent — «all» = the concatenated surface, so banned strings are
+// banned in EVERY homepage file, and required strings must exist
+// somewhere on the surface).
+const ISLANDS = "src/components/views/LandingViewIslands.tsx";
+const DYN_ISLANDS = "src/components/views/LandingViewDynamicIslands.tsx";
+const readAll = () =>
+  readFileSync(LANDING, "utf8") + "\n" + readFileSync(ISLANDS, "utf8") + "\n" + readFileSync(DYN_ISLANDS, "utf8");
 const HEADER = "src/components/SiteHeader.tsx";
 const FOOTER = "src/components/SiteFooter.tsx";
 // SITE-CONTENT-281 re-pin: the default marketing copy moved from inline
@@ -73,8 +84,7 @@ const FOOTER = "src/components/SiteFooter.tsx";
 // copy pins follow the copy to its new single source. «both» = the
 // concatenated pair, so banned retired strings are banned in EITHER file.
 const COPY_HOME = "src/lib/site-content/home.ts";
-const readBoth = () =>
-  readFileSync(LANDING, "utf8") + "\n" + readFileSync(COPY_HOME, "utf8");
+const readBoth = () => readAll() + "\n" + readFileSync(COPY_HOME, "utf8");
 
 describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   // (1) The memberships section derives every price from the SINGLE
@@ -123,7 +133,7 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   //     HOME-PLATFORM-284: the subtitle no longer promises «try it
   //     right on this page» — the tools live on their own pages now.
   it("the hero carries exactly the two CTAs and the platform subtitle", () => {
-    const src = readFileSync(LANDING, "utf8");
+    const src = readAll();
     const copy = readFileSync(COPY_HOME, "utf8");
     // The primary account action (signup; the auth page carries the
     // login toggle — one button covers both actions).
@@ -158,7 +168,10 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   // (3) THE PROOF STRIP — one compact row: the four auditable
   //     numbers, small type, numbers + labels inline, count-up alive.
   it("the proof strip is one compact row of auditable numbers (count-up preserved)", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: CountUp's internals (the SSR-honest fallback) moved with
+    // the component to the islands file — the pin follows the text; the
+    // usage sites stay in the view.
+    const src = readAll();
     expect(src).toContain('aria-label={isAr ? "المنصة بالأرقام" : "The platform in numbers"}');
     expect(src).toContain("proofStats");
     expect(src).toContain("<CountUp");
@@ -179,7 +192,8 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   //     the demo endpoints, and the guest-plan persistence all live on
   //     the tool pages, never in the view.
   it("no embedded tool runs on the homepage — it only links to the tool pages", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the ban now covers every homepage file (view + islands).
+    const src = readAll();
     for (const banned of [
       // The retired embedded components.
       "function HomeCalculator",
@@ -258,6 +272,7 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   //     planners).
   it("the #plan section carries the strong AI cards + EVO, clean of human-coaching services; the allowance band introduces the section", () => {
     const src = readFileSync(LANDING, "utf8");
+    const islands = readFileSync(ISLANDS, "utf8");
     const copy = readFileSync(COPY_HOME, "utf8");
     expect(src, "the #plan section is missing").toContain('id="plan"');
     // The STRONG AI card family (filled chrome CTA + the cyan ai-ring
@@ -265,10 +280,12 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     expect(src).toContain("function AiCard");
     expect(src).toContain('className="btn-chrome mt-5 w-full px-6 py-3 text-sm md:text-base"');
     expect(src).toContain('className="ai-ring h-12 w-12 shrink-0 rounded-full"');
-    // The three AI surfaces — locale-aware card links.
+    // The three AI surfaces — locale-aware card links. The two planner
+    // links live on the view's AiCards; the EVO link moved verbatim with
+    // EvoCard into the islands file (SEO-P1-6 — the pin follows the text).
     expect(src).toContain('href={isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"}');
     expect(src).toContain('href={isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"}');
-    expect(src).toContain('href={isAr ? "/ar/evo" : "/evo"');
+    expect(islands).toContain('href={isAr ? "/ar/evo" : "/evo"');
     // EXPLICITLY AI-POWERED: every planner card carries the AI chip and
     // its full AI name (the owner's directive).
     expect(src).toContain('"بالذكاء الاصطناعي" : "AI-POWERED"');
@@ -303,25 +320,41 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     const allowanceAt = src.indexOf('aria-label={isAr ? "رصيد الخطط المجاني" : "The free plan allowance"}');
     expect(allowanceAt, "the free-allowance band is missing").toBeGreaterThan(-1);
     expect(allowanceAt, "the allowance band must sit BEFORE the #plan section").toBeLessThan(src.indexOf('id="plan"'));
-    // The EVO card: the chat surface stays the floating widget (the
-    // law) + the honest visitor quota.
-    expect(src).toContain("openEvoFloatingChat");
-    expect(src).toContain("10 رسائل يوميًا مع EVO — جرّبه مجانًا، ولا تحتاج إلى بطاقة ائتمانية");
-    expect(src).toContain("10 messages a day with EVO — free to try, no credit card required");
-    expect(src).not.toContain('href="/chat"');
-    expect(src).not.toContain('"/chat"');
+    // SEO-P1-6: EvoCard moved verbatim to the islands file — its pins
+    // (the chat-surface law + the honest quota + the locale-aware EVO
+    // link) follow the text; the /chat ban now covers every homepage
+    // file (stronger than before).
+    expect(islands).toContain("openEvoFloatingChat");
+    expect(islands).toContain("10 رسائل يوميًا مع EVO — جرّبه مجانًا، ولا تحتاج إلى بطاقة ائتمانية");
+    expect(islands).toContain("10 messages a day with EVO — free to try, no credit card required");
+    expect(readAll()).not.toContain('href="/chat"');
+    expect(readAll()).not.toContain('"/chat"');
     // REGION LAW (284): the #plan region carries the AI family and NO
     // human-coaching service (coaching is a separate paid membership —
     // EVO's «مدربك الذكي» is the AI coach, allowed by design).
+    // SEO-P1-6 re-pin: the region now ends at the meander divider (the
+    // #learn wrapper moved into the BlogSection island), and EvoCard's
+    // own source region is checked in its new file — same scope, same
+    // strength (the view slice covers the server-rendered #plan + the
+    // BlogSection invocation; the islands slice covers the moved card).
     const planStart = src.indexOf('id="plan"');
-    const nextStart = src.indexOf('id="learn"');
+    const regionEnd = src.indexOf("meander-divider");
     expect(planStart).toBeGreaterThan(-1);
-    expect(nextStart).toBeGreaterThan(planStart);
-    const planRegion = src.slice(planStart, nextStart);
+    expect(regionEnd).toBeGreaterThan(planStart);
+    const planRegion = src.slice(planStart, regionEnd);
     expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("كوتشينج");
     expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("/coaching");
     expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("مدرب شخصي");
     expect(planRegion, "a coaching service leaked into the #plan region").not.toContain("Online Coaching");
+    const evoStart = islands.indexOf("function EvoCard");
+    const evoEnd = islands.indexOf("function HeroCta");
+    expect(evoStart).toBeGreaterThan(-1);
+    expect(evoEnd).toBeGreaterThan(evoStart);
+    const evoRegion = islands.slice(evoStart, evoEnd);
+    expect(evoRegion, "a coaching service leaked into the EVO card").not.toContain("كوتشينج");
+    expect(evoRegion, "a coaching service leaked into the EVO card").not.toContain("/coaching");
+    expect(evoRegion, "a coaching service leaked into the EVO card").not.toContain("مدرب شخصي");
+    expect(evoRegion, "a coaching service leaked into the EVO card").not.toContain("Online Coaching");
   });
 
   // (7) THE FOOD LIBRARY PREVIEW (#eat) — HOME-POLISH-285 owner order:
@@ -503,7 +536,9 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   // (9) The blog carousel is LATEST-FIRST (R6): the newest posts lead
   //     the row (featured fills the tail).
   it("the blog carousel puts the latest posts first", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the #learn fetch + BlogCarousel moved verbatim into the
+    // BlogSection dynamic island — the pin follows the text.
+    const src = readFileSync(DYN_ISLANDS, "utf8");
     expect(src).toContain("posts={[...latestPosts, ...featuredPosts].slice(0, 10)}");
     expect(src).not.toContain("posts={[...featuredPosts, ...latestPosts]");
   });
@@ -514,6 +549,12 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
   //      Tools · AI · Coaching), with the proof strip directly under
   //      the hero.
   it("the sections render in the platform order", () => {
+    // SEO-P1-6 re-pin: the #learn wrapper now renders from the
+    // BlogSection island and the coaches strip from
+    // FeaturedCoachesStrip — both invoked AT their page positions from
+    // the server view, so the page order is pinned by the view's
+    // invocation sequence. The islands files carry their section ids
+    // (pinned below + by the block-map canary above) — same strength.
     const src = readFileSync(LANDING, "utf8");
     const order = [
       'id="library"',
@@ -522,8 +563,9 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
       'id="diet"',
       'id="tools"',
       'id="plan"',
-      'id="learn"',
+      "<BlogSection",
       'id="memberships"',
+      "<FeaturedCoachesStrip",
       'id="faq"',
     ].map((needle) => src.indexOf(needle));
     for (let i = 1; i < order.length; i++) {
@@ -539,6 +581,9 @@ describe("HOME-PLATFORM-284 — the platform homepage canaries", () => {
     expect(order[1]).toBeLessThan(order[4]);
     expect(order[3]).toBeLessThan(order[4]);
     expect(order[5]).toBeLessThan(order[6]);
+    // The islands own their section sources verbatim (#learn inside
+    // BlogSection; the strip inside FeaturedCoachesStrip).
+    expect(readFileSync(DYN_ISLANDS, "utf8")).toContain('id="learn"');
   });
 });
 
@@ -662,7 +707,11 @@ describe("HOME-PLATFORM-284 — density, CTA & card contract", () => {
   // #plan carry filled chrome CTAs by the same 285 owner order — a
   // different section, sanctioned there.)
   it("memberships asymmetry (O-3): the one filled CTA lives on the coaching card; the tier CTAs are clear and consistent", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the blog CTA (the one quiet px-6 py-2.5 recipe) moved
+    // with the #learn section into the dynamic island — the counts read
+    // the whole homepage surface; the exact-count pins stay exact (the
+    // tier recipes exist only in the view).
+    const src = readAll();
     expect(src).toContain(': "/coaching"} className="btn-chrome px-6 py-2.5 text-sm font-medium"');
     expect(src.match(/className="btn-outline px-6 py-2\.5 text-sm font-medium"/g)?.length).toBeGreaterThanOrEqual(1);
     // The three tier CTAs — visible buttons in the consistent family.
@@ -712,7 +761,11 @@ describe("HOME-PLATFORM-284 — density, CTA & card contract", () => {
   // (food-card, tool-tile, ai-card, evo-card, exercise, program,
   // diet, blog, coach, free-card, premium-card).
   it("unified card hover: card-lift on all eleven interactive card families; recipe + reduced-motion guard in css", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the eleven card families now span the view (food · tool
+    // · ai · diet · program · free · premium) + the islands (evo ·
+    // exercise) + the dynamic islands (blog · coach) — the count pins
+    // the whole surface, still exactly eleven.
+    const src = readAll();
     const css = readFileSync("src/app/globals.css", "utf8");
     expect(src.match(/marble-card card-lift/g)?.length).toBe(11);
     for (const required of [
@@ -789,7 +842,10 @@ describe("HOME-PLATFORM-284 — the motion-safety contract", () => {
   // the surviving recipes stay guarded.
   it("motion: the reveal/swap recipes exist and every keyframe respects reduced motion", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: Reveal + CountUp moved verbatim to the islands file —
+    // the motion pins (the post-mount arming + the SSR-honest fallback +
+    // the two reduced-motion guards) follow the text.
+    const src = readFileSync(ISLANDS, "utf8");
     for (const required of [
       ".rv {",
       ".live-dot {",
@@ -973,7 +1029,9 @@ describe("HOME-PLATFORM-284 — homepage sample drift guard (real content, curat
       expect(perFamily.get(family), `family ${family} lost its six-sample curation`).toBe(6);
     }
     // The browser grid renders the six-card 2×3 grid on md+.
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the grid moved with LibraryBrowser into the islands
+    // file — the pin follows the text.
+    const src = readFileSync(ISLANDS, "utf8");
     expect(src).toContain("swap-fade mt-7 grid grid-cols-2 gap-4 md:grid-cols-3");
   });
 });
@@ -1009,7 +1067,10 @@ describe("TPL-REF-280 — the selective template-reference contract", () => {
     // (the 286 frame: the hero CTAs went arrow-free with the static-hero
     // order — the five browse-all CTAs (library/eat/train/diet/tools) +
     // the blog CTA + the three tier CTAs + the AiCard CTA — ten in all).
-    expect(src.match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
+    // SEO-P1-6: the chevrons span the homepage surface now (the library
+    // CTA rides inside the LibraryBrowser island; the blog CTA inside
+    // the BlogSection dynamic island) — still exactly ten.
+    expect(readAll().match(/className="chev rtl:rotate-180"/g)?.length).toBe(10);
     expect(src).toContain('className="chev rtl:rotate-180" aria-hidden="true">›</span>');
   });
 

@@ -30,6 +30,9 @@ import { readFileSync } from "node:fs";
 
 const CSS = "src/app/globals.css";
 const LANDING = "src/components/views/LandingView.tsx";
+// SEO-P1-6 (frame 315): the homepage's client islands — the carousel
+// arrows moved verbatim with CarouselShell into the islands file.
+const ISLANDS = "src/components/views/LandingViewIslands.tsx";
 const METADATA = "src/app/metadata.ts";
 
 /** Extract the single `@layer base { … }` block by brace matching. */
@@ -129,7 +132,9 @@ describe("VRD-V0 — a11y canaries (audit C-4 / C-15)", () => {
   });
 
   it("the homepage carousel arrows are 44px on touch (max-md: variant)", () => {
-    const src = readFileSync(LANDING, "utf8");
+    // SEO-P1-6: the arrow recipe moved with CarouselShell into the
+    // islands file — the pin follows the text.
+    const src = readFileSync(ISLANDS, "utf8");
     const arrows = src.match(/grid h-9 w-9[^(]*/g) ?? [];
     expect(arrows.length, "carousel arrow buttons not found").toBeGreaterThanOrEqual(2);
     for (const arrow of arrows) {
