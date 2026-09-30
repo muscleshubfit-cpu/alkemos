@@ -11236,3 +11236,26 @@ Stage Summary:
 - Push status: pushed · التحقق من CI وVercel بعد الدفع موثق بتقرير الجلسة.
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 — تدقيق معماري قراءة-فقط: كل طريقة عملية يمكن لـ Google Search Console أن يدخل بها كقدرة تشغيلية مستمرة (مصدر أدلة لعمليات قائمة/مستقبلية — لا نظام تقارير)، مبنيًا على المستودع الفعلي والاتصال الحي بالسر الموجود، ثم توثيق الخطة بالمستودع. صفر تعديل كود/سير عمل/قاعدة/إعدادات.
+
+Work Log:
+- (الأدلة الحية) تشغيلَا اختبار الاتصال (36647573294 · 36649457709) ناجحان: السر GOOGLE_SEARCH_CONSOLE_CREDENTIALS يصادق على Google (SA: alkemos-gsc-reader@muscleshub.iam.gserviceaccount.com · نطاق webmasters.readonly) ويرى خاصيتين عبر sites.list: sc-domain:alkemos.com + الخاصية القديمة https://musclehubeg.vercel.app/ — خط أساس 28 يومًا مقيس: alkemos 4 نقرات/4172 ظهورًا/CTR 0.10%/موضع 55.53 · القديمة 8/4600/0.17%/16.37.
+- (فحص حي) robots الموحد + 7 أسطر Sitemap · فهرس السايت ماب بأبنائه الستة وlastmod=اليوم · 301 حية: العلامة القديمة → alkemos.com وwww→apex وhttp→https.
+- (المسح المعماري) صفر استهلاك للسر خارج gsc-connection-test.yml المؤقت · صفر جداول أداء بحث في الميجريشنز · صفر سطح أدمن للبحث (evo-analytics فقط) · researchSource بلا قيمة gsc · سطر AGENTS.md:164 (مصدر GSC محجوب مالكياً) متقادم واقعيًا الآن · فجوة صف السر بdocs/RECOVERY-SECRETS-SOURCES.md (قانونه :93) · السر غائب عن .env.example (صحيح — GHA فقط).
+- (نقاط الاندماج IP-1..IP-12 مبنية على المكونات الفعلية) تغذية P0 باستعلامات حقيقية (بند AUDIT_REPORT §9-1 المرجأ بقرار مالك — غير محجوب تقنيًا الآن) · بوابات توسيع الأطعمة المعربة (النافذة المعلنة 2026-09-19 بلا أي قياس يجمعها) · محطة ذيل USDA (~2026-12-07) · رصد قبول السايت مابز السبعة (فئة Couldn't fetch الموثقة بsitemap.xml route:13-21) · تحقق فهرسة المنشور الجديد (URL Inspection بعينات) · حلقة CTR/عناوين (ترتيب بالفرصة بدل المسح الشامل) · ترتيب قنوات العلاج بالقيمة + تحقق ما بعد APPLY · كشف تزاحم دوري (خليفة 0096 اليدوي) · مراقبة هجرة العلامة عبر الخاصية القديمة · إقران GEO-M باتجاه GSC شهريًا · ترتيب طابور مراجعة المالك (0097) بالانكشاف · سطح أدمن للبحث (سابقة requireAdmin + عرض).
+- (المعمارية المقترحة) «جامع واحد · مخزن واحد · قرّاء كثر»: gsc-collect.yml (أسبوعي + شهري + dispatch — نقل كود الاختبار المُثبت حرفيًا: JWT/openssl · stdlib فقط · بلا checkout/تثبيت A-12) + ميجريشن 00NN (gsc_runs + gsc_metrics بRLS حارماني) + قرّاء محليون فقط (P0 · queue-health · admin · البوابات) — السر لا يغادر GitHub Actions أبدًا وصفر نداءات Google من Vercel.
+- (الخطة) G1 الجامع+المخزن → G2 تغذية P0 (researchSource:"gsc+model" + عدّاد queue-health + علم إرجاع GSC_GROUNDING=0) → G3 سطح المالك → G4 سايت ماب+فهرسة (قرار نطاق URL Inspection) → G5 بوابات مبنية على الأدلة بعد 30-90 يومًا تراكم — كل مرحلة بأمر مالك مستقل وكوميت واحد ووثائق بنفس الفريم (قوانين الفريمات مرجعة §7.2 بالتقرير).
+- (القيد) صفر تنفيذ الآن · لا مساس بأي src/workflows/supabase/next.config/vercel.json/.env.example · حقائق API الخارجية الموسومة [verify] بالتقرير تُحسم في G1 · حذف gsc-connection-test.yml يبقى بأمر مالك بعد إثبات الجامع (ترويسته تُلزم بذلك).
+
+Stage Summary:
+- التقرير الموثق: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (صفه بسجل docs/README.md بنفس الكوميت — قانون M) — المصدر الحاكم لمرحلة التنفيذ القادمة؛ نقطة البدء الملزمة: التقرير §9 = المرحلة G1 بأمر مالك.
+- الاتصال مثبت والبيانات مقيسة (خاصيتان + خط أساس 28 يومًا) — الجزء المرجأ من AUDIT_REPORT §9-1 (بحث حقيقي) صار قابل التنفيذ عند أمر المالك دون أي اعتماد جديد.
+- الملفات: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (جديد) · docs/README.md (صف السجل) · STATE.md (سطر المفتوح الآن + آخر تحديث) · worklog.md (هذا المدخل) — لا شيء غيرها تغيّر.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+
