@@ -101,8 +101,10 @@ pnpm-lock.yaml
 !/scripts/seo-p210-origin-verify.mjs
 #   scripts/seo-p212-live-audit.mjs → production missing-dimension <img> auditor over the sitemaps (SEO-P2-12, 2026-10-01 — re-measures the audit's width/height gap as the surfaces scale; same /scripts/* blanket-trap exception precedent as 290/P2-10)
 #   scripts/seo-p212-cls-risk.mjs → P2-12 pre-load CLS probe: blocks all image requests, measures every missing-dimension <img> box BEFORE load — zero-box = unreserved space = the real risk (SEO-P2-12, 2026-10-01; works against `prod` or a local next-start port)
+#   scripts/seo-p212-origin-verify.mjs → P2-12 production origin verify with cache-bust (SEO-P2-12, 2026-10-01 — 32/32 hub routes: both imgs 1280×477 + 137c/139 laws; same CF edge-window bypass as seo-p210-origin-verify)
 !/scripts/seo-p212-live-audit.mjs
 !/scripts/seo-p212-cls-risk.mjs
+!/scripts/seo-p212-origin-verify.mjs
 /skills/
 /tests/
 /examples/
