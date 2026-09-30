@@ -7,6 +7,11 @@
 > are reading plus its registry/worklog/STATE rows (§11).
 > **Status:** **LIVE — the authoritative spec for the future GSC implementation phases G1–G5
 > (§8).** Execution starts ONLY by owner order; the exact starting point is §9.
+> **Amendment (owner correction order, 2026-09-30):** GSC must NOT be used to select
+> new-content topics — IP-1 is now the binding principle (§4), G2 is re-scoped as the
+> post-publication "GSC Evidence & Optimization Loop" (§8), and the explicit data flow is
+> stated in IP-1. See §11.1 (change history). UNCHANGED by this amendment: the G1
+> architecture, collector/storage design, credentials, scope, cadence, and IP-2..IP-12.
 > **Evidence base:** the repository at commit `bf451de2` (HEAD of `origin/main` at audit time),
 > the two live GSC connection-test runs (§2), live production probes (§1.2), and the GSC API's
 > public capabilities. External API facts that must be re-verified during implementation are
@@ -102,10 +107,11 @@ query layer a permanent collector can port nearly verbatim (§5).
 
 - **`AUDIT_REPORT.md:314`** (§9 Phase-1 item 3, 2026-09-29): «إدخال Google Search Console
   (استعلامات فعلية مع impressions/clicks للـ site) كمصدر أساسي لاختيار المواضيع» — the
-  originating recommendation. Shipped half: the `researchSource:"fallback"` honest stamping
-  (`AGENTS.md:164`, `blog-research.ts:425-434`). **The GSC half was owner-deferred**
-  (`STATE.md:28`) — the credential secret now exists and the connection is proven, so this
-  deferral is technically unblocked (execution still needs the owner order).
+  originating recommendation (GSC as a *topic-selection* source). Shipped half: the
+  `researchSource:"fallback"` honest stamping (`AGENTS.md:164`, `blog-research.ts:425-434`).
+  **The GSC-as-topic-source half is now superseded by the owner correction order 2026-09-30
+  (IP-1): GSC must not determine new-content topics** — the deferral is resolved as *never*,
+  not *pending*; the proven connection is used only for post-publication evidence.
 - **`AGENTS.md:164`**: "The GSC real-search source remains owner-blocked (needs the owner's
   Search Console API credentials)." — **now factually stale**: the credentials exist and
   authenticate. Updating this line belongs to the first implementation frame (G1/G2), not to a
@@ -144,7 +150,8 @@ query layer a permanent collector can port nearly verbatim (§5).
   same frame) and from `.env.example` (the latter is correct: it is a GHA-only secret, never a
   Vercel env var — see §7). The registry row is a real, small compliance gap to close in G1.
 - **`researchSource` has only two values** (`"fallback"` | `"model"`) — no `"gsc"` evidence
-  class exists in the queue contract yet.
+  class exists in the queue contract, and per the corrected principle (IP-1) none is planned:
+  GSC never feeds P0 topic selection.
 
 ---
 
@@ -168,8 +175,8 @@ API surface available to the existing read-only scope (external facts; the ones 
 Data-semantics constraints that shape every integration below:
 - GSC shows **the site's own queries** — queries where alkemos.com already earned impressions.
   It is a *demand-response* signal (what Google already exposes us for), NOT a market-research
-  tool (what the world searches). Net-new topic discovery still needs model knowledge — GSC
-  complements the LLM, it does not replace it.
+  tool (what the world searches). New-content discovery stays with live external research —
+  GSC's evidence role begins only AFTER publication (the IP-1 principle).
 - Rare/anonymous queries are anonymized by Google; long-tail query rows are lossy.
 - Position is an average; per-`(query, page)` rows are the only way to see cannibalization
   (one query surfacing multiple site pages).
@@ -183,30 +190,31 @@ project/agent takes · **STATUS** (exists / partial / missing) · **LIMITS** · 
 (operation → GSC evidence → decision/action → implementation → later validation) — the audit's
 selection criterion. Priorities in §8 map to these IDs.
 
-### IP-1 — P0 topic selection grounded in real queries (the §9 deferred item, now unblocked)
+### IP-1 — Governing principle: GSC is post-publication evidence, never topic selection (corrected 2026-09-30)
 
-- **WHERE:** `src/lib/blog-research.ts` — `researchLanguage()` (`:340-423`, prompt context) and
-  `runPhase0Research()` (`:444`); `/api/cron/blog/p0-research/route.ts` (bundle stamp, `:57-83`);
-  `src/lib/blog-topics.ts` `pickSmartTopic()` as the secondary consumer.
-- **GSC DATA:** `searchAnalytics/query` dimension `[query]` (clicks/impressions/CTR/position,
-  28–90d, both languages inferred from page prefix) + `[page]` for per-section demand.
-- **ACTION:** inject the site's top real queries (with impression counts) into the research
-  prompt as a *grounding block*; rank model-proposed topics by "already-earning-impressions
-  queries we under-serve" (impressions present, position > 10, no dedicated intent-map cluster);
-  extend `researchSource` with a `"gsc"`/`"gsc+model"` evidence class; keep the LLM for net-new
-  topic ideation and phrasing.
-- **STATUS:** **MISSING** — today's keyword volumes are model guesses («volume labels are
-  estimates», `blog-research.ts:388`), fallback pool static (14 keywords/lang, `:280-338`; topic
-  pools 100 EN / 92 AR in `blog-topics.ts`), and the measured fallback rate was 24% of runs
-  (`AUDIT_REPORT.md` C3). AUDIT_REPORT §9 Phase-1 item 3 named exactly this integration;
-  `STATE.md:28` deferred its GSC half by owner decision — the credentials now exist.
-- **LIMITS:** own-queries-only semantics (§3); anonymized rare queries; `final` data lag ~2–3d;
-  at ~4k impressions/28d the query list is small (that is fine — it is the *highest-precision*
-  demand signal available).
-- **LOOP:** daily P0 picks a topic targeting a real under-served query → article publishes
-  through P5 → next weeks' GSC `[query, page]` rows show whether that article now earns
-  impressions/position for the targeted query → queue-health gains a measurable
-  "GSC-grounded topic success rate" → topic-selection law tunes itself on evidence.
+- **PRINCIPLE (owner correction order 2026-09-30, binding on every other entry):** **GSC must
+  not determine new-content topics. New-content discovery remains driven by live external
+  research. GSC provides post-publication search evidence for optimization, content
+  expansion, cannibalization detection, and validation.**
+- **WHERE:** binding on all of §4 — and explicitly on `src/lib/blog-research.ts` /
+  `/api/cron/blog/p0-research` (P0 topic research), which stay GSC-free by law; the
+  legitimate consumers are the post-publication surfaces (optimization & expansion backlogs,
+  cannibalization scan, remediation ordering, review ordering, admin surface).
+- **GSC DATA:** none for topic selection (excluded by the principle); `[page]`, `[query]`,
+  `[query, page]` rows measured for PUBLISHED content only.
+- **ACTION:** every consumer in §4 reads GSC evidence only for pages that already exist;
+  optimization/expansion candidates are EXISTING articles earning impressions at weak
+  positions — never new-topic proposals; the `researchSource` queue contract stays
+  two-valued (`"fallback"` | `"model"`) — no `"gsc"` class is ever added.
+- **STATUS:** **PRINCIPLE — binding, corrected 2026-09-30**; supersedes and withdraws this
+  audit's original IP-1 (P0 topic grounding), which was never implemented (§11.1).
+- **LIMITS:** the reason is semantic, not technical: GSC shows only queries the site already
+  earned impressions for — a mirror of existing exposure, blind to the wider market (§3) —
+  so as a topic selector it would self-confirm the status quo and starve discovery.
+- **LOOP (the explicit data flow, end to end):** live external research → content decision →
+  publication → Google response → GSC measurement → optimization / expansion of what was
+  published → re-measurement. The loop re-enters at *optimization/expansion*, never at
+  *content decision*.
 
 ### IP-2 — Food-Arabization band expansion gate (the declared-but-unmeasured window)
 
@@ -443,11 +451,11 @@ The design principle that makes GSC an **ongoing capability** instead of a one-o
                                         │ read-only
         ┌───────────────┬───────────────┼────────────────────┬─────────────────┐
         ▼               ▼               ▼                    ▼                 ▼
-  P0 research      /api/ai/         /api/admin/          evidence gates    run summary +
-  (blog-research   queue-health     search-console       (food band,      worklog rows
-   grounding       (GSC counters)   (requireAdmin)       cannibalization) (manual copy —
-  block;                                                                  identity law)
-  researchSource:"gsc")
+  optimization     /api/ai/         /api/admin/          evidence gates    run summary +
+  & expansion      queue-health     search-console       (food band,      worklog rows
+  evidence         (GSC counters)   (requireAdmin)       cannibalization) (manual copy —
+  (gsc-data.ts;                                                           identity law)
+  never P0)
 ```
 
 ### 5.1 Why each choice (all anchored in existing repo law/precedent)
@@ -473,10 +481,12 @@ The design principle that makes GSC an **ongoing capability** instead of a one-o
   probe — IP-10 pairing). A `dry_run` input (default `1`) matches the remediation-channel law
   family for the first dispatches; collection is read-only toward Google and writes only its
   own tables, so flipping to apply is low-risk.
-- **Consumers never authenticate.** P0, queue-health, the admin view, and the gates all read
-  local tables via the existing patterns (cron routes service-side; `requireAdmin` for admin
-  API; canaries per law). A thin `src/lib/gsc-data.ts` read helper (G2/G3) is the single typed
-  interface agents/workflows import — one law, no forks (the editorial-law precedent).
+- **Consumers never authenticate.** The post-publication consumers — optimization/expansion
+  evidence, queue-health, the admin view, and the gates — all read local tables via the
+  existing patterns (cron routes service-side; `requireAdmin` for admin API; canaries per
+  law). A thin `src/lib/gsc-data.ts` read helper (G2/G3) is the single typed interface
+  agents/workflows import — one law, no forks (the editorial-law precedent). **P0 topic
+  research is NOT a consumer** — GSC never feeds topic selection (IP-1).
 - **Scope policy is a security property.** Keep `webmasters.readonly` as the collector's scope.
   Any capability needing the full scope (`sitemaps.submit`; URL Inspection **[verify]**) is a
   separate owner decision with its own row here (§7.3) — never a silent scope widening.
@@ -510,7 +520,8 @@ The design principle that makes GSC an **ongoing capability** instead of a one-o
 2. **No storage** — no search-performance tables exist in any migration.
 3. **No admin surface** for search data (owner sees EVO stats only).
 4. **No recurring schedule** — connection test is dispatch-only by design.
-5. **`researchSource` lacks a `"gsc"` class**; queue-health has no GSC counters.
+5. **Queue-health has no GSC evidence counters** (post-publication). The `researchSource`
+   contract deliberately stays two-valued — per IP-1, no `"gsc"` research class is planned.
 6. **Secrets-registry gap** — `RECOVERY-SECRETS-SOURCES.md` row for the GSC secret missing
    (the `.env.example` absence is CORRECT — GHA-only secret).
 7. **`AGENTS.md:164` is stale** ("owner-blocked" — credentials now exist and are proven).
@@ -537,7 +548,8 @@ The design principle that makes GSC an **ongoing capability** instead of a one-o
 - Search Analytics: `final` data lags ~2–3 days (hourly `dataState=all` exists but unsettled);
   rare queries anonymized; ~16-month retention; quotas are no constraint at this scale.
 - Own-queries-only semantics: GSC cannot discover demand the site has never earned impressions
-  for — it complements (never replaces) LLM topic ideation (IP-1).
+  for — it is not a topic-ideation input at all (IP-1: discovery stays with live external
+  research; GSC enters only post-publication).
 - Property split: `sc-domain:alkemos.com` vs the old URL-prefix property — separate datasets;
   the ~2026-12-07 station and any trend math must state which property it used.
 
@@ -548,8 +560,8 @@ The design principle that makes GSC an **ongoing capability** instead of a one-o
 - §10 identity law (muscleshubfit@gmail.com) + no workflow auto-commits; `[vercel skip]` only
   for docs-only frames — G1 (supabase/) and G2/G3 (src/) are real deploys.
 - Migration law (§6): idempotent, RLS in-file, INDEX.md row, types.ts regen, no renames.
-- The paid-model item of AUDIT §9 Phase-1 remains a separate owner decision — GSC grounding
-  works with the free chain and does not presume it.
+- The paid-model item of AUDIT §9 Phase-1 remains a separate owner decision — the
+  post-publication GSC loop is independent of it and does not presume it.
 
 ### 7.3 Explicit owner-decision points inside the plan
 1. **Scope widening** (full `webmasters`) if URL Inspection requires it — or keep readonly and
@@ -582,17 +594,24 @@ All phases assume the G1 foundation. Sizes are honest one-commit frames, not epi
 - **Rollback:** disable the schedule (workflow edit); tables are additive and harmless to
   drop by a later owner-ordered migration.
 
-### G2 — P0 research grounding (IP-1; ~1 frame; depends G1)
-- **Files:** `src/lib/gsc-data.ts` (read helper) · `src/lib/blog-research.ts` (grounding block
-  in `researchLanguage()` + candidate ranking) · `/api/cron/blog/p0-research/route.ts`
-  (`researchSource` gains `"gsc"`/`"gsc+model"` stamp) · `/api/ai/queue-health` (GSC-grounded
-  share counter, fallback counter untouched) · AGENTS §8 RESEARCH law update (the now-stale
-  `:164` owner-blocked sentence) · canaries (research-grounding test + queue-health counter
-  test + researchSource contract pin).
-- **Verification:** unit battery + one live EN or AR run whose bundle shows
-  `researchSource:"gsc+model"`; queue-health shows the new counter.
-- **Rollback:** env flag `GSC_GROUNDING=0` (the R2/R3 rollback precedent) restoring the exact
-  current behavior.
+### G2 — GSC Evidence & Optimization Loop (post-publication; ~1 frame; depends G1)
+- **Principle:** G2 operates strictly AFTER content exists — it is never a source of
+  new-content discovery. `src/lib/blog-research.ts` and the whole P0 chain stay byte-identical
+  to today: no GSC input, no `researchSource` change (the two-value `"fallback"|"model"`
+  contract is final per IP-1).
+- **Files:** `src/lib/gsc-data.ts` (the single typed read helper — every consumer imports
+  this, never Google directly) · first post-publication evidence consumers: per-article
+  `[page, query]` rows feeding the optimization & expansion backlog (existing articles with
+  impressions and weak position → optimize/expand candidates — never new-topic proposals) ·
+  `/api/ai/queue-health` (GSC evidence counters, e.g. collector freshness + backlog size;
+  fallback/repair counters untouched) · AGENTS §8 RESEARCH law update (the now-stale `:164`
+  owner-blocked sentence, restated as: GSC is post-publication evidence only, never a P0
+  source) · canaries (gsc-data read-path tests + queue-health counter test + a pin asserting
+  P0 research stays GSC-free).
+- **Verification:** unit battery; queue-health shows the evidence counters; a canary proves
+  the P0 research prompt/bundle contains zero GSC-derived content.
+- **Rollback:** consumers are additive local reads; removing them restores the exact current
+  behavior (P0 was never touched, so nothing there to roll back).
 
 ### G3 — Owner surface (IP-12; ~1 frame; depends G1, parallel-safe with G2)
 - **Files:** `src/app/api/admin/search-console/route.ts` (`requireAdmin`, reads local tables
@@ -633,14 +652,16 @@ Nothing in G2–G5 touches the collector's auth layer. Total: ~6–8 commits acr
 Minimum viable evidence that G1 succeeded: a dispatched `gsc-collect` run that (a)
 authenticates with the existing secret, (b) reports BOTH properties with permission levels,
 (c) writes `gsc_runs` + `gsc_metrics` rows for the latest complete window, and (d) captures
-the 7 sitemap states. After two green weekly runs, G2 (P0 grounding — the audit-report §9
-Phase-1 deferred item) is the highest-value next frame, because it closes the only loop that
-feeds the site's core daily operation (content selection) with the only real demand data the
-project has ever had access to.
+the 7 sitemap states. After two green weekly runs, G2 (the GSC Evidence & Optimization Loop)
+is the highest-value next frame: it exposes the collected evidence through the single
+`gsc-data.ts` read helper and the first post-publication consumers — optimization and
+expansion of published content, feeding the later gates (G5). It runs strictly AFTER content
+exists; new-content discovery stays with live external research (P0), untouched by GSC (IP-1).
 
-Success metrics already promised by the project that this plan pays into: fallback research
-rate 24% → ≤3% (AUDIT §9), monthly cannibalization monitoring (§9 targets), the food-band
-gates (STATE), the 90-day USDA station (plan §355/§595), and the KPI table (plan §643-646).
+Success metrics already promised by the project that this plan pays into: monthly
+cannibalization monitoring (§9 targets), the food-band gates (STATE), the 90-day USDA
+station (plan §355/§595), and the KPI table (plan §643-646). (The AUDIT §9 fallback-research
+24% → ≤3% target belongs to the P0 research chain itself — out of GSC's scope by IP-1.)
 
 ---
 
@@ -654,7 +675,7 @@ gates (STATE), the 90-day USDA station (plan §355/§595), and the KPI table (pl
   connection-test runs (run IDs cited); it will age — the collector exists to make such
   numbers continuously available instead of frozen.
 
-## 11. Documentation footprint of this audit (this commit)
+## 11. Documentation footprint of the original audit (commit `5fd41d49`)
 
 - NEW: `docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md` (this file) + its
   `docs/README.md` registry row (check M, same-commit law).
@@ -664,4 +685,9 @@ gates (STATE), the 90-day USDA station (plan §355/§595), and the KPI table (pl
 - Zero changes to: any `src/**`, `.github/**` (workflows), `supabase/**`, `next.config.ts`,
   `vercel.json`, `.env.example`, or any other application file.
 
+### 11.1 Change history
 
+| Date | Commit | Change |
+|---|---|---|
+| 2026-09-30 | `5fd41d49` | Original audit (this document): read-only architectural audit — 12 integration points, collector architecture, phases G1–G5. |
+| 2026-09-30 | this commit | **Owner correction order (documentation-only):** removed the topic-selection direction — IP-1 replaced by the binding principle «GSC must not determine new-content topics; new-content discovery remains driven by live external research; GSC provides post-publication search evidence for optimization, content expansion, cannibalization detection, and validation» · G2 re-scoped from "P0 research grounding" to the post-publication **GSC Evidence & Optimization Loop** (§8) · the explicit data flow (live external research → content decision → publication → Google response → GSC measurement → optimization/expansion) stated in IP-1 · conflicting statements corrected in §2.3, §2.4, §3, §5 diagram, §5.1, §6 (item 5), §7.1, §7.2, §9 · registry/STATE/worklog rows refreshed. **Unchanged:** G1 architecture, collector/storage design, credentials, scope, cadence, and IP-2..IP-12; zero code/workflow/DB/config changes. |
