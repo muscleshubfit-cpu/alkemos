@@ -25,11 +25,15 @@ import { COMPARISONS } from "@/lib/comparisons";
  *  - www.freeletics.com   → HTTP 200 (302 → /en/, same origin; official)
  *  - exrx.net             → live ("ExRx.net : Home"; Cloudflare bot-guards
  *                           scripted clients — browsers pass the challenge)
+ *  - cronometer.com       → official brand site (verified 2026-09-30 via
+ *                           web search for the P0 SEO-audit comparison;
+ *                           the app/brand home, no intermediary host)
  */
 const VERIFIED_OFFICIAL: Record<string, string> = {
   "alkemos-vs-myfitnesspal": "https://www.myfitnesspal.com",
   "alkemos-vs-freeletics": "https://www.freeletics.com",
   "alkemos-vs-exrx": "https://exrx.net",
+  "alkemos-vs-cronometer": "https://cronometer.com",
 };
 
 /** Intermediary / review / UGC / app-store hosts that must never be

@@ -20,7 +20,8 @@ import { ShareButtons } from "@/components/ShareButtons";
 export const metadata: Metadata = {
   title: "Alkemos vs Competitors — Honest Platform Comparisons (2026) | Alkemos",
   description:
-    "Side-by-side comparisons of Alkemos vs MyFitnessPal, Freeletics, and ExRx.net: features, prices, content depth, AI coach, and languages — with an honest verdict for each.",
+    // P0 SEO audit (2026-09-30): Cronometer joined the comparison set.
+    "Side-by-side comparisons of Alkemos vs MyFitnessPal, Freeletics, ExRx.net, and Cronometer: features, prices, content depth, AI coach, and languages — with an honest verdict for each.",
   alternates: {
     canonical: "https://alkemos.com/compare",
     languages: {
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alkemos vs Competitors — Honest Platform Comparisons | Alkemos",
     description:
-      "Feature, price, and content-depth tables: Alkemos vs MyFitnessPal, Freeletics, and ExRx.net.",
+      "Feature, price, and content-depth tables: Alkemos vs MyFitnessPal, Freeletics, ExRx.net, and Cronometer.",
     type: "website",
     locale: "en_US",
     url: "https://alkemos.com/compare",

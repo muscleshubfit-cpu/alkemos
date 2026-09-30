@@ -537,6 +537,11 @@ export default function AiMealPlannerPage() {
               <Link href={isAr ? "/ar/evo" : "/evo"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
                 {isAr ? "مدرب EVO الذكي" : "EVO AI coach"}
               </Link>
+              {/* P0 SEO audit (2026-09-30): the macro-tracker landing page —
+                  the targets→meals→results path this tool feeds. */}
+              <Link href={isAr ? "/ar/macro-tracker" : "/macro-tracker"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
+                {isAr ? "تتبّع ماكروزك" : "Track your macros"}
+              </Link>
               <Link href={isAr ? "/ar/coaching" : "/coaching"} className="rounded-full border border-[var(--edge)] px-4 py-2 text-sm font-normal text-[var(--text)] transition-colors hover:border-[var(--chrome-edge)]">
                 {isAr ? "التدريب الأونلاين" : "Human coaching"}
               </Link>

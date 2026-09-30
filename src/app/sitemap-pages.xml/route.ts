@@ -80,6 +80,15 @@ export async function GET() {
     // §12.32: the AI workout-planner trial pair (free generation, no signup).
     { loc: `${base}/ai-workout-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-workout-planner`, ar: `${base}/ar/ai-workout-planner` } },
     { loc: `${base}/ar/ai-workout-planner`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/ai-workout-planner`, ar: `${base}/ar/ai-workout-planner` } },
+    // P0 SEO audit (2026-09-30, finding #1): the two search-intent landing
+    // pairs — "workout tracker" and "macro tracker" queries had ZERO
+    // matching pages while the tracking features live behind login. The
+    // landing pages route that intent to the real product surface
+    // (AI planners, programs, meal planner, ProgressView tracking).
+    { loc: `${base}/workout-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/workout-tracker`, ar: `${base}/ar/workout-tracker` } },
+    { loc: `${base}/ar/workout-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/workout-tracker`, ar: `${base}/ar/workout-tracker` } },
+    { loc: `${base}/macro-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/macro-tracker`, ar: `${base}/ar/macro-tracker` } },
+    { loc: `${base}/ar/macro-tracker`, changefreq: "monthly", priority: 0.8, alternates: { en: `${base}/macro-tracker`, ar: `${base}/ar/macro-tracker` } },
     // Comparison index pages — SEO-GEO-4 (2026-09-08): the detail pages
     // live in sitemap-comparisons.xml; the index lives here.
     { loc: `${base}/compare`, changefreq: "monthly", priority: 0.7, alternates: { en: `${base}/compare`, ar: `${base}/ar/compare` } },

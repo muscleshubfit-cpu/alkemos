@@ -39,6 +39,10 @@ import { getBlogPost, getLinkedPost } from "@/lib/blog";
  *                   index + detail pages mirror by prefix swap)
  *   /affiliate   <-> /ar/affiliate (§12.53 item 11, 2026-09-16 — the
  *                   last monolingual page on the site)
+ *   /workout-tracker <-> /ar/workout-tracker (P0 SEO audit 2026-09-30 —
+ *                   the search-intent landing pair)
+ *   /macro-tracker   <-> /ar/macro-tracker (P0 SEO audit 2026-09-30 —
+ *                   the search-intent landing pair)
  * 
  * Pages without Arabic mirrors (private surfaces like /checkout,
  * /profile, /admin, /auth): just toggle the UI language (the
@@ -164,6 +168,10 @@ export function LanguageToggle() {
  { en: "/coaching", ar: "/ar/coaching" },
  // §12.53 item 11 (2026-09-16): the affiliate AR mirror.
  { en: "/affiliate", ar: "/ar/affiliate" },
+ // P0 SEO audit (2026-09-30, finding #1): the search-intent landing
+ // pairs — "workout tracker" / "macro tracker" had zero matching pages.
+ { en: "/workout-tracker", ar: "/ar/workout-tracker" },
+ { en: "/macro-tracker", ar: "/ar/macro-tracker" },
  ];
 
  for (const route of MIRROR_ROUTES) {

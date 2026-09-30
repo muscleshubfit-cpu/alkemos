@@ -116,6 +116,10 @@ const CARDS = [
   "og-faq-en", "og-faq-ar",
   "og-affiliate-en", "og-affiliate-ar",
   "og-legal-en", "og-legal-ar",
+  // P0 SEO audit (2026-09-30): the two search-intent landing pairs —
+  // dedicated family cards per the SOCIAL-OG-3 law.
+  "og-workout-tracker-en", "og-workout-tracker-ar",
+  "og-macro-tracker-en", "og-macro-tracker-ar",
 ] as const;
 
 /** surface source → the family card it must reference */
@@ -166,6 +170,12 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/(en)/authors/page.tsx", "og-authors-en"],
   ["src/app/(en)/affiliate/layout.tsx", "og-affiliate-en"],
   ["src/app/(en)/for-coaches/register/layout.tsx", "og-for-coaches-en"],
+  // P0 SEO audit (2026-09-30): the search-intent landing pairs — the
+  // server layouts pin their own dedicated cards (replace-not-inherit).
+  ["src/app/(en)/workout-tracker/layout.tsx", "og-workout-tracker-en"],
+  ["src/app/(ar)/ar/workout-tracker/layout.tsx", "og-workout-tracker-ar"],
+  ["src/app/(en)/macro-tracker/layout.tsx", "og-macro-tracker-en"],
+  ["src/app/(ar)/ar/macro-tracker/layout.tsx", "og-macro-tracker-ar"],
   // AR list surfaces (batch 1-b + SOCIAL-OG-3 dedicated cards)
   ["src/app/(ar)/ar/evo/layout.tsx", "og-evo-ar"],
   ["src/app/(ar)/ar/coaching/layout.tsx", "og-coaching-ar"],

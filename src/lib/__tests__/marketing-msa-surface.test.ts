@@ -480,12 +480,23 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
       "2,200+",
       "200M+",
       "~$80/yr", // Freeletics 12-mo Training Coach (App Store, verified)
-      'dataAsOf: "2026-09-15"', // re-verification date on all three (2026-09-15 refresh)
+      'dataAsOf: "2026-09-15"', // re-verification date on the Phase-197 trio
       "Premium+ tier ($24.99/month or $99.99/year)", // MFP Premium+
       "AI Nutrition Coach (meal plans & recipes — no food tracking)",
     ]) {
       expect(src, `Phase 197 verified claim missing: "${required}"`).toContain(required);
     }
+    // P0 SEO audit (2026-09-30): the per-slug dataAsOf pins — the Phase-197
+    // trio was live-re-verified 2026-09-15; the Cronometer comparison was
+    // web-verified 2026-09-30 (Gold $10.99/mo·$59.99/yr per Sep-2026
+    // sources, 80+ micronutrients, ShareASale affiliate). A new comparison
+    // MUST be added here with its own verified date before it ships.
+    const PINNED_DATA_AS_OF: Record<string, string> = {
+      "alkemos-vs-myfitnesspal": "2026-09-15",
+      "alkemos-vs-freeletics": "2026-09-15",
+      "alkemos-vs-exrx": "2026-09-15",
+      "alkemos-vs-cronometer": "2026-09-30",
+    };
     // Every comparison covers the human-coaching + affiliate services of
     // Alkemos (2026-09-15 owner directive — service coverage), and every
     // table row carries bilingual cells (the AR pages render the Ar fields).
@@ -499,7 +510,11 @@ describe("marketing-surface MSA (Phase 178 — §12.42)", () => {
         c.rows.some((r) => r.labelEn === "Affiliate program"),
         `${c.slug}: missing the Affiliate program row`,
       ).toBe(true);
-      expect(c.dataAsOf, `${c.slug}: dataAsOf not re-verified`).toBe("2026-09-15");
+      expect(
+        PINNED_DATA_AS_OF[c.slug],
+        `${c.slug}: no pinned dataAsOf — verify the competitor facts live and pin the date here (Phase-197 law)`,
+      ).toBeDefined();
+      expect(c.dataAsOf, `${c.slug}: dataAsOf not re-verified`).toBe(PINNED_DATA_AS_OF[c.slug]);
       for (const r of c.rows) {
         expect(
           r.alkemosValueAr.length > 0 && r.competitorValueAr.length > 0,

@@ -290,6 +290,25 @@ SPECS = [
      "Exercise-library face-off — size, guidance, tools & usability."),
     ("og-compare-alkemos-vs-exrx-ar", "ar", "Alkemos مقابل ExRx.net",
      "مواجهة مكتبات التمارين — الحجم والإرشاد والأدوات وسهولة الاستخدام."),
+    # P0 SEO audit (2026-09-30, finding #5): the fourth comparison —
+    # Cronometer (nutrition-tracking depth vs the full training+nutrition
+    # platform). Same law as the three pairs above.
+    ("og-compare-alkemos-vs-cronometer-en", "en", "Alkemos vs Cronometer",
+     "Nutrition-tracking depth vs a complete training platform — the honest comparison."),
+    ("og-compare-alkemos-vs-cronometer-ar", "ar", "Alkemos مقابل Cronometer",
+     "عمق تتبّع التغذية مقابل منصة تدريب متكاملة — المقارنة الصادقة."),
+    # P0 SEO audit (2026-09-30, finding #1): the two search-intent landing
+    # pages ("workout tracker" / "macro tracker" had zero matching pages).
+    # Dedicated family cards per the SOCIAL-OG-3 law — copy stays TIMELESS
+    # (no counts, no years, no claims the product does not ship).
+    ("og-workout-tracker-en", "en", "Workout Planning & Progress Tracking",
+     "AI workout plans, ready programs & exercise guides — plus weight, measurements and progress photos in one place."),
+    ("og-workout-tracker-ar", "ar", "تخطيط التمارين وتتبّع التقدّم",
+     "خطط تمارين بالذكاء الاصطناعي وبرامج جاهزة وأدلة حركات — مع الوزن والقياسات وصور التقدّم في مكان واحد."),
+    ("og-macro-tracker-en", "en", "Macro Planning & Tracking",
+     "Set your macro targets, build meals with live totals, and generate AI meal plans — free to start."),
+    ("og-macro-tracker-ar", "ar", "تخطيط الماكروز وتتبّعه",
+     "حدّد أهداف ماكروزك وابنِ وجباتك بمجاميع حيّة وولّد خطط وجبات بالذكاء الاصطناعي — ابدأ مجانًا."),
 ]
 
 

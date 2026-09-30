@@ -282,7 +282,12 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 | home workout no equipment | `/equipment/bodyweight` (مطلوبة!) | Hub |
 | calorie calculator | `/tools/calorie-calculator` (موجودة ✅) | Tool |
 | AI personal trainer | `/evo` (موجودة ✅) | Product |
+| workout tracker | `/workout-tracker` (موجودة ✅ — P0 SEO audit 2026-09-30، §12.60) | Landing |
+| macro tracker | `/macro-tracker` (موجودة ✅ — P0 SEO audit 2026-09-30، §12.60) | Landing |
+| alkemos vs cronometer | `/compare/alkemos-vs-cronometer` (موجودة ✅ — P0 SEO audit 2026-09-30، §12.60) | Comparison |
 | تمارين صدر في البيت | `/ar/muscles/chest` (مطلوبة!) | Hub AR |
+| متتبع تمارين | `/ar/workout-tracker` (موجودة ✅ — P0 SEO audit 2026-09-30) | Landing AR |
+| متتبع ماكروز | `/ar/macro-tracker` (موجودة ✅ — P0 SEO audit 2026-09-30) | Landing AR |
 | أكلات عالية البروتين | `/ar/collections/high-protein-foods` (مطلوبة!) | Collection AR |
 
 ---
@@ -310,7 +315,7 @@ Cloudflare يُضيف تلقائيًا كتلة `"BEGIN Cloudflare Managed conte
 |---|---|---|---|
 | مقالات المدوّنة (آلي) | 6/يوم | 6/يوم ✓ | 6/يوم (2,190/سنة) |
 | صفحات Hub/Collection | 0 | 24 صفحة | 50 صفحة |
-| صفحات مقارنة | 0 | 5 صفحات | 20 صفحة |
+| صفحات مقارنة | 4 (أصبحت — الثلاثة الأصلية + Cronometer بP0 audit 2026-09-30، §12.60) | 5 صفحات | 20 صفحة |
 | صفحات دليل شاملة | 0 | 3 صفحات | 15 صفحة |
 | صفحات Long-tail منسّقة | 0 | 50 صفحة | 500 صفحة |
 | فيديوهات YouTube | 0 | 4/شهر | 50/سنة |

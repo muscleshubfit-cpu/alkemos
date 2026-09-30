@@ -11063,3 +11063,24 @@ Stage Summary:
 
 ---
 ---
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: AUDIT2-LINK-APPLY-2026-09-29
+Agent: Super Z (main)
+Task: إغلاق قناة علاج الروابط الميتة بالتطبيق والتحقق الحي (متابعة فريم 302 — أمر المالك الخيار أ).
+
+Work Log:
+- (CI/النشر) e3513c6c على main: 6/6 خضراء (Vercel ✓ = الإنتاج على كود التوسيع · Supabase Preview ✓ · quality ✓ · guard ✓ · parity ✓ · cleanup ✓).
+- (القناة) DRY_RUN عبر GHA (تشغيل 36508876750): أخضر — 4/4 رقع، البديلان HEAD-ok من IP العدّاء أيضًا، صفر كتابات · APPLY (تشغيل 36508959487 بDRY_RUN=0): 4 صفوف كُتبت (content/reading_time/updated_at فقط)، 0 فشل.
+- (تحقق قاعدي فوري) الأربعة: الروابط الميتة اختفت والبدائل حاضرة والإسناد الجديد صادق بالقاعدة.
+- (تحقق حي بعد ISR عبر cache-bust) الأربع صفحات تحمل المحتوى المصحح: EN calories «Evidence generally suggests» (رابط WHO الحي باقٍ) · AR protein «CDC Nutrition» → nutrition hub الحي · EN 12-week «The CDC emphasizes» → CDC sleep الحي (رابط NCBI الكرياتين باقٍ) · AR sleep «مراكز السيطرة على الأمراض والوقاية منها (CDC) – إرشادات النوم» → CDC sleep (رابط NCBI باقٍ) — العناوين العارية تنتظر TTL كاش Cloudflare (نفس ظاهرة 299 الموثقة؛ purge مالك اختياري).
+- (إثبات حي إضافي غير مخطط له — أول توليد عبر البوابات) تشغيل EN المجدول لليوم (36507693416 على 951b9b62): سلسلة المجانية فشلت بالكامل (nemotron مهلة + NVIDIA 503) والمسودة الاحتياطية الناقصة حُجبت بصدق 3 محاولات («FAQ count 0 خارج 4-7 | مرسايا «ISSN position stand on protein timing» و«foam roller recovery guide» غير قواعديتين») — لم يُنشر شيء ناقص: قانون «الرفض بدل النشر» يعمل حيًا؛ ملاحظة أن إحدى المراسي المرفوضة كانت مرساة استشهاد ISSN (النموذج حاول الاستشهاد لكن بمرساة مكدسة — القانون يرفضها حتى بلا رابط حي).
+
+Stage Summary:
+- القناة منفذة ومغلقة: 4/4 رقع مكتوبة والتحقق الحي موجب (عبر cache-bust)؛ صفر روابط ميتة مؤكدة في المحتوى الخدمي.
+- البوابات مثبتة حيًا بالتشغيل المجدول الفعلي (حجب صادق لمسودة ناقصة عبر بطارية G2-G6).
+- المتبقي على المالك: CF purge اختياري لتعجيل العناوين العارية (وإلا يتحقق مع TTL) · مراجعة المقالات المعلقة كما هي.
+- Push status: pushed (كوميت توثيقي [vercel skip] بعده).
+- Commit SHA (optional, post-push): (git log is the ledger)
+

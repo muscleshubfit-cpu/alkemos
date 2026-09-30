@@ -242,9 +242,14 @@ export default async function ArabicComparisonPage({
           {/* Service access points (owner directive 2026-09-15 — comparison
               tables must surface the current Alkemos services with their
               correct LOCAL links). No EVO chat link here by law — the
-              floating widget stays the only EVO-chat access point. */}
+              floating widget stays the only EVO-chat access point.
+              P0 SEO audit (2026-09-30): the two tracking landing pages
+              joined the service map — they are the natural next tap for
+              readers comparing tracking apps. */}
           <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
             <Link href="/ar/tools" className="underline underline-offset-4 hover:opacity-80">الأدوات المجانية</Link>
+            <Link href="/ar/workout-tracker" className="underline underline-offset-4 hover:opacity-80">متتبّع التمارين</Link>
+            <Link href="/ar/macro-tracker" className="underline underline-offset-4 hover:opacity-80">متتبّع الماكروز</Link>
             <Link href="/ar/ai-meal-planner" className="underline underline-offset-4 hover:opacity-80">مخطط الوجبات الذكي</Link>
             <Link href="/ar/ai-workout-planner" className="underline underline-offset-4 hover:opacity-80">مخطط التمارين الذكي</Link>
             <Link href="/ar/exercises" className="underline underline-offset-4 hover:opacity-80">مكتبة التمارين</Link>

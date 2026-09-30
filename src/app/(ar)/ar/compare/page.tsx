@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   // No brand suffix — the /ar layout template appends exactly one "— Alkemos".
   title: "Alkemos مقابل المنافسين — مقارنات صادقة بالأرقام",
   description:
-    "مقارنات تفصيلية بين Alkemos وMyFitnessPal وFreeletics وExRx.net: الميزات والأسعار وعمق المحتوى والمدرب الذكي واللغات — مع حكم صريح لكل مقارنة.",
+    // P0 SEO audit (2026-09-30): Cronometer joined the comparison set.
+    "مقارنات تفصيلية بين Alkemos وMyFitnessPal وFreeletics وExRx.net وCronometer: الميزات والأسعار وعمق المحتوى والمدرب الذكي واللغات — مع حكم صريح لكل مقارنة.",
   alternates: {
     canonical: "https://alkemos.com/ar/compare",
     languages: {
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alkemos مقابل المنافسين — مقارنات صادقة | Alkemos",
     description:
-      "جداول الميزات والأسعار وعمق المحتوى: Alkemos مقابل MyFitnessPal وFreeletics وExRx.net.",
+      "جداول الميزات والأسعار وعمق المحتوى: Alkemos مقابل MyFitnessPal وFreeletics وExRx.net وCronometer.",
     type: "website",
     locale: "ar_EG",
     url: "https://alkemos.com/ar/compare",

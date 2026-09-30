@@ -315,6 +315,11 @@ const REGISTERED_SURFACES: Array<{
   { file: "src/app/(ar)/ar/diet-plan/page.tsx", component: "ShareButtons", pathExpr: 'path="/diet-plan"' },
   { file: "src/app/(en)/ai-meal-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/ai-meal-planner"' },
   { file: "src/app/(en)/ai-workout-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/ai-workout-planner"' },
+  // P0 SEO audit (2026-09-30): the search-intent landing pair — the EN
+  // pages render the share row (the AR mirrors re-export the same
+  // component, so the usage site lives in the EN file only).
+  { file: "src/app/(en)/workout-tracker/page.tsx", component: "ShareButtons", pathExpr: 'path="/workout-tracker"' },
+  { file: "src/app/(en)/macro-tracker/page.tsx", component: "ShareButtons", pathExpr: 'path="/macro-tracker"' },
   { file: "src/components/blog/BlogListPage.tsx", component: "ShareButtons", pathExpr: 'path="/blog"' },
   { file: "src/components/blog/BlogCategoryPage.tsx", component: "ShareButtons", pathExpr: "path={`/blog/category/${categoryId}`}" },
   { file: "src/components/views/StaticPageView.tsx", component: "ShareButtons", pathExpr: 'page === "about" ? "/about" : "/faq"' },

@@ -602,6 +602,229 @@ export const COMPARISONS: Comparison[] = [
       },
     ],
   },
+
+  // ==========================================================================
+  // 4. Alkemos vs Cronometer
+  //    P0 SEO audit (2026-09-30, finding #5): the external report flagged
+  //    Cronometer as the closest competitor and the site had no answer page
+  //    for "alkemos vs cronometer" queries. Facts below are web-verified
+  //    against Cronometer's public positioning as of the dataAsOf date
+  //    (Gold $10.99/mo·$59.99/yr per Sep-2026 sources; 80+ micronutrients;
+  //    NCCDB/USDA-sourced curated database; barcode + photo logging;
+  //    ShareASale affiliate program; no exercise library, no workout
+  //    programs, no AI-coach chat, no Arabic UI).
+  //    HONESTY NOTE: Cronometer genuinely wins the pure nutrition-logging
+  //    rows (4 losses below) — Alkemos has no daily food diary, no barcode
+  //    scanner, and no micronutrient tracking; do not soften those cells.
+  // ==========================================================================
+  {
+    slug: "alkemos-vs-cronometer",
+    competitorName: "Cronometer",
+    competitorNameAr: "Cronometer",
+    competitorUrl: "https://cronometer.com",
+    dataAsOf: "2026-09-30",
+
+    titleEn: "Alkemos vs Cronometer — Nutrition Tracking Comparison (2026) | Alkemos",
+    titleAr: "Alkemos مقابل Cronometer — مقارنة تتبّع التغذية (2026) | Alkemos",
+    h1En: "Alkemos vs Cronometer",
+    h1Ar: "Alkemos مقابل Cronometer",
+    introEn:
+      "Alkemos and Cronometer overlap on food data and macro planning but serve different core jobs. Cronometer is a nutrition tracker built for data depth — a curated NCCDB/USDA database and 80+ tracked micronutrients in a daily food diary. Alkemos is a complete training-and-nutrition platform — exercise instruction, workout programs, an AI coach, and meal planning with live macro totals, fully bilingual in English and Arabic. This page breaks down where each one wins so you can pick by your actual goal.",
+    introAr:
+      "Alkemos و Cronometer يتقاطعان في بيانات الأطعمة وتخطيط الماكروز لكنهما يخدمان هدفين مختلفين. Cronometer متتبّع تغذية مبني لعمق البيانات — قاعدة منسّقة بمصادر NCCDB/USDA وأكثر من 80 مغذيًا دقيقًا في يوميات طعام يومية. Alkemos منصة كاملة للتدريب والتغذية — شرح تمارين، برامج تدريب، مدرب ذكاء اصطناعي، وتخطيط وجبات بمجاميع ماكروز حيّة، وثنائية اللغة بالكامل بالعربية والإنجليزية. هذه الصفحة تُفصّل أين يتفوّق كل منهما لتختار حسب هدفك الفعلي.",
+    descriptionEn:
+      "Alkemos vs Cronometer 2026: micronutrient tracking, food diary, exercise library, AI coach, pricing, Arabic support, and which fits your goal.",
+    descriptionAr:
+      "مقارنة Alkemos مقابل Cronometer 2026: تتبّع المغذيات الدقيقة، يوميات الطعام، مكتبة التمارين، المدرب الذكي، الأسعار، الدعم العربي، وأيهما يناسب هدفك.",
+
+    verdictEn:
+      "Pick Cronometer if nutrition data depth is your whole world — a verified food database, 80+ micronutrients, and a daily diary with barcode and photo logging. Pick Alkemos if you want training and nutrition in one platform — exercise instruction, workout programs, AI planning and coaching, meal planning with live macro totals — especially if you read Arabic.",
+    verdictAr:
+      "اختر Cronometer إذا كان عمق بيانات التغذية هو عالمك كله — قاعدة أطعمة موثّقة، أكثر من 80 مغذيًا دقيقًا، ويوميات يومية بمسح باركود وتسجيل بالصور. اختر Alkemos إذا أردت التدريب والتغذية في منصة واحدة — شرح تمارين، برامج تدريب، تخطيط ومدرب بالذكاء الاصطناعي، وتخطيط وجبات بمجاميع ماكروز حيّة — خاصة إذا كنت تقرأ بالعربية.",
+
+    rows: [
+      {
+        // Honest loss: Cronometer's NCCDB/USDA-sourced database is curated
+        // by dietitians and widely cited as the accuracy standard.
+        labelEn: "Nutrition-data accuracy",
+        labelAr: "دقّة بيانات التغذية",
+        alkemosValue: "8,830+ foods (USDA-backed + curated)",
+        alkemosValueAr: "8,830+ صنف غذائي (بمعايير USDA ومنسّقة بدقة)",
+        competitorValue: "Curated NCCDB/USDA database — the accuracy benchmark",
+        competitorValueAr: "قاعدة منسّقة بمصادر NCCDB/USDA — معيار الدقّة",
+        outcome: "loss",
+      },
+      {
+        // Honest loss: Alkemos foods carry calories/protein/carbs/fat only.
+        labelEn: "Micronutrient tracking",
+        labelAr: "تتبّع المغذيات الدقيقة",
+        alkemosValue: "Macros only (calories, protein, carbs, fat)",
+        alkemosValueAr: "الماكروز فقط (سعرات، بروتين، كارب، دهون)",
+        competitorValue: "80+ micronutrients (vitamins, minerals, amino acids)",
+        competitorValueAr: "أكثر من 80 مغذيًا دقيقًا (فيتامينات، معادن، أحماض أمينية)",
+        outcome: "loss",
+      },
+      {
+        // Honest loss: Alkemos plans meals with live macro totals but has
+        // no daily intake diary (verified product inventory 2026-09-30).
+        labelEn: "Daily food logging",
+        labelAr: "تسجيل الطعام اليومي",
+        alkemosValue: "Meal planning with live macro totals (no intake diary)",
+        alkemosValueAr: "تخطيط وجبات بمجاميع ماكروز حيّة (بلا يوميات طعام)",
+        competitorValue: "Full daily food diary with barcode + photo logging",
+        competitorValueAr: "يوميات طعام يومية كاملة بمسح باركود وتسجيل بالصور",
+        outcome: "loss",
+      },
+      {
+        labelEn: "Barcode scanner",
+        labelAr: "ماسح الباركود",
+        alkemosValue: "Not available",
+        alkemosValueAr: "غير متوفر",
+        competitorValue: "Yes (packaged-food scanning)",
+        competitorValueAr: "نعم (مسح الأطعمة المعلّبة)",
+        outcome: "loss",
+      },
+      {
+        labelEn: "Exercise library",
+        labelAr: "مكتبة التمارين",
+        alkemosValue: "868+ exercises with step-by-step instructions",
+        alkemosValueAr: "868+ تمرينًا بشرح خطوة بخطوة",
+        competitorValue: "No exercise library (exercise logged as calorie burn only)",
+        competitorValueAr: "لا مكتبة تمارين (التمرين يُسجَّل كحرق سعرات فقط)",
+        outcome: "win",
+      },
+      {
+        labelEn: "Workout programs",
+        labelAr: "برامج التدريب",
+        alkemosValue: "Ready-made programs (home & gym, all levels)",
+        alkemosValueAr: "برامج جاهزة (للمنزل والنادي الرياضي، كل المستويات)",
+        competitorValue: "No workout programs",
+        competitorValueAr: "لا توجد برامج تدريب",
+        outcome: "win",
+      },
+      {
+        labelEn: "AI coach",
+        labelAr: "مدرب الذكاء الاصطناعي",
+        alkemosValue: "EVO AI — plan generation, meal & exercise swaps, 24/7 chat",
+        alkemosValueAr: "EVO AI — توليد خطط، تبديلات وجبات وتمارين، ومحادثة على مدار الساعة",
+        competitorValue: "No AI coach (reports and insights only)",
+        competitorValueAr: "لا مدرب ذكاء اصطناعي (تقارير ورؤى فقط)",
+        outcome: "win",
+      },
+      {
+        // Honest tie: Cronometer's free tier genuinely includes full
+        // calorie/macro/micronutrient tracking — a different shape from
+        // Alkemos's 8-tool hub at the same "free" price.
+        labelEn: "Free tools & calculators",
+        labelAr: "الأدوات والحاسبات المجانية",
+        alkemosValue: "8 free tools (4 calculators, water tracker, meal planner, 2 AI planners)",
+        alkemosValueAr: "8 أدوات مجانية (4 حاسبات، متتبع ماء، مخطط وجبات، ومخططا AI)",
+        competitorValue: "Free tier covers calorie/macro/micronutrient tracking (no tools hub)",
+        competitorValueAr: "الفئة المجانية تغطي تتبّع السعرات والماكروز والمغذيات (بلا مركز أدوات)",
+        outcome: "tie",
+      },
+      {
+        labelEn: "Arabic language support",
+        labelAr: "دعم اللغة العربية",
+        alkemosValue: "Full bilingual (Arabic + English) with RTL",
+        alkemosValueAr: "ثنائي اللغة بالكامل (عربية + إنجليزية) مع دعم RTL",
+        competitorValue: "No Arabic interface",
+        competitorValueAr: "لا تدعم العربية",
+        outcome: "win",
+      },
+      {
+        labelEn: "Human coaching",
+        labelAr: "التدريب البشري",
+        alkemosValue: "Available — $39.99/mo with a human coach",
+        alkemosValueAr: "متوفر — 39.99$ شهريًا مع مدرب بشري",
+        competitorValue: "Not available",
+        competitorValueAr: "غير متوفر",
+        outcome: "win",
+      },
+      {
+        // Verified Sep-2026 sources: Gold $10.99/mo or $59.99/yr (some
+        // earlier-cached pages still list $8.99/$49.99).
+        labelEn: "Pricing (premium)",
+        labelAr: "التسعير (النسخة المدفوعة)",
+        alkemosValue: "$14.99/mo or $119/yr",
+        alkemosValueAr: "$14.99 شهريًا أو $119 سنويًا",
+        competitorValue: "Gold $10.99/mo or $59.99/yr",
+        competitorValueAr: "Gold بـ$10.99 شهريًا أو $59.99 سنويًا",
+        outcome: "loss",
+      },
+      {
+        // Both platforms log body metrics; Cronometer Gold adds blood-test
+        // import, Alkemos adds progress photos + weekly adherence check-ins.
+        labelEn: "Progress tracking",
+        labelAr: "تتبّع التقدّم",
+        alkemosValue: "Weight + 5 body measurements, progress photos, weight chart, weekly check-in reminders",
+        alkemosValueAr: "الوزن + 5 قياسات جسم، صور تقدّم، مخطط وزن، وتذكيرات تسجيل أسبوعية",
+        competitorValue: "Weight, measurements & biometrics + blood-test import (Gold)",
+        competitorValueAr: "الوزن والقياسات والحيويات + استيراد تحاليل الدم (Gold)",
+        outcome: "tie",
+      },
+      {
+        // Verified 2026-09-30: Cronometer runs a ShareASale affiliate
+        // program + a direct "Partner With Us" form — honest tie.
+        labelEn: "Affiliate program",
+        labelAr: "برنامج الأفلييت (الشركاء)",
+        alkemosValue: "Public program — 20% commission on subscriptions",
+        alkemosValueAr: "برنامج علني — عمولة 20% على الاشتراكات",
+        competitorValue: "Affiliate program via ShareASale + partner form",
+        competitorValueAr: "برنامج أفلييت عبر ShareASale + نموذج شراكة",
+        outcome: "tie",
+      },
+    ],
+
+    bodyEn: [
+      {
+        heading: "Where Cronometer wins",
+        paragraphs: [
+          "Cronometer is the accuracy pick for nutrition logging, and it earns that reputation honestly. Its food database is curated from NCCDB and USDA sources rather than crowdsourced, and every food carries a full micronutrient profile — 80+ vitamins, minerals, and amino acids — so you can see not just your calories and macros but your iron, vitamin D, and omega-3 intake too. If you are managing a deficiency, working with a dietitian, or simply want lab-grade nutrition data, nothing in this comparison matches it.",
+          "The daily logging workflow is also more mature. A food diary with barcode scanning and (on Gold) photo logging makes tracking an actual meal fast, and the free tier already includes the core tracking experience. Gold at $10.99/month or $59.99/year is cheaper than Alkemos Premium, and adds deeper reports, custom nutrient targets, and blood-test imports. For a pure nutrition tracker, Cronometer is simply the more focused tool.",
+        ],
+      },
+      {
+        heading: "Where Alkemos wins",
+        paragraphs: [
+          "Alkemos wins on everything that happens outside the food diary. Cronometer has no exercise library, no workout programs, and no AI coach — exercise appears only as a calorie-burn entry. Alkemos ships 868+ exercises with step-by-step instructions, ready-made programs for home and gym, and the EVO AI coach that builds personalized nutrition and workout plans, suggests meal and exercise swaps, and answers your questions 24/7. If your goal is a training plan plus a nutrition plan in one place, Alkemos covers both sides of the equation.",
+          "The nutrition side is planned rather than logged. The free meal planner lets you build meals from an 8,830+ food database with live calorie and macro totals per meal and per day, the AI meal planner generates a full day of eating in grams from your calorie target, and the macro calculator sets your protein/carb/fat split before you plan. Alkemos does not pretend to be a micronutrient diary — it is a planning platform with real food data, and the honest split is spelled out in the table above.",
+          "Arabic speakers again have no real choice: Cronometer ships no Arabic interface, while Alkemos is fully bilingual with native RTL — Arabic exercise names, Arabic food names, and an Arabic AI coach. Human coaching at $39.99/month with a real coach is also something Cronometer does not offer at any price.",
+        ],
+      },
+      {
+        heading: "Pricing comparison",
+        paragraphs: [
+          "Cronometer's free tier is genuinely usable — calorie, macro, and micronutrient tracking without paying — and Gold costs $10.99/month or $59.99/year (verified September 2026; some earlier sources still list $8.99/$49.99 from before the price change). Alkemos Free includes the full exercise library, the full food database, all eight free tools, and limited EVO AI access. Alkemos Premium is $14.99/month or $119/year, Pro ($29.99/month) raises the unified AI plan-generation pool, and Coaching ($39.99/month) adds a human coach.",
+          "The value calculation depends on what you are paying for. If you only need nutrition logging, Cronometer Gold is cheaper and deeper. If you need training and nutrition together, the honest comparison is Cronometer Gold plus a separate workout app versus one Alkemos subscription — and that stack usually costs more while integrating less. For bilingual users the arithmetic ends immediately.",
+        ],
+      },
+    ],
+    bodyAr: [
+      {
+        heading: "أين يتفوّق Cronometer",
+        paragraphs: [
+          "Cronometer هو الخيار الأدق لتسجيل التغذية، وسمعته هذه مكتسبة بصدق. قاعدة أطعمته منسّقة من مصادر NCCDB وUSDA لا من إسهامات الجمهور، وكل صنف غذائي يحمل ملفًا كاملًا للمغذيات الدقيقة — أكثر من 80 فيتامينًا ومعدنًا وحمضًا أمينيًا — فلا ترى سعراتك وماكروزك فقط بل حديدك وفيتامين د وأوميغا-3 أيضًا. إن كنت تتابع نقصًا غذائيًا أو تعمل مع أخصائي تغذية أو تريد ببساطة بيانات تغذية بجودة المختبر، لا يضاهيه شيء في هذه المقارنة.",
+          "سير عمل التسجيل اليومي أنضج أيضًا. يوميات طعام بمسح باركود وتسجيل بالصور (على Gold) تجعل تسجيل وجبة فعلية سريعًا، والفئة المجانية تشمل تجربة التتبّع الأساسية أصلًا. Gold بسعر $10.99 شهريًا أو $59.99 سنويًا أرخص من Alkemos Premium، ويضيف تقارير أعمق وأهدافًا مخصّصة للمغذيات واستيراد تحاليل الدم. كمتتبّع تغذية خالص، Cronometer أداة أكثر تركيزًا ببساطة.",
+        ],
+      },
+      {
+        heading: "أين يتفوّق Alkemos",
+        paragraphs: [
+          "Alkemos يتفوّق في كل ما يحدث خارج يوميات الطعام. Cronometer بلا مكتبة تمارين ولا برامج تدريب ولا مدرب ذكاء اصطناعي — التمرين يظهر لديه كقياس حرق سعرات فقط. Alkemos يُقدّم 868+ تمرينًا بشرح خطوة بخطوة، برامج جاهزة للمنزل والنادي، ومدرب EVO الذكي الذي يبني خطط تغذية وتمارين مخصّصة، ويقترح تبديلات للوجبات والتمارين، ويُجيب على أسئلتك على مدار الساعة. إذا كان هدفك خطة تدريب وخطة تغذية في مكان واحد، Alkemos يغطّي جانبي المعادلة.",
+          "جانب التغذية لدينا مخطَّط لا مسجَّل. مخطط الوجبات المجاني يتيح بناء وجباتك من قاعدة 8,830+ صنفًا غذائيًا بمجاميع سعرات وماكروز حيّة لكل وجبة ولكل يوم، ومخطط الوجبات بالذكاء الاصطناعي يولّد يومًا كاملًا بالغرامات من رقم سعراتك، وحاسبة الماكروز تضبط توزيع البروتين والكارب والدهون قبل التخطيط. Alkemos لا يدّعي أنه يوميات مغذيات دقيقة — إنه منصة تخطيط ببيانات أطعمة حقيقية، والفصل الصادق موضّح بالجدول أعلاه.",
+          "الناطقون بالعربية مرة أخرى بلا خيار حقيقي: Cronometer لا يُصدر واجهة عربية، بينما Alkemos ثنائي اللغة بالكامل بدعم RTL أصلي — أسماء تمارين بالعربية، أسماء أطعمة بالعربية، ومدرب ذكاء اصطناعي عربي. التدريب البشري بـ$39.99 شهريًا مع مدرب حقيقي أيضًا مما لا يُقدّمه Cronometer بأي سعر.",
+        ],
+      },
+      {
+        heading: "مقارنة الأسعار",
+        paragraphs: [
+          "الفئة المجانية في Cronometer قابلة للاستخدام فعلًا — تتبّع السعرات والماكروز والمغذيات الدقيقة بلا دفع — وGold تكلف $10.99 شهريًا أو $59.99 سنويًا (موثّق سبتمبر 2026؛ بعض المصادر الأقدم ما تزال تذكر $8.99/$49.99 قبل تغيير السعر). Alkemos المجاني يشمل مكتبة التمارين الكاملة، قاعدة الأطعمة الكاملة، كل الأدوات الثماني، ووصولًا محدودًا لـ EVO. Alkemos Premium بـ$14.99 شهريًا أو $119 سنويًا، وPro ($29.99 شهريًا) يرفع الرصيد الموحد لتوليد الخطط بالذكاء الاصطناعي، والتدريب الأونلاين ($39.99 شهريًا) يضيف مدربًا بشريًا.",
+          "حساب القيمة يعتمد على ما تدفع مقابله. إن احتجت تسجيل تغذية فقط، Cronometer Gold أرخص وأعمق. إن احتجت التدريب والتغذية معًا، فالمقارنة الصادقة هي Cronometer Gold زائد تطبيق تمارين منفصل مقابل اشتراك Alkemos واحد — وهذا المزج يكلّف أكثر عادةً بتكامل أقل. وللمستخدم الثنائي اللغة تنتهي الحسابة فورًا.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function getComparisonBySlug(slug: string): Comparison | null {
