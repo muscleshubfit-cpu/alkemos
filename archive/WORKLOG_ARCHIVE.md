@@ -11129,3 +11129,23 @@ Stage Summary:
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: LATIN-REPAIR-R2-LIVE-VERIF-2026-09-29
+Agent: Super Z (main)
+Task: اختبار R2 الحي — workflow_dispatch يدوي لـ AR على main (6adf9461) + مراقبة كاملة + تحقق DB قراءة-فقط (توثيق فقط؛ صفر مساس بأي كود).
+
+Work Log:
+- dispatch يدوي (run 36582658309، 14:26→14:53 UTC): P0-P4 ✓ ثم P5 فشلت 3 مرات ببوابة word-floor (839/791/752 كلمة < 1300) → دورتا إصلاح R1 كاملتان (p2 force=1، سلسلة p2→p3→p4) ثم الفشل الصادق عند نفاد الميزانية (2/2) — صف الطابور 49d9b736…: ‏failed مع bundle محفوظ (تحقق DB قراءة-فقط).
+- مسار R2 اشتغل 4 مرات داخل P4: (14:33) 23 توكنًا → قاموس 0 + نداء 11 → تحقق ✓ · (14:43) 21 → توكن متبقٍ crp → فشل تحقق صادق بنفس الرسالة الحرفية (retry الخطوة عالجها) · (14:47) 8 → نداء 7 → ✓ · (14:53) 8 → نداء 6 → ✓.
+- النداء الصغير blog:latin-tokens-ar دخل Groq ‏4/4 (groq:openai/gpt-oss-120b، ‏~2.1s للنداء) بينما نداءات المقال الكامل (review-ar ‏~10.5k tokens) ظلت مقصاة («exceeds Groq 8k TPM window» ×8 بالسجل) — التباين الذي بُنيت R2 له.
+- وسم المسار القديم blog:latin-repair-ar غائب كليًا (0 ظهورًا) — الإرجاع LATIN_REPAIR_LEGACY غير مفعّل والمسار الجديد هو الحي.
+- القاموس طبّق 0 (توكنات موضوع البروبيوتيك خارج مجموعة المصدر) والنداء الصغير عالجها — تقسيم العمل كما صُمم، والقضاة (`validateMsaConversion`/`scanLatinContamination`) بالبايت.
+
+Stage Summary:
+- R2 مثبتة حية 100%؛ فشل التشغيل النهائي فئة word-floor (هدف R3 المستقبلي) خارج نطاق R2 — لا بوابة خُففت.
+- الشاهد: run_36582658309_full.log — محلي فقط، لم يُحفظ بالمستودع (نمط إثبات R1 ‏run 36571415573).
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+

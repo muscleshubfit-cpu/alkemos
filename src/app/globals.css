@@ -1,5 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* P1-5 (SEO-AUDIT frame 312, 2026-09-30) — Tailwind v4 source hygiene:
+ * automatic candidate detection scans EVERY non-gitignored file in the
+ * repo, so docs/ + archive/ + the root *.md knowledge files + the
+ * versioned scripts/ runners were feeding class-like prose tokens into
+ * the shared render-blocking sheet (measured: spurious utilities from
+ * that text, e.g. backdrop-saturate-150 / from-white / hover:scale-[1.02]).
+ * The negations below remove those noise sources while keeping the
+ * automatic scan for all real UI surfaces (src/ + public/ + config).
+ * Every deleted component in this frame carried classes ONLY inside
+ * src/ — nothing below excludes any live candidate source. */
+@source not "../../docs";
+@source not "../../archive";
+@source not "../../scripts";
+@source not "../../supabase";
+@source not "../../**/*.md";
 /* Phase 136 — fonts migrated to next/font/google (src/app/layout.tsx):
  * Inter / Playfair Display / Cairo come as ONE variable-font file per
  * family, preloaded in <head>, with next/font's automatic metric-adjusted
@@ -89,14 +105,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  /* P1-5 (frame 312): the --color-sidebar* mappings are GONE — their only
+   * consumer was the retired src/components/ui/sidebar.tsx (git rm this
+   * frame, zero live importers — reachability-proven); the sidebar-*
+   * utilities they generated died with it. */
 }
 
 /* ====================================================================
@@ -207,12 +219,8 @@
   --border: #E5DFD6;
   --input: #E5DFD6;
   --ring: #38C7FF;
-  --sidebar: #FAF8F5;
-  --sidebar-foreground: #201D1A;
-  --sidebar-accent: #F1EDE7;
-  --sidebar-accent-foreground: #201D1A;
-  --sidebar-border: #E5DFD6;
-  --sidebar-ring: #38C7FF;
+  /* P1-5 (frame 312): --sidebar* slots deleted with ui/sidebar.tsx (the
+   * shadcn sidebar system was never reachable from any route). */
 }
 
 [data-theme="dark"] {
@@ -252,12 +260,8 @@
   --border: #3A362F;
   --input: #3A362F;
   --ring: #45D6FF;
-  --sidebar: #12100E;
-  --sidebar-foreground: #F4F1EC;
-  --sidebar-accent: #1A1714;
-  --sidebar-accent-foreground: #F4F1EC;
-  --sidebar-border: #3A362F;
-  --sidebar-ring: #45D6FF;
+  /* P1-5 (frame 312): dark-theme --sidebar* slots deleted with
+   * ui/sidebar.tsx (same retirement as the light block above). */
   color-scheme: dark;
 }
 
@@ -1082,8 +1086,12 @@ html:not([data-mhe-consent-ok]) body {
    .neon-text / .gradient-border / .grid-bg. All carried the retired
    Liquid-Glass indigo rgba(99,102,241) and had ZERO consumers (grep
    across src/*.tsx|ts; the word "glass" in tsx is English prose).
-   LIVE survivors: fade-in (animate-fade-up via use-scroll-animation),
-   the marquee pair, card-hover, and the V3 card-lift recipe. */
+   P1-5 (frame 312, 2026-09-30): the C-18 "LIVE survivors" note was
+   STALE — fade-in/animate-fade-up (only candidate: the retired
+   hooks/use-scroll-animation.tsx) and the marquee pair (only candidate:
+   the retired ui/3d-testimonials.tsx) had zero live importers at the
+   P1-5 reachability pass and were deleted with them. card-hover and the
+   V3 card-lift recipe remain the true survivors. */
 
 /* Custom scrollbar for long lists — VRD-V1 (plan §8.3 scrollbar
    accents; supersedes the V0 note that deferred this indigo to V5's
@@ -1239,15 +1247,11 @@ textarea:disabled {
 /* === Apple-style Animations === */
 /* Apple uses very subtle, slow fades. No bounces, no scales, no slides. */
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Single, gentle animation — Apple-style */
-@utility animate-fade-up {
-  animation: fade-in 0.8s cubic-bezier(0.28, 0.11, 0.32, 1) forwards;
-}
+/* P1-5 (frame 312): @keyframes fade-in + @utility animate-fade-up deleted
+   — the only candidate was the retired hooks/use-scroll-animation.tsx
+   (the LIVE reveal recipe is .rv below, a transition shell, not this
+   keyframe; the test law homepage-adoption.test.ts pins .rv/.live-dot/
+   .swap-fade — all kept). */
 
 /* Removed — too flashy for Apple style */
 /* animate-scale-in, animate-slide-in-right/left, animate-scroll-bounce,
@@ -1264,30 +1268,10 @@ textarea:disabled {
 /* No card lift — Apple doesn't do hover transforms on cards.
    Cards stay still. Only links/buttons have hover states. */
 
-/* === 3D Testimonials Marquee Animations === */
-
-@theme inline {
-  --animate-marquee: marquee var(--duration) infinite linear;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
-  }
-}
-
-@keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
-  }
-}
+/* P1-5 (frame 312): the 3D-Testimonials marquee family deleted with
+   ui/3d-testimonials.tsx (zero live importers — reachability-proven):
+   the --animate-marquee / --animate-marquee-vertical @theme tokens and
+   the marquee / marquee-vertical keyframes existed only for it. */
 
 /* ─── UI Polish: card-hover animations ────────────────────────── */
 /* Added 2026-08-25 per Task 3.2 — premium Apple-style micro-interactions. */

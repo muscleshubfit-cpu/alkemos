@@ -130,14 +130,15 @@
 
 ### 3.1 مكونات Shadcn/ui القياسية المثبتة
 
+> **P1-5 (فريم 312، 2026-09-30 — كنس الموتى):** أُزيلت 36 مكونًا قياسيًا و3 hooks من `src/components/ui/`/`src/hooks/` (وتوابِعها الحزمية من package.json) بعد إثبات قابلية الوصول صفرًا من أي مسار: جدول الواردات من 282 جذر مسار أثبت عدم استيراد أيٍّ منها — لائحة الإزالة: alert-dialog · alert · aspect-ratio · avatar · breadcrumb · calendar · carousel · chart · checkbox · collapsible · command · context-menu · drawer · dropdown-menu · form · hover-card · menubar · navigation-menu · pagination · progress · radio-group · resizable · scroll-area · select · separator · sheet · sidebar · skeleton · slider · switch · toast · toaster · toggle · toggle-group · tooltip · 3d-testimonials + hooks/use-mobile · use-scroll-animation · use-toast. الباقي فقط أدناه — وهي القائمة الحية (سقطت معها حزم radix الـ21 وcmdk/embla/react-day-picker/react-resizable-panels/vaul/react-hook-form وغيرها، كلها بلا أي مرجع). استرجاع أي مكوّن: `bunx shadcn@latest add <name>` + إعادة الحزمة — والتاريخ الكامل بgit.
+
 | الفئة | المكونات (اسم الملف بدون `.tsx`) |
 |---|---|
-| **عرض وبنية** | `accordion` · `alert` · `aspect-ratio` · `avatar` · `badge` · `breadcrumb` · `card` · `carousel` · `chart` · `collapsible` · `hover-card` · `pagination` · `progress` · `resizable` · `scroll-area` · `separator` · `skeleton` · `table` · `tabs` · `tooltip` |
-| **أزرار وتحكم** | `button` · `toggle` · `toggle-group` |
-| **نماذج وإدخال** | `checkbox` · `form` · `input` · `input-otp` · `label` · `radio-group` · `select` · `slider` · `switch` · `textarea` · `calendar` |
-| **قوائم** | `command` · `context-menu` · `dropdown-menu` · `menubar` · `navigation-menu` |
-| **نوافذ وطبقات عائمة** | `alert-dialog` · `dialog` · `drawer` · `popover` · `sheet` · `sidebar` |
-| **إشعارات** | `sonner` · `toast` · `toaster` |
+| **عرض وبنية** | `accordion` · `badge` · `card` · `table` · `tabs` |
+| **أزرار وتحكم** | `button` |
+| **نماذج وإدخال** | `input` · `input-otp` · `label` · `textarea` |
+| **نوافذ وطبقات عائمة** | `dialog` · `popover` |
+| **إشعارات** | `sonner` |
 
 ### 3.2 مكونات مضافة خاصة بالمشروع (ليست من مخزون Shadcn القياسي)
 
@@ -145,7 +146,6 @@
 |---|---|
 | `copy-button` | زر نسخ بذاته (يستخدم في الكود والحالات القابلة للنسخ) |
 | `image-with-fallback` | صورة مع سقوط آمن عند فشل التحميل |
-| `3d-testimonials` | بطاقة آراء بتأثير ثلاثي الأبعاد |
 
 > قاعدة التوسع: أي مكون جديد يدخل من مكتبة shadcn/ui القياسية أو يُكتب محليًا في `src/components/ui/` — ولا يُستورد نظام واجهة بديل بدون موافقة المالك (§3.4: ممنوع اختراع معمارية).
 

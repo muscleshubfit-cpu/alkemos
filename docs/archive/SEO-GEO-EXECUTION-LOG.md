@@ -1177,3 +1177,32 @@
 
 **حدود النطاق (إفادة):** GSC لم يُمس (قرار تأجيل المالك قائم بملفه) · أداة تتبع الترتيب = قرار مالك معلق · P0-4 (قنوات الروابط) هو التالي في الترتيب ولم يبدأ · لا بنود P1/P2 نُفذت هنا. البوابات: إطار docs-only — docs_audit ✓ · docs_parity ✓ · stale-refs ✓ (بطارية الكود غير مستحقة بحكم Phase 290).
 
+
+### §12.62 — Phase SEO-GEO-23: تنفيذ البند P1-5 «تقليص CSS عبر تحليل الاستخدام الفعلي وفرز أدوات Tailwind غير المستخدمة» (2026-09-30 — فريم 312)
+
+**السياق:** بعد إغلاق P0-1/P0-2 (فريم 309) وP0-3 القابل للتنفيذ (فريم 310) وتسجيل تأجيل P0-4 بقرار المالك دون تنفيذ أي جزء (فريم 311)، البند التالي حسب ترتيب التقرير هو أول بنود جدول P1: البند 5 «تقليص CSS (192KB) عبر تحليل الاستخدام الفعلي وتنظيف الأدوات غير المستخدمة» — شرطه المسبق (قياس أساس البند 3) منجَز وموثّق بفريم 310، وحاجب عرض 800ms على الوجهة العربية (أكبر insight بقياس PSI) جعل الأثر مضاعفًا هناك أولًا.
+
+**التحليل قبل التنفيذ (أرقام مقيسة على بناء إنتاجي محلي مطابق للرقم الرسمي):**
+- خط الأساس المحلي: **196,493 بايت خام / 31,569 مضغوطًا** (القطعة الرئيسية) + 5,429 بايت (قطعة خطوط next/font — مطابقة تمامًا لأرقام التقرير 192KB+5KB، والخطوط خارج النطاق بحكم «مُحسَّنة فعلًا»).
+- التفكيك: طبقة utilities = ~165KB (~85% من الوزن: 89.7KB أدوات بسيطة + 78.3KB مركّبة/متغيرات) — CSS الهوية المخصص كله ~8KB فقط؛ tw-animate-css ~1.6KB.
+- المطابقة العكسية الأولى (توكنات CSS ↔ grep على src/): 1,894 من 1,922 توكن لها مرشّح في src/ — النصوص التوثيقية ليست المصدر الأول (28 توكنًا فقط، معظمها شوائب استخراج).
+- **الاكتشاف الحاسم — خريطة الواردات (graph reachability):** جدول استيراد من 282 جذر مسار (src/app كاملًا + middleware + الاستيراد الديناميكي) أثبت **50 ملفًا غير قابل للوصول**: 36 مكون ui + 3 hooks (use-mobile · use-scroll-animation · use-toast) + كعبو اختبار + ملفات مؤشر — تُغذّي الـCSS بـ125 توكن أدوات لا تُعرض أبدًا على أي صفحة (114 قاعدة ≈ 7.3KB مباشرة + توابِع @property وإطاراتها). البقية ملفات lib حية عبر سكربتات التشغيل النسّقة (ai-job-processors · evo-eval · evo-eval-runner · evo-learning-runner عبر scripts/ai-jobs-runner وevo-weekly-eval) — لم تُمس.
+- مصدر ضوضاء ثانٍ موثّق: الكشف التلقائي لـTailwind v4 يمسح كل ملف غير متجاهَل في git — بما فيها docs/ (كل تقارير التدقيق!) وarchive/ وملفات md الجذرية الضخمة والسكربتات النسّقة — يولّد أدوات من نثر توثيقي (قيست أمثلة: backdrop-saturate-150 · from-white · hover:scale-[1.02] · top-15) ويشكل خطر تضخم مستمرًا مع كل تقرير جديد.
+
+**التنفيذ (وفق قانون التقاعد §8 — git rm + مسح مستدعين + تنظيف تعليقات في نفس الكوميت):**
+- **حذف الميت:** 36 ملف مكون (alert · alert-dialog · aspect-ratio · avatar · breadcrumb · calendar · carousel · chart · checkbox · collapsible · command · context-menu · drawer · dropdown-menu · form · hover-card · menubar · navigation-menu · pagination · progress · radio-group · resizable · scroll-area · select · separator · sheet · sidebar · skeleton · slider · switch · toast · toaster · toggle · toggle-group · tooltip · 3d-testimonials) + 3 hooks — مسح المستدعين صفر إيجابيات (tsc 0 يثبته)، وصفر اختبارات تستوردها، والنسّقة لا تستورد أيًّ منها.
+- **package.json:** −33 حزمة كلها بلا أي مرجع (21 radix + cmdk · embla-carousel-react · react-day-picker · react-resizable-panels · vaul · react-hook-form · @hookform/resolvers · date-fns · @tanstack/react-query · @tanstack/react-table · zustand · tailwindcss-animate). الباقي الحي: recharts (WeightChart/ProgressView/admin-finances) · sonner+next-themes (Toaster بroot-shell) · input-otp (استعادة OTP) · radix الستة الحية (accordion/dialog/label/popover/slot/tabs) · tw-animate-css (popover/dialog الحيان).
+- **globals.css:** حذف توكنات --color-sidebar* و--sidebar* (وضعَي الفاتح/الداكن — مستهلكها الوحيد sidebar.tsx الميت) + عائلة marquee كاملة (--animate-marquee · إطارا marquee/marquee-vertical — مستهلكها 3d-testimonials) + @keyframes fade-in و@utility animate-fade-up (مستهلكها الوحيد use-scroll-animation الميت) + تصحيح ملاحظة C-18 القديمة التي كانت تدّعي حياتها.
+- **نظافة المصدر:** توجيهات `@source not` بخمسة استبعادات (docs · archive · scripts · supabase · **/*.md) تُخرج النثر التوثيقي من مسح المرشّحات مع إبقاء المسح التلقائي لكل أسطح الواجهة الحية.
+- **TECH_REFERENCE §3:** جدول جرد Shadcn أُعيد استخراجه من الكود الحي (15 مكونًا) مع ملاحظة تقعيد الإزالة وسبيل الاسترجاع (bunx shadcn add).
+
+**النتيجة المقيسة (قبل → بعد):**
+- **CSS الرئيسي: 196,493 → 138,702 خام (−57,791 / −29.4%) · 31,569 → 23,744 مضغوطًا (−24.8%)** — القطعة المحمّلة على كل صفحة بما فيها الوجهة العربية ذات حاجب الـ800ms.
+- مجموع حاجب العرض (CSS+خطوط): 201,922 → 144,131 خام (−28.6%).
+
+**التحقق الصارم (باب مغلق):**
+- سكربت تحقق حتمي: كل صنف class في كل HTML مُسبق التوليد (1,938 ملفًا · 725 توكن صنف مميز) موجود في الـCSS المسلَّم — **صفر صنف حي سقط** (الفقيد الوحيد خارج القائمة البيضاء المبررة: أصناف أيقونات lucide تقاس بخصائص SVG لا بـCSS).
+- الأدوات الميتة اختفت (marquee · bg-sidebar · sidebar-border · animate-fade-up · backdrop-saturate-150 · from-white · rdp-button = 0 ظهور) والحية بقيت (btn-chrome · btn-outline · marble-card · .rv · .live-dot · .swap-fade · card-hover · animate-in/out · text-2xl — كلها مثبتة).
+- البطارية: **tsc ✓ 0 · eslint ✓ 0 (التحذير المسبق الموثق وحده) · vitest ✓ 1,987/1,987 (العدد كما كان — لا اختبار فقد غرضه) · next build ✓ 2,029/2,029 صفحة · دخان حي 7 مسارات 200** (الرئيسيتان + أداة + متتبعان + مقارنة + مدونة) وكلها تحمل القطعة الجديدة 1g92rtfpx5b1b.css · stale-refs ✓ · ui-wiring ✓.
+
+**حدود النطاق (إفادة):** بنود P1-6 (تجزئة LandingView — القيد المهيمن 1,650ms render delay) وP1-7 (كاش CF) وP1-8 وP1-9 لم تبدأ · خط next/font لم يُمس · قياس PSI خارجي «بعد» على الإنتاج ينتظر نشر هذا الكوميت (نافذة قياس متابعة موصى بها) · ملفات lib الميتة المرصودة (external-search · seo-food-band — بلا أثر CSS) تُركت عمدًا خارج النطاق. أرقام الإطار محفوظة خارج الريبو (سكربتات التحليل بجلسة التنفيذ).
