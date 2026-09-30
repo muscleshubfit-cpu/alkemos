@@ -11084,3 +11084,27 @@ Stage Summary:
 - Push status: pushed (كوميت توثيقي [vercel skip] بعده).
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: REPAIR-LOOP-R1-PHASE-303-2026-09-29
+Agent: Super Z (main)
+Task: تنفيذ Phase R1 كاملة من خطة تعافي مسار التنفيذ (docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md §10) — عقد rerunTarget + حلقة الإصلاح داخل التشغيل + p2 ?force=1، بأمر المالك (R1 فقط، بلا لمس أي Gate/قاعدة جودة/Business Logic خارجها).
+
+Work Log:
+- (A1) `src/lib/blog-repair-target.ts` جديد: خريطة حتمية رسالة↔هدف (word-floor→p2-content · battery/لاتيني/Artifacts→p4-review · ما عداهم→null بمافيهم infra/quota/dup) + `rerunTarget` في جسم 500 من p5-publish (كل البوابات وعتباتها بالبايت كما هي؛ جسم null يبقى بالشكل القديم حرفيًا).
+- (A4) p2-content يقبل `?force=1`: يتخطى fast-exit الـresume فقط (بوابة الحالة كما هي — الصفوف outlined/failed وحدها) ويولّد فوق المسودة مع بقاء research0/outline/images في الـbundle؛ الاستجابة تحمل regenerated:true.
+- (A2) run-step.mts: جسم 500 يحمل rerunTarget ⇒ exit code 3 + سطر `RERUN_TARGET=<step>` في stdout (تحقق مغلق المجموعة من P5_RERUN_TARGETS؛ أي شيء آخر يبقى exit 1) + تمرير P2_FORCE_REGENERATE إلى `force=1` لخطوة p2 وحدها.
+- (A3) run-step.sh: عند exit 3 — فحوص عقد (هدف صالح/خطوة P5/QUEUE_ID موجود/ميزانية) ثم حلقة إصلاح ≤2 دورة (MAX_REPAIRS): تنفيذ الخطوة المستهدفة وكل ما بينها وp4 على نفس الصف (نداءات متكررة بـMAX_REPAIRS=0 — لا تداخل) ثم إعادة P5 فورًا بلا backoff؛ P0–P4 تبقى على سلوك ×3 العابر؛ الإرجاع = exit 3→1 (الحلقة تتعطل تلقائيًا).
+- (الاختبارات) `blog-repair-target.test.ts` ‏14 دبوسًا بالرسائل الحية من التدقيق §3.1 (419/1077 كلمة · FAQ-0 الصف 38f230fb · لاتيني · infra→null · هدف خارج العقد→null) + `blog-repair-contract.test.ts` ‏5 سلوكية تستدعي مساري P5/P2 فعليًا (word-floor→p2-content · FAQ-0→p4-review · Post-insert بلا عقد · resume بلا force · force-regen يحفظ الأرتيفاكتات ويستبدل content وحده) + `scripts/blog-runner/run-step-loop-test.sh` مصفوفة تكامل 7 سيناريوهات ببيئة GHA محاكاة (stub npx — بلا شبكة/DB/AI): السلاسل الكاملة/الميزانية/الفشل العابر/حراس العقد.
+- (البطارية) tsc ✓ 0 · vitest ✓ 1,865/1,865 · eslint ✓ 0 (تحذير قديم واحد) · next build ✓ خروج 0 · حلقة التكامل ✓ 7/7 (0.17s) · stale-refs ✓.
+- (إصلاح انجراف كوميت التدقيق e4c877a — بوابة docs كانت حمراء بثلاثة) H: مدخل التدقيق أُدخل أسفل الملف — أُصلح بالإدخال فوق + التدوير؛ H5: 13 مدخلًا — تدوير النافذة إلى 12 بscripts/worklog_rotate.py؛ M: مستند التدقيق بلا صف سجل — صف EXECUTING أُضيف بdocs/README.md.
+- (التوثيق بنفس الفريم) AGENTS §8 قانون REPAIR LOOP LAW + تحديث رأس الملف · README (قسم Automated content pipeline) · DEVELOPER_GUIDE (قسم طبقة إعادة المحاولة) · STATE فريم 303 + QA + ضغط السلم التاريخي (293–296 إلى الأرشيف) · علامة «منفذة» على Phase R1 بخطة التدقيق.
+
+Stage Summary:
+- R1 منفذة بالكامل ومختبرة محليًا: فئة فشل P5 الحتمي (آخر 3 فشل EN) صارت قابلة للإصلاح داخل نفس التشغيل على نفس الصف — بلا أي تعديل لأي بوابة أو عتبة أو قاعدة تحريرية (قيد المالك محفوظ).
+- التراجع: إرجاع exit 3 إلى 1 في run-step.mts يعيد السلوك الحالي حرفيًا (الحلقة تتعطل تلقائيًا).
+- R2–R5 لم تُمس إطلاقًا — بانتظار أوامر المالك؛ أول إثبات حي = أول تشغيل EN/AR قادم يمر بفشل P5 قابل للإصلاح.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+
