@@ -8,6 +8,27 @@
 
 ---
 ---
+Task ID: GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 — تدقيق معماري قراءة-فقط: كل طريقة عملية يمكن لـ Google Search Console أن يدخل بها كقدرة تشغيلية مستمرة (مصدر أدلة لعمليات قائمة/مستقبلية — لا نظام تقارير)، مبنيًا على المستودع الفعلي والاتصال الحي بالسر الموجود، ثم توثيق الخطة بالمستودع. صفر تعديل كود/سير عمل/قاعدة/إعدادات.
+
+Work Log:
+- (الأدلة الحية) تشغيلَا اختبار الاتصال (36647573294 · 36649457709) ناجحان: السر GOOGLE_SEARCH_CONSOLE_CREDENTIALS يصادق على Google (SA: alkemos-gsc-reader@muscleshub.iam.gserviceaccount.com · نطاق webmasters.readonly) ويرى خاصيتين عبر sites.list: sc-domain:alkemos.com + الخاصية القديمة https://musclehubeg.vercel.app/ — خط أساس 28 يومًا مقيس: alkemos 4 نقرات/4172 ظهورًا/CTR 0.10%/موضع 55.53 · القديمة 8/4600/0.17%/16.37.
+- (فحص حي) robots الموحد + 7 أسطر Sitemap · فهرس السايت ماب بأبنائه الستة وlastmod=اليوم · 301 حية: العلامة القديمة → alkemos.com وwww→apex وhttp→https.
+- (المسح المعماري) صفر استهلاك للسر خارج gsc-connection-test.yml المؤقت · صفر جداول أداء بحث في الميجريشنز · صفر سطح أدمن للبحث (evo-analytics فقط) · researchSource بلا قيمة gsc · سطر AGENTS.md:164 (مصدر GSC محجوب مالكياً) متقادم واقعيًا الآن · فجوة صف السر بdocs/RECOVERY-SECRETS-SOURCES.md (قانونه :93) · السر غائب عن .env.example (صحيح — GHA فقط).
+- (نقاط الاندماج IP-1..IP-12 مبنية على المكونات الفعلية) تغذية P0 باستعلامات حقيقية (بند AUDIT_REPORT §9-1 المرجأ بقرار مالك — غير محجوب تقنيًا الآن) · بوابات توسيع الأطعمة المعربة (النافذة المعلنة 2026-09-19 بلا أي قياس يجمعها) · محطة ذيل USDA (~2026-12-07) · رصد قبول السايت مابز السبعة (فئة Couldn't fetch الموثقة بsitemap.xml route:13-21) · تحقق فهرسة المنشور الجديد (URL Inspection بعينات) · حلقة CTR/عناوين (ترتيب بالفرصة بدل المسح الشامل) · ترتيب قنوات العلاج بالقيمة + تحقق ما بعد APPLY · كشف تزاحم دوري (خليفة 0096 اليدوي) · مراقبة هجرة العلامة عبر الخاصية القديمة · إقران GEO-M باتجاه GSC شهريًا · ترتيب طابور مراجعة المالك (0097) بالانكشاف · سطح أدمن للبحث (سابقة requireAdmin + عرض).
+- (المعمارية المقترحة) «جامع واحد · مخزن واحد · قرّاء كثر»: gsc-collect.yml (أسبوعي + شهري + dispatch — نقل كود الاختبار المُثبت حرفيًا: JWT/openssl · stdlib فقط · بلا checkout/تثبيت A-12) + ميجريشن 00NN (gsc_runs + gsc_metrics بRLS حارماني) + قرّاء محليون فقط (P0 · queue-health · admin · البوابات) — السر لا يغادر GitHub Actions أبدًا وصفر نداءات Google من Vercel.
+- (الخطة) G1 الجامع+المخزن → G2 تغذية P0 (researchSource:"gsc+model" + عدّاد queue-health + علم إرجاع GSC_GROUNDING=0) → G3 سطح المالك → G4 سايت ماب+فهرسة (قرار نطاق URL Inspection) → G5 بوابات مبنية على الأدلة بعد 30-90 يومًا تراكم — كل مرحلة بأمر مالك مستقل وكوميت واحد ووثائق بنفس الفريم (قوانين الفريمات مرجعة §7.2 بالتقرير).
+- (القيد) صفر تنفيذ الآن · لا مساس بأي src/workflows/supabase/next.config/vercel.json/.env.example · حقائق API الخارجية الموسومة [verify] بالتقرير تُحسم في G1 · حذف gsc-connection-test.yml يبقى بأمر مالك بعد إثبات الجامع (ترويسته تُلزم بذلك).
+
+Stage Summary:
+- التقرير الموثق: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (صفه بسجل docs/README.md بنفس الكوميت — قانون M) — المصدر الحاكم لمرحلة التنفيذ القادمة؛ نقطة البدء الملزمة: التقرير §9 = المرحلة G1 بأمر مالك.
+- الاتصال مثبت والبيانات مقيسة (خاصيتان + خط أساس 28 يومًا) — الجزء المرجأ من AUDIT_REPORT §9-1 (بحث حقيقي) صار قابل التنفيذ عند أمر المالك دون أي اعتماد جديد.
+- الملفات: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (جديد) · docs/README.md (صف السجل) · STATE.md (سطر المفتوح الآن + آخر تحديث) · worklog.md (هذا المدخل) — لا شيء غيرها تغيّر.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+
+---
 Task ID: REPAIR-OBSERVABILITY-R5-2026-09-30
 Agent: Super Z (main)
 Task: أمر المالك 2026-09-30 — تنفيذ المرحلة R5 فقط (الرصد) من خطة docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md: عدّاد إصلاح في /api/ai/queue-health (عدد الصفوف التي نُشرت بعد repair loop) + سطر في ملخص التشغيل — لقياس «repair-first vs regenerate» فعليًا. Audit سريع أولًا مقابل الكود وAGENTS وSTATE وworklog ثم التنفيذ الكامل إن صحّت الافتراضات. لا انتظار OpenRouter ولا تشغيل workflow حي الآن، ولا أي R6/تغييرات خارج نطاق R5. اختبار كامل ثم commit منفصل + push إلى main + تحقق CI/Vercel.
@@ -228,23 +249,4 @@ Stage Summary:
 - المعلق بقرار مالك (موثق): ذراع ChatGPT/Perplexity اليدوية من قياس GEO (~5 دقائق شهريًا) ومراجعة المقالات الـ95 المعلقة من لوحة الأدمن (نفس الزر).
 - Push status: pushed (كوميت واحد على main — الهوية muscleshubfit@gmail.com).
 - Commit SHA (optional, post-push): (git log is the ledger)
-
-Task ID: PHASE1-DEPLOY-VERIFY-2026-09-29
-Agent: Super Z (main)
-Task: بلاغ المالك 2026-09-29 — بريد Vercel «Preview deployment failed» للكوميت 205f61b على فرع phase1-verify (فشل 22:06 UTC): تشخيص السبب الجذري بالأدلة، وإكمال التحقق الحي بعد النشر الموعود بمدخل PHASE1-QUALITY («يلي اكتمال Vercel في نفس الجلسة»)، ثم الإغلاق النظيف للفرع والتوثيق.
-
-Work Log:
-- (تشخيص 1 — الإنتاج سليم) نفس الكوميت 205f61ba منشور إنتاجيًا بنجاح: حالة «Vercel» على GitHub ‏success «Deployment has completed» 22:08:26 UTC · فحوصات الكوميت 6/6 خضراء (Supabase Preview · Vercel Preview Comments · guard · cleanup · quality · parity) — العطل معاين-only بلا أي أثر إنتاجي.
-- (تشخيص 2 — استبعاد الكود كليًا) ثلاث نسخ بناء محلية باردة لنفس الشجرة: نظيفة 97 ثانية · بلا أي متغيرات بيئة: نجاح (SSG يتحمل غياب المفاتيح) · بمفاتيح Supabase معطوبة: نجاح — ذروة RSS ‏1,612MB على آلة 4GB ⇒ OOM مستبعد، timeout مستبعد (97 ث مقابل سقف 45 دقيقة)، وفرق التبعيات مستبعد (بناء الإنتاج بنفس bun.lock نجح).
-- (تشخيص 3 — التسلسل الحاسم من reflog + GHA API) 21:54:21 كوميت dc058fd2 ودُفع فرع phase1-verify → المعاين #1 (dc058fd2) يبني من ~21:55 → التشغيل الحي 36489146598 على الفرع 21:54:29→22:04:45 (فشل البوابة الصادق الموثق سلفًا) → 22:06:13 amend إلى 205f61ba مع force-push للفرع ودفع main في نفس الدقيقة → المعاين #1 استُبدل قسرًا والمعاين #2 (205f61ba) فشل خلال دقيقة إنشائه (سباق ref/supersession على فتحة البناء الواحدة بخطة Hobby) → الإنتاج اصطف خلفه وأكمل بعد دقيقتين بكاش دافئ. workflow الـcleanup بريء نصًّا (سكربته لا تستعرض QUEUED/BUILDING/INITIALIZING أصلًا).
-- (الحكم) ليست عيوب كود — فشل معاين عابر من نمط supersession/‏ref-race (force-push لفرع أثناء بناء معاين جارٍ + دفع متزامن لmain على فتحة بناء واحدة). القانون التشغيلي المستفاد: لا force-push لفرع تحقق والمعاين يبني — انتظر اكتماله أو احذف الفرع قبل إعادة الدفع.
-- (التحقق الحي بعد النشر — بندًا بندًا) 301 EN ✓ حيًا فورًا على العاري (→ calculate-daily-calories-fuel-fat-loss-bulking) · 301 AR ✓ أصليًا (cache-bust يرجع 301 → muscle-building-home-workout-guide) · migration 0096 مطبق كاملًا: المنحوزان خارج sitemap-blog.xml والناجيان باقيان · العناوين الجديدة ×4 ✓ أصليًا حرفيًا (أثبتها cache-bust لكلٍّ منها — مطابقة لنص الميجريشن) · queue-health منشور ومحمي (401 بلا جلسة coach — requireAdmin يعمل كما صُمم).
-- (الفجوة المكتشفة — كاش Cloudflare قديم) 5 URLs تُقدَّم من نسخ CF مخزنة 19:07 UTC قبل النشرين (وهي بعينها صفحات زحف التدقيق — cf-cache-status HIT بعمر ≈3.8 ساعة): AR redirect العاري + مقالات الاستشفاء الأربعة بعناوينها القديمة. الأصل خلف الكاش سليم كله؛ جلسات Phase 0/1 أغفلت طقس purge بعد النشر (سابقة SOCIAL-OG-2) — الفهرس وsitemap و301 الإنجليزي كلها صحيحة الآن.
-- (الإجراء) حذف فرع phase1-verify عن بعد بعد أداء غرضه (سابقة phase0-verify) · لا إعادة بناء للمعاين (قانون VERCEL-USAGE-6 — كلفة عدادات صفرية القيمة؛ والفاشل يلتقطه cleanup الساعي بعد 6 ساعات بقانون VERCEL-USAGE-5) · CF purge متعذر آليًا بالجلسة (لا توكن CF هنا ولا workflow يملكه — قانون §3.2) ⇒ إجراء مالك واحد متبقٍ (أدناه).
-- (البوابات — إطار توثيقي بحكم Phase 290) docs_audit ✓ · docs_parity ✓ · بطارية الكود غير مستحقة (صفر مساس بsrc/supabase/build-config).
-
-Stage Summary:
-- عطل المعاين مُشخَّص بالدليل الكامل: عابر بيئي (supersession/‏force-push) لا كود — الإنتاج على الكوميت نفسه أخضر ومتحقق منه حيًا بندًا بندًا.
-- إجراء المالك الوحيد المتبقي: Cloudflare purge للروابط الخمسة أو purge_everything (لوحة CF ▸ Caching ▸ Purge) — حتى ذلك الحين يرى الزائر النسخ القديمة على العاري من تلك الروابط فقط.
-- Push status: pushed to main · فرع phase1-verify محذوف من origin بعد اكتمال الغرض.
 
