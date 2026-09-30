@@ -11213,3 +11213,26 @@ Stage Summary:
 - Push status: pushed · التحقق من CI بعد الدفع موثق بتقرير الجلسة.
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: REPAIR-OBSERVABILITY-R5-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 — تنفيذ المرحلة R5 فقط (الرصد) من خطة docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md: عدّاد إصلاح في /api/ai/queue-health (عدد الصفوف التي نُشرت بعد repair loop) + سطر في ملخص التشغيل — لقياس «repair-first vs regenerate» فعليًا. Audit سريع أولًا مقابل الكود وAGENTS وSTATE وworklog ثم التنفيذ الكامل إن صحّت الافتراضات. لا انتظار OpenRouter ولا تشغيل workflow حي الآن، ولا أي R6/تغييرات خارج نطاق R5. اختبار كامل ثم commit منفصل + push إلى main + تحقق CI/Vercel.
+
+Work Log:
+- (Audit سريع — الافتراضات كلها ما زالت صحيحة) queue-health موجود به نمطا scan جاهزان (fallback/pairing) · حلقة R1 حية (فريم 303) تجعل صنف «نُشر بعد إصلاح» قابلًا للقياس · الـbundle ينجو عبر سلسلة الإصلاح (p2-force ينشر {...bundle, content} وp4 {...bundle, review}) فالختم يدوم حتى النشر · خطوة Summary موجودة بكلا workflow · لا معرفات repairLoop/REPAIRS_USED موجودة — صفحة نظيفة · شرط STATE لقرار R5 مستوفى (R4 منفذة وموثقة بفريم 306) وأمر المالك صريح.
+- (1 — الختم التراكمي) `stampQueueRowRepairDirective` بsrc/lib/blog-queue.ts + القارئ الدفاعي `parseBundleRepairLoop`: مسار P5 عند كل توجيه إصلاح (جسم 500 حيث rerunTarget != null) يختم `repairLoop: {directives, lastTarget, lastAt}` في bundle الصف — best-effort بلا رمي أبدًا (نفس قانون markQueueItemFailed)، وفشل قراءة الصف لا يكتب شيئًا (كتابة عمياء قد تمسح bundle حقيقيًا)؛ سابقة researchSource/coachRequested.
+- (2 — العدّاد) GET /api/ai/queue-health يحمل `repair` بنافذة 14 يومًا (نافذة قياس التدقيق): published · afterRepair · exhausted · sharePct · recoveryPct — مثل() parse-gated ضد الإيجابيات الكاذبة بمتن الموضوع، رصد محايد بلا سطر issues (مثل pairing)، يتدهور مفتوحًا عند فشل الـscan.
+- (3 — سطر الملخص) run-step.sh يصدّر `REPAIRS_USED=n` إلى GITHUB_ENV عند كل دورة إصلاح (الأبناء المتكررون p2..p4 لا يفسدونه أبدًا — الحلقة لا تعيد p5) وسطر ملخص التشغيل بblog-post-{en,ar}.yml يطبعه + يحيل للعدّاد التراكمي.
+- (الاختبارات) `blog-repair-r5-observability.test.ts` ‏15/15 (أشكال القارئ الدفاعية · التزايد 1→2→3 · حفظ المفاتيح الشقيقة · عدم الكتابة عند فشل القراءة · العدّاد: النسب المختلطة والإيجابيات الكاذبة والحالات skipped والنافذة الفارغة والتدهور المفتوح) + وصف R5 بblog-repair-contract.test.ts (التوجيه يختم بوسائطه · infra بلا rerunTarget لا يختم · الختم ينجو عبر p2-force إلى الـbundle المكتوب — مصدر قياس العدّاد) + sc8/sc9 بمصفوفة run-step-loop-test.sh (تصدير REPAIRS_USED=1 عند الدورة / لا سطر عند النشر النظيف) + دبوسَا mock بphase0/phase1 تحدّثتا للدالة الجديدة (نفس سابقة R3: الدبوس يتبع تغيير القانون بنفس الفريم).
+- (البطارية §3.5 — فريم src كامل) tsc ✓ 0 · vitest ✓ 1,919/1,919 (1901+18) · eslint ✓ 0 (تحذير مسبق واحد بملف لم يُمس) · next build ✓ خروج 0 · run-step-loop-test ✓ ‏9/9 · docs_audit ✓ (STATE ‏28.9KB بعد ضغط السلم 297-302) · docs_parity ✓ · stale-refs ✓ · migration_audit ✓ (لا ميجريشنز — الختم داخل bundle الموجود).
+- (التوثيق بنفس الفريم §3.8) AGENTS §8 REPAIR LOOP LAW (بند Repair observability) + ترويسة Last updated · README (فقرة repair) · DEVELOPER_GUIDE (بند R5 بطبقة إعادة المحاولة) · صف الحالة تحت Phase R5 بالخطة (منفذة بالكامل) · STATE فريم 307 + المفتوح الآن + QA.
+
+Stage Summary:
+- R5 منفذة بالكامل ضمن نطاقها كما كتبتها الخطة: عدّاد queue-health + سطر ملخص التشغيل، فوق ختم تراكمي بمصدر الحقيقة (bundle الصف) — صفر مساس بأي بوابة أو حالة أو ميزانية إصلاح أو prompt؛ جسم 500 وشكل الاستجابات كما هي بالبايت.
+- القياس يتراكم تلقائيًا: أول توجيه إصلاح قادم يختم الصف ويظهر بالعدّاد وسطر الملخص — بلا أي تشغيل حي الآن (بأمر المالك)؛ قراءة العدّاد: GET /api/ai/queue-health للمالك/الأدمن.
+- الخطة التنفيذية R1→R5 مكتملة الآن بالكامل (كل مرحلة منفذة وR1-R3 مثبتة حية).
+- Push status: pushed · التحقق من CI وVercel بعد الدفع موثق بتقرير الجلسة.
+- Commit SHA (optional, post-push): (git log is the ledger)
+

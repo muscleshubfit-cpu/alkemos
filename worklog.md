@@ -1,3 +1,23 @@
+---
+Task ID: SEO-P1-7-CF-CACHE-2026-10-01
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-01 «ابدأ P1-7» — البند السابع بترتيب التقرير المعتمد: «رفع فعالية كاش Cloudflare (Cache Reserve ومراجعة TTL) وتقييم منطقة Vercel ثانية» (فريم 316 — إطار بنية تحتية عبر API الرسمي + توثيق · صفر مساس بsrc/).
+
+Work Log:
+- (تحقق ما قبل) P1-6 مكتمل (فريم 315 · 1eeff863) ونشره READY/PROMOTED مثبت عبر Vercel API — البند التالي بالترتيب هو P1-7 بنص STATE/سجل التنفيذ.
+- (تدقيق قراءة-only عبر CF API) المنطقة alkemos.com على خطة **Free** · إعدادات المنطقة (cache_level=aggressive · browser_ttl=0 · صفر Page Rules) · قاعدتا Cache Rules الحرفيتان (public-html-cache بEdge TTL 43,200s override_origin — قرار T-3b الموثق كحرس Fluid CPU على Hobby · og-image 86,400s) · قاعدة WAF crawler-allow (SOCIAL-OG-2) · التوكنات: A يملك Zone Settings Write وB أضيق.
+- (قياس حي قبل التغيير) `/` MISS ثم HIT · `/ar` HIT بعمر **5,081s متجاوزًا s-maxage=3,600 للأصل — إثبات حي أن قاعدة الحافة 43,200s هي الحاكمة كما صُممت** · og-image وصور MISS→HIT (قواعدها تعمل) · طلب التفاف أكّد منطقة الأصل hkg1::fra1.
+- (المصادر الرسمية) وثائق CF (محدثة 2026-09-29): Cache Reserve «يتطلب خطة مدفوعة» + مصفوفة التوفر (Tiered Cache وSmart Topology = Free ✓ · Regional/Custom/Generic = Enterprise) + نداءا التفعيل الرسميان الدقيقان — والمجسّات على المنطقة متسقة (cache_reserve بلا مسار · regional_tiered_cache بالخطأ 1135 plan-gated).
+- (القرار المنفّذ — التغيير الجوهري) **Tiered Cache الرئيسي كان off (رغم Smart Topology=on منذ 2026-09-06 — المفتاح الرئيسي مطفأ فالهرمية بلا أثر إطلاقًا) → PATCH /zones/b4be55a0736831d9c5d9564788861076/argo/tiered_caching بـ{"value":"on"} = HTTP 200 بقيمة مرجعة on وطابع 2026-09-30T18:25:54Z** · Smart Topology مؤكد on · التراجع بنداء واحد (value off) — لا مساس بأي قاعدة كاش أو WAF أو TTL.
+- (القرارات الموثقة الثلاثة الأخرى) Cache Reserve محجوب بالخطة (قرار ترقية للمالك — لم يُلمس) · مراجعة TTL: الحكم «إبقاء 43,200s» (خفض يستدعي عودة مخاطر CPU الموثقة T-3b ورفع يضاعف ألم الانتقال SOCIAL-OG-3 §5.1 — والفعالية تُرفع بTiered Cache بلا لمس TTL) · منطقة Vercel ثانية: تقييم موثق بتوصية تأجيل (Hobby مثبتة ببيانات النشر الرسمية · fra1 مثبتة حيًا · الثانية تتطلب Pro — قرار كلفة مالك).
+- (التحقق بعد التطبيق) GET يرجع on · خدمة حية سليمة على `/` و`/ar` بعد التفعيل (200 HIT — لا انحدار) · الأدلة الخام محفوظة خارج الريبو: scripts/p17_cf_*.py + p17_cf_audit/*.json (استجابات API الحرفية والقياسات الحية).
+- (التوثيق وفق الأعراف) المستند المرجعي docs/SEO-P1-7-CF-CACHE-2026-10-01.md (جديد — مسجل بسجل docs/README) + §12.65 بسجل التنفيذ + STATE (المرحلة 316) + هذا المدخل — إطار توثيقي بحكم Phase 290: docs_audit/docs_parity/stale-refs ✓ والبطارية الكودية غير مستحقة.
+
+Stage Summary:
+- البند P1-7 منفّذ بمصير وصفته الثلاثية موثقًا بدليل رسمي: **Tiered Cache مفعّل من مفتاح مطفأ منذ إنشاء المنطقة (الرافع المجاني المتاح)** · Cache Reserve محجوب بالخطة (قرار مالك) · مراجعة TTL حكمت بالإبقاء المتعمد (حرس CPU) · منطقة Vercel ثانية موصى بتأجيلها (Hobby/fra1 مثبتتان).
+- حدود صادقة: أثر نسبة HIT التراكمي يحتاج لوحة CF Analytics (التوكنات بلا صلاحية Analytics — نافذة مالك) · قياس PSI «بعد» لP1-5/6 ما زال نافذة متابعة مستقلة.
+- البند التالي بالترتيب: P1-8 (سلسلة محتوى «دقة تتبع الماكروز» وسلعنة قاعدة الأطعمة) — ينتظر أمر المالك.
+- Commit SHA (optional, post-push): (git log is the ledger)
 # Worklog
 
 > **Policy (Phase 288 — ARCH-REMEDIATION, audit P1-1):** the live file IS the active window —
@@ -212,26 +232,5 @@ Stage Summary:
 - الاتصال مثبت والبيانات مقيسة (خاصيتان + خط أساس 28 يومًا) — الجزء المرجأ من AUDIT_REPORT §9-1 (بحث حقيقي) صار قابل التنفيذ عند أمر المالك دون أي اعتماد جديد.
 - الملفات: docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md (جديد) · docs/README.md (صف السجل) · STATE.md (سطر المفتوح الآن + آخر تحديث) · worklog.md (هذا المدخل) — لا شيء غيرها تغيّر.
 - Push status: pushed
-- Commit SHA (optional, post-push): (git log is the ledger)
-
----
-Task ID: REPAIR-OBSERVABILITY-R5-2026-09-30
-Agent: Super Z (main)
-Task: أمر المالك 2026-09-30 — تنفيذ المرحلة R5 فقط (الرصد) من خطة docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md: عدّاد إصلاح في /api/ai/queue-health (عدد الصفوف التي نُشرت بعد repair loop) + سطر في ملخص التشغيل — لقياس «repair-first vs regenerate» فعليًا. Audit سريع أولًا مقابل الكود وAGENTS وSTATE وworklog ثم التنفيذ الكامل إن صحّت الافتراضات. لا انتظار OpenRouter ولا تشغيل workflow حي الآن، ولا أي R6/تغييرات خارج نطاق R5. اختبار كامل ثم commit منفصل + push إلى main + تحقق CI/Vercel.
-
-Work Log:
-- (Audit سريع — الافتراضات كلها ما زالت صحيحة) queue-health موجود به نمطا scan جاهزان (fallback/pairing) · حلقة R1 حية (فريم 303) تجعل صنف «نُشر بعد إصلاح» قابلًا للقياس · الـbundle ينجو عبر سلسلة الإصلاح (p2-force ينشر {...bundle, content} وp4 {...bundle, review}) فالختم يدوم حتى النشر · خطوة Summary موجودة بكلا workflow · لا معرفات repairLoop/REPAIRS_USED موجودة — صفحة نظيفة · شرط STATE لقرار R5 مستوفى (R4 منفذة وموثقة بفريم 306) وأمر المالك صريح.
-- (1 — الختم التراكمي) `stampQueueRowRepairDirective` بsrc/lib/blog-queue.ts + القارئ الدفاعي `parseBundleRepairLoop`: مسار P5 عند كل توجيه إصلاح (جسم 500 حيث rerunTarget != null) يختم `repairLoop: {directives, lastTarget, lastAt}` في bundle الصف — best-effort بلا رمي أبدًا (نفس قانون markQueueItemFailed)، وفشل قراءة الصف لا يكتب شيئًا (كتابة عمياء قد تمسح bundle حقيقيًا)؛ سابقة researchSource/coachRequested.
-- (2 — العدّاد) GET /api/ai/queue-health يحمل `repair` بنافذة 14 يومًا (نافذة قياس التدقيق): published · afterRepair · exhausted · sharePct · recoveryPct — مثل() parse-gated ضد الإيجابيات الكاذبة بمتن الموضوع، رصد محايد بلا سطر issues (مثل pairing)، يتدهور مفتوحًا عند فشل الـscan.
-- (3 — سطر الملخص) run-step.sh يصدّر `REPAIRS_USED=n` إلى GITHUB_ENV عند كل دورة إصلاح (الأبناء المتكررون p2..p4 لا يفسدونه أبدًا — الحلقة لا تعيد p5) وسطر ملخص التشغيل بblog-post-{en,ar}.yml يطبعه + يحيل للعدّاد التراكمي.
-- (الاختبارات) `blog-repair-r5-observability.test.ts` ‏15/15 (أشكال القارئ الدفاعية · التزايد 1→2→3 · حفظ المفاتيح الشقيقة · عدم الكتابة عند فشل القراءة · العدّاد: النسب المختلطة والإيجابيات الكاذبة والحالات skipped والنافذة الفارغة والتدهور المفتوح) + وصف R5 بblog-repair-contract.test.ts (التوجيه يختم بوسائطه · infra بلا rerunTarget لا يختم · الختم ينجو عبر p2-force إلى الـbundle المكتوب — مصدر قياس العدّاد) + sc8/sc9 بمصفوفة run-step-loop-test.sh (تصدير REPAIRS_USED=1 عند الدورة / لا سطر عند النشر النظيف) + دبوسَا mock بphase0/phase1 تحدّثتا للدالة الجديدة (نفس سابقة R3: الدبوس يتبع تغيير القانون بنفس الفريم).
-- (البطارية §3.5 — فريم src كامل) tsc ✓ 0 · vitest ✓ 1,919/1,919 (1901+18) · eslint ✓ 0 (تحذير مسبق واحد بملف لم يُمس) · next build ✓ خروج 0 · run-step-loop-test ✓ ‏9/9 · docs_audit ✓ (STATE ‏28.9KB بعد ضغط السلم 297-302) · docs_parity ✓ · stale-refs ✓ · migration_audit ✓ (لا ميجريشنز — الختم داخل bundle الموجود).
-- (التوثيق بنفس الفريم §3.8) AGENTS §8 REPAIR LOOP LAW (بند Repair observability) + ترويسة Last updated · README (فقرة repair) · DEVELOPER_GUIDE (بند R5 بطبقة إعادة المحاولة) · صف الحالة تحت Phase R5 بالخطة (منفذة بالكامل) · STATE فريم 307 + المفتوح الآن + QA.
-
-Stage Summary:
-- R5 منفذة بالكامل ضمن نطاقها كما كتبتها الخطة: عدّاد queue-health + سطر ملخص التشغيل، فوق ختم تراكمي بمصدر الحقيقة (bundle الصف) — صفر مساس بأي بوابة أو حالة أو ميزانية إصلاح أو prompt؛ جسم 500 وشكل الاستجابات كما هي بالبايت.
-- القياس يتراكم تلقائيًا: أول توجيه إصلاح قادم يختم الصف ويظهر بالعدّاد وسطر الملخص — بلا أي تشغيل حي الآن (بأمر المالك)؛ قراءة العدّاد: GET /api/ai/queue-health للمالك/الأدمن.
-- الخطة التنفيذية R1→R5 مكتملة الآن بالكامل (كل مرحلة منفذة وR1-R3 مثبتة حية).
-- Push status: pushed · التحقق من CI وVercel بعد الدفع موثق بتقرير الجلسة.
 - Commit SHA (optional, post-push): (git log is the ledger)
 
