@@ -11279,3 +11279,23 @@ Stage Summary:
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: GSC-AUDIT-RETRACT-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 — حذف تقرير تدقيق GSC كاملًا (docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md) والإبقاء على مذكرة وحيدة دنيا: الاتصال حي ومُثبَت بالحساب/السر القائم ووصول قراءة-فقط، والاندماج الدائم مؤجل قصدًا 30–60 يومًا مع إعادة تدقيق إلزامية قبل أي تنفيذ — توثيق فقط، صفر مساس بكود/سير عمل/أسرار/قاعدة/إعدادات GSC.
+
+Work Log:
+- (الحذف) git rm للتقرير الحاكم — محتواه محفوظ حرفيًا بتاريخ git (أصل 5fd41d49 · تصحيح 3f46c8a0)؛ لا صف سجل يشير إليه بمسار حي بعد الآن (قانون M الاتجاهان).
+- (المذكرة البديلة) docs/GSC-CONNECTION-STATUS-2026-09-30.md — دنيا بحكم الأمر: (1) الاتصال حي ومُثبَت بالسر القائم GOOGLE_SEARCH_CONSOLE_CREDENTIALS (نطاق webmasters.readonly · SA alkemos-gsc-reader@muscleshub.iam.gserviceaccount.com — تشغيلا الاختبار 36647573294/36649457709 ناجحان والخاصيتان ظاهرتان بخط أساس 28 يومًا مقيس)؛ (2) الاندماج الدائم مؤجل قصدًا 30–60 يومًا (نافذة إعادة التدقيق 2026-10-30→2026-11-29) — لا جامع/مخزن/قرّاء/بوابات بالفترة؛ (3) إعادة تدقيق إلزامية قبل أي تنفيذ (كود/سير عمل/قاعدة/إعدادات) — السطح يبقى السر القائم + اختبار الاتصال dispatch-only كما هو.
+- (المبدأ الملزم باقٍ) GSC لا يحدد مواضيع المحتوى الجديد — الاكتشاف بالبحث الخارجي الحي وأدلة GSC بعد النشر فقط (مذكور بالمذكرة والصف والسطر أدناه).
+- (صفر تنفيذ) لم يُمس أي src/workflows/supabase/secrets/إعدادات — لم تُنفَّذ G1 ولا أي مرحلة؛ أمر التأجيل يسري على الكل.
+- (الامتثال بنفس الفريم §3.8) صف السجل بdocs/README.md (الصف الجديد للمذكرة + إزالة صف التقرير المحذوف) · STATE.md (سطر آخر تحديث + بند المفتوح الآن) · هذا المدخل + دوران H5 (13→12 مدخلًا بالأرشيف) — كوميت docs-only واحد بعلامة [vercel skip].
+
+Stage Summary:
+- التقرير الحاكم حُذف؛ البديل مذكرة وحيدة docs/GSC-CONNECTION-STATUS-2026-09-30.md: اتصال حي/مُثبَت (سر قائم، قراءة-فقط) · تأجيل قصدي 30–60 يومًا · إعادة تدقيق قبل أي تنفيذ.
+- الملفات: حذف docs/GSC-OPERATIONAL-INTEGRATION-AUDIT-2026-09-30.md · docs/GSC-CONNECTION-STATUS-2026-09-30.md (جديد) · docs/README.md · STATE.md · worklog.md (+أرشيف الدوران) — لا شيء غيرها.
+- Push status: pushed
+- Commit SHA (optional, post-push): (git log is the ledger)
+
