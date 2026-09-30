@@ -59,9 +59,9 @@ export async function generateMetadata({
       // SOCIAL-OG-2 (2026-09-28): dims were declared 1200×630 while the
       // served file is a 768×768 square — platforms validating declared
       // vs fetched dims can reject the preview (blue/blank card). Now:
-      // measured dims + explicit webp type + ?v=2 cache-bust so the
+      // measured dims + explicit webp type + ?v=3 cache-bust so the
       // stale broken thumbnails cached at FB/WhatsApp are re-fetched.
-      images: [{ url: `${program.image}?v=2`, width: 768, height: 768, type: "image/webp" }],
+      images: [{ url: `${program.image}?v=3`, width: 768, height: 768, type: "image/webp" }],
       siteName: "Alkemos",
       locale: "en_US",
     },
@@ -69,7 +69,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [`${program.image}?v=2`],
+      images: [`${program.image}?v=3`],
     },
   };
 }

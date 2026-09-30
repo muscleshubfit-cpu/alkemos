@@ -9,6 +9,7 @@ import {
 import { CATEGORY_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import {
   HUB_INITIAL_EXERCISES,
@@ -73,7 +74,7 @@ export async function generateMetadata({
       // /api/og-image).
       images: [
         {
-          url: "/images/og/og-hubs-ar.png?v=2",
+          url: "/images/og/og-hubs-ar.png?v=3",
           width: 1200,
           height: 630,
           alt: "أدلة مجموعات العضلات من Alkemos",
@@ -84,7 +85,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: hub.titleAr,
       description: hub.descriptionAr,
-      images: ["/images/og/og-hubs-ar.png?v=2"],
+      images: ["/images/og/og-hubs-ar.png?v=3"],
     },
   };
 }
@@ -163,6 +164,10 @@ export default async function ArabicMuscleHubPage({
           {hub.introAr}
         </p>
       </header>
+
+      <div className="mb-8">
+        <ShareButtons path={`/muscles/${group}`} title={hub.h1Ar} />
+      </div>
 
       {depth && <HubGuideSection depth={depth} lang="ar" title="دليل التدريب" />}
 

@@ -193,7 +193,12 @@ describe("ShareButtons SSR — no empty share href can exist (regression law)", 
 
 const repoRoot = resolve(__dirname, "../../..");
 
-/** The 12 live ShareButtons surfaces — each MUST declare its canonical path. */
+/** The live ShareButtons surfaces — each MUST declare its canonical path.
+ * SOCIAL-OG-3 (2026-09-30, owner order «تأكد من وجود أزرار مشاركة في كل
+ * الصفحات العامة»): extended from 12 to the full public-surface law —
+ * every content/conversion surface renders ShareButtons with its
+ * deterministic canonical path (legal pages privacy/terms are the
+ * documented exception: no share intent). */
 const SURFACES: Array<[string, string]> = [
   ["src/app/(en)/evo/page.tsx", 'path="/evo"'],
   ["src/app/(en)/coaching/page.tsx", 'path="/coaching"'],
@@ -207,6 +212,29 @@ const SURFACES: Array<[string, string]> = [
   ["src/app/(en)/exercises/[slug]/ExerciseDetailClient.tsx", "path={`/exercises/${slug}`}"],
   ["src/app/(en)/foods/[slug]/FoodDetailClient.tsx", "path={`/foods/${food.slug}`}"],
   ["src/app/(en)/programs/[slug]/ProgramDetailClient.tsx", "path={`/programs/${program.slug}`}"],
+  // SOCIAL-OG-3 additions — hub/detail surfaces that had no share row
+  ["src/app/(en)/muscles/[group]/page.tsx", "path={`/muscles/${group}`}"],
+  ["src/app/(ar)/ar/muscles/[group]/page.tsx", "path={`/muscles/${group}`}"],
+  ["src/app/(en)/collections/[slug]/page.tsx", "path={`/collections/${collection.slug}`}"],
+  ["src/app/(ar)/ar/collections/[slug]/page.tsx", "path={`/collections/${collection.slug}`}"],
+  ["src/app/(en)/equipment/[type]/page.tsx", "path={`/equipment/${hub.slug}`}"],
+  ["src/app/(ar)/ar/equipment/[type]/page.tsx", "path={`/equipment/${hub.slug}`}"],
+  ["src/app/(en)/authors/page.tsx", 'path="/authors"'],
+  ["src/app/(ar)/ar/authors/page.tsx", 'path="/authors"'],
+  ["src/app/(en)/authors/[slug]/page.tsx", "path={`/authors/${author.slug}`}"],
+  ["src/app/(ar)/ar/authors/[slug]/page.tsx", "path={`/authors/${author.slug}`}"],
+  ["src/app/(en)/compare/page.tsx", 'path="/compare"'],
+  ["src/app/(ar)/ar/compare/page.tsx", 'path="/compare"'],
+  ["src/app/(en)/compare/[slug]/page.tsx", "path={`/compare/${comparison.slug}`}"],
+  ["src/app/(ar)/ar/compare/[slug]/page.tsx", "path={`/compare/${comparison.slug}`}"],
+  ["src/app/(en)/diet-plan/page.tsx", 'path="/diet-plan"'],
+  ["src/app/(ar)/ar/diet-plan/page.tsx", 'path="/diet-plan"'],
+  ["src/app/(en)/ai-meal-planner/page.tsx", 'path="/ai-meal-planner"'],
+  ["src/app/(en)/ai-workout-planner/page.tsx", 'path="/ai-workout-planner"'],
+  ["src/components/blog/BlogListPage.tsx", 'path="/blog"'],
+  ["src/components/blog/BlogCategoryPage.tsx", "path={`/blog/category/${categoryId}`}"],
+  ["src/components/views/StaticPageView.tsx", 'page === "about" ? "/about" : "/faq"'],
+  ["src/components/views/ContactView.tsx", 'path="/contact"'],
 ];
 
 describe("SHARE URL LAW source guards — regression net over every surface", () => {

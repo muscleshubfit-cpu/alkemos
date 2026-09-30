@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
+import { ShareButtons } from "@/components/ShareButtons";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 
 import { useEffect, useState } from "react";
@@ -83,6 +84,10 @@ export function BlogListPage({
               ? "نصائح وإرشادات علمية للتغذية واللياقة من فريق Alkemos"
               : "Science-backed nutrition and fitness tips from the Alkemos team"}
           </p>
+        </div>
+
+        <div className="mb-12 flex justify-center">
+          <ShareButtons path="/blog" title={isAr ? "مدونة Alkemos" : "The Alkemos Blog"} />
         </div>
 
         {/* Search + Categories */}

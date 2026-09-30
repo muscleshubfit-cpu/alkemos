@@ -9,6 +9,7 @@ import {
 import { CATEGORY_LABELS, LEVEL_LABELS } from "@/lib/exercises";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import {
   HUB_INITIAL_EXERCISES,
@@ -69,7 +70,8 @@ export async function generateMetadata({
       // inheritance; the hubs card is muscle-group-specific on purpose).
       images: [
         {
-          url: "/images/og/og-home-en.png?v=2",
+          // SOCIAL-OG-3 (2026-09-30): dedicated family card (was og-home — audit round 2: ~90 URLs across ~15 surface types shared the generic home card) + share-cache-bust v=3.
+          url: "/images/og/og-equipment-en.png?v=3",
           width: 1200,
           height: 630,
           alt: "Alkemos — The Smart Fitness & Nutrition Platform",
@@ -82,7 +84,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: hub.titleEn,
       description: hub.descriptionEn,
-      images: ["/images/og/og-home-en.png?v=2"],
+      images: ["/images/og/og-equipment-en.png?v=3"],
     },
   };
 }
@@ -162,6 +164,10 @@ export default async function EquipmentHubPage({
           {hub.introEn}
         </p>
       </header>
+
+      <div className="mb-8">
+        <ShareButtons path={`/equipment/${hub.slug}`} title={hub.h1En} />
+      </div>
 
       {depth && <HubGuideSection depth={depth} lang="en" title="Training Guide" />}
 

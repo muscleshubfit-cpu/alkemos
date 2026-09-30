@@ -3,6 +3,7 @@
 import { useI18n } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { useNav, type View } from "@/hooks/use-nav";
 import { CONSENT_REOPEN_EVENT } from "@/components/CookieConsent";
 // P3-10/م4 (Phase 217): the About page's library sizes derive from the
@@ -79,6 +80,12 @@ export function StaticPageView({
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-20 sm:px-6 md:py-28">
         <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">{pageContent.title}</h1>
         <p className="mt-3 text-sm font-normal text-[var(--muted-foreground)]">{updatedLine}</p>
+
+        {(page === "about" || page === "faq") && (
+          <div className="mt-6">
+            <ShareButtons path={page === "about" ? "/about" : "/faq"} title={pageContent.title} />
+          </div>
+        )}
 
         <div className="mt-16 space-y-12">
           {pageContent.sections.map((section, i) => (

@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { AdSenseAd } from "@/components/AdSenseAd";
 import { OtherTools } from "@/components/OtherTools";
 import { ReviewInviteCard } from "@/components/ReviewInviteCard";
@@ -271,6 +272,13 @@ export default function AiMealPlannerPage() {
             <Sparkles className="h-3.5 w-3.5 text-[var(--muted-2)]" aria-hidden="true" />
             {isAr ? "مجاني: توليدان شهريًا لكل زائر" : "Free: 2 generations per month for every visitor"}
           </div>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <ShareButtons
+            path="/ai-meal-planner"
+            title={isAr ? "مخطط الوجبات بالذكاء الاصطناعي — Alkemos" : "AI Meal Planner — Alkemos"}
+          />
         </div>
 
         {/* Trial form */}

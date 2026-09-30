@@ -120,7 +120,7 @@ describe("AR mirror for /affiliate (§12.53 item 11 — Phase 208)", () => {
     );
   });
 
-  it("AR /affiliate layout: canonical + full hreflang + brandless title within budget + og-home-ar card", () => {
+  it("AR /affiliate layout: canonical + full hreflang + brandless title within budget + dedicated affiliate card", () => {
     expect(arAffiliateMetadata.alternates?.canonical).toBe(
       "https://alkemos.com/ar/affiliate",
     );
@@ -142,13 +142,14 @@ describe("AR mirror for /affiliate (§12.53 item 11 — Phase 208)", () => {
     expect(arAffiliateMetadata.openGraph?.url).toBe(
       "https://alkemos.com/ar/affiliate",
     );
-    // The og-home-ar card is pinned (replace-not-inherit law, batch 1-b).
+    // SOCIAL-OG-3 (2026-09-30): the dedicated og-affiliate-ar card is pinned
+    // (was og-home-ar — audit round 2: ~90 URLs shared the generic home card).
     // The twitter card itself is string-guarded by og-image-coverage.
-    // SOCIAL-OG-2 (2026-09-28): the URL carries the ?v=2 share-cache-bust.
+    // SOCIAL-OG-2 (2026-09-28): the URL carries the ?v=3 share-cache-bust.
     const images = arAffiliateMetadata.openGraph?.images as Array<{
       url: string;
     }>;
-    expect(images?.[0]?.url).toBe("/images/og/og-home-ar.png?v=2");
+    expect(images?.[0]?.url).toBe("/images/og/og-affiliate-ar.png?v=3");
   });
 
   it("EN /affiliate layout completes its half of the pair (was a dangling hreflang → 404)", () => {

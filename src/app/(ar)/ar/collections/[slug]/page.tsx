@@ -9,6 +9,7 @@ import {
 import { CATEGORY_LABELS, TAG_LABELS, calculateNutrition } from "@/lib/foods-shared";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 
@@ -64,7 +65,7 @@ export async function generateMetadata({
       // /api/og-image).
       images: [
         {
-          url: "/images/og/og-collections-ar.png?v=2",
+          url: "/images/og/og-collections-ar.png?v=3",
           width: 1200,
           height: 630,
           alt: "مجموعات أطعمة مختارة من Alkemos",
@@ -75,7 +76,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: collection.titleAr,
       description: collection.descriptionAr,
-      images: ["/images/og/og-collections-ar.png?v=2"],
+      images: ["/images/og/og-collections-ar.png?v=3"],
     },
   };
 }
@@ -135,6 +136,10 @@ export default async function ArabicFoodCollectionPage({
           {collection.introAr}
         </p>
       </header>
+
+      <div className="mb-8">
+        <ShareButtons path={`/collections/${collection.slug}`} title={collection.h1Ar} />
+      </div>
 
       {depth && <HubGuideSection depth={depth} lang="ar" title="دليل التغذية" />}
 

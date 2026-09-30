@@ -3,6 +3,7 @@ import Link from "next/link";
 import { jsonLd, getBreadcrumbSchema } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { DIET_LEVELS, DIET_SYSTEMS } from "@/lib/diet-plan-matrix";
 
 const SITE_URL = "https://alkemos.com";
@@ -52,7 +53,8 @@ export const metadata: Metadata = {
     // NOT inherited — pinned explicitly (same pattern as the EN hub).
     images: [
       {
-        url: "/images/og/og-home-ar.png?v=2",
+        // SOCIAL-OG-3 (2026-09-30): dedicated family card (was og-home — audit round 2: ~90 URLs across ~15 surface types shared the generic home card) + share-cache-bust v=3.
+        url: "/images/og/og-diet-plan-ar.png?v=3",
         width: 1200,
         height: 630,
         alt: "منصة Alkemos الرياضية الشاملة",
@@ -61,7 +63,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-ar.png?v=2"],
+    images: ["/images/og/og-diet-plan-ar.png?v=3"],
   },
 };
 
@@ -108,6 +110,10 @@ export default function DietPlanHubPage() {
             يهبط اليوم على هدفك بالضبط. الخطة الجاهزة تفتح لك الباب؛
             والتخصيص يجعلها بيتك.
           </p>
+
+          <div className="mt-6">
+            <ShareButtons path="/diet-plan" title="مكتبة الخطط الغذائية — Alkemos" />
+          </div>
 
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-[var(--text)]">
             المكتبة — كارت لكل نظام وأسفله اختيارات السعرات

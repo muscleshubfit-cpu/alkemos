@@ -293,6 +293,32 @@ const REGISTERED_SURFACES: Array<{
   { file: "src/components/blog/BlogArticlePage.tsx", component: "SocialShare", pathExpr: "path={`/blog/${post.slug}`}" },
   // For-coaches share bar (Phase 231 — canonical path, no WhatsApp)
   { file: "src/app/(en)/for-coaches/page.tsx", component: "CoachShareButtons", pathExpr: 'path="/for-coaches"' },
+  // SOCIAL-OG-3 (2026-09-30, owner order «تأكد من وجود أزرار مشاركة في كل
+  // الصفحات العامة») — the full public-surface law: every content/
+  // conversion surface now renders a share row (privacy/terms stay
+  // excluded — legal pages carry no share intent).
+  { file: "src/app/(en)/muscles/[group]/page.tsx", component: "ShareButtons", pathExpr: "path={`/muscles/${group}`}" },
+  { file: "src/app/(ar)/ar/muscles/[group]/page.tsx", component: "ShareButtons", pathExpr: "path={`/muscles/${group}`}" },
+  { file: "src/app/(en)/collections/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/collections/${collection.slug}`}" },
+  { file: "src/app/(ar)/ar/collections/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/collections/${collection.slug}`}" },
+  { file: "src/app/(en)/equipment/[type]/page.tsx", component: "ShareButtons", pathExpr: "path={`/equipment/${hub.slug}`}" },
+  { file: "src/app/(ar)/ar/equipment/[type]/page.tsx", component: "ShareButtons", pathExpr: "path={`/equipment/${hub.slug}`}" },
+  { file: "src/app/(en)/authors/page.tsx", component: "ShareButtons", pathExpr: 'path="/authors"' },
+  { file: "src/app/(ar)/ar/authors/page.tsx", component: "ShareButtons", pathExpr: 'path="/authors"' },
+  { file: "src/app/(en)/authors/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/authors/${author.slug}`}" },
+  { file: "src/app/(ar)/ar/authors/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/authors/${author.slug}`}" },
+  { file: "src/app/(en)/compare/page.tsx", component: "ShareButtons", pathExpr: 'path="/compare"' },
+  { file: "src/app/(ar)/ar/compare/page.tsx", component: "ShareButtons", pathExpr: 'path="/compare"' },
+  { file: "src/app/(en)/compare/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/compare/${comparison.slug}`}" },
+  { file: "src/app/(ar)/ar/compare/[slug]/page.tsx", component: "ShareButtons", pathExpr: "path={`/compare/${comparison.slug}`}" },
+  { file: "src/app/(en)/diet-plan/page.tsx", component: "ShareButtons", pathExpr: 'path="/diet-plan"' },
+  { file: "src/app/(ar)/ar/diet-plan/page.tsx", component: "ShareButtons", pathExpr: 'path="/diet-plan"' },
+  { file: "src/app/(en)/ai-meal-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/ai-meal-planner"' },
+  { file: "src/app/(en)/ai-workout-planner/page.tsx", component: "ShareButtons", pathExpr: 'path="/ai-workout-planner"' },
+  { file: "src/components/blog/BlogListPage.tsx", component: "ShareButtons", pathExpr: 'path="/blog"' },
+  { file: "src/components/blog/BlogCategoryPage.tsx", component: "ShareButtons", pathExpr: "path={`/blog/category/${categoryId}`}" },
+  { file: "src/components/views/StaticPageView.tsx", component: "ShareButtons", pathExpr: 'page === "about" ? "/about" : "/faq"' },
+  { file: "src/components/views/ContactView.tsx", component: "ShareButtons", pathExpr: 'path="/contact"' },
 ];
 
 describe("SHARE-COVERAGE GUARD — every public share surface is registered + deterministic", () => {

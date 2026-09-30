@@ -54,9 +54,9 @@ export async function generateMetadata({
       description,
       // SOCIAL-OG-2 (2026-09-28): dims were declared 1200×630 while the
       // served file is a 768×768 square (declared≠fetched can make
-      // platforms reject the preview). Measured dims + webp type + ?v=2
+      // platforms reject the preview). Measured dims + webp type + ?v=3
       // cache-bust for stale platform thumbnail caches.
-      images: [{ url: `${program.image}?v=2`, width: 768, height: 768, type: "image/webp" }],
+      images: [{ url: `${program.image}?v=3`, width: 768, height: 768, type: "image/webp" }],
       siteName: "Alkemos",
       locale: "ar_EG",
     },
@@ -64,7 +64,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [`${program.image}?v=2`],
+      images: [`${program.image}?v=3`],
     },
   };
 }

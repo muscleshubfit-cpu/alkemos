@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     // card (design mirrors /api/og-image; see scripts/generate-og-cards.py).
     images: [
       {
-        url: "/images/og/og-tools-ar.png?v=2",
+        url: "/images/og/og-tools-ar.png?v=3",
         width: 1200,
         height: 630,
         alt: "حاسبات اللياقة المجانية من Alkemos",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-tools-ar.png?v=2"],
+    images: ["/images/og/og-tools-ar.png?v=3"],
     title: "الأدوات المجانية | Alkemos",
     description: "حاسبات لياقة وتغذية مجانية بالعربية لمساعدتك في رحلتك.",
   },

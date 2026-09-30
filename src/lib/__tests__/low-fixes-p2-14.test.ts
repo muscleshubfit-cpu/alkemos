@@ -99,11 +99,11 @@ describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit find
     [BLOG_AR, "image: og.shareImage,"],
     [
       COMPARE_EN,
-      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`",
+      "image: `https://alkemos.com/images/og/og-compare-${comparison.slug}-en.png?v=3`",
     ],
     [
       COMPARE_AR,
-      "image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`",
+      "image: `https://alkemos.com/images/og/og-compare-${comparison.slug}-ar.png?v=3`",
     ],
   ];
 
@@ -125,15 +125,17 @@ describe("P2-14 / §12.40 — og:image ↔ JSON-LD image consistency (audit find
       expect(src).toContain("images: [og.shareImage]");
       expect(src).toContain("image: og.shareImage,");
     }
-    // Compare mirrors: the branded generator URL is declared once and
-    // must be identical for og:image and twitter:image.
+    // Compare mirrors (SOCIAL-OG-3): the STATIC per-comparison card URL
+    // is declared once and must be identical for og:image and twitter:image.
     for (const file of [COMPARE_EN, COMPARE_AR]) {
       const src = readFileSync(file, "utf8");
-      const og = src.match(/url: `(https:\/\/alkemos\.com\/api\/og-image\/[^`]+)`/);
-      const twitter = src.match(/images: \[`(https:\/\/alkemos\.com\/api\/og-image\/[^`]+)`\]/);
+      const og = src.match(/url: `(https:\/\/alkemos\.com\/images\/og\/og-compare-[^`]+)`/);
+      const twitter = src.match(/images: \[`(https:\/\/alkemos\.com\/images\/og\/og-compare-[^`]+)`\]/);
       expect(og, `${file} og:image url`).toBeTruthy();
       expect(twitter, `${file} twitter:image`).toBeTruthy();
       expect(og?.[1]).toBe(twitter?.[1]);
+      // the slow default-title generator URL must stay gone from the pages
+      expect(src).not.toContain("api/og-image/");
     }
   });
 });

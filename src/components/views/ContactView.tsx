@@ -1,6 +1,7 @@
 "use client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
@@ -83,6 +84,10 @@ export function ContactView() {
               ? "لديك سؤال أو استفسار؟ استخدم الاستمارة أو راسلنا على البريد — ورسائل الحسابات المسجلة تفتح تذكرة دعم نرد عليها عادةً خلال 24 ساعة."
               : "Have a question? Use the form or email us — signed-in messages open a support ticket and usually get a reply within 24 hours."}
           </p>
+
+          <div className="mt-6 flex justify-center">
+            <ShareButtons path="/contact" title={isAr ? "تواصل معنا — Alkemos" : "Contact Us — Alkemos"} />
+          </div>
         </div>
 
         <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">

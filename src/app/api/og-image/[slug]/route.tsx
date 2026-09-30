@@ -1,61 +1,62 @@
 import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { fetchBlogForOG } from "@/lib/blog-server";
+import { getComparisonBySlug } from "@/lib/comparisons";
 
 /**
  * Dynamic OG image generator.
  *
- * GET /api/og-image/[slug]?lang=en|ar
+ * GET /api/og-image/[slug]?lang=en|ar[&type=compare]
  *
  * Returns a 1200×630 PNG image optimized for social sharing (Twitter,
  * Facebook, LinkedIn, WhatsApp, Telegram). Generated on-the-fly using
- * next/og (Satori under the hood) — no static image generation needed.
+ * next/og (Satori under the hood).
  *
- * Design:
- *   - Dark gradient background (#1d1d1f → #0071e3)
- *   - Alkemos brand mark (A) + name top-left
- *   - Article title centered (auto-fit font size based on length)
- *   - Article description (truncated to 120 chars)
- *   - Site URL "alkemos.com" footer
+ * Design (SOCIAL-OG-3, 2026-09-30): the card now mirrors the REAL brand
+ * system — the light monochrome marble identity from globals.css
+ * (--bg #FAF8F5, --text #201D1A, --edge #E5DFD6): warm off-white
+ * diagonal gradient, near-black circle "A" mark + wordmark, near-black
+ * title, warm-gray description/footer, machined hairline rules around
+ * the title block. History: every card built before SOCIAL-OG-3 used a
+ * dark #1d1d1f → #0071e3 Apple-blue gradient that matched nothing in
+ * the brand (the site contains zero blue) — ~354 surfaces shared a card
+ * that looked like a generic blue placeholder (the owner-reported
+ * «المربع الأزرق»). The static family cards (scripts/generate-og-cards.py)
+ * carry the same redesign — guarded visually by og-image-visual.test.ts.
+ *
+ * SOCIAL-OG-3 (2026-09-30, owner order «ابدأ التنفيذ للخطة»):
+ *   7. `type=compare` is now honored: comparison slugs are looked up in
+ *      src/lib/comparisons.ts (pure data — edge-safe) and render the
+ *      real bilingual H1, not the generic default. Previously the route
+ *      looked EVERY slug up in blog_posts, missed the 3 comparison
+ *      slugs, and rendered a default-English title on all 6 comparison
+ *      cards — even for ?lang=ar. The compare PAGES now ship STATIC
+ *      cards (public/images/og/og-compare-<slug>-<lang>.png — no cold
+ *      start on the crawler path); this branch keeps every legacy
+ *      generator URL that platforms may still have cached correct.
+ *   8. AR footer word order fixed: Satori renders flex children in DOM
+ *      order and IGNORES `direction` for flex layout (verified
+ *      empirically 2026-09-30 by rendering the fragment with next/og:
+ *      DOM [مدونة, Alkemos] renders مدونة LEFT of Alkemos — the exact
+ *      reversed-word-order defect the 2026-09-30 audit saw). The Arabic
+ *      word must come LAST in the DOM so it renders RIGHTMOST: visual
+ *      [Alkemos][مدونة] = correct RTL reading order.
  *
  * Phase 151 (2026-09-08 — AR OG bug): the previous implementation imported
  * ImageResponse from @vercel/og (bundled 2023-era Satori without Arabic
- * shaping/bidi). Every ?lang=ar request returned a 0-byte PNG (verified
- * live: EN 251KB / AR 0B), so ALL Arabic articles shared broken cards on
- * WhatsApp/Telegram/Facebook — the core Arabic market surfaces. Fix:
- *   1. ImageResponse now comes from next/og (modern Satori with harfbuzz
- *      shaping + bidi — Arabic verified rendering correctly, joined
- *      glyph forms, RTL order, mixed AR+EN lines).
- *   2. Cairo (Google font, Arabic+Latin, OFL) is SELF-HOSTED at
- *      public/fonts/og-cairo-{400,700}.ttf and fetched same-origin on
- *      first use, then cached module-level per warm isolate. No external
- *      runtime dependency. If fonts fail to load, we degrade gracefully
- *      to the bundled default (EN still renders — never worse than before).
- *   3. Brand mark fixed "M" → "A" (leftover from the old brand).
- *   4. Cache-Control: public 1day + SWR so social crawlers and CDNs
- *      cache cards; keyed by slug+lang (both languages cached apart).
+ * shaping/bidi). Every ?lang=ar request returned a 0-byte PNG, so ALL
+ * Arabic articles shared broken cards — fixed by switching to next/og
+ * (modern Satori with harfbuzz shaping + bidi) and self-hosting Cairo
+ * (public/fonts/og-cairo-{400,700}.ttf, fetched same-origin on first
+ * use, then cached module-level per warm isolate).
  *
- * VERCEL-USAGE-2 (2026-09-16, owner order «المشكلة كبيرة» after the usage
- * report: Image Transformations 4K/5K · Fluid Active CPU 3h36m/4h):
- *   5. `s-maxage=3600` added — Vercel's edge network now caches each
- *      generated PNG for 1h. Requirements honored: GET-only, status 200,
- *      no Set-Cookie (this route is excluded from the middleware below
- *      precisely so crawler responses stay cookie-free and cacheable).
- *      A repeat WhatsApp/Telegram/X fetch within the hour = edge hit:
- *      zero function invocations, zero Satori CPU, zero Supabase query,
- *      zero Fast Origin Transfer. Cloudflare rule ت-1 (1-day edge TTL)
- *      is APPLIED since VERCEL-USAGE-3 (owner order 2026-09-16): the
- *      CF edge now serves these PNGs cf-cache-status MISS→HIT for a
- *      full day — this s-maxage header remains the Vercel-edge half
- *      of the same two-layer defense.
- *   6. SOCIAL-OG (2026-09-22, owner order «اجعل النشر يستخدم صورة المقال»):
- *      article og:image is now COVER-FIRST (og.shareImage in
- *      blog-server.ts — the real featured photo, Pexels 1200×630 jpeg
- *      crop), so this generator is the FALLBACK path for photo-less
- *      articles only. s-maxage 3600 → 86400: a card only changes when
- *      its title/description change (rare), and one full edge day per
- *      slug+lang keeps the first-platform-fetch warm (the cold
- *      1.7–5.2s render is exactly what crawlers time out on).
+ * VERCEL-USAGE-2 (2026-09-16): s-maxage caching (see headers below) so
+ * crawler re-fetches stop re-running Satori. SOCIAL-OG (2026-09-22):
+ * article og:image is COVER-FIRST (og.shareImage in blog-server.ts —
+ * the real featured photo), so this generator is the FALLBACK path for
+ * photo-less articles only; s-maxage 86400 keeps the first-platform-
+ * fetch warm (the cold 1.7–5.2s render is exactly what crawlers time
+ * out on).
  */
 
 export const runtime = "edge";
@@ -102,19 +103,29 @@ export async function GET(
 ) {
   const { slug } = await params;
   const lang = (request.nextUrl.searchParams.get("lang") as "en" | "ar") || "en";
+  // SOCIAL-OG-3 item 7: honor type=compare (legacy + fallback path).
+  const type = request.nextUrl.searchParams.get("type");
 
-  // Defaults if post not found
+  // Defaults if nothing is found
   let title = "Alkemos — Fitness & Nutrition Platform";
   let description = "AI-powered fitness & nutrition coaching platform";
 
-  try {
-    const og = await fetchBlogForOG(slug, lang);
-    if (og) {
-      title = og.title;
-      description = og.description;
+  if (type === "compare") {
+    const comparison = getComparisonBySlug(slug);
+    if (comparison) {
+      title = lang === "ar" ? comparison.h1Ar : comparison.h1En;
+      description = lang === "ar" ? comparison.descriptionAr : comparison.descriptionEn;
     }
-  } catch {
-    // keep defaults
+  } else {
+    try {
+      const og = await fetchBlogForOG(slug, lang);
+      if (og) {
+        title = og.title;
+        description = og.description;
+      }
+    } catch {
+      // keep defaults
+    }
   }
 
   // Truncate description to fit
@@ -138,21 +149,23 @@ export async function GET(
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "linear-gradient(135deg, #1d1d1f 0%, #0071e3 100%)",
+          // SOCIAL-OG-3: the real brand palette — light warm marble,
+          // never the retired blue gradient (visual law test guards it).
+          background: "linear-gradient(135deg, #FAF8F5 0%, #EAE3D8 100%)",
           padding: 60,
           fontFamily: fonts ? "Cairo" : "sans-serif",
-          color: "white",
+          color: "#201D1A",
         }}
       >
-        {/* Header: brand */}
+        {/* Header: brand — near-black circle "A" + wordmark */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
               width: 56,
               height: 56,
               borderRadius: 28,
-              background: "white",
-              color: "#0071e3",
+              background: "#201D1A",
+              color: "#FFFFFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -167,8 +180,19 @@ export async function GET(
           </div>
         </div>
 
-        {/* Title + description */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Title + description — framed by the machined hairline rules
+            (the "1px machined edge" motif from the site's design system) */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            borderTop: "2px solid #E5DFD6",
+            borderBottom: "2px solid #E5DFD6",
+            padding: "30px 0",
+            maxWidth: 1080,
+          }}
+        >
           <div
             style={{
               fontSize: titleFontSize,
@@ -176,6 +200,7 @@ export async function GET(
               lineHeight: 1.15,
               letterSpacing: -1,
               maxWidth: 1000,
+              color: "#201D1A",
             }}
           >
             {title}
@@ -184,7 +209,7 @@ export async function GET(
             style={{
               fontSize: 24,
               fontWeight: 400,
-              opacity: 0.85,
+              color: "#6E675D",
               maxWidth: 900,
               lineHeight: 1.3,
             }}
@@ -193,22 +218,25 @@ export async function GET(
           </div>
         </div>
 
-        {/* Footer: URL */}
+        {/* Footer: URL — SOCIAL-OG-3 item 8: Satori renders flex children
+            in DOM order and ignores `direction` for flex layout (verified
+            empirically), so for AR the Arabic word comes LAST in the DOM
+            and therefore renders RIGHTMOST: visual [Alkemos][مدونة] reads
+            correctly right-to-left. */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             fontSize: 20,
-            opacity: 0.7,
+            color: "#8A8378",
           }}
         >
           <div>alkemos.com</div>
           {lang === "ar" ? (
-            // flex gap keeps the AR/Latin bidi boundary from collapsing
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div>مدونة</div>
               <div>Alkemos</div>
+              <div>مدونة</div>
             </div>
           ) : (
             <div>Alkemos Blog</div>
@@ -223,9 +251,9 @@ export async function GET(
       headers: {
         // VERCEL-USAGE-2: s-maxage lets Vercel's edge cache the PNG —
         // crawler re-fetches stop re-running Satori. SOCIAL-OG
-        // (2026-09-22): 3600 → 86400 (doc item 6) — a cold render is
-        // what social crawlers time out on; one full edge day per
-        // slug+lang keeps the first-platform-fetch warm.
+        // (2026-09-22): 3600 → 86400 — a cold render is what social
+        // crawlers time out on; one full edge day per slug+lang keeps
+        // the first-platform-fetch warm.
         "Cache-Control":
           "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },

@@ -72,7 +72,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       // mirror's og-home-ar inheritance).
       images: [
         {
-          url: "/images/og/og-home-en.png?v=2",
+          // SOCIAL-OG-3 (2026-09-30): dedicated family card (was og-home — audit round 2: ~90 URLs across ~15 surface types shared the generic home card) + share-cache-bust v=3.
+          url: "/images/og/og-diet-plan-en.png?v=3",
           width: 1200,
           height: 630,
           alt: "Alkemos — The Smart Fitness & Nutrition Platform",
@@ -81,7 +82,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      images: ["/images/og/og-home-en.png?v=2"],
+      images: ["/images/og/og-diet-plan-en.png?v=3"],
     },
   };
 }

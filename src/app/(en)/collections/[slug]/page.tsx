@@ -10,6 +10,7 @@ import { CATEGORY_LABELS, TAG_LABELS } from "@/lib/foods-shared";
 import { calculateNutrition } from "@/lib/foods-shared";
 import { getHubDepth } from "@/lib/hub-depth";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { HubGuideSection, HubFaqSection } from "@/components/hubs/HubDepth";
 import { getItemListSchema, getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -70,7 +71,7 @@ export async function generateMetadata({
       // static branded family card (design mirrors /api/og-image).
       images: [
         {
-          url: "/images/og/og-collections-en.png?v=2",
+          url: "/images/og/og-collections-en.png?v=3",
           width: 1200,
           height: 630,
           alt: "Alkemos Curated Food Collections",
@@ -81,7 +82,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: collection.titleEn,
       description: collection.descriptionEn,
-      images: ["/images/og/og-collections-en.png?v=2"],
+      images: ["/images/og/og-collections-en.png?v=3"],
     },
   };
 }
@@ -142,6 +143,10 @@ export default async function FoodCollectionPage({
           {collection.introEn}
         </p>
       </header>
+
+      <div className="mb-8">
+        <ShareButtons path={`/collections/${collection.slug}`} title={collection.h1En} />
+      </div>
 
       {depth && <HubGuideSection depth={depth} lang="en" title="Nutrition Guide" />}
 

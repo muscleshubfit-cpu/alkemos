@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { COMPARISONS, getComparisonBySlug } from "@/lib/comparisons";
 import { getArticleSchema, getBreadcrumbSchema, getItemListSchema, jsonLd } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
@@ -60,13 +61,19 @@ export async function generateMetadata({
       description: comparison.descriptionEn,
       siteName: "Alkemos",
       locale: "en_US",
-      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`, width: 1200, height: 630 }],
+      // SOCIAL-OG-3 (2026-09-30): STATIC per-comparison card — the dynamic
+      // generator never understood type=compare (blog_posts lookup → default
+      // English title on all 6 comparison cards) and its ~5s cold render
+      // burned the FB/WhatsApp crawler budget. Static file: correct title,
+      // brand-true light design, zero cold start. The generator keeps a
+      // correct type=compare branch for legacy cached URLs only.
+      images: [{ url: `https://alkemos.com/images/og/og-compare-${comparison.slug}-en.png?v=3`, width: 1200, height: 630, type: "image/png" }],
     },
     twitter: {
       card: "summary_large_image",
       title: comparison.titleEn,
       description: comparison.descriptionEn,
-      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`],
+      images: [`https://alkemos.com/images/og/og-compare-${comparison.slug}-en.png?v=3`],
     },
   };
 }
@@ -89,10 +96,10 @@ export default async function ComparisonPage({
     description: comparison.descriptionEn,
     slug: `compare/${comparison.slug}`,
     // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
-    // consistency — same branded og-image URL the metadata declares for
-    // og:image/twitter:image (previously fell back to /logo.png, a
-    // mixed-source inconsistency on all 6 comparison pages).
-    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=en&type=compare&v=2`,
+    // consistency — same static card the metadata declares above
+    // (SOCIAL-OG-3; previously the /api/og-image generator URL, before
+    // that /logo.png).
+    image: `https://alkemos.com/images/og/og-compare-${comparison.slug}-en.png?v=3`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,
@@ -175,6 +182,10 @@ export default async function ComparisonPage({
         </header>
 
         <section className="mb-12" aria-label="Comparison table">
+        <div className="mb-10">
+          <ShareButtons path={`/compare/${comparison.slug}`} title={comparison.h1En} />
+        </div>
+
           <div className="overflow-x-auto rounded-2xl border border-[var(--edge)]">
             <table className="w-full text-sm">
               <thead className="bg-[var(--tint)]">

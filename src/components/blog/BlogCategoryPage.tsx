@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageBanner } from "@/components/PageBanner";
+import { ShareButtons } from "@/components/ShareButtons";
 import { sizedRemoteImage } from "@/lib/remote-image-size";
 import { BLOG_CATEGORIES } from "@/lib/blog-server";
 import { BLOG_CATEGORY_CONTENT } from "@/lib/blog-category-content";
@@ -68,6 +69,13 @@ export function BlogCategoryPage({
           <p className="mx-auto mt-6 max-w-2xl text-lg font-normal leading-relaxed text-[var(--muted-foreground)]">
             {isAr ? content.introAr : content.introEn}
           </p>
+        </div>
+
+        <div className="mb-10 flex justify-center">
+          <ShareButtons
+            path={`/blog/category/${categoryId}`}
+            title={isAr ? content.titleAr : content.titleEn}
+          />
         </div>
 
         {/* Category navigation — real links (the crawlable chip row) */}

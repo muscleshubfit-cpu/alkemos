@@ -4,6 +4,7 @@ import { COMPARISONS } from "@/lib/comparisons";
 import { getBreadcrumbSchema, getItemListSchema, jsonLd } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 
 /**
  * /ar/compare — Comparison index page (AR).
@@ -37,7 +38,8 @@ export const metadata: Metadata = {
     // summary_large_image so the 1200×630 asset actually shows.
     images: [
       {
-        url: "/images/og/og-home-ar.png?v=2",
+        // SOCIAL-OG-3 (2026-09-30): dedicated family card (was og-home — audit round 2: ~90 URLs across ~15 surface types shared the generic home card) + share-cache-bust v=3.
+        url: "/images/og/og-compare-ar.png?v=3",
         width: 1200,
         height: 630,
         alt: "منصة Alkemos الرياضية الشاملة",
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-ar.png?v=2"],
+    images: ["/images/og/og-compare-ar.png?v=3"],
   },
 };
 
@@ -95,6 +97,10 @@ export default function ArabicCompareIndexPage() {
         </header>
 
         <div className="mt-10 space-y-4">
+        <div className="mt-6 flex justify-center">
+          <ShareButtons path="/compare" title="Alkemos مقابل المنافسين — Alkemos" />
+        </div>
+
           {COMPARISONS.map((c) => (
             <Link
               key={c.slug}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Facebook } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { AUTHORS, getAuthorBySlug, getProfilePageSchema } from "@/lib/authors";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -74,7 +75,7 @@ export async function generateMetadata({
       description: author.bioEn.slice(0, 160),
       siteName: "Alkemos",
       locale: "en_US",
-      images: author.avatarUrl ? [{ url: `${author.avatarUrl}?v=2`, width: 400, height: 400 }] : [],
+      images: author.avatarUrl ? [{ url: `${author.avatarUrl}?v=3`, width: 400, height: 400 }] : [],
     },
     twitter: {
       card: "summary",
@@ -148,6 +149,10 @@ export default async function AuthorProfilePage({
             </p>
           </div>
         </header>
+
+        <div className="mb-8">
+          <ShareButtons path={`/authors/${author.slug}`} title={author.nameEn} />
+        </div>
 
         <section className="mb-10">
           <h2 className="text-xl font-semibold tracking-tight md:text-2xl">About</h2>

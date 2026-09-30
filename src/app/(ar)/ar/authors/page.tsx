@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { AUTHORS } from "@/lib/authors";
 import { getBreadcrumbSchema, jsonLd } from "@/lib/seo";
 
@@ -40,7 +41,8 @@ export const metadata: Metadata = {
     locale: "ar_EG",
     images: [
       {
-        url: "/images/og/og-home-ar.png?v=2",
+        // SOCIAL-OG-3 (2026-09-30): dedicated family card (was og-home — audit round 2: ~90 URLs across ~15 surface types shared the generic home card) + share-cache-bust v=3.
+        url: "/images/og/og-authors-ar.png?v=3",
         width: 1200,
         height: 630,
         alt: "Alkemos — منصة اللياقة والتغذية الذكية المتكاملة",
@@ -49,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og/og-home-ar.png?v=2"],
+    images: ["/images/og/og-authors-ar.png?v=3"],
   },
 };
 
@@ -92,6 +94,10 @@ export default function ArabicAuthorsIndexPage() {
           متخصصون حقيقيون. تعرّف على الأشخاص خلف المحتوى — خبرتهم وشهاداتهم
           والمعايير التي يراجعون عليها.
         </p>
+
+        <div className="mt-6">
+          <ShareButtons path="/authors" title="الكُتّاب والمراجعون — Alkemos" />
+        </div>
 
         <ul className="mt-12 space-y-6">
           {AUTHORS.map((author) => (

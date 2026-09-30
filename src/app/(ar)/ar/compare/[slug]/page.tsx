@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareButtons } from "@/components/ShareButtons";
 import { COMPARISONS, getComparisonBySlug } from "@/lib/comparisons";
 import { getArticleSchema, getBreadcrumbSchema, getItemListSchema, jsonLd, stripTrailingBrandForArTemplate } from "@/lib/seo";
 import { resolveAuthor } from "@/lib/authors";
@@ -50,13 +51,16 @@ export async function generateMetadata({
       description: comparison.descriptionAr,
       siteName: "Alkemos",
       locale: "ar_EG",
-      images: [{ url: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`, width: 1200, height: 630 }],
+      // SOCIAL-OG-3 (2026-09-30): STATIC per-comparison card — same fix as
+      // the EN mirror (the generator's type=compare branch stays as the
+      // legacy-URL fallback only).
+      images: [{ url: `https://alkemos.com/images/og/og-compare-${comparison.slug}-ar.png?v=3`, width: 1200, height: 630, type: "image/png" }],
     },
     twitter: {
       card: "summary_large_image",
       title: comparison.titleAr,
       description: comparison.descriptionAr,
-      images: [`https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`],
+      images: [`https://alkemos.com/images/og/og-compare-${comparison.slug}-ar.png?v=3`],
     },
   };
 }
@@ -81,7 +85,9 @@ export default async function ArabicComparisonPage({
     // §12.40 (P2-14, audit finding #10): og:image ↔ JSON-LD image
     // consistency — same branded og-image URL the metadata declares
     // (?lang=ar variant; previously fell back to /logo.png).
-    image: `https://alkemos.com/api/og-image/${comparison.slug}?lang=ar&type=compare&v=2`,
+    // §12.40 consistency — same static AR card the metadata declares
+    // above (SOCIAL-OG-3).
+    image: `https://alkemos.com/images/og/og-compare-${comparison.slug}-ar.png?v=3`,
     datePublished: today,
     dateModified: today,
     authorProfile: author,
@@ -163,6 +169,10 @@ export default async function ArabicComparisonPage({
         </header>
 
         <section className="mb-12" aria-label="جدول المقارنة">
+        <div className="mb-10">
+          <ShareButtons path={`/compare/${comparison.slug}`} title={comparison.h1Ar} />
+        </div>
+
           <div className="overflow-x-auto rounded-2xl border border-[var(--edge)]">
             <table className="w-full text-sm">
               <thead className="bg-[var(--tint)]">

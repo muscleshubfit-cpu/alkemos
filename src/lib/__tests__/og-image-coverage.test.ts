@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 /**
@@ -45,26 +45,47 @@ import { resolve } from "node:path";
  *      openGraph.images and twitter.images.
  *   2. Wired twitter cards are summary_large_image (a "summary" card
  *      ignores images — pointless with a 1200×630 asset).
- *   3. All 14 assets exist on disk.
+ *   3. All assets exist on disk.
  *   4. No wired surface regresses to /logo.png.
  *   5. SOCIAL-OG-2 (2026-09-28, «المربع الأزرق» follow-up): every family-
- *      card reference carries the `?v=2` share-cache-bust suffix — pages
- *      scraped by Facebook/WhatsApp during an earlier broken-OG era
+ *      card reference carries the `?v=2`→`?v=3` share-cache-bust suffix —
+ *      pages scraped by Facebook/WhatsApp during an earlier broken-OG era
  *      (0-byte AR cards pre-Phase-151, logo cards pre-Phase-187,
  *      cold-timeout generator cards pre-SOCIAL-OG) keep the remembered
  *      broken thumbnail for up to 30 days; a NEW image URL forces a
  *      fresh fetch at the next scrape. Bump the version in ONE place
  *      (the SHARE_IMG_VER constant below) to re-bust the whole site.
+ *
+ * SOCIAL-OG-3 (2026-09-30, owner order «ابدأ التنفيذ للخطة»):
+ *   6. DEDICATED CARD LAW — every surface that used to pin the generic
+ *      og-home card (audit round 2: ~90 URLs across ~15 surface types ×
+ *      2 languages) now pins its own family card: programs, memberships,
+ *      coaching, diet-plan hub + cells, equipment, authors (hub + AR
+ *      mirrors), compare hub, about, contact, faq, affiliate, legal
+ *      (privacy + terms), for-coaches/register. og-home stays ONLY on
+ *      the true home roots ((ar)/ar/layout.tsx, metadata.ts) and the
+ *      noindex coach-landing pair.
+ *   7. STATIC per-comparison cards — /compare/[slug] (EN+AR) left the
+ *      /api/og-image generator (it never understood type=compare: the
+ *      slug was looked up in blog_posts, missed, and a default-English
+ *      title rendered on all 6 comparison cards; its ~5s cold render
+ *      also burned the FB/WhatsApp crawler budget). The generator keeps
+ *      a correct type=compare branch for legacy cached URLs only.
+ *   8. The card DESIGN is guarded visually by og-image-visual.test.ts
+ *      (warm-light brand palette; the retired #0071e3 Apple-blue
+ *      gradient can never come back unnoticed).
  */
 
 const OG_DIR = resolve(__dirname, "../../../public/images/og");
 
 /**
- * SOCIAL-OG-2 share-image cache-bust version. Bump (v=3, v=4 …) whenever
+ * SOCIAL-OG-2 share-image cache-bust version. Bump (v=4, v=5 …) whenever
  * a full-site thumbnail re-fetch at the platforms is needed again — the
  * coverage assertions below enforce that every wired surface carries it.
+ * SOCIAL-OG-3 (2026-09-30): v=3 — the full card redesign + re-wiring
+ * makes every share URL fresh at the platforms.
  */
-const SHARE_IMG_VER = "?v=2";
+const SHARE_IMG_VER = "?v=3";
 
 const CARDS = [
   "og-home-en", "og-home-ar",
@@ -81,6 +102,20 @@ const CARDS = [
   "og-evo-en", "og-evo-ar",
   "og-for-coaches-en", "og-for-coaches-ar",
   "og-blog-en", "og-blog-ar",
+  // SOCIAL-OG-3 (2026-09-30): dedicated cards for every surface that
+  // previously fell back to the generic og-home card (audit round 2).
+  "og-programs-en", "og-programs-ar",
+  "og-memberships-en", "og-memberships-ar",
+  "og-coaching-en", "og-coaching-ar",
+  "og-diet-plan-en", "og-diet-plan-ar",
+  "og-equipment-en", "og-equipment-ar",
+  "og-authors-en", "og-authors-ar",
+  "og-compare-en", "og-compare-ar",
+  "og-about-en", "og-about-ar",
+  "og-contact-en", "og-contact-ar",
+  "og-faq-en", "og-faq-ar",
+  "og-affiliate-en", "og-affiliate-ar",
+  "og-legal-en", "og-legal-ar",
 ] as const;
 
 /** surface source → the family card it must reference */
@@ -111,57 +146,49 @@ const WIRED_SURFACES: Array<[string, string]> = [
   ["src/app/(ar)/ar/tools/water-tracker/layout.tsx", "og-tools-ar"],
   ["src/app/(ar)/ar/layout.tsx", "og-home-ar"],
   // EN list surfaces (§12.53 item 4 — a child openGraph block replaces
-  // the root one in Next.js merging, so these must pin their own card)
+  // the root one in Next.js merging, so these must pin their own card).
+  // SOCIAL-OG-3: every former og-home pin now has its dedicated card.
   ["src/app/(en)/exercises/layout.tsx", "og-exercises-en"],
   ["src/app/(en)/foods/layout.tsx", "og-foods-en"],
-  ["src/app/(en)/programs/layout.tsx", "og-home-en"],
-  ["src/app/(en)/coaching/layout.tsx", "og-home-en"],
-  ["src/app/(en)/memberships/layout.tsx", "og-home-en"],
+  ["src/app/(en)/programs/layout.tsx", "og-programs-en"],
+  ["src/app/(en)/coaching/layout.tsx", "og-coaching-en"],
+  ["src/app/(en)/memberships/layout.tsx", "og-memberships-en"],
   ["src/app/(en)/evo/layout.tsx", "og-evo-en"],
-  ["src/app/(en)/diet-plan/page.tsx", "og-home-en"],
-  ["src/app/(en)/diet-plan/[level]/[system]/page.tsx", "og-home-en"],
-  ["src/app/(en)/equipment/[type]/page.tsx", "og-home-en"],
-  // AR list surfaces (batch 1-b — the same replace-not-inherit gap on
-  // the AR side, caught by batch-1 live verification)
+  ["src/app/(en)/diet-plan/page.tsx", "og-diet-plan-en"],
+  ["src/app/(en)/diet-plan/[level]/[system]/page.tsx", "og-diet-plan-en"],
+  ["src/app/(en)/equipment/[type]/page.tsx", "og-equipment-en"],
+  ["src/app/(en)/compare/page.tsx", "og-compare-en"],
+  ["src/app/(en)/faq/page.tsx", "og-faq-en"],
+  ["src/app/(en)/about/page.tsx", "og-about-en"],
+  ["src/app/(en)/contact/page.tsx", "og-contact-en"],
+  ["src/app/(en)/privacy/page.tsx", "og-legal-en"],
+  ["src/app/(en)/terms/page.tsx", "og-legal-en"],
+  ["src/app/(en)/authors/page.tsx", "og-authors-en"],
+  ["src/app/(en)/affiliate/layout.tsx", "og-affiliate-en"],
+  ["src/app/(en)/for-coaches/register/layout.tsx", "og-for-coaches-en"],
+  // AR list surfaces (batch 1-b + SOCIAL-OG-3 dedicated cards)
   ["src/app/(ar)/ar/evo/layout.tsx", "og-evo-ar"],
-  ["src/app/(ar)/ar/coaching/layout.tsx", "og-home-ar"],
-  ["src/app/(ar)/ar/diet-plan/page.tsx", "og-home-ar"],
-  ["src/app/(ar)/ar/diet-plan/[level]/[system]/page.tsx", "og-home-ar"],
-  // §12.53 item 11 (2026-09-16): the affiliate AR mirror — same gap
-  // (its layout declares openGraph, so og-home-ar must be pinned).
-  ["src/app/(ar)/ar/affiliate/layout.tsx", "og-home-ar"],
-  // Discovery 208 → Phase 209 (2026-09-16): the EN half of the affiliate
-  // pair — same replace-not-inherit gap (see header note).
-  ["src/app/(en)/affiliate/layout.tsx", "og-home-en"],
-  // Phase 216 (P2-1 — deep-audit confirmed-7): the 14 audited surfaces —
-  // static AR pages (about/privacy/terms/contact), FAQ ×2, compare ×2,
-  // the two AI planners ×2 and the coach-registration pair; the compare
-  // + register + AR-equipment twitter cards were "summary" (ignores
-  // images) and are now summary_large_image.
-  ["src/app/(ar)/ar/about/page.tsx", "og-home-ar"],
-  ["src/app/(ar)/ar/privacy/page.tsx", "og-home-ar"],
-  ["src/app/(ar)/ar/terms/page.tsx", "og-home-ar"],
-  ["src/app/(ar)/ar/contact/page.tsx", "og-home-ar"],
-  ["src/app/(en)/faq/page.tsx", "og-home-en"],
-  ["src/app/(ar)/ar/faq/page.tsx", "og-home-ar"],
-  ["src/app/(en)/compare/page.tsx", "og-home-en"],
-  ["src/app/(ar)/ar/compare/page.tsx", "og-home-ar"],
-  ["src/app/(en)/ai-meal-planner/layout.tsx", "og-tools-en"],
-  ["src/app/(ar)/ar/ai-meal-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/(en)/ai-workout-planner/layout.tsx", "og-tools-en"],
-  ["src/app/(ar)/ar/ai-workout-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/(en)/for-coaches/register/layout.tsx", "og-home-en"],
-  ["src/app/(ar)/ar/for-coaches/register/layout.tsx", "og-home-ar"],
-  // Phase 216 (P2-1 discoveries beyond the audit list — same defect
-  // class, live-verified missing og:image): the meal-planner pair and
-  // the AR equipment hub (twin of the already-wired EN surface).
-  ["src/app/(en)/meal-planner/layout.tsx", "og-tools-en"],
-  ["src/app/(ar)/ar/meal-planner/layout.tsx", "og-tools-ar"],
-  ["src/app/(ar)/ar/equipment/[type]/page.tsx", "og-home-ar"],
+  ["src/app/(ar)/ar/coaching/layout.tsx", "og-coaching-ar"],
+  ["src/app/(ar)/ar/memberships/page.tsx", "og-memberships-ar"],
+  ["src/app/(ar)/ar/programs/page.tsx", "og-programs-ar"],
+  ["src/app/(ar)/ar/diet-plan/page.tsx", "og-diet-plan-ar"],
+  ["src/app/(ar)/ar/diet-plan/[level]/[system]/page.tsx", "og-diet-plan-ar"],
+  ["src/app/(ar)/ar/equipment/[type]/page.tsx", "og-equipment-ar"],
+  ["src/app/(ar)/ar/compare/page.tsx", "og-compare-ar"],
+  ["src/app/(ar)/ar/faq/page.tsx", "og-faq-ar"],
+  ["src/app/(ar)/ar/about/page.tsx", "og-about-ar"],
+  ["src/app/(ar)/ar/contact/page.tsx", "og-contact-ar"],
+  ["src/app/(ar)/ar/privacy/page.tsx", "og-legal-ar"],
+  ["src/app/(ar)/ar/terms/page.tsx", "og-legal-ar"],
+  ["src/app/(ar)/ar/authors/page.tsx", "og-authors-ar"],
+  ["src/app/(ar)/ar/affiliate/layout.tsx", "og-affiliate-ar"],
+  ["src/app/(ar)/ar/for-coaches/register/layout.tsx", "og-for-coaches-ar"],
   // Phase 218 (D-02 — owner deferred-item reopened 2026-09-17): the
   // coach-landing pair — noindex, but shared directly by coaches
   // (WhatsApp/X embeds), so a cardless share was the defect (same
-  // replace-not-inherit class as every surface above).
+  // replace-not-inherit class as every surface above). The home card is
+  // the correct choice for a coach profile (the for-coaches card carries
+  // recruiting copy — wrong intent for a profile share).
   ["src/app/(en)/coaches/[slug]/page.tsx", "og-home-en"],
   ["src/app/(ar)/ar/coaches/[slug]/page.tsx", "og-home-ar"],
   // Phase 231 (owner order C): the for-coaches pair drops the vertical
@@ -229,8 +256,13 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
       expect(src).toContain("images: [shareImage]");
       expect(src).toContain("images: [shareImage.url]");
       // absolute share URL (crawlers never resolve relative og:image)
-      // + SOCIAL-OG-2 cache-bust suffix on the photo URL
-      expect(src).toMatch(/\$\{SITE_URL\}\$\{primaryPhoto\}\?v=2|https:\/\/alkemos\.com\$\{primaryPhoto\}\?v=2/);
+      // + SOCIAL-OG-2/3 cache-bust suffix on the photo URL
+      const verRe = SHARE_IMG_VER.replace(/\?/g, "\\?");
+      expect(src).toMatch(
+        new RegExp(
+          `\\$\\{primaryPhoto\\}${verRe}|https:\\/\\/alkemos\\.com\\$\\{primaryPhoto\\}${verRe}`,
+        ),
+      );
       // branded card survives as the photo-less fallback only
       expect(src).toContain(`/images/og/${card}.png`);
       expect(src).toContain(`${card}.png${SHARE_IMG_VER}`);
@@ -262,6 +294,73 @@ describe("og:image coverage (Phase 187 — P0-2)", () => {
       expect(src).not.toContain("api/og-image/${slug}");
       // no regression to the raw logo card
       expect(src).not.toContain('url: "/logo.png"');
+    }
+  });
+
+  // ── SOCIAL-OG-3 (2026-09-30) — comparison pages ship STATIC cards ──────
+  const COMPARISONS_SRC = readFileSync(repoRootPath("src/lib/comparisons.ts"), "utf8");
+  const COMPARISON_SLUGS = [...COMPARISONS_SRC.matchAll(/slug: "(alkemos-vs-[a-z0-9-]+)"/g)].map(
+    (m) => m[1],
+  );
+
+  it("every COMPARISONS slug has a static card pair on disk (generator SPECS mirror)", () => {
+    // Adding a comparison to src/lib/comparisons.ts without running
+    // scripts/generate-og-cards.py (and adding its SPECS pair) fails here.
+    expect(COMPARISON_SLUGS.length).toBeGreaterThanOrEqual(3);
+    for (const slug of COMPARISON_SLUGS) {
+      for (const lang of ["en", "ar"] as const) {
+        const p = resolve(OG_DIR, `og-compare-${slug}-${lang}.png`);
+        expect(existsSync(p), `og-compare-${slug}-${lang}.png missing (run scripts/generate-og-cards.py)`).toBe(true);
+      }
+    }
+  });
+
+  it.each([
+    ["src/app/(en)/compare/[slug]/page.tsx", "en"],
+    ["src/app/(ar)/ar/compare/[slug]/page.tsx", "ar"],
+  ] as const)("SOCIAL-OG-3: %s shares the static per-comparison card (no generator, no cold start)", (rel, lang) => {
+    const src = readFileSync(repoRootPath(rel), "utf8");
+    // og + twitter + JSON-LD all reference the STATIC card with the
+    // cache-bust suffix (§12.40 og ↔ JSON-LD consistency).
+    const asset = `https://alkemos.com/images/og/og-compare-\${comparison.slug}-${lang}.png${SHARE_IMG_VER}`;
+    expect(src).toContain(`url: \`${asset}\``);
+    expect(src).toContain(`images: [\`${asset}\`]`);
+    expect(src).toContain(`image: \`${asset}\``);
+    expect(src).toContain('card: "summary_large_image"');
+    // the slow default-title generator URL must be GONE from the pages
+    expect(src).not.toContain("api/og-image/");
+  });
+
+  it("SOCIAL-OG-3: the generator route honors type=compare (legacy-URL correctness)", () => {
+    const raw = readFileSync(
+      repoRootPath("src/app/api/og-image/[slug]/route.tsx"),
+      "utf8",
+    );
+    // code-only (strip comments) so the historical docblock may mention
+    // the retired hexes without failing the law
+    const src = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    expect(src).toContain('type === "compare"');
+    expect(src).toContain("getComparisonBySlug");
+    expect(src).toContain("comparison.h1Ar");
+    expect(src).toContain("comparison.h1En");
+    // SOCIAL-OG-3 design law: the light brand gradient (the retired blue
+    // is guarded pixel-level by og-image-visual.test.ts — this is the
+    // source-level twin).
+    expect(src).toContain("linear-gradient(135deg, #FAF8F5 0%, #EAE3D8 100%)");
+    expect(src).not.toContain("#0071e3");
+    expect(src).not.toContain("#1d1d1f");
+  });
+
+  it("no stray card files: every PNG on disk is a wired CARDS entry or a per-comparison card", () => {
+    const pngs = readdirSync(OG_DIR)
+      .filter((f) => f.endsWith(".png"))
+      .map((f) => f.replace(/\.png$/, ""));
+    const known = new Set<string>([
+      ...CARDS,
+      ...COMPARISON_SLUGS.flatMap((slug) => [`og-compare-${slug}-en`, `og-compare-${slug}-ar`]),
+    ]);
+    for (const png of pngs) {
+      expect(known.has(png), `orphan card ${png}.png — add it to CARDS/COMPARISONS or delete it`).toBe(true);
     }
   });
 });
