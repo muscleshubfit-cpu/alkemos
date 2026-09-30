@@ -9,6 +9,21 @@
 ---
 ---
 ---
+Task ID: SEO-P0-4-DEFERRED-2026-09-30
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-30 «اعتبر P0-4 مؤجلًا بقرار المالك، وسجّل التأجيل في التوثيق والحالة دون تنفيذ أي جزء منه» — البند P0-4 من خطة تقرير تدقيق SEO المعتمد (Alkemos_SEO_Audit_Report 2026-09-30): «بدء قنوات الروابط بالمسار السريع: أدلة الأدوات المجانية ثم HARO». هذا الفريم تسجيل تأجيل توثيقي خالص، ثم الانتقال للبند التالي بالترتيب (P1-5 تقليص CSS) يتم بفريم مستقل لاحق — بلا إعادة تنفيذ لما أُنجز وبلا تغيير نطاق.
+
+Work Log:
+- (القرار مسجَّل — صفر تنفيذ) P0-4 مؤجَّل بقرار المالك 2026-09-30: لم تُنشأ أي حسابات أدوات، ولم تُقدَّم أي إدراجات أدلة، ولم يُفتح أي مسار HARO، ولم يُجهَّز أي تحضير داخلي — صفر مساس بكود/APIs/قاعدة/إعدادات/أي خدمة خارجية.
+- (أسِرّة الحكم) التسجيل بمواضعه الثلاثة وفق الأعراف: هذا المدخل + STATE.md (المرحلة 311 + سطر «المفتوح الآن») + تحديث عبارة «البند التالي» بصف SEO-P0-BASELINE في docs/README.md.
+- (قواعد إعادة الفتح) وفق قواعد D-rules القائمة (بمرجع مدخل D-03 بSTATE): إعادة فتح P0-4 تتطلب أمر مالك صريحًا يسمي المعرف + فريمًا مستقلًا ببوابات كاملة.
+- (أثر الترتيب على الخطة) بعد التأجيل يستأنف التسلسل بالبند التالي حسب ترتيب التقرير: **P1-5 تقليص CSS (192KB حاجب للعرض) عبر تحليل الاستخدام الفعلي وفرز أدوات Tailwind غير المستخدمة** — شرطه المسبق (قياس أساس البند 3) منجَز وموثّق بفريم 310 (LCP ‏5.8s EN / 4.7s AR موبايل، وحاجب عرض AR ‏800ms يوجّه أولوية السطح العربي) — التنفيذ يبدأ بفريم 312.
+
+Stage Summary:
+- فريم توثيقي بحت (بحكم Phase 290 — إطار docs-only): صفر تنفيذ لأي جزء من P0-4 — البوابات: docs_audit ✓ · docs_parity ✓ · stale-refs ✓ (بعد تدوير worklog للنافذة 12) · بطارية الكود غير مستحقة.
+- البند التالي بالترتيب: P1-5 تقليص CSS (فريم 312 مستقل ببوابات كاملة).
+- Commit SHA (optional, post-push): (git log is the ledger)
+---
 Task ID: SEO-P0-BASELINE-2026-09-30
 Agent: Super Z (main)
 Task: تنفيذ الخطوة التالية فقط وفق ترتيب خطة تقرير تدقيق SEO الخارجي (Alkemos_SEO_Audit_Report 2026-09-30) — البند P0-3 «تثبيت قياس أساس موثّق» بعد إغلاق P0-1/P0-2 بالفريم 309: قياس PSI خارجي موثّق + لقطة SERP للاستعلامات الثلاثة، إطار قياس وتوثيق فقط — صفر مساس بأي كود/إعدادات/بنية تحتية، وصفر إعادة تنفيذ لما أُنجز، وGSC يظل بقرار تأجيل المالك دون أي مساس.
@@ -217,25 +232,6 @@ Work Log:
 Stage Summary:
 - R2 مثبتة حية 100%؛ فشل التشغيل النهائي فئة word-floor (هدف R3 المستقبلي) خارج نطاق R2 — لا بوابة خُففت.
 - الشاهد: run_36582658309_full.log — محلي فقط، لم يُحفظ بالمستودع (نمط إثبات R1 ‏run 36571415573).
-- Push status: pushed
-- Commit SHA (optional, post-push): (git log is the ledger)
-
----
-Task ID: LATIN-REPAIR-R2-2026-09-29
-Agent: Super Z (main)
-Task: تنفيذ Phase R2 كاملة من خطة تعافي مسار التنفيذ (docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md §10) — الإصلاح اللاتيني الموضعي للمسار العربي، بأمر المالك (R2 فقط؛ البوابات دون أي تعديل).
-
-Work Log:
-- جمع أدلة حية (قراءة-فقط من قاعدة الإنتاج): 21 صف AR بنافذة التدقيق — كل نصوص post-review نظيفة لهجويًا (strong=0)؛ فشل latin-repair السبعة سببها نداء المقال الكامل (~9.5k tokens يقصي Groq ويعيد نصًا إنجليزيًا we-need-to-replace)؛ بناء القاموس من جدول الـprompt نفسه + مقيسات المسودات الحية (bmr/tdee/epa/dha/alkaline/whey/isolate/monohydrate/atp/hcl/meq/amino acids/bench press/heart rate variability/scapular wall slides/deadlift/squat/shakes/sleep/timing/intake/deload).
-- `src/lib/blog-pipeline.ts`: القاموس الحتمي `LATIN_REPAIR_DICTIONARY` (مفاتيح عبارات قبل كلماتها) + محرك `applyLatinTokenMap` يطابق دلالات الكاشف بالبايت (أسوار كود/صور/URLs/أهداف روابط محمية؛ أقواس الإشارة (Whey) محمية؛ الملتصق كريAlkaline يُفك حتميًا بمسافة) + `translateLatinTokens` النداء الصغير (tag ‏`blog:latin-tokens-ar`، ‏payload قائمة الـtokens وحدها، est<2.6k ⇒ Groq داخل، ‏JSON {token→عربي}) بفحص قيمة-بقيمة `isValidArabicTermValue` (عربي خالص/بلا لاتيني/بلا لهجة قوية/مصطلح ≤8 كلمات/بلا روابط) + `repairArabicLatinContamination` الجديدة (قاموس ← فحص ← نداء صغير للباقي ← نفس القضاة) + المسار القديم محفوظ حرفيًا كإرجاع `LATIN_REPAIR_LEGACY=1` (blog-msa.ts لم يُمس إطلاقًا).
-- الاختبارات `src/lib/__tests__/blog-latin-repair-r2.test.ts` — 10/10 أخضر: فئة 09-11 (marketed/evidences/shake/alkalin بصفر نداءات AI) · كريAlkaline الملتصق (حتى داخل قوس إشارة) · فئة 09-16 (bmr/tdee/epa/dha/alkaline) · العبارات قبل الكلمات (amino acids/bench press/heart rate variability) · كناري payload (نداء واحد يحمل tokens فقط بلا المقال + est<7200) · فئة الرد الإنجليزي (فشل صادق بنفس الرسالة) · فئة القيمة اللهجية إيه×6 والقيمة اللاتينية (رفض قيمة-بقيمة → فشل صادق) · إرجاع legacy (يرى المقال كاملًا بخياراته الحرفية) · كناري عدم تصادم القاموس مع whitelist ونقاء قيمه · كناري المحرك (fence/gloss/URLs/أهداف روابط بالبايت + إصلاح anchor مع بقاء الهدف).
-- البطارية (فريم src): tsc ✓ 0 · eslint ✓ 0 · vitest ✓ كاملًا أخضر · next build ✓ خروج 0 · docs_parity + docs_audit + stale-refs ✓ (بعد التوثيق).
-- (التوثيق بنفس الفريم) AGENTS §8 (ARABIC PURITY LAW — Localized repair + RATE-LIMIT انقسام موقع latin-repair + رأس الملف) · README (قسم Automated content pipeline) · DEVELOPER_GUIDE (قسم طبقة إعادة المحاولة) · STATE فريم 304 (مع توثيق الإثبات الحي لR1 بتشغيل 36571415573) · علامة «منفذة» على Phase R2 بخطة التدقيق · .env.example + SECURITY §2.2 لعلم الإرجاع.
-
-Stage Summary:
-- فئة الفشل الأكبر تاريخيًا في المسار العربي (5/7: latin-repair validation) أصبحت موضعية: الفئة الشائعة (مصطلحات/اختصارات معروفة) تُصلح حتميًا بصفر نداءات AI، والباقي بنداء صغير يدخل Groq (85% نجاة حية) بدل نداء المقال الكامل المقصي له — بلا أي تعديل لأي بوابة أو عتبة (blog-msa.ts بالبايت).
-- الإرجاع: LATIN_REPAIR_LEGACY=1 (مسار Phase-176 حرفيًا). R3/R4/R5 لم تُمس — بانتظار أوامر المالك.
-- أول إثبات حي متوقع: أول تشغيل AR قادم يلتقط كاشف P4 لاتينيًا.
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
