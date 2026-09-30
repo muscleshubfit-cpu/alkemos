@@ -11149,3 +11149,24 @@ Stage Summary:
 - Push status: pushed
 - Commit SHA (optional, post-push): (git log is the ledger)
 
+
+<!-- rotated 2026-09-30 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: CHAIN-EXPANSION-R3-2026-09-29
+Agent: Super Z (main)
+Task: أمر المالك 2026-09-29 — تنفيذ المرحلة R3 فقط من خطة docs/EXECUTION-PATH-AUDIT-AND-RECOVERY-PLAN-2026-09-29.md (توسيع السلسلة الفعّالة) مع تطبيق تحفظات الـaudit الأربعة: حارس per-entry · P4 الثقيل خارج نطاق عودة Groq إن لم تسمح الميزانية · علم إرجاع صريح للـclamp · توثيق حدود R3 (لا يعالج word-floor/authority-link). اختبار كامل ثم commit+push إلى main. لا R4/R5 ولا أي Gate أو Business Logic خارج نطاق R3.
+
+Work Log:
+- (Audit أولًا — أمر المالك بنفس الجلسة) تحقق قراءة-فقط من المفاتيح الأربعة حيًا (orKeys=2 + Groq + NVIDIA في سجلات 36582658309 وVercel env وGitHub Secrets) ومن أن دافع R3 حي (نفاد سلسلة OR-abort+NV-503 داخل تشغيل R2 نفسه 14:36) — النتائج بمدخل الجلسة أعلاه وقُررت التحفظات الأربعة قبل التنفيذ.
+- (1 — الحارس per-entry بai-provider.ts) استبدال skipGroq الجماعي بقرار لكل مدخل: groqWindow = 7200 − ceil(prompt/4) − 800؛ عند تجاوز المنادي للنافذة يُقصّ maxTokens لمداخل Groq إلى النافذة ويبقون بالسلسلة ما دام القصّ ≥ GROQ_CLAMP_FLOOR (3800) — وإلا يُسقطون بسطر السجل القديم **بالبايت** («payload ~Nt exceeds Groq 8k TPM window → openrouter/nvidia-only for this call»)؛ المنادي بلا maxTokens لا يتغير سلوكه أبدًا (القصّ يستحيل رياضيًا مع 2048)؛ سلسلة fast معفاة كما كانت؛ مداخل non-Groq ترسل قيمة المنادي بالبايت (ChainEntry.maxTokens اختياري + attemptOptions).
+- (2 — علم الإرجاع، تحفظ 3) GROQ_MAX_TOKENS_CLAMP=0 يعيد سلوك pre-R3 حرفيًا (الإسقاط الجماعي + نفس السطر) — موثق بSECURITY §2.2 و.env.example وAGENTS §8؛ تراجع الميزانية = قيمة env واحدة بالـ workflow (480000→360000).
+- (3 — الميزانية والعمق) blog-post-{en,ar}.yml: AI_CHAIN_TOTAL_BUDGET_MS 360000→480000 (سابقة process-ai-jobs 161.4؛ timeout 120min لم يُمس) + blog-pipeline.ts: P2 maxModels 2→3 (eff = min(150s, 480/3=160s) = 150s كما هي) + تحديث تعليقات P2/P4 وrun-step.mts وprocess-ai-jobs.yml لأرقام الميزانية الجديدة (لا تعديل سلوك).
+- (4 — الحدود موثقة، تحفظ 4) ملاحظة الحالة تحت R3 بالخطة + STATE: فئة P4 (~10.4–11.1k) تبقى بلا Groq **بالتصميم** (القصّ 2590–3128 < 3800)، وR3 لا يعالج word-floor (752<1300 — فئة R4) ولا authority-link (G4) — كلاهما أثبت حيًا بتشغيلي 36571415573 و36582658309.
+- (الاختبارات) `src/lib/__tests__/ai-provider-r3-groq-clamp.test.ts` ‏6/6: فئة P2 الحية (est 8700t → قصّ 4900 بجسم الطلب الفعلي ومداخل OR تبقى 6400) · فئة P4 الحية (10472t → إسقاط بالسطر القديم بالبايت وبلا أي نداء groq) · علم الإرجاع (نفس الحمل يُسقط) · الحمولة الصغيرة (2100t بلا حارس) · إعفاء fast chain · الحد 3800 بالضبط (يُقبل) و3799 (يُسقط) — order-agnostic لعدّاد التدوير المشترك.
+- (البطارية الكاملة §3.5) tsc ✓ 0 · vitest ✓ 1881/1881 (1875+6) · eslint ✓ 0 (1 تحذير مسبق بملف لم يُمس) · next build ✓ · docs_audit/docs_parity ✓ (تُشغلان مع فحوص الجودة).
+- (التوثيق بنفس الفريم — قانون §3.8) AGENTS §8: PROVIDER BALANCE (الحارس per-entry + الإرجاع) + RATE-LIMIT (P2 maxModels 3) + ترويسة Last updated · TECH_REFERENCE §5/§6 بنفس النص · DEVELOPER_GUIDE §2 بند R3 · README فقرة R3 · SECURITY §2.2 العلم الجديد · .env.example التعريف · STATE فريم 305 + المفتوح الآن · صف الحالة تحت Phase R3 بالخطة.
+
+Stage Summary:
+- R3 منفذة بالكامل ضمن نطاقها: 3 ملفات كود كما بالخطة (ai-provider.ts + blog-pipeline.ts + workflows) مع تحفظات الـaudit الأربعة مدمجة، وصفر مساس بأي Gate أو Editorial Rule أو Business Logic خارج النطاق (R4/R5 لم يُلمسا؛ legacy-ar-cleanup.yml بقي 360000 عمدًا — خارج نطاق الخطة).
+- Push status: pushed to main · التحقق الحي: تشغيلان مراقبان EN/AR بعد الدمج (قياس أسبوعي: نسبة نجاح أول نموذج وتوزيع المزودين) — أول علامة متوقعة بالسجل: «R3 clamp: groq entries kept with max_tokens ~4.8–4.9kt» بنداء blog:content-*.
+
