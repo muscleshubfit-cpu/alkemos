@@ -15,7 +15,21 @@
 # `/coach/` so it can never swallow the public /coaching sales page or
 # the public /for-coaches funnel (the old file relied on an explicit
 # `Allow: /coaching` outranking the longer-prefix match — dropped now
-# in favor of exact patterns).
+# in favor of exact patterns). SAME defect class, SAME fix for the
+# auth block (Phase 327 — full-stack audit E-01, 2026-10-02): the bare
+# `Disallow: /auth` prefix-blocked the PUBLIC /authors E-E-A-T pages
+# that sitemap-pages.xml declares and every Person @id references
+# (GSC "Blocked by robots.txt" on the whole author-entity chain) —
+# now `/auth$` + `/auth/` block only login/callback/reset.
+#
+# Allow exception (Phase 327 — full-stack audit E-06, 2026-10-02):
+# /api/og-image/* is the fallback og:image path for blog articles
+# without a cover image (src/lib/blog-server.ts) — robots-respecting
+# preview platforms rendered those shares card-less under the blanket
+# Disallow. The explicit Allow sits ahead of the general `Disallow:
+# /api/` block; crawlers resolve Allow/Disallow conflicts by
+# longest-match-wins, so ONLY this subpath is reachable — the rest of
+# /api/* stays blocked for everyone.
 
 User-agent: *
 
@@ -30,8 +44,10 @@ Disallow: /referral
 Disallow: /coach$
 Disallow: /coach/
 Disallow: /checkout
-Disallow: /auth
+Disallow: /auth$
+Disallow: /auth/
 Disallow: /admin
+Allow: /api/og-image/
 Disallow: /api/
 Disallow: /preview
 
