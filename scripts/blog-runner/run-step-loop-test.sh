@@ -49,7 +49,12 @@ if [ -z "$LINE" ]; then
   exit 99
 fi
 CODE="${LINE%%|*}"; TEXT="${LINE#*|}"
+# B1 scenarios script multi-line stdout with a literal \n escape
+# (RERUN_TARGET + RERUN_DIAGNOSTICS_B64 lines in one scripted behavior)
+TEXT="${TEXT//\\n/$'\n'}"
 echo "CALL step=$STEP qid=$QID force=${P2_FORCE_REGENERATE:-0} n=$n" >> "$STUB_LOG"
+# B1: record what the repair chain threaded into the p4-review child
+[ -n "${P4_REPAIR_DIAGNOSTICS:-}" ] && printf '%s\n' "$P4_REPAIR_DIAGNOSTICS" >> "$STUB_STATE/p4-diag.log"
 [ "$TEXT" != "$CODE" ] && [ -n "$TEXT" ] && echo "$TEXT"
 exit "$CODE"
 SHIM
@@ -142,6 +147,30 @@ mk_scenario sc8 p4-review   "0|$OK_JSON_P4"
 # sc9 (R5): clean publish, zero repair cycles → NO REPAIRS_USED line at all
 mk_scenario sc9 p5-publish "0|$OK_JSON_P5"
 
+# ── B1 scenarios (owner order 2026-10-01 — the diagnostics channel) ────
+# sc10: P5 battery failure WITH diagnostics → p4 repair receives the
+#       decoded directive (Arabic + quotes + em-dash round-trip) → publish
+# sc11: P5 battery failure WITHOUT a diagnostics line → p4 repair runs
+#       plain (pre-B1 behavior — absence degrades safely)
+# sc12: two repair cycles with DIFFERENT diagnostics → each cycle threads
+#       its OWN fresh capture (never a stale cycle-1 directive)
+DIAG_A='quality-gate battery failed — FAQ count 3 outside the 4-7 range | 4 ungrammatical keyword-list anchor(s): "إرشادات الجمعية الدولية للتغذية الرياضية حول توقيت المغذيات والتضخيم", "إجمالي الإنفاق اليومي للطاقة الخاص بك"'
+DIAG_B='quality-gate battery failed — FAQ count 0 outside the 4-7 range'
+DIAG_A_B64="$(printf '%s' "$DIAG_A" | base64 -w0)"
+DIAG_B_B64="$(printf '%s' "$DIAG_B" | base64 -w0)"
+
+mk_scenario sc10 p5-publish "3|RERUN_TARGET=p4-review\nRERUN_DIAGNOSTICS_B64=$DIAG_A_B64" "0|$OK_JSON_P5"
+mk_scenario sc10 p4-review "0|$OK_JSON_P4"
+
+mk_scenario sc11 p5-publish "3|RERUN_TARGET=p4-review" "0|$OK_JSON_P5"
+mk_scenario sc11 p4-review "0|$OK_JSON_P4"
+
+mk_scenario sc12 p5-publish \
+  "3|RERUN_TARGET=p4-review\nRERUN_DIAGNOSTICS_B64=$DIAG_A_B64" \
+  "3|RERUN_TARGET=p4-review\nRERUN_DIAGNOSTICS_B64=$DIAG_B_B64" \
+  "0|$OK_JSON_P5"
+mk_scenario sc12 p4-review "0|$OK_JSON_P4" "0|$OK_JSON_P4"
+
 # ── assertions ────────────────────────────────────────────────────────
 echo "=== R1 repair-loop integration tests (simulated GHA, stubbed runner) ==="
 
@@ -223,6 +252,59 @@ run_env_case() { # run_env_case <label> <scenario> <expected-exit> <expected-env
 run_env_case "sc8 repair cycle exports REPAIRS_USED=1 (R5 summary line)" sc8 0 "REPAIRS_USED=1"
 run_env_case "sc9 clean publish → no REPAIRS_USED line (summary defaults 0)" sc9 0 "-"
 
-echo "=== result: $((9 - FAILURES))/9 green ==="
+# ── B1 assertions: the diagnostics channel through the real wrapper ───
+# run_diag_case <label> <scenario> <expected-exit> <expected-diag|->
+#               <expected-call-log (multi-line)>
+run_diag_case() {
+  local label="$1" scen="$2" want="$3" wantdiag="$4" wantlog="$5"
+  local log="$TMP/calls.log" diaglog="$TMP/state/p4-diag.log"
+  rm -f "$log" "$diaglog" "$TMP/state/"*.n
+  set +e
+  timeout 60 env -u GITHUB_ENV PATH="$TMP/bin:$PATH" \
+    STUB_SCENARIO="$TMP/sc/$scen" STUB_STATE="$TMP/state" STUB_LOG="$log" \
+    QUEUE_ID="$QID" PIPELINE_LANG=en \
+    bash scripts/blog-runner/run-step.sh p5-publish 3 \
+    > "$TMP/out.txt" 2>&1
+  local got=$?
+  set -u
+  local gotlog gotdiag
+  gotlog="$(grep '^CALL ' "$log" 2>/dev/null | sed 's/ n=[0-9]*$//')"
+  if [ -f "$diaglog" ]; then gotdiag="$(cat "$diaglog")"; else gotdiag=""; fi
+  [ "$wantdiag" = "-" ] && wantdiag=""
+
+  local pass=1
+  [ "$got" -ne "$want" ] && pass=0
+  [ "$gotlog" != "$wantlog" ] && pass=0
+  [ "$gotdiag" != "$wantdiag" ] && pass=0
+
+  if [ "$pass" -eq 1 ]; then
+    echo "✓ $label"
+  else
+    echo "❌ $label"
+    echo "   expected exit=$want got=$got"
+    echo "   expected call sequence:"; printf '%s\n' "$wantlog" | sed 's/^/     /'
+    echo "   actual call sequence:";   printf '%s\n' "$gotlog" | sed 's/^/     /'
+    echo "   expected diag:"; printf '%s\n' "$wantdiag" | sed 's/^/     /'
+    echo "   actual diag:";    printf '%s\n' "$gotdiag" | sed 's/^/     /'
+    echo "   wrapper output (tail):"; tail -12 "$TMP/out.txt" | sed 's/^/     /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+SINGLE_CYCLE_LOG="CALL step=p5-publish qid=$QID force=0
+CALL step=p4-review qid=$QID force=0
+CALL step=p5-publish qid=$QID force=0"
+DOUBLE_CYCLE_LOG="CALL step=p5-publish qid=$QID force=0
+CALL step=p4-review qid=$QID force=0
+CALL step=p5-publish qid=$QID force=0
+CALL step=p4-review qid=$QID force=0
+CALL step=p5-publish qid=$QID force=0"
+
+run_diag_case "sc10 battery + diagnostics → p4 child receives the decoded directive (Arabic round-trip) → publish" sc10 0 "$DIAG_A" "$SINGLE_CYCLE_LOG"
+run_diag_case "sc11 battery WITHOUT diagnostics → p4 child runs plain (safe degradation)" sc11 0 - "$SINGLE_CYCLE_LOG"
+run_diag_case "sc12 two cycles → each p4 re-run gets its OWN fresh diagnostics (A then B)" sc12 0 "$DIAG_A
+$DIAG_B" "$DOUBLE_CYCLE_LOG"
+
+echo "=== result: $((12 - FAILURES))/12 green ==="
 [ "$FAILURES" -eq 0 ] && exit 0
 exit 1

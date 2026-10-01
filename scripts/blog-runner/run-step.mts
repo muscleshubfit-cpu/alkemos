@@ -30,13 +30,18 @@
  *   coach-requested; scheduled runs never set it),
  *   P2_FORCE_REGENERATE (R1 repair loop, 2026-09-29: "1" = p2-content
  *   regenerates over an existing draft — set ONLY by run-step.sh's
- *   repair chain after a P5 word-floor failure, never by workflows).
+ *   repair chain after a P5 word-floor failure, never by workflows),
+ *   P4_REPAIR_DIAGNOSTICS (B1 repair loop, 2026-10-01: the P5 gate
+ *   violation text for the p4-review re-run — set ONLY by run-step.sh's
+ *   repair chain after a P5 battery/latin failure; never by workflows).
  *
  * EXIT CODES: 0 = ok:true · 1 = step reported failure · 2 = misconfig
  *             3 = R1 REPAIR CONTRACT — deterministic P5 gate failure
  *                 carrying a machine-readable rerunTarget (stdout line
- *                 `RERUN_TARGET=<step>`); run-step.sh executes the
- *                 repair in-run instead of blind-retrying (audit §8.2 A2)
+ *                 `RERUN_TARGET=<step>`, plus `RERUN_DIAGNOSTICS_B64=`
+ *                 when the body carries B1 repairDiagnostics); run-step.sh
+ *                 executes the repair in-run instead of blind-retrying
+ *                 (audit §8.2 A2 + B1)
  */
 import { NextRequest } from "next/server";
 import { P5_RERUN_TARGETS } from "../../src/lib/blog-repair-target";
@@ -150,6 +155,14 @@ async function main(): Promise<void> {
   if (step === "p2-content" && process.env.P2_FORCE_REGENERATE === "1") {
     url.searchParams.set("force", "1");
   }
+  // B1 repair chain: the P5 gate violations ride the p4-review re-run so
+  // the review model gets a one-shot REPAIR DIRECTIVE instead of the
+  // identical prompt it just failed (runs 78/81/82 evidence). The env is
+  // set ONLY by run-step.sh's repair chain (never GITHUB_ENV, never
+  // workflows) — normal runs never carry the URL param at all.
+  if (step === "p4-review" && process.env.P4_REPAIR_DIAGNOSTICS) {
+    url.searchParams.set("repairDiagnostics", process.env.P4_REPAIR_DIAGNOSTICS);
+  }
 
   console.log(
     `[runner] ▶ ${step} · lang=${lang}${queueId ? ` · queue=${queueId}` : ""}${
@@ -177,6 +190,7 @@ async function main(): Promise<void> {
 
   let ok = res.status < 400;
   let rerunTarget: string | null = null;
+  let repairDiagnostics: string | null = null;
   try {
     const parsedBody = JSON.parse(text);
     ok = ok && parsedBody?.ok === true;
@@ -192,12 +206,22 @@ async function main(): Promise<void> {
     ) {
       rerunTarget = parsedBody.rerunTarget;
     }
+    // B1 (audit §8.2 B1, owner order 2026-10-01): the P5 body may also
+    // carry the gate violations as `repairDiagnostics` (p4-review
+    // targets only). Re-emit base64 — an em-dash/Arabic/quote-bearing
+    // single line that run-step.sh greps + decodes safely.
+    if (rerunTarget && typeof parsedBody?.repairDiagnostics === "string" && parsedBody.repairDiagnostics.trim()) {
+      repairDiagnostics = parsedBody.repairDiagnostics;
+    }
   } catch {
     /* non-JSON body already failed via status above when >= 400 */
   }
   if (!ok) {
     if (rerunTarget) {
       console.log(`RERUN_TARGET=${rerunTarget}`);
+      if (repairDiagnostics) {
+        console.log(`RERUN_DIAGNOSTICS_B64=${Buffer.from(repairDiagnostics, "utf-8").toString("base64")}`);
+      }
       process.exit(3);
     }
     process.exit(1);

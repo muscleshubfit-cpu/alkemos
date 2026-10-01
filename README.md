@@ -250,6 +250,14 @@ discarding it: the failure names the offending step as a machine-readable
 research, outline and images are reused) before falling back to the honest
 mark-failed + next-day backstop. No gate is weakened — a bad article is
 still never published; a good-but-flawed one gets a second chance in-run.
+For `p4-review` targets the repair is **directed**: the P5 500 body also
+carries the gate violations as `repairDiagnostics`, the runner threads them
+to the P4 re-run, and the review prompt receives them as a one-shot repair
+directive ("fix exactly these named violations") — never as a permanent
+editorial law. The P4 review prompt also pins a length-preservation
+contract (the final article is never shorter than the measured draft;
+deletions are offset by depth, never filler), because free-tier review
+models were measurably shrinking complete drafts below the publish floor.
 The repair path is MEASURABLE (R5): every directive stamps a `repairLoop`
 marker into the queue row's bundle, the workflow Summary prints the run's
 cycle count (`REPAIRS_USED`), and `GET /api/ai/queue-health` (admin) carries

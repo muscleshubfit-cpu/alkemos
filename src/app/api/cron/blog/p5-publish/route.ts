@@ -498,6 +498,24 @@ export async function GET(request: NextRequest) {
     // threshold changed — only WHO recovers the row and WHEN. Null
     // (infra / unknown) keeps the exact legacy body.
     const rerunTarget = mapP5FailureToRerunTarget(msg);
+    // B1 REPAIR DIAGNOSTICS (Execution-Path Audit §8.2 B1 — owner order
+    // 2026-10-01): when the repair contract points at p4-review, the 500
+    // body ALSO carries the gate violations themselves (the message minus
+    // the "p5: " prefix and the "— rerun p4-review" tail) as
+    // `repairDiagnostics`. run-step.mts re-emits them as a base64 stdout
+    // line, run-step.sh threads them to the p4-review re-run, and the P4
+    // route injects them into the review prompt as a ONE-SHOT repair
+    // directive — so the model learns WHICH gates rejected the previous
+    // review instead of re-reading the identical prompt and reproducing
+    // the identical violations (live evidence: runs 78/81/82 — "FAQ count
+    // 3" + the same Arabic anchors failed three byte-identical retries).
+    // Pure message passthrough: the `error` field above stays verbatim;
+    // p2-content targets carry no diagnostics (a word-floor failure needs
+    // regeneration, not directed repair — B1 is scoped to p4-review).
+    const repairDiagnostics =
+      rerunTarget === "p4-review"
+        ? msg.replace(/^p5:\s*/, "").replace(/\s*—\s*rerun p4-review\s*$/, "").trim() || undefined
+        : undefined;
     // R5 REPAIR OBSERVABILITY (Execution-Path Audit §10 Phase R5,
     // 2026-09-30): stamp the directive into the row's bundle so the
     // repair path is MEASURABLE — the marker survives the repair chain
@@ -510,7 +528,13 @@ export async function GET(request: NextRequest) {
       await stampQueueRowRepairDirective(queueId, rerunTarget, qi?.article_bundle ?? undefined);
     }
     return NextResponse.json(
-      rerunTarget ? { error: msg || "Failed", rerunTarget } : { error: msg || "Failed" },
+      rerunTarget
+        ? {
+            error: msg || "Failed",
+            rerunTarget,
+            ...(repairDiagnostics ? { repairDiagnostics } : {}),
+          }
+        : { error: msg || "Failed" },
       { status: 500 },
     );
   }

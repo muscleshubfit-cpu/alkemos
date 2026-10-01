@@ -27,6 +27,13 @@
 #   • p2-content repair re-runs with P2_FORCE_REGENERATE=1 (the
 #     ?force=1 contract — regenerate content over the draft while
 #     research0/outline/images stay in the bundle).
+#   • p4-review repair re-runs with P4_REPAIR_DIAGNOSTICS=<text> (B1,
+#     audit §8.2 B1 — owner order 2026-10-01): the P5 gate violations
+#     (decoded from the RERUN_DIAGNOSTICS_B64 stdout line) ride the
+#     re-run as a ONE-SHOT repair directive in the review prompt, so
+#     the model fixes the named gates instead of reproducing them
+#     byte-identically (live evidence: runs 78/81/82). Inline env for
+#     the recursive child ONLY — never GITHUB_ENV, never workflows.
 #   • recursive repair calls pin MAX_REPAIRS=0 — the repair chain
 #     never nests another repair loop.
 #
@@ -97,6 +104,15 @@ while :; do
   # ── R1 REPAIR CONTRACT: exit 3 = deterministic gate failure ────────
   if [ "$CODE" -eq 3 ]; then
     TARGET="$(grep -a -o '^RERUN_TARGET=[a-z0-9-]*' /tmp/"$STEP".out | tail -1 | cut -d= -f2)"
+    # B1: the gate violations for the p4-review repair (base64 in the
+    # stdout keeps the grep single-line-safe — Arabic, quotes, em-dashes
+    # all decode losslessly; absence leaves DIAG empty and the re-run a
+    # plain repair exactly like pre-B1).
+    DIAG_B64="$(grep -a -o '^RERUN_DIAGNOSTICS_B64=[A-Za-z0-9+/=]*' /tmp/"$STEP".out | tail -1 | cut -d= -f2)"
+    REPAIR_DIAG=""
+    if [ -n "$DIAG_B64" ]; then
+      REPAIR_DIAG="$(printf '%s' "$DIAG_B64" | base64 -d 2>/dev/null)"
+    fi
 
     # Contract sanity — anything off is an honest exit-1 failure.
     if [ -z "$TARGET" ]; then
@@ -131,7 +147,7 @@ while :; do
     if [ -n "${GITHUB_ENV:-}" ]; then
       echo "REPAIRS_USED=$repairs_used" >> "$GITHUB_ENV"
     fi
-    echo "🔁 [$STEP] R1 repair cycle $repairs_used/$MAX_REPAIRS: re-running from $TARGET on queue row $QUEUE_ID (bundle preserved)"
+    echo "🔁 [$STEP] R1 repair cycle $repairs_used/$MAX_REPAIRS: re-running from $TARGET on queue row $QUEUE_ID (bundle preserved)${REPAIR_DIAG:+ · B1 repair directive attached}"
 
     # Re-run every step from TARGET through P4 (advances the status
     # chain; p2-content regenerates over its draft via force=1). If a
@@ -157,6 +173,15 @@ while :; do
       echo "   └─ repair step: $RS"
       if [ "$RS" = "p2-content" ]; then
         if ! MAX_REPAIRS=0 P2_FORCE_REGENERATE=1 bash "$0" "$RS" "$MAX_ATTEMPTS"; then
+          echo "   └─ repair step $RS failed — chain stops (P5 re-evaluates next)"
+          break
+        fi
+      elif [ "$RS" = "p4-review" ] && [ -n "$REPAIR_DIAG" ]; then
+        # B1: the violations ride THIS p4-review re-run only (inline env —
+        # the recursive child pins MAX_REPAIRS=0 so the directive can
+        # never cascade into a nested loop; next P5 failure re-captures
+        # fresh diagnostics for cycle 2).
+        if ! MAX_REPAIRS=0 P4_REPAIR_DIAGNOSTICS="$REPAIR_DIAG" bash "$0" "$RS" "$MAX_ATTEMPTS"; then
           echo "   └─ repair step $RS failed — chain stops (P5 re-evaluates next)"
           break
         fi

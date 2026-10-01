@@ -837,11 +837,45 @@ export function splitFaqSection(
   return { body, faqs: cleaned };
 }
 
+/** Sanitize a repair directive threaded from a P5 deterministic-gate
+ * failure into the P4 prompt (B1, Execution-Path Audit §8.2 B1 — owner
+ * order 2026-10-01). One-shot REPAIR GUIDANCE ONLY: the directive names
+ * the exact publish-gate violations the previous review output caused —
+ * it is NOT a new editorial law and vanishes when absent (the default
+ * P4 call site never passes it). Caps + control-char stripping keep a
+ * pathological error string from bloating the review payload. */
+function sanitizeRepairDirective(raw: string | undefined): string | null {
+  if (!raw) return null;
+  // strip control chars (incl. newlines) so the directive stays a
+  // single prompt line — no prompt-injection surface via whitespace.
+  const cleaned = raw.replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!cleaned) return null;
+  return cleaned.slice(0, 1_500);
+}
+
+/** B1 REPAIR-DIRECTIVE preface (owner order 2026-10-01): when P5's
+ * deterministic battery rejects a review, the loop re-runs P4 on the
+ * same row — WITHOUT the diagnostics the model re-reads the identical
+ * prompt on the identical draft and reproduces the same violations
+ * (live evidence: runs 78/81/82 — FAQ count 3 and the same Arabic
+ * anchors failed three byte-identical retries). The directive is a
+ * one-shot REPAIR note, NOT a permanent editorial layer (no-law-
+ * stacking commitment, audit §11.2): it names the violations and
+ * mandates fixing their CAUSE, with the quality-first guardrails the
+ * owner pinned (no filler, no padding, no invented claims). */
+function repairDirectiveBlock(directive: string): string {
+  return `REPAIR RETRY — the previous version of this article was REJECTED by the publish quality gates for EXACTLY these violations (fix every one at its actual cause this time; all the standing instructions below still apply in full):
+${directive}
+Fixing a violation means correcting its cause — e.g. FAQ count: add a genuinely on-topic question this article already answers; ungrammatical anchor: rewrite the anchor as a natural grammatical phrase; missing authority link: add a real one you are certain exists; Latin tokens: replace them with their Arabic equivalents. NEVER mask a violation with filler, repetition, padding, or invented facts — an honest, deep article that fails a gate is preferred to a hollow one that games it.
+`;
+}
+
 export async function reviewAndEnhance(
   lang: "en" | "ar",
   draftMd: string,
   outline: OutlinePlan,
   internalCandidates: InternalLinkCandidate[],
+  repairDiagnostics?: string,
 ): Promise<{
   markdown: string;
   report: ReviewReport;
@@ -861,6 +895,19 @@ export async function reviewAndEnhance(
       ? internalCandidates.slice(0, 15).map((c) => `- ${blogPrefix}/${c.slug} → ${c.title}`).join("\n")
       : "(no previous posts yet)";
 
+  // LENGTH-PRESERVATION CONTRACT (owner order 2026-10-01 — the live P4
+  // failure class: runs 75-82 killed complete drafts because the review
+  // pass SHRANK them below the execution floor; live-measured shrinkage
+  // 1217→671/1113/1133 words). The contract states the draft's measured
+  // word count and makes "never shorter than the draft" an explicit
+  // prompt-level obligation, with the owner's QUALITY-FIRST guardrail:
+  // deletions are offset by DEPTH (mechanisms, steps, examples, pitfalls)
+  // — never by filler, repetition, or unverifiable additions. This is
+  // prompt guidance only: every code gate/floor stays byte-identical.
+  const draftWords = countWords(draftMd);
+  // B1: sanitized one-shot repair directive (null on every normal run).
+  const directive = sanitizeRepairDirective(repairDiagnostics);
+
 // PHASE 173 (current law): NO closing CTA in the article — the site
 // renders its membership card after the article; the article ends with
 // its content. History: archive/PROMPT-LAW-HISTORY.md.
@@ -869,7 +916,8 @@ ${LANG_RULE[lang]}
 
 ARTICLE TITLE: ${outline.title}
 TARGET LENGTH: 1500-2500 words (expand thin sections if needed; NEVER pad with filler to reach the length — depth, not repetition).
-
+LENGTH CONTRACT: the draft below is ~${draftWords} words. Your final article MUST be AT LEAST ~${draftWords} words — NEVER shorter than the draft. When proofreading removes repetition, filler, or unverifiable claims, OFFSET every deletion by deepening what remains: concrete mechanisms, practical step-by-step guidance, real training/nutrition examples, or common mistakes and how to avoid them — knowledge a qualified coach would state, with NO invented statistics, studies, or citations. NEVER manufacture length with filler, repeated advice, motivational padding, or off-topic sections: if you cannot honestly deepen a point, keep it as-is rather than pad it.
+${directive ? repairDirectiveBlock(directive) : ""}
 DRAFT (markdown):
 """
 ${draftMd}

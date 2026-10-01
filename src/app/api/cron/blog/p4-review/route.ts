@@ -33,6 +33,16 @@ export const maxDuration = 300;
  * Bundle stays FLAT: { research0, outline, content, images, review }.
  *
  * GET /api/cron/blog/p4-review?queueId=<uuid>
+ *
+ * B1 REPAIR DIRECTIVE (Execution-Path Audit §8.2 B1 — owner order
+ * 2026-10-01): `&repairDiagnostics=<text>` is set ONLY by run-step.mts
+ * when run-step.sh's R1 repair loop re-runs p4-review after a P5 gate
+ * failure — the value is the P5 violation text itself, passed through
+ * reviewAndEnhance into the prompt as a one-shot REPAIR note (not a
+ * permanent editorial law — absent on every normal run, the prompt is
+ * the plain review prompt plus the length contract). URL param only:
+ * scheduled/dispatched workflows never carry it, so automatic behavior
+ * is unchanged.
  */
 type LangReview = {
   markdown: string;
@@ -71,6 +81,11 @@ export async function GET(request: NextRequest) {
   if (!queueId)
     return NextResponse.json({ error: "Missing queueId query parameter" }, { status: 400 });
 
+  // B1: the repair directive from the loop (absent on normal runs —
+  // sanitizeRepairDirective inside reviewAndEnhance re-caps it).
+  const repairDiagnostics =
+    new URL(request.url).searchParams.get("repairDiagnostics")?.trim() || undefined;
+
   let qi: QueueItem | null = null;
 
   try {
@@ -107,7 +122,7 @@ export async function GET(request: NextRequest) {
       .filter((p) => p.slug)
       .map((p) => ({ slug: p.slug, title: p.title }));
 
-    const r = await reviewAndEnhance(lang, draft, outline, candidates);
+    const r = await reviewAndEnhance(lang, draft, outline, candidates, repairDiagnostics);
 
     // Deterministic safety net: article-specific FAQ section guaranteed.
     // PHASE 172 (owner order — FAQ filler fix): relevance-filtered against
@@ -167,6 +182,7 @@ export async function GET(request: NextRequest) {
       words: countWords(review.markdown),
       coverage: review.report.keywordCoverage,
       source: review.source,
+      ...(repairDiagnostics ? { repairDirected: true } : {}),
       ...(latinRepairNote ? { latinRepair: latinRepairNote } : {}),
     });
   } catch (e) {
