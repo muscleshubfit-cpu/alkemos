@@ -26,6 +26,12 @@ import { join } from "node:path";
  * the plan's verification clause — that G3 and the rest of
  * runP5QualityGates stay byte-identical (P5_WORD_FLOOR still 1300; the
  * FAQ-range law still the shared 4-7 constant; faqCount 0 still fails).
+ *
+ * FLOOR-LOWERING UPDATE (owner order 2026-10-02, Phase 323): both floors
+ * were lowered — BLOG_EXECUTION_WORD_FLOOR 1200→1000 and P5_WORD_FLOOR
+ * 1300→1000. The behavioral pins below were updated to the new values;
+ * the R4 historical narrative above is untouched. The ask (1500-2500)
+ * and every other gate are unchanged.
  */
 
 // ── the AI chain boundary (same mocking pattern as the editorial-law
@@ -88,30 +94,30 @@ describe("R4 · P2 execution floor (generateFullArticle)", () => {
     state.articleMd = "";
   });
 
-  it("the floor is 1200 (shared constant, below the 1500-2500 ask, 800 above the old net)", () => {
-    expect(BLOG_EXECUTION_WORD_FLOOR).toBe(1200);
+  it("the floor is 1000 (shared constant; lowered from 1200 by owner order 2026-10-02, Phase 323)", () => {
+    expect(BLOG_EXECUTION_WORD_FLOOR).toBe(1000);
     const src = read("src/lib/blog-pipeline.ts");
-    expect(src).toContain("export const BLOG_EXECUTION_WORD_FLOOR = 1200");
+    expect(src).toContain("export const BLOG_EXECUTION_WORD_FLOOR = 1000");
   });
 
   it("KILLS the live 419-word draft class at P2 — with the measurement in the error", async () => {
     state.articleMd = filler(419);
     await expect(generateFullArticle("en", OUTLINE, fallbackResearch("en", [])))
-      .rejects.toThrow(/P2 en: empty\/too-short article from floortest:floor-test-model \(419 words < 1200-word execution floor\)/);
+      .rejects.toThrow(/P2 en: empty\/too-short article from floortest:floor-test-model \(419 words < 1000-word execution floor\)/);
   });
 
   it("kills the R3 live-run class (911 words) and the AR 752-word class", async () => {
     state.articleMd = filler(911);
     await expect(generateFullArticle("en", OUTLINE, fallbackResearch("en", []))).rejects.toThrow(
-      "911 words < 1200-word execution floor",
+      "911 words < 1000-word execution floor",
     );
     state.articleMd = filler(752);
     await expect(generateFullArticle("ar", OUTLINE, fallbackResearch("ar", []))).rejects.toThrow(
-      "752 words < 1200-word execution floor",
+      "752 words < 1000-word execution floor",
     );
   });
 
-  it("PASSES an adequate 1250-word draft (no false block — the repair loop owns the 1200-1300 band)", async () => {
+  it("PASSES an adequate 1250-word draft (no false block — comfortably above the 1000 floor)", async () => {
     state.articleMd = filler(1250);
     const out = await generateFullArticle("en", OUTLINE, fallbackResearch("en", []));
     expect(out.wordCount).toBe(1250);
@@ -131,7 +137,7 @@ describe("R4 · P4 execution floor (reviewAndEnhance)", () => {
   it("kills the live 1201→752 shrinkage class at P4 with a DISTINCT message", async () => {
     state.articleMd = filler(752);
     await expect(reviewAndEnhance("en", filler(1201), OUTLINE, [])).rejects.toThrow(
-      /P4 en: review output too short from floortest:floor-test-model \(752 words < 1200-word execution floor — the draft was longer; the review shrank it\)/,
+      /P4 en: review output too short from floortest:floor-test-model \(752 words < 1000-word execution floor — the draft was longer; the review shrank it\)/,
     );
   });
 
@@ -408,10 +414,11 @@ ${MARATHON_FAQ_PLAIN}
 // ─────────────────────────────────────────────────────────────────
 
 describe("R4 · gate byte-truth canaries (no gate weakened by this frame)", () => {
-  it("the P5 publish floor stays 1300, named constant, untouched", () => {
+  it("the P5 publish floor is 1000 (owner order 2026-10-02), named constant, its own line", () => {
     const route = read("src/app/api/cron/blog/p5-publish/route.ts");
-    expect(route).toContain("const P5_WORD_FLOOR = 1300");
+    expect(route).toContain("const P5_WORD_FLOOR = 1000");
     expect(route).not.toContain("const P5_WORD_FLOOR = 1200");
+    expect(route).not.toContain("const P5_WORD_FLOOR = 1300");
   });
 
   it("G3 still rides the shared 4-7 law constant (no local fork)", () => {

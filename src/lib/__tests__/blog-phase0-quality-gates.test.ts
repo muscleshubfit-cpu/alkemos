@@ -14,8 +14,9 @@ import type { NextRequest } from "next/server";
  *   0.2 GEO: FAQPage JSON-LD is emitted SERVER-SIDE from faq_json on BOTH
  *       language mirrors (audit F5: 0/97 while the data sat in the DB on
  *       every article — the biggest low-cost GEO gap in the system).
- *   0.3 LENGTH GATE: P5 refuses to PUBLISH a draft under the 1300-word
- *       floor, failing honestly BEFORE the quota/dup guards (audit F3/C1:
+ *   0.3 LENGTH GATE: P5 refuses to PUBLISH a draft under the 1000-word
+ *       floor (lowered from 1300 by owner order 2026-10-02, Phase 323),
+ *       failing honestly BEFORE the quota/dup guards (audit F3/C1:
  *       no publish-layer length gate existed; median 1,202 words, six
  *       sub-800-word articles shipped). The behavioral block below
  *       INVOKES the route handler and proves both directions: a short
@@ -127,9 +128,9 @@ describe("AUDIT_REPORT §9-0.2 — FAQPage JSON-LD from faq_json (GEO)", () => {
 });
 
 describe("AUDIT_REPORT §9-0.3 — P5 publish-layer length gate", () => {
-  it("carries the 1300-word floor as a named constant", () => {
+  it("carries the 1000-word floor as a named constant (owner order 2026-10-02)", () => {
     const src = read(P5_ROUTE);
-    expect(src).toContain("const P5_WORD_FLOOR = 1300");
+    expect(src).toContain("const P5_WORD_FLOOR = 1000");
   });
 
   it("measures the reviewed markdown (reading_time + audit-baseline basis)", () => {
@@ -159,7 +160,7 @@ describe("AUDIT_REPORT §9-0.4 — doc truth (real pipeline numbers)", () => {
   it("AGENTS.md carries the MAIN pipeline spec, not the fallback's", () => {
     const src = read(AGENTS);
     expect(src).toContain("1500-2500 words");
-    expect(src).toContain("P5 publish floor ≥1300 words");
+    expect(src).toContain("P5 publish floor ≥1000 words");
     expect(src).toContain("5-7 H2 sections");
     // the pre-correction line form must never return verbatim
     expect(src).not.toContain("ANTI-FORMULA:** ASK = 1100-1400");
@@ -241,7 +242,7 @@ describe("AUDIT_REPORT §9-0.3 — P5 length gate BEHAVIOR (route invoked)", () 
     expect(res.status).toBe(500);
     const body = (await res.json()) as { error?: string };
     expect(body.error).toContain("article too short");
-    expect(body.error).toContain("words < 1300-word floor");
+    expect(body.error).toContain("words < 1000-word floor");
     expect(blogQueue.markQueueItemFailed).toHaveBeenCalledTimes(1);
     const [failedId, failedMsg] = (blogQueue.markQueueItemFailed as ReturnType<typeof vi.fn>).mock
       .calls[0] as [string, string];
@@ -249,7 +250,7 @@ describe("AUDIT_REPORT §9-0.3 — P5 length gate BEHAVIOR (route invoked)", () 
     expect(failedMsg).toContain("p5: article too short");
     expect(failedMsg).toContain("rerun p2-content");
     // the diagnostic carries the measurement — ops can see WHY it failed
-    expect(failedMsg).toMatch(/\d+ words < 1300/);
+    expect(failedMsg).toMatch(/\d+ words < 1000/);
   });
 
   it("PASSES an adequate 1500-word draft on to the next guard (no false block)", async () => {

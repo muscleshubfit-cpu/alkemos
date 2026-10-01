@@ -415,13 +415,14 @@ const FAQ_SECTION_HEADING: Record<"en" | "ar", string> = {
 // P4 review that SHRANK a passing draft (live-measured 1201→752 in run
 // 36582658309; 1409→1369 in §3.2) survived to fail at P5 after the whole
 // chain had already re-run. Both writing steps now carry the same
-// 1200-word execution floor: below the 1500 ask (models get slack),
-// 800 above the old net. A short draft dies at ITS OWN step, where the
+// shared execution floor. A short draft dies at ITS OWN step, where the
 // ×3 retry is a cheap fresh model draw, and review shrinkage below the
-// floor dies at P4 instead of at P5. TIGHTENING only — no gate weakened:
-// the P5 publish floor stays 1300 byte-identical, and the 1200-1300
-// band still rides the R1 repair loop (p2 ?force=1 regeneration).
-export const BLOG_EXECUTION_WORD_FLOOR = 1200;
+// floor dies at P4 instead of at P5. Floor VALUE history: R4 (2026-09-30)
+// set 1200 here + 1300 at P5; owner order 2026-10-02 (Phase 323) lowered
+// BOTH floors to 1000 — the ask (1500-2500), every other gate, and the
+// R1 repair loop mechanics are unchanged; the former 1200-1300 band is
+// gone (any draft ≥1000 now clears P2/P4/P5 alike).
+export const BLOG_EXECUTION_WORD_FLOOR = 1000;
 
 export async function generateFullArticle(
   lang: "en" | "ar",

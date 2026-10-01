@@ -220,27 +220,33 @@ describe("B1 · repair directive injection (one-shot, repair runs only)", () => 
 });
 
 // ─────────────────────────────────────────────────────────────────
-// 3 · the R4 execution floor is UNCHANGED by this frame (gate truth)
+// 3 · the execution floor applies to B1 outputs too (gate truth).
+//     FLOOR-LOWERING UPDATE (owner order 2026-10-02, Phase 323):
+//     BLOG_EXECUTION_WORD_FLOOR 1200→1000 · P5_WORD_FLOOR 1300→1000.
+//     The B1 behavior under test (directed outputs judged by the SAME
+//     floor — no diagnostic leniency) is unchanged; only the values
+//     moved. The 1133-word fixture (which now PASSES the 1000 floor)
+//     was replaced by the other live run-82 shrink value, 671.
 // ─────────────────────────────────────────────────────────────────
 
-describe("B1 · no gate/floor moved (byte-truth canaries)", () => {
-  it("the P4 code floor stays the R4 constant and message (prompt contract ≠ code gate)", async () => {
+describe("B1 · directed outputs judged by the same floor (byte-truth canaries)", () => {
+  it("the P4 code floor applies to undirected runs with the R4 message shape (prompt contract ≠ code gate)", async () => {
     state.articleMd = filler(752);
     await expect(reviewAndEnhance("en", filler(1217), OUTLINE, [])).rejects.toThrow(
-      /P4 en: review output too short from b1test:b1-test-model \(752 words < 1200-word execution floor — the draft was longer; the review shrank it\)/,
+      /P4 en: review output too short from b1test:b1-test-model \(752 words < 1000-word execution floor — the draft was longer; the review shrank it\)/,
     );
   });
 
   it("a directed repair output is judged by the SAME floor (no diagnostic leniency)", async () => {
-    state.articleMd = filler(1133);
+    state.articleMd = filler(671);
     await expect(
       reviewAndEnhance("ar", filler(1217), OUTLINE, [], "quality-gate battery failed — FAQ count 3 outside the 4-7 range"),
-    ).rejects.toThrow("1133 words < 1200-word execution floor");
+    ).rejects.toThrow("671 words < 1000-word execution floor");
   });
 
-  it("source truth: P5_WORD_FLOOR and BLOG_EXECUTION_WORD_FLOOR untouched", () => {
-    expect(read("src/lib/blog-pipeline.ts")).toContain("export const BLOG_EXECUTION_WORD_FLOOR = 1200");
-    expect(read("src/app/api/cron/blog/p5-publish/route.ts")).toContain("const P5_WORD_FLOOR = 1300");
+  it("source truth: the floors ride their named constants at the owner-ordered 1000 (Phase 323)", () => {
+    expect(read("src/lib/blog-pipeline.ts")).toContain("export const BLOG_EXECUTION_WORD_FLOOR = 1000");
+    expect(read("src/app/api/cron/blog/p5-publish/route.ts")).toContain("const P5_WORD_FLOOR = 1000");
   });
 });
 

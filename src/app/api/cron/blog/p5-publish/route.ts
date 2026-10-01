@@ -33,10 +33,12 @@ export const maxDuration = 60;
  * layer. The P2 ask is 1500–2500 words (mandatory), yet NOTHING enforced
  * any floor at publish (audit F3/C1: the only code floor was P2's 400-word
  * parse-validity net; measured median 1,202 words, only 15% in range, six
- * sub-800-word articles shipped). 1300 = the audit's Phase-0 floor — below
- * the 1500 ask (models get slack) but far above the measured median, so a
- * deficient draft can never reach production again. */
-const P5_WORD_FLOOR = 1300;
+ * sub-800-word articles shipped). The audit's Phase-0 floor was 1300 —
+ * below the 1500 ask (models get slack) but far above the measured median.
+ * Owner order 2026-10-02 (Phase 323): floor LOWERED 1300 → 1000 to match
+ * the lowered execution floor (BLOG_EXECUTION_WORD_FLOOR); still above
+ * the old 400-word net, so a deficient draft can never reach production. */
+const P5_WORD_FLOOR = 1000;
 
 /**
  * PIPELINE V3 · PHASE 5 — Publish & Update (ONE language).

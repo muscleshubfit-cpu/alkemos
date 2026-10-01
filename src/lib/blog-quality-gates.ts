@@ -11,7 +11,9 @@
  * added the length floor; this module adds the remaining battery —
  * every check DETERMINISTIC and cheap (regex/parse only, no AI):
  *
- *   G1  length ≥ 1300 words            (lives in p5-publish — Phase 0)
+ *   G1  length ≥ 1000 words            (lives in p5-publish — Phase 0; value
+ *                                       lowered 1300→1000 by owner order
+ *                                       2026-10-02, Phase 323)
  *   G2  H2 section count ≥ 5           (the 5-7 H2 outline spec)
  *   G3  final FAQ count within 4-7     (EDITORIAL_FAQ_COUNT_RANGE)
  *   G4  ≥ 1 external AUTHORITY link    (EDITORIAL_AUTHORITY_DOMAINS —
