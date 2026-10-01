@@ -1,4 +1,20 @@
 ---
+Task ID: FULL-STACK-AUDIT-2026-10-02
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-02 «نفّذ فحصًا شاملًا للمستودع الحالي، بدون تعديل أي كود أو إعدادات» — تدقيق قراءة-فقط للمستودع كله عند `2cc44934` ثم تقرير شامل + خطة تنفيذ مرتبة بالأولوية/التأثير/المخاطر داخل ملفات التوثيق، وبوابات التحقق، وcommit+push إلى main (لا تنفذ أي إصلاحات).
+
+Work Log:
+- (المنهجية) 4 مسوحات متوازية بالمجال (API/أمن · SEO/بيانات وصفية · أداء العميل+a11y · طبقة البيانات/الخادم) + تحقق مستقل من الوكيل الرئيسي للنتائج الحرجة (PayPal/robots.txt/قيم Context/التواريخ المفبركة/حراس server-only) + البطارية الكاملة كدليل عند شجرة الفحص: tsc ‏0 · eslint ‏0 (التحذير الموثق وحده) · vitest ‏2,074/2,074 عبر 123 ملفًا · next build ‏2,033/2,033 صفحة · bun audit ‏22 ثغرة (3 critical) · مسح أسرار الملفات المتتبعة (نظيف) + مسح التاريخ (.env تاريخي مؤكد — أزيل بـ36c066b3).
+- (المخرج) المستند `docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md`: **85 ملاحظة (9 عالية · 30 متوسطة · 46 منخفضة)** مصنفة Bug/Failure · Security/Reliability · Performance/SEO · Maintainability · Improvement بمواقع ملف:سطر وأدلة مقتبسة + قسم «متحقق سليم» + خطة W0→W3 بمخطط اعتماديات وقواعد تنفيذ ملزمة — أبرز النتائج: `next@16.3.2` المقفلة داخل نطاق 3 استشارات RCE حرجة (مسار next/og عام عبر /api/og-image) · ذراع اشتراك capture-order بلا idempotency (إعادة الإرسال تمدد الاشتراك مجانًا — ذراع المحفظة محمي بنمط UUID5) · robots.txt تحجب /authors عن العناكب · 3 عيوب JSON-LD مؤكدة بكل صفحات المقارنة الثمانية · فجوات a11y بالأوفرلايات (درج EVO/درج الموبايل/3 نوافذ يدوية).
+- (التوثيق) صف جديد بسجل `docs/README.md` (حالة LIVE — المرجع الحاكم للموجات) + هذا المدخل + STATE.md: مدخل المرحلة 324 + تحديث آخر تحديث/آخر كوميت متحقق + تدوير نافذتي سلّم المراحل وملخص الجودة + تدوير worklog للنافذة 12 عبر `scripts/worklog_rotate.py`.
+- (البوابات — إطار توثيقي بحكم Phase 290: صفر مساس بsrc/) docs_audit ✓ (بعد الإضافات والتدوير) · docs_parity ✓ · stale-refs ✓ — بطارية الكود شُغّلت كدليل تدقيق فقط عند شجرة الفحص لا كبوابة إطار، وصفر مساس بالإنتاج.
+
+Stage Summary:
+- صفر تعديل كود/إعدادات — إضافات توثيقية فقط بهذا الفريم؛ التقرير والخطة هما المخرج الوحيدان.
+- أهم توصية عاجلة للمالك: **W0-1 ترقية next إلى 16.3.8** (`bun update next`) — بند بحجم ساعة يغلق 3 ثغرات RCE حرجة، يليه W0-2 (robots.txt سطر واحد) وW0-3 (PayPal idempotency — يتطلب موافقة §7 مسبقة).
+- Push status: pushed
+
+---
 Task ID: BLOG-WORD-FLOOR-1000-2026-10-02
 Agent: Super Z (main)
 Task: أمر المالك 2026-10-02 «خفّض أرضية طول المقال من 1200/1300 إلى 1000 كلمة في جميع المواضع ذات الصلة، بما فيها البوابات والاختبارات والتوثيقات. لا تغيّر أي شيء آخر» — خفض أرضيتي طول المقال فقط (BLOG_EXECUTION_WORD_FLOOR وP5_WORD_FLOOR) مع تحديث الاختبارات السلوكية والتوثيقات الجارية المرتبطة بهما، دون مساس أي شيء آخر (الطلب 1500-2500 · بقية البطارية · حلقة R1 · B1 · قوانين التحرير).
@@ -215,25 +231,4 @@ Stage Summary:
 - التحقق النهائي لـP1-5 مغلق بنجاح: الإنتاج يخدم قطعة كوميت 1f8c17d8 (138,702B) والقديمة (196,493B) غائبة — البوابات: docs_audit ✓ · docs_parity ✓ · stale-refs ✓ (بطارية الكود غير مستحقة).
 - قياس PSI «بعد» الخارجي صار ممكنًا (النشر + الـPurge + التحقق الحي اكتملوا) — نافذة متابعة مستقلة موصى بها (رقمة قبل: EN ‏5.8s · AR ‏4.7s موبايل).
 - البند التالي بالترتيب: P1-6 تجزئة LandingView إلى جزر خادمية — يبدأ بفريم تدقيق (audit فقط: خريطة LandingView وحدود Server/Client وما يمكن تجزيئه دون تغيير السلوك/API/التصميم) ثم خطة تنفيذ موثّقة قبل أي تعديل.
-- Commit SHA (optional, post-push): (git log is the ledger)
----
-Task ID: SEO-P1-5-CSS-2026-09-30
-Agent: Super Z (main)
-Task: تنفيذ البند التالي فقط وفق ترتيب خطة تقرير تدقيق SEO المعتمد بعد تسجيل تأجيل P0-4 بقرار المالك (فريم 311): البند P1-5 «تقليص CSS (192KB) عبر تحليل الاستخدام الفعلي وفرز أدوات Tailwind غير المستخدمة» — فريم كود كامل ببوابات كاملة، بلا إعادة تنفيذ لما أُنجز وبلا تغيير نطاق (لا بنود P1-6/7/8/9 ولا P2 ولا مساس بمنطق أعمال/APIs/قاعدة/مصادقة/دفع).
-
-Work Log:
-- (التحليل قبل التنفيذ — أرقام مقيسة محليًا مطابقة للتقرير) البناء الأساس: 196,493B خام/31,569B gz للقطعة الرئيسية + 5,429B خطوط (= رقم التقرير 192KB+5KB) · التفكيك: طبقة utilities ‏~165KB (85%) مقابل هوية مخصصة ~8KB · المطابقة العكسية الأولية: 1,894/1,922 توكن له مرشّح src/ — ثم **خريطة الواردات** (تحليل استيراد من 282 جذر مسار + middleware + الاستيراد الديناميكي، أصلحت خلل CWD بمسار مثبت على جذر الريبو): 50 ملفًا غير قابل للوصول — 36 مكون ui + 3 hooks + كعبا اختبار + ملفات مؤشر — تُغذّي 125 توكن أدوات لا تُعرض أبدًا (114 قاعدة ≈7.3KB مباشرة + توابِع) · مصدر ضوضاء ثانٍ: المسح التلقائي لTailwind v4 يشمل docs/ وarchive/ وmd الجذرية والسكربتات النسّقة.
-- (حذف الميت وفق قانون التقاعد §8 — git rm + مسح مستدعين + تنظيف تعليقات بنفس الكوميت) 36 مكون ui (alert · alert-dialog · aspect-ratio · avatar · breadcrumb · calendar · carousel · chart · checkbox · collapsible · command · context-menu · drawer · dropdown-menu · form · hover-card · menubar · navigation-menu · pagination · progress · radio-group · resizable · scroll-area · select · separator · sheet · sidebar · skeleton · slider · switch · toast · toaster · toggle · toggle-group · tooltip · 3d-testimonials) + hooks: use-mobile · use-scroll-animation · use-toast — التحقق الثلاثي قبل الحذف: صفر مستورد حي (خريطة الواردات) · صفر اختبار يستوردها · النسّقة (ai-jobs-runner · blog-runner · evo-weekly-eval) لا تستورد أيًّ منها، وملفات lib الحية عبرها (ai-job-processors · evo-eval · evo-eval-runner · evo-learning-runner · social-posts) لم تُمس.
-- (package.json) −33 حزمة بلا أي مرجع (21 radix للعائلات المحذوفة + cmdk · embla-carousel-react · react-day-picker · react-resizable-panels · vaul · react-hook-form · @hookform/resolvers · date-fns · @tanstack/react-query · @tanstack/react-table · zustand · tailwindcss-animate) — الباقي الحي مثبت: recharts (WeightChart/ProgressView/admin-finances) · sonner+next-themes (Toaster) · input-otp (OTP) · radix الستة · tw-animate-css (popover/dialog).
-- (globals.css) حذف توكنات --color-sidebar*/--sidebar* بالوضعين + عائلة marquee كاملة + fade-in/animate-fade-up (مستهلكوها الميتون) + تصحيح ملاحظة C-18 المتقادمة + **@source not** بخمس استبعادات (docs · archive · scripts · supabase · **/*.md) تُخرج النثر التوثيقي من مسح المرشّحات.
-- (TECH_REFERENCE §3) جدول جرد Shadcn أُعيد استخراجه من الكود الحي (15 مكوّنًا) مع ملاحظة التقعيد وسبيل الاسترجاع — الالتزام بتنظيف تعليقات §8.
-- (النتيجة المقيسة) **CSS الرئيسي 196,493→138,702 خام (−57,791/−29.4%) · 31,569→23,744 مضغوطًا (−24.8%)** · مجموع حاجب العرض 201,922→144,131 خام (−28.6%) — القطعة تُحمَّل على كل صفحة والأثر مضاعف على الوجهة العربية (حاجب 800ms بقياس فريم 310).
-- (التحقق الصارم) سكربت حتمي: كل صنف class في كل HTML مُسبق التوليد (1,938 ملفًا · 725 توكن مميز) مُسلَّم في الـCSS الجديد — **صفر صنف حي سقط** (المفقود الوحيد: أصناف أيقونات lucide تقاس بخصائص SVG — قائمة بيضاء مبررة) · الميت غائب (marquee · bg-sidebar · sidebar-border · animate-fade-up · backdrop-saturate-150 · from-white · rdp-button = 0) والحاضر حي (btn-chrome · .rv · .live-dot · .swap-fade · card-hover · animate-in/out مثبتة).
-- (البطارية — فريم كود كامل) tsc ✓ 0 · eslint ✓ 0 (التحذير المسبق الموثق وحده) · vitest ✓ 1,987/1,987 (العدد كما كان — لا اختبار فقد غرضه) · next build ✓ 2,029/2,029 صفحة · دخان حي next start: 7 مسارات 200 (الرئيسيتان EN/AR + macro-calculator + workout-tracker + مقارنة Cronometer + المدونة + meal-planner AR) وكلها تحمل القطعة الجديدة · stale-refs ✓ · ui-wiring ✓ · docs_audit ✓ · docs_parity ✓.
-
-Stage Summary:
-- البند P1-5 منفّذ بالكامل بأرقام قبل/بعد موثّقة وحدود صادقة: سكربتات التحليل خارج الريبو (جلسة التنفيذ) · الخطوط (5.4KB) لم تُمس بحكم «محسّنة فعلًا» بالتقرير · ملفات lib الميتة المرصودة (external-search · seo-food-band — بلا أثر CSS) خارج النطاق عمدًا.
-- المرجع التنفيذي: docs/archive/SEO-GEO-EXECUTION-LOG.md §12.62 (Phase SEO-GEO-23).
-- قياس PSI خارجي «بعد» على الإنتاج ينتظر نشر هذا الكوميت — نافذة متابعة موصى بها بعد النشر.
-- البند التالي بالترتيب: P1-6 تجزئة LandingView (القيد المهيمن الموثق 1,650ms render delay).
 - Commit SHA (optional, post-push): (git log is the ledger)
