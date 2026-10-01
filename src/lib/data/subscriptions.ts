@@ -333,6 +333,9 @@ export async function submitSubscriptionRequest(req: SubscriptionRequestInput): 
  // Phase 191 mirror truth (RUN_ON_SUPABASE_0042): live column, NULL
  // until the evidence gate consumes the request — same default live
  consumed_at: null,
+ // 0098 (W0-3): PayPal capture claims only — a manual request is
+ // never order-locked (NULL is outside the partial unique index)
+ paypal_order_id: null,
  created_at: new Date().toISOString(),
  };
  all.push(row);

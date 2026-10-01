@@ -1826,6 +1826,10 @@ export type Database = {
           // → 200; control fake column → 42703); was invisible to the
           // migration_audit line-parser until the Phase-191 wrap fix
           consumed_at: string | null;
+          // 0098 (W0-3) — the PayPal capture claim: the partial unique
+          // index uq_subscription_requests_paypal_order makes the payment
+          // record insert the ATOMIC replay lock (23505 = already processed)
+          paypal_order_id: string | null;
         };
         Insert: {
           id?: string;
@@ -1841,6 +1845,7 @@ export type Database = {
           reviewed_at?: string | null;
           created_at?: string;
           consumed_at?: string | null;
+          paypal_order_id?: string | null;
         };
         Update: {
           full_name?: string | null;
@@ -1853,6 +1858,7 @@ export type Database = {
           status?: "pending" | "approved" | "rejected";
           reviewed_at?: string | null;
           consumed_at?: string | null;
+          paypal_order_id?: string | null;
         };
         Relationships: [];
       };
@@ -2037,6 +2043,25 @@ export type Database = {
           subscription_type: string | null;
           created_at: string;
         };
+      };
+      // 0098 (W0-3) — claim-first atomic PayPal capture: inserts the
+      // payment record (the uq_subscription_requests_paypal_order lock)
+      // and calls extend_subscription in ONE transaction — a 23505 on
+      // the claim returns already_processed=true (idempotent success,
+      // never a second extension); an extension failure rolls the
+      // claim back. p_tier = CANONICAL model tier (0045 guard);
+      // p_plan_tier = original product id kept on the record (0046).
+      capture_paypal_subscription: {
+        Args: {
+          p_user_id: string;
+          p_tier: string;
+          p_months: number;
+          p_amount_usd: number;
+          p_order_id: string;
+          p_full_name: string;
+          p_plan_tier?: string;
+        };
+        Returns: Json;
       };
       get_coach_client_list: {
         Args: Record<string, never>;

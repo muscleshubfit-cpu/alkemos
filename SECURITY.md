@@ -702,13 +702,15 @@ these are not shipped to the browser.
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
 | `/api/paypal/create-order` | POST | User (logged-in) | Create a PayPal Order server-side. **Price is resolved server-side** from `resolvePlanPrice()` (`src/lib/paypal.ts`) — the client NEVER sends the price. Client sends only `planTier` + `durationMonths`. |
-| `/api/paypal/capture-order` | POST | User (logged-in) | Capture a PayPal Order server-side. **This is the AUTHORITATIVE payment confirmation** — the client-side `onApprove` callback only signals user intent. After a successful capture, the route inserts a row in `subscription_requests` (status=`approved`) and triggers `processSubscriptionInitialPayment()` for affiliate commission. |
+| `/api/paypal/capture-order` | POST | User (logged-in) | Capture a PayPal Order server-side. **This is the AUTHORITATIVE payment confirmation** — the client-side `onApprove` callback only signals user intent. After a successful capture, the route calls ONE atomic RPC — `capture_paypal_subscription()` (migration 0098) — which inserts the payment record in `subscription_requests` (status=`approved`, `paypal_order_id` = the replay lock) and runs `extend_subscription()` in the SAME transaction, then triggers `processSubscriptionInitialPayment()` for affiliate commission. A replayed capture (sequential or the loser of a parallel race) resolves to an idempotent 200 with zero duplicate side effects. |
 | `/api/paypal/webhook` | POST | PayPal (signature-verified) | Receives webhook events (`PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`, `PAYMENT.CAPTURE.REFUNDED`, `CHECKOUT.ORDER.APPROVED`). **Audit trail only** — does NOT activate subscriptions or commissions. This prevents double-activation if both the webhook and the capture endpoint fire for the same order. |
 
 ### 12.3 Idempotency
 
-PayPal's Capture API is idempotent by design. The integration handles
-two idempotency paths:
+PayPal's Capture API is idempotent by design. The integration stacks
+four idempotency layers (the 0098 layer is the one that guards the
+SITE's side of the money — PayPal only protects the buyer from being
+charged twice):
 
 1. **`PayPal-Request-Id` header** — `create-order` uses
    `mhe-create-${userId}-${Date.now()}` and `capture-order` uses
@@ -718,7 +720,26 @@ two idempotency paths:
    captured (e.g., webhook fired before the capture call), the route
    treats 422 as success and fetches the order details via
    `fetchPayPalOrderDetails()` to retrieve the capture result.
-3. **Affiliate commission idempotency** — `affiliate_commissions` has
+3. **DB claim-first atomic gate (migration 0098 — W0-3, 2026-10-02)** —
+   the money decision lives in the DATABASE, not the application:
+   - `subscription_requests.paypal_order_id` carries a PARTIAL unique
+     index (`uq_subscription_requests_paypal_order`); the RPC
+     `capture_paypal_subscription()` inserts the payment record FIRST
+     as the atomic claim — a 23505 unique violation means "already
+     processed" → idempotent success, NEVER a second extension — then
+     calls `extend_subscription()` in the SAME transaction, so an
+     extension failure rolls the claim back (no row, no extension,
+     clean retry). The route answers replays with the same 200 success
+     shape and skips duplicate notifications.
+   - `coach_wallet_transactions (ref_id)` carries a PARTIAL unique
+     index for `kind='topup'` (`uq_coach_wtxn_topup_ref`);
+     `coach_adjust_wallet()` catches that specific 23505
+     (constraint-name-scoped via `GET STACKED DIAGNOSTICS`) and
+     returns the LIVE balance without a second credit — a parallel
+     top-up race resolves to exactly ONE credit. Admin adjustments
+     (`ref_id=null`) and coach activations (`kind='activation'`) are
+     outside the index and unaffected.
+4. **Affiliate commission idempotency** — `affiliate_commissions` has
    a unique constraint `uq_aff_comm_transaction` on `transaction_id`;
    the `orderId` is used as `external_reference` so a duplicate
    capture call cannot create a duplicate commission.
@@ -759,7 +780,8 @@ trail.
 
 | Table | Use |
 |---|---|
-| `subscription_requests` | After capture: a row is inserted with `status='approved'`, `payment_method='paypal'`, `price_usd` (server-resolved), and metadata linking to the PayPal Order ID (migration `0016_add_paypal_to_payment_method.sql` extended `payment_method` to include `paypal`). |
+| `subscription_requests` | After capture: a row is inserted with `status='approved'`, `payment_method='paypal'`, `price_usd` (server-resolved) and `paypal_order_id` (migration 0098 — the partial unique index on it is the replay lock; the insert happens INSIDE the atomic RPC, claim-first, before the extension). Migration `0016` extended `payment_method` to include `paypal`. |
+| `coach_wallet_transactions` | Wallet top-up captures: one `kind='topup'` row per PayPal order, keyed by the deterministic UUID5 `ref_id` (migration 0035 + 0098's partial unique index `uq_coach_wtxn_topup_ref` — the parallel-race lock). |
 | `affiliate_commissions` | If the user was referred, `processSubscriptionInitialPayment()` awards the commission using the PayPal Order ID as `external_reference` for idempotency. |
 | `admin_notifications` | A bell notification is inserted so the coach sees the PayPal payment in real time. |
 

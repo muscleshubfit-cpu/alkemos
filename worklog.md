@@ -1,4 +1,22 @@
 ---
+Task ID: W0-3-PAYPAL-ATOMIC-IDEMPOTENCY-2026-10-02
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-02 «نفّذ W0-3 فقط وفق خطة التنفيذ المعتمدة الحالية في docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md — اعتبر التقرير المصدر الوحيد لتفاصيل التنفيذ بلا إعادة تفسير · حدّث التوثيق والملفات المطلوبة وفق أعراف المستودع · commit واحد وpush إلى main» (الأمر نفسه = موافقة §7 المسبقة على تصميم §6.4 المطلوبة بقاعدة التنفيذ (2)).
+
+Work Log:
+- (الميجريشن 0098 — بحرف §6.4 أرقام 1-5) `supabase/migrations/20261002120000_0098_paypal_capture_idempotency.sql`: (1) عمود `subscription_requests.paypal_order_id text` (IF NOT EXISTS) · (2) فهرس فريد جزئي `uq_subscription_requests_paypal_order` (WHERE not null — الإدراج هو القفل الذري؛ كل الصفوف التاريخية NULL فلا تعارض ولا backfill كما نص التصميم) · (3) فهرس فريد جزئي `uq_coach_wtxn_topup_ref` على `(ref_id) WHERE ref_id is not null and kind='topup'` · (4) RPC `capture_paypal_subscription(p_user_id, p_tier, p_months, p_amount_usd, p_order_id, p_full_name, p_plan_tier default null)` — SECURITY DEFINER + search_path مثبت بنمط 0042، باب service_role حصرًا: إدراج سجل الدفع (status='approved' + paypal_order_id) داخل استثناء مُدار — 23505 يقرأ «مُعالج مسبقًا» ويعيد نجاحًا idempotent — ثم `extend_subscription` بمعاملة واحدة يُرجعها فشلُه كاملة (لا قفل بلا أثر ولا حالة مسمومة) · (5) `coach_adjust_wallet`: إدراج سجل الدفتر يسبق تحديث الرصيد + التقاط 23505 مقيد باسم القيد عبر GET STACKED DIAGNOSTICS (أي انتهاك فريد آخر يُعاد رفعه) ← إرجاع الرصيد الحي بلا شحن ثانٍ. ملاحظة تنفيذ (§11): بارامتر `p_plan_tier` مضيف يفترض p_tier — التصميم نص 6 بارامترات لكن دمج الندائين حرفيًا يستلزم المستويين (0045: صف subscriptions بالمستوى القانوني · 0046: السجل يحمل المنتج الأصلي starter/elite) — بلا بارامتر يفقد السجل أمانة المنتج أو يخالف حارس 0045.
+- (فريم الكود بنفس الكوميت — سابقة 0042 «تحديث المستدعين») capture-order/route.ts: ذراع الاشتراك يستبدل الندائين المنفصلين (serverUpsertSubscription + serverCreatePayPalPaymentRecord — حُذفا) بنداء RPC واحد عبر `serverCapturePayPalSubscription` (p_tier=canonicalModelTier · p_plan_tier=الأصلي) + عند already_processed استجابة نجاح بنفس شكل النجاح الأصلي تمامًا والإشعارات/العمولة تُتجاوز (العمولة محمية بقفلها الخاص أصلًا 0015/0057) · ذراع المحفظة: الفحص السريع باقٍ حرفيًا وحسم 23505 داخل coach_adjust_wallet · fallback المحلي subscriptions.ts: paypal_order_id=null للصف اليدوي (عمود الصف Row يتطلبه tsc).
+- (كاناري الحالات الأربع §6.4) `src/lib/__tests__/paypal-capture-idempotency.test.ts` (13 اختبارًا): طبقتان — (أ) source pins على الميجريشن وtypes.ts والمسار (الفهرسان الجزئيان · claim قبل extend · service_role حصرًا · تقييد 23505 باسم القيد · المسار يمتطي RPC واحدًا والنداءان القديمان محذوفان) + (ب) سلوك المسار عبر mock يطبق عقد 0098 (فهرس فريد = Set · فشل التمديد يرجع الادعاء): إعادة متتابعة = 200 idempotent بلا تمديد ثانٍ ولا إشعارات مكررة · إعادة متزامنة = الخاسر 23505→200 idempotent (تمديد وإشعار واحدان) · فشل التمديد = 500 صادقة ثم إعادة المحاولة تبدأ نظيفة (لا صف ولا تمديد) · المحفظة تحت التزامن = شحن واحد بالضبط ($100 مرة واحدة لا مرتين — الخاسر يسترد الرصيد الحي).
+- (قانون §6 كاملًا) INDEX.md: صف 0097 + تحديث سطر آخر تدقيق + خريطة الترقيم 0001→0098 + سطر سجل التدقيق (2026-10-02 · 328) · types.ts: العمود بRow/Insert/Update + توقيع الـRPC ببلوك Functions · `python3 scripts/migration_audit.py --ci`: PASS صفر انجراف جديد (كل المتبقي baseline موثق).
+- (البطارية — فريم كود يمس src/ + ميجريشن) tsc --noEmit 0 أخطاء · eslint 0 أخطاء + التحذير المسبق الموثق وحده (root-shell.tsx:141) · vitest 2,087/2,087 عبر 124 ملفًا (2,074 + 13 كاناري جديد) · next build 2,033/2,033 صفحة مطابقًا لخط الأساس · docs_audit ✓ (STATE 97 سطرًا/31,870 بايتًا بعد تدوير النوافذ) · docs_parity ✓ · stale-refs ✓.
+- (التوثيق وفق §3.8/§12.5) SECURITY.md §12: جدول المسارات (capture-order = RPC ذري واحد) + §12.3 أربع طبقات idempotency (0098 = طبقة قاعدة البيانات claim-first مع تفصيل الفهرسين والقيد المسمى) + §12.6 نقاط اللمس (paypal_order_id + صف coach_wallet_transactions الجديد) · TECH_REFERENCE.md §1.4: صف subscription_requests وcoach_wallets + صف 0098 بجدول §1.4.1 · docs/README.md: صف الخطة يوثق تنفيذ W0-3 (328) · STATE.md: مرحلة 328 + إغلاق W0 بالكامل بالمفتوح + سطر جودة 328 + تدوير النوافذ · هذا المدخل + تدوير worklog للنافذة 12 عبر scripts/worklog_rotate.py.
+
+Stage Summary:
+- W0-3 منفذ بتصميم §6.4 الحرفي كاملًا: ميجريشن 0098 إضافي بالكامل (الاسترجاع = revert + إسقاط الفهرسين والعمود والـRPC يدويًا) + RPC ذري claim-first + حسم سباق المحفظة المقيد باسم القيد + كاناري الحالات الأربع — بند W0 وحيد، لا شيء آخر نُفذ (أي بند آخر بالخطة لم يُمس؛ W2-1a يرث الترقيم 0099 كما وثّقت الخطة نفسها).
+- نشر حقيقي بلا [vercel skip] (يمس src/ وsupabase/) — الميجريشن يُطبَّق آليًا بدفع الكوميت (تكامل Supabase-GitHub) والنشر يتبعه بدقائق (نمط 0042 الموثق) — تحقق حي (6) بالخطة: كاناري ✓ محليًا + مراجعة سجل الدفعات بعد أول طلب حقيقي على المالك.
+- Push status: pushed
+
+---
 Task ID: W0-2-ROBOTS-EXACT-AUTH-2026-10-02
 Agent: Super Z (main)
 Task: أمر المالك 2026-10-02 «نفّذ W0-2 فقط وفق خطة التنفيذ المعتمدة الحالية في docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md — التقرير المصدر الوحيد لتفاصيل التنفيذ · حدّث التوثيق والملفات المطلوبة وفق أعراف المستودع · commit واحد وpush إلى main · توقف عند أي تعارض أو خروج عن نطاق W0-2 · لا تنفذ أي بند آخر».
@@ -198,34 +216,3 @@ Stage Summary:
 - حدود صادقة: تباين جريانات AR موثق بعينتين (شاذ أول بارد المورد مقابل عيّنة ثانية مطابقة لنمط EN) · LCP ما زال فوق عتبة الجيد — بنود الرصد (image-delivery/unused-JS) مسجلة لا منفذة · لقطة SERP خارج نطاق أمر «قياس PSI» حرفيًا (نافذتها المستقلة لم تبلغ).
 - البند التالي بالترتيب: P1-8 (سلسلة محتوى «دقة تتبع الماكروز» وسلعنة قاعدة الأطعمة) — ينتظر أمر المالك.
 - Commit SHA (optional, post-push): (git log is the ledger)
----
-Task ID: SEO-P1-7-CF-CACHE-2026-10-01
-Agent: Super Z (main)
-Task: أمر المالك 2026-10-01 «ابدأ P1-7» — البند السابع بترتيب التقرير المعتمد: «رفع فعالية كاش Cloudflare (Cache Reserve ومراجعة TTL) وتقييم منطقة Vercel ثانية» (فريم 316 — إطار بنية تحتية عبر API الرسمي + توثيق · صفر مساس بsrc/).
-
-Work Log:
-- (تحقق ما قبل) P1-6 مكتمل (فريم 315 · 1eeff863) ونشره READY/PROMOTED مثبت عبر Vercel API — البند التالي بالترتيب هو P1-7 بنص STATE/سجل التنفيذ.
-- (تدقيق قراءة-only عبر CF API) المنطقة alkemos.com على خطة **Free** · إعدادات المنطقة (cache_level=aggressive · browser_ttl=0 · صفر Page Rules) · قاعدتا Cache Rules الحرفيتان (public-html-cache بEdge TTL 43,200s override_origin — قرار T-3b الموثق كحرس Fluid CPU على Hobby · og-image 86,400s) · قاعدة WAF crawler-allow (SOCIAL-OG-2) · التوكنات: A يملك Zone Settings Write وB أضيق.
-- (قياس حي قبل التغيير) `/` MISS ثم HIT · `/ar` HIT بعمر **5,081s متجاوزًا s-maxage=3,600 للأصل — إثبات حي أن قاعدة الحافة 43,200s هي الحاكمة كما صُممت** · og-image وصور MISS→HIT (قواعدها تعمل) · طلب التفاف أكّد منطقة الأصل hkg1::fra1.
-- (المصادر الرسمية) وثائق CF (محدثة 2026-09-29): Cache Reserve «يتطلب خطة مدفوعة» + مصفوفة التوفر (Tiered Cache وSmart Topology = Free ✓ · Regional/Custom/Generic = Enterprise) + نداءا التفعيل الرسميان الدقيقان — والمجسّات على المنطقة متسقة (cache_reserve بلا مسار · regional_tiered_cache بالخطأ 1135 plan-gated).
-- (القرار المنفّذ — التغيير الجوهري) **Tiered Cache الرئيسي كان off (رغم Smart Topology=on منذ 2026-09-06 — المفتاح الرئيسي مطفأ فالهرمية بلا أثر إطلاقًا) → PATCH /zones/b4be55a0736831d9c5d9564788861076/argo/tiered_caching بـ{"value":"on"} = HTTP 200 بقيمة مرجعة on وطابع 2026-09-30T18:25:54Z** · Smart Topology مؤكد on · التراجع بنداء واحد (value off) — لا مساس بأي قاعدة كاش أو WAF أو TTL.
-- (القرارات الموثقة الثلاثة الأخرى) Cache Reserve محجوب بالخطة (قرار ترقية للمالك — لم يُلمس) · مراجعة TTL: الحكم «إبقاء 43,200s» (خفض يستدعي عودة مخاطر CPU الموثقة T-3b ورفع يضاعف ألم الانتقال SOCIAL-OG-3 §5.1 — والفعالية تُرفع بTiered Cache بلا لمس TTL) · منطقة Vercel ثانية: تقييم موثق بتوصية تأجيل (Hobby مثبتة ببيانات النشر الرسمية · fra1 مثبتة حيًا · الثانية تتطلب Pro — قرار كلفة مالك).
-- (التحقق بعد التطبيق) GET يرجع on · خدمة حية سليمة على `/` و`/ar` بعد التفعيل (200 HIT — لا انحدار) · الأدلة الخام محفوظة خارج الريبو: scripts/p17_cf_*.py + p17_cf_audit/*.json (استجابات API الحرفية والقياسات الحية).
-- (التوثيق وفق الأعراف) المستند المرجعي docs/SEO-P1-7-CF-CACHE-2026-10-01.md (جديد — مسجل بسجل docs/README) + §12.65 بسجل التنفيذ + STATE (المرحلة 316) + هذا المدخل — إطار توثيقي بحكم Phase 290: docs_audit/docs_parity/stale-refs ✓ والبطارية الكودية غير مستحقة.
-
-Stage Summary:
-- البند P1-7 منفّذ بمصير وصفته الثلاثية موثقًا بدليل رسمي: **Tiered Cache مفعّل من مفتاح مطفأ منذ إنشاء المنطقة (الرافع المجاني المتاح)** · Cache Reserve محجوب بالخطة (قرار مالك) · مراجعة TTL حكمت بالإبقاء المتعمد (حرس CPU) · منطقة Vercel ثانية موصى بتأجيلها (Hobby/fra1 مثبتتان).
-- حدود صادقة: أثر نسبة HIT التراكمي يحتاج لوحة CF Analytics (التوكنات بلا صلاحية Analytics — نافذة مالك) · قياس PSI «بعد» لP1-5/6 ما زال نافذة متابعة مستقلة.
-- البند التالي بالترتيب: P1-8 (سلسلة محتوى «دقة تتبع الماكروز» وسلعنة قاعدة الأطعمة) — ينتظر أمر المالك.
-- Commit SHA (optional, post-push): (git log is the ledger)
-# Worklog
-
-> **Policy (Phase 288 — ARCH-REMEDIATION, audit P1-1):** the live file IS the active window —
-> hard-capped at **≤ 12 entries AND ≤ 128 KB** (`scripts/docs_audit.py` check H5). Anything below
-> the window rotates verbatim to `archive/WORKLOG_ARCHIVE.md` in the SAME commit via
-> `python3 scripts/worklog_rotate.py` — size-driven, never calendar-driven, never one-shot.
-> newest on top; append-only; one entry per task (§12.5.1).
-
----
----
----

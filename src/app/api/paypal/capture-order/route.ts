@@ -10,12 +10,25 @@
  *   - The custom_id in the PayPal order contains the user_id, plan_tier,
  *     and duration_months — we verify it matches the authenticated user
  *     to prevent IDOR (user A capturing user B's order)
- *   - Idempotency: PayPal's Capture API is idempotent (same PayPal-Request-Id
- *     returns the same result). We also handle HTTP 422 ORDER_ALREADY_CAPTURED
- *     by fetching the order details instead of re-capturing.
+ *   - Idempotency (PayPal side): PayPal's Capture API is idempotent (same
+ *     PayPal-Request-Id returns the same result). We also handle HTTP 422
+ *     ORDER_ALREADY_CAPTURED by fetching the order details instead of
+ *     re-capturing.
+ *   - Idempotency (DB side — W0-3 / migration 0098): the SUBSCRIPTION arm
+ *     calls ONE atomic RPC, capture_paypal_subscription(), which claims
+ *     the order first (unique index uq_subscription_requests_paypal_order
+ *     on subscription_requests.paypal_order_id — 23505 = "already
+ *     processed" → idempotent success, NEVER a second extension) and runs
+ *     extend_subscription() in the SAME transaction — an extension failure
+ *     rolls the claim back (no row, no extension, safe retry). The WALLET
+ *     arm keeps its quick ref_id check; coach_adjust_wallet() resolves a
+ *     parallel top-up race via the same 23505 law
+ *     (uq_coach_wtxn_topup_ref) by returning the live balance without a
+ *     second credit.
  *   - Subscription activation uses server-side helpers (supabaseAdmin):
- *     serverUpsertSubscription() + serverCreateNotification() +
- *     serverProcessAffiliateCommission() — same logic as the manual flow.
+ *     serverCreateNotification() + serverProcessAffiliateCommission() —
+ *     same logic as the manual flow (run ONLY after a fresh capture — the
+ *     commission additionally carries its own 0015/0057 unique lock).
  *
  * Request body:
  *   { orderId: string }
@@ -57,31 +70,50 @@ export const runtime = "nodejs";
 // ─────────────────────────────────────────────────────────────────────────
 
 /**
- * Server-side subscription extension using supabaseAdmin (service-role).
- * Uses migration 0018's extend_subscription() RPC which atomically
- * extends an existing subscription (preserving remaining paid days)
- * instead of overwriting it. Fixes C10 (early renewal lost paid days).
+ * Server-side ATOMIC PayPal subscription capture (W0-3 / migration 0098).
+ *
+ * ONE RPC — capture_paypal_subscription() — replaces the two separate
+ * calls this route used to make (extend_subscription + the payment-record
+ * insert). Inside the RPC the payment record is inserted FIRST as the
+ * atomic claim (unique index on paypal_order_id; 23505 = "already
+ * processed" → idempotent success, never a second extension), then
+ * extend_subscription() runs in the SAME transaction — an extension
+ * failure rolls the claim back entirely (no row, no extension, no
+ * poisoned state: a retry starts clean).
+ *
+ * Tier fidelity (0045/0046 laws): p_tier receives the CANONICAL model
+ * tier the subscriptions row is written under (canonicalModelTier:
+ * starter→premium, elite→pro); p_plan_tier receives the ORIGINAL product
+ * id so the coach dashboard keeps showing what was actually bought
+ * (Starter $20 ≠ premium's $14.99 — the M8 amount check above uses the
+ * original id for the same reason).
  */
-async function serverUpsertSubscription(
-  clientId: string,
-  tier: string,
+async function serverCapturePayPalSubscription(
+  userId: string,
+  canonicalTier: string,
+  planTier: string,
   months: number,
-) {
+  amount: number,
+  orderId: string,
+  fullName: string,
+): Promise<{ already_processed: boolean }> {
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     throw new Error("Supabase admin client not configured");
   }
-  const subscriptionType = tier === "coaching" ? "coaching" : "membership";
   const { data, error } = await supabaseAdmin
-    .rpc("extend_subscription", {
-      p_client_id: clientId,
-      p_tier: tier,
+    .rpc("capture_paypal_subscription", {
+      p_user_id: userId,
+      p_tier: canonicalTier,
       p_months: months,
-      p_subscription_type: subscriptionType,
-      // 0042: service-role callers are evidence-exempt (PayPal IS the proof)
-      p_request_id: null,
+      p_amount_usd: amount,
+      p_order_id: orderId,
+      p_full_name: fullName,
+      p_plan_tier: planTier,
     });
   if (error) throw new Error(error.message);
-  return data;
+  // jsonb return: { already_processed: boolean } — the subscription row
+  // is informational; the route shapes its 200 from the capture context.
+  return (data ?? { already_processed: false }) as { already_processed: boolean };
 }
 
 /**
@@ -147,45 +179,6 @@ async function serverCreateAdminNotification(
     .from("admin_notifications")
     .insert({ type, title, body, link, target_role: "coach", target_coach_id: targetCoachId, payload: (payload ?? {}) as Json });
   if (error) console.error("[paypal/capture-order] Admin notification insert error:", error.message);
-}
-
-/**
- * Server-side PayPal payment record insert.
- * Creates a record in subscription_requests with status='approved'
- * and payment_provider='paypal' so the coach can see it in the
- * payments dashboard alongside manual payments.
- */
-async function serverCreatePayPalPaymentRecord(
-  userId: string,
-  planTier: string,
-  durationMonths: number,
-  amount: number,
-  orderId: string,
-  fullName: string,
-) {
-  if (!isSupabaseAdminConfigured || !supabaseAdmin) return;
-  const { error } = await supabaseAdmin
-    .from("subscription_requests")
-    .insert({
-      user_id: userId,
-      full_name: fullName,
-      whatsapp: null,
-      plan_tier: planTier,
-      duration_months: durationMonths,
-      price_usd: amount,
-      payment_method: "paypal",
-      receipt_path: null,
-      status: "approved",
-      reviewed_at: new Date().toISOString(),
-      // Note: subscription_requests table doesn't have a paypal_order_id
-      // column. The paypal_order_id is stored in the affiliate_transactions
-      // table (external_reference). This record is for the coach dashboard
-      // visibility only — it's already 'approved' so no action needed.
-    });
-  if (error) {
-    // Non-blocking — the subscription is already active
-    console.error("[paypal/capture-order] Payment record insert error:", error.message);
-  }
 }
 
 /**
@@ -261,6 +254,10 @@ async function handleWalletTopupCapture(
   }
 
   // 3. Idempotency — already credited for this PayPal order?
+  // (Sequential replays die here; a PARALLEL race is resolved one level
+  // deeper — inside coach_adjust_wallet, where the 0098 partial unique
+  // index uq_coach_wtxn_topup_ref turns the loser's 23505 into a clean
+  // live-balance return instead of a double credit.)
   const refUuid = payPalOrderRefUuid(orderId);
   const { data: existing } = await supabaseAdmin
     .from("coach_wallet_transactions")
@@ -520,27 +517,49 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 8. Activate the subscription (same path as manual approval)
-  // Use the service-role admin client to bypass RLS for the subscription
-  // insert (the coach's manual approval uses the same upsertSubscription()
-  // function which handles RLS internally via the authenticated coach
-  // session — but for PayPal, we don't have a coach session, so we use
-  // the admin client).
+  // 8. Activate the subscription — W0-3 (migration 0098): ONE atomic RPC
+  // replaces the two separate calls (extend + payment record). Claim-first:
+  // the RPC inserts the payment record as the replay lock, then extends
+  // in the same transaction. 0046: the /coaching products Starter ($20) /
+  // Elite ($40) are sold at their original PayPal-tied prices, but the
+  // subscription row is written under the CANONICAL model tier
+  // (starter → premium, elite → pro) so the 0045 DB guard
+  // (tier in premium/pro/coaching) + feature gates apply.
+  // The M8 amount check above stayed on the ORIGINAL product id — Starter
+  // must charge exactly $20, never premium's $14.99.
   try {
-    // Server-side subscription extension (uses supabaseAdmin + extend_subscription RPC)
-    // The RPC handles start_date and end_date computation atomically.
-    // 0046: the /coaching products Starter ($20) / Elite ($40) are sold at
-    // their original PayPal-tied prices, but the subscription row is written
-    // under the CANONICAL model tier (starter → premium, elite → pro) so the
-    // 0045 DB guard (tier in premium/pro/coaching) + feature gates apply.
-    // The M8 amount check above stayed on the ORIGINAL product id — Starter
-    // must charge exactly $20, never premium's $14.99.
     const canonicalTier = canonicalModelTier(plan_tier);
-    await serverUpsertSubscription(
+    const paymentAmount = captureResult.amount
+      ? parseFloat(captureResult.amount.value)
+      : 0;
+    const capture = await serverCapturePayPalSubscription(
       user_id,
       canonicalTier,
+      plan_tier,
       duration_months,
+      paymentAmount,
+      orderId,
+      user.email || "—",
     );
+
+    // Replay (sequential or the loser of a parallel race): the claim row
+    // says this order was already processed — same success shape, zero
+    // duplicate side effects (no second extension, no duplicate
+    // notifications; the commission is additionally protected by its own
+    // 0015/0057 unique lock).
+    if (capture.already_processed) {
+      console.log(
+        `[paypal/capture-order] Order ${orderId} already processed (claim hit) — idempotent success, no re-extension`,
+      );
+      return NextResponse.json({
+        success: true,
+        status: "COMPLETED",
+        subscription: "activated",
+        orderId,
+        plan: plan_tier,
+        durationMonths: duration_months,
+      });
+    }
 
     // Notify the user that their subscription is active
     // 0093: payload feeds the bell's render-side catalog (notification-i18n).
@@ -556,10 +575,6 @@ export async function POST(request: NextRequest) {
     // Award affiliate commission (server-side, idempotent)
     // Uses orderId as external_reference — prevents duplicate commissions
     try {
-      const paymentAmount = captureResult.amount
-        ? parseFloat(captureResult.amount.value)
-        : 0;
-
       if (paymentAmount > 0) {
         await serverProcessAffiliateCommission(
           user_id,
@@ -576,30 +591,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a payment record in subscription_requests so the coach
-    // can see it in the payments dashboard (status='approved', no action needed).
-    const paymentAmountForRecord = captureResult.amount
-      ? parseFloat(captureResult.amount.value)
-      : 0;
-    await serverCreatePayPalPaymentRecord(
-      user_id,
-      plan_tier,
-      duration_months,
-      paymentAmountForRecord,
-      orderId,
-      user.email || "—",
-    );
-
     // Notify about the new PayPal payment — 0043 MODEL: type
     // payment_request routes to the ADMIN only (site membership B2C),
     // link → /admin/payments (never the assigned coach).
     await serverCreateAdminNotification(
       "payment_request",
       "دفع PayPal جديد ✅",
-      `تم دفع $${paymentAmountForRecord.toFixed(2)} عبر PayPal لخطة ${plan_tier} (${duration_months} ${duration_months === 1 ? "شهر" : "أشهر"}). الاشتراك مُفعّل تلقائياً.`,
+      `تم دفع $${paymentAmount.toFixed(2)} عبر PayPal لخطة ${plan_tier} (${duration_months} ${duration_months === 1 ? "شهر" : "أشهر"}). الاشتراك مُفعّل تلقائياً.`,
       "/admin/payments",
       user_id,
-      { provider: "paypal", tier: plan_tier, months: duration_months, price_usd: paymentAmountForRecord },
+      { provider: "paypal", tier: plan_tier, months: duration_months, price_usd: paymentAmount },
     );
 
     console.log(

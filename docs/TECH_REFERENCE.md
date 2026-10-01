@@ -45,9 +45,9 @@
 | `evo_anon_usage` (ميجريشن 0028) | تقييد الزوار المجهولين بـ**SALTED-SHA-256(client IP)** — بلا سياسات (service-role فقط)، ولا تخزين لـIP الخام |
 | `site_content` (ميجريشن 0094 — SITE-CONTENT-281) | نصوص الموقع التسويقية القابلة للتحرير من `/admin/site-content`: قراءة عامة (anon — نمط blog_posts المنشور)، كتابة أدمن فقط عبر `is_admin()`، تريغر `site_content_touch` يختم `updated_at/updated_by` — **NULL = الافتراضي المدمج في `src/lib/site-content/`** (قانون الفولباك: صف مفقود/تالف لا يفرّغ صفحة)، والحداثة عبر ISR ‏revalidate=300 (سابقة المدونة) |
 | `coach_assignments` | `client_id UNIQUE` (عميل واحد ↔ مدرب واحد) — مصدر الحقيقة للإسناد؛ الإسناد للإدارة = «متابعة الإدارة» لا عميل B2B |
-| `coach_wallets` / `coach_topup_requests` / `coach_fees` (**تراثي** — بأمر m7/أ 2026-09-18 خرج حقل `fee_per_client` من معادلة التكلفة وأُزيل مساره الإداري؛ الجدول يبقى بيانات جامدة بلا أي قراءة فوترة) | RLS: الإدارة كل شيء / المدرب صفوفه فقط؛ العملة USD (ميجريشن 0038) |
+| `coach_wallets` / `coach_topup_requests` / `coach_fees` (**تراثي** — بأمر m7/أ 2026-09-18 خرج حقل `fee_per_client` من معادلة التكلفة وأُزيل مساره الإداري؛ الجدول يبقى بيانات جامدة بلا أي قراءة فوترة) | RLS: الإدارة كل شيء / المدرب صفوفه فقط؛ العملة USD (ميجريشن 0038) · **0098 (W0-3):** فهرس فريد جزئي `uq_coach_wtxn_topup_ref` على `coach_wallet_transactions (ref_id) WHERE kind='topup'` يحسم سباق شحن المحفظة المتزامن داخل `coach_adjust_wallet` (الخاسر يسترد الرصيد الحي بلا شحن ثانٍ) |
 | `coach_payments` | دفتر تسجيل أموال المدرب الخارجية — RLS: إدارة الكل / مدرب صفوفه / العميل يقرأ ما يخصه |
-| `subscription_requests` | ميجريشن 0043 أسقطت **كل** سياسات RLS الخاصة بالمدربين عليها — (select/update/delete = `is_admin()` فقط)، والمراجعة إدارة-حصرية |
+| `subscription_requests` | ميجريشن 0043 أسقطت **كل** سياسات RLS الخاصة بالمدربين عليها — (select/update/delete = `is_admin()` فقط)، والمراجعة إدارة-حصرية · **0098 (W0-3):** عمود `paypal_order_id` + فهرس فريد جزئي = قفل إعادة تشغيل التقاط PayPal (الإدراج داخل `capture_paypal_subscription` هو الادعاء الذري — 23505 = «مُعالج مسبقًا») |
 | `subscriptions` | تحصين 0041: المدرب يقرأ صفوف coaching فقط، وINSERT/UPDATE المباشر مسحوب (كان يسمح بتجاوز الخصم من المحفظة)؛ حارس `subscriptions_tier_model_guard` (0045) |
 | `plans` | سياسة `plans_insert_coach` RLS (0041): توليد/إضافة خطة للعميل يشترط اشتراك coaching نشط + المتصل هو مدربه المُسنَد |
 | `coach_pages` | صفحة عامة لكل مدرب (1:1، slug فريد `^[a-z0-9-]{3,40}$`، is_published) + أعمدة i18n الإنجليزية (0032) + إثراء عام (0037: photo_url، results_photos jsonb ≤6، سوشيال) |
@@ -71,6 +71,7 @@
 | ~~`evo_api_keys`/`evo_api_usage`~~ | 0082→0083 | **شاهد قبر:** أنشِئا ثم أُسقطا بأمر المالك (إلغاء API الشركاء EVO-6) — المعرفات محظورة بguard-stale-refs ولا توجد في الإنتاج بعد 0083 |
 | `ai_plan_usage` | 0085 + 0086 | **البوول الموحد**: صف لكل توليد ناجح فقط (الفشل/التعديل/العرض لا يُحتسب) — `user_id` أو `guest_key` (قيود CHECK)؛ الهوية المزدوجة للزوار: `guest_key` (تجزئة مملّحة لـUUID المتصفح) **و** `ip_key` (G6 — تنجو من النافذة الخفية ومسح التخزين؛ العرض يقرأ used=max(الاثنين))؛ RLS بلا سياسات عميل (service-role وحده) — مزيد القواعد في AGENTS.md §8 USAGE LIMIT ENFORCEMENT LAW |
 | 0084 + 0087 | — | موجات بيانات فقط (توحيد جودة المحتوى + دمج النوايا بـ301s في next.config بنفس الكوميت) — types.ts بلا تغيير |
+| `subscription_requests.paypal_order_id` + `capture_paypal_subscription()` | 0098 | **قانون idempotency ذرية لمسار PayPal (W0-3 — فحص 2026-10-02 S-01):** إدراج سجل الدفع = الادعاء الذري (فهرس فريد جزئي — 23505 = «مُعالج مسبقًا» ← نجاح idempotent بلا تمديد ثانٍ أبدًا) ثم `extend_subscription` **بمعاملة واحدة** (فشل التمديد يُرجع الادعاء كله — لا صف ولا تمديد ولا حالة مسمومة)؛ باب service_role حصرًا؛ `coach_adjust_wallet` يحسم سباق الشحن المتزامن ب نفس القانون (23505 مقيد باسم القيد ← إرجاع الرصيد الحي) — كاناري: `src/lib/__tests__/paypal-capture-idempotency.test.ts` |
 
 ### 1.5 التخزين (Storage) — من AGENTS.md §8 (UPLOAD LAW)
 
