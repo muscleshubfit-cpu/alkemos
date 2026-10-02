@@ -18,6 +18,7 @@ import { enqueueAiJobClient, getAiJob } from "@/lib/ai-jobs-client";
 import { resolveExerciseImage, getExerciseImage, getExerciseImages, getFallbackSVG } from "@/lib/exercise-images";
 import { useExerciseLookup } from "@/lib/exercise-lookup";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { Modal } from "@/components/ui/modal";
 import { toast } from "sonner";
 
 // M53 fix: escape HTML to prevent XSS in print window
@@ -692,18 +693,26 @@ function PlanDetailModal({
  const { t } = useI18n();
  const content = asPlanContent(plan.content);
 
+ // PHASE 334 — W1-3b (remediation plan §6.2, audit A-03): the hand-rolled
+ // overlay (no dialog semantics, no Escape, no focus trap, and a literally-
+ // EMPTY close button) is replaced by the unified <Modal> wrapper built in
+ // W1-3a — role=dialog + labelled title + Escape + focus trap/restore +
+ // labeled X close all inherit from Radix. Mounted-when-open (the parent's
+ // conditional render): open is true for the component's lifetime and
+ // onOpenChange(false) → onClose() keeps the instant close the old overlay
+ // had, while the remount per plan keeps this component's local state fresh.
  return (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
- <div
- className="max-h-[85vh] w-full max-w-2xl overflow-y-auto scrollbar-thin rounded-3xl bg-card p-6 shadow-card"
- onClick={(e) => e.stopPropagation()}
- >
- <div className="mb-4 flex items-center justify-between gap-3">
- <div className="flex items-center gap-2">
- {plan.type === "meal" ? <Salad className="h-5 w-5 text-primary" /> : <Dumbbell className="h-5 w-5 text-primary" />}
- <h2 className="text-lg font-bold">{plan.title}</h2>
- </div>
- <div className="flex gap-2">
+ <Modal
+ open={true}
+ onOpenChange={(o) => {
+ if (!o) onClose();
+ }}
+ title={plan.title}
+ icon={plan.type === "meal" ? <Salad className="h-5 w-5" /> : <Dumbbell className="h-5 w-5" />}
+ size="lg"
+ scroll
+ actions={
+ <>
  <Button size="sm" variant="outline" className="gap-2" onClick={onPrint}>
  <Printer className="h-4 w-4" />
  <span className="hidden sm:inline">{t("plan.print")}</span>
@@ -714,10 +723,9 @@ function PlanDetailModal({
  <span className="hidden sm:inline">{t("common.download")}</span>
  </Button>
  )}
- <Button size="sm" variant="ghost" onClick={onClose}></Button>
- </div>
- </div>
-
+ </>
+ }
+ >
  {plan.type === "meal" && content && "meals" in content ? (
  <MealContent content={content} onSwap={onSwapMeal} swapLoading={swapLoading} planId={plan.id} isSwapPending={isSwapPending} />
  ) : plan.type === "workout" && content && "days" in content ? (
@@ -737,8 +745,7 @@ function PlanDetailModal({
  )}
  </div>
  )}
- </div>
- </div>
+ </Modal>
  );
 }
 
@@ -960,6 +967,9 @@ function WorkoutContent({ content, onSwap, swapLoading, planId, isSwapPending }:
  ⏳ {isAr ? "جاري التبديل" : "Swapping"}
  </span>
  )}
+ {/* PHASE 334 — W1-3b (audit A-04): the exercise swap button carries the
+ meal-swap twin's exact label — an icon-only button had NO accessible name
+ (WCAG 4.1.2); the label mirrors MealContent's button in every state. */}
  <Button
  size="sm"
  variant="ghost"
@@ -972,6 +982,7 @@ function WorkoutContent({ content, onSwap, swapLoading, planId, isSwapPending }:
  ) : (
  <RefreshCw className="h-3.5 w-3.5" />
  )}
+ {isSwapPending("exercise", planId, i, j) ? (isAr ? "قيد الاستبدال" : "Swapping") : t("plan.swap")}
  </Button>
  </div>
  </div>

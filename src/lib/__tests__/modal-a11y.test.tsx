@@ -6,18 +6,25 @@ import { createElement } from "react";
 /**
  * PHASE 333 — W1-3a (remediation plan §6.2, audit A-03 direction):
  * the unified `<Modal>` wrapper over the EXISTING Radix primitives
- * (`src/components/ui/dialog.tsx`) — infrastructure ONLY, no view is
- * migrated yet (that is W1-3b's frame).
+ * (`src/components/ui/dialog.tsx`).
  *
- * This canary pins the wrapper's a11y contract in two layers:
+ * PHASE 334 — W1-3b (same plan row, audits A-03 + A-04): the three
+ * hand-rolled overlays are ADOPTED by the wrapper (this frame) —
+ * PlansView plan viewer · ReferralView payout · CoachClientView plan
+ * editor — and the plans-page exercise swap buttons carry the meal-swap
+ * twin's label (WCAG 4.1.2).
+ *
+ * This canary pins the a11y contract in two layers:
  *
  *   1. SOURCE PINS — the wrapper composes the Radix dialog (never a fresh
  *      hand-rolled overlay), the stock unlabeled-English close button is
  *      disabled (showCloseButton={false}), the wrapper's own close carries
  *      XIcon + a localized aria-label, `title` is a REQUIRED prop (an
- *      unlabeled Modal cannot compile), the file uses logical properties
- *      only, and the three A-03 views are NOT yet migrated (the W1-3a/W1-3b
- *      frame boundary, machine-checked — W1-3b flips this pin).
+ *      unlabeled Modal cannot compile), and the file uses logical properties
+ *      only. The W1-3b ADOPTION pins: the three A-03 views ride the wrapper
+ *      (no hand-rolled overlay survives, no literally-empty close button
+ *      survives) and the exercise swap buttons are named like their
+ *      meal-swap twin (A-04).
  *   2. BEHAVIOR — jsdom renders: role=dialog + modal isolation (Radix 1.1.x
  *      aria-hides the outside world — its documented equivalent of a literal
  *      aria-modal), the mandatory title is wired via aria-labelledby, the
@@ -82,7 +89,7 @@ describe("W1-3a source pins — the wrapper is Radix, labeled, and RTL-clean", (
     expect(i18n).toContain('"common.close": "إغلاق"');
   });
 
-  it("FRAME BOUNDARY — the three A-03 views are NOT yet migrated (W1-3b flips this pin)", () => {
+  it("W1-3b ADOPTION — the three A-03 views ride the wrapper (no hand-rolled overlay survives)", () => {
     const views = [
       "src/components/views/PlansView.tsx",
       "src/components/views/ReferralView.tsx",
@@ -90,10 +97,48 @@ describe("W1-3a source pins — the wrapper is Radix, labeled, and RTL-clean", (
     ];
     for (const v of views) {
       const s = src(v);
-      // Pre-W1-3b: the manual overlay still exists and the wrapper is not imported.
-      expect(s).toContain("fixed inset-0");
-      expect(s).not.toContain('from "@/components/ui/modal"');
+      // Post-W1-3b: the manual overlay is GONE and the wrapper IS imported.
+      expect(s).not.toContain("fixed inset-0");
+      expect(s).toContain('from "@/components/ui/modal"');
+      // The literally-empty close button (`></Button>`) is extinct everywhere.
+      expect(s).not.toContain("></Button>");
+      // Every view closes through the wrapper's onOpenChange contract.
+      expect(s).toContain("<Modal");
     }
+  });
+
+  it("W1-3b adoption shapes — the W1-3a header map, executed", () => {
+    // PlansView plan viewer: lg + scroll + header actions (print/download).
+    const plans = src("src/components/views/PlansView.tsx");
+    expect(plans).toMatch(/<Modal[\s\S]{0,600}?size="lg"/);
+    expect(plans).toMatch(/<Modal[\s\S]{0,600}?\bscroll\b/);
+    expect(plans).toMatch(/actions=\{/);
+    expect(plans).toContain('t("plan.print")');
+    // ReferralView payout: sm + the balance block as the description slot.
+    // (window 1600: the description block carries the long AR/EN balance
+    // strings before size="sm" — the slot CONTENT is not the pin's subject)
+    const referral = src("src/components/views/ReferralView.tsx");
+    expect(referral).toMatch(/<Modal[\s\S]{0,1600}?size="sm"/);
+    expect(referral).toMatch(/description=\{/);
+    // CoachClientView plan editor: lg + scroll + the EDITABLE title node
+    // (the inline Input rides DialogTitle — W1-3a's editable-header shape).
+    const coach = src("src/components/views/CoachClientView.tsx");
+    expect(coach).toMatch(/title=\{[\s\S]{0,200}?editMode[\s\S]{0,400}?<Input/);
+    expect(coach).toMatch(/<Modal[\s\S]{0,600}?size="lg"/);
+    expect(coach).toMatch(/<Modal[\s\S]{0,600}?\bscroll\b/);
+  });
+
+  it("W1-3b A-04 — the plans-page exercise swap buttons carry the meal-swap twin's label", () => {
+    const plans = src("src/components/views/PlansView.tsx");
+    // The exercise swap button ends with the SAME state-aware label line as
+    // the meal swap button — an icon-only button has no accessible name
+    // (WCAG 4.1.2). One literal, two surfaces: pin it once, count twice.
+    const labelLine =
+      'isSwapPending("exercise", planId, i, j) ? (isAr ? "قيد الاستبدال" : "Swapping") : t("plan.swap")';
+    const mealLabelLine =
+      'isSwapPending("meal", planId, i) ? (isAr ? "قيد الاستبدال" : "Swapping") : t("plan.swap")';
+    expect(plans).toContain(labelLine);
+    expect(plans).toContain(mealLabelLine);
   });
 });
 

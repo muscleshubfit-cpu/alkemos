@@ -25,6 +25,7 @@ import {
   UserCheck,
   Wallet,
 } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
 
 /** One referred coach, from GET /api/affiliate/referred-coaches (Phase 67). */
 type CoachReferralRow = {
@@ -502,14 +503,21 @@ export function ReferralView() {
           now lives on the public program page /affiliate (marketing belongs
           on the marketing page; the "what you get" promises stay honest). */}
 
-      {/* Payout Modal */}
+      {/* Payout Modal — PHASE 334 / W1-3b (audit A-03): the hand-rolled
+          overlay is replaced by the unified <Modal> wrapper (W1-3a) —
+          role=dialog + labelled title + Escape + focus trap/restore, plus the
+          labeled X close button this modal never had (backdrop-only closing).
+          The available-balance block rides the description slot so Radix wires
+          aria-describedby for free (W1-3a's sm+description adoption slot). */}
       {showPayoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowPayoutModal(false)}>
-          <div className="w-full max-w-md rounded-3xl bg-white p-8" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-semibold tracking-tight">
-              {isAr ? "طلب صرف العمولة" : "Request Payout"}
-            </h2>
-            <p className="mt-2 text-sm font-normal text-[#6e6e73]">
+        <Modal
+          open={true}
+          onOpenChange={(o) => {
+            if (!o) setShowPayoutModal(false);
+          }}
+          title={isAr ? "طلب صرف العمولة" : "Request Payout"}
+          description={
+            <>
               {isAr ? `رصيدك المتاح: $${stats?.availableBalance.toFixed(2)}` : `Available: $${stats?.availableBalance.toFixed(2)}`}
               {(stats?.onHoldBalance || 0) > 0 && (
                 <span className="mt-1 block text-xs text-[#ff9500]">
@@ -518,8 +526,10 @@ export function ReferralView() {
                     : `$${stats?.onHoldBalance.toFixed(2)} is on hold (7-day window) and unlocks after it passes`}
                 </span>
               )}
-            </p>
-
+            </>
+          }
+          size="sm"
+        >
             <div className="mt-6 space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">
@@ -620,8 +630,7 @@ export function ReferralView() {
                 {submitting ? "..." : (isAr ? "إرسال الطلب" : "Submit Request")}
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

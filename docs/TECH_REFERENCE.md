@@ -148,7 +148,7 @@
 |---|---|
 | `copy-button` | زر نسخ بذاته (يستخدم في الكود والحالات القابلة للنسخ) |
 | `image-with-fallback` | صورة مع سقوط آمن عند فشل التحميل |
-| `modal` | غلاف `<Modal>` موحّد فوق Radix `ui/dialog.tsx` (W1-3a · فريم 333): عنوان إلزامي (Radix DialogTitle → aria-labelledby) + زر إغلاق بأيقونة وaria-label معرّب (i18n `common.close`) + مقاسات sm/md/lg + جسم قابل للتمرير — البنية التي يتبناها W1-3b للنوافذ الثلاث (A-03) |
+| `modal` | غلاف `<Modal>` موحّد فوق Radix `ui/dialog.tsx` (W1-3a · فريم 333): عنوان إلزامي (Radix DialogTitle → aria-labelledby) + زر إغلاق بأيقونة وaria-label معرّب (i18n `common.close`) + مقاسات sm/md/lg + جسم قابل للتمرير — تبنّته النوافذ الثلاث بW1-3b (فريم 334): عارض خطط العضو PlansView (lg+scroll+actions) · صرف العمولة ReferralView (sm+description) · محرر خطط المدرب CoachClientView (lg+scroll+عنوان قابل للتحرير) — A-03 مغلقة |
 
 > قاعدة التوسع: أي مكون جديد يدخل من مكتبة shadcn/ui القياسية أو يُكتب محليًا في `src/components/ui/` — ولا يُستورد نظام واجهة بديل بدون موافقة المالك (§3.4: ممنوع اختراع معمارية).
 
