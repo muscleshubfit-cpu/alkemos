@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -87,6 +88,9 @@ const STORAGE_KEY = EVO_CHAT_STORAGE_KEY;
 // D1: the effective limit now comes from the resolved tier
 // (getLimits(tier).evoChatDailyLimit — 10 for free/anon, null = unlimited).
 const MAX_MESSAGES = 20;
+// P-02 (W1-4b, remediation plan §6.2): the coalescing trailing-debounce
+// window for the localStorage mirror saves — the plan's ~500ms direction.
+const EVO_SAVE_DEBOUNCE_MS = 500;
 
 type EvoChatContextType = {
   isOpen: boolean;
@@ -270,13 +274,73 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [isPaidTier, profile?.id]);
 
+  // ── P-02 (W1-4b): debounced localStorage mirror ────────────────────
+  // The save effect used to fire on EVERY state.messages identity change
+  // — during SSE token streaming that is a full JSON.stringify(history)
+  // + a synchronous setItem per TOKEN (dozens of main-thread writes per
+  // second while the user watches the stream — up to 20 messages with
+  // kilobyte schemas each). The mirror is a CACHE (offline/anon restore),
+  // never the source of truth, so a coalescing trailing debounce bounds
+  // the write rate: the FIRST change arms one 500ms timer, later changes
+  // only refresh the pending snapshot, and the fire writes the LATEST
+  // state (≤2 writes/sec mid-stream instead of one per token — and the
+  // fire reads the ref, so a snapshot armed before a reset can never
+  // resurrect pre-reset content). Convergence is guaranteed by the flush
+  // points below (pagehide / visibilitychange→hidden) and the reset
+  // CANCEL keeps the m3 sign-out wipe airtight.
+  const pendingSaveRef = useRef<ChatState | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Flush the pending snapshot NOW (hard close / backgrounding). */
+  const flushPendingSave = useCallback(() => {
+    if (saveTimerRef.current !== null) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    const pending = pendingSaveRef.current;
+    pendingSaveRef.current = null;
+    if (pending !== null) saveLocalState(pending);
+  }, []);
+  /** Cancel WITHOUT writing — the sign-out wipe must never flush a
+   * pending PRE-signout snapshot back over the removed mirror (m3). */
+  const cancelPendingSave = useCallback(() => {
+    if (saveTimerRef.current !== null) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    pendingSaveRef.current = null;
+  }, []);
+
   // Save to localStorage on every change (for offline/cache) — ONLY after
   // the initial hydration finished, so a mount-time write can never wipe
-  // history that has not been read yet (StrictMode-safe).
+  // history that has not been read yet (StrictMode-safe). P-02: the write
+  // itself is the coalescing trailing debounce above — armed, never
+  // synchronous.
   useEffect(() => {
     if (!hydrated) return;
-    saveLocalState(state);
-  }, [state.messages, state.dailyCount, state.dailyCountDate, hydrated]);
+    pendingSaveRef.current = state;
+    if (saveTimerRef.current !== null) return; // window armed — the fire reads the ref
+    saveTimerRef.current = setTimeout(() => {
+      saveTimerRef.current = null;
+      flushPendingSave();
+    }, EVO_SAVE_DEBOUNCE_MS);
+  }, [state.messages, state.dailyCount, state.dailyCountDate, hydrated, flushPendingSave]);
+
+  // Flush on hard close / backgrounding (the plan's «الحفظ عند الإغلاق»):
+  // pagehide covers real tab close (incl. bfcache), visibilitychange→
+  // hidden covers mobile app switches. Without these, a close inside the
+  // 500ms window would drop the last snapshot.
+  useEffect(() => {
+    const onPageHide = () => flushPendingSave();
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flushPendingSave();
+    };
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [flushPendingSave]);
 
   const openChat = useCallback(() => {
     setState((prev) => ({ ...prev, isOpen: true }));
@@ -334,7 +398,14 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
   // messages it guarded; hydration stays true (a save of the EMPTY
   // state is exactly what we want now).
   useEffect(() => {
-    const onResetEvent = () =>
+    const onResetEvent = () => {
+      // P-02: with the debounced mirror, an armed timer may hold a
+      // PRE-signout snapshot — CANCEL it (drop, never flush: flushing
+      // would re-persist the old messages over the removed mirror — the
+      // exact leak m3 fixed). The empty state below re-arms the debounce
+      // and persists the wipe ≤500ms later; signOut already removed the
+      // mirror itself, so the window holds NOTHING.
+      cancelPendingSave();
       setState({
         messages: [],
         isOpen: false,
@@ -342,9 +413,10 @@ export function EvoChatProvider({ children }: { children: ReactNode }) {
         dailyCount: 0,
         dailyCountDate: getTodayString(),
       });
+    };
     window.addEventListener(EVO_RESET_CHAT_EVENT, onResetEvent);
     return () => window.removeEventListener(EVO_RESET_CHAT_EVENT, onResetEvent);
-  }, []);
+  }, [cancelPendingSave]);
 
   // OWNER DIRECTIVE #4 (2026-08-27): the "clear chat" feature was REMOVED.
   // It allowed users to wipe their chat_messages rows — the very evidence
