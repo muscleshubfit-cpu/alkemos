@@ -11657,3 +11657,22 @@ Stage Summary:
 - أهم تصحيحين للمالك قبل التنفيذ: **W0-1 الهدف 16.3.8 ليس «الأحدث» بل الحد الأدنى الآمن** (إصدار أمني قائم بذاته + vcvr لا تُغلق قبله) · **W0-3 التصميم جاهز لقرار §7** (ميجريشن 0098 + RPC ذري — والمراجعة وسّعت الثغرة لتشمل المحفظة المتزامنة).
 - Push status: pushed
 
+
+<!-- rotated 2026-10-02 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: W0-1-NEXT-16-3-8-2026-10-02
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-02 «نفّذ W0-1 فقط وفق خطة التنفيذ المعتمدة الحالية في docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md — التقرير المصدر الوحيد لتفاصيل التنفيذ بلا إعادة تفسير · حدّث التوثيق والملفات وفق أعراف المستودع · commit واحد وpush إلى main · نشر حقيقي بلا [vercel skip] · لا تنفذ أي بند آخر».
+
+Work Log:
+- (التنفيذ بحرف W0-1 §6.1 + اتجاه إصلاح S-02) `bun update next eslint-config-next`: bun.lock الآن **next@16.3.8 + eslint-config-next@16.3.8** (الزوج المقفول بالإصدار) والتبعية العابرة sharp اندفعت آليًا **0.35.3→0.35.5** بنطاق next الجديد ^0.35.4 كما تنبأ التقرير حرفيًا · package.json رفع أرضية الحزمتين ^16.1.1→^16.3.8 (مخرج الأمر الموصوف نفسه — يجعل الحد الأدنى الآمن بنيويًا).
+- (تحقق القفل — معيار W0-1 الحرفي) صفر بقايا sharp@0.35.3 بbun.lock · الفرق الكامل مقصور على next + eslint-config-next + تبعياتهما المباشرة (@next/env · @next/eslint-plugin-next · ثنائيات @next/swc-*) + سلسلة sharp/@img — صفر تغيير لأي حزمة خارج النطاق (react/zod/supabase/tailwind-merge = W3-6 لم يُمس).
+- (bun audit بعدي — معيار W0-1) ‏22 ثغرة (3 critical · 9 high) → **18 (0 critical · 8 high · 7 moderate · 3 low)**: الحرجات الثلاث لnext (p293 · 2xp9 · vcvr) + استشارة high المستقلة لsharp اختفت كلها؛ المتبقي حصريًا سلاسل dev (undici عبر jsdom للاختبارات · brace-expansion + js-yaml عبر سلسلة eslint) = D-02 كما وثّق التقرير.
+- (البطارية الكاملة — فريم كود يمس package.json/bun.lock) tsc --noEmit ‏0 أخطاء · eslint 0 أخطاء + التحذير المسبق الموثق وحده (root-shell.tsx:141) · vitest ‏2,074/2,074 عبر 123 ملفًا · next build ‏2,033/2,033 صفحة — كلها مطابقة لخط أساس التدقيق عند 2cc44934.
+- (ملاحظة تنفيذ جديدة من 16.3.8 — توثيق فقط لا إصلاح) البناء يصدر تنبيهي إهمال إضافيين فوق الموثق مسبقًا M-03 (middleware→proxy): «Edge Runtime is deprecated» + «edge runtime disables static generation» لمسار /api/og-image — تنبيهات معلوماتية بلا فشل (الحزمة تعمل؛ الدخان الحي بعد النشر يحسم)؛ أي ترحيل مرتبط (proxy أو runtime nodejs) خارج نطاق W0-1 ولم يُمس.
+- (التوثيق وفق §3.8) STATE.md: مرحلة 326 + تحديث المفتوح (W0-1 ✓) + سطر جودة 326 + تدوير النوافذ · docs/README.md: صف خطة الفحص يوثق تنفيذ W0-1 (326) · هذا المدخل + تدوير worklog للنافذة 12 عبر scripts/worklog_rotate.py.
+
+Stage Summary:
+- W0-1 منفذ بمعاييره الحرفية كاملة: next@16.3.8 (الحد الأدنى الآمن) + الزوج + sharp آليًا ≥0.35.4 · صفر critical بقفل الإنتاج · البطارية خضراء كاملة — بند W0 وحيد، لا شيء آخر نُفذ.
+- نشر حقيقي (الكوميت بلا [vercel skip] — يمس package.json/bun.lock) — الدخان الحي (نشر + og-image) يُنفَّذ بعد الدفع مباشرة وفق قاعدة التحقق (6) بالخطة.
+- Push status: pushed

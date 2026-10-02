@@ -304,7 +304,9 @@ describe("ai meal planner trial (§12.28)", () => {
     expect(footer).not.toContain("مخطط بالذكاء الاصطناعي");
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
     expect(header).toContain("مخطط الوجبات بالذكاء الاصطناعي");
-    expect(header).toContain('isAr ? "/ar/ai-meal-planner" : "/ai-meal-planner"');
+    // W1-4a (P-01): the header's nav data now lives at module scope as
+    // hrefAr/hrefEn pairs (resolved via isAr at render) — pin follows shape.
+    expect(header).toContain('hrefAr: "/ar/ai-meal-planner", hrefEn: "/ai-meal-planner"');
   });
 
   it("HONEST COPY: the page states the unified-pool limits (2/month free, success-only, plans persist)", () => {

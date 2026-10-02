@@ -305,7 +305,9 @@ describe("ai workout planner trial (§12.32)", () => {
     // meal planner was invisible in the drawer — the workout planner
     // ships with a drawer entry from day one).
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
-    expect(header).toContain('isAr ? "/ar/ai-workout-planner" : "/ai-workout-planner"');
+    // W1-4a (P-01): the header's nav data now lives at module scope as
+    // hrefAr/hrefEn pairs (resolved via isAr at render) — pin follows shape.
+    expect(header).toContain('hrefAr: "/ar/ai-workout-planner", hrefEn: "/ai-workout-planner"');
     // The language toggle swaps the pair.
     const toggle = readFileSync("src/components/LanguageToggle.tsx", "utf8");
     expect(toggle).toContain('{ en: "/ai-workout-planner", ar: "/ar/ai-workout-planner" }');

@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
   useRef,
   type ReactNode,
 } from "react";
@@ -13,7 +14,9 @@ import { usePathname } from "next/navigation";
 import { deferIdle } from "@/lib/defer-idle";
 import type { Profile } from "@/lib/supabase/types";
 
-type AuthCtx = {
+// Exported for the W1-4a render-storm canary (the probe types the ctx
+// object) — type-only, zero runtime surface.
+export type AuthCtx = {
   profile: Profile | null;
   loading: boolean;
   /** STAFF semantics: true for role coach AND admin. Gates every coach
@@ -114,7 +117,6 @@ function hasSupabaseSessionCookie(): boolean {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const pathname = usePathname();
   const startedRef = useRef(false);
   const unsubRef = useRef<(() => void) | null>(null);
 
@@ -148,21 +150,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  useEffect(() => {
-    if (startedRef.current) return;
-
-    if (hasOAuthCodeParam() || isGatedPath(pathname)) {
-      void startAuth();
-    } else if (hasSupabaseSessionCookie()) {
-      // Returning user on a public page: resolve after the critical
-      // window (idle, hard timeout 2.5s) — never compete with LCP.
-      deferIdle(() => void startAuth(), 2500);
-    } else {
-      // Anonymous visitor on a public page: auth state is resolved as
-      // logged-out — no chunk, no network. Auth actions load on demand.
-      setLoading(false);
-    }
-  }, [pathname, startAuth]);
+  // The pathname-dependent trigger moved INTO AuthRouteTrigger below
+  // (W1-4a · audit P-01 — see the leaf's header comment).
 
   // Unmount cleanup (AuthProvider lives in the root layout, but keep the
   // original subscription lifecycle semantics intact).
@@ -201,25 +190,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const kind = (profile?.coach_kind === "site" ? "site" : profile?.role === "coach" ? "b2b" : null) as "site" | "b2b" | null;
+
+  // W1-4a (audit P-01 — 2026-10-02): the ctx value is MEMOIZED, so a
+  // provider re-render can no longer hand every useAuth consumer a fresh
+  // object identity — the value reference changes ONLY when the auth
+  // state (profile/loading) actually changes. The four actions are
+  // useCallback-stable and `kind` derives from `profile`.
+  const value = useMemo<AuthCtx>(
+    () => ({
+      profile,
+      loading,
+      isCoach: profile?.role === "coach" || profile?.role === "admin",
+      isAdmin: profile?.role === "admin",
+      coachKind: kind,
+      isSiteCoach: profile?.role === "coach" && kind === "site",
+      isB2BCoach: profile?.role === "coach" && kind !== "site",
+      signUp,
+      signIn,
+      signInGoogle,
+      signOutAsync,
+    }),
+    [profile, loading, kind, signUp, signIn, signInGoogle, signOutAsync],
+  );
+
   return (
-    <Ctx.Provider
-      value={{
-        profile,
-        loading,
-        isCoach: profile?.role === "coach" || profile?.role === "admin",
-        isAdmin: profile?.role === "admin",
-        coachKind: kind,
-        isSiteCoach: profile?.role === "coach" && kind === "site",
-        isB2BCoach: profile?.role === "coach" && kind !== "site",
-        signUp,
-        signIn,
-        signInGoogle,
-        signOutAsync,
-      }}
-    >
+    <Ctx.Provider value={value}>
+      <AuthRouteTrigger
+        startedRef={startedRef}
+        startAuth={startAuth}
+        setLoading={setLoading}
+      />
       {children}
     </Ctx.Provider>
   );
+}
+
+/* ── W1-4a (audit P-01 — 2026-10-02): pathname subscription torn off ────
+ *
+ * The provider used to call `usePathname()` itself, so EVERY SPA
+ * navigation re-rendered AuthProvider — and with an inline value object
+ * that meant all useAuth consumers re-rendered too, even though neither
+ * profile nor loading had changed (the audit's render storm: 49 useAuth
+ * consumers + 92 useI18n consumers on every route change).
+ *
+ * The pathname logic — the Phase 182 lazy-layer TRIGGER, moved here
+ * VERBATIM (gated route / OAuth code → immediate; returning session
+ * cookie → idle; anonymous → resolved logged-out) — now lives in this
+ * null-rendering LEAF inside the provider: a route change re-renders
+ * only this component, while the memoized ctx value above keeps every
+ * consumer untouched. The refs/handlers arrive as props with stable
+ * identities (useRef/useCallback/setState), so the leaf re-renders ONLY
+ * on pathname change — identical timing semantics for the trigger. */
+function AuthRouteTrigger({
+  startedRef,
+  startAuth,
+  setLoading,
+}: {
+  startedRef: { current: boolean };
+  startAuth: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
+}) {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (startedRef.current) return;
+
+    if (hasOAuthCodeParam() || isGatedPath(pathname)) {
+      void startAuth();
+    } else if (hasSupabaseSessionCookie()) {
+      // Returning user on a public page: resolve after the critical
+      // window (idle, hard timeout 2.5s) — never compete with LCP.
+      deferIdle(() => void startAuth(), 2500);
+    } else {
+      // Anonymous visitor on a public page: auth state is resolved as
+      // logged-out — no chunk, no network. Auth actions load on demand.
+      setLoading(false);
+    }
+  }, [pathname, startedRef, startAuth, setLoading]);
+
+  return null;
 }
 
 export function useAuth() {

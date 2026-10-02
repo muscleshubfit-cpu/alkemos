@@ -343,8 +343,11 @@ describe("diet-plan matrix (SEO-GEO-6.6 §12.19 P1-8)", () => {
     expect(footer).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
     expect(footer).toContain("مكتبة الخطط الغذائية الجاهزة");
     // §12.33: the nav drawer resources group carries the library entry.
+    // W1-4a (P-01): the header's nav data now lives at module scope as
+    // hrefAr/hrefEn pairs (resolved via isAr at render) — the pin follows
+    // the new shape; the LABEL pin below still guards the entry itself.
     const header = readFileSync("src/components/SiteHeader.tsx", "utf8");
-    expect(header).toContain('isAr ? "/ar/diet-plan" : "/diet-plan"');
+    expect(header).toContain('hrefAr: "/ar/diet-plan", hrefEn: "/diet-plan"');
     expect(header).toContain("مكتبة الخطط الغذائية الجاهزة");
   });
 

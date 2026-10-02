@@ -6,7 +6,10 @@ import {
  useEffect,
  useState,
  useCallback,
+ useMemo,
+ type Dispatch,
  type ReactNode,
+ type SetStateAction,
 } from "react";
 import { usePathname } from "next/navigation";
 
@@ -755,7 +758,9 @@ const ar: Dict = {
 
 const dicts: Record<Lang, Dict> = { en, ar };
 
-type I18nCtx = {
+// Exported for the W1-4a render-storm canary (the probe types the ctx
+// object) — type-only, zero runtime surface.
+export type I18nCtx = {
  lang: Lang;
  setLang: (l: Lang) => void;
  t: (key: string) => string;
@@ -781,41 +786,8 @@ export function I18nProvider({
  // Initial language: server-resolved URL locale → default "en".
  const [lang, setLangState] = useState<Lang>(urlLocale ?? "en");
 
- // Current URL path — drives URL-first language resolution (below).
- const pathname = usePathname() || "/";
-
- useEffect(() => {
-   // H2 fix (homepage AR mirror, 2026-08-30): URL-FIRST resolution.
-   //
-   // 1. `/ar/*` URLs ALWAYS render Arabic — an explicit user choice and
-   //    the only way Google can index the Arabic homepage (previously
-   //    /ar redirected to / and the language was guessed from
-   //    localStorage / browser settings, so crawlers + non-Arabic
-   //    browsers saw English).
-   // 2. Non-/ar URLs keep the legacy behavior (saved preference →
-   //    browser language → "en") so pages WITHOUT an Arabic mirror keep
-   //    their toggle-only UX.
-   const isArPath = pathname === "/ar" || pathname.startsWith("/ar/");
-   if (isArPath) {
-     setLangState("ar");
-     return;
-   }
-   const saved =
-     typeof window !== "undefined"
-       ? (localStorage.getItem("mhe:lang") as Lang | null)
-       : null;
-   if (saved === "ar" || saved === "en") {
-     setLangState(saved);
-   } else if (typeof navigator !== "undefined") {
-     // Auto-detect from browser: if browser is Arabic, use Arabic
-     const browserLang = navigator.language?.toLowerCase() || "";
-     if (browserLang.startsWith("ar")) {
-       setLangState("ar");
-     } else {
-       setLangState("en");
-     }
-   }
- }, [pathname]);
+ // Current-URL logic lives in the UrlLocaleSync LEAF below (W1-4a ·
+ // audit P-01) — the provider itself no longer subscribes to pathname.
 
  useEffect(() => {
    // H1 fix (Option B): this `useEffect` is intentionally RETAINED as a
@@ -851,11 +823,79 @@ export function I18nProvider({
  [lang],
  );
 
+ // W1-4a (audit P-01 — 2026-10-02): the ctx value is MEMOIZED — its
+ // reference changes ONLY when `lang` changes (setLang/t are
+ // useCallback-stable). An SPA navigation used to re-render the provider
+ // (pathname subscription) and hand every useI18n consumer a fresh object
+ // identity even though the language never changed — the audit's render
+ // storm on every route change.
+ const value = useMemo<I18nCtx>(
+   () => ({ lang, setLang, t, dir: lang === "ar" ? "rtl" : "ltr" }),
+   [lang, setLang, t],
+ );
+
  return (
- <Ctx.Provider value={{ lang, setLang, t, dir: lang === "ar" ? "rtl" : "ltr" }}>
+ <Ctx.Provider value={value}>
+ {/* W1-4a (audit P-01): the pathname subscription lives in this
+     null-rendering LEAF — a route change re-renders only the leaf
+     while the memoized value keeps every useI18n consumer
+     untouched. The URL-first resolution moved here VERBATIM. */}
+ <UrlLocaleSync setLangState={setLangState} />
  {children}
  </Ctx.Provider>
  );
+}
+
+/* ── W1-4a (audit P-01 — 2026-10-02): pathname subscription torn off ────
+ *
+ * URL-first language resolution, moved VERBATIM from the provider body:
+ * `/ar/*` URLs ALWAYS render Arabic (the H2 homepage-mirror fix,
+ * 2026-08-30); non-/ar URLs keep the legacy saved-preference →
+ * browser-language → "en" chain. Living in this null-rendering leaf,
+ * the per-route re-render stays INSIDE this component instead of
+ * re-rendering the provider + every useI18n consumer in the app
+ * (setLangState arrives as a stable setState reference). */
+function UrlLocaleSync({
+ setLangState,
+}: {
+ setLangState: Dispatch<SetStateAction<Lang>>;
+}) {
+ const pathname = usePathname() || "/";
+
+ useEffect(() => {
+   // H2 fix (homepage AR mirror, 2026-08-30): URL-FIRST resolution.
+   //
+   // 1. `/ar/*` URLs ALWAYS render Arabic — an explicit user choice and
+   //    the only way Google can index the Arabic homepage (previously
+   //    /ar redirected to / and the language was guessed from
+   //    localStorage / browser settings, so crawlers + non-Arabic
+   //    browsers saw English).
+   // 2. Non-/ar URLs keep the legacy behavior (saved preference →
+   //    browser language → "en") so pages WITHOUT an Arabic mirror keep
+   //    their toggle-only UX.
+   const isArPath = pathname === "/ar" || pathname.startsWith("/ar/");
+   if (isArPath) {
+     setLangState("ar");
+     return;
+   }
+   const saved =
+     typeof window !== "undefined"
+       ? (localStorage.getItem("mhe:lang") as Lang | null)
+       : null;
+   if (saved === "ar" || saved === "en") {
+     setLangState(saved);
+   } else if (typeof navigator !== "undefined") {
+     // Auto-detect from browser: if browser is Arabic, use Arabic
+     const browserLang = navigator.language?.toLowerCase() || "";
+     if (browserLang.startsWith("ar")) {
+       setLangState("ar");
+     } else {
+       setLangState("en");
+     }
+   }
+ }, [pathname, setLangState]);
+
+ return null;
 }
 
 export function useI18n() {
