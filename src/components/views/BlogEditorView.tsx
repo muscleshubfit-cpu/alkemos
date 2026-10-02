@@ -810,18 +810,27 @@ useEffect(() => {
  </p>
  </div>
 
- {/* Keywords + Tags */}
+ {/* Keywords + Tags — A-05 (W1-3e): every chip is a REAL <button> via
+     Badge asChild — focusable + Enter/Space deletion for free (the old
+     span-with-onClick was mouse-only), each naming its action + value,
+     and both add buttons carry a localized accessible name. */}
  <div className="grid gap-4 sm:grid-cols-2">
  <div>
  <Label>{isAr ? "الكلمات المفتاحية" : "Keywords"}</Label>
  <div className="mt-1.5 flex gap-2">
  <Input value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addKeyword())} placeholder={isAr ? "أضف كلمة..." : "Add keyword..."} />
- <Button size="sm" onClick={addKeyword}><Plus className="h-4 w-4" /></Button>
+ <Button size="sm" onClick={addKeyword} aria-label={isAr ? "أضف كلمة مفتاحية" : "Add keyword"}><Plus className="h-4 w-4" /></Button>
  </div>
  <div className="mt-2 flex flex-wrap gap-1">
  {(post.keywords || []).map((k, i) => (
- <Badge key={i} variant="secondary" className="cursor-pointer gap-1" onClick={() => setPost((p) => ({ ...p, keywords: p.keywords?.filter((_, j) => j !== i) }))}>
+ <Badge key={i} asChild variant="secondary" className="cursor-pointer gap-1">
+ <button
+ type="button"
+ onClick={() => setPost((p) => ({ ...p, keywords: p.keywords?.filter((_, j) => j !== i) }))}
+ aria-label={isAr ? `إزالة الكلمة المفتاحية «${k}»` : `Remove keyword ${k}`}
+ >
  {k} <X className="h-3 w-3" />
+ </button>
  </Badge>
  ))}
  </div>
@@ -830,12 +839,18 @@ useEffect(() => {
  <Label>{isAr ? "الوسوم" : "Tags"}</Label>
  <div className="mt-1.5 flex gap-2">
  <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())} placeholder={isAr ? "أضف وسم..." : "Add tag..."} />
- <Button size="sm" onClick={addTag}><Plus className="h-4 w-4" /></Button>
+ <Button size="sm" onClick={addTag} aria-label={isAr ? "أضف وسمًا" : "Add tag"}><Plus className="h-4 w-4" /></Button>
  </div>
  <div className="mt-2 flex flex-wrap gap-1">
  {(post.tags || []).map((tag, i) => (
- <Badge key={i} variant="outline" className="cursor-pointer gap-1" onClick={() => setPost((p) => ({ ...p, tags: p.tags?.filter((_, j) => j !== i) }))}>
+ <Badge key={i} asChild variant="outline" className="cursor-pointer gap-1">
+ <button
+ type="button"
+ onClick={() => setPost((p) => ({ ...p, tags: p.tags?.filter((_, j) => j !== i) }))}
+ aria-label={isAr ? `إزالة الوسم «${tag}»` : `Remove tag ${tag}`}
+ >
  #{tag} <X className="h-3 w-3" />
+ </button>
  </Badge>
  ))}
  </div>
