@@ -454,6 +454,29 @@ These are in addition to the general operating rules in `AGENTS.md`:
     the owner ordered «ابدأ التحسينات» after the report listed these
     exact items in §5-1/§5-2 (UX-TEST-REPORT-2026-09-21), the
     same «order = pre-approval» pattern as rule 13.
+16. **Email existence lookups are EXACT, never a pattern (W1-2a —
+    finding S-04 of the 2026-10-02 full-stack audit, Phase 330,
+    2026-10-02).** The four email-matching routes (`POST
+    /api/coach/register` · `POST /api/auth/complete-invite` · `POST
+    /api/coach/clients/invite` · `POST /api/coach/clients/invite/resend`)
+    look the profiles email up with `.eq("email",
+    email.toLowerCase())` — NEVER `.ilike`: user input is DATA, not a
+    match pattern (`a%@x.com` used to match `ahmed@x.com`, widening
+    the existence check into an account-state enumeration oracle and
+    rejecting legitimate registrations/invites with false 409s).
+    Correctness depends on the stored-lowercase contract — the zod
+    `emailSchema` (src/lib/validation/schemas.ts) trims + lowercases
+    at every boundary. coach/register's two `already_registered`
+    exits (the profile check + the createUser-422 fallback) return
+    the ONE unified 409 message. §7 pre-approval trail: the owner
+    ordered «ابدأ البند التالى» executing the approved remediation
+    plan's W1-2a row (docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-
+    2026-10-02.md — the plan is the sole source), the same
+    order-citing-the-plan pattern as the W0-3 §7 approval. Pinned by
+    `src/lib/__tests__/email-exact-match.test.ts` (13 canaries).
+    Scope note: admin/staff's own `.ilike` usage is a different,
+    admin-gated surface NOT listed in S-04's locations — untouched
+    by W1-2a (documented in the worklog entry).
 
 ---
 

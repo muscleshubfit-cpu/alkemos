@@ -148,10 +148,14 @@ export async function POST(request: NextRequest) {
 
   // The invite flow guarantees a profiles row (trigger + the invite
   // route's own safety net) — its id IS the auth user id.
+  // W1-2a (S-04, Phase 330): EXACT match — the old `.ilike` treated the
+  // input as a PATTERN (`a%@x.com` matched `ahmed@x.com`), surfacing
+  // other people's pending invites as this email's. Emails are stored
+  // lowercase (zod emailSchema lowercases).
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id, role")
-    .ilike("email", email)
+    .eq("email", email.toLowerCase())
     .maybeSingle();
 
   if (!profile?.id || profile.role !== "client") {

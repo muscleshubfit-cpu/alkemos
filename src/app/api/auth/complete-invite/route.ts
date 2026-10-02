@@ -96,10 +96,15 @@ export async function POST(request: NextRequest) {
 
   // 1) The invite flow guarantees a profiles row (trigger + invite-API
   //    safety net). Its id IS the auth user id.
+  //    W1-2a (S-04, Phase 330): EXACT match — `.ilike` treated the
+  //    input as a pattern (`a%@x.com` matched `ahmed@x.com`), widening
+  //    the lookup into an account-state oracle; the uniform {ok:false}
+  //    contract below stays untouched either way. Emails are stored
+  //    lowercase (zod emailSchema lowercases).
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("id, role")
-    .ilike("email", email)
+    .eq("email", email.toLowerCase())
     .maybeSingle();
 
   if (!profile?.id) {

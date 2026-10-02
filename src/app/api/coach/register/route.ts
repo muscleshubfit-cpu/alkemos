@@ -173,11 +173,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Already on the platform? (profile = source of truth, mirrors staff route)
+  // Already on the platform? (profile = source of truth, mirrors staff
+  // route). W1-2a (S-04, Phase 330): EXACT match — the old `.ilike`
+  // treated the input as a PATTERN (`a%@x.com` matched `ahmed@x.com`):
+  // a wider-than-exact existence check (enumeration oracle) + false
+  // 409s for legitimate registrations. Emails are stored lowercase
+  // (zod emailSchema lowercases; GoTrue lowercases on write).
   const { data: existing } = await supabaseAdmin
     .from("profiles")
     .select("id, role")
-    .ilike("email", email)
+    .eq("email", email.toLowerCase())
     .maybeSingle();
 
   if (existing) {
@@ -220,10 +225,14 @@ export async function POST(request: NextRequest) {
     const code = (createErr as { code?: string } | null)?.code;
     if (code === "422") {
       // auth user exists but no profile row (trigger never fired for him)
+      // W1-2a (S-04): the SAME unified 409 message as the profile-check
+      // path above — one error code, one answer, regardless of which
+      // of the two paths fired.
       return NextResponse.json(
         {
           error: "already_registered",
-          message: "البريد ده مسجل بالفعل — سجّل دخول أو استخدم بريدًا تاني",
+          message:
+            "البريد ده مسجل بالفعل — سجّل دخول من صفحة الدخول أو استخدم بريدًا تاني",
         },
         { status: 409 },
       );

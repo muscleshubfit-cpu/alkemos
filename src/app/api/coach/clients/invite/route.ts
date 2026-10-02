@@ -73,10 +73,15 @@ export async function POST(request: NextRequest) {
   }
 
   // Existing profile? Coaches may NOT invite existing clients.
+  // W1-2a (S-04, Phase 330): EXACT match — the old `.ilike` treated the
+  // input as a PATTERN (`a%@x.com` matched `ahmed@x.com`), so a
+  // pattern-shaped email surfaced OTHER people's accounts as a false
+  // 409 "already registered". Emails are stored lowercase (zod
+  // emailSchema lowercases).
   const { data: existing } = await supabaseAdmin
     .from("profiles")
     .select("id, role")
-    .ilike("email", email)
+    .eq("email", email.toLowerCase())
     .maybeSingle();
 
   if (existing) {
