@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { openEvoFloatingChat } from "@/lib/evo-chat-events";
 import {
   Menu,
@@ -81,6 +81,12 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   const isLoggedIn = !!profile;
   const isAr = lang === "ar";
   const [open, setOpen] = useState(false);
+  // W1-3d (A-02 — remediation plan 2026-10-02): the hamburger is now an
+  // EXPANDED-STATE control (aria-expanded + aria-controls at the drawer
+  // panel) and the restore target for the focus trap — the keyboard user
+  // who opened the drawer gets focus back on close.
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerPanelRef = useRef<HTMLElement>(null);
   // Phase 202: which DESKTOP service dropdown is click-opened. Mouse
   // users get the CSS hover path (group-hover); keyboard users get
   // focus-within; touch users on large screens (hover:none devices —
@@ -102,10 +108,54 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      // W1-3d (A-02): Tab is TRAPPED inside the drawer while it is open —
+      // focus wraps first→last (Shift+Tab: last→first) instead of escaping
+      // to the page behind the aria-modal panel. The panel contains
+      // itself (tabIndex=-1 + .focus() below), so the query covers every
+      // tabbable item the drawer renders; collapsed groups unmount their
+      // items (conditional render), so the DOM list is the true list.
+      if (e.key !== "Tab") return;
+      const panel = drawerPanelRef.current;
+      if (!panel) return;
+      const focusables = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      const outside = active === null || !panel.contains(active);
+      if (e.shiftKey && (active === first || outside)) {
+        e.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!e.shiftKey && (active === last || outside)) {
+        e.preventDefault();
+        first.focus({ preventScroll: true });
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
+  }, [open]);
+
+  // W1-3d (A-02): the dialog-panel focus lifecycle — on open, focus lands
+  // on the PANEL itself (the named-dialog pattern: focus the container, not
+  // a control, so Enter never re-fires a button); on close (any path —
+  // Escape · backdrop · X · a nav item), focus RESTORES to the hamburger
+  // trigger instead of falling to <body> inside a now-inert subtree.
+  // preventScroll: the panel is fixed and already in view; a scroll jump
+  // behind the scroll-locked body would be pure noise.
+  useEffect(() => {
+    if (!open) return;
+    drawerPanelRef.current?.focus({ preventScroll: true });
+    return () => {
+      menuButtonRef.current?.focus({ preventScroll: true });
+    };
   }, [open]);
 
   // Phase 202: close the click-opened desktop dropdown when clicking
@@ -570,6 +620,9 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
           <div className="flex items-center gap-2">
             <button
               onClick={() => setOpen(true)}
+              ref={menuButtonRef}
+              aria-expanded={open}
+              aria-controls="site-mobile-drawer"
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text)] transition-colors hover:bg-[var(--tint)]"
               aria-label={isAr ? "فتح القائمة" : "Open menu"}
             >
@@ -730,13 +783,21 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         </div>
       </header>
 
-      {/* Slide-in drawer */}
+      {/* Slide-in drawer — W1-3d (A-02): the closed drawer is INERT, not
+          just aria-hidden — the old aria-hidden={!open} left every link
+          inside the hidden subtree TAB-reachable (WCAG 2.4.3). inert removes
+          the closed subtree from the tab order, the a11y tree, AND pointer
+          events in one declaration; aria-hidden stays as the redundant belt
+          for engines without inert support. The exit animation (opacity +
+          translate, never display:none) is exactly why the drawer stays
+          mounted — conditional render would kill the slide-out. */}
       <div
         className={cn(
           "fixed inset-0 z-50 transition-all duration-300",
           open ? "pointer-events-auto" : "pointer-events-none",
         )}
         aria-hidden={!open}
+        inert={!open}
       >
         <div
           className={cn(
@@ -747,8 +808,11 @@ export function SiteHeader({ variant = "landing" }: { variant?: "landing" | "app
         />
 
         <aside
+          ref={drawerPanelRef}
+          id="site-mobile-drawer"
+          tabIndex={-1}
           className={cn(
-            "absolute inset-y-0 end-0 flex w-[85vw] max-w-sm flex-col border-s bg-[var(--bg)] shadow-2xl transition-transform duration-300 ease-out",
+            "absolute inset-y-0 end-0 flex w-[85vw] max-w-sm flex-col border-s bg-[var(--bg)] shadow-2xl transition-transform duration-300 ease-out focus:outline-none",
             open ? "translate-x-0" : "rtl:-translate-x-full ltr:translate-x-full",
           )}
           style={{ borderInlineStartColor: "var(--edge)" }}
