@@ -1,0 +1,85 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- 0099 — W1-2c (S-05) ATOMIC INVITE ADOPTION CLAIM (2026-10-02)
+-- ═══════════════════════════════════════════════════════════════════
+-- Full-stack audit 2026-10-02, finding S-05 (docs/
+-- FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md §4.1, plan row
+-- W1-2c §6.2 — owner order 2026-10-02 «اوافق على التنفيذ، ابدأ البند
+-- التالى» = the §7 pre-approval this auth-flow change requires, the
+-- same order-citing-the-plan pattern as W0-3/W1-2a/W1-2b). The TOCTOU
+-- race: POST /api/auth/complete-invite read getUserById → checked
+-- «invited_at set + last_sign_in_at null» → wrote updateUserById —
+-- three NON-ATOMIC steps. Two concurrent requests (or an attacker who
+-- knows a pending invitee's email racing the real invitee) BOTH passed
+-- the gate and BOTH wrote a password: the LAST writer silently
+-- replaced the first — the loser's {ok:true} was a lie and the winner
+-- owned the account.
+--
+-- THE FIX — the plan's primary direction, verbatim: «اعتماد ذري شرطي
+-- (حارس على مستوى DB/توكن أحادي الاستهلاك)». A single-consumption
+-- claim token ON the profiles row: the route's conditional
+--
+--     update profiles set invite_adopted_at = <uuid>
+--     where id = <id> and invite_adopted_at is null
+--     returning id;
+--
+-- is ONE atomic statement — Postgres row-locking guarantees exactly
+-- ONE concurrent caller transitions NULL → token; every other caller
+-- reads 0 rows and gets the uniform {ok:false} WITHOUT ever writing
+-- a password. «First claimer wins» replaces the racy «last writer
+-- wins». The GoTrue gate (invited_at + last_sign_in_at, rule 13) still
+-- runs FIRST — a self-registered or activated account never reaches
+-- the claim, so the token is only ever minted for a pending invite.
+--
+-- The token VALUE is a UUID (crypto.randomUUID server-side — the
+-- coach/subscriptions/activate precedent), and the column is TEXT,
+-- NOT timestamptz, deliberately: no two claims ever share a value, so
+-- the failure-release (update ... set invite_adopted_at = null where
+-- id = <id> and invite_adopted_at = <our token>) can never clobber a
+-- LATER claim — not even one born in the same millisecond (a
+-- millisecond-resolution timestamp could collide there).
+--
+-- Why a column and not an RPC (unlike 0092/0098): those RPCs bundled
+-- a MULTI-STATEMENT transaction (claim + extend in one call). Here the
+-- second half is GoTrue's updateUserById — an HTTP API that can never
+-- join a DB transaction — so the claim is necessarily a standalone
+-- statement; the conditional UPDATE via the service-role client
+-- (RLS-bypassing, same client the route already uses for every write)
+-- IS the DB-level guard, with no SECURITY DEFINER surface to maintain.
+--
+-- Failure semantics (the no-poisoned-state contract, 0042 lesson): if
+-- the password write FAILS after the claim, the route RELEASES its own
+-- claim — so a transient GoTrue failure leaves the invitee a clean
+-- retry, and the emailed invite link remains the documented
+-- alternative exit (H1-2026 rule 13).
+--
+-- Honest residual (accepted, documented in SECURITY.md rule 18): if
+-- the route dies BETWEEN claim and password write, the claim stays set
+-- with no password — complete-invite then answers {ok:false} for that
+-- email and the invitee's exit is the emailed link (always valid).
+-- The GoTrue link-vs-complete-invite write race is likewise outside
+-- this route's reach (updateUserById is unconditional by API design)
+-- and was equally present before the fix.
+--
+-- Additive only: no table dropped, no policy changed, no backfill
+-- (every historical profiles row is NULL = unclaimed), no RLS change
+-- (the column is written exclusively by the service-role route).
+-- Numbering note: the plan reserved 0099 for W2-1a before W1-2c was
+-- known to need a migration — W1-2c (executed first) takes 0099;
+-- W2-1a renumbers to 0100 when its turn comes (documented in INDEX.md
+-- + STATE.md).
+--
+-- Applied automatically by the Supabase-GitHub integration (Phase 120).
+-- Idempotent. Rollback: revert the commit + drop the column manually
+-- (additive).
+-- ═══════════════════════════════════════════════════════════════════
+
+-- ============================================================
+-- The single-consumption adoption claim token on profiles.
+-- NULL = never claimed (every historical row). Set once (a UUID) by
+-- the complete-invite route's conditional UPDATE = the adoption is
+-- claimed by exactly one caller; read by nothing else today.
+-- TEXT, not timestamptz: the value is a unique per-call TOKEN —
+-- uniqueness is what makes the failure-release safe (see header).
+-- ============================================================
+alter table public.profiles
+  add column if not exists invite_adopted_at text;

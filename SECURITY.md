@@ -508,6 +508,50 @@ These are in addition to the general operating rules in `AGENTS.md`:
     plan is the sole source), the same order-citing-the-plan pattern
     as W0-3/W1-2a. Pinned by
     `src/lib/__tests__/invite-rate-limit.test.ts` (14 canaries).
+18. **Auth-flow change — atomic invite adoption, single-consumption
+    claim (W1-2c — finding S-05 of the 2026-10-02 full-stack audit,
+    Phase 332, 2026-10-02; migration 0099).** The adoption path
+    `POST /api/auth/complete-invite` was a TOCTOU race: `getUserById`
+    → gate (invited_at set + last_sign_in_at null, rule 13) →
+    `updateUserById` — three NON-ATOMIC steps; two concurrent
+    requests (or an attacker who knows a pending invitee's email
+    racing the real invitee) BOTH passed the gate and BOTH wrote a
+    password — the last writer silently owned the account and the
+    loser's `{ok:true}` was a lie. The fix (the plan's §6.2 row W1-2c
+    primary direction, verbatim: «اعتماد ذري شرطي — حارس على مستوى
+    DB/توكن أحادي الاستهلاك»): `profiles.invite_adopted_at` (text,
+    migration 0099) is a single-consumption claim TOKEN — the route's
+    conditional UPDATE (`.eq("id", …).is("invite_adopted_at", null)`,
+    one atomic statement via the service-role client) transitions
+    NULL → a per-call UUID (`crypto.randomUUID()` — unique per call,
+    which is why the column is text, not timestamptz: the
+    failure-release keyed by the token can NEVER clobber a later
+    claim, not even one born in the same millisecond); every other
+    concurrent caller reads 0 rows → the uniform `{ok:false}` (rule
+    13's anti-enumeration answer) WITHOUT ever writing a password —
+    «first claimer wins» replaces the racy «last writer wins». The
+    GoTrue gate still runs FIRST, so no token is ever minted for a
+    self-registered or activated account. A password-write failure
+    RELEASES the claim (token-keyed) — no poisoned state, the
+    invitee retries clean and the emailed invite link remains the
+    documented alternative exit. Honest residual (accepted): (أ) if
+    the route dies BETWEEN claim and password write, the claim stays
+    set with no password — complete-invite then answers `{ok:false}`
+    for that email and the invitee's exit is the emailed link
+    (always valid); (ب) the GoTrue link-vs-complete-invite write race
+    is outside this route's reach — `updateUserById` is unconditional
+    by API design, and the window predates the fix. No new external
+    call, no RLS change (the column is written exclusively by the
+    service-role route), no money-path touch. §7 pre-approval trail:
+    the owner ordered «اوافق على التنفيذ، ابدأ البند التالى»
+    executing the approved remediation plan's W1-2c row — the row
+    itself is §7-marked in the plan (auth) and the owner's approval
+    explicitly preceded implementation. Pinned by
+    `src/lib/__tests__/invite-adopt-atomic.test.ts` (14 canaries:
+    source pins + the race — sequential replay, the parallel race's
+    single winner, write-failure release + clean retry, no claim for
+    non-adoptable users, anti-enumeration parity of the loser's
+    answer).
 
 ---
 

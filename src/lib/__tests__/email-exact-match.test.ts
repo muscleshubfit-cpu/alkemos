@@ -126,7 +126,15 @@ describe("W1-2a source pins (S-04)", () => {
 // B. ROUTE BEHAVIOR — the exact-match DB double
 // ══════════════════════════════════════════════════════════════════════
 
-type ProfileRow = { id: string; email: string; role: string; full_name?: string | null };
+type ProfileRow = {
+  id: string;
+  email: string;
+  role: string;
+  full_name?: string | null;
+  // W1-2c (S-05, migration 0099): the single-consumption adoption
+  // claim — the conditional-update mock below honors it atomically.
+  invite_adopted_at?: string | null;
+};
 
 const db = {
   profiles: [] as ProfileRow[],
@@ -244,17 +252,24 @@ const installDb = () => {
       });
       return {
         select: () => eqChain([]),
-        update: (patch: Record<string, unknown>) => ({
-          eq: (c: string, v: unknown) => ({
+        // W1-2c: composable conditional-update chain — .eq()/.is()
+        // accumulate predicates, .select().maybeSingle() applies the
+        // patch ONLY to the row matching ALL of them (the atomic
+        // claim contract: 0 rows matched → data:null, nothing written).
+        update: (patch: Record<string, unknown>) => {
+          const updChain = (conds: Cond[]) => ({
+            eq: (c: string, v: unknown) => updChain([...conds, [c, v]]),
+            is: (c: string, v: unknown) => updChain([...conds, [c, v]]),
             select: () => ({
               maybeSingle: async () => {
-                const row = rows().find((r) => matches(r, [[c, v]]));
+                const row = rows().find((r) => matches(r, conds));
                 if (row) Object.assign(row, patch);
                 return { data: row ? { id: row.id } : null, error: null };
               },
             }),
-          }),
-        }),
+          });
+          return updChain([]);
+        },
         upsert: async () => ({ error: null }),
         insert: async () => ({ error: null }),
       };
@@ -451,7 +466,7 @@ describe("complete-invite — exact profile lookup (adoption gate)", () => {
   });
 
   it("the exact adoptable invitee → the adoption proceeds (password written)", async () => {
-    db.profiles = [{ id: "p-1", email: "real@example.com", role: "client" }];
+    db.profiles = [{ id: "p-1", email: "real@example.com", role: "client", invite_adopted_at: null }];
     db.gtu = { invited_at: "2026-09-01T00:00:00Z", last_sign_in_at: null };
     const res = await completeInviteRoute(
       req("/api/auth/complete-invite", {

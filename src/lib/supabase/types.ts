@@ -28,6 +28,14 @@ export type Database = {
           // external partner with his own clients + wallet. Only meaningful
           // when role='coach'; every existing coach defaults to 'b2b'.
           coach_kind: string | null;
+          // Added by migration 0099 (W1-2c — S-05): the single-consumption
+          // adoption claim. NULL = never claimed (every historical row);
+          // set once (a per-call UUID token) by complete-invite's
+          // conditional UPDATE = the adoption is claimed by exactly one
+          // caller. TEXT, not timestamptz: token uniqueness is what makes
+          // the failure-release safe. Written exclusively by the
+          // service-role route; read by nothing else today.
+          invite_adopted_at: string | null;
           avatar_url: string | null;
           referral_code: string | null;
           is_test_account: boolean;
@@ -40,6 +48,7 @@ export type Database = {
           phone?: string | null;
           role?: "client" | "coach" | "admin";
           coach_kind?: string | null;
+          invite_adopted_at?: string | null;
           avatar_url?: string | null;
           referral_code?: string | null;
           is_test_account?: boolean;
@@ -51,6 +60,7 @@ export type Database = {
           phone?: string | null;
           role?: "client" | "coach" | "admin";
           coach_kind?: string | null;
+          invite_adopted_at?: string | null;
           avatar_url?: string | null;
           referral_code?: string | null;
           is_test_account?: boolean;

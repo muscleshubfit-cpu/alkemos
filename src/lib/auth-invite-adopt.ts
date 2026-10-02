@@ -29,8 +29,13 @@
  * signup) NEVER has invited_at, so their password can never be overwritten
  * by this path. Double gate = defense in depth.
  *
- * Pure display-layer signal — zero API/DB schema change (no migration;
- * the M2 fix precedent, audit constraint #3).
+ * W1-2c (S-05, migration 0099 — 2026-10-02): the gate alone was a TOCTOU
+ * race at the ROUTE level (read → check → write, three non-atomic
+ * steps). The route now closes it with a single-consumption claim
+ * BEFORE the password write — the conditional UPDATE on
+ * profiles.invite_adopted_at (NULL → set, exactly one concurrent
+ * caller wins). This module stays the PURE gate layer; the claim lives
+ * in the route (SECURITY.md rules 13 & 18).
  */
 
 /** Minimal GoTrue admin-user shape (only what the gate reads). */
