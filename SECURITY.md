@@ -577,17 +577,44 @@ split since the VERCEL-USAGE waves):
 - `/_next/image*` → `public, max-age=86400` (24 hours)
 - `/sw.js` → `public, max-age=0, must-revalidate` (always revalidated)
 
+### CSP-Report-Only (VERCEL-USAGE-7, 2026-10-02 — report-noise whitelist)
+
+The `Content-Security-Policy-Report-Only` header (report sink
+`/api/csp-report`, route C4) had drifted from the LIVE third-party
+stack: every pageview fired ~7 violation reports for resources the
+site legitimately loads — GA4 loader (`www.googletagmanager.com`),
+GA collect (`*.google-analytics.com`, `analytics.google.com`), CF Web
+Analytics beacon (`static.cloudflareinsights.com`), AdSense anti-fraud
+sodar (`*.adtrafficquality.google` — scripts, XHR and iframe), and
+AdSense's internal reCAPTCHA aframe (`www.google.com` in `frame-src`).
+Each report = one wasted function invocation (measured 2026-10-02:
+7/pageview on `/`, 14 on article pages — the single largest
+human-traffic driver of the Function Invocations meter).
+
+The whitelist additions are **additive, Report-Only, zero behavior
+change**: nothing starts or stops loading; browsers simply stop
+POSTing reports for the KNOWN stack, so the remaining reports become
+genuine enforcement signal (the original intent of the C4 Report-Only
+phase). Origins added in VERCEL-USAGE-7: `script-src` +=
+`www.googletagmanager.com` `static.cloudflareinsights.com`
+`*.adtrafficquality.google`; `connect-src` += `*.google-analytics.com`
+`analytics.google.com` `*.adtrafficquality.google`; `frame-src` +=
+`www.google.com` `*.adtrafficquality.google`. Rollout note: CF-cached
+HTML entries carry the old header until their 12h edge TTL expires —
+the report-volume drop ramps in over ~12h after deploy (no CF purge:
+a purge would itself spike origin invocations).
+
 ### Cloudflare — the OFFICIAL production HTML cache layer (P1-5, owner decision 2026-09-16 «اعتمد الخيار (ب)»)
 
 `alkemos.com` resolves through Cloudflare BEFORE Vercel, and the zone
-runs TWO cache rules that own the production caching behavior (the
+runs THREE cache rules that own the production caching behavior (the
 deep-audit P1-5 forensic verified the zone Browser-Cache-TTL is
 `Respect Existing Headers` — the RULES, not the zone setting, are the
 source):
 
 - **Ruleset:** «alkemos cache rules (SEO-GEO-4 2026-09-08)» — one
-  ruleset, TWO rules since VERCEL-USAGE-3 (2026-09-16, owner order
-  «نفّذ ت-1 وت-3»); rule 1 edge TTL raised 14400s → 43200s by
+  ruleset, THREE rules since VERCEL-USAGE-7 (2026-10-02; rule 3 adds
+  the sitemap/RSS/llms/robots bot-fetch guard); rule 1 edge TTL raised 14400s → 43200s by
   VERCEL-USAGE-4 T-3b (2026-09-19, owner order «مطلوب تنفيذ حل
   لمشكلة تجاوز الاستخدام الحالية» — Fluid CPU overage guard).
 - **Rule 1 — public HTML cache** («alkemos-public-html-cache», created
@@ -609,6 +636,19 @@ source):
   `cache=true` · Edge TTL override **86400s** (1 day) · Browser TTL
   `respect_origin` (the route already sends `public, max-age=86400`).
   The two rules never overlap (rule 1 explicitly excludes `/api*`).
+- **Rule 3 — sitemap/RSS/llms/robots cache** («alkemos sitemap-rss-llms
+cache», created by VERCEL-USAGE-7 2026-10-02 — bot-fetch transfer
+guard): **Expression:** `starts_with(http.request.uri.path,
+"/sitemap") or http.request.uri.path in {"/rss.xml" "/robots.txt"} or
+starts_with(http.request.uri.path, "/llms")`. **Behavior:**
+`cache=true` · Edge TTL override **3600s** (1 hour — matches the
+routes' own ISR revalidate) · Browser TTL `respect_origin`. Effect:
+bot sitemap/RSS/llms fetches (Google/Bing/AI crawlers re-fetch these
+continuously) stop transferring from the Vercel origin on every hit;
+worst-case staleness for a bot = 2h (1h CF + 1h ISR) — crawler
+discovery cadence is unaffected. Verified live 2026-10-02:
+`sitemap.xml` and `sitemap-exercises.xml` MISS→HIT on consecutive
+fetches.
 - **Verified production effect (2026-09-16, after T-1/T-3):** public
   HTML serves to browsers as `private, max-age=300, must-revalidate`
   (the rule's browser-TTL rewrite) with `cf-cache-status: HIT` while
@@ -616,10 +656,10 @@ source):
   expiry CF
   re-fetches through to the Vercel function (`x-vercel-cache: MISS`)
   and re-caches. OG cards serve `MISS` on first fetch then `HIT` for
-  a full day, cookie-free (was `DYNAMIC` before T-1). Sitemaps keep
-  their route-set headers and are NOT edge-cached by CF
-  (`cf-cache-status: DYNAMIC`, dots excluded) while Vercel caches
-  them (`x-vercel-cache: HIT`).
+  a full day, cookie-free (was `DYNAMIC` before T-1). Sitemaps/RSS/
+  llms/robots were `cf-cache-status: DYNAMIC` until VERCEL-USAGE-7
+  rule 3 (2026-10-02) — now edge-cached 1h (verified MISS→HIT live)
+  while Vercel keeps its own ISR cache (`x-vercel-cache: HIT`).
 - **Layering law:** the `next.config.ts` SEO-GEO-4 headers rule stays
   the ORIGIN-side policy (what Vercel emits; what every non-CF path —
   preview URLs, direct Vercel hits — receives). Any future change to
