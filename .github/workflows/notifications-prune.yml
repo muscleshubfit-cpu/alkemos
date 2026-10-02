@@ -1,0 +1,85 @@
+name: Notifications retention prune (weekly)
+
+# ============================================================
+# W2-1a (P-03) — the retention half of migration 0100 (2026-10-03).
+#
+# The notifications table grows monotonically (open operations
+# insert bell rows) and had NO pruning anywhere; the bell renders
+# only the latest 20 per user, so rows past the retention window
+# are dead weight. This job calls the prune_notifications() RPC
+# (migration 0100 — the single source of the retention law) with
+# the service-role key: the SAME secrets evo-weekly-eval and
+# db-backup already carry; nothing new to provision.
+#
+# Schedule: Saturday 03:17 UTC — a quiet weekend slot clear of the
+# existing cron grid (*/10 ai-jobs · 05:00 AR post · 05:30 db-backup
+# · 06:00 storage-backup · 22:00 EN post · Thu/Sun 21:00 evo) and
+# off the top of the hour (the GitHub scheduler congestion window).
+#
+# BENIGN-BY-DESIGN (the SCHEDULE HEALTH LAW tradeoff this job may
+# make): a missed schedule just means the prune catches up next
+# week — the 0100 index keeps every bell read fast regardless of
+# table size, and this job publishes nothing (no double-fire class
+# exists for an idempotent delete-past-a-cutoff).
+#
+# Tuning: repository variable NOTIFICATIONS_RETENTION_DAYS (empty =
+# the RPC default 90). The script validates + clamps to [7, 3650].
+# ============================================================
+
+on:
+  schedule:
+    - cron: "17 3 * * 6"
+  workflow_dispatch: {}
+
+concurrency:
+  group: notifications-prune
+  cancel-in-progress: false
+
+permissions:
+  contents: read # checkout the runner script only — no repo writes
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository (for the runner script)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Preflight — Supabase secrets present
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "=== Preflight: checking required GitHub Secrets ==="
+          missing=0
+          for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!v}" ]; then
+              echo "❌ Missing secret: $v"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            echo "❌ Preflight failed — fix the secrets above and re-run."
+            exit 1
+          fi
+          echo "✓ Supabase secrets present"
+
+      - name: Prune expired notifications (90-day default retention)
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NOTIFICATIONS_RETENTION_DAYS: ${{ vars.NOTIFICATIONS_RETENTION_DAYS }}
+        run: node scripts/notifications-prune.mjs
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Notifications retention prune summary ==="
+          echo "GREEN run = prune_notifications() called; deleted count printed (0 is healthy too)."
+          echo "RED run   = missing secrets, bad NOTIFICATIONS_RETENTION_DAYS, or the RPC rejected the call."
+          echo "The retention law + the bell index live in migration 0100 (single source)."

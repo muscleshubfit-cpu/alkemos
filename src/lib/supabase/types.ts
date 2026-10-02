@@ -2073,6 +2073,17 @@ export type Database = {
         };
         Returns: Json;
       };
+      // 0100 (W2-1a/P-03) — the notifications retention prune: deletes
+      // rows past the retention window (default 90 days, clamped to
+      // [7, 3650]) and returns the deleted count. Service-role only —
+      // the weekly runner scripts/notifications-prune.mjs (via
+      // .github/workflows/notifications-prune.yml) is the sole caller.
+      prune_notifications: {
+        Args: {
+          p_retention_days?: number;
+        };
+        Returns: number;
+      };
       get_coach_client_list: {
         Args: Record<string, never>;
         Returns: {
