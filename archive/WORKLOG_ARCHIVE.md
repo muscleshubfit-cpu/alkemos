@@ -11714,3 +11714,24 @@ Stage Summary:
 - نشر حقيقي بلا [vercel skip] (يمس src/ وsupabase/) — الميجريشن يُطبَّق آليًا بدفع الكوميت (تكامل Supabase-GitHub) والنشر يتبعه بدقائق (نمط 0042 الموثق) — تحقق حي (6) بالخطة: كاناري ✓ محليًا + مراجعة سجل الدفعات بعد أول طلب حقيقي على المالك.
 - Push status: pushed
 
+
+<!-- rotated 2026-10-02 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: W1-1-COMPARE-JSONLD-CLUSTER-2026-10-02
+Agent: Super Z (main)
+Task: تنفيذ W1-1 من خطة المعالجة المعتمدة docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md — عنقود JSON-LD للمقارنات: باني واعٍ للروابط المطلقة (E-02) + تواريخ حقيقية/lastReviewed صريح (E-03) + تمرير pageUrl (E-04) + كاناري — فريم واحد، كوميت واحد.
+
+Work Log:
+- قراءة الخطة (§6.2 صف W1-1 + §4.3 E-02/E-03/E-04) وأعراف AGENTS.md (§3.5/§3.8/§10/§12) وSTATE؛ البند مستقل بعد W0-1 المنفذ (326).
+- E-02 (seo.ts): باني getItemListSchema صار واعيًا للروابط المطلقة — الروابط المطلقة تمر حرفيًا والمسارات النسبية تحتفظ ببادئة SITE_URL؛ المستدعون القدماء الـ14 (كلهم نسببيون) ناتجهم بلا تغيير (تحقق مقارن على فهرس المقارنات المولّد).
+- E-03 (comparisons.ts): حقل publishedAt جديد بنوع Comparison + تعليق قانونه — ثابت لا يُرفع بإعادة التحقق الربع سنوية، مصدره git الحقيقي: d238e96a 2026-09-07 للثلاثة الأصلية · cae890f4 2026-09-30 لCronometer؛ dataAsOf يبقى تاريخ آخر تحقق حي.
+- E-03+E-04 (العارضان): إسقاط new Date().toISOString() كليًا — datePublished=publishedAt · dateModified=dataAsOf · lastReviewed=dataAsOf صريحًا (نفس ادعاء الترويسة المرئية) + تمرير pageUrl (معامل فريم 318) فيشير mainEntityOfPage للمسار الحقيقي بدل /blog/compare/… الوهمي — بالمرآتين EN وAR.
+- كاناري جديد src/lib/__tests__/compare-jsonld-cluster.test.ts — 15 اختبارًا: سلوك الباني (مطلق حرفيًا/نسبي بادئة/شكل نداء العارض/صفر بادئة مزدوجة عبر كل COMPARISONS) + بيانات (ISO + خريطة EXPECTED_PUBLISHED_AT بنمط VERIFIED_OFFICIAL + publishedAt ≤ dataAsOf) + سلوك getArticleSchema (التواريخ الثلاثة + بقاء reviewedBy كسطح مُنسّق من المالك) + تثبيتات مصدرية (لا new Date() عبر regex مرتكز على الجملة · pageUrl: url · ربط التواريخ بوحدة البيانات) + توافق /blog/${slug} للمدونة القديمة.
+- البطارية الكاملة (فريم يمس src/): tsc 0 · eslint 0 (تحذير مسبق وحده) · vitest 2,102/2,102 عبر 125 ملفًا · next build 2,033/2,033 (خط الأساس) · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ صفر انجراف · stale-refs ✓ · ui-wiring ✓.
+- تحقق وظيفي على HTML المولّد (فوق الفحص النوعي): استخراج كتل JSON-LD من .next لكل الصفحات الثمانية — ItemList يحمل رابط المنافس حرفيًا (كان alkemos.comhttps://…) · Article يحمل pub بتواريخ git · mod=rev=dataAsOf · @id بمسار الصفحة الحقيقي EN و/ar/compare AR.
+- التوثيق: STATE مرحلة 329 (بحدود 96 سطرًا/31,512B) · docs/README صف الخطة أُلحقه تنفيذ W1-1 · مدخل worklog هذا + تدوير النافذة إلى 12.
+
+Stage Summary:
+- W1-1 منفذ بحرف البند — الثلاثة عيوب E-02/E-03/E-04 مغلقة على صفحات المقارنة الثمانية (EN+AR) بفريم واحد؛ لا شيء خارج نطاقه مُمسّ.
+- Push status: pushed
+

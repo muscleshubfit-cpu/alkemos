@@ -50,7 +50,19 @@ function CheckoutPageInner() {
     );
   }
 
-  return <CheckoutView tier={tierParam as TierId | MembershipTier} months={months} />;
+  // B-08 (remediation plan W1-5 — a money path): the checkout surface's
+  // identity is the OFFER being bought — planTier+durationMonths. A
+  // same-route navigation with new params (e.g. /checkout?tier=premium&months=1
+  // → /checkout?tier=pro&months=12) used to keep the FIRST offer's
+  // PayPalButtons mounted: its one-shot render guard (renderedRef) made the
+  // effect re-run a no-op, so the LIVE button kept the FIRST createOrder
+  // closure — the literal «منتج خاطئ يُحاسب» failure. Keying the view on
+  // the offer identity remounts the whole surface for the new offer: fresh
+  // guard → fresh SDK buttons carrying the NEW closure, and the manual
+  // form (method/name/whatsapp/receipt) resets with it — a receipt attached
+  // to the OLD amount can never ride into the NEW offer's request.
+  const offerKey = `${tierParam}-${months}`;
+  return <CheckoutView key={offerKey} tier={tierParam as TierId | MembershipTier} months={months} />;
 }
 
 export default function Page() {
