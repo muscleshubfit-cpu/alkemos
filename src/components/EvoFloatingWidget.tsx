@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 // this widget chunk loads at idle on EVERY page, so it must not drag
 // @supabase/ssr (~68KB) with it for anonymous visitors.
 import { buildFollowupPrefWrite } from "@/lib/evo-followup";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Send, X, ExternalLink, Loader2, Sparkles, Bookmark, Check, ThumbsUp, ThumbsDown, Mail } from "lucide-react";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
 import { useRouter } from "next/navigation";
@@ -21,7 +22,16 @@ import { useCallback } from "react";
  *
  * Appears on ALL pages (added to root layout).
  * The icon floats at the bottom corner with a pulse animation.
- * Clicking opens a drawer (not a modal) so the user stays on the page.
+ * Clicking opens a side drawer (the user stays on the page).
+ *
+ * W1-3c (2026-10-02, remediation plan A-01): the drawer is a REAL modal
+ * dialog on @radix-ui/react-dialog — role=dialog + a named Title
+ * (aria-labelledby), Escape to close, focus trap + focus restore to the
+ * trigger bubble, modal isolation (aria-hidden + outside pointer-events
+ * off while open), and the messages area is role="log" (live region) so
+ * the SSE token stream is announced to screen readers. The floating
+ * bubble is the Radix trigger and stays MOUNTED while the drawer is open
+ * (under the overlay) — that is what makes focus restore possible.
  *
  * Features:
  *   - EVO profile image in the floating button
@@ -400,15 +410,32 @@ export function EvoFloatingWidget() {
   // which mirror the server's actual tier resolution.
   const isSubscriber = isPaidTier;
 
+  // W1-3c (A-01): every Radix dismissal (Escape · overlay click · the X
+  // button's DialogClose) funnels into ONE call of closeChat; opening
+  // stays a single call of openChat (the lazy quota refresh rides it). A
+  // single funnel is also what guarantees the back-button sentinel's
+  // history back can never double-fire (two close paths used to be the
+  // classic way to lose an extra history entry).
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (open) openChat();
+    else closeChat();
+  };
+
   return (
     <>
-      {/* Floating Button — always visible (OWNER 2026-08-27: enlarged 36px → 48px).
+      <DialogPrimitive.Root open={isOpen} onOpenChange={handleDrawerOpenChange}>
+      {/* Floating Button — always mounted: it is now the Radix dialog TRIGGER
+          (W1-3c/A-01) — focus returns to it when the drawer closes and it
+          carries aria-haspopup/aria-expanded for free.
+          (OWNER 2026-08-27: enlarged 36px → 48px.)
           NO-COVER LAW: lifts above the cookie-consent banner via the
           --mhe-cookie-bar-h variable published by CookieConsent — a new
-          visitor must always be able to reach EVO. */}
-      {!isOpen && (
+          visitor must always be able to reach EVO. While the drawer is open
+          the bubble sits inert UNDER the modal overlay (Radix aria-hides +
+          disables outside pointer events) instead of unmounting — the old
+          conditional unmount is what used to break focus restore. */}
+      <DialogPrimitive.Trigger asChild>
         <button
-          onClick={openChat}
           className="evo-bubble-ring fixed z-50 cursor-pointer rounded-full bg-[var(--tint)] p-1 transition-all hover:scale-105"
           style={{
             [isAr ? "left" : "right"]: "20px",
@@ -437,18 +464,24 @@ export function EvoFloatingWidget() {
             <span className="absolute bottom-0.5 end-0.5 h-3.5 w-3.5 rounded-full bg-[#34c759] ring-2 ring-[var(--bg)]" />
           </span>
         </button>
-      )}
+      </DialogPrimitive.Trigger>
 
-      {/* Drawer — slides in from the side */}
-      {isOpen && (
-        <>
-          {/* Backdrop (transparent — doesn't block interaction with page) */}
-          <div
-            className="fixed inset-0 z-40 bg-black/20"
-            onClick={closeChat}
-          />
+      {/* Drawer — W1-3c (A-01): a REAL modal dialog on the Radix primitives
+          (the same @radix-ui/react-dialog the ui/modal wrapper rides): role=
+          dialog, Escape, focus trap + restore, modal isolation — while keeping
+          the slide-in side-drawer shape and animation. The portal mounts only
+          while open (Presence on the controlled root — same lifecycle as the
+          old conditional render). */}
+      <DialogPrimitive.Portal>
+          {/* Backdrop — now the Radix overlay. z-50 (ties with the drawer;
+            portal DOM order puts the content above it) also dims the
+            always-mounted trigger bubble while the drawer is open. Clicking
+            it is an outside pointer-down → ONE onOpenChange(false) — the
+            exact role the old backdrop's onClick carried. */}
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/20" />
 
           {/* Drawer */}
+          <DialogPrimitive.Content asChild aria-describedby={undefined}>
           <aside
             className="fixed bottom-0 top-0 z-50 flex w-full sm:max-w-[380px] flex-col bg-[var(--bg)] shadow-2xl"
             style={{
@@ -471,7 +504,12 @@ export function EvoFloatingWidget() {
                 />
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-base font-semibold">EVO</span>
+                    {/* W1-3c: the visible name IS the accessible name — Radix
+                        wires DialogTitle into the dialog's aria-labelledby
+                        (an unnamed dialog does not translate; W1-3a law). */}
+                    <DialogPrimitive.Title className="text-base font-semibold">
+                      EVO
+                    </DialogPrimitive.Title>
                     <Sparkles className="ai-accent h-3.5 w-3.5" />
                   </div>
                   <div className="flex items-center gap-1">
@@ -483,13 +521,17 @@ export function EvoFloatingWidget() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={closeChat}
-                  className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10"
-                  aria-label={isAr ? "إغلاق" : "Close"}
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                {/* W1-3c: DialogClose — the click routes through Radix's
+                    single onOpenChange(false) (no direct closeChat call,
+                    so Escape/X/overlay can never double-fire). */}
+                <DialogPrimitive.Close asChild>
+                  <button
+                    className="grid h-8 w-8 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10"
+                    aria-label={isAr ? "إغلاق" : "Close"}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </DialogPrimitive.Close>
               </div>
             </div>
 
@@ -574,8 +616,18 @@ export function EvoFloatingWidget() {
               </div>
             )}
 
-            {/* Messages area */}
-            <div ref={scrollBodyRef} className="flex-1 overflow-y-auto bg-[var(--tint)] p-4">
+            {/* Messages area — W1-3c (A-01): role="log" makes the transcript a
+                live region (implicit aria-live=polite; the explicit attribute
+                covers legacy AT) — user messages, the SSE token-stream growth,
+                and typing/limit states are now ANNOUNCED instead of silently
+                re-rendering. The container persists across the welcome↔chat
+                swap so the live region's element identity never breaks. */}
+            <div
+              ref={scrollBodyRef}
+              role="log"
+              aria-live="polite"
+              className="flex-1 overflow-y-auto bg-[var(--tint)] p-4"
+            >
               {showWelcome ? (
                 /* Welcome screen */
                 <div className="flex h-full flex-col items-center justify-center text-center">
@@ -862,8 +914,9 @@ export function EvoFloatingWidget() {
               </form>
             </div>
           </aside>
-        </>
-      )}
+          </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
 
       {/* Animations */}
       <style jsx>{`

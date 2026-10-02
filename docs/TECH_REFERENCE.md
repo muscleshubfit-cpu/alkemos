@@ -148,7 +148,7 @@
 |---|---|
 | `copy-button` | زر نسخ بذاته (يستخدم في الكود والحالات القابلة للنسخ) |
 | `image-with-fallback` | صورة مع سقوط آمن عند فشل التحميل |
-| `modal` | غلاف `<Modal>` موحّد فوق Radix `ui/dialog.tsx` (W1-3a · فريم 333): عنوان إلزامي (Radix DialogTitle → aria-labelledby) + زر إغلاق بأيقونة وaria-label معرّب (i18n `common.close`) + مقاسات sm/md/lg + جسم قابل للتمرير — تبنّته النوافذ الثلاث بW1-3b (فريم 334): عارض خطط العضو PlansView (lg+scroll+actions) · صرف العمولة ReferralView (sm+description) · محرر خطط المدرب CoachClientView (lg+scroll+عنوان قابل للتحرير) — A-03 مغلقة |
+| `modal` | غلاف `<Modal>` موحّد فوق Radix `ui/dialog.tsx` (W1-3a · فريم 333): عنوان إلزامي (Radix DialogTitle → aria-labelledby) + زر إغلاق بأيقونة وaria-label معرّب (i18n `common.close`) + مقاسات sm/md/lg + جسم قابل للتمرير — تبنّته النوافذ الثلاث بW1-3b (فريم 334): عارض خطط العضو PlansView (lg+scroll+actions) · صرف العمولة ReferralView (sm+description) · محرر خطط المدرب CoachClientView (lg+scroll+عنوان قابل للتحرير) — A-03 مغلقة · درج EVO (EvoFloatingWidget) يركب primitives الراديكس نفسها مباشرة بشكل الدرج الجانبي (W1-3c · فريم 335): الفقاعة = Radix trigger دائم التركيب يستعيد التركيز عند الإغلاق + role=dialog بعنوان موصول (DialogTitle) + قِرار إغلاق واحد (Escape/الخلفية/زر X ← onOpenChange) + منطقة الرسائل `role=log` حية (aria-live) — A-01 مغلقة |
 
 > قاعدة التوسع: أي مكون جديد يدخل من مكتبة shadcn/ui القياسية أو يُكتب محليًا في `src/components/ui/` — ولا يُستورد نظام واجهة بديل بدون موافقة المالك (§3.4: ممنوع اختراع معمارية).
 
