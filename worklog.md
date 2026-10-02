@@ -24,6 +24,29 @@ Stage Summary:
 - نشر حقيقي بلا [vercel skip] (يمس src/) — الميجريشن 0100 يطبقه تكامل Supabase-GitHub تلقائيًا عند هبوط الكوميت على main.
 - Push status: pushed
 ---
+Task ID: VERCEL-USAGE-7-2026-10-02
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-02 «أعد التدقيق والإصلاح بناءً على Usage الحالي الظاهر في Vercel» — التجاوز الثلاثي: Fluid Active CPU 6h51m/4h · Fast Origin Transfer 16.82/10GB · Function Invocations 933K/1M. تحديد الأسباب الفعلية من البيانات (خصوصًا Cron/Functions/process-ai-jobs/blog generation/AI jobs/GitHub Actions وأي polling/loops) ثم إصلاح غير الضروري فقط.
+
+Work Log:
+- (القياس — الاكتشاف المنهجي) `/v2/usage?type=requests` يعمل على Hobby بصيغة ISO-مللي + `granularity=hour` (كل المحاولات السابقة فشلت بصيغ أخرى) → سلاسل يومية/ساعية كاملة؛ معايرة النافذة: مجموع 2026-09-03→10-02 = 933,221 ≈ لوحة المالك 933K بالضبط (نافذة 30 يومًا متجددة، مطابقة لتأكيد الدعم في USAGE-6).
+- (التشريح) الأرضية 25–30K invocation/يوم · 28 سبتمبر وحده = 190,042 + 1.97GB (منحنى ساعي 08–17 UTC بـ 8K–23K/ساعة = نمط يوم عمل: جلسات تدقيق الإنتاج المباشرة — تاريخ تقارير ARCHITECTURE/PERFORMANCE-AUDIT-2026-09-28) · 5–6 سبتمبر (جلسة Phase 137: «22 مسارًا ×5 + 16+ Lighthouse») · لا loop نشط اليوم (منحنى ساعي سليم 400–1,250/ساعة).
+- (ربط المنصات — طلب المالك) GHA صفر استدعاءات Vercel (process-ai-jobs/blog in-process «NO Vercel hop»؛ عدد التشغيلات ثابت ~98–118/يوم عبر الأيام العادية والشاذة) · crons = 31 استدعاء/30 يوم · Supabase بلا صلة بالثلاثة.
+- (القياس المباشر csp-report) متصفح حي: 7 POST لكل مشاهدة `/` و14 لتراكم جلستين على مقال — التقارير الملتقطة كلها للمكدس الشرعي (GA/GTM/CF-insights/AdSense-sodar/reCAPTCHA-AdSense) = أضخم مساهم بشري مفرد في Invocations.
+- (ن-1) CSP-RO whitelist (vercel.json فقط — Report-Only إضافي بحت، صفر سلوك): script-src += googletagmanager/cloudflareinsights/*.adtrafficquality.google · connect-src += *.google-analytics.com/analytics.google.com/*.adtrafficquality.google · frame-src += www.google.com/*.adtrafficquality.google → متوقع ~−7 استدعاءات/مشاهدة (~−10–15K/يوم) مع بقاء التقارير إشارة أمنية نظيفة. بلا purge عمدًا (التطهير = spike) — التفعيل تدريجي ~12 ساعة.
+- (ن-2) قاعدة كاش CF رقم 3 «alkemos sitemap-rss-llms cache» (edge TTL 3600، respect_origin) عبر Rulesets API — تحقق حي MISS→HIT على sitemap.xml وsitemap-exercises.xml؛ جلبات الزواحف تتوقف عن النقل من الأصل.
+- (قانون الميزانية) AGENTS.md §10: قانون ميزانية طلبات التدقيق (عينة ≤30/نوع · ممنوع cache-busting بالجملة · ≤1 طلب/ث · الثقيل على preview · سقف ≤5K/جلسة · قياس قبل/بعد).
+- (حدود القياس المصرّح بها) Hobby لا يوفر تفصيل CPU/Transfer لكل مسار عبر API (logs 404 بلا drains، التفصيل حكر Pro) — نسب المساهمين استنتاج من السلاسل + قياس المتصفح + الكود؛ الإجماليات مقيسة.
+- (التوثيق وفق §3.8/§5.4/§129) SECURITY.md §10 (قسم CSP-RO جديد + القاعدة 3 + تحديث الأثر المقاس) · TECH_REFERENCE §5.2/5.3 (جدول القواعد الثلاث + الأسطر) · docs/archive/VERCEL-USAGE-AUDIT-2026-09-16.md §11 (الفريم الكامل بالأدلة) · AGENTS.md §10 (القانون) · هذا المدخل.
+- (حدود النطاق) صفر تغيير src/ (لا بطارية مطلوبة) · صفر مساس بcrons/AI-jobs/blog automation/EVO chat/bells/SEO/GEO/المحتوى · مسار موافقة §129 لـ CSP-RO: أمر المالك الصريح هذا الفريم هو الموافقة.
+
+Stage Summary:
+- السبب الفعلي المُثبت للتجاوز: أعمال التدقيق المكثفة نفسها (يوم 28 سبتمبر = 20% من عداد الشهر) + أرضية csp-report البشرية (~7/مشاهدة) + البنية الديناميكية الكاملة؛ **لا loop ولا أتمتة مارقة**.
+- نُفّذ: ن-1 (CSP-RO whitelist — يخفض مدخلات Invocations ~40–50% من الحركة البشرية) + ن-2 (كاش CF للخرائط/الخلاصات) + قانون ميزانية التدقيق — دون المساس بأي وظيفة/أتمتة/جودة/SEO.
+- نشر حقيقي بلا [vercel skip] (يمس vercel.json = ترويسات) — التغيير Report-Only: صفر سلوك مستخدم متغير.
+- Push status: pushed
+
+---
 Task ID: W1-5-CHECKOUT-OFFER-REKEY-2026-10-02
 Agent: Super Z (main)
 Task: أمر المالك 2026-10-02 «نفذ البند التالى» — تنفيذ البند التالي من خطة المعالجة المعتمدة docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md. تحقق الحالة: W0 كاملة + W1-1 + W1-2a/b/c + W1-3a..e + W1-4a/b/c منفذة سابقًا (فريمات 326-340) → البند التالي = W1-5 «مفتاح إعادة رسم CheckoutView على planTier+durationMonths» (B-08 — بند S مستقل بحرف جدول §6.2 واتجاه الإصلاح §4.2، موسوم صراحة «مسار أموال — بطارية كاملة») — فريم واحد، كوميت واحد، وبه تكتمل موجة W1 كاملة.
@@ -232,43 +255,3 @@ Stage Summary:
 - نشر حقيقي بلا [vercel skip] (يمس src/ + supabase/) — الميجريشن يُطبَّق آليًا بدفع الكوميت (تكامل Supabase-GitHub) والنشر يتبعه بدقائق — سلوك المستخدم الشرعي الوحيد: إعادة إرسال double-submit بعد نجاح أول نداءٍ وقبل الدخول صارت {ok:false} (المخرج: الدخول بكلمة المرور الأولى المكتوبة أو رابط البريد) — تحقق حي مقترح على المالك: تجربة تبني دعوة حية بعد النشر.
 - Push status: pushed
 
----
-Task ID: W1-2B-INVITE-RATE-LIMIT-2026-10-02
-Agent: Super Z (main)
-Task: أمر المالك 2026-10-02 «ابدأ البند التالى» — تنفيذ البند التالي من خطة المعالجة المعتمدة docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md. تحقق الحالة: W0 كاملة + W1-1 + W1-2a منفذة سابقًا (Ph 326-330) → البند التالي = W1-2b (حد معدل دعوة العملاء مطابق resend + سقف دعوات معلقة/مدرب — S-03) — فريم واحد، كوميت واحد.
-
-Work Log:
-- (الحدود — بحرف اتجاه إصلاح S-03 «نفس حدود resend») POST /api/coach/clients/invite: زوج الأخ resend حرفيًا — 5/دقيقة/IP (برأس Retry-After: 60 ورسالة الأخ نفسها) + 3/ساعة/إيميل — عبر المحدد المشترك العابر للنسخ src/lib/rate-limit.ts (Upstash عند التهيئة · fallback ذاكرة للبيئات المحلية) بمساحة أسماء مستقلة ‎`invite-send:ip:`‎/‎`invite-send:email:`‎ (إجراء مختلف عن إعادة الإرسال — لا تجويع متبادل مع عدادات ‎`invite-resend:`‎) · حد IP قبل قراءة الجسم بترتيب الأخ (فرملة فيضان: الأجسام المهملة تحرق النافذة).
-- (السقف المعلق/المدرب) PENDING_INVITES_CAP=30 للمدربين فقط (تهديد S-03 هو تسجيل المدربين العام؛ الأدمن موظف لدى المالك) — العد من المصدر الوحيد 0092: get_coach_client_stats().pending_invites (invited_at مضبوط + لا دخول أبدًا — نفس تعريف شارة الدعوات المعلقة بواجهة المدرب) عبر جلسة الطالب نفسه (عميل anon بالكوكيز — الـRPC SECURITY DEFINER يتحدد بـauth.uid() والعميل service-role لا يرى أحدًا؛ نمط getAuthUser نفسه) · عند بلوغ السقف: 429 pending_invite_cap برسالة صادقة تحمل العدد الحي · فشل العد (خطأ RPC أو غياب anon env) = fail-open موثق بتعليق المسار وSECURITY.md (حدود المعدل باقية والانقطاع يكسر inviteUserByEmail نفسه — لا صفوف تُصك عبر قاعدة ميتة).
-- (كاناري W1-2b) `src/lib/__tests__/invite-rate-limit.test.ts` (14 اختبارًا): طبقتان — (أ) source pins: تطابق زوج الثوابت مع resend حرفيًا + استقلال مساحتي الأسماء بنداءات rateLimit( + حد IP قبل قراءة الجسم + القانون (السقف 30 · المصدر 0092 · مدربون فقط · fail-open) · (ب) سلوك المسار: السادس من IP واحد داخل الدقيقة = 429 بRetry-After بلا دعوة · الأجسام المهملة تحرق نافذة IP (5×400 ثم السادس الصالح 429) · الرابع لنفس البريد داخل الساعة = 429 برسالة البريد · المدرب عند السقف = 429 pending_invite_cap بعدّ واحد من RPC بلا دعوة · 29 = الدعوة تمضي (بيانات coach_id سليمة) · الأدمن لا يستشار RPC أصلًا · خطأ RPC = fail-open · غياب anon env = fail-open · أول دعوة شرعية = 200 دون تغيير · 409 الإيميل المسجل يأتي بعد فحوص الحدود (المفاتيح المستهلكة تثبت الترتيب).
-- (البطارية الكاملة — فريم كود يمس src/) tsc --noEmit ‏0 أخطاء · eslint ‏0 أخطاء + التحذير المسبق الموثق وحده (root-shell.tsx:141) · vitest ‏2,129/2,129 عبر 127 ملفًا (2,115 + 14 كاناري جديد) · next build ‏2,033/2,033 صفحة مطابقًا لخط الأساس · docs_audit ✓ · docs_parity ✓ · migration_audit ✓ · stale-refs ✓ · ui-wiring ✓.
-- (حدود النطاق — §12.10) البند بند وحيد: لا مساس بمسار resend نفسه (قرئت ثوابته فقط للكاناري المقارن) ولا بأي بند آخر بالخطة (W1-2c §7 بانتظار موافقة المالك) — قيمة السقف 30 اختيار تنفيذي موثق (الخطة لم تُثبّت رقمًا): قائمة تدريب حقيقية نادرًا تحمل عشرات الدعوات غير المقبولة، والمسيء يصطدم بها سريعًا مع حدود المعدل.
-- (التوثيق وفق §3.8/§12.5) SECURITY.md §9 قاعدة 17: قانون حدود الدعوة والسقف (المصدر 0092 · مدربون فقط · fail-open · مسار موافقة §7 بالأمر المستشهد بالخطة — البند ليس بقائمة §7 الإلزامية أصلًا) · DEVELOPER_GUIDE.md: صف المسار بجدول API يوثق الحدود (نمط صف register) · STATE.md: مرحلة 331 + المفتوح (W1-2b ✓) + سطر جودة 331 + تدوير النوافذ (إسقاط إدخال 323 الكامل وإدخالَي جودة 320/318) · docs/README.md: صف الخطة يوثق تنفيذ W1-2b (331) · هذا المدخل + تدوير worklog للنافذة 12 عبر scripts/worklog_rotate.py.
-
-Stage Summary:
-- W1-2b منفذ بحرف البند: زوج حدود resend + سقف 30 دعوة معلقة/مدرب من مصدر 0092 — بند W1 وحيد، لا شيء آخر نُفذ (W1-2c وأي بند آخر بالخطة لم يُمس).
-- نشر حقيقي بلا [vercel skip] (يمس src/) — سلوك المستخدم الشرعي متطابق حرفيًا (أول دعوة لبريد جديد من IP نظيف كما كانت)؛ الأثر على فيضانات المجهولين فقط.
-- Push status: pushed
-
----
-Task ID: VERCEL-USAGE-7-2026-10-02
-Agent: Super Z (main)
-Task: أمر المالك 2026-10-02 «أعد التدقيق والإصلاح بناءً على Usage الحالي الظاهر في Vercel» — التجاوز الثلاثي: Fluid Active CPU 6h51m/4h · Fast Origin Transfer 16.82/10GB · Function Invocations 933K/1M. تحديد الأسباب الفعلية من البيانات (خصوصًا Cron/Functions/process-ai-jobs/blog generation/AI jobs/GitHub Actions وأي polling/loops) ثم إصلاح غير الضروري فقط.
-
-Work Log:
-- (القياس — الاكتشاف المنهجي) `/v2/usage?type=requests` يعمل على Hobby بصيغة ISO-مللي + `granularity=hour` (كل المحاولات السابقة فشلت بصيغ أخرى) → سلاسل يومية/ساعية كاملة؛ معايرة النافذة: مجموع 2026-09-03→10-02 = 933,221 ≈ لوحة المالك 933K بالضبط (نافذة 30 يومًا متجددة، مطابقة لتأكيد الدعم في USAGE-6).
-- (التشريح) الأرضية 25–30K invocation/يوم · 28 سبتمبر وحده = 190,042 + 1.97GB (منحنى ساعي 08–17 UTC بـ 8K–23K/ساعة = نمط يوم عمل: جلسات تدقيق الإنتاج المباشرة — تاريخ تقارير ARCHITECTURE/PERFORMANCE-AUDIT-2026-09-28) · 5–6 سبتمبر (جلسة Phase 137: «22 مسارًا ×5 + 16+ Lighthouse») · لا loop نشط اليوم (منحنى ساعي سليم 400–1,250/ساعة).
-- (ربط المنصات — طلب المالك) GHA صفر استدعاءات Vercel (process-ai-jobs/blog in-process «NO Vercel hop»؛ عدد التشغيلات ثابت ~98–118/يوم عبر الأيام العادية والشاذة) · crons = 31 استدعاء/30 يوم · Supabase بلا صلة بالثلاثة.
-- (القياس المباشر csp-report) متصفح حي: 7 POST لكل مشاهدة `/` و14 لتراكم جلستين على مقال — التقارير الملتقطة كلها للمكدس الشرعي (GA/GTM/CF-insights/AdSense-sodar/reCAPTCHA-AdSense) = أضخم مساهم بشري مفرد في Invocations.
-- (ن-1) CSP-RO whitelist (vercel.json فقط — Report-Only إضافي بحت، صفر سلوك): script-src += googletagmanager/cloudflareinsights/*.adtrafficquality.google · connect-src += *.google-analytics.com/analytics.google.com/*.adtrafficquality.google · frame-src += www.google.com/*.adtrafficquality.google → متوقع ~−7 استدعاءات/مشاهدة (~−10–15K/يوم) مع بقاء التقارير إشارة أمنية نظيفة. بلا purge عمدًا (التطهير = spike) — التفعيل تدريجي ~12 ساعة.
-- (ن-2) قاعدة كاش CF رقم 3 «alkemos sitemap-rss-llms cache» (edge TTL 3600، respect_origin) عبر Rulesets API — تحقق حي MISS→HIT على sitemap.xml وsitemap-exercises.xml؛ جلبات الزواحف تتوقف عن النقل من الأصل.
-- (قانون الميزانية) AGENTS.md §10: قانون ميزانية طلبات التدقيق (عينة ≤30/نوع · ممنوع cache-busting بالجملة · ≤1 طلب/ث · الثقيل على preview · سقف ≤5K/جلسة · قياس قبل/بعد).
-- (حدود القياس المصرّح بها) Hobby لا يوفر تفصيل CPU/Transfer لكل مسار عبر API (logs 404 بلا drains، التفصيل حكر Pro) — نسب المساهمين استنتاج من السلاسل + قياس المتصفح + الكود؛ الإجماليات مقيسة.
-- (التوثيق وفق §3.8/§5.4/§129) SECURITY.md §10 (قسم CSP-RO جديد + القاعدة 3 + تحديث الأثر المقاس) · TECH_REFERENCE §5.2/5.3 (جدول القواعد الثلاث + الأسطر) · docs/archive/VERCEL-USAGE-AUDIT-2026-09-16.md §11 (الفريم الكامل بالأدلة) · AGENTS.md §10 (القانون) · هذا المدخل.
-- (حدود النطاق) صفر تغيير src/ (لا بطارية مطلوبة) · صفر مساس بcrons/AI-jobs/blog automation/EVO chat/bells/SEO/GEO/المحتوى · مسار موافقة §129 لـ CSP-RO: أمر المالك الصريح هذا الفريم هو الموافقة.
-
-Stage Summary:
-- السبب الفعلي المُثبت للتجاوز: أعمال التدقيق المكثفة نفسها (يوم 28 سبتمبر = 20% من عداد الشهر) + أرضية csp-report البشرية (~7/مشاهدة) + البنية الديناميكية الكاملة؛ **لا loop ولا أتمتة مارقة**.
-- نُفّذ: ن-1 (CSP-RO whitelist — يخفض مدخلات Invocations ~40–50% من الحركة البشرية) + ن-2 (كاش CF للخرائط/الخلاصات) + قانون ميزانية التدقيق — دون المساس بأي وظيفة/أتمتة/جودة/SEO.
-- نشر حقيقي بلا [vercel skip] (يمس vercel.json = ترويسات) — التغيير Report-Only: صفر سلوك مستخدم متغير.
-- Push status: pushed
