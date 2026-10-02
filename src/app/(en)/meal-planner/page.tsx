@@ -698,27 +698,47 @@ function FoodSearchInput({
     if (!query.trim()) {
       setResults([]);
       setOpen(false);
+      // B-03 ownership rule: an aborted/superseded request never touches
+      // loading — so the surface itself must drop the spinner when the
+      // query empties (there is no successor query to own it).
+      setLoading(false);
       return;
     }
     setLoading(true);
+    // B-03 (W1-4c): every query owns its OWN AbortController — the
+    // cleanup below aborts the superseded query's in-flight request,
+    // so a slow stale response ("chick" resolving after "chicken") can
+    // never land its older results over the newer ones. EN and AR are
+    // the same file (the /ar mirror re-exports this page).
+    const controller = new AbortController();
+    const { signal } = controller;
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
           `/api/food-search?q=${encodeURIComponent(query.trim())}&lang=${isAr ? "ar" : "en"}`,
+          { signal },
         );
         if (res.ok) {
           const data = await res.json();
+          // Late-body belt: if this query was superseded while the body
+          // was being read, drop it — the newer query owns the surface.
+          if (signal.aborted) return;
           setResults(data.results || []);
           setOpen(true);
         }
       } catch {
-        // silent
+        // silent — includes the AbortError of a superseded query.
       } finally {
-        setLoading(false);
+        // An aborted query hands loading to its successor — clearing it
+        // here would kill the newer query's spinner mid-flight.
+        if (!signal.aborted) setLoading(false);
       }
     }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      // Cancel THIS query's in-flight request — the cleanup fires on
+      // every keystroke that changes the query, and on unmount.
+      controller.abort();
     };
   }, [query]);
 
