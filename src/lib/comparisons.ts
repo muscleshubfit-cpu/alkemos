@@ -41,7 +41,23 @@ export type Comparison = {
   competitorName: string;
   competitorNameAr: string;
   competitorUrl: string;
+  /**
+   * The date the comparison DATA was last live-verified against the
+   * competitor's public site (re-verified quarterly). Drives
+   * Article.dateModified + the EXPLICIT Article.lastReviewed — the
+   * same claim the visible page header makes ("Data as of … · Reviewed
+   * by Ahmed Zake"). W1-1 (E-03, audit 2026-10-02).
+   */
   dataAsOf: string; // ISO date
+  /**
+   * The comparison page's REAL first-publish date — the STABLE release
+   * date for Article.datePublished. Sourced from git history (d238e96a
+   * 2026-09-07 for the original three · cae890f4 2026-09-30 for
+   * Cronometer). NEVER bumped on quarterly re-verification (that moves
+   * dataAsOf only) — a moving publish date would be the same fabricated
+   * freshness the W1-1 fix removed. W1-1 (E-03, audit 2026-10-02).
+   */
+  publishedAt: string; // ISO date — stable, never bumped on re-verify
 
   titleEn: string;
   titleAr: string;
@@ -75,6 +91,8 @@ export const COMPARISONS: Comparison[] = [
     // (MFP runs its program via agency/partner networks — Acceleration
     // Partners, announced on accelerationpartners.com 2023-04-03).
     dataAsOf: "2026-09-15",
+    // First shipped with the comparison surface (git d238e96a).
+    publishedAt: "2026-09-07",
 
     titleEn: "Alkemos vs MyFitnessPal — Full Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل MyFitnessPal — مقارنة كاملة (2026) | Alkemos",
@@ -257,6 +275,8 @@ export const COMPARISONS: Comparison[] = [
     // re-verification (Freeletics runs an affiliate program via networks
     // such as FlexOffers/Awin; its site offers no free tools hub).
     dataAsOf: "2026-09-15",
+    // First shipped with the comparison surface (git d238e96a).
+    publishedAt: "2026-09-07",
 
     titleEn: "Alkemos vs Freeletics — AI Coaching & Bodyweight Training (2026) | Alkemos",
     titleAr: "Alkemos مقابل Freeletics — تدريب الذكاء الاصطناعي وتمارين وزن الجسم (2026) | Alkemos",
@@ -441,6 +461,8 @@ export const COMPARISONS: Comparison[] = [
     // re-verification (ExRx serves an extensive free calculator library;
     // no affiliate program found on its site).
     dataAsOf: "2026-09-15",
+    // First shipped with the comparison surface (git d238e96a).
+    publishedAt: "2026-09-07",
 
     titleEn: "Alkemos vs ExRx.net — Exercise Library Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل ExRx.net — مقارنة مكتبة التمارين (2026) | Alkemos",
@@ -623,6 +645,8 @@ export const COMPARISONS: Comparison[] = [
     competitorNameAr: "Cronometer",
     competitorUrl: "https://cronometer.com",
     dataAsOf: "2026-09-30",
+    // First shipped with the P0 tracking-pages frame (git cae890f4).
+    publishedAt: "2026-09-30",
 
     titleEn: "Alkemos vs Cronometer — Nutrition Tracking Comparison (2026) | Alkemos",
     titleAr: "Alkemos مقابل Cronometer — مقارنة تتبّع التغذية (2026) | Alkemos",

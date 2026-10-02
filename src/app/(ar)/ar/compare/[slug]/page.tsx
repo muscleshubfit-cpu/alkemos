@@ -75,7 +75,6 @@ export default async function ArabicComparisonPage({
   if (!comparison) notFound();
 
   const url = `https://alkemos.com/ar/compare/${comparison.slug}`;
-  const today = new Date().toISOString();
   const author = resolveAuthor(undefined);
 
   const articleSchema = getArticleSchema({
@@ -88,9 +87,21 @@ export default async function ArabicComparisonPage({
     // §12.40 consistency — same static AR card the metadata declares
     // above (SOCIAL-OG-3).
     image: `https://alkemos.com/images/og/og-compare-${comparison.slug}-ar.png?v=3`,
-    datePublished: today,
-    dateModified: today,
+    // W1-1 (E-03, audit 2026-10-02): REAL dates from the data module —
+    // the old new Date().toISOString() fabricated all three on every
+    // render ("modified + reviewed today" with each request). Now:
+    // datePublished = the STABLE first-publish date (publishedAt, git
+    // d238e96a) · dateModified + explicit lastReviewed = the dataAsOf
+    // verification date — the exact claim the visible header already
+    // makes («البيانات حتى … · راجعه أحمد زكي»).
+    datePublished: comparison.publishedAt,
+    dateModified: comparison.dataAsOf,
+    lastReviewed: comparison.dataAsOf,
     authorProfile: author,
+    // W1-1 (E-04, audit 2026-10-02): the Phase-318 pageUrl param — the
+    // legacy /blog/ar/compare/… fallback produced a mainEntityOfPage URL
+    // that does not exist.
+    pageUrl: url,
   });
 
   const breadcrumbSchema = getBreadcrumbSchema([

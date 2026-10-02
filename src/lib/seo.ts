@@ -608,6 +608,15 @@ export function getExerciseSchema(params: {
 
 /**
  * ItemList schema — for list pages (exercises, foods, programs).
+ *
+ * W1-1 (E-02, full-stack audit 2026-10-02): the builder is now
+ * ABSOLUTE-URL-AWARE. The two compare detail pages pass the competitor's
+ * official homepage (an absolute https URL — comparisons.ts) as the second
+ * item; the old blind `${SITE_URL}${item.url}` prefix produced
+ * "https://alkemos.comhttps://www.myfitnesspal.com" on all 8 compare
+ * pages (invalid URLs). Absolute http(s) URLs now pass through VERBATIM;
+ * relative site paths keep the SITE_URL prefix — the 14 legacy callers
+ * (all relative) are byte-identical in output.
  */
 export function getItemListSchema(params: {
   name: string;
@@ -623,7 +632,7 @@ export function getItemListSchema(params: {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      url: `${SITE_URL}${item.url}`,
+      url: /^https?:\/\//i.test(item.url) ? item.url : `${SITE_URL}${item.url}`,
     })),
   };
 }
