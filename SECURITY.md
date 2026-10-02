@@ -477,6 +477,37 @@ These are in addition to the general operating rules in `AGENTS.md`:
     Scope note: admin/staff's own `.ilike` usage is a different,
     admin-gated surface NOT listed in S-04's locations — untouched
     by W1-2a (documented in the worklog entry).
+17. **Coach client-invite rate limits + per-coach pending-invite cap
+    (W1-2b — finding S-03 of the 2026-10-02 full-stack audit, Phase
+    331, 2026-10-02).** `POST /api/coach/clients/invite` carries the
+    resend sibling's EXACT limit pair — 5/min/IP (with
+    `Retry-After: 60`) + 3/hour/email via the shared cross-instance
+    limiter (`src/lib/rate-limit.ts`) — under its OWN `invite-send:`
+    namespace (a fresh invitation and a resend re-notification are
+    DIFFERENT actions; their counters neither starve nor inflate each
+    other), and the IP window runs BEFORE the body parse so junk
+    floods burn it (the sibling's order). COACH-role invitations are
+    additionally capped at 30 PENDING invites: the count is the 0092
+    single source itself — `get_coach_client_stats().pending_invites`
+    (invited_at set + never signed in) — read through the REQUESTER's
+    own session (anon key + request cookies: the SECURITY DEFINER
+    RPC scopes by `auth.uid()`, which the service-role client cannot
+    provide); at/above the cap the route answers an honest 429
+    `pending_invite_cap` carrying the live count. ADMIN inviters are
+    exempt from the CAP (owner-controlled staff — the S-03 threat is
+    the PUBLIC coach signup) but NOT from the rate limits. If the
+    stats RPC errors (or the anon auth env is missing) the cap FAILS
+    OPEN, logged — the rate limits still bound the abuse window, and
+    a database outage breaks `inviteUserByEmail` itself (no rows are
+    minted through a dead database). No auth/RLS/payment/cookie
+    surface was touched (the plan's binding rule (2) §7 list —
+    W0-3 · W1-2c · W2-4 salt · W3-8 · W3-9 — does NOT include
+    W1-2b). §7 pre-approval trail: the owner ordered «ابدأ البند
+    التالى» executing the approved remediation plan's W1-2b row
+    (docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md — the
+    plan is the sole source), the same order-citing-the-plan pattern
+    as W0-3/W1-2a. Pinned by
+    `src/lib/__tests__/invite-rate-limit.test.ts` (14 canaries).
 
 ---
 

@@ -442,7 +442,7 @@ State tracked in blog_generation_queue table (one row per language).
 | `/api/coach/ads` | GET/POST | Coach | إعلانات المدرب على صفحته |
 | `/api/coach/ai-usage` | GET | User (coach/admin) | استهلاك رصيد عميل (النافذتان الأسبوعية والشهرية) |
 | `/api/coach/claim` | POST | User | مطالبة مدرب بعميل عبر كود |
-| `/api/coach/clients/invite` | POST | Coach | دعوة عميل جديد للمدرب |
+| `/api/coach/clients/invite` | POST | Coach | دعوة عميل جديد للمدرب — rate-limit 5/دقيقة/IP + 3/ساعة/إيميل (W1-2b) + سقف 30 دعوة معلقة/مدرب |
 | `/api/coach/landing` | GET/PUT | Coach | صفحة المدرب العامة (slug + محتوى) |
 | `/api/coach/register` | POST | Public (hardened) | تسجيل مدرب — rate-limit 3/10min + honeypot + role server-side |
 | `/api/coach/subscriptions/activate` | POST | User (staff) | تفعيل اشتراك عميل — خصم المحفظة أولاً (402 نقص) + ledger |

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { requireCoach } from "@/lib/auth-server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { coachInviteBodySchema } from "@/lib/validation/schemas";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+import type { Database } from "@/lib/supabase/types";
 
 /**
  * COACH INVITES HIS OWN CLIENT (owner answer 1 — «الطريقتين»):
@@ -26,14 +29,88 @@ import { coachInviteBodySchema } from "@/lib/validation/schemas";
  * The legacy invalid_email class is re-derived verbatim on gate
  * failure; a >120 full_name (previously truncated silently) is the
  * only new 400.
+ *
+ * W1-2b (S-03, Phase 331 — 2026-10-02 audit): this endpoint used to
+ * go from auth straight to inviteUserByEmail with NO rate limit (its
+ * sibling invite/resend was limited 5/min/IP + 3/h/email) — and coach
+ * registration is PUBLIC by design, so any anonymous user could
+ * become a coach and use this route as a spam sender from the site's
+ * domain, draining the Supabase email quota and minting unbounded
+ * auth.users rows. Now it carries the SAME limits as resend (the
+ * plan's «مطابق resend») plus a per-coach cap on PENDING invites:
+ *
+ *   • 5/min/IP + 3/hour/email via the shared cross-instance limiter
+ *     (src/lib/rate-limit.ts — Upstash when configured, in-memory
+ *     dev/demo fallback). Keys are namespaced `invite-send:` — the
+ *     resend route's `invite-resend:` counters are a DIFFERENT action
+ *     (re-notification of an existing pending invitee) and must
+ *     neither starve nor be starved by fresh invitations.
+ *   • PENDING_INVITES_CAP per coach: a coach with too many UNACCEPTED
+ *     invitations (0092 law: invited_at set, never signed in) gets an
+ *     honest 429 until his invitees activate. The count is the 0092
+ *     single source itself — get_coach_client_stats().pending_invites
+ *     — read via the REQUESTER's own session (anon key + cookies),
+ *     because the SECURITY DEFINER RPC scopes by auth.uid() and the
+ *     service-role client would see nobody (auth.uid() null). Coach
+ *     role ONLY: the S-03 threat is the public coach signup; admin
+ *     inviters are owner-controlled staff, and for them the stats RPC
+ *     counts the whole site anyway (is_admin branch) — not their own.
+ *     If the RPC errors the cap FAILS OPEN (logged): the rate limits
+ *     still bound abuse, and a DB outage breaks inviteUserByEmail
+ *     itself — no rows are minted through a dead database.
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// W1-2b limits — the resend route's exact pair (S-03 «مطابق resend»).
+const IP_WINDOW = 60 * 1000;
+const IP_MAX = 5;
+const EMAIL_WINDOW = 60 * 60 * 1000;
+const EMAIL_MAX = 3;
+// A real coaching roster rarely holds more than a few dozen
+// UNACCEPTED invitations (pending = never signed in — only the
+// invitee's activation clears it); a spammer hits the cap fast.
+const PENDING_INVITES_CAP = 30;
 
 function siteUrl(): string {
   return (
     process.env.NEXT_PUBLIC_SITE_URL || "https://alkemos.com"
   ).replace(/\/$/, "");
+}
+
+/**
+ * The coach's OWN pending-invite count — the 0092 single source
+ * (get_coach_client_stats().pending_invites: invited_at set + never
+ * signed in, SECURITY DEFINER, auth.uid()-scoped). Called with the
+ * REQUESTER's session (the getAuthUser cookie pattern) so the RPC sees
+ * the calling coach — the service-role client would see nobody.
+ * Returns null when the count is unavailable (no auth env / RPC
+ * error) — callers treat null as "cap unknown" (fail-open, logged).
+ */
+async function coachPendingInvites(request: NextRequest): Promise<number | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  if (!url.startsWith("http") || !anonKey) return null;
+
+  const supabase = createServerClient<Database>(url, anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll() {
+        // No-op: read-only scope check, no cookie refresh needed here.
+      },
+    },
+  });
+
+  const { data, error } = await supabase.rpc("get_coach_client_stats");
+  if (error || !Array.isArray(data) || data.length === 0) {
+    if (error) {
+      console.error("[api/coach/clients/invite] get_coach_client_stats failed:", error.message);
+    }
+    return null;
+  }
+  return Number(data[0]?.pending_invites ?? 0);
 }
 
 export async function POST(request: NextRequest) {
@@ -42,6 +119,17 @@ export async function POST(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Server not configured" }, { status: 500 });
+  }
+
+  // W1-2b (S-03): the resend route's IP window comes FIRST — even
+  // junk bodies burn it (flood brake), matching the sibling's order.
+  const ip = clientIp(request);
+  const ipLimit = await rateLimit(`invite-send:ip:${ip}`, IP_MAX, IP_WINDOW);
+  if (!ipLimit.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited", message: "محاولات كثيرة — انتظر دقيقة ثم حاول مرة أخرى" },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
@@ -64,6 +152,17 @@ export async function POST(request: NextRequest) {
 
   const email = parsed.data.email;
   const fullName = (parsed.data.full_name ?? "").trim().slice(0, 120) || null;
+
+  // W1-2b (S-03): same per-email ceiling as resend (3/hour) — a fresh
+  // invitation to the same mailbox is bounded independently of the
+  // resend counters (different action, different namespace).
+  const emailLimit = await rateLimit(`invite-send:email:${email}`, EMAIL_MAX, EMAIL_WINDOW);
+  if (!emailLimit.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited", message: "تم إرسال عدة دعوات لهذا البريد مؤخرًا — حاول بعد ساعة" },
+      { status: 429 },
+    );
+  }
 
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json(
@@ -95,6 +194,24 @@ export async function POST(request: NextRequest) {
       },
       { status: 409 },
     );
+  }
+
+  // W1-2b (S-03): the per-coach pending-invites cap — coaches only
+  // (the S-03 threat is the PUBLIC coach signup; admins are
+  // owner-controlled staff). Fail-open on an unavailable count (the
+  // rate limits above still bound the abuse window).
+  if (auth.role === "coach") {
+    const pending = await coachPendingInvites(request);
+    if (pending !== null && pending >= PENDING_INVITES_CAP) {
+      return NextResponse.json(
+        {
+          error: "pending_invite_cap",
+          message:
+            `لديك ${pending} دعوة منتظرة للتفعيل — لن تُرسل دعوات جديدة حتى يفعّل عملاؤك حساباتهم أو يتدخل الدعم لتنظيف القائمة`,
+        },
+        { status: 429 },
+      );
+    }
   }
 
   // Metadata drives the 0033 trigger: coach → his client; admin → site client.
