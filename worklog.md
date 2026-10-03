@@ -1,4 +1,21 @@
 ---
+Task ID: VERCEL-BACKUP-MIGRATION-PLAN-2026-10-03
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-03 «ابدأ الآن بمرحلة Audit + تجهيز خطة تنفيذ النسخة الاحتياطية فقط» — فحص قراءة-only للحساب الجديد (الفريق `aalkemos` · المشروع `alkemos`) وتوثيق خطة جاهزية النسخة الاحتياطية في `docs/VERCEL-BACKUP-MIGRATION-PLAN-2026-10-03.md` — بلا أي cutover أو فصل دومين أو تدوير secrets أو تغيير على Production/DNS/Cloudflare/Supabase/GitHub.
+
+Work Log:
+- (فحص الحساب الجديد عبر API — قراءة فقط) المشروع `alkemos` في فريق `aalkemos`: framework `nextjs` · Node 24.x مضبوط أصلًا · Git مربوط بـ `muscleshubfit-cpu/alkemos` وProduction Branch `main` و`createDeployments: enabled` · صفر deployments (`targets: {}`) · صفر env vars · صفر crons · لا integrations · النطاق التلقائي `alkemos.vercel.app` فقط — عزل مثالي الآن.
+- (تثبيت قانون منع التشغيل المزدوج) القياس: crons تسجل عند تكوّن أول Production Deployment فقط → إبقاء النسخة preview-only (فرع production عنصر نائب 6-A أو تعطيل نشر Git 6-B) يمنع double-cron كليًا؛ دفعات docs-only تحمل `[vercel skip]` فتنتشر CANCELED بلا خدمة في الحسابين.
+- (تصنيف المتغيرات — أسماء فقط، صفر قيم) §4.1 قابلة للنقل آليًا (21 اسمًا بنفس targets القديم) · §4.2 يدوية Sensitive (PayPal×5 + AdSense — لا تُقرأ عبر API إطلاقًا؛ مصادرها في RECOVERY-SECRETS-SOURCES §2.2) · §4.3 ميتة موثقة لا تُنسخ (صيغ Supabase القديمة + EVO_PARTNER_API_ENABLED المحظورة ببوابة stale-refs).
+- (توثيق المخاطر والخطط) §5 مخاطر المشروعين معًا (أخطرها progress-reminder المكرر أحد 07:00 UTC) · §7 بطارية preview verification (مرآة بطارية RESOURCE-AUDIT-CLOSE) · §8 خطوات الجاهزية دون cutover · §10 شروط الطوارئ عند Pause فقط · §11 قائمة تحقق ما قبل أي cutover مستقبلي.
+- (امتثال) إطار docs-only: بوابات docs الثابتة محليًا + صف في docs/README.md بنفس الفريم + `[vercel skip]` في الالتزام + هوية git `muscleshubfit@gmail.com` (قانون GIT-IDENTITY) + فحص خلو الملف من أي أسرار قبل الدفع.
+
+Stage Summary:
+- الناتج: خطة جاهزية النسخة الاحتياطية موثقة وملتزَمة (audit فقط — لا خطوة واحدة من الخطة نُفذت).
+- القرار الحاكم: النسخة تبقى preview-only حتى cutover معلن؛ أول Production Deployment في الجديد = لحظة تسجيل crons = ممنوع قبل يومها.
+- ما ينقص للجاهزية (يُنفذ بأمر مالك): قيم §4.2 اليدوية + نقل §4.1 + تطبيق §6 + أول preview + بطارية §7.
+
+---
 Task ID: RESOURCE-AUDIT-CLOSE-2026-10-03
 Agent: Super Z (main)
 Task: أمر المالك 2026-10-03 «نفّذ الآن الإغلاق النهائي لبند Resource Audit» — حذف Preview Deployment بتاريخ 28 سبتمبر (فرع phase1-verify — المسمى «verify1-phase» بأمر المالك) بعد إثبات عزله، والتحقق من قواعد Cloudflare بعد تدوير المالك للتوكن، وبطارية post-check كاملة — بلا أي مساس بكود الإنتاج أو SEO/GEO أو أتمتة AI/blog أو Cron أو Supabase.
@@ -232,23 +249,5 @@ Work Log:
 Stage Summary:
 - W1-3b منفذ بحرف البند: النوافذ الثلاث على الغلاف الموحد + زرا الإغلاق الفارغان انقرضا + أزرار استبدال التمارين موسومة بتوأم الوجبات — A-03 وA-04 مغلقتان، لا شيء آخر نُفذ (بند W1 وحيد).
 - نشر حقيقي بلا [vercel skip] (يمس src/) — سلوك المستخدم المرئي: النوافذ الثلاث تقبل Escape الآن وتحصر التركيز وتستعيده وتُعلن كحوارات موسومة، وزر الإغلاق الموسوم ظاهر بثلاثتها، وزر استبدال التمرين يحمل نصًا — التحقق الحي الحقيقي يقع بالاستخدام بعد النشر.
-- Push status: pushed
-
----
-Task ID: W1-3A-MODAL-A11Y-2026-10-02
-Agent: Super Z (main)
-Task: أمر المالك 2026-10-02 «ابدأ البند التالى» — تنفيذ البند التالي من خطة المعالجة المعتمدة docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md. تحقق الحالة: W0 + W1-1 + W1-2a/b/c منفذة سابقًا (Ph 326-332) → البند التالي = W1-3a «بنية تحتية: غلاف <Modal> موحد فوق Radix ui/dialog.tsx الموجود» (يمهد W1-3b) — أول فريمات a11y، بند S بلا مساس 🔐 — فريم واحد، كوميت واحد.
-
-Work Log:
-- (النطاق بحرف صف W1-3a §6.2 + اتجاه إصلاح A-03 «غلاف <Modal> موحد (Radix ui/dialog.tsx موجود)») البنية التحتية فقط: مكوّن واحد جديد بلا أي تعديل على ملف قائم — التبنّي بالنوافذ الثلاث (وزر الإغلاق الفارغ) وأزرار الاستبدال كلها بند W1-3b التالي بفريمه المستقل (قانون الخطة: صف = فريم = كوميت).
-- (المكوّن src/components/ui/modal.tsx) غلاف فوق primitives ui/dialog.tsx القائمة نفسها (Dialog/DialogContent/DialogTitle/DialogDescription/DialogFooter/DialogClose — صفر صياغة يدوية جديدة: لا fixed inset-0 ولا stopPropagation) يجعل المسار المُيسَّر هو المُيسَّر: (1) title خاصية إلزامية — نافذة بلا اسم موصول لا تُترجم أصلًا (DialogTitle يوصلها aria-labelledby) وتقبل عقدة للعناوين القابلة للتحرير (حالة CoachClientView بW1-3b) · (2) زر الإغلاق المدمج الإنجليزي الثابت sr-only معطَّل (showCloseButton={false}) وزر الغلاف يحمل XIcon + aria-label معرّب من i18n common.close (Close/إغلاق — المفتاح موجود أصلًا بالقاموسين) · (3) Escape/فخ التركيز/استعادة التركيز/عزل المودال كلها موروثة من Radix (نمط ProgressView المثبت) · (4) خصائص منطقية فقط (end-*/text-start/pe-1 — صفر دين فيزيائي جديد؛ كاسح A-11 للملفات القائمة بند W3-2 لم يُمس) · (5) مقاسات sm/md/lg (max-w-md/stock-lg/max-w-2xl) + جسم قابل للتمرير (scroll → max-h-70vh overflow-y-auto) + فتحات icon/actions/footer لخريطة تبنّي W1-3b الموثقة بالترويسة (PlansView lg+scroll+actions · ReferralView sm+description · CoachClientView lg+scroll).
-- (كاناري src/lib/__tests__/modal-a11y.test.tsx — 12 اختبارًا بطبقتين) (أ) source pins: التركيب من ui/dialog لا تراكب يدوي · showCloseButton={false} + DialogClose بXIcon وaria-label t("common.close") · title إلزامية (لا title?) وتُصيَّر داخل DialogTitle · صفر خصائص فيزيائية · القاموسان يحملان common.close · حد الفريم machine-checked: النوافذ الثلاث ما زالت تراكبًا يدويًا ولا تستورد الغلاف (قلب هذا الـpin هو تحديث كاناري W1-3b الواجب) · (ب) سلوك jsdom بtesting-library: role=dialog موصول بعنوان aria-labelledby · العزل المودالي بإخفاء أشقاء Radix 1.1.x (hideOthers — مكافئه الموثق لaria-modal الحرفي؛ الحرفي غير مصيَّر بهذه النسخة عمدًا) · description بaria-describedby · Escape → onOpenChange(false) (فجوة A-03 بعينها) · التركيز يقع داخل الحوار · اسم الإغلاق المُيسَّر EN ثم AR · مقاسات/تمرير بالفئات · فتحة actions داخل صف الرأس مع زر الإغلاق.
-- (البطارية الكاملة — فريم كود يمس src/) tsc --noEmit 0 أخطاء · eslint على الجديد 0 أخطاء و0 تحذيرات (تحذير المسبق الموثق وحده) · vitest 2,155/2,155 عبر 129 ملفًا (2,143 + 12 كاناري جديد) · next build 2,033/2,033 صفحة مطابقًا لخط الأساس · docs_audit ✓ (STATE 92 سطرًا/31,964 بايتًا) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ — لا ميجريشن (migration_audit غير مستحق بالنطاق).
-- (حدود النطاق — §12.10) بند وحيد: النوافذ الثلاث كما هي حرفيًا (الكود والسلوك وسلوك زر الإغلاق الفارغ — كله W1-3b) · ui/dialog.tsx نفسه لم يُمس (A-11 الخاص به بند W3-2) · i18n لم يحتج مفاتيح جديدة (common.close موجود) · التالي بالخطة: W1-3b.
-- (التوثيق وفق §3.8/§12.5) TECH_REFERENCE.md §3.2: صف modal بجدول مكونات المشروع · docs/README.md: صف الخطة يوثق تنفيذ W1-3a (333) · STATE.md: مرحلة 333 + المفتوح (W1-3a ✓) + سطر جودة 333 + تدوير النوافذ (إسقاط إدخال مرحلة 326 وسطر جودته — باقيان بنافذة القراءة السريعة) · هذا المدخل + تدوير worklog للنافذة 12 عبر scripts/worklog_rotate.py.
-
-Stage Summary:
-- W1-3a منفذ بحرف البند: غلاف <Modal> موحد فوق Radix القائم — عنوان إلزامي + إغلاق موسوم معرّب + مقاسات وتمرير وفتحات التبنّي — بنية جاهزة لW1-3b بفريم مستقل بأمر مالك.
-- نشر حقيقي بلا [vercel skip] (يمس src/) — مكوّن غير مستورد بعد فسلوك الإنتاج صفر تغيير (بنية تحتية صرفة) — التحقق الحي الحقيق يقع عند تبنّي W1-3b.
 - Push status: pushed
 

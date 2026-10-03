@@ -11796,3 +11796,23 @@ Stage Summary:
 - نشر حقيقي بلا [vercel skip] (يمس src/ + supabase/) — الميجريشن يُطبَّق آليًا بدفع الكوميت (تكامل Supabase-GitHub) والنشر يتبعه بدقائق — سلوك المستخدم الشرعي الوحيد: إعادة إرسال double-submit بعد نجاح أول نداءٍ وقبل الدخول صارت {ok:false} (المخرج: الدخول بكلمة المرور الأولى المكتوبة أو رابط البريد) — تحقق حي مقترح على المالك: تجربة تبني دعوة حية بعد النشر.
 - Push status: pushed
 
+
+<!-- rotated 2026-10-03 by scripts/worklog_rotate.py (Phase 288, ARCH-REMEDIATION): 1 entries moved verbatim from worklog.md -->
+---
+Task ID: W1-3A-MODAL-A11Y-2026-10-02
+Agent: Super Z (main)
+Task: أمر المالك 2026-10-02 «ابدأ البند التالى» — تنفيذ البند التالي من خطة المعالجة المعتمدة docs/FULL-STACK-AUDIT-AND-REMEDIATION-PLAN-2026-10-02.md. تحقق الحالة: W0 + W1-1 + W1-2a/b/c منفذة سابقًا (Ph 326-332) → البند التالي = W1-3a «بنية تحتية: غلاف <Modal> موحد فوق Radix ui/dialog.tsx الموجود» (يمهد W1-3b) — أول فريمات a11y، بند S بلا مساس 🔐 — فريم واحد، كوميت واحد.
+
+Work Log:
+- (النطاق بحرف صف W1-3a §6.2 + اتجاه إصلاح A-03 «غلاف <Modal> موحد (Radix ui/dialog.tsx موجود)») البنية التحتية فقط: مكوّن واحد جديد بلا أي تعديل على ملف قائم — التبنّي بالنوافذ الثلاث (وزر الإغلاق الفارغ) وأزرار الاستبدال كلها بند W1-3b التالي بفريمه المستقل (قانون الخطة: صف = فريم = كوميت).
+- (المكوّن src/components/ui/modal.tsx) غلاف فوق primitives ui/dialog.tsx القائمة نفسها (Dialog/DialogContent/DialogTitle/DialogDescription/DialogFooter/DialogClose — صفر صياغة يدوية جديدة: لا fixed inset-0 ولا stopPropagation) يجعل المسار المُيسَّر هو المُيسَّر: (1) title خاصية إلزامية — نافذة بلا اسم موصول لا تُترجم أصلًا (DialogTitle يوصلها aria-labelledby) وتقبل عقدة للعناوين القابلة للتحرير (حالة CoachClientView بW1-3b) · (2) زر الإغلاق المدمج الإنجليزي الثابت sr-only معطَّل (showCloseButton={false}) وزر الغلاف يحمل XIcon + aria-label معرّب من i18n common.close (Close/إغلاق — المفتاح موجود أصلًا بالقاموسين) · (3) Escape/فخ التركيز/استعادة التركيز/عزل المودال كلها موروثة من Radix (نمط ProgressView المثبت) · (4) خصائص منطقية فقط (end-*/text-start/pe-1 — صفر دين فيزيائي جديد؛ كاسح A-11 للملفات القائمة بند W3-2 لم يُمس) · (5) مقاسات sm/md/lg (max-w-md/stock-lg/max-w-2xl) + جسم قابل للتمرير (scroll → max-h-70vh overflow-y-auto) + فتحات icon/actions/footer لخريطة تبنّي W1-3b الموثقة بالترويسة (PlansView lg+scroll+actions · ReferralView sm+description · CoachClientView lg+scroll).
+- (كاناري src/lib/__tests__/modal-a11y.test.tsx — 12 اختبارًا بطبقتين) (أ) source pins: التركيب من ui/dialog لا تراكب يدوي · showCloseButton={false} + DialogClose بXIcon وaria-label t("common.close") · title إلزامية (لا title?) وتُصيَّر داخل DialogTitle · صفر خصائص فيزيائية · القاموسان يحملان common.close · حد الفريم machine-checked: النوافذ الثلاث ما زالت تراكبًا يدويًا ولا تستورد الغلاف (قلب هذا الـpin هو تحديث كاناري W1-3b الواجب) · (ب) سلوك jsdom بtesting-library: role=dialog موصول بعنوان aria-labelledby · العزل المودالي بإخفاء أشقاء Radix 1.1.x (hideOthers — مكافئه الموثق لaria-modal الحرفي؛ الحرفي غير مصيَّر بهذه النسخة عمدًا) · description بaria-describedby · Escape → onOpenChange(false) (فجوة A-03 بعينها) · التركيز يقع داخل الحوار · اسم الإغلاق المُيسَّر EN ثم AR · مقاسات/تمرير بالفئات · فتحة actions داخل صف الرأس مع زر الإغلاق.
+- (البطارية الكاملة — فريم كود يمس src/) tsc --noEmit 0 أخطاء · eslint على الجديد 0 أخطاء و0 تحذيرات (تحذير المسبق الموثق وحده) · vitest 2,155/2,155 عبر 129 ملفًا (2,143 + 12 كاناري جديد) · next build 2,033/2,033 صفحة مطابقًا لخط الأساس · docs_audit ✓ (STATE 92 سطرًا/31,964 بايتًا) · docs_parity ✓ · stale-refs ✓ · ui-wiring ✓ — لا ميجريشن (migration_audit غير مستحق بالنطاق).
+- (حدود النطاق — §12.10) بند وحيد: النوافذ الثلاث كما هي حرفيًا (الكود والسلوك وسلوك زر الإغلاق الفارغ — كله W1-3b) · ui/dialog.tsx نفسه لم يُمس (A-11 الخاص به بند W3-2) · i18n لم يحتج مفاتيح جديدة (common.close موجود) · التالي بالخطة: W1-3b.
+- (التوثيق وفق §3.8/§12.5) TECH_REFERENCE.md §3.2: صف modal بجدول مكونات المشروع · docs/README.md: صف الخطة يوثق تنفيذ W1-3a (333) · STATE.md: مرحلة 333 + المفتوح (W1-3a ✓) + سطر جودة 333 + تدوير النوافذ (إسقاط إدخال مرحلة 326 وسطر جودته — باقيان بنافذة القراءة السريعة) · هذا المدخل + تدوير worklog للنافذة 12 عبر scripts/worklog_rotate.py.
+
+Stage Summary:
+- W1-3a منفذ بحرف البند: غلاف <Modal> موحد فوق Radix القائم — عنوان إلزامي + إغلاق موسوم معرّب + مقاسات وتمرير وفتحات التبنّي — بنية جاهزة لW1-3b بفريم مستقل بأمر مالك.
+- نشر حقيقي بلا [vercel skip] (يمس src/) — مكوّن غير مستورد بعد فسلوك الإنتاج صفر تغيير (بنية تحتية صرفة) — التحقق الحي الحقيق يقع عند تبنّي W1-3b.
+- Push status: pushed
+
