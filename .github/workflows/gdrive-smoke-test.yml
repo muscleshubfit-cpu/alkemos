@@ -16,6 +16,13 @@
 #       the measured basis for the 12 GB noisy guard (plan §3.5, updated
 #       2026-10-04) against the 15 GB account limit.
 #
+# rclone is NOT preinstalled on GitHub ubuntu runners (measured 2026-10-04,
+# run 37162424863) — step 1 installs a PINNED release from the official
+# mirror with an SHA256 checksum gate (version + hash frozen in this file;
+# the official SHA256SUMS value was independently re-verified at pin time).
+# This also validates the exact install mechanism GD-3's upload workflow
+# will reuse.
+#
 # Safety properties of this job:
 #   - workflow_dispatch ONLY — can never fire on schedule/push/PR.
 #   - permissions: {} — the job needs NO GitHub token rights at all.
@@ -24,9 +31,9 @@
 #     project_id) from every printed line, and deleted by an always()
 #     cleanup step. Only booleans, byte counts and folder/file NAMES are
 #     ever printed — no field of the JSON is revealed.
-#   - No checkout, no installs: rclone (preinstalled on GitHub ubuntu
-#     runners) + python3 + stdlib only — repo install discipline A-12.
-#     A missing rclone fails loudly instead of installing anything.
+#   - No checkout, no package manager, no script-piped installs: one
+#     pinned zip + sha256sum -c - (install discipline A-12 adapted:
+#     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
 #   - Touches no application code, DB, other workflow, production, DNS,
 #     Vercel or Supabase. The ONLY Drive mutations are: creating the
 #     AlkemosBackups folder IF (and only if) it exists nowhere the SA can
@@ -45,7 +52,7 @@ name: GDrive smoke test (GD-1 — dispatch only)
 on:
   # TEMP-BRANCH-ONLY trigger (gd1-smoke-test) so the run can start without the
   # workflow being registered on the default branch yet. The dispatch-only
-  # variant below is what lands on main once this run is green.
+  # variant is what lands on main once this run is green.
   push:
     branches: [gd1-smoke-test]
   workflow_dispatch: {}
@@ -56,11 +63,29 @@ concurrency:
 
 permissions: {}
 
+env:
+  RCLONE_VERSION: "1.75.1"
+  RCLONE_SHA256: "982b5aa772841168f8e380f139e9e787b2a105403e32b94da8676a0e1c0a13ab"
+
 jobs:
   gdrive-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Install pinned rclone (SHA256-gated)
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          ZIP="rclone-v${RCLONE_VERSION}-linux-amd64.zip"
+          echo "downloading rclone v${RCLONE_VERSION} (pinned) from the official mirror…"
+          curl -fsSLO "https://downloads.rclone.org/v${RCLONE_VERSION}/${ZIP}"
+          echo "${RCLONE_SHA256}  ${ZIP}" | sha256sum -c -
+          unzip -oq "${ZIP}"
+          mkdir -p "$RUNNER_TEMP/rclone-bin"
+          mv "rclone-v${RCLONE_VERSION}-linux-amd64/rclone" "$RUNNER_TEMP/rclone-bin/"
+          "$RUNNER_TEMP/rclone-bin/rclone" version | head -1
+          echo "$RUNNER_TEMP/rclone-bin" >> "$GITHUB_PATH"
+
       - name: Drive smoke test (auth → folder → upload → verify → delete)
         env:
           SA_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
@@ -93,7 +118,7 @@ jobs:
               print(f"::error::service-account JSON is missing field(s): {', '.join(missing)}")
               sys.exit(1)
           if sa.get("type") != "service_account":
-              print(f"::error::JSON \"type\" is not \"service_account\" — refusing to use it")
+              print('::error::JSON "type" is not "service_account" — refusing to use it')
               sys.exit(1)
           # Normalize (fixes literal \n escapes some secret setters leave) — rewrite silently.
           with open(sa_file, "w", encoding="utf-8") as fh:
@@ -106,7 +131,7 @@ jobs:
           PYEOF
 
           command -v rclone >/dev/null 2>&1 || {
-            echo "::error::rclone is not preinstalled on this runner — refusing to install anything (A-12 discipline); re-run on a stock ubuntu runner"
+            echo "::error::rclone not on PATH after the pinned-install step — infrastructure failure, nothing was tested"
             exit 1
           }
           echo "rclone: $(rclone version | head -1)"
@@ -226,8 +251,9 @@ jobs:
           fi
           echo "SMOKE TEST: ALL GREEN"
 
-      - name: Cleanup temp credential files
+      - name: Cleanup temp files (credentials, config, test file, install artifacts)
         if: always()
         run: |
-          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt || true
-          echo "temp credential + test files removed (runner is ephemeral anyway)"
+          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
+          rm -rf "${RUNNER_TEMP:-/tmp}/rclone-v1."*-linux-amd64 "${RUNNER_TEMP:-/tmp}/rclone-bin" || true
+          echo "temp credential + test + install files removed (runner is ephemeral anyway)"
