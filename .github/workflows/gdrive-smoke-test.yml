@@ -49,8 +49,10 @@
 #     (owner order 2026-10-04 mandates the Drive setup; no privileges
 #     are granted to anyone, no IAM is touched — the equivalent of the
 #     one-click console Enable). A standalone SA usually LACKS that
-#     permission (the safe default): the job then fails fast with the
-#     exact owner action instead of a cryptic rclone error.
+#     permission (measured, run 37163067607 — the least-privilege
+#     default): the job then prints the exact owner action and WAITS
+#     ~12 minutes, auto-continuing the moment the owner clicks Enable —
+#     failing honestly (with the guide) only after the window expires.
 #   - No checkout, no package manager, no script-piped installs: one
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
@@ -90,7 +92,7 @@ env:
 jobs:
   gdrive-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 18
     steps:
       - name: Install pinned rclone (SHA256-gated)
         run: |
@@ -274,8 +276,19 @@ jobs:
           except urllib.error.HTTPError as e:
               body = e.read().decode(errors="replace")
               if e.code == 403 or "PERMISSION_DENIED" in body:
-                  print("::error::the SA cannot enable APIs on its project (no serviceusage permission — the safe default for a standalone SA).")
-                  print("OWNER ACTION (~1 minute, one click): open Google Cloud Console in a browser logged into the account that owns the backup SA project → Navigation menu → APIs & Services → Library → search \"Google Drive API\" → Enable → wait ~2 minutes → re-run this workflow. (The exact activation URL with the project number is also printed in Google's error inside this job log.)")
+                  print("the SA cannot enable APIs on its project (no serviceusage permission — the safe default for a standalone SA, exactly the least-privilege posture the plan mandates).")
+                  print("OWNER ACTION (~1 minute, one click): in a browser logged into the Google account that owns the backup SA project, open Google Cloud Console → APIs & Services → Library → search \"Google Drive API\" → Enable. (The exact activation URL with the project number is printed in Google's error inside this job log.)")
+                  print("This run now WAITS up to ~12 minutes and auto-continues the moment the Drive API is enabled — no re-run needed if you click within the window. Otherwise re-run this workflow after enabling.")
+                  deadline = time.time() + 720
+                  n = 0
+                  while time.time() < deadline:
+                      time.sleep(45)
+                      n += 1
+                      if drive_ok():
+                          print(f"Drive API: ENABLED by the owner after ~{n * 45}s of waiting — proceeding with the full smoke test")
+                          sys.exit(0)
+                      print(f"still waiting for the Drive API enablement… ({n * 45}s / 720s)", flush=True)
+                  print("::error::Drive API still disabled after a 12-minute wait — enable it (owner console click, see OWNER ACTION above), then re-run this workflow")
                   sys.exit(1)
               die(f"serviceusage enable returned HTTP {e.code}", body)
           except Exception as e:
