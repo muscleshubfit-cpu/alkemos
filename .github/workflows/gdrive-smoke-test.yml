@@ -7,21 +7,28 @@
 # service-account JSON file) but nothing consumed it yet. This job proves,
 # with the smallest possible footprint, using rclone — the exact upload
 # layer the plan mandates (§3.1-4) for GD-3:
-#   (a) the SA authenticates to Google Drive (rclone about — live quota),
+#   (a) the SA authenticates to Google Drive (rclone lsd — a real
+#       authenticated Drive call; rclone about is reported when supported
+#       but never required: some service accounts cannot call about.get),
 #   (b) the backup folder AlkemosBackups is located (shared-with-me first,
 #       then own root, created only if absent) and is WRITABLE by the SA,
 #   (c) a <100-byte test file round-trips: upload → read-back verify →
 #       delete → confirmed gone,
-#   (d) the live quota numbers and folder size-measurement primitive —
-#       the measured basis for the 12 GB noisy guard (plan §3.5, updated
-#       2026-10-04) against the 15 GB account limit.
+#   (d) the live quota numbers (when about is available) and the
+#       folder-size measurement primitive — the measured basis for the
+#       12 GB noisy guard (plan §3.5, updated 2026-10-04) against the
+#       15 GB account limit.
 #
 # rclone is NOT preinstalled on GitHub ubuntu runners (measured 2026-10-04,
 # run 37162424863) — step 1 installs a PINNED release from the official
 # mirror with an SHA256 checksum gate (version + hash frozen in this file;
 # the official SHA256SUMS value was independently re-verified at pin time).
 # This also validates the exact install mechanism GD-3's upload workflow
-# will reuse.
+# will reuse. Env pins use the PINNED_RCLONE_* prefix — never bare
+# RCLONE_*: rclone maps RCLONE_<NAME> environment variables to --name
+# flags, so RCLONE_VERSION would collide with --version (measured, run
+# 37162630012). RCLONE_CONFIG is the one intentional mapping (the real
+# --config flag).
 #
 # Safety properties of this job:
 #   - workflow_dispatch ONLY — can never fire on schedule/push/PR.
@@ -31,6 +38,9 @@
 #     project_id) from every printed line, and deleted by an always()
 #     cleanup step. Only booleans, byte counts and folder/file NAMES are
 #     ever printed — no field of the JSON is revealed.
+#   - rclone stderr is captured to a file and scrubbed SYNCHRONOUSLY
+#     before any exit (async process substitution raced with exit and
+#     swallowed the diagnostic on run 37162689176 — never again).
 #   - No checkout, no package manager, no script-piped installs: one
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
@@ -93,6 +103,7 @@ jobs:
           set -euo pipefail
           SA_FILE="$RUNNER_TEMP/gdrive-sa.json"
           CONF_FILE="$RUNNER_TEMP/rclone.conf"
+          RC_ERR="$RUNNER_TEMP/rc.err"
           export SA_FILE CONF_FILE
 
           if [ -z "${SA_JSON}" ]; then
@@ -136,8 +147,9 @@ jobs:
           }
           echo "rclone: $(rclone version | head -1)"
 
-          # Output scrubber: drops the SA email/project from any rclone error line.
-          scrub() { python3 -c '
+          # synchronous scrubber: reads a FILE, prints the scrubbed text, returns
+          scrub_file() {
+            python3 -c '
           import os, sys
           p = os.path.join(os.environ.get("RUNNER_TEMP", "/tmp"), "scrub.txt")
           repl = []
@@ -146,12 +158,14 @@ jobs:
                   repl = [l for l in fh.read().splitlines() if l]
           except OSError:
               pass
-          out = sys.stdin.read()
+          out = open(sys.argv[1], errors="replace").read() if len(sys.argv) > 1 else ""
           for s in repl:
               out = out.replace(s, "[REDACTED-SA]")
           sys.stdout.write(out)
-          '; }
-          export -f scrub
+          ' "$1"
+          }
+          # run rclone, surface scrubbed stderr synchronously, propagate exit code
+          rc() { rclone "$@" 2>"$RC_ERR" || { scrub_file "$RC_ERR" >&2 || true; return 1; }; }
 
           cat > "$CONF_FILE" <<EOF
           [gdrive]
@@ -162,12 +176,13 @@ jobs:
           chmod 600 "$CONF_FILE"
           export RCLONE_CONFIG="$CONF_FILE"
 
-          die() { echo "::error::smoke test FAILED — $1"; exit 1; }
+          die() { echo "::error::smoke test FAILED — $1 (scrubbed rclone error, if any, printed above)"; exit 1; }
 
-          # ---- 1. Auth + live quota (rclone about = the plan's §3.5 measurement) ----
-          ABOUT_PRE=$(rclone about gdrive: --json 2> >(scrub)) || die "authentication to Google Drive failed (is the Drive API enabled on the SA project? see scrubbed error above)"
-          echo "auth: OK (rclone about succeeded)"
-          python3 - "$ABOUT_PRE" << 'PYEOF'
+          # ---- 1. Auth proof + live quota when available ----
+          ABOUT_PRE=""
+          if ABOUT_PRE=$(rc about gdrive: --json); then
+            echo "rclone about: OK"
+            python3 - "$ABOUT_PRE" << 'PYEOF'
           import json, sys
           a = json.loads(sys.argv[1])
           gb = lambda b: (b or 0) / 1024**3
@@ -178,10 +193,21 @@ jobs:
           else:
               print(f"free quota {free_gb:.2f}GB ≥ 12GB backup budget (plan §3.5 guard): OK")
           PYEOF
+          else
+            echo "::warning::rclone about is unavailable for this SA (scrubbed error above) — NOT fatal: auth is proven by the lsd call next; some service accounts cannot call about.get"
+          fi
 
           # ---- 2. Folder discovery: shared-with-me first, own root second, create last ----
-          OWN_DIRS=$(rclone lsd gdrive: 2> >(scrub) | awk '{$1=$2=$3=$4=""; sub(/^ +/,""); print}' || true)
-          SWM_DIRS=$(rclone lsd gdrive: --drive-shared-with-me 2> >(scrub) | awk '{$1=$2=$3=$4=""; sub(/^ +/,""); print}' || true)
+          # own-root lsd is THE auth proof — fatal on failure.
+          if ! RAW_OWN=$(rc lsd gdrive:); then die "auth FAILED — rclone lsd (own root) errored"; fi
+          echo "auth: OK (rclone lsd succeeded — the SA authenticates and can list its own root)"
+          OWN_DIRS=$(printf '%s\n' "$RAW_OWN" | awk '{$1=$2=$3=$4=""; sub(/^ +/,""); print}' | grep -v '^$' || true)
+          SWM_DIRS=""
+          if RAW_SWM=$(rc lsd gdrive: --drive-shared-with-me); then
+            SWM_DIRS=$(printf '%s\n' "$RAW_SWM" | awk '{$1=$2=$3=$4=""; sub(/^ +/,""); print}' | grep -v '^$' || true)
+          else
+            echo "::warning::shared-with-me listing unavailable (scrubbed error above) — continuing with own-root discovery only"
+          fi
           echo "SA own-root folders: [$(echo "$OWN_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
           echo "folders shared WITH the SA: [$(echo "$SWM_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
 
@@ -192,12 +218,12 @@ jobs:
             MODE="found-own-root"; REMOTE="gdrive:AlkemosBackups"
           else
             echo "AlkemosBackups not found in either view — creating it in the SA's own space (GD-1 plan step)"
-            rclone mkdir gdrive:AlkemosBackups 2> >(scrub) || die "folder creation failed (no write access even to the SA's own root)"
+            rc mkdir gdrive:AlkemosBackups || die "folder creation failed (no write access even to the SA's own root)"
             MODE="created-own-root"; REMOTE="gdrive:AlkemosBackups"
           fi
           echo "folder mode: $MODE → $REMOTE ${FLAGS[*]:-}"
 
-          FOLDER_JSON=$(rclone lsjson "$REMOTE" "${FLAGS[@]}" 2> >(scrub)) || die "cannot list $REMOTE (folder not readable by the SA)"
+          FOLDER_JSON=$(rc lsjson "$REMOTE" "${FLAGS[@]}") || die "cannot list $REMOTE (folder not readable by the SA)"
           FOLDER_ID=$(printf '%s' "$FOLDER_JSON" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next((e["ID"] for e in d if e["IsDir"] and e["Name"]=="AlkemosBackups"), next((e["ParentID"] for e in d if not e["IsDir"]), "")))' 2>/dev/null || true)
           [ -n "$FOLDER_ID" ] && echo "folder ID: $FOLDER_ID (for GD-3 root_folder_id pinning — not a secret)"
 
@@ -206,30 +232,31 @@ jobs:
           TEST_NAME="gd1-smoke-${TS}.txt"
           CONTENT="alkemos-gd1-drive-smoke ${TS} run=${GITHUB_RUN_ID:-local}"
           printf '%s' "$CONTENT" > "$RUNNER_TEMP/$TEST_NAME"
-          rclone copyto "$RUNNER_TEMP/$TEST_NAME" "$REMOTE/$TEST_NAME" "${FLAGS[@]}" 2> >(scrub) || die "UPLOAD failed — the SA cannot write to $REMOTE (shared as viewer?)"
+          rc copyto "$RUNNER_TEMP/$TEST_NAME" "$REMOTE/$TEST_NAME" "${FLAGS[@]}" || die "UPLOAD failed — the SA cannot write to $REMOTE (shared as viewer?)"
           echo "upload: OK ($TEST_NAME, ${#CONTENT} bytes)"
-          BACK=$(rclone cat "$REMOTE/$TEST_NAME" "${FLAGS[@]}" 2> >(scrub)) || die "read-back failed"
+          BACK=$(rc cat "$REMOTE/$TEST_NAME" "${FLAGS[@]}") || die "read-back failed"
           [ "$BACK" = "$CONTENT" ] || die "read-back MISMATCH (content corrupted in transit)"
           echo "read-back: OK (byte-identical)"
-          rclone lsf "$REMOTE" "${FLAGS[@]}" 2> >(scrub) | grep -qx "$TEST_NAME" || die "uploaded file not visible in listing"
+          rc lsf "$REMOTE" "${FLAGS[@]}" | grep -qx "$TEST_NAME" || die "uploaded file not visible in listing"
           echo "listing check: OK"
 
           # folder-size measurement primitive (the GD-3 12GB guard mechanism)
-          rclone size "$REMOTE" "${FLAGS[@]}" 2> >(scrub) | sed 's/^/folder-size: /'
+          rc size "$REMOTE" "${FLAGS[@]}" | sed 's/^/folder-size: /' || die "folder-size measurement failed (the GD-3 guard primitive)"
 
-          rclone deletefile "$REMOTE/$TEST_NAME" "${FLAGS[@]}" 2> >(scrub) || die "DELETE failed — test file left behind, remove manually"
-          if rclone lsf "$REMOTE" "${FLAGS[@]}" 2> >(scrub) | grep -qx "$TEST_NAME"; then
+          rc deletefile "$REMOTE/$TEST_NAME" "${FLAGS[@]}" || die "DELETE failed — test file left behind, remove manually"
+          if rc lsf "$REMOTE" "${FLAGS[@]}" | grep -qx "$TEST_NAME"; then
             die "test file STILL PRESENT after delete"
           fi
           echo "delete + gone-check: OK"
 
-          ABOUT_POST=$(rclone about gdrive: --json 2> >(scrub)) || true
-          [ -n "$ABOUT_POST" ] && python3 - "$ABOUT_PRE" "$ABOUT_POST" << 'PYEOF'
+          if [ -n "$ABOUT_PRE" ] && ABOUT_POST=$(rc about gdrive: --json); then
+            python3 - "$ABOUT_PRE" "$ABOUT_POST" << 'PYEOF'
           import json, sys
           pre, post = json.loads(sys.argv[1]), json.loads(sys.argv[2])
           d = (post.get("used") or 0) - (pre.get("used") or 0)
           print(f"quota AFTER : used-delta={d/1024**3:+.6f}GB (whose quota the SA writes count against — measured evidence for plan §3.5)")
           PYEOF
+          fi
 
           # ---- 4. Step summary ----
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
@@ -254,6 +281,6 @@ jobs:
       - name: Cleanup temp files (credentials, config, test file, install artifacts)
         if: always()
         run: |
-          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
+          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}/rc.err" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
           rm -rf "${RUNNER_TEMP:-/tmp}/rclone-v1."*-linux-amd64 "${RUNNER_TEMP:-/tmp}/rclone-bin" || true
           echo "temp credential + test + install files removed (runner is ephemeral anyway)"
