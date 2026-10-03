@@ -43,6 +43,11 @@
 name: GDrive smoke test (GD-1 — dispatch only)
 
 on:
+  # TEMP-BRANCH-ONLY trigger (gd1-smoke-test) so the run can start without the
+  # workflow being registered on the default branch yet. The dispatch-only
+  # variant below is what lands on main once this run is green.
+  push:
+    branches: [gd1-smoke-test]
   workflow_dispatch: {}
 
 concurrency:
