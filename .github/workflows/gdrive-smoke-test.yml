@@ -64,8 +64,8 @@ concurrency:
 permissions: {}
 
 env:
-  RCLONE_VERSION: "1.75.1"
-  RCLONE_SHA256: "982b5aa772841168f8e380f139e9e787b2a105403e32b94da8676a0e1c0a13ab"
+  PINNED_RCLONE_VERSION: "1.75.1"
+  PINNED_RCLONE_SHA256: "982b5aa772841168f8e380f139e9e787b2a105403e32b94da8676a0e1c0a13ab"
 
 jobs:
   gdrive-smoke:
@@ -76,13 +76,13 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP"
-          ZIP="rclone-v${RCLONE_VERSION}-linux-amd64.zip"
-          echo "downloading rclone v${RCLONE_VERSION} (pinned) from the official mirror…"
-          curl -fsSLO "https://downloads.rclone.org/v${RCLONE_VERSION}/${ZIP}"
-          echo "${RCLONE_SHA256}  ${ZIP}" | sha256sum -c -
+          ZIP="rclone-v${PINNED_RCLONE_VERSION}-linux-amd64.zip"
+          echo "downloading rclone v${PINNED_RCLONE_VERSION} (pinned) from the official mirror…"
+          curl -fsSLO "https://downloads.rclone.org/v${PINNED_RCLONE_VERSION}/${ZIP}"
+          echo "${PINNED_RCLONE_SHA256}  ${ZIP}" | sha256sum -c -
           unzip -oq "${ZIP}"
           mkdir -p "$RUNNER_TEMP/rclone-bin"
-          mv "rclone-v${RCLONE_VERSION}-linux-amd64/rclone" "$RUNNER_TEMP/rclone-bin/"
+          mv "rclone-v${PINNED_RCLONE_VERSION}-linux-amd64/rclone" "$RUNNER_TEMP/rclone-bin/"
           "$RUNNER_TEMP/rclone-bin/rclone" version | head -1
           echo "$RUNNER_TEMP/rclone-bin" >> "$GITHUB_PATH"
 
