@@ -41,6 +41,16 @@
 #   - rclone stderr is captured to a file and scrubbed SYNCHRONOUSLY
 #     before any exit (async process substitution raced with exit and
 #     swallowed the diagnostic on run 37162689176 — never again).
+#   - Run 37162865437 measured the real prerequisite gap: the Drive API
+#     was SERVICE_DISABLED on the SA's GCP project (the SA key itself is
+#     valid — JWT auth succeeds, the 403 carries project details). This
+#     job therefore ATTEMPTS to enable drive.googleapis.com on that one
+#     project via the serviceusage API using the SA's own credentials
+#     (owner order 2026-10-04 mandates the Drive setup; no privileges
+#     are granted to anyone, no IAM is touched — the equivalent of the
+#     one-click console Enable). A standalone SA usually LACKS that
+#     permission (the safe default): the job then fails fast with the
+#     exact owner action instead of a cryptic rclone error.
 #   - No checkout, no package manager, no script-piped installs: one
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
@@ -178,6 +188,109 @@ jobs:
 
           die() { echo "::error::smoke test FAILED — $1 (scrubbed rclone error, if any, printed above)"; exit 1; }
 
+          # ---- 0. Ensure the Drive API is enabled on the SA's project ----
+          # JWT (RS256 via openssl — the gsc-connection-test pattern) with
+          # cloud-platform scope, then ONE serviceusage enable call for
+          # drive.googleapis.com. The access token NEVER touches the log.
+          python3 << 'PYEOF'
+          import base64, json, os, subprocess, sys, time
+          import urllib.error, urllib.parse, urllib.request
+
+          sa_file = os.environ["SA_FILE"]
+          key_file = os.path.join(os.path.dirname(sa_file), "gdrive-sa.key")
+          sa = json.load(open(sa_file))
+          with open(key_file, "w") as fh:
+              fh.write(sa["private_key"])
+          os.chmod(key_file, 0o600)
+
+          def b64u(b):
+              return base64.urlsafe_b64encode(b).rstrip(b"=").decode("ascii")
+
+          def scrubbed(s):
+              for k in ("client_email", "project_id"):
+                  v = sa.get(k) or ""
+                  if v:
+                      s = s.replace(v, "[REDACTED-SA]")
+              return s
+
+          token_uri = sa.get("token_uri") or "https://oauth2.googleapis.com/token"
+
+          def access_token(scope):
+              now = int(time.time())
+              head = b64u(json.dumps({"alg": "RS256", "typ": "JWT"}, separators=(",", ":")).encode())
+              claims = b64u(json.dumps({
+                  "iss": sa["client_email"], "scope": scope, "aud": token_uri,
+                  "iat": now, "exp": now + 600,
+              }, separators=(",", ":")).encode())
+              sig = subprocess.run(["openssl", "dgst", "-sha256", "-sign", key_file],
+                                   input=(head + "." + claims).encode(),
+                                   capture_output=True, check=True).stdout
+              body = urllib.parse.urlencode({
+                  "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                  "assertion": head + "." + claims + "." + b64u(sig),
+              }).encode()
+              req = urllib.request.Request(token_uri, data=body, method="POST")
+              req.add_header("Content-Type", "application/x-www-form-urlencoded")
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  return json.loads(r.read())["access_token"]
+
+          def die(msg, detail=""):
+              print(f"::error::{msg}")
+              if detail:
+                  print(scrubbed(detail), file=sys.stderr)
+              sys.exit(1)
+
+          # quick Drive-API probe first: if it already works, skip the enable entirely
+          def drive_ok():
+              try:
+                  tok = access_token("https://www.googleapis.com/auth/drive")
+              except Exception:
+                  return False
+              req = urllib.request.Request("https://www.googleapis.com/drive/v3/about?fields=user")
+              req.add_header("Authorization", "Bearer " + tok)
+              try:
+                  urllib.request.urlopen(req, timeout=30)
+                  return True
+              except urllib.error.HTTPError:
+                  return False
+
+          if drive_ok():
+              print("Drive API: already enabled/working on the SA project — no enable needed")
+              sys.exit(0)
+
+          print("Drive API: not usable yet (probe failed) — attempting enable via serviceusage with the SA credentials…")
+          try:
+              tok = access_token("https://www.googleapis.com/auth/cloud-platform")
+          except Exception as e:
+              die("could not mint a cloud-platform token from the SA key", repr(e))
+
+          url = ("https://serviceusage.googleapis.com/v1/projects/"
+                 + sa["project_id"] + "/services/drive.googleapis.com:enable")
+          req = urllib.request.Request(url, data=b"", method="POST")
+          req.add_header("Authorization", "Bearer " + tok)
+          try:
+              with urllib.request.urlopen(req, timeout=90) as r:
+                  print(f"serviceusage enable: HTTP {r.status} — enable requested (operation accepted)")
+          except urllib.error.HTTPError as e:
+              body = e.read().decode(errors="replace")
+              if e.code == 403 or "PERMISSION_DENIED" in body:
+                  print("::error::the SA cannot enable APIs on its project (no serviceusage permission — the safe default for a standalone SA).")
+                  print("OWNER ACTION (~1 minute, one click): open Google Cloud Console in a browser logged into the account that owns the backup SA project → Navigation menu → APIs & Services → Library → search \"Google Drive API\" → Enable → wait ~2 minutes → re-run this workflow. (The exact activation URL with the project number is also printed in Google's error inside this job log.)")
+                  sys.exit(1)
+              die(f"serviceusage enable returned HTTP {e.code}", body)
+          except Exception as e:
+              die("serviceusage enable call failed", repr(e))
+
+          print("enablement propagation: waiting up to ~3 minutes…")
+          deadline = time.time() + 180
+          while time.time() < deadline:
+              time.sleep(25)
+              if drive_ok():
+                  print("Drive API: now ENABLED and answering — proceeding")
+                  sys.exit(0)
+          print("::warning::Drive API still not answering after 3 minutes — continuing anyway (rclone will re-verify; if it reports SERVICE_DISABLED, wait a few minutes and re-run)")
+          PYEOF
+
           # ---- 1. Auth proof + live quota when available ----
           ABOUT_PRE=""
           if ABOUT_PRE=$(rc about gdrive: --json); then
@@ -281,6 +394,6 @@ jobs:
       - name: Cleanup temp files (credentials, config, test file, install artifacts)
         if: always()
         run: |
-          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}/rc.err" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
+          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/gdrive-sa.key" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}/rc.err" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
           rm -rf "${RUNNER_TEMP:-/tmp}/rclone-v1."*-linux-amd64 "${RUNNER_TEMP:-/tmp}/rclone-bin" || true
           echo "temp credential + test + install files removed (runner is ephemeral anyway)"
