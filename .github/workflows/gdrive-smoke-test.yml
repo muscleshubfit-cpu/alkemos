@@ -57,9 +57,12 @@
 #     cleanup step. Only booleans, byte counts and folder/file NAMES are
 #     ever printed — no field of the JSON is revealed.
 #   - GDRIVE_FOLDER_ID is a secret VALUE: never printed raw (masked
-#     prefix/suffix only) and validated to the Drive-ID charset
-#     [A-Za-z0-9_-]{16,} BEFORE any use, so it cannot inject shell
-#     syntax. A bare ID or a folder URL (…/drive/folders/<id>) both work.
+#     prefix/suffix only). The ID is EXTRACTED tolerantly from whatever
+#     was pasted (measured run 37170955147: the owner's value was a
+#     49-char label-embedded ID, not a bare ID) — folder URL
+#     (…/drive/folders/<id>), open?id= link, bare ID, or embedded token
+#     — and the EXTRACTED id is charset-validated [A-Za-z0-9_-]{20,60}
+#     BEFORE any use, so it cannot inject shell syntax.
 #   - rclone stderr is captured to a file and scrubbed SYNCHRONOUSLY
 #     before any exit (async process substitution raced with exit and
 #     swallowed the diagnostic on run 37162689176 — never again).
@@ -396,22 +399,37 @@ jobs:
                   print(str(detail)[:1200], file=sys.stderr)
               sys.exit(1)
 
-          # normalize: accept a bare folder ID or a folder URL (any /folders/<id> form)
-          def normalize(v):
+          # tolerant ID extraction (measured run 37170955147: the owner pasted
+          # a 49-char value — an ID embedded in a label — not a bare ID):
+          # accept a folder URL (.../folders/<id>), an open?id=<id> link, a
+          # bare ID, or an ID embedded in pasted text — but the EXTRACTED id
+          # is charset-validated before any use, so shell injection stays
+          # impossible regardless of what was pasted.
+          def extract_id(v):
+              """Return (fid, why_not) — exactly one of them is set."""
               v = (v or "").strip().strip('"').strip("'").strip()
-              if "#" in v:
-                  v = v.split("#", 1)[0]
-              if "?" in v:
-                  v = v.split("?", 1)[0]
-              v = v.rstrip("/")
-              if "/" in v:
-                  v = v.rsplit("/", 1)[-1]
-              return v.strip()
+              m = re.search(r"/folders/([A-Za-z0-9_-]{20,})", v)
+              if m:
+                  return m.group(1), ""
+              m = re.search(r"[?&]id=([A-Za-z0-9_-]{20,})", v)
+              if m:
+                  return m.group(1), ""
+              body = v.split("#", 1)[0].split("?", 1)[0]
+              tokens = re.findall(r"[A-Za-z0-9_-]{20,}", body)
+              if len(tokens) == 1:
+                  return tokens[0], ""
+              if len(tokens) > 1:
+                  return None, "%d ID-like tokens found — paste ONLY the folder ID or its URL" % len(tokens)
+              if not v:
+                  return None, "the secret value is empty"
+              if len(v) < 20:
+                  return None, "shorter than any Drive ID (a folder NAME is not an ID)"
+              return None, "no Drive-ID-length token found"
 
-          fid = normalize(raw_secret)
-          if not re.fullmatch(r"[A-Za-z0-9_-]{16,}", fid):
-              die("secret GDRIVE_FOLDER_ID is not a usable folder ID — set it to the backup folder ID (~28-33 chars) or the folder URL (https://drive.google.com/drive/folders/<id>)",
-                  f"got {len(fid)} chars after normalization")
+          fid, why_not = extract_id(raw_secret)
+          if not fid or not re.fullmatch(r"[A-Za-z0-9_-]{20,60}", fid):
+              die("secret GDRIVE_FOLDER_ID does not contain a usable folder ID (got %d chars: %s) — paste ONLY the backup folder ID (28-33 chars) or its URL (https://drive.google.com/drive/folders/<id>)" % (len(raw_secret), why_not or "unknown"))
+          print("folder ID extracted from GDRIVE_FOLDER_ID: %s…%s (%d chars — full value is a secret, never printed)" % (fid[:4], fid[-4:], len(fid)))
 
           sa = json.load(open(sa_file))
           key_file = os.path.join(os.path.dirname(sa_file), "gdrive-sa.key")
