@@ -10,21 +10,29 @@
 #   (a) the SA authenticates to Google Drive (rclone lsd — a real
 #       authenticated Drive call; rclone about is reported when supported
 #       but never required: some service accounts cannot call about.get),
-#   (b) the backup folder the OWNER SHARED WITH the SA is located by
-#       normalized name match ("AlkemosBackups" == "Alkemos Backups" —
-#       the owner's shared folder carries a space; measured run
-#       37168415521) and is shared with the SA (Editor),
+#   (b) the backup folder is targeted by the OWNER-PROVIDED folder ID from
+#       the GDRIVE_FOLDER_ID secret (owner order 2026-10-04 — the same day
+#       the owner renamed the folder "AlkemosBackups"). A Drive files.get
+#       probe (JWT signed via openssl; the access token NEVER touches the
+#       log) reads the folder metadata + capabilities FIRST, so:
+#         - the mode is auto-selected: regular folder shared with the SA /
+#           folder inside a Workspace shared drive / shared-drive root,
+#         - a Viewer/Commenter share (canAddChildren=false) is diagnosed
+#           BEFORE the upload attempt instead of guessed,
+#         - renames can never break discovery again (IDs are immutable),
+#         - and the owner's folder-ID-solves-quota theory gets its measured
+#           answer: pinning the parent cannot change WHO owns a created
+#           file (the SA) — which is what the 403 charges (runs
+#           37168415521 + 37168880937 + 37169086366 + 37169652058),
 #   (c) a <100-byte test file round-trips: upload → read-back verify →
-#       delete → confirmed gone — or the upload failure is DIAGNOSED:
-#       Google's no-quota law for SA-owned files (measured runs
-#       37168415521 + 37168880937) is reported with the owner decision
-#       menu instead of a generic "shared as viewer?" guess,
+#       delete → confirmed gone — or the upload failure is DIAGNOSED with
+#       the exact Google law + the owner decision menu (not a guess),
 #   (d) the folder-size measurement vs the 12 GB noisy guard (plan §3.5,
 #       updated 2026-10-04). A service account has NO storage quota of
 #       its own (about.get returns zeros by design; own-space uploads
 #       fail 403 storageQuotaExceeded — measured run 37168415521), so
-#       backup bytes live in the shared-folder OWNER's 15 GB account and
-#       the guard is enforced on the folder's byte total.
+#       backup bytes live in the folder OWNER's 15 GB account and the
+#       guard is enforced on the folder's byte total.
 #
 # rclone is NOT preinstalled on GitHub ubuntu runners (measured 2026-10-04,
 # run 37162424863) — step 1 installs a PINNED release from the official
@@ -38,13 +46,20 @@
 # --config flag).
 #
 # Safety properties of this job:
-#   - workflow_dispatch ONLY — can never fire on schedule/push/PR.
+#   - workflow_dispatch ONLY on main — can never fire on schedule/push/PR.
+#     (The push trigger below exists TEMPORARILY on the gd1-smoke-test
+#     branch so runs can start before the workflow is registered on main;
+#     it is removed by the commit that lands this on main.)
 #   - permissions: {} — the job needs NO GitHub token rights at all.
 #   - The secret is normalized by python3 json (never echoed/printed),
 #     written to $RUNNER_TEMP with 0600 perms, scrubbed (client_email +
 #     project_id) from every printed line, and deleted by an always()
 #     cleanup step. Only booleans, byte counts and folder/file NAMES are
 #     ever printed — no field of the JSON is revealed.
+#   - GDRIVE_FOLDER_ID is a secret VALUE: never printed raw (masked
+#     prefix/suffix only) and validated to the Drive-ID charset
+#     [A-Za-z0-9_-]{16,} BEFORE any use, so it cannot inject shell
+#     syntax. A bare ID or a folder URL (…/drive/folders/<id>) both work.
 #   - rclone stderr is captured to a file and scrubbed SYNCHRONOUSLY
 #     before any exit (async process substitution raced with exit and
 #     swallowed the diagnostic on run 37162689176 — never again).
@@ -60,26 +75,25 @@
 #     default): the job then prints the exact owner action and WAITS
 #     ~12 minutes, auto-continuing the moment the owner clicks Enable —
 #     failing honestly (with the guide) only after the window expires.
-#   - Runs 37168415521 + 37168880937 measured the platform law that gates
-#     GD-1: a standalone Service Account can never OWN files on a consumer
-#     Google Drive — zero storage quota, files.create → 403
-#     storageQuotaExceeded even inside a folder shared with the SA as
-#     Editor (the share itself is fine; the byte would be charged to the
-#     SA as the file owner, and the SA has no pool). Writable storage for
-#     an SA exists only on Workspace shared drives. The upload step
-#     therefore greps that exact error and prints the owner decision
-#     menu (OAuth user token / Workspace shared drive / R2 §3.6).
+#   - Runs 37168415521 + 37168880937 (+ #10/#11 confirmations) measured
+#     the platform law that gates GD-1: a standalone Service Account can
+#     never OWN files on a consumer Google Drive — zero storage quota,
+#     files.create → 403 storageQuotaExceeded even inside a folder
+#     shared with the SA as Editor (the share itself is fine; the byte
+#     would be charged to the SA as the file owner, and the SA has no
+#     pool). Writable storage for an SA exists only on Workspace shared
+#     drives. The upload step greps that exact error and prints the
+#     owner decision menu (OAuth user token / Workspace shared drive /
+#     R2 §3.6) — including the measured answer to the owner's 2026-10-04
+#     folder-ID theory (see (b) above).
 #   - No checkout, no package manager, no script-piped installs: one
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
 #   - Touches no application code, DB, other workflow, production, DNS,
 #     Vercel or Supabase. The ONLY Drive mutations are: the lifetime of
-#     one test file inside the owner-shared folder (deleted and verified
-#     gone before the job may succeed) and the removal of the EMPTY
-#     own-root AlkemosBackups leftover from run 37168415521 (rmdir
-#     removes empty folders only — a safety property; failure is
-#     non-fatal). No folder is created anymore: the SA's own space can
-#     hold zero bytes (the no-quota law above).
+#     one test file inside the owner-provided backup folder (deleted and
+#     verified gone before the job may succeed). No folder is ever
+#     created: the folder now comes pinned by ID from the owner.
 #   - Least privilege: the SA key is bounded by Drive folder-level ACLs
 #     (own empty root + exactly what is shared with it); OAuth scope is
 #     "drive" because drive.file cannot address folders shared WITH a
@@ -127,9 +141,10 @@ jobs:
           "$RUNNER_TEMP/rclone-bin/rclone" version | head -1
           echo "$RUNNER_TEMP/rclone-bin" >> "$GITHUB_PATH"
 
-      - name: Drive smoke test (auth → folder → upload → verify → delete)
+      - name: Drive smoke test (auth → folder probe → upload → verify → delete)
         env:
           SA_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
         run: |
           set -euo pipefail
           SA_FILE="$RUNNER_TEMP/gdrive-sa.json"
@@ -326,8 +341,8 @@ jobs:
           # ---- 1. Auth proof + quota context ----
           # about.get on a service account reports the SA's OWN pool: ZERO BY
           # DESIGN (SAs get no free 15GB — measured run 37168415521). The 12GB
-          # budget lives on the shared-folder OWNER's 15GB account and is
-          # enforced on the folder's byte total in section 3 below.
+          # budget lives on the folder OWNER's 15GB account and is enforced on
+          # the folder's byte total in section 3 below.
           ABOUT_PRE=""
           if ABOUT_PRE=$(rc about gdrive: --json); then
             echo "rclone about: OK"
@@ -335,21 +350,12 @@ jobs:
           import json, sys
           a = json.loads(sys.argv[1])
           gb = lambda b: (b or 0) / 1024**3
-          print("quota (SA own pool): total=%.2fGB · used=%.2fGB · free=%.2fGB · trash=%.2fGB — ZERO by design for a standalone SA; backup bytes live in the shared-folder owner's 15GB account" % (gb(a.get("total")), gb(a.get("used")), gb(a.get("free")), gb(a.get("trash"))))
+          print("quota (SA own pool): total=%.2fGB · used=%.2fGB · free=%.2fGB · trash=%.2fGB — ZERO by design for a standalone SA; backup bytes live in the folder owner's 15GB account" % (gb(a.get("total")), gb(a.get("used")), gb(a.get("free")), gb(a.get("trash"))))
           PYEOF
           else
             echo "::warning::rclone about is unavailable for this SA (scrubbed error above) — NOT fatal: auth is proven by the lsd call next; some service accounts cannot call about.get"
           fi
 
-          # ---- 2. Folder discovery: SHARED-WITH-ME ONLY ----
-          # Measured law (run 37168415521): a service account gets NO storage
-          # quota of its own — own-space uploads fail 403 "Service Accounts do
-          # not have storage quota". The only writable storage for a standalone
-          # SA is a folder the OWNER SHARED with it (the bytes then live in
-          # the owner's 15GB account — the plan's budget). Name matching is
-          # normalized (whitespace stripped, case-folded): "Alkemos Backups"
-          # (the owner's actual shared folder name, measured run 37168415521)
-          # and "AlkemosBackups" both resolve.
           # own-root lsd is THE auth proof — fatal on failure.
           if ! RAW_OWN=$(rc lsd gdrive:); then die "auth FAILED — rclone lsd (own root) errored"; fi
           echo "auth: OK (rclone lsd succeeded — the SA authenticates and can list its own root)"
@@ -361,68 +367,230 @@ jobs:
             echo "::warning::shared-with-me listing unavailable (scrubbed error above) — continuing"
           fi
           echo "SA own-root folders: [$(echo "$OWN_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
-          echo "folders shared WITH the SA: [$(echo "$SWM_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
+          echo "folders shared WITH the SA (diagnostic — discovery is by ID now): [$(echo "$SWM_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
 
-          norm() { printf '%s' "$1" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]'; }
-          REMOTE_NAME=""
-          while IFS= read -r d; do
-            [ -z "$d" ] && continue
-            if [ "$(norm "$d")" = "alkemosbackups" ]; then REMOTE_NAME="$d"; break; fi
-          done <<< "$SWM_DIRS"
-          if [ -z "$REMOTE_NAME" ]; then
-            echo "OWNER ACTION (~1 minute): in the owner's Google Drive, share the backup folder with the SA email (client_email inside the secret JSON) as Editor. The SA has no storage quota of its own — a folder shared WITH it is the only writable path (measured run 37168415521)."
-            die "no backup folder (normalized: alkemosbackups) is shared WITH the SA"
+          # ---- 2. Folder targeting: the GDRIVE_FOLDER_ID secret (owner order 2026-10-04) ----
+          # The owner added the folder ID as the GDRIVE_FOLDER_ID secret and
+          # renamed the folder "AlkemosBackups". ID pinning replaces the old
+          # normalized-name discovery (a rename like "Alkemos Backups" →
+          # "AlkemosBackups" can no longer break targeting) and — per the
+          # owner's order — the run measures whether pinning the parent ID
+          # changes Google's no-quota upload law. The files.get probe below
+          # also reads capabilities, so a viewer-only share is diagnosed
+          # BEFORE the upload instead of guessed.
+          if [ -z "${GDRIVE_FOLDER_ID:-}" ]; then
+            echo "::error::secret GDRIVE_FOLDER_ID is empty or missing — add it (the backup folder ID, or the folder URL — both accepted), then re-run"
+            exit 1
           fi
-          MODE="found-shared-with-me (owner-account folder — the only writable storage for a standalone SA)"
-          REMOTE="gdrive:${REMOTE_NAME}"
-          FLAGS=(--drive-shared-with-me)
-          echo "folder mode: $MODE → ${REMOTE} ${FLAGS[*]:-}"
+          export GDRIVE_FOLDER_ID
+          python3 << 'PYEOF'
+          import base64, json, os, re, subprocess, sys, time
+          import urllib.error, urllib.parse, urllib.request
 
-          FOLDER_JSON=$(rc lsjson "$REMOTE" "${FLAGS[@]}") || die "cannot list ${REMOTE} (folder not readable by the SA)"
-          ROOT_SWM_JSON=$(rc lsjson gdrive: --drive-shared-with-me) || true
-          FOLDER_ID=$(printf '%s' "$ROOT_SWM_JSON" | REMOTE_NAME="$REMOTE_NAME" python3 -c '
-          import json, os, sys
-          want = os.environ.get("REMOTE_NAME", "")
-          try:
-              for e in json.load(sys.stdin):
-                  if e.get("IsDir") and e.get("Name") == want:
-                      print(e["ID"]); break
-          except Exception:
-              pass
-          ' 2>/dev/null || true)
-          [ -n "$FOLDER_ID" ] && echo "folder ID: $FOLDER_ID (for GD-3 root_folder_id pinning — not a secret)"
+          sa_file = os.environ["SA_FILE"]
+          raw_secret = os.environ.get("GDRIVE_FOLDER_ID", "")
 
-          # run 37168415521 left an EMPTY own-root AlkemosBackups folder (created
-          # before the no-quota law was measured). rmdir removes EMPTY folders
-          # only — a safety property; failure is non-fatal clutter.
-          if echo "$OWN_DIRS" | grep -qx "AlkemosBackups"; then
-            if rc rmdir gdrive:AlkemosBackups; then
-              echo "cleanup: removed the empty own-root AlkemosBackups leftover (run 37168415521) — SA own space can hold zero bytes"
-            else
-              echo "::warning::own-root AlkemosBackups not empty/removable — left in place (harmless)"
-            fi
+          def die(msg, detail=""):
+              print(f"::error::{msg}")
+              if detail:
+                  print(str(detail)[:1200], file=sys.stderr)
+              sys.exit(1)
+
+          # normalize: accept a bare folder ID or a folder URL (any /folders/<id> form)
+          def normalize(v):
+              v = (v or "").strip().strip('"').strip("'").strip()
+              if "#" in v:
+                  v = v.split("#", 1)[0]
+              if "?" in v:
+                  v = v.split("?", 1)[0]
+              v = v.rstrip("/")
+              if "/" in v:
+                  v = v.rsplit("/", 1)[-1]
+              return v.strip()
+
+          fid = normalize(raw_secret)
+          if not re.fullmatch(r"[A-Za-z0-9_-]{16,}", fid):
+              die("secret GDRIVE_FOLDER_ID is not a usable folder ID — set it to the backup folder ID (~28-33 chars) or the folder URL (https://drive.google.com/drive/folders/<id>)",
+                  f"got {len(fid)} chars after normalization")
+
+          sa = json.load(open(sa_file))
+          key_file = os.path.join(os.path.dirname(sa_file), "gdrive-sa.key")
+          with open(key_file, "w") as fh:
+              fh.write(sa["private_key"])
+          os.chmod(key_file, 0o600)
+
+          def b64u(b):
+              return base64.urlsafe_b64encode(b).rstrip(b"=").decode("ascii")
+
+          def scrubbed(s):
+              for k in ("client_email", "project_id"):
+                  v = sa.get(k) or ""
+                  if v:
+                      s = s.replace(v, "[REDACTED-SA]")
+              return s
+
+          token_uri = sa.get("token_uri") or "https://oauth2.googleapis.com/token"
+
+          def access_token(scope):
+              now = int(time.time())
+              head = b64u(json.dumps({"alg": "RS256", "typ": "JWT"}, separators=(",", ":")).encode())
+              claims = b64u(json.dumps({
+                  "iss": sa["client_email"], "scope": scope, "aud": token_uri,
+                  "iat": now, "exp": now + 600,
+              }, separators=(",", ":")).encode())
+              sig = subprocess.run(["openssl", "dgst", "-sha256", "-sign", key_file],
+                                   input=(head + "." + claims).encode(),
+                                   capture_output=True, check=True).stdout
+              body = urllib.parse.urlencode({
+                  "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                  "assertion": head + "." + claims + "." + b64u(sig),
+              }).encode()
+              req = urllib.request.Request(token_uri, data=body, method="POST")
+              req.add_header("Content-Type", "application/x-www-form-urlencoded")
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  return json.loads(r.read())["access_token"]
+
+          def http_get(url, tok):
+              req = urllib.request.Request(url)
+              req.add_header("Authorization", "Bearer " + tok)
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      return r.status, json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  try:
+                      return e.code, json.loads(e.read())
+                  except Exception:
+                      return e.code, {}
+              except Exception as e:
+                  die("Drive API request failed (network)", scrubbed(repr(e)))
+
+          # local dry-run hook: preseeded files.get/drives.get responses so the
+          # normalization + mode decision + capabilities handling run offline.
+          # NEVER set on GitHub runners — production always mints a real token.
+          mock_path = os.environ.get("MOCK_DRIVE_META")
+          if mock_path:
+              mock = json.load(open(mock_path))
+              f_status = (mock.get("file") or {}).get("status", 0)
+              f_body = (mock.get("file") or {}).get("body", {})
+              d_status = (mock.get("drive") or {}).get("status", 0)
+              d_body = (mock.get("drive") or {}).get("body", {})
+          else:
+              tok = access_token("https://www.googleapis.com/auth/drive")
+              f_status, f_body = http_get(
+                  "https://www.googleapis.com/drive/v3/files/" + fid
+                  + "?supportsAllDrives=true&fields=id,name,mimeType,driveId,shared,"
+                  + "capabilities(canAddChildren,canEdit)", tok)
+              d_status, d_body = 0, {}
+              if f_status == 404:
+                  # maybe the ID IS a Workspace shared drive (its root folder
+                  # is not addressable as a file) — drives.get settles it
+                  d_status, d_body = http_get(
+                      "https://www.googleapis.com/drive/v3/drives/" + fid
+                      + "?fields=id,name", tok)
+
+          FOLDER_MIME = "application/vnd.google-apps.folder"
+          team = ""
+          name = ""
+          can_add = None
+          can_edit = None
+          shared_flag = None
+
+          if f_status == 200:
+              if f_body.get("mimeType") != FOLDER_MIME:
+                  die("GDRIVE_FOLDER_ID points to a non-folder (mimeType=%s) — set it to the BACKUP FOLDER ID" % (f_body.get("mimeType") or "unknown"))
+              caps = f_body.get("capabilities") or {}
+              can_add = caps.get("canAddChildren")
+              can_edit = caps.get("canEdit")
+              shared_flag = f_body.get("shared")
+              name = f_body.get("name") or "(unnamed)"
+              did = f_body.get("driveId") or ""
+              if did and did == fid:
+                  mode, team = "shared-drive-root", fid
+              elif did:
+                  mode, team = "shared-drive-folder", did
+              else:
+                  mode = "my-drive-folder"
+          elif f_status == 404 and d_status == 200:
+              mode, team = "shared-drive-root", fid
+              name = d_body.get("name") or "(unnamed)"
+          else:
+              die("folder ID not found / not accessible to the SA (files.get HTTP %s, drives.get HTTP %s) — either the ID is wrong, or the folder is not shared with the SA email (client_email inside the GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON secret). Share the folder with the SA as Editor, then re-run" % (f_status, d_status),
+                  scrubbed(json.dumps({"files.get": f_status, "drives.get": d_status})))
+
+          MODE_LABEL = {
+              "my-drive-folder": "regular Drive folder (shared with the SA)",
+              "shared-drive-folder": "folder inside a Workspace shared drive",
+              "shared-drive-root": "Workspace shared drive root",
+          }[mode]
+          print("folder probe (Drive files.get — the SA view; the folder NAME is owner-chosen, not sensitive):")
+          print("  name: %s" % name)
+          print("  mode: %s — %s" % (mode, MODE_LABEL))
+          if can_add is not None:
+              print("  capabilities (SA view): canAddChildren=%s · canEdit=%s · shared=%s" % (can_add, can_edit, shared_flag))
+              if can_add is False:
+                  die("the folder is shared with the SA WITHOUT create permission (canAddChildren=false — Viewer/Commenter share). Re-share the folder with the SA email as EDITOR, then re-run. This is a share-role problem — NOT the storage-quota law")
+          else:
+              print("  capabilities: not probed at the drive level (drives.get path) — the rclone round-trip below is the writability proof")
+
+          env_path = os.path.join(os.path.dirname(sa_file), "folder.env")
+          with open(env_path, "w") as fh:
+              fh.write("FOLDER_MODE='%s'\n" % mode)
+              fh.write("FOLDER_ID='%s'\n" % fid)
+              fh.write("TEAM_DRIVE='%s'\n" % team)
+          PYEOF
+
+          # the probe validated FOLDER_ID/TEAM_DRIVE to the Drive-ID charset,
+          # so sourcing is injection-safe; the folder NAME never enters bash.
+          # shellcheck source=/dev/null
+          . "$RUNNER_TEMP/folder.env"
+          case "$FOLDER_MODE" in
+            my-drive-folder)
+              FLAGS=(--drive-root-folder-id "$FOLDER_ID")
+              MODE_DESC="regular Drive folder (shared with the SA) — pinned by ID from GDRIVE_FOLDER_ID"
+              ;;
+            shared-drive-folder)
+              FLAGS=(--drive-root-folder-id "$FOLDER_ID" --drive-team-drive "$TEAM_DRIVE")
+              MODE_DESC="folder inside a Workspace shared drive — team_drive+root pinned from GDRIVE_FOLDER_ID (SAs CAN own files here)"
+              ;;
+            shared-drive-root)
+              FLAGS=(--drive-team-drive "$FOLDER_ID")
+              MODE_DESC="Workspace shared drive root — team_drive pinned from GDRIVE_FOLDER_ID (SAs CAN own files here)"
+              ;;
+            *)
+              die "unknown folder mode '$FOLDER_MODE' from the probe"
+              ;;
+          esac
+          REMOTE="gdrive:"
+          echo "folder mode: $MODE_DESC"
+          echo "folder ID: ${FOLDER_ID:0:4}…${FOLDER_ID: -4} (masked — the full ID is a secret value; sharing + capabilities were printed by the probe above)"
+          if ! FOLDER_PROBE_JSON=$(rc lsjson "$REMOTE" "${FLAGS[@]}"); then
+            die "folder not readable via rclone with the pinned ID — the Drive probe saw it but rclone cannot list it (check the share role and the ID)"
           fi
+          N_ENTRIES=$(printf '%s' "$FOLDER_PROBE_JSON" | python3 -c 'import json,sys;print(len(json.load(sys.stdin)))' 2>/dev/null || echo "?")
+          echo "folder readable via rclone (pinned ID): OK · entries currently in the folder: ${N_ENTRIES}"
 
           # ---- 3. Writability round-trip: upload → read-back → delete → gone ----
           # The upload is the platform-law checkpoint: consumer Drive charges
           # storage to the file OWNER; an SA owns what it creates but has zero
           # quota → files.create fails 403 storageQuotaExceeded (measured runs
-          # 37168415521 + 37168880937 — the Editor ACL is NOT the problem; a
-          # viewer share would fail with a permissions error instead).
+          # 37168415521 + 37168880937 + #10/#11 — the Editor ACL is NOT the
+          # problem; a viewer share would fail with a permissions error, and
+          # the probe above already ruled that out via canAddChildren).
           TS=$(date -u +%Y%m%dT%H%M%SZ)
           TEST_NAME="gd1-smoke-${TS}.txt"
           CONTENT="alkemos-gd1-drive-smoke ${TS} run=${GITHUB_RUN_ID:-local}"
           printf '%s' "$CONTENT" > "$RUNNER_TEMP/$TEST_NAME"
           if ! rc copyto "$RUNNER_TEMP/$TEST_NAME" "$REMOTE/$TEST_NAME" "${FLAGS[@]}"; then
             if grep -q "storageQuotaExceeded" "$RC_ERR" 2>/dev/null; then
-              echo '::error::UPLOAD blocked by the measured Google platform law: a standalone Service Account cannot OWN files on a consumer Drive (zero storage quota — runs 37168415521 + 37168880937). The Editor share on the backup folder is fine; the created byte would be charged to the SA as file owner.'
+              echo '::error::UPLOAD blocked by the measured Google platform law: a standalone Service Account cannot OWN files on a consumer Drive (zero storage quota — runs 37168415521 + 37168880937 + #10/#11). The folder share is fine (canAddChildren=true was confirmed by the probe).'
+              echo 'OWNER NOTE (folder-ID theory, 2026-10-04): folder-ID pinning WAS applied this run — the target came from the GDRIVE_FOLDER_ID secret and the folder probe proved it writable. The 403 is not about WHICH folder is targeted: Google charges every created file to its CREATOR (the SA), and pinning the parent — by name or by ID — cannot change the file owner. The only SA-writable Drive storage is a Workspace shared drive.'
               echo 'OWNER DECISION required — pick one and order the follow-up:'
               echo '  (1) OAuth user-account token (plan §3.1 option a): $0, refresh-token secret, rclone token config, publish the OAuth consent screen to production to avoid the 7-day testing expiry — GD-1-ALT sketch is in the plan.'
-              echo '  (2) Google Workspace shared drive: SAs can write as members, but it is a paid tier.'
+              echo '  (2) Google Workspace shared drive: SAs can write as members, but it is a paid tier (this workflow already auto-detects and supports it — put a shared drive folder ID in GDRIVE_FOLDER_ID and re-run).'
               echo '  (3) Cloudflare R2 off-site (plan §3.6 conditional path): free 10GB, needs a billing card.'
               exit 1
             fi
-            die "UPLOAD failed — a permissions problem, not the quota law: check the share role on ${REMOTE} (Editor needed) — scrubbed rclone error, if any, printed above"
+            die "UPLOAD failed — a permissions problem, not the quota law: check the share role on the folder (Editor needed) and the pinned ID — scrubbed rclone error, if any, printed above"
           fi
           echo "upload: OK ($TEST_NAME, ${#CONTENT} bytes)"
           BACK=$(rc cat "$REMOTE/$TEST_NAME" "${FLAGS[@]}") || die "read-back failed"
@@ -459,7 +627,7 @@ jobs:
           import json, sys
           pre, post = json.loads(sys.argv[1]), json.loads(sys.argv[2])
           d = (post.get("used") or 0) - (pre.get("used") or 0)
-          print("quota AFTER (SA own pool): used-delta=%+.6fGB — ~0 expected: the test byte is not charged to the SA (no-quota law, run 37168415521); it lives in the shared-folder owner's account" % (d / 1024**3))
+          print("quota AFTER (SA own pool): used-delta=%+.6fGB — ~0 expected: the test byte is not charged to the SA (no-quota law, run 37168415521); it lives in the folder owner's account" % (d / 1024**3))
           PYEOF
           fi
 
@@ -472,13 +640,13 @@ jobs:
               echo "|---|---|"
               echo "| SA JSON structure (secret never printed) | valid service_account |"
               echo "| Auth via rclone (SA key) | OK |"
-              echo "| Backup folder (shared with the SA) | $MODE · $REMOTE_NAME · writable |"
+              echo "| Backup folder (via secret GDRIVE_FOLDER_ID) | $MODE_DESC |"
               echo "| Upload <100-byte test file | OK ($TEST_NAME) |"
               echo "| Read-back + listing verification | OK (byte-identical) |"
               echo "| Test file deleted + verified gone | OK |"
               echo "| Quota budget | 12 GB guard vs folder-owner 15 GB account (plan §3.5, owner order 2026-10-04 — enforced on folder size; the SA own pool is zero by design) |"
               echo ""
-              echo "_No backups were touched, no workflow/data changed outside this test file's lifetime. GD-2/GD-3 remain owner-gated._"
+              echo "_Folder-ID pinning per owner order 2026-10-04 (GDRIVE_FOLDER_ID + folder renamed AlkemosBackups). No backups were touched, no workflow/data changed outside this test file's lifetime. GD-2/GD-3 remain owner-gated._"
             } >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "SMOKE TEST: ALL GREEN"
@@ -486,6 +654,6 @@ jobs:
       - name: Cleanup temp files (credentials, config, test file, install artifacts)
         if: always()
         run: |
-          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/gdrive-sa.key" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}/rc.err" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
+          rm -f "${RUNNER_TEMP:-/tmp}/gdrive-sa.json" "${RUNNER_TEMP:-/tmp}/gdrive-sa.key" "${RUNNER_TEMP:-/tmp}/scrub.txt" "${RUNNER_TEMP:-/tmp}/rclone.conf" "${RUNNER_TEMP:-/tmp}/rc.err" "${RUNNER_TEMP:-/tmp}/folder.env" "${RUNNER_TEMP:-/tmp}"/gd1-smoke-*.txt "${RUNNER_TEMP:-/tmp}"/rclone-v1.*-linux-amd64.zip || true
           rm -rf "${RUNNER_TEMP:-/tmp}/rclone-v1."*-linux-amd64 "${RUNNER_TEMP:-/tmp}/rclone-bin" || true
           echo "temp credential + test + install files removed (runner is ephemeral anyway)"
