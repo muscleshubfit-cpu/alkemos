@@ -13,9 +13,12 @@
 #   (b) the backup folder the OWNER SHARED WITH the SA is located by
 #       normalized name match ("AlkemosBackups" == "Alkemos Backups" —
 #       the owner's shared folder carries a space; measured run
-#       37168415521) and is WRITABLE by the SA,
+#       37168415521) and is shared with the SA (Editor),
 #   (c) a <100-byte test file round-trips: upload → read-back verify →
-#       delete → confirmed gone,
+#       delete → confirmed gone — or the upload failure is DIAGNOSED:
+#       Google's no-quota law for SA-owned files (measured runs
+#       37168415521 + 37168880937) is reported with the owner decision
+#       menu instead of a generic "shared as viewer?" guess,
 #   (d) the folder-size measurement vs the 12 GB noisy guard (plan §3.5,
 #       updated 2026-10-04). A service account has NO storage quota of
 #       its own (about.get returns zeros by design; own-space uploads
@@ -57,6 +60,15 @@
 #     default): the job then prints the exact owner action and WAITS
 #     ~12 minutes, auto-continuing the moment the owner clicks Enable —
 #     failing honestly (with the guide) only after the window expires.
+#   - Runs 37168415521 + 37168880937 measured the platform law that gates
+#     GD-1: a standalone Service Account can never OWN files on a consumer
+#     Google Drive — zero storage quota, files.create → 403
+#     storageQuotaExceeded even inside a folder shared with the SA as
+#     Editor (the share itself is fine; the byte would be charged to the
+#     SA as the file owner, and the SA has no pool). Writable storage for
+#     an SA exists only on Workspace shared drives. The upload step
+#     therefore greps that exact error and prints the owner decision
+#     menu (OAuth user token / Workspace shared drive / R2 §3.6).
 #   - No checkout, no package manager, no script-piped installs: one
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
@@ -392,11 +404,26 @@ jobs:
           fi
 
           # ---- 3. Writability round-trip: upload → read-back → delete → gone ----
+          # The upload is the platform-law checkpoint: consumer Drive charges
+          # storage to the file OWNER; an SA owns what it creates but has zero
+          # quota → files.create fails 403 storageQuotaExceeded (measured runs
+          # 37168415521 + 37168880937 — the Editor ACL is NOT the problem; a
+          # viewer share would fail with a permissions error instead).
           TS=$(date -u +%Y%m%dT%H%M%SZ)
           TEST_NAME="gd1-smoke-${TS}.txt"
           CONTENT="alkemos-gd1-drive-smoke ${TS} run=${GITHUB_RUN_ID:-local}"
           printf '%s' "$CONTENT" > "$RUNNER_TEMP/$TEST_NAME"
-          rc copyto "$RUNNER_TEMP/$TEST_NAME" "$REMOTE/$TEST_NAME" "${FLAGS[@]}" || die "UPLOAD failed — the SA cannot write to $REMOTE (shared as viewer?)"
+          if ! rc copyto "$RUNNER_TEMP/$TEST_NAME" "$REMOTE/$TEST_NAME" "${FLAGS[@]}"; then
+            if grep -q "storageQuotaExceeded" "$RC_ERR" 2>/dev/null; then
+              echo '::error::UPLOAD blocked by the measured Google platform law: a standalone Service Account cannot OWN files on a consumer Drive (zero storage quota — runs 37168415521 + 37168880937). The Editor share on the backup folder is fine; the created byte would be charged to the SA as file owner.'
+              echo 'OWNER DECISION required — pick one and order the follow-up:'
+              echo '  (1) OAuth user-account token (plan §3.1 option a): $0, refresh-token secret, rclone token config, publish the OAuth consent screen to production to avoid the 7-day testing expiry — GD-1-ALT sketch is in the plan.'
+              echo '  (2) Google Workspace shared drive: SAs can write as members, but it is a paid tier.'
+              echo '  (3) Cloudflare R2 off-site (plan §3.6 conditional path): free 10GB, needs a billing card.'
+              exit 1
+            fi
+            die "UPLOAD failed — a permissions problem, not the quota law: check the share role on ${REMOTE} (Editor needed) — scrubbed rclone error, if any, printed above"
+          fi
           echo "upload: OK ($TEST_NAME, ${#CONTENT} bytes)"
           BACK=$(rc cat "$REMOTE/$TEST_NAME" "${FLAGS[@]}") || die "read-back failed"
           [ "$BACK" = "$CONTENT" ] || die "read-back MISMATCH (content corrupted in transit)"
