@@ -29,6 +29,7 @@
 | `PEXELS_API_KEY` | prod+preview+dev + Actions | لوحة Pexels (pexels.com/api) | المصدر الأول لصور المدونة |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | prod+preview + Actions | لوحة Upstash (console.upstash.com ▸ REST API) | حد المعدل الموزع — اختياري مع سقوط آمن |
 | `VERCEL_TOKEN` | Actions فقط | لوحة Vercel (Settings ▸ Tokens) | يخدم vercel-cleanup وأي أتمتة إعادة بذر |
+| `GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON` | Actions فقط | Google Cloud Console (IAM & Admin ▸ Service Accounts ▸ حساب النسخ الاحتياطي ▸ Keys ▸ Add key ▸ JSON — على المشروع المفعّل به Google Drive API) | وجهة Google Drive الاحتياطية (قرار GD-0 في docs/BACKUP-STRATEGY-2026-10-03.md) — القيمة = ملف SA الكامل؛ لا يُطبع أي حقل منه في أي سجل أبدًا (نمط gsc-connection-test) |
 
 ### 2.2 الفئة ب — تُجلب يدويًا من لوحات المزودين (لا نسخة خارج Vercel)
 
