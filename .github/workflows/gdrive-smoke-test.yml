@@ -10,14 +10,18 @@
 #   (a) the SA authenticates to Google Drive (rclone lsd — a real
 #       authenticated Drive call; rclone about is reported when supported
 #       but never required: some service accounts cannot call about.get),
-#   (b) the backup folder AlkemosBackups is located (shared-with-me first,
-#       then own root, created only if absent) and is WRITABLE by the SA,
+#   (b) the backup folder the OWNER SHARED WITH the SA is located by
+#       normalized name match ("AlkemosBackups" == "Alkemos Backups" —
+#       the owner's shared folder carries a space; measured run
+#       37168415521) and is WRITABLE by the SA,
 #   (c) a <100-byte test file round-trips: upload → read-back verify →
 #       delete → confirmed gone,
-#   (d) the live quota numbers (when about is available) and the
-#       folder-size measurement primitive — the measured basis for the
-#       12 GB noisy guard (plan §3.5, updated 2026-10-04) against the
-#       15 GB account limit.
+#   (d) the folder-size measurement vs the 12 GB noisy guard (plan §3.5,
+#       updated 2026-10-04). A service account has NO storage quota of
+#       its own (about.get returns zeros by design; own-space uploads
+#       fail 403 storageQuotaExceeded — measured run 37168415521), so
+#       backup bytes live in the shared-folder OWNER's 15 GB account and
+#       the guard is enforced on the folder's byte total.
 #
 # rclone is NOT preinstalled on GitHub ubuntu runners (measured 2026-10-04,
 # run 37162424863) — step 1 installs a PINNED release from the official
@@ -57,10 +61,13 @@
 #     pinned zip + sha256sum -c - (install discipline A-12 adapted:
 #     a checksum-gated pinned artifact instead of apt/npm/curl|bash).
 #   - Touches no application code, DB, other workflow, production, DNS,
-#     Vercel or Supabase. The ONLY Drive mutations are: creating the
-#     AlkemosBackups folder IF (and only if) it exists nowhere the SA can
-#     see, and the lifetime of one test file deleted (and verified gone)
-#     before the job may succeed.
+#     Vercel or Supabase. The ONLY Drive mutations are: the lifetime of
+#     one test file inside the owner-shared folder (deleted and verified
+#     gone before the job may succeed) and the removal of the EMPTY
+#     own-root AlkemosBackups leftover from run 37168415521 (rmdir
+#     removes empty folders only — a safety property; failure is
+#     non-fatal). No folder is created anymore: the SA's own space can
+#     hold zero bytes (the no-quota law above).
 #   - Least privilege: the SA key is bounded by Drive folder-level ACLs
 #     (own empty root + exactly what is shared with it); OAuth scope is
 #     "drive" because drive.file cannot address folders shared WITH a
@@ -304,7 +311,11 @@ jobs:
           print("::warning::Drive API still not answering after 3 minutes — continuing anyway (rclone will re-verify; if it reports SERVICE_DISABLED, wait a few minutes and re-run)")
           PYEOF
 
-          # ---- 1. Auth proof + live quota when available ----
+          # ---- 1. Auth proof + quota context ----
+          # about.get on a service account reports the SA's OWN pool: ZERO BY
+          # DESIGN (SAs get no free 15GB — measured run 37168415521). The 12GB
+          # budget lives on the shared-folder OWNER's 15GB account and is
+          # enforced on the folder's byte total in section 3 below.
           ABOUT_PRE=""
           if ABOUT_PRE=$(rc about gdrive: --json); then
             echo "rclone about: OK"
@@ -312,18 +323,21 @@ jobs:
           import json, sys
           a = json.loads(sys.argv[1])
           gb = lambda b: (b or 0) / 1024**3
-          print(f"quota BEFORE: total={gb(a.get('total')):.2f}GB · used={gb(a.get('used')):.2f}GB · free={gb(a.get('free')):.2f}GB · trash={gb(a.get('trash')):.2f}GB")
-          free_gb = gb(a.get("free"))
-          if free_gb < 12:
-              print(f"::warning::free quota {free_gb:.2f}GB is BELOW the 12GB backup budget (plan §3.5 guard) — measured and reported, not a smoke failure")
-          else:
-              print(f"free quota {free_gb:.2f}GB ≥ 12GB backup budget (plan §3.5 guard): OK")
+          print("quota (SA own pool): total=%.2fGB · used=%.2fGB · free=%.2fGB · trash=%.2fGB — ZERO by design for a standalone SA; backup bytes live in the shared-folder owner's 15GB account" % (gb(a.get("total")), gb(a.get("used")), gb(a.get("free")), gb(a.get("trash"))))
           PYEOF
           else
             echo "::warning::rclone about is unavailable for this SA (scrubbed error above) — NOT fatal: auth is proven by the lsd call next; some service accounts cannot call about.get"
           fi
 
-          # ---- 2. Folder discovery: shared-with-me first, own root second, create last ----
+          # ---- 2. Folder discovery: SHARED-WITH-ME ONLY ----
+          # Measured law (run 37168415521): a service account gets NO storage
+          # quota of its own — own-space uploads fail 403 "Service Accounts do
+          # not have storage quota". The only writable storage for a standalone
+          # SA is a folder the OWNER SHARED with it (the bytes then live in
+          # the owner's 15GB account — the plan's budget). Name matching is
+          # normalized (whitespace stripped, case-folded): "Alkemos Backups"
+          # (the owner's actual shared folder name, measured run 37168415521)
+          # and "AlkemosBackups" both resolve.
           # own-root lsd is THE auth proof — fatal on failure.
           if ! RAW_OWN=$(rc lsd gdrive:); then die "auth FAILED — rclone lsd (own root) errored"; fi
           echo "auth: OK (rclone lsd succeeded — the SA authenticates and can list its own root)"
@@ -332,26 +346,50 @@ jobs:
           if RAW_SWM=$(rc lsd gdrive: --drive-shared-with-me); then
             SWM_DIRS=$(printf '%s\n' "$RAW_SWM" | awk '{$1=$2=$3=$4=""; sub(/^ +/,""); print}' | grep -v '^$' || true)
           else
-            echo "::warning::shared-with-me listing unavailable (scrubbed error above) — continuing with own-root discovery only"
+            echo "::warning::shared-with-me listing unavailable (scrubbed error above) — continuing"
           fi
           echo "SA own-root folders: [$(echo "$OWN_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
           echo "folders shared WITH the SA: [$(echo "$SWM_DIRS" | tr '\n' ' ' | sed 's/  */ /g')]"
 
-          MODE=""; FLAGS=()
-          if echo "$SWM_DIRS" | grep -qx "AlkemosBackups"; then
-            MODE="found-shared-with-me (owner account folder — preferred)"; REMOTE="gdrive:AlkemosBackups"; FLAGS=(--drive-shared-with-me)
-          elif echo "$OWN_DIRS" | grep -qx "AlkemosBackups"; then
-            MODE="found-own-root"; REMOTE="gdrive:AlkemosBackups"
-          else
-            echo "AlkemosBackups not found in either view — creating it in the SA's own space (GD-1 plan step)"
-            rc mkdir gdrive:AlkemosBackups || die "folder creation failed (no write access even to the SA's own root)"
-            MODE="created-own-root"; REMOTE="gdrive:AlkemosBackups"
+          norm() { printf '%s' "$1" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]'; }
+          REMOTE_NAME=""
+          while IFS= read -r d; do
+            [ -z "$d" ] && continue
+            if [ "$(norm "$d")" = "alkemosbackups" ]; then REMOTE_NAME="$d"; break; fi
+          done <<< "$SWM_DIRS"
+          if [ -z "$REMOTE_NAME" ]; then
+            echo "OWNER ACTION (~1 minute): in the owner's Google Drive, share the backup folder with the SA email (client_email inside the secret JSON) as Editor. The SA has no storage quota of its own — a folder shared WITH it is the only writable path (measured run 37168415521)."
+            die "no backup folder (normalized: alkemosbackups) is shared WITH the SA"
           fi
-          echo "folder mode: $MODE → $REMOTE ${FLAGS[*]:-}"
+          MODE="found-shared-with-me (owner-account folder — the only writable storage for a standalone SA)"
+          REMOTE="gdrive:${REMOTE_NAME}"
+          FLAGS=(--drive-shared-with-me)
+          echo "folder mode: $MODE → ${REMOTE} ${FLAGS[*]:-}"
 
-          FOLDER_JSON=$(rc lsjson "$REMOTE" "${FLAGS[@]}") || die "cannot list $REMOTE (folder not readable by the SA)"
-          FOLDER_ID=$(printf '%s' "$FOLDER_JSON" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next((e["ID"] for e in d if e["IsDir"] and e["Name"]=="AlkemosBackups"), next((e["ParentID"] for e in d if not e["IsDir"]), "")))' 2>/dev/null || true)
+          FOLDER_JSON=$(rc lsjson "$REMOTE" "${FLAGS[@]}") || die "cannot list ${REMOTE} (folder not readable by the SA)"
+          ROOT_SWM_JSON=$(rc lsjson gdrive: --drive-shared-with-me) || true
+          FOLDER_ID=$(printf '%s' "$ROOT_SWM_JSON" | REMOTE_NAME="$REMOTE_NAME" python3 -c '
+          import json, os, sys
+          want = os.environ.get("REMOTE_NAME", "")
+          try:
+              for e in json.load(sys.stdin):
+                  if e.get("IsDir") and e.get("Name") == want:
+                      print(e["ID"]); break
+          except Exception:
+              pass
+          ' 2>/dev/null || true)
           [ -n "$FOLDER_ID" ] && echo "folder ID: $FOLDER_ID (for GD-3 root_folder_id pinning — not a secret)"
+
+          # run 37168415521 left an EMPTY own-root AlkemosBackups folder (created
+          # before the no-quota law was measured). rmdir removes EMPTY folders
+          # only — a safety property; failure is non-fatal clutter.
+          if echo "$OWN_DIRS" | grep -qx "AlkemosBackups"; then
+            if rc rmdir gdrive:AlkemosBackups; then
+              echo "cleanup: removed the empty own-root AlkemosBackups leftover (run 37168415521) — SA own space can hold zero bytes"
+            else
+              echo "::warning::own-root AlkemosBackups not empty/removable — left in place (harmless)"
+            fi
+          fi
 
           # ---- 3. Writability round-trip: upload → read-back → delete → gone ----
           TS=$(date -u +%Y%m%dT%H%M%SZ)
@@ -366,8 +404,22 @@ jobs:
           rc lsf "$REMOTE" "${FLAGS[@]}" | grep -qx "$TEST_NAME" || die "uploaded file not visible in listing"
           echo "listing check: OK"
 
-          # folder-size measurement primitive (the GD-3 12GB guard mechanism)
-          rc size "$REMOTE" "${FLAGS[@]}" | sed 's/^/folder-size: /' || die "folder-size measurement failed (the GD-3 guard primitive)"
+          # folder-size = the GD-3 12GB guard metric (the SA's about pool is
+          # zero by design — the budget lives on the folder owner's 15GB
+          # account, so the guard is enforced on the folder's byte total)
+          SIZE_JSON=$(rc size "$REMOTE" "${FLAGS[@]}" --json) || die "folder-size measurement failed (the GD-3 guard primitive)"
+          printf '%s' "$SIZE_JSON" | python3 -c '
+          import json, sys
+          s = json.loads(sys.stdin.read())
+          b = int(s.get("bytes") or 0)
+          n = int(s.get("count") or 0)
+          gb = b / 1024**3
+          print("folder-size: %d objects · %.4fGB total" % (n, gb))
+          if b > 12 * 1024**3:
+              print("::error::backup folder %.2fGB EXCEEDS the 12GB budget (plan §3.5 guard) — rotate before the next backup run" % gb)
+              sys.exit(1)
+          print("12GB budget check: OK (folder within budget)")
+          '
 
           rc deletefile "$REMOTE/$TEST_NAME" "${FLAGS[@]}" || die "DELETE failed — test file left behind, remove manually"
           if rc lsf "$REMOTE" "${FLAGS[@]}" | grep -qx "$TEST_NAME"; then
@@ -380,7 +432,7 @@ jobs:
           import json, sys
           pre, post = json.loads(sys.argv[1]), json.loads(sys.argv[2])
           d = (post.get("used") or 0) - (pre.get("used") or 0)
-          print(f"quota AFTER : used-delta={d/1024**3:+.6f}GB (whose quota the SA writes count against — measured evidence for plan §3.5)")
+          print("quota AFTER (SA own pool): used-delta=%+.6fGB — ~0 expected: the test byte is not charged to the SA (no-quota law, run 37168415521); it lives in the shared-folder owner's account" % (d / 1024**3))
           PYEOF
           fi
 
@@ -393,11 +445,11 @@ jobs:
               echo "|---|---|"
               echo "| SA JSON structure (secret never printed) | valid service_account |"
               echo "| Auth via rclone (SA key) | OK |"
-              echo "| Backup folder AlkemosBackups | $MODE · writable |"
+              echo "| Backup folder (shared with the SA) | $MODE · $REMOTE_NAME · writable |"
               echo "| Upload <100-byte test file | OK ($TEST_NAME) |"
               echo "| Read-back + listing verification | OK (byte-identical) |"
               echo "| Test file deleted + verified gone | OK |"
-              echo "| Quota budget | guard = 12 GB vs account limit 15 GB (plan §3.5, owner order 2026-10-04) |"
+              echo "| Quota budget | 12 GB guard vs folder-owner 15 GB account (plan §3.5, owner order 2026-10-04 — enforced on folder size; the SA own pool is zero by design) |"
               echo ""
               echo "_No backups were touched, no workflow/data changed outside this test file's lifetime. GD-2/GD-3 remain owner-gated._"
             } >> "$GITHUB_STEP_SUMMARY"
